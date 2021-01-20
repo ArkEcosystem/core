@@ -1,9 +1,9 @@
 import "jest-extended";
 
 import { Application, Container, Contracts, Services } from "@arkecosystem/core-kernel";
+import { AnySchema } from "@hapi/joi";
 import { ServiceProvider } from "@packages/core-transaction-pool/src";
 import { fork } from "child_process";
-import { AnySchema } from "@hapi/joi";
 
 jest.mock("child_process");
 
@@ -218,6 +218,224 @@ describe("ServiceProvider", () => {
 
                 expect(result.error).toBeDefined();
                 expect(result.error!.message).toEqual('"maxTransactionsPerRequest" must be a number');
+            });
+        });
+
+        describe("schema restrictions", () => {
+            let defaults;
+
+            beforeEach(async () => {
+                jest.resetModules();
+                defaults = (await import("@packages/core-transaction-pool/src/defaults")).defaults;
+            });
+
+            it("enabled is required", async () => {
+                delete defaults.enabled;
+                const result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"enabled" is required');
+            });
+
+            it("storage is required", async () => {
+                delete defaults.storage;
+                const result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"storage" is required');
+            });
+
+            it("maxTransactionsInPool is required && greater or equal 1", async () => {
+                delete defaults.maxTransactionsInPool;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"maxTransactionsInPool" is required');
+
+                defaults.maxTransactionsInPool = 0;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"maxTransactionsInPool" must be larger than or equal to 1');
+            });
+
+            it("maxTransactionsPerSender is required && greater or equal 1", async () => {
+                delete defaults.maxTransactionsPerSender;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"maxTransactionsPerSender" is required');
+
+                defaults.maxTransactionsPerSender = 0;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"maxTransactionsPerSender" must be larger than or equal to 1');
+            });
+
+            it("allowedSenders is required && must contain strings", async () => {
+                delete defaults.allowedSenders;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"allowedSenders" is required');
+
+                defaults.allowedSenders = [1, 2];
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"allowedSenders[0]" must be a string');
+            });
+
+            it("maxTransactionsPerRequest is required && greater or equal 1", async () => {
+                delete defaults.maxTransactionsPerRequest;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"maxTransactionsPerRequest" is required');
+
+                defaults.maxTransactionsPerRequest = 0;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"maxTransactionsPerRequest" must be larger than or equal to 1');
+            });
+
+            it("maxTransactionAge is required && greater or equal 1", async () => {
+                delete defaults.maxTransactionAge;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"maxTransactionAge" is required');
+
+                defaults.maxTransactionAge = 0;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"maxTransactionAge" must be larger than or equal to 1');
+            });
+
+            it("maxTransactionBytes is required && greater or equal 1", async () => {
+                delete defaults.maxTransactionBytes;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"maxTransactionBytes" is required');
+
+                defaults.maxTransactionBytes = 0;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"maxTransactionBytes" must be larger than or equal to 1');
+            });
+
+            it("dynamicFees is required", async () => {
+                delete defaults.dynamicFees;
+                const result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"dynamicFees" is required');
+            });
+
+            it("dynamicFees.enabled is required", async () => {
+                delete defaults.dynamicFees.enabled;
+                const result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"dynamicFees.enabled" is required');
+            });
+
+            it("dynamicFees.minFeePool is required when enabled = true && must be larger or equal 0", async () => {
+                defaults.dynamicFees.minFeePool = -1;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"dynamicFees.minFeePool" must be larger than or equal to 0');
+
+                delete defaults.dynamicFees.minFeePool;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"dynamicFees.minFeePool" is required');
+
+                defaults.dynamicFees.enabled = false;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error).toBeUndefined();
+            });
+
+            it("dynamicFees.minFeeBroadcast is required when enabled = true && must be larger or equal 0", async () => {
+                defaults.dynamicFees.minFeeBroadcast = -1;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual(
+                    '"dynamicFees.minFeeBroadcast" must be larger than or equal to 0',
+                );
+
+                delete defaults.dynamicFees.minFeeBroadcast;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"dynamicFees.minFeeBroadcast" is required');
+
+                defaults.dynamicFees.enabled = false;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error).toBeUndefined();
+            });
+
+            it("dynamicFees.addonBytes is required when enabled = true", async () => {
+                delete defaults.dynamicFees.addonBytes;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"dynamicFees.addonBytes" is required');
+
+                defaults.dynamicFees.enabled = false;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error).toBeUndefined();
+            });
+
+            it("dynamicFees.addonBytes[transaction_name] should be larger or equal 0 when present", async () => {
+                defaults.dynamicFees.addonBytes.test = -1;
+                const result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual(
+                    '"dynamicFees.addonBytes.test" must be larger than or equal to 0',
+                );
+            });
+
+            it("workerPool is required", async () => {
+                delete defaults.workerPool;
+                const result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"workerPool" is required');
+            });
+
+            it("workerPool.workerCount is required && must be larger or equal 0", async () => {
+                defaults.workerPool.workerCount = 0;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"workerPool.workerCount" must be larger than or equal to 1');
+
+                delete defaults.workerPool.workerCount;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"workerPool.workerCount" is required');
+            });
+
+            it("workerPool.cryptoPackages is required", async () => {
+                delete defaults.workerPool.cryptoPackages;
+                const result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"workerPool.cryptoPackages" is required');
+            });
+
+            it("workerPool.cryptoPackages[x].typeGroup is required && must be larger or equal 2", async () => {
+                defaults.workerPool.cryptoPackages[0].typeGroup = 0;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual(
+                    '"workerPool.cryptoPackages[0].typeGroup" must be larger than or equal to 2',
+                );
+
+                delete defaults.workerPool.cryptoPackages[0].typeGroup;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"workerPool.cryptoPackages[0].typeGroup" is required');
+            });
+
+            it("workerPool.cryptoPackages[x].packageName is required && must be string", async () => {
+                defaults.workerPool.cryptoPackages[0].packageName = 0;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"workerPool.cryptoPackages[0].packageName" must be a string');
+
+                delete defaults.workerPool.cryptoPackages[0].packageName;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"workerPool.cryptoPackages[0].packageName" is required');
             });
         });
     });
