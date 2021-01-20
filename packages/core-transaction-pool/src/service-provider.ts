@@ -71,7 +71,14 @@ export class ServiceProvider extends Providers.ServiceProvider {
             allowedSenders: Joi.array().items(Joi.string()).required(),
             maxTransactionsPerRequest: Joi.number().min(1).required(),
             maxTransactionAge: Joi.number().min(1).required(),
-            dynamicFees: Joi.object({}).required(),
+            dynamicFees: Joi.object({
+                enabled: Joi.bool().required(),
+                minFeePool: Joi.number().min(0).when("enabled", { is: true, then: Joi.required() }),
+                minFeeBroadcast: Joi.number().min(0).when("enabled", { is: true, then: Joi.required() }),
+                addonBytes: Joi.object()
+                    .when("enabled", { is: true, then: Joi.required() })
+                    .pattern(Joi.string(), Joi.number().min(0).required()),
+            }).required(),
             maxTransactionBytes: Joi.number().min(1).required(),
             workerPool: Joi.object({
                 workerCount: Joi.number().min(1).required(),
