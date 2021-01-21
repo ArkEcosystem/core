@@ -1,6 +1,6 @@
 import { Container, Contracts, Providers, Services, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import Joi from "@hapi/joi";
 import { fork } from "child_process";
+import Joi from "joi";
 
 import {
     ApplyTransactionAction,
