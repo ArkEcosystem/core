@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import Joi from "@hapi/joi";
+import Joi from "joi";
 import { JoiValidator } from "@packages/core-kernel/src/services/validation/drivers/joi";
 
 const schema = Joi.object({

@@ -1,7 +1,7 @@
 import { Resources as CoreResources, Schemas } from "@arkecosystem/core-api";
 import { Contracts } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/core-magistrate-crypto";
-import Joi from "@hapi/joi";
+import Joi from "joi";
 
 export type EntityCriteria = Contracts.Search.StandardCriteriaOf<EntityResource>;
 

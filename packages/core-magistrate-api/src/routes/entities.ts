@@ -1,6 +1,6 @@
 import { Schemas } from "@arkecosystem/core-api";
 import Hapi from "@hapi/hapi";
-import Joi from "@hapi/joi";
+import Joi from "joi";
 
 import { EntityController } from "../controllers/entities";
 import { entityCriteriaSchema, entityParamSchema, entitySortingSchema } from "../resources";

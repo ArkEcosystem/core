@@ -1,4 +1,4 @@
-import Joi from "@hapi/joi";
+import Joi from "joi";
 
 const blockHeightSchema = Joi.number().integer().min(1);
 const blockIdSchema = Joi.alternatives(

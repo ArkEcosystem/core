@@ -1,4 +1,4 @@
-import { AnySchema, ValidationErrorItem } from "@hapi/joi";
+import { AnySchema, ValidationErrorItem } from "joi";
 
 import { Validator } from "../../../contracts/kernel/validation";
 import { injectable } from "../../../ioc";

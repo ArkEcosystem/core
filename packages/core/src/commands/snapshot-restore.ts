@@ -1,7 +1,7 @@
 import { Commands, Components, Container, Contracts, Utils } from "@arkecosystem/core-cli";
 import { Container as KernelContainer, Contracts as KernelContracts } from "@arkecosystem/core-kernel";
 import { Networks } from "@arkecosystem/crypto";
-import Joi from "@hapi/joi";
+import Joi from "joi";
 
 import { ProgressRenderer } from "../utils/snapshot-progress-renderer";
 
