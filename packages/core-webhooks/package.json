@@ -24,8 +24,8 @@
         "@arkecosystem/crypto": "^3.0.0-next.19",
         "@hapi/boom": "^9.0.0",
         "@hapi/hapi": "^20.0.3",
-        "@hapi/joi": "^17.1.0",
         "fs-extra": "^8.1.0",
+        "joi": "^17.3.0",
         "lowdb": "^1.0.0",
         "uuid": "^8.0.0"
     },

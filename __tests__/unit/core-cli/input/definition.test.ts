@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import Joi from "@hapi/joi";
+import Joi from "joi";
 import { InputDefinition } from "@packages/core-cli/src/input";
 
 describe("InputDefinition", () => {

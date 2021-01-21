@@ -1,6 +1,6 @@
 import { Contracts } from "@arkecosystem/core-kernel";
 import { Utils } from "@arkecosystem/crypto";
-import Joi from "@hapi/joi";
+import Joi from "joi";
 
 const isSchema = (value: Joi.Schema | SchemaObject): value is Joi.Schema => {
     return Joi.isSchema(value);

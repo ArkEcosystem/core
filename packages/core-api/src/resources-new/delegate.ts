@@ -1,6 +1,6 @@
 import { Contracts } from "@arkecosystem/core-kernel";
 import { Utils } from "@arkecosystem/crypto";
-import Joi from "@hapi/joi";
+import Joi from "joi";
 
 import * as Schemas from "../schemas";
 import { blockCriteriaSchemaObject } from "./block";

@@ -1,6 +1,6 @@
 import { Commands, Container } from "@arkecosystem/core-cli";
 import { Networks } from "@arkecosystem/crypto";
-import Joi from "@hapi/joi";
+import Joi from "joi";
 import { parseFileSync } from "envfile";
 import { existsSync } from "fs-extra";
 
