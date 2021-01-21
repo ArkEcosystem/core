@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import Joi from "@hapi/joi";
+import Joi from "joi";
 import { Commands, Container } from "@packages/core-cli";
 import { Console } from "@packages/core-test-framework/src";
 

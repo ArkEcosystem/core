@@ -91,7 +91,7 @@ export class StandardCriteriaService {
     }
 
     private testBooleanValueCriteriaItem(value: boolean, criteriaItem: StandardCriteriaOfItem<boolean>): boolean {
-        // In most cases criteria is cast to the same type as value during validation (by @hapi/joi).
+        // In most cases criteria is cast to the same type as value during validation (by joi).
         // Wallet's attributes property is an exception. There is currently now way to know what types may be there.
         // To test properties within it string values are also checked.
         // For example boolean `true` value is checked against boolean `true` and string `"true"`.
