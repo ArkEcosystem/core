@@ -1,6 +1,6 @@
 import { Commands, Container } from "@arkecosystem/core-cli";
 import { Networks } from "@arkecosystem/crypto";
-import Joi from "@hapi/joi";
+import Joi from "joi";
 
 import { Command as BIP38Command } from "./config-forger-bip38";
 import { Command as BIP39Command } from "./config-forger-bip39";

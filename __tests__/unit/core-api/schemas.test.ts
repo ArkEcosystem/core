@@ -6,7 +6,7 @@ import {
     positiveBigNumber,
 } from "@arkecosystem/core-api/src/schemas";
 import { Utils } from "@arkecosystem/core-kernel";
-import Joi from "@hapi/joi";
+import Joi from "joi";
 
 describe("bigNumber", () => {
     it("should convert string to Utils.BigNumber", () => {
@@ -78,7 +78,7 @@ describe("createRangeCriteriaSchema", () => {
 
         const result = schema.validate({ from: 0, to: 2 });
 
-        expect(result.error!.message).toEqual('"from" must be larger than or equal to 1');
+        expect(result.error!.message).toEqual('"from" must be greater than or equal to 1');
     });
 
     it("should be invalid if to doesn't satisfy condition", () => {
@@ -86,7 +86,7 @@ describe("createRangeCriteriaSchema", () => {
 
         const result = schema.validate({ from: 1, to: 0 });
 
-        expect(result.error!.message).toEqual('"to" must be larger than or equal to 1');
+        expect(result.error!.message).toEqual('"to" must be greater than or equal to 1');
     });
 });
 

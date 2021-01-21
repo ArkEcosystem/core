@@ -1,6 +1,6 @@
 import { Commands, Container, Contracts, Utils } from "@arkecosystem/core-cli";
 import { Networks } from "@arkecosystem/crypto";
-import Joi from "@hapi/joi";
+import Joi from "joi";
 import { resolve } from "path";
 
 import { buildBIP38 } from "../internal/crypto";
