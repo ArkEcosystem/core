@@ -6,6 +6,7 @@ import { configManager } from "@packages/crypto/src/managers";
 import { BuilderFactory } from "@packages/crypto/src/transactions";
 import { HtlcLockBuilder } from "@packages/crypto/src/transactions/builders/transactions/htlc-lock";
 import { Two } from "@packages/crypto/src/transactions/types";
+import { Address } from "@packages/crypto/src/identities";
 
 const { EpochTimestamp } = HtlcLockExpirationType;
 
@@ -25,30 +26,45 @@ describe("Htlc lock Transaction", () => {
         expect(builder).toHaveProperty("data.asset", {});
     });
 
+    const htlcLockAsset = {
+        secretHash: "0f128d401958b1b30ad0d10406f47f9489321017b4614e6cb993fc63913c5454",
+        expiration: {
+            type: EpochTimestamp,
+            value: Math.floor(Date.now() / 1000),
+        },
+    };
+
     describe("htlcLockAsset", () => {
         it("should set the htlc lock asset", () => {
-            const htlcLockAsset = {
-                secretHash: "0f128d401958b1b30ad0d10406f47f9489321017b4614e6cb993fc63913c5454",
-                expiration: {
-                    type: EpochTimestamp,
-                    value: Math.floor(Date.now() / 1000),
-                },
-            };
-
             builder.htlcLockAsset(htlcLockAsset);
 
             expect(builder.data.asset.lock).toEqual(htlcLockAsset);
         });
     });
 
+    describe("recipientId", () => {
+        it("should not throw when recipientId network is valid", () => {
+            builder
+                .htlcLockAsset(htlcLockAsset)
+                .amount("100")
+                .recipientId(Address.fromPassphrase("secret", 23))
+                .sign("dummy passphrase");
+
+            expect(() => builder.build()).not.toThrow();
+        });
+
+        it("should throw when recipientId network is invalid", () => {
+            builder
+                .htlcLockAsset(htlcLockAsset)
+                .amount("100")
+                .recipientId(Address.fromPassphrase("secret", 30))
+                .sign("dummy passphrase");
+
+            expect(() => builder.build()).toThrow();
+        });
+    });
+
     describe("verify", () => {
-        const htlcLockAsset = {
-            secretHash: "0f128d401958b1b30ad0d10406f47f9489321017b4614e6cb993fc63913c5454",
-            expiration: {
-                type: EpochTimestamp,
-                value: Math.floor(Date.now() / 1000),
-            },
-        };
         const address = "AVzsSFwicz5gYLqCzZNL8N1RztkWQSMovK";
 
         it("should be valid with a signature", () => {
