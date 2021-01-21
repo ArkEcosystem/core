@@ -125,6 +125,8 @@ export class PluginFactory implements Plugins.PluginFactory {
                     await server.register(tokenAuthenticationPlugin);
 
                     server.auth.strategy("simple", "bearer-access-token", {
+                        allowQueryToken: true,
+                        accessTokenName: "token",
                         validate: async (...params) => {
                             // @ts-ignore
                             return this.validateToken(...params);
