@@ -1,5 +1,5 @@
 import { Container, Contracts, Providers, Services } from "@arkecosystem/core-kernel";
-import Joi from "@hapi/joi";
+import Joi from "joi";
 
 import { ProcessBlockAction } from "./actions";
 import { Blockchain } from "./blockchain";
