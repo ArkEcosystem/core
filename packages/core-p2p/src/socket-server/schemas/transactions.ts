@@ -1,4 +1,4 @@
-import Joi from "@hapi/joi";
+import Joi from "joi";
 import { Providers, Container, Contracts } from "@arkecosystem/core-kernel";
 import { headers } from "./shared";
 
