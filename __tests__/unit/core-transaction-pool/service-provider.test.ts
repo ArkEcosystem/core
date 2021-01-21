@@ -252,7 +252,7 @@ describe("ServiceProvider", () => {
                 defaults.maxTransactionsInPool = 0;
                 result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
 
-                expect(result.error!.message).toEqual('"maxTransactionsInPool" must be larger than or equal to 1');
+                expect(result.error!.message).toEqual('"maxTransactionsInPool" must be greater than or equal to 1');
             });
 
             it("maxTransactionsPerSender is required && greater or equal 1", async () => {
@@ -264,7 +264,7 @@ describe("ServiceProvider", () => {
                 defaults.maxTransactionsPerSender = 0;
                 result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
 
-                expect(result.error!.message).toEqual('"maxTransactionsPerSender" must be larger than or equal to 1');
+                expect(result.error!.message).toEqual('"maxTransactionsPerSender" must be greater than or equal to 1');
             });
 
             it("allowedSenders is required && must contain strings", async () => {
@@ -288,7 +288,7 @@ describe("ServiceProvider", () => {
                 defaults.maxTransactionsPerRequest = 0;
                 result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
 
-                expect(result.error!.message).toEqual('"maxTransactionsPerRequest" must be larger than or equal to 1');
+                expect(result.error!.message).toEqual('"maxTransactionsPerRequest" must be greater than or equal to 1');
             });
 
             it("maxTransactionAge is required && greater or equal 1", async () => {
@@ -300,7 +300,7 @@ describe("ServiceProvider", () => {
                 defaults.maxTransactionAge = 0;
                 result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
 
-                expect(result.error!.message).toEqual('"maxTransactionAge" must be larger than or equal to 1');
+                expect(result.error!.message).toEqual('"maxTransactionAge" must be greater than or equal to 1');
             });
 
             it("maxTransactionBytes is required && greater or equal 1", async () => {
@@ -312,7 +312,7 @@ describe("ServiceProvider", () => {
                 defaults.maxTransactionBytes = 0;
                 result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
 
-                expect(result.error!.message).toEqual('"maxTransactionBytes" must be larger than or equal to 1');
+                expect(result.error!.message).toEqual('"maxTransactionBytes" must be greater than or equal to 1');
             });
 
             it("dynamicFees is required", async () => {
@@ -333,7 +333,7 @@ describe("ServiceProvider", () => {
                 defaults.dynamicFees.minFeePool = -1;
                 let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
 
-                expect(result.error!.message).toEqual('"dynamicFees.minFeePool" must be larger than or equal to 0');
+                expect(result.error!.message).toEqual('"dynamicFees.minFeePool" must be greater than or equal to 0');
 
                 delete defaults.dynamicFees.minFeePool;
                 result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
@@ -351,7 +351,7 @@ describe("ServiceProvider", () => {
                 let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
 
                 expect(result.error!.message).toEqual(
-                    '"dynamicFees.minFeeBroadcast" must be larger than or equal to 0',
+                    '"dynamicFees.minFeeBroadcast" must be greater than or equal to 0',
                 );
 
                 delete defaults.dynamicFees.minFeeBroadcast;
@@ -382,7 +382,7 @@ describe("ServiceProvider", () => {
                 const result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
 
                 expect(result.error!.message).toEqual(
-                    '"dynamicFees.addonBytes.test" must be larger than or equal to 0',
+                    '"dynamicFees.addonBytes.test" must be greater than or equal to 0',
                 );
             });
 
@@ -397,7 +397,7 @@ describe("ServiceProvider", () => {
                 defaults.workerPool.workerCount = 0;
                 let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
 
-                expect(result.error!.message).toEqual('"workerPool.workerCount" must be larger than or equal to 1');
+                expect(result.error!.message).toEqual('"workerPool.workerCount" must be greater than or equal to 1');
 
                 delete defaults.workerPool.workerCount;
                 result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
@@ -417,7 +417,7 @@ describe("ServiceProvider", () => {
                 let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
 
                 expect(result.error!.message).toEqual(
-                    '"workerPool.cryptoPackages[0].typeGroup" must be larger than or equal to 2',
+                    '"workerPool.cryptoPackages[0].typeGroup" must be greater than or equal to 2',
                 );
 
                 delete defaults.workerPool.cryptoPackages[0].typeGroup;
