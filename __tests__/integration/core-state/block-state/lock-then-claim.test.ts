@@ -1,6 +1,6 @@
 import { createHash } from "crypto";
 import { Application, Container, Contracts } from "@arkecosystem/core-kernel";
-import { Utils, Transactions } from "@arkecosystem/crypto";
+import { Utils, Transactions, Identities } from "@arkecosystem/crypto";
 import { Repositories } from "@arkecosystem/core-database";
 import { delegates } from "@arkecosystem/core-test-framework";
 import { BIP39 } from "../../../../packages/core-forger/src/methods/bip39";
@@ -45,7 +45,7 @@ test("BlockState handling [lock], [claim] blocks", async () => {
             expiration: { type: HtlcLockExpirationType.BlockHeight, value: 3 },
             secretHash: lockSecretHash.toString("hex"),
         })
-        .recipientId(delegates[3].address)
+        .recipientId(Identities.Address.fromPublicKey(delegates[3].publicKey))
         .amount("100")
         .nonce("3")
         .fee("100")
