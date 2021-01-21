@@ -71,7 +71,9 @@ export class PluginConfiguration {
      */
     public merge(values: JsonObject | undefined): this {
         if (values) {
-            this.items = deepmerge(this.items, values);
+            this.items = deepmerge(this.items, values, {
+                arrayMerge: (destination, source) => source,
+            });
         }
 
         return this;

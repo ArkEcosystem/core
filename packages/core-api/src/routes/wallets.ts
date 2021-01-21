@@ -1,5 +1,5 @@
 import Hapi from "@hapi/hapi";
-import Joi from "@hapi/joi";
+import Joi from "joi";
 
 import { WalletsController } from "../controllers/wallets";
 import {

@@ -1,6 +1,6 @@
 import { Container, Providers } from "@arkecosystem/core-kernel";
 import Hapi from "@hapi/hapi";
-import Joi from "@hapi/joi";
+import Joi from "joi";
 
 import { TransactionsController } from "../controllers/transactions";
 import * as Schemas from "../schemas";

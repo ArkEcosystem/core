@@ -1,4 +1,4 @@
-import { AnySchema } from "@hapi/joi";
+import { AnySchema } from "joi";
 
 import { interfaces } from "./ioc";
 
