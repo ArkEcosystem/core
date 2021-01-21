@@ -1,5 +1,5 @@
 import { Server } from "@hapi/hapi";
-import Joi from "@hapi/joi";
+import Joi from "joi";
 import { Container } from "@arkecosystem/core-kernel";
 
 import { IsAppReadyPlugin } from "@arkecosystem/core-p2p/src/socket-server/plugins/is-app-ready";

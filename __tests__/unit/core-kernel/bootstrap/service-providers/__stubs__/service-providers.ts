@@ -1,4 +1,4 @@
-import Joi from "@hapi/joi";
+import Joi from "joi";
 import { PluginDependency } from "@packages/core-kernel/src/contracts/kernel";
 import { ServiceProvider } from "@packages/core-kernel/src/providers";
 

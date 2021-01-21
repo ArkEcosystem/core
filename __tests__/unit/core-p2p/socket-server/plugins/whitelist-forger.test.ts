@@ -1,5 +1,5 @@
 import { Server } from "@hapi/hapi";
-import Joi from "@hapi/joi";
+import Joi from "joi";
 import { Container } from "@packages/core-kernel";
 import { defaults } from "@packages/core-p2p/src/defaults";
 import { PeerProcessor } from "@packages/core-p2p/src/peer-processor";

@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import Joi from "@hapi/joi";
+import Joi from "joi";
 import { Controller } from "@packages/core-api/src/controllers/controller";
 import { Resource } from "@packages/core-api/src/interfaces";
 import { Application, Container } from "@packages/core-kernel";

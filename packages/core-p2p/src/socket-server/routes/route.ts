@@ -1,6 +1,6 @@
 import { Container, Contracts } from "@arkecosystem/core-kernel";
 import Hapi from "@hapi/hapi";
-import Joi from "@hapi/joi";
+import Joi from "joi";
 
 import { Controller } from "../controllers/controller";
 
