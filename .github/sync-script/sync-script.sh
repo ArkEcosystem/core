@@ -12,5 +12,5 @@ while test $synced != 1
     echo "still not synced after $difftime seconds..."
     if [ $difftime -gt 18000 ] ; then exit 1 ; fi # exit with error after 5 hours
     sleep 6
-    synced=$(curl http://127.0.0.1:4003/api/v2/node/status -m 2 | grep "\"synced\":true" | wc -l)
+    synced=$(curl http://127.0.0.1:4003/api/node/status -m 2 | grep "\"synced\":true" | wc -l)
 done
