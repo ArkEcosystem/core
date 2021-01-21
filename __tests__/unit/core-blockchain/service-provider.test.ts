@@ -128,7 +128,7 @@ describe("ServiceProvider", () => {
                 let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
 
                 expect(result.error!.message).toEqual(
-                    '"databaseRollback.maxBlockRewind" must be larger than or equal to 1',
+                    '"databaseRollback.maxBlockRewind" must be greater than or equal to 1',
                 );
 
                 delete defaults.databaseRollback.maxBlockRewind;
@@ -141,7 +141,7 @@ describe("ServiceProvider", () => {
                 defaults.databaseRollback.steps = 0;
                 let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
 
-                expect(result.error!.message).toEqual('"databaseRollback.steps" must be larger than or equal to 1');
+                expect(result.error!.message).toEqual('"databaseRollback.steps" must be greater than or equal to 1');
 
                 delete defaults.databaseRollback.steps;
                 result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
