@@ -25,7 +25,11 @@ export class Server {
         this.server = new HapiServer(this.getServerOptions(serverOptions));
         this.server.app.app = this.app;
 
-        await this.server.register(this.pluginFactory.preparePlugins());
+        await this.server.register(
+            this.pluginFactory.preparePlugins({
+                jsonRpcEnabled: true,
+            }),
+        );
 
         // Disable 2 minute socket timout
         this.getRoute("POST", "/").settings.timeout.socket = false;

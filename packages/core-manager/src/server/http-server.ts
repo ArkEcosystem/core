@@ -10,6 +10,10 @@ export class HttpServer extends Server {
         this.server = new HapiServer(this.getServerOptions(serverOptions));
         this.server.app.app = this.app;
 
-        await this.server.register(this.pluginFactory.preparePlugins());
+        await this.server.register(
+            this.pluginFactory.preparePlugins({
+                jsonRpcEnabled: false,
+            }),
+        );
     }
 }
