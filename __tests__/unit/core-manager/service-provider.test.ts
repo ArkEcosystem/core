@@ -40,8 +40,8 @@ beforeEach(() => {
 
     defaults.watcher.storage = dirSync().name + "/events.sqlite";
     defaults.logs.storage = dirSync().name + "/logs.sqlite";
-    defaults.server.https.tls.key = path.resolve(__dirname, "./__fixtures__/key.pem");
-    defaults.server.https.tls.cert = path.resolve(__dirname, "./__fixtures__/server.crt");
+    defaults.server.https.tls.key = path.join(__dirname, "./__fixtures__/key.pem");
+    defaults.server.https.tls.cert = path.join(__dirname, "./__fixtures__/server.crt");
 });
 
 afterEach(() => {
