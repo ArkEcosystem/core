@@ -43,6 +43,7 @@
         "hapi-auth-bearer-token": "^6.1.6",
         "joi": "^17.3.0",
         "latest-version": "^5.1.0",
+        "lodash.clonedeep": "^4.5.0",
         "public-ip": "^4.0.3",
         "require-from-string": "^2.0.2",
         "systeminformation": "^4.30.4",

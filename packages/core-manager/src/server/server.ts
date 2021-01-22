@@ -1,6 +1,7 @@
 import { Container, Contracts, Types } from "@arkecosystem/core-kernel";
 import { Server as HapiServer, ServerInjectOptions, ServerInjectResponse, ServerRoute } from "@hapi/hapi";
 import { readFileSync } from "fs";
+import { cloneDeep } from "lodash";
 
 import { Plugins } from "../contracts";
 import { Identifiers } from "../ioc";
@@ -64,16 +65,16 @@ export class Server {
     }
 
     protected getServerOptions(options: Record<string, any>): object {
-        options = { ...options };
+        const tmpOptions = cloneDeep(options);
 
-        delete options.enabled;
+        delete tmpOptions.enabled;
 
-        if (options.tls) {
-            options.tls.key = readFileSync(options.tls.key).toString();
-            options.tls.cert = readFileSync(options.tls.cert).toString();
+        if (tmpOptions.tls) {
+            tmpOptions.tls.key = readFileSync(options.tls.key).toString();
+            tmpOptions.tls.cert = readFileSync(options.tls.cert).toString();
         }
 
-        return options;
+        return tmpOptions;
     }
 
     private getRoute(method: string, path: string): ServerRoute | undefined {

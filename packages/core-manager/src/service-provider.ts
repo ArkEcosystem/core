@@ -1,5 +1,6 @@
 import { ApplicationFactory } from "@arkecosystem/core-cli";
 import { Container, Contracts, Providers, Types } from "@arkecosystem/core-kernel";
+import { cloneDeep } from "lodash";
 
 import { ActionReader } from "./action-reader";
 import { DatabaseLogger } from "./database-logger";
@@ -133,7 +134,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
         const server: HttpServer = this.app.get<HttpServer>(id);
 
-        const config = { ...this.config().getRequired<{ port: number }>(`server.${type}`) };
+        const config = cloneDeep(this.config().getRequired<{ port: number }>(`server.${type}`));
         config.port++;
 
         await server.initialize(`Public API (${type.toUpperCase()})`, {
