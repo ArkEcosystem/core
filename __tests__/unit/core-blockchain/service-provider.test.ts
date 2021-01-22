@@ -1,3 +1,6 @@
+import "jest-extended";
+
+import { AnySchema } from "@hapi/joi";
 import { ServiceProvider } from "@packages/core-blockchain/src/service-provider";
 import { Application, Container, Providers } from "@packages/core-kernel";
 import { Services } from "@packages/core-kernel/dist";
@@ -85,6 +88,78 @@ describe("ServiceProvider", () => {
             const required = await serviceProvider.required();
 
             expect(required).toBeTrue();
+        });
+    });
+
+    describe("configSchema", () => {
+        beforeEach(() => {
+            serviceProvider = app.resolve<ServiceProvider>(ServiceProvider);
+        });
+
+        it("should validate schema using defaults", async () => {
+            jest.resetModules();
+            const result = (serviceProvider.configSchema() as AnySchema).validate(
+                (await import("@packages/core-blockchain/src/defaults")).defaults,
+            );
+
+            expect(result.error).toBeUndefined();
+
+            expect(result.value.databaseRollback.maxBlockRewind).toBeNumber();
+            expect(result.value.databaseRollback.steps).toBeNumber();
+        });
+
+        describe("schema restrictions", () => {
+            let defaults;
+
+            beforeEach(async () => {
+                jest.resetModules();
+                defaults = (await import("@packages/core-blockchain/src/defaults")).defaults;
+            });
+
+            it("databaseRollback is required", async () => {
+                delete defaults.databaseRollback;
+                const result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"databaseRollback" is required');
+            });
+
+            it("databaseRollback.maxBlockRewind is required && greater or equal 1", async () => {
+                defaults.databaseRollback.maxBlockRewind = 0;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual(
+                    '"databaseRollback.maxBlockRewind" must be greater than or equal to 1',
+                );
+
+                delete defaults.databaseRollback.maxBlockRewind;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"databaseRollback.maxBlockRewind" is required');
+            });
+
+            it("databaseRollback.steps is required && greater or equal 1", async () => {
+                defaults.databaseRollback.steps = 0;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"databaseRollback.steps" must be greater than or equal to 1');
+
+                delete defaults.databaseRollback.steps;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"databaseRollback.steps" is required');
+            });
+
+            it("networkStart is optional && is boolean", async () => {
+                defaults.networkStart = 123;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"networkStart" must be a boolean');
+
+                delete defaults.networkStart;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error).toBeUndefined();
+            });
         });
     });
 });
