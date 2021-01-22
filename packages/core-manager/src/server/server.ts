@@ -12,7 +12,7 @@ export class Server {
     protected readonly app!: Contracts.Kernel.Application;
 
     @Container.inject(Container.Identifiers.LogService)
-    private readonly logger!: Contracts.Kernel.Logger;
+    protected readonly logger!: Contracts.Kernel.Logger;
 
     @Container.inject(Identifiers.PluginFactory)
     protected readonly pluginFactory!: Plugins.PluginFactory;
