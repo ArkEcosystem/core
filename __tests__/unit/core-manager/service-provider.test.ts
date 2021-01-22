@@ -7,6 +7,7 @@ import { ServiceProvider } from "@packages/core-manager/src/service-provider";
 import { cloneDeep } from "lodash";
 import path from "path";
 import { dirSync, setGracefulCleanup } from "tmp";
+import { AnySchema } from "@hapi/joi";
 
 let app: Application;
 
@@ -116,7 +117,7 @@ describe("ServiceProvider", () => {
         const usedDefaults = { ...defaults };
 
         usedDefaults.server.http.enabled = false;
-        usedDefaults.server.https.enabled = "enabled";
+        usedDefaults.server.https.enabled = true;
 
         setPluginConfiguration(app, serviceProvider, usedDefaults);
 
@@ -134,7 +135,7 @@ describe("ServiceProvider", () => {
         const usedDefaults = { ...defaults };
 
         usedDefaults.server.http.enabled = true;
-        usedDefaults.server.https.enabled = "enabled";
+        usedDefaults.server.https.enabled = true;
 
         setPluginConfiguration(app, serviceProvider, usedDefaults);
 
@@ -204,5 +205,73 @@ describe("ServiceProvider", () => {
 
     it("should not be required", async () => {
         await expect(serviceProvider.required()).resolves.toBeFalse();
+    });
+
+    describe("configSchema", () => {
+        beforeEach(() => {
+            serviceProvider = app.resolve<ServiceProvider>(ServiceProvider);
+
+            for (const key of Object.keys(process.env)) {
+                if (
+                    key.includes("CORE_WATCHER_") ||
+                    key.includes("CORE_WATCH_") ||
+                    key.includes("CORE_MONITOR") ||
+                    key === "CORE_RESET_DATABASE"
+                ) {
+                    delete process.env[key];
+                }
+            }
+        });
+
+        it("should validate schema using defaults", async () => {
+            jest.resetModules();
+            const result = (serviceProvider.configSchema() as AnySchema).validate(
+                (await import("@packages/core-manager/src/defaults")).defaults,
+            );
+
+            expect(result.error).toBeUndefined();
+
+            // Watcher
+            expect(result.value.watcher.enabled).toBeFalse();
+            expect(result.value.watcher.resetDatabase).toBeFalse();
+            expect(result.value.watcher.storage).toBeString();
+            expect(result.value.watcher.watch.blocks).toBeTrue();
+            expect(result.value.watcher.watch.errors).toBeTrue();
+            expect(result.value.watcher.watch.queries).toBeTrue();
+            expect(result.value.watcher.watch.queues).toBeTrue();
+            expect(result.value.watcher.watch.rounds).toBeTrue();
+            expect(result.value.watcher.watch.schedules).toBeTrue();
+            expect(result.value.watcher.watch.transactions).toBeTrue();
+            expect(result.value.watcher.watch.wallets).toBeTrue();
+            expect(result.value.watcher.watch.webhooks).toBeTrue();
+
+            // Logs
+            expect(result.value.logs.enabled).toBeTrue();
+            expect(result.value.logs.resetDatabase).toBeFalse();
+            expect(result.value.logs.storage).toBeString();
+            expect(result.value.logs.history).toBeNumber();
+
+            // HTTP
+            expect(result.value.server.http.enabled).toBeTrue();
+            expect(result.value.server.http.host).toEqual("0.0.0.0");
+            expect(result.value.server.http.port).toEqual(4005);
+
+            // HTTPS
+            expect(result.value.server.https.enabled).toBeFalse();
+            expect(result.value.server.https.host).toEqual("0.0.0.0");
+            expect(result.value.server.https.port).toEqual(8445);
+            expect(result.value.server.https.tls.key).toBeUndefined();
+            expect(result.value.server.https.tls.cert).toBeUndefined();
+
+            // Plugins
+            expect(result.value.plugins.whitelist).toEqual(["127.0.0.1", "::ffff:127.0.0.1"]);
+
+            expect(result.value.plugins.tokenAuthentication.enabled).toBeFalse();
+
+            expect(result.value.plugins.basicAuthentication.enabled).toBeFalse();
+            expect(result.value.plugins.basicAuthentication.users).toEqual([]);
+        });
+
+
     });
 });
