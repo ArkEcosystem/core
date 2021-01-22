@@ -1,5 +1,6 @@
 import "jest-extended";
 
+import { AnySchema } from "@hapi/joi";
 import { Application, Container, Providers } from "@packages/core-kernel";
 import { defaults } from "@packages/core-manager/src/defaults";
 import { Identifiers } from "@packages/core-manager/src/ioc";
@@ -7,7 +8,6 @@ import { ServiceProvider } from "@packages/core-manager/src/service-provider";
 import { cloneDeep } from "lodash";
 import path from "path";
 import { dirSync, setGracefulCleanup } from "tmp";
-import { AnySchema } from "@hapi/joi";
 
 let app: Application;
 
@@ -754,6 +754,511 @@ describe("ServiceProvider", () => {
 
                 expect(result.error).toBeDefined();
                 expect(result.error!.message).toEqual('"server.https.port" must be a number');
+            });
+        });
+
+        describe("schema restrictions", () => {
+            let defaults;
+
+            beforeEach(async () => {
+                jest.resetModules();
+                defaults = (await import("@packages/core-manager/src/defaults")).defaults;
+            });
+
+            it("watcher is required", async () => {
+                delete defaults.watcher;
+                const result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"watcher" is required');
+            });
+
+            it("watcher.enabled is required && is boolean", async () => {
+                defaults.watcher.enabled = 123;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"watcher.enabled" must be a boolean');
+
+                delete defaults.watcher.enabled;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"watcher.enabled" is required');
+            });
+
+            it("watcher.resetDatabase is required && is boolean", async () => {
+                defaults.watcher.resetDatabase = 123;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"watcher.resetDatabase" must be a boolean');
+
+                delete defaults.watcher.resetDatabase;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"watcher.resetDatabase" is required');
+            });
+
+            it("watcher.storage is required && is string", async () => {
+                defaults.watcher.storage = 123;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"watcher.storage" must be a string');
+
+                delete defaults.watcher.storage;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"watcher.storage" is required');
+            });
+
+            it("watcher.watch is required", async () => {
+                delete defaults.watcher.watch;
+                const result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"watcher.watch" is required');
+            });
+
+            it("watcher.watch.blocks is required && is boolean", async () => {
+                defaults.watcher.watch.blocks = 123;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"watcher.watch.blocks" must be a boolean');
+
+                delete defaults.watcher.watch.blocks;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"watcher.watch.blocks" is required');
+            });
+
+            it("watcher.watch.errors is required && is boolean", async () => {
+                defaults.watcher.watch.errors = 123;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"watcher.watch.errors" must be a boolean');
+
+                delete defaults.watcher.watch.errors;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"watcher.watch.errors" is required');
+            });
+
+            it("watcher.watch.queries is required && is boolean", async () => {
+                defaults.watcher.watch.queries = 123;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"watcher.watch.queries" must be a boolean');
+
+                delete defaults.watcher.watch.queries;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"watcher.watch.queries" is required');
+            });
+
+            it("watcher.watch.queues is required && is boolean", async () => {
+                defaults.watcher.watch.queues = 123;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"watcher.watch.queues" must be a boolean');
+
+                delete defaults.watcher.watch.queues;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"watcher.watch.queues" is required');
+            });
+
+            it("watcher.watch.rounds is required && is boolean", async () => {
+                defaults.watcher.watch.rounds = 123;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"watcher.watch.rounds" must be a boolean');
+
+                delete defaults.watcher.watch.rounds;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"watcher.watch.rounds" is required');
+            });
+
+            it("watcher.watch.schedules is required && is boolean", async () => {
+                defaults.watcher.watch.schedules = 123;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"watcher.watch.schedules" must be a boolean');
+
+                delete defaults.watcher.watch.schedules;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"watcher.watch.schedules" is required');
+            });
+
+            it("watcher.watch.transactions is required && is boolean", async () => {
+                defaults.watcher.watch.transactions = 123;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"watcher.watch.transactions" must be a boolean');
+
+                delete defaults.watcher.watch.transactions;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"watcher.watch.transactions" is required');
+            });
+
+            it("watcher.watch.wallets is required && is boolean", async () => {
+                defaults.watcher.watch.wallets = 123;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"watcher.watch.wallets" must be a boolean');
+
+                delete defaults.watcher.watch.wallets;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"watcher.watch.wallets" is required');
+            });
+
+            it("watcher.watch.webhooks is required && is boolean", async () => {
+                defaults.watcher.watch.webhooks = 123;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"watcher.watch.webhooks" must be a boolean');
+
+                delete defaults.watcher.watch.webhooks;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"watcher.watch.webhooks" is required');
+            });
+
+            it("logs is required && is boolean", async () => {
+                delete defaults.logs;
+                const result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"logs" is required');
+            });
+
+            it("logs.enabled is required && is boolean", async () => {
+                defaults.logs.enabled = 123;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"logs.enabled" must be a boolean');
+
+                delete defaults.logs.enabled;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"logs.enabled" is required');
+            });
+
+            it("logs.resetDatabase is required && is boolean", async () => {
+                defaults.logs.resetDatabase = 123;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"logs.resetDatabase" must be a boolean');
+
+                delete defaults.logs.resetDatabase;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"logs.resetDatabase" is required');
+            });
+
+            it("logs.storage is required && is string", async () => {
+                defaults.logs.storage = false;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"logs.storage" must be a string');
+
+                delete defaults.logs.storage;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"logs.storage" is required');
+            });
+
+            it("logs.history is required && is number", async () => {
+                defaults.logs.history = false;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"logs.history" must be a number');
+
+                delete defaults.logs.history;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"logs.history" is required');
+            });
+
+            it("server is required", async () => {
+                delete defaults.server;
+                const result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server" is required');
+            });
+
+            it("server.ip is optional && is number", async () => {
+                defaults.server.ip = false;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.ip" must be a number');
+
+                delete defaults.server.ip;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error).toBeUndefined();
+            });
+
+            it("server.http is required", async () => {
+                delete defaults.server.http;
+                const result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.http" is required');
+            });
+
+            it("server.http.enabled is required && is boolean", async () => {
+                defaults.server.http.enabled = 123;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.http.enabled" must be a boolean');
+
+                delete defaults.server.http.enabled;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.http.enabled" is required');
+            });
+
+            it("server.http.host is required && is string", async () => {
+                defaults.server.http.host = 123;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.http.host" must be a string');
+
+                delete defaults.server.http.host;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.http.host" is required');
+            });
+
+            it("server.http.port is required && is number", async () => {
+                defaults.server.http.port = false;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.http.port" must be a number');
+
+                delete defaults.server.http.port;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.http.port" is required');
+            });
+
+            it("servers.http is required", async () => {
+                delete defaults.server.https;
+                const result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.https" is required');
+            });
+
+            it("server.https.enabled is required && is boolean", async () => {
+                defaults.server.https.enabled = 123;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.https.enabled" must be a boolean');
+
+                delete defaults.server.https.enabled;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.https.enabled" is required');
+            });
+
+            it("server.https.host is required && is string", async () => {
+                defaults.server.https.host = 123;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.https.host" must be a string');
+
+                delete defaults.server.https.host;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.https.host" is required');
+            });
+
+            it("server.https.port is required && is number", async () => {
+                defaults.server.https.port = false;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.https.port" must be a number');
+
+                delete defaults.server.https.port;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.https.port" is required');
+            });
+
+            it("server.https.tls is required", async () => {
+                delete defaults.server.https.tls;
+                const result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.https.tls" is required');
+            });
+
+            it("server.https.tls.key is required when server.https.enabled && is string", async () => {
+                delete defaults.server.https.tls.key;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error).toBeUndefined();
+
+                defaults.server.https.enabled = true;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.https.tls.key" is required');
+
+                defaults.server.https.tls.key = false;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.https.tls.key" must be a string');
+            });
+
+            it("server.https.tls.cert is required when server.https.enabled && is string", async () => {
+                delete defaults.server.https.tls.cert;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error).toBeUndefined();
+
+                defaults.server.https.enabled = true;
+                defaults.server.https.tls.key = "path/to/key";
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.https.tls.cert" is required');
+
+                defaults.server.https.tls.cert = false;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.https.tls.cert" must be a string');
+            });
+
+            it("plugins is required", async () => {
+                delete defaults.plugins;
+                const result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins" is required');
+            });
+
+            it("plugins.whitelist is required && must contain strings", async () => {
+                defaults.plugins.whitelist = [false];
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.whitelist[0]" must be a string');
+
+                delete defaults.plugins.whitelist;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.whitelist" is required');
+            });
+
+            it("plugins.tokenAuthentication is required", async () => {
+                delete defaults.plugins.tokenAuthentication;
+                const result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.tokenAuthentication" is required');
+            });
+
+            it("plugins.tokenAuthentication.enabled is required && is boolean", async () => {
+                defaults.plugins.tokenAuthentication.enabled = 123;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.tokenAuthentication.enabled" must be a boolean');
+
+                delete defaults.plugins.tokenAuthentication.enabled;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.tokenAuthentication.enabled" is required');
+            });
+
+            it("plugins.tokenAuthentication.token is required when plugins.tokenAuthentication.enabled && is string", async () => {
+                delete defaults.plugins.tokenAuthentication.token;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error).toBeUndefined();
+
+                defaults.plugins.tokenAuthentication.enabled = true;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.tokenAuthentication.token" is required');
+
+                defaults.plugins.tokenAuthentication.token = 123;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.tokenAuthentication.token" must be a string');
+            });
+
+            it("plugins.basicAuthentication is required", async () => {
+                delete defaults.plugins.basicAuthentication;
+                const result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.basicAuthentication" is required');
+            });
+
+            it("plugins.basicAuthentication.enabled is required && is boolean", async () => {
+                defaults.plugins.basicAuthentication.enabled = 123;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.basicAuthentication.enabled" must be a boolean');
+
+                delete defaults.plugins.basicAuthentication.enabled;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.basicAuthentication.enabled" is required');
+            });
+
+            it("plugins.basicAuthentication.secret is required when plugins.basicAuthentication.enabled && is string", async () => {
+                delete defaults.plugins.basicAuthentication.secret;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error).toBeUndefined();
+
+                defaults.plugins.basicAuthentication.enabled = true;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.basicAuthentication.secret" is required');
+
+                defaults.plugins.basicAuthentication.secret = 123;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.basicAuthentication.secret" must be a string');
+            });
+
+            it("plugins.basicAuthentication.users is required when plugins.basicAuthentication.enabled && is array", async () => {
+                delete defaults.plugins.basicAuthentication.users;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error).toBeUndefined();
+
+                defaults.plugins.basicAuthentication.enabled = true;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.basicAuthentication.users" is required');
+
+                defaults.plugins.basicAuthentication.users = 123;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.basicAuthentication.users" must be an array');
+            });
+
+            it("plugins.basicAuthentication.users[x].username is required && is string", async () => {
+                defaults.plugins.basicAuthentication.users = [{}];
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.basicAuthentication.users[0].username" is required');
+
+                defaults.plugins.basicAuthentication.users = [{ username: false }];
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual(
+                    '"plugins.basicAuthentication.users[0].username" must be a string',
+                );
+            });
+
+            it("plugins.basicAuthentication.users[x].password is required && is string", async () => {
+                defaults.plugins.basicAuthentication.users = [{ username: "dummy" }];
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.basicAuthentication.users[0].password" is required');
+
+                defaults.plugins.basicAuthentication.users = [{ username: "dummy", password: false }];
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual(
+                    '"plugins.basicAuthentication.users[0].password" must be a string',
+                );
             });
         });
     });

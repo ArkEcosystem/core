@@ -141,7 +141,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
                     enabled: Joi.bool().required(),
                     host: Joi.string().required(),
                     port: Joi.number().required(),
-                }),
+                }).required(),
                 https: Joi.object({
                     enabled: Joi.bool().required(),
                     host: Joi.string().required(),
@@ -149,9 +149,9 @@ export class ServiceProvider extends Providers.ServiceProvider {
                     tls: Joi.object({
                         key: Joi.string().when("...enabled", { is: true, then: Joi.required() }),
                         cert: Joi.string().when("...enabled", { is: true, then: Joi.required() }),
-                    }),
-                }),
-            }),
+                    }).required(),
+                }).required(),
+            }).required(),
             plugins: Joi.object({
                 whitelist: Joi.array().items(Joi.string()).required(),
                 tokenAuthentication: Joi.object({
@@ -160,7 +160,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
                 }).required(),
                 basicAuthentication: Joi.object({
                     enabled: Joi.bool().required(),
-                    secret: Joi.string().required(),
+                    secret: Joi.string().when("enabled", { is: true, then: Joi.required() }),
                     users: Joi.array()
                         .items(
                             Joi.object({
@@ -168,9 +168,9 @@ export class ServiceProvider extends Providers.ServiceProvider {
                                 password: Joi.string().required(),
                             }),
                         )
-                        .required(),
+                        .when("enabled", { is: true, then: Joi.required() }),
                 }).required(),
-            }),
+            }).required(),
         });
     }
 
