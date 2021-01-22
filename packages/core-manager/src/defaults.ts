@@ -1,7 +1,7 @@
 export const defaults = {
     watcher: {
         enabled: process.env.CORE_WATCHER_ENABLED || false,
-        resetDatabase: process.env.CORE_RESET_DATABASE,
+        resetDatabase: !!process.env.CORE_RESET_DATABASE,
         storage: `${process.env.CORE_PATH_DATA}/events.sqlite`,
         watch: {
             blocks: !process.env.CORE_WATCH_BLOCKS_DISABLED,
@@ -17,7 +17,7 @@ export const defaults = {
     },
     logs: {
         enabled: !process.env.CORE_WATCH_LOGS_DISABLED,
-        resetDatabase: process.env.CORE_RESET_DATABASE,
+        resetDatabase: !!process.env.CORE_RESET_DATABASE,
         storage: `${process.env.CORE_PATH_DATA}/logs.sqlite`,
         history: 30, // Days
     },
@@ -30,7 +30,7 @@ export const defaults = {
         },
         // @see https://hapijs.com/api#-serveroptionstls
         https: {
-            enabled: process.env.CORE_MONITOR_SSL,
+            enabled: !!process.env.CORE_MONITOR_SSL,
             host: process.env.CORE_MONITOR_SSL_HOST || "0.0.0.0",
             port: process.env.CORE_MONITOR_SSL_PORT || 8445,
             tls: {
