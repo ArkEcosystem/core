@@ -54,9 +54,9 @@ export class Action implements Actions.Action {
         }
 
         if (this.app.isBound(Identifiers.HTTPS_JSON_RPC)) {
-            return `https://${publicIp}:${this.configuration.getRequired<number>("server.https.port")}`;
+            return `https://${publicIp}:${this.configuration.getRequired<number>("server.https.port") + 1}`;
         }
 
-        return `http://${publicIp}:${this.configuration.getRequired<number>("server.http.port")}`;
+        return `http://${publicIp}:${this.configuration.getRequired<number>("server.http.port") + 1}`;
     }
 }

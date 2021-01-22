@@ -133,7 +133,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
         const server: HttpServer = this.app.get<HttpServer>(id);
 
-        const config = this.config().getRequired<{ port: number }>(`server.${type}`);
+        const config = { ...this.config().getRequired<{ port: number }>(`server.${type}`) };
         config.port++;
 
         await server.initialize(`Public API (${type.toUpperCase()})`, {
