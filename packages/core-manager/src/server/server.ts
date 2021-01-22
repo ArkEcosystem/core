@@ -8,17 +8,17 @@ import { Identifiers } from "../ioc";
 @Container.injectable()
 export class Server {
     @Container.inject(Container.Identifiers.Application)
-    private readonly app!: Contracts.Kernel.Application;
+    protected readonly app!: Contracts.Kernel.Application;
 
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
 
     @Container.inject(Identifiers.PluginFactory)
-    private readonly pluginFactory!: Plugins.PluginFactory;
+    protected readonly pluginFactory!: Plugins.PluginFactory;
 
-    private server!: HapiServer;
+    protected server!: HapiServer;
 
-    private name!: string;
+    protected name!: string;
 
     public async initialize(name: string, serverOptions: Types.JsonObject): Promise<void> {
         this.name = name;
@@ -59,7 +59,7 @@ export class Server {
         }
     }
 
-    private getServerOptions(options: Record<string, any>): object {
+    protected getServerOptions(options: Record<string, any>): object {
         options = { ...options };
 
         delete options.enabled;
