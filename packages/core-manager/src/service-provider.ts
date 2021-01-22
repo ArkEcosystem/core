@@ -65,13 +65,13 @@ export class ServiceProvider extends Providers.ServiceProvider {
     public async boot(): Promise<void> {
         if (this.isProcessTypeManager()) {
             if (this.config().get("server.http.enabled")) {
-                await this.buildServer("http", Identifiers.HTTP);
-                await this.app.get<Server>(Identifiers.HTTP).boot();
+                await this.buildServer("http", Identifiers.HTTP_JSON_RPC);
+                await this.app.get<Server>(Identifiers.HTTP_JSON_RPC).boot();
             }
 
             if (this.config().get("server.https.enabled")) {
-                await this.buildServer("https", Identifiers.HTTPS);
-                await this.app.get<Server>(Identifiers.HTTPS).boot();
+                await this.buildServer("https", Identifiers.HTTPS_JSON_RPC);
+                await this.app.get<Server>(Identifiers.HTTPS_JSON_RPC).boot();
             }
         }
 
@@ -81,12 +81,12 @@ export class ServiceProvider extends Providers.ServiceProvider {
     }
 
     public async dispose(): Promise<void> {
-        if (this.app.isBound(Identifiers.HTTP)) {
-            await this.app.get<Server>(Identifiers.HTTP).dispose();
+        if (this.app.isBound(Identifiers.HTTP_JSON_RPC)) {
+            await this.app.get<Server>(Identifiers.HTTP_JSON_RPC).dispose();
         }
 
-        if (this.app.isBound(Identifiers.HTTPS)) {
-            await this.app.get<Server>(Identifiers.HTTPS).dispose();
+        if (this.app.isBound(Identifiers.HTTPS_JSON_RPC)) {
+            await this.app.get<Server>(Identifiers.HTTPS_JSON_RPC).dispose();
         }
 
         this.app.get<EventsDatabaseService>(Identifiers.WatcherDatabaseService).dispose();

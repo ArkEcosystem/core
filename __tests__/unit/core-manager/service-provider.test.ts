@@ -86,8 +86,8 @@ describe("ServiceProvider", () => {
 
         await expect(serviceProvider.boot()).toResolve();
 
-        expect(app.isBound(Identifiers.HTTP)).toBeTrue();
-        expect(app.isBound(Identifiers.HTTPS)).not.toBeTrue();
+        expect(app.isBound(Identifiers.HTTP_JSON_RPC)).toBeTrue();
+        expect(app.isBound(Identifiers.HTTPS_JSON_RPC)).not.toBeTrue();
 
         await expect(serviceProvider.dispose()).toResolve();
     });
@@ -105,8 +105,8 @@ describe("ServiceProvider", () => {
 
         await expect(serviceProvider.boot()).toResolve();
 
-        expect(app.isBound(Identifiers.HTTP)).toBeFalse();
-        expect(app.isBound(Identifiers.HTTPS)).toBeFalse();
+        expect(app.isBound(Identifiers.HTTP_JSON_RPC)).toBeFalse();
+        expect(app.isBound(Identifiers.HTTPS_JSON_RPC)).toBeFalse();
         expect(app.isBound(Identifiers.ActionReader)).toBeFalse();
 
         await expect(serviceProvider.dispose()).toResolve();
@@ -124,8 +124,8 @@ describe("ServiceProvider", () => {
 
         await expect(serviceProvider.boot()).toResolve();
 
-        expect(app.isBound(Identifiers.HTTP)).not.toBeTrue();
-        expect(app.isBound(Identifiers.HTTPS)).toBeTrue();
+        expect(app.isBound(Identifiers.HTTP_JSON_RPC)).not.toBeTrue();
+        expect(app.isBound(Identifiers.HTTPS_JSON_RPC)).toBeTrue();
 
         await expect(serviceProvider.dispose()).toResolve();
     });
@@ -142,8 +142,8 @@ describe("ServiceProvider", () => {
 
         await expect(serviceProvider.boot()).toResolve();
 
-        expect(app.isBound(Identifiers.HTTP)).toBeTrue();
-        expect(app.isBound(Identifiers.HTTPS)).toBeTrue();
+        expect(app.isBound(Identifiers.HTTP_JSON_RPC)).toBeTrue();
+        expect(app.isBound(Identifiers.HTTPS_JSON_RPC)).toBeTrue();
 
         await expect(serviceProvider.dispose()).toResolve();
     });

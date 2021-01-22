@@ -79,7 +79,7 @@ describe("Info:CoreVersion", () => {
     it("should return file info using HTTPS server", async () => {
         // @ts-ignore
         pathExistsSync.mockReturnValue(true);
-        sandbox.app.bind(Identifiers.HTTPS).toConstantValue({});
+        sandbox.app.bind(Identifiers.HTTPS_JSON_RPC).toConstantValue({});
 
         const result = await action.execute({});
 

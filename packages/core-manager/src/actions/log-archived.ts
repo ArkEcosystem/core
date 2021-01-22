@@ -53,7 +53,7 @@ export class Action implements Actions.Action {
             publicIp = await getPublicIp.v4();
         }
 
-        if (this.app.isBound(Identifiers.HTTPS)) {
+        if (this.app.isBound(Identifiers.HTTPS_JSON_RPC)) {
             return `https://${publicIp}:${this.configuration.getRequired<number>("server.https.port")}`;
         }
 

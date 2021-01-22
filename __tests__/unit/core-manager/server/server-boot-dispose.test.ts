@@ -50,7 +50,7 @@ beforeEach(() => {
 
     sandbox = new Sandbox();
 
-    sandbox.app.bind(Identifiers.HTTP).to(Server).inSingletonScope();
+    sandbox.app.bind(Identifiers.HTTP_JSON_RPC).to(Server).inSingletonScope();
     sandbox.app.bind(Identifiers.ActionReader).to(ActionReader).inSingletonScope();
     sandbox.app.bind(Identifiers.PluginFactory).to(PluginFactory).inSingletonScope();
     sandbox.app.bind(Identifiers.BasicCredentialsValidator).toConstantValue({});
@@ -63,7 +63,7 @@ beforeEach(() => {
 
     sandbox.app.terminate = jest.fn();
 
-    server = sandbox.app.get<Server>(Identifiers.HTTP);
+    server = sandbox.app.get<Server>(Identifiers.HTTP_JSON_RPC);
 });
 
 afterEach(() => {
