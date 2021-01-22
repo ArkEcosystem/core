@@ -36,10 +36,10 @@ beforeEach(() => {
         .set("server.ip", "127.0.0.1");
     sandbox.app
         .get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration)
-        .set("server.http.port", "4005");
+        .set("server.http.port", 4005);
     sandbox.app
         .get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration)
-        .set("server.https.port", "8445");
+        .set("server.https.port", 8445);
 
     action = sandbox.app.resolve(Action);
 });
@@ -73,7 +73,7 @@ describe("Info:CoreVersion", () => {
         expect(result.length).toBe(1);
         expect(result[0].size).toBe(1);
         expect(result[0].name).toBe("2020-12-14_17-38-00.log.gz");
-        expect(result[0].downloadLink).toBe("http://127.0.0.1:4005/log/archived/2020-12-14_17-38-00.log.gz");
+        expect(result[0].downloadLink).toBe("http://127.0.0.1:4006/log/archived/2020-12-14_17-38-00.log.gz");
     });
 
     it("should return file info using HTTPS server", async () => {
@@ -87,7 +87,7 @@ describe("Info:CoreVersion", () => {
         expect(result.length).toBe(1);
         expect(result[0].size).toBe(1);
         expect(result[0].name).toBe("2020-12-14_17-38-00.log.gz");
-        expect(result[0].downloadLink).toBe("https://127.0.0.1:8445/log/archived/2020-12-14_17-38-00.log.gz");
+        expect(result[0].downloadLink).toBe("https://127.0.0.1:8446/log/archived/2020-12-14_17-38-00.log.gz");
     });
 
     it("should obtain public IP if IP is not set", async () => {
@@ -104,6 +104,6 @@ describe("Info:CoreVersion", () => {
         expect(result.length).toBe(1);
         expect(result[0].size).toBe(1);
         expect(result[0].name).toBe("2020-12-14_17-38-00.log.gz");
-        expect(result[0].downloadLink).toBe("http://127.0.0.5:4005/log/archived/2020-12-14_17-38-00.log.gz");
+        expect(result[0].downloadLink).toBe("http://127.0.0.5:4006/log/archived/2020-12-14_17-38-00.log.gz");
     });
 });
