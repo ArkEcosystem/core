@@ -1,5 +1,6 @@
 import { Container, Contracts, Providers, Services, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { fork } from "child_process";
+import Joi from "joi";
 
 import {
     ApplyTransactionAction,
@@ -59,6 +60,38 @@ export class ServiceProvider extends Providers.ServiceProvider {
      */
     public async required(): Promise<boolean> {
         return true;
+    }
+
+    public configSchema(): object {
+        return Joi.object({
+            enabled: Joi.bool().required(),
+            storage: Joi.string().required(),
+            maxTransactionsInPool: Joi.number().min(1).required(),
+            maxTransactionsPerSender: Joi.number().min(1).required(),
+            allowedSenders: Joi.array().items(Joi.string()).required(),
+            maxTransactionsPerRequest: Joi.number().min(1).required(),
+            maxTransactionAge: Joi.number().min(1).required(),
+            maxTransactionBytes: Joi.number().min(1).required(),
+            dynamicFees: Joi.object({
+                enabled: Joi.bool().required(),
+                minFeePool: Joi.number().min(0).when("enabled", { is: true, then: Joi.required() }),
+                minFeeBroadcast: Joi.number().min(0).when("enabled", { is: true, then: Joi.required() }),
+                addonBytes: Joi.object()
+                    .when("enabled", { is: true, then: Joi.required() })
+                    .pattern(Joi.string(), Joi.number().min(0).required()),
+            }).required(),
+            workerPool: Joi.object({
+                workerCount: Joi.number().min(1).required(),
+                cryptoPackages: Joi.array()
+                    .items(
+                        Joi.object({
+                            typeGroup: Joi.number().min(2).required(),
+                            packageName: Joi.string().required(),
+                        }),
+                    )
+                    .required(),
+            }).required(),
+        });
     }
 
     private registerServices(): void {

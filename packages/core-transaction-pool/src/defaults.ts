@@ -13,6 +13,7 @@ export const defaults = {
     // If a transaction stays that long in the pool without being included in any block,
     // then it will be removed.
     maxTransactionAge: 2700,
+    maxTransactionBytes: 2000000, // TODO think of a value that makes sense ?
     dynamicFees: {
         enabled: true,
         minFeePool: 3000,
@@ -31,7 +32,6 @@ export const defaults = {
             htlcRefund: 0,
         },
     },
-    maxTransactionBytes: 2000000, // TODO think of a value that makes sense ?
     workerPool: {
         workerCount: 3,
         cryptoPackages: [{ typeGroup: 2, packageName: "@arkecosystem/core-magistrate-crypto" }],
