@@ -215,7 +215,7 @@ describe("ServiceProvider", () => {
                 if (
                     key.includes("CORE_WATCHER_") ||
                     key.includes("CORE_WATCH_") ||
-                    key.includes("CORE_MONITOR") ||
+                    key.includes("CORE_MONITOR_") ||
                     key === "CORE_RESET_DATABASE"
                 ) {
                     delete process.env[key];
@@ -272,6 +272,489 @@ describe("ServiceProvider", () => {
             expect(result.value.plugins.basicAuthentication.users).toEqual([]);
         });
 
+        describe("process.env.CORE_WATCHER_ENABLED", () => {
+            it("should return false when process.env.CORE_WATCHER_ENABLED is undefined", async () => {
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-manager/src/defaults")).defaults,
+                );
 
+                expect(result.error).toBeUndefined();
+                expect(result.value.watcher.enabled).toBeFalse();
+            });
+
+            it("should return true when process.env.CORE_WATCHER_ENABLED is present", async () => {
+                process.env.CORE_WATCHER_ENABLED = "true";
+
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-manager/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.watcher.enabled).toBeTrue();
+            });
+        });
+
+        describe("process.env.CORE_RESET_DATABASE", () => {
+            it("should return false when process.env.CORE_RESET_DATABASE is undefined", async () => {
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-manager/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.watcher.resetDatabase).toBeFalse();
+                expect(result.value.logs.resetDatabase).toBeFalse();
+            });
+
+            it("should return true when process.env.CORE_RESET_DATABASE is present", async () => {
+                process.env.CORE_RESET_DATABASE = "true";
+
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-manager/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.watcher.resetDatabase).toBeTrue();
+                expect(result.value.logs.resetDatabase).toBeTrue();
+            });
+        });
+
+        describe("process.env.CORE_PATH_DATA", () => {
+            it("should return path containing process.env.CORE_PATH_DATA", async () => {
+                process.env.CORE_PATH_DATA = "dummy/path";
+
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-manager/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.watcher.storage).toEqual("dummy/path/events.sqlite");
+                expect(result.value.logs.storage).toEqual("dummy/path/logs.sqlite");
+            });
+        });
+
+        describe("process.env.CORE_WATCH_BLOCKS_DISABLED", () => {
+            it("should return true when process.env.CORE_WATCH_BLOCKS_DISABLED is undefined", async () => {
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-manager/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.watcher.watch.blocks).toBeTrue();
+            });
+
+            it("should return false when process.env.CORE_WATCH_BLOCKS_DISABLED is present", async () => {
+                process.env.CORE_WATCH_BLOCKS_DISABLED = "true";
+
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-manager/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.watcher.watch.blocks).toBeFalse();
+            });
+        });
+
+        describe("process.env.CORE_WATCH_ERRORS_DISABLED", () => {
+            it("should return true when process.env.CORE_WATCH_ERRORS_DISABLED is undefined", async () => {
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-manager/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.watcher.watch.errors).toBeTrue();
+            });
+
+            it("should return false when process.env.CORE_WATCH_ERRORS_DISABLED is present", async () => {
+                process.env.CORE_WATCH_ERRORS_DISABLED = "true";
+
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-manager/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.watcher.watch.errors).toBeFalse();
+            });
+        });
+
+        describe("process.env.CORE_WATCH_QUERIES_DISABLED", () => {
+            it("should return true when process.env.CORE_WATCH_QUERIES_DISABLED is undefined", async () => {
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-manager/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.watcher.watch.queries).toBeTrue();
+            });
+
+            it("should return false when process.env.CORE_WATCH_QUERIES_DISABLED is present", async () => {
+                process.env.CORE_WATCH_QUERIES_DISABLED = "true";
+
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-manager/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.watcher.watch.queries).toBeFalse();
+            });
+        });
+
+        describe("process.env.CORE_WATCH_QUEUES_DISABLED", () => {
+            it("should return true when process.env.CORE_WATCH_QUEUES_DISABLED is undefined", async () => {
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-manager/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.watcher.watch.queues).toBeTrue();
+            });
+
+            it("should return false when process.env.CORE_WATCH_QUEUES_DISABLED is present", async () => {
+                process.env.CORE_WATCH_QUEUES_DISABLED = "true";
+
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-manager/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.watcher.watch.queues).toBeFalse();
+            });
+        });
+
+        describe("process.env.CORE_WATCH_ROUNDS_DISABLED", () => {
+            it("should return true when process.env.CORE_WATCH_ROUNDS_DISABLED is undefined", async () => {
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-manager/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.watcher.watch.rounds).toBeTrue();
+            });
+
+            it("should return false when process.env.CORE_WATCH_ROUNDS_DISABLED is present", async () => {
+                process.env.CORE_WATCH_ROUNDS_DISABLED = "true";
+
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-manager/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.watcher.watch.rounds).toBeFalse();
+            });
+        });
+
+        describe("process.env.CORE_WATCH_SCHEDULES_DISABLED", () => {
+            it("should return true when process.env.CORE_WATCH_SCHEDULES_DISABLED is undefined", async () => {
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-manager/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.watcher.watch.schedules).toBeTrue();
+            });
+
+            it("should return false when process.env.CORE_WATCH_SCHEDULES_DISABLED is present", async () => {
+                process.env.CORE_WATCH_SCHEDULES_DISABLED = "true";
+
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-manager/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.watcher.watch.schedules).toBeFalse();
+            });
+        });
+
+        describe("process.env.CORE_WATCH_TRANSACTIONS_DISABLED", () => {
+            it("should return true when process.env.CORE_WATCH_TRANSACTIONS_DISABLED is undefined", async () => {
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-manager/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.watcher.watch.transactions).toBeTrue();
+            });
+
+            it("should return false when process.env.CORE_WATCH_TRANSACTIONS_DISABLED is present", async () => {
+                process.env.CORE_WATCH_TRANSACTIONS_DISABLED = "true";
+
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-manager/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.watcher.watch.transactions).toBeFalse();
+            });
+        });
+
+        describe("process.env.CORE_WATCH_WALLETS_DISABLED", () => {
+            it("should return true when process.env.CORE_WATCH_WALLETS_DISABLED is undefined", async () => {
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-manager/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.watcher.watch.wallets).toBeTrue();
+            });
+
+            it("should return false when process.env.CORE_WATCH_WALLETS_DISABLED is present", async () => {
+                process.env.CORE_WATCH_WALLETS_DISABLED = "true";
+
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-manager/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.watcher.watch.wallets).toBeFalse();
+            });
+        });
+
+        describe("process.env.CORE_WATCH_WEBHOOKS_DISABLED", () => {
+            it("should return true when process.env.CORE_WATCH_WEBHOOKS_DISABLED is undefined", async () => {
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-manager/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.watcher.watch.webhooks).toBeTrue();
+            });
+
+            it("should return false when process.env.CORE_WATCH_WEBHOOKS_DISABLED is present", async () => {
+                process.env.CORE_WATCH_WEBHOOKS_DISABLED = "true";
+
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-manager/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.watcher.watch.webhooks).toBeFalse();
+            });
+        });
+
+        describe("process.env.CORE_WATCH_LOGS_DISABLED", () => {
+            it("should return true when process.env.CORE_WATCH_LOGS_DISABLED is undefined", async () => {
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-manager/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.logs.enabled).toBeTrue();
+            });
+
+            it("should return false when process.env.CORE_WATCH_LOGS_DISABLED is present", async () => {
+                process.env.CORE_WATCH_LOGS_DISABLED = "true";
+
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-manager/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.logs.enabled).toBeFalse();
+            });
+        });
+
+        describe("process.env.CORE_MONITOR_PUBLIC_IP", () => {
+            it("should parse process.env.CORE_MONITOR_PUBLIC_IP", async () => {
+                process.env.CORE_MONITOR_PUBLIC_IP = "4000";
+
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-manager/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.server.ip).toEqual(4000);
+            });
+
+            it("should throw if process.env.CORE_MONITOR_PUBLIC_IP is not number", async () => {
+                process.env.CORE_MONITOR_PUBLIC_IP = "false";
+
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-manager/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeDefined();
+                expect(result.error!.message).toEqual('"server.ip" must be a number');
+            });
+        });
+
+        describe("process.env.CORE_MONITOR_DISABLED", () => {
+            it("should return true when process.env.CORE_MONITOR_DISABLED is undefined", async () => {
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-manager/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.server.http.enabled).toBeTrue();
+            });
+
+            it("should return false when process.env.CORE_MONITOR_DISABLED is present", async () => {
+                process.env.CORE_MONITOR_DISABLED = "true";
+
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-manager/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.server.http.enabled).toBeFalse();
+            });
+        });
+
+        describe("process.env.CORE_MONITOR_HOST", () => {
+            it("should parse process.env.CORE_MONITOR_HOST", async () => {
+                process.env.CORE_MONITOR_HOST = "127.0.0.1";
+
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-manager/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.server.http.host).toEqual("127.0.0.1");
+            });
+        });
+
+        describe("process.env.CORE_MONITOR_PORT", () => {
+            it("should parse process.env.CORE_MONITOR_PORT", async () => {
+                process.env.CORE_MONITOR_PORT = "4000";
+
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-manager/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.server.http.port).toEqual(4000);
+            });
+
+            it("should throw if process.env.CORE_MONITOR_PORT is not number", async () => {
+                process.env.CORE_MONITOR_PORT = "false";
+
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-manager/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeDefined();
+                expect(result.error!.message).toEqual('"server.http.port" must be a number');
+            });
+        });
+
+        describe("process.env.CORE_MONITOR_SSL", () => {
+            it("should return false when process.env.CORE_MONITOR_SSL is undefined", async () => {
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-manager/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.server.https.enabled).toBeFalse();
+            });
+
+            it("should return false when process.env.CORE_MONITOR_SSL is present", async () => {
+                process.env.CORE_MONITOR_SSL = "true";
+                process.env.CORE_MONITOR_SSL_KEY = "path/to/key";
+                process.env.CORE_MONITOR_SSL_CERT = "path/to/cert";
+
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-manager/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.server.https.enabled).toBeTrue();
+            });
+
+            it("should throw error if process.env.CORE_MONITOR_SSL = true and CORE_MONITOR_SSL_KEY or CORE_MONITOR_SSL_CERT is undefined", async () => {
+                process.env.CORE_MONITOR_SSL = "true";
+                process.env.CORE_MONITOR_SSL_KEY = "path/to/key";
+
+                jest.resetModules();
+                let result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-manager/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeDefined();
+                expect(result.error!.message).toEqual('"server.https.tls.cert" is required');
+
+                delete process.env.CORE_MONITOR_SSL_KEY;
+                process.env.CORE_MONITOR_SSL_CERT = "path/to/cert";
+
+                jest.resetModules();
+                result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-manager/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeDefined();
+                expect(result.error!.message).toEqual('"server.https.tls.key" is required');
+            });
+        });
+
+        describe("process.env.CORE_MONITOR_SSL_HOST", () => {
+            it("should parse process.env.CORE_MONITOR_SSL_HOST", async () => {
+                process.env.CORE_MONITOR_SSL_HOST = "127.0.0.1";
+
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-manager/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.server.https.host).toEqual("127.0.0.1");
+            });
+        });
+
+        describe("process.env.CORE_MONITOR_SSL_PORT", () => {
+            it("should parse process.env.CORE_MONITOR_SSL_PORT", async () => {
+                process.env.CORE_MONITOR_SSL_PORT = "4000";
+
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-manager/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.server.https.port).toEqual(4000);
+            });
+
+            it("should throw if process.env.CORE_MONITOR_SSL_PORT is not number", async () => {
+                process.env.CORE_MONITOR_SSL_PORT = "false";
+
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-manager/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeDefined();
+                expect(result.error!.message).toEqual('"server.https.port" must be a number');
+            });
+        });
     });
 });
