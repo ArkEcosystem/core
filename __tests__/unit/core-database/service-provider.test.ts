@@ -1,3 +1,6 @@
+import "jest-extended";
+
+import { AnySchema } from "@hapi/joi";
 import { defaults } from "@packages/core-database/src/defaults";
 import { ServiceProvider } from "@packages/core-database/src/service-provider";
 import { Application, Container, Providers } from "@packages/core-kernel";
@@ -88,5 +91,235 @@ describe("ServiceProvider.required", () => {
         const serviceProvider = app.resolve(ServiceProvider);
         const result = await serviceProvider.required();
         expect(result).toBe(true);
+    });
+});
+
+describe("ServiceProvider.configSchema", () => {
+    let serviceProvider: ServiceProvider;
+
+    beforeEach(() => {
+        serviceProvider = app.resolve<ServiceProvider>(ServiceProvider);
+
+        for (const key of Object.keys(process.env)) {
+            if (key.includes("CORE_DB_")) {
+                delete process.env[key];
+            }
+        }
+
+        process.env.CORE_TOKEN = "ark";
+        process.env.CORE_NETWORK_NAME = "testnet";
+    });
+
+    it("should validate schema using defaults", async () => {
+        jest.resetModules();
+        const result = (serviceProvider.configSchema() as AnySchema).validate(
+            (await import("@packages/core-database/src/defaults")).defaults,
+        );
+
+        expect(result.error).toBeUndefined();
+
+        expect(result.value.connection.type).toEqual("postgres");
+        expect(result.value.connection.host).toEqual("localhost");
+        expect(result.value.connection.port).toEqual(5432);
+        expect(result.value.connection.database).toEqual("ark_testnet");
+        expect(result.value.connection.username).toEqual("ark");
+        expect(result.value.connection.password).toBeString();
+        expect(result.value.connection.entityPrefix).toBeString();
+        expect(result.value.connection.synchronize).toBeFalse();
+        expect(result.value.connection.logging).toBeFalse();
+    });
+
+    describe("process.env.CORE_DB_HOST", () => {
+        it("should return value of process.env.CORE_DB_HOST if defined", async () => {
+            process.env.CORE_DB_HOST = "custom_hostname";
+
+            jest.resetModules();
+            const result = (serviceProvider.configSchema() as AnySchema).validate(
+                (await import("@packages/core-database/src/defaults")).defaults,
+            );
+
+            expect(result.error).toBeUndefined();
+            expect(result.value.connection.host).toEqual("custom_hostname");
+        });
+    });
+
+    describe("process.env.CORE_DB_PORT", () => {
+        it("should return value of process.env.CORE_DB_PORT if defined", async () => {
+            process.env.CORE_DB_PORT = "123";
+
+            jest.resetModules();
+            const result = (serviceProvider.configSchema() as AnySchema).validate(
+                (await import("@packages/core-database/src/defaults")).defaults,
+            );
+
+            expect(result.error).toBeUndefined();
+            expect(result.value.connection.port).toEqual(123);
+        });
+    });
+
+    describe("process.env.CORE_DB_DATABASE", () => {
+        it("should return value of process.env.CORE_DB_PORT if defined", async () => {
+            process.env.CORE_DB_DATABASE = "custom_database";
+
+            jest.resetModules();
+            const result = (serviceProvider.configSchema() as AnySchema).validate(
+                (await import("@packages/core-database/src/defaults")).defaults,
+            );
+
+            expect(result.error).toBeUndefined();
+            expect(result.value.connection.database).toEqual("custom_database");
+        });
+    });
+
+    describe("process.env.CORE_DB_USERNAME", () => {
+        it("should return value of process.env.CORE_DB_USERNAME if defined", async () => {
+            process.env.CORE_DB_USERNAME = "custom_username";
+
+            jest.resetModules();
+            const result = (serviceProvider.configSchema() as AnySchema).validate(
+                (await import("@packages/core-database/src/defaults")).defaults,
+            );
+
+            expect(result.error).toBeUndefined();
+            expect(result.value.connection.username).toEqual("custom_username");
+        });
+    });
+
+    describe("process.env.CORE_DB_PASSWORD", () => {
+        it("should return value of process.env.CORE_DB_PASSWORD if defined", async () => {
+            process.env.CORE_DB_PASSWORD = "custom_password";
+
+            jest.resetModules();
+            const result = (serviceProvider.configSchema() as AnySchema).validate(
+                (await import("@packages/core-database/src/defaults")).defaults,
+            );
+
+            expect(result.error).toBeUndefined();
+            expect(result.value.connection.password).toEqual("custom_password");
+        });
+    });
+
+    describe("schema restrictions", () => {
+        let defaults;
+
+        beforeEach(async () => {
+            jest.resetModules();
+            defaults = (await import("@packages/core-database/src/defaults")).defaults;
+        });
+
+        it("connection is required", async () => {
+            delete defaults.connection;
+            const result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+            expect(result.error!.message).toEqual('"connection" is required');
+        });
+
+        it("connection.type is required && is string", async () => {
+            defaults.connection.type = false;
+            let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+            expect(result.error!.message).toEqual('"connection.type" must be a string');
+
+            delete defaults.connection.type;
+            result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+            expect(result.error!.message).toEqual('"connection.type" is required');
+        });
+
+        it("connection.host is required && is string", async () => {
+            defaults.connection.host = false;
+            let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+            expect(result.error!.message).toEqual('"connection.host" must be a string');
+
+            delete defaults.connection.host;
+            result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+            expect(result.error!.message).toEqual('"connection.host" is required');
+        });
+
+        it("connection.port is required && is number", async () => {
+            defaults.connection.port = false;
+            let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+            expect(result.error!.message).toEqual('"connection.port" must be a number');
+
+            delete defaults.connection.port;
+            result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+            expect(result.error!.message).toEqual('"connection.port" is required');
+        });
+
+        it("connection.database is required && is string", async () => {
+            defaults.connection.database = false;
+            let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+            expect(result.error!.message).toEqual('"connection.database" must be a string');
+
+            delete defaults.connection.database;
+            result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+            expect(result.error!.message).toEqual('"connection.database" is required');
+        });
+
+        it("connection.username is required && is string", async () => {
+            defaults.connection.username = false;
+            let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+            expect(result.error!.message).toEqual('"connection.username" must be a string');
+
+            delete defaults.connection.username;
+            result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+            expect(result.error!.message).toEqual('"connection.username" is required');
+        });
+
+        it("connection.password is required && is string", async () => {
+            defaults.connection.password = false;
+            let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+            expect(result.error!.message).toEqual('"connection.password" must be a string');
+
+            delete defaults.connection.password;
+            result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+            expect(result.error!.message).toEqual('"connection.password" is required');
+        });
+
+        it("connection.entityPrefix is required && is string", async () => {
+            defaults.connection.entityPrefix = false;
+            let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+            expect(result.error!.message).toEqual('"connection.entityPrefix" must be a string');
+
+            delete defaults.connection.entityPrefix;
+            result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+            expect(result.error!.message).toEqual('"connection.entityPrefix" is required');
+        });
+
+        it("connection.synchronize is required && is boolean", async () => {
+            defaults.connection.synchronize = 123;
+            let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+            expect(result.error!.message).toEqual('"connection.synchronize" must be a boolean');
+
+            delete defaults.connection.synchronize;
+            result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+            expect(result.error!.message).toEqual('"connection.synchronize" is required');
+        });
+
+        it("connection.logging is required && is boolean", async () => {
+            defaults.connection.logging = 123;
+            let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+            expect(result.error!.message).toEqual('"connection.logging" must be a boolean');
+
+            delete defaults.connection.logging;
+            result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+            expect(result.error!.message).toEqual('"connection.logging" is required');
+        });
     });
 });

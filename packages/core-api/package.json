@@ -30,9 +30,9 @@
         "@hapi/boom": "^9.0.0",
         "@hapi/hapi": "^20.0.3",
         "@hapi/hoek": "^9.1.0",
-        "@hapi/joi": "^17.1.0",
         "ajv": "^6.10.2",
         "ip": "^1.1.5",
+        "joi": "^17.3.0",
         "nanomatch": "^1.2.13",
         "node-cache": "^5.0.2",
         "rate-limiter-flexible": "^1.1.6",
@@ -42,7 +42,8 @@
         "@types/hapi__boom": "^7.4.1",
         "@types/hapi__joi": "^17.0.0",
         "@types/ip": "^1.1.0",
-        "@types/semver": "^6.2.0"
+        "@types/semver": "^6.2.0",
+        "lodash.clonedeep": "^4.5.0"
     },
     "engines": {
         "node": ">=10.x"

@@ -1,4 +1,5 @@
 import { Container, Contracts, Providers, Services } from "@arkecosystem/core-kernel";
+import Joi from "joi";
 
 import { ProcessBlockAction } from "./actions";
 import { Blockchain } from "./blockchain";
@@ -29,6 +30,18 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
     public async required(): Promise<boolean> {
         return true;
+    }
+
+    public configSchema(): object {
+        return Joi.object({
+            databaseRollback: Joi.object({
+                maxBlockRewind: Joi.number().min(1).required(),
+                steps: Joi.number().min(1).required(),
+            }).required(),
+
+            // used in core:run & relay:run
+            networkStart: Joi.bool(),
+        });
     }
 
     private registerActions(): void {

@@ -1,5 +1,5 @@
 import { dotenv, get, set } from "@arkecosystem/utils";
-import Joi from "@hapi/joi";
+import Joi from "joi";
 import { existsSync, readFileSync } from "fs";
 import importFresh from "import-fresh";
 import { extname } from "path";

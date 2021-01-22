@@ -363,7 +363,7 @@ describe("Server", () => {
             };
         });
 
-        it("should be ok with valid token", async () => {
+        it("should be ok with valid token in headers", async () => {
             await server.initialize("serverName", {});
             await server.boot();
 
@@ -375,11 +375,42 @@ describe("Server", () => {
             expect(parsedResponse).toEqual({ body: { id: "1", jsonrpc: "2.0", result: {} }, statusCode: 200 });
         });
 
-        it("should return RCP error if token is not valid", async () => {
+        it("should be ok with valid token in params", async () => {
+            await server.initialize("serverName", {});
+            await server.boot();
+
+            injectOptions.url += "?token=secret_token";
+
+            const response = await server.inject(injectOptions);
+            const parsedResponse: Record<string, any> = { body: response.result, statusCode: response.statusCode };
+
+            expect(parsedResponse).toEqual({ body: { id: "1", jsonrpc: "2.0", result: {} }, statusCode: 200 });
+        });
+
+        it("should return RCP error if token in headers is not valid", async () => {
             await server.initialize("serverName", {});
             await server.boot();
 
             injectOptions.headers.Authorization = "Bearer invalid_token";
+
+            const response = await server.inject(injectOptions);
+            const parsedResponse: Record<string, any> = { body: response.result, statusCode: response.statusCode };
+
+            expect(parsedResponse).toEqual({
+                body: {
+                    jsonrpc: "2.0",
+                    error: { code: -32001, message: "These credentials do not match our records" },
+                    id: null,
+                },
+                statusCode: 200,
+            });
+        });
+
+        it("should return RCP error if token in params is not valid", async () => {
+            await server.initialize("serverName", {});
+            await server.boot();
+
+            injectOptions.url += "?token=invalid_token";
 
             const response = await server.inject(injectOptions);
             const parsedResponse: Record<string, any> = { body: response.result, statusCode: response.statusCode };

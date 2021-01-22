@@ -31,13 +31,6 @@ describe("PluginConfiguration", () => {
         expect(pluginConfiguration.all()).toEqual({ defaultKey: "defaultValue" });
     });
 
-    it("should merge the given value", () => {
-        pluginConfiguration.set("key", "value");
-        pluginConfiguration.merge({ some: "value" });
-
-        expect(pluginConfiguration.all()).toEqual({ some: "value", key: "value" });
-    });
-
     it("should set and get the given value", () => {
         pluginConfiguration.set("key", "value");
 
@@ -58,5 +51,49 @@ describe("PluginConfiguration", () => {
 
     it("should throw when using deprecated get default value argument", () => {
         expect(() => pluginConfiguration.get("key", "default value")).toThrow();
+    });
+
+    describe("merge", () => {
+        it("should merge the given value", () => {
+            pluginConfiguration.set("key", "value");
+            pluginConfiguration.merge({ some: "value" });
+
+            expect(pluginConfiguration.all()).toEqual({ some: "value", key: "value" });
+        });
+
+        it("should merge nested object", () => {
+            pluginConfiguration.set("key", {
+                "1": {
+                    "1.1": "test",
+                },
+            });
+            pluginConfiguration.merge({
+                key: {
+                    "1": {
+                        "1.2": "test",
+                    },
+                },
+            });
+
+            expect(pluginConfiguration.all()).toEqual({
+                key: {
+                    "1": {
+                        "1.1": "test",
+                        "1.2": "test",
+                    },
+                },
+            });
+        });
+
+        it("should override array", () => {
+            pluginConfiguration.set("key", [1, 2, 3]);
+            pluginConfiguration.merge({
+                key: [3, 4, 5],
+            });
+
+            expect(pluginConfiguration.all()).toEqual({
+                key: [3, 4, 5],
+            });
+        });
     });
 });

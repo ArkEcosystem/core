@@ -1,5 +1,6 @@
 import "jest-extended";
 
+import { AnySchema } from "@hapi/joi";
 import { Identifiers, Server, ServiceProvider as CoreApiServiceProvider } from "@packages/core-api/src";
 import { defaults } from "@packages/core-api/src/defaults";
 import { Application, Container, Providers } from "@packages/core-kernel";
@@ -53,7 +54,7 @@ beforeEach(() => {
     app.bind(Container.Identifiers.PaginationService).toConstantValue({});
 
     defaults.server.http.enabled = true;
-    defaults.server.https.enabled = "enabled";
+    defaults.server.https.enabled = true;
     defaults.server.https.tls.key = path.resolve(__dirname, "./__fixtures__/key.pem");
     defaults.server.https.tls.cert = path.resolve(__dirname, "./__fixtures__/server.crt");
 });
@@ -90,7 +91,7 @@ describe("ServiceProvider", () => {
 
     it("should boot if HTTP and HTTPS server are disabled", async () => {
         defaults.server.http.enabled = false;
-        defaults.server.https.enabled = undefined;
+        defaults.server.https.enabled = false;
 
         const coreApiServiceProvider = app.resolve<CoreApiServiceProvider>(CoreApiServiceProvider);
 
@@ -127,7 +128,7 @@ describe("ServiceProvider", () => {
 
     it("should dispose if HTTP and HTTPS server are disabled", async () => {
         defaults.server.http.enabled = false;
-        defaults.server.https.enabled = undefined;
+        defaults.server.https.enabled = false;
 
         const coreApiServiceProvider = app.resolve<CoreApiServiceProvider>(CoreApiServiceProvider);
 
@@ -150,5 +151,347 @@ describe("ServiceProvider", () => {
         const coreApiServiceProvider = app.resolve<CoreApiServiceProvider>(CoreApiServiceProvider);
 
         await expect(coreApiServiceProvider.required()).resolves.toBeFalse();
+    });
+
+    describe("configSchema", () => {
+        let coreApiServiceProvider: CoreApiServiceProvider;
+
+        beforeEach(() => {
+            coreApiServiceProvider = app.resolve<CoreApiServiceProvider>(CoreApiServiceProvider);
+
+            process.env.CORE_API_ENABLED = "true";
+
+            for (const key of Object.keys(process.env)) {
+                if (key.includes("CORE_API_")) {
+                    delete process.env[key];
+                }
+            }
+        });
+
+        it("should validate schema using defaults", async () => {
+            jest.resetModules();
+            const result = (coreApiServiceProvider.configSchema() as AnySchema).validate(
+                (await import("@packages/core-api/src/defaults")).defaults,
+            );
+
+            expect(result.error).toBeUndefined();
+
+            expect(result.value.server.http.enabled).toBeTrue();
+            expect(result.value.server.http.host).toEqual("0.0.0.0");
+            expect(result.value.server.http.port).toEqual(4003);
+
+            expect(result.value.server.https.enabled).toBeFalse();
+            expect(result.value.server.https.host).toEqual("0.0.0.0");
+            expect(result.value.server.https.port).toEqual(8443);
+            expect(result.value.server.https.tls.key).toBeUndefined();
+            expect(result.value.server.https.tls.cert).toBeUndefined();
+
+            expect(result.value.plugins.cache.enabled).toBeFalse();
+            expect(result.value.plugins.cache.stdTTL).toBeNumber();
+            expect(result.value.plugins.cache.checkperiod).toBeNumber();
+
+            expect(result.value.plugins.rateLimit.enabled).toBeTrue();
+            expect(result.value.plugins.rateLimit.points).toBeNumber();
+            expect(result.value.plugins.rateLimit.duration).toBeNumber();
+            expect(result.value.plugins.rateLimit.whitelist).toEqual([]);
+            expect(result.value.plugins.rateLimit.blacklist).toEqual([]);
+
+            expect(result.value.plugins.pagination.limit).toBeNumber();
+            expect(result.value.plugins.socketTimeout).toBeNumber();
+            expect(result.value.plugins.whitelist).toEqual(["*"]);
+            expect(result.value.plugins.trustProxy).toBeFalse();
+
+            expect(result.value.options.estimateTotalCount).toBeTrue();
+        });
+
+        describe("process.env.CORE_API_DISABLED", () => {
+            it("should return true when process.env.CORE_API_DISABLED is undefined", async () => {
+                jest.resetModules();
+                const result = (coreApiServiceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-api/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.server.http.enabled).toBeTrue();
+            });
+
+            it("should return false when process.env.CORE_API_DISABLED is present", async () => {
+                process.env.CORE_API_DISABLED = "true";
+
+                jest.resetModules();
+                const result = (coreApiServiceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-api/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.server.http.enabled).toBeFalse();
+            });
+        });
+
+        describe("process.env.CORE_API_HOST", () => {
+            it("should parse process.env.CORE_API_HOST", async () => {
+                process.env.CORE_API_HOST = "127.0.0.1";
+
+                jest.resetModules();
+                const result = (coreApiServiceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-api/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.server.http.host).toEqual("127.0.0.1");
+            });
+        });
+
+        describe("process.env.CORE_API_PORT", () => {
+            it("should parse process.env.CORE_API_PORT", async () => {
+                process.env.CORE_API_PORT = "4000";
+
+                jest.resetModules();
+                const result = (coreApiServiceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-api/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.server.http.port).toEqual(4000);
+            });
+
+            it("should throw if process.env.CORE_API_PORT is not number", async () => {
+                process.env.CORE_API_PORT = "false";
+
+                jest.resetModules();
+                const result = (coreApiServiceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-api/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeDefined();
+                expect(result.error!.message).toEqual('"server.http.port" must be a number');
+            });
+        });
+
+        describe("process.env.CORE_API_SSL", () => {
+            it("should return true if process.env.CORE_API_SSL is defined", async () => {
+                process.env.CORE_API_SSL = "true";
+                process.env.CORE_API_SSL_KEY = "path/to/key";
+                process.env.CORE_API_SSL_CERT = "path/to/cert";
+
+                jest.resetModules();
+                const result = (coreApiServiceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-api/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.server.https.enabled).toEqual(true);
+            });
+
+            it("should return false if process.env.CORE_API_SSL is undefined", async () => {
+                jest.resetModules();
+                const result = (coreApiServiceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-api/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.server.https.enabled).toEqual(false);
+            });
+
+            it("should throw error if process.env.CORE_API_SSL = true and CORE_API_SSL_KEY or CORE_API_SSL_CERT is undefined", async () => {
+                process.env.CORE_API_SSL = "true";
+                process.env.CORE_API_SSL_KEY = "path/to/key";
+
+                jest.resetModules();
+                let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-api/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeDefined();
+                expect(result.error!.message).toEqual('"server.https.tls.cert" is required');
+
+                delete process.env.CORE_API_SSL_KEY;
+                process.env.CORE_API_SSL_CERT = "path/to/cert";
+
+                jest.resetModules();
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-api/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeDefined();
+                expect(result.error!.message).toEqual('"server.https.tls.key" is required');
+            });
+        });
+
+        describe("process.env.CORE_API_CACHE", () => {
+            it("should return false if process.env.CORE_API_CACHE is undefined", async () => {
+                jest.resetModules();
+                const result = (coreApiServiceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-api/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.plugins.cache.enabled).toEqual(false);
+            });
+
+            it("should return true if process.env.CORE_API_CACHE_DISABLED is defined", async () => {
+                process.env.CORE_API_CACHE = "true";
+
+                jest.resetModules();
+                const result = (coreApiServiceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-api/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.plugins.cache.enabled).toEqual(true);
+            });
+        });
+
+        describe("process.env.CORE_API_RATE_LIMIT_DISABLED", () => {
+            it("should return true if process.env.CORE_API_RATE_LIMIT_DISABLED is undefined", async () => {
+                jest.resetModules();
+                const result = (coreApiServiceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-api/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.plugins.rateLimit.enabled).toEqual(true);
+            });
+
+            it("should return false if process.env.CORE_API_RATE_LIMIT_ENABLED is defined", async () => {
+                process.env.CORE_API_RATE_LIMIT_DISABLED = "true";
+
+                jest.resetModules();
+                const result = (coreApiServiceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-api/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.plugins.rateLimit.enabled).toEqual(false);
+            });
+        });
+
+        describe("process.env.CORE_API_RATE_LIMIT_USER_LIMIT", () => {
+            it("should parse process.env.CORE_API_RATE_LIMIT_USER_LIMIT", async () => {
+                process.env.CORE_API_RATE_LIMIT_USER_LIMIT = "200";
+
+                jest.resetModules();
+                const result = (coreApiServiceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-api/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.plugins.rateLimit.points).toEqual(200);
+            });
+
+            it("should throw if process.env.CORE_API_RATE_LIMIT_USER_LIMIT is invalid", async () => {
+                process.env.CORE_API_RATE_LIMIT_USER_LIMIT = "false";
+
+                jest.resetModules();
+                const result = (coreApiServiceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-api/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeDefined();
+                expect(result.error!.message).toEqual('"plugins.rateLimit.points" must be a number');
+            });
+        });
+
+        describe("process.env.CORE_API_RATE_LIMIT_USER_EXPIRES", () => {
+            it("should parse process.env.CORE_API_RATE_LIMIT_USER_EXPIRES", async () => {
+                process.env.CORE_API_RATE_LIMIT_USER_EXPIRES = "200";
+
+                jest.resetModules();
+                const result = (coreApiServiceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-api/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.plugins.rateLimit.duration).toEqual(200);
+            });
+
+            it("should throw if process.env.CORE_API_RATE_LIMIT_USER_EXPIRES is invalid", async () => {
+                process.env.CORE_API_RATE_LIMIT_USER_EXPIRES = "false";
+
+                jest.resetModules();
+                const result = (coreApiServiceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-api/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeDefined();
+                expect(result.error!.message).toEqual('"plugins.rateLimit.duration" must be a number');
+            });
+        });
+
+        describe("process.env.CORE_API_RATE_LIMIT_WHITELIST", () => {
+            it("should parse process.env.CORE_API_RATE_LIMIT_WHITELIST", async () => {
+                process.env.CORE_API_RATE_LIMIT_WHITELIST = "*,127.0.0.1,127.0.*";
+
+                jest.resetModules();
+                const result = (coreApiServiceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-api/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.plugins.rateLimit.whitelist).toEqual(["*", "127.0.0.1", "127.0.*"]);
+            });
+        });
+
+        describe("process.env.CORE_API_RATE_LIMIT_BLACKLIST", () => {
+            it("should parse process.env.CORE_API_RATE_LIMIT_BLACKLIST", async () => {
+                process.env.CORE_API_RATE_LIMIT_BLACKLIST = "*,127.0.0.1,127.0.*";
+
+                jest.resetModules();
+                const result = (coreApiServiceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-api/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.plugins.rateLimit.blacklist).toEqual(["*", "127.0.0.1", "127.0.*"]);
+            });
+        });
+
+        describe("process.env.CORE_API_TRUST_PROXY", () => {
+            it("should return false if process.env.CORE_API_TRUST_PROXY is undefined", async () => {
+                jest.resetModules();
+                const result = (coreApiServiceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-api/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.plugins.trustProxy).toEqual(false);
+            });
+
+            it("should return false if process.env.CORE_API_TRUST_PROXY is defined", async () => {
+                process.env.CORE_API_TRUST_PROXY = "true";
+
+                jest.resetModules();
+                const result = (coreApiServiceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-api/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.plugins.trustProxy).toEqual(true);
+            });
+        });
+
+        describe("process.env.CORE_API_NO_ESTIMATED_TOTAL_COUNT", () => {
+            it("should return true if process.env.CORE_API_NO_ESTIMATED_TOTAL_COUNT is undefined", async () => {
+                jest.resetModules();
+                const result = (coreApiServiceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-api/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.options.estimateTotalCount).toEqual(true);
+            });
+
+            it("should return false if process.env.CORE_API_NO_ESTIMATED_TOTAL_COUNT is defined", async () => {
+                process.env.CORE_API_NO_ESTIMATED_TOTAL_COUNT = "true";
+
+                jest.resetModules();
+                const result = (coreApiServiceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-api/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.options.estimateTotalCount).toEqual(false);
+            });
+        });
     });
 });

@@ -1,5 +1,6 @@
 import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
 import { Connection, createConnection, getCustomRepository } from "typeorm";
+import Joi from "joi";
 
 import { BlockFilter } from "./block-filter";
 import { BlockHistoryService } from "./block-history-service";
@@ -82,5 +83,21 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
     public getTransactionRepository(): TransactionRepository {
         return getCustomRepository(TransactionRepository);
+    }
+
+    public configSchema(): object {
+        return Joi.object({
+            connection: Joi.object({
+                type: Joi.string().required(),
+                host: Joi.string().required(),
+                port: Joi.number().required(),
+                database: Joi.string().required(),
+                username: Joi.string().required(),
+                password: Joi.string().required(),
+                entityPrefix: Joi.string().required(),
+                synchronize: Joi.bool().required(),
+                logging: Joi.bool().required(),
+            }).required(),
+        });
     }
 }

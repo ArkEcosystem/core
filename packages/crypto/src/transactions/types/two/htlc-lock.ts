@@ -44,7 +44,13 @@ export abstract class HtlcLockTransaction extends Transaction {
         }
 
         if (data.recipientId) {
-            buffer.append(Address.toBuffer(data.recipientId).addressBuffer);
+            const { addressBuffer, addressError } = Address.toBuffer(data.recipientId);
+
+            if (options) {
+                options.addressError = addressError;
+            }
+
+            buffer.append(addressBuffer);
         }
 
         return buffer;

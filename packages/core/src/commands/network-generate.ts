@@ -1,6 +1,6 @@
 import { Commands, Container, Contracts, Services } from "@arkecosystem/core-cli";
 import { Crypto, Identities, Interfaces, Transactions, Utils, Managers, Blocks } from "@arkecosystem/crypto";
-import Joi from "@hapi/joi";
+import Joi from "joi";
 import { generateMnemonic } from "bip39";
 import envPaths from "env-paths";
 import { ensureDirSync, existsSync, readJSONSync, writeFileSync, writeJSONSync } from "fs-extra";
