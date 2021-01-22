@@ -1,6 +1,7 @@
 import { ApplicationFactory } from "@arkecosystem/core-cli";
 import { Container, Contracts, Providers, Types } from "@arkecosystem/core-kernel";
 import { cloneDeep } from "lodash";
+import Joi from "joi";
 
 import { ActionReader } from "./action-reader";
 import { DatabaseLogger } from "./database-logger";
@@ -123,6 +124,69 @@ export class ServiceProvider extends Providers.ServiceProvider {
         }
 
         return [];
+    }
+
+    public configSchema(): object {
+        return Joi.object({
+            watcher: Joi.object({
+                enabled: Joi.bool().required(),
+                resetDatabase: Joi.bool().required(),
+                storage: Joi.string().required(),
+                watch: Joi.object({
+                    blocks: Joi.bool().required(),
+                    errors: Joi.bool().required(),
+                    queries: Joi.bool().required(),
+                    queues: Joi.bool().required(),
+                    rounds: Joi.bool().required(),
+                    schedules: Joi.bool().required(),
+                    transactions: Joi.bool().required(),
+                    wallets: Joi.bool().required(),
+                    webhooks: Joi.bool().required(),
+                }).required(),
+            }).required(),
+            logs: Joi.object({
+                enabled: Joi.bool().required(),
+                resetDatabase: Joi.bool().required(),
+                storage: Joi.string().required(),
+                history: Joi.number().min(1).required(),
+            }).required(),
+            server: Joi.object({
+                ip: Joi.number(),
+                http: Joi.object({
+                    enabled: Joi.bool().required(),
+                    host: Joi.string().required(),
+                    port: Joi.number().required(),
+                }).required(),
+                https: Joi.object({
+                    enabled: Joi.bool().required(),
+                    host: Joi.string().required(),
+                    port: Joi.number().required(),
+                    tls: Joi.object({
+                        key: Joi.string().when("...enabled", { is: true, then: Joi.required() }),
+                        cert: Joi.string().when("...enabled", { is: true, then: Joi.required() }),
+                    }).required(),
+                }).required(),
+            }).required(),
+            plugins: Joi.object({
+                whitelist: Joi.array().items(Joi.string()).required(),
+                tokenAuthentication: Joi.object({
+                    enabled: Joi.bool().required(),
+                    token: Joi.string().when("enabled", { is: true, then: Joi.required() }),
+                }).required(),
+                basicAuthentication: Joi.object({
+                    enabled: Joi.bool().required(),
+                    secret: Joi.string().when("enabled", { is: true, then: Joi.required() }),
+                    users: Joi.array()
+                        .items(
+                            Joi.object({
+                                username: Joi.string().required(),
+                                password: Joi.string().required(),
+                            }),
+                        )
+                        .when("enabled", { is: true, then: Joi.required() }),
+                }).required(),
+            }).required(),
+        });
     }
 
     private isProcessTypeManager() {
