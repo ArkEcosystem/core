@@ -4,12 +4,11 @@ import Hapi from "@hapi/hapi";
 import { Controller } from "./controller";
 
 export class TransactionsController extends Controller {
+    @Container.inject(Container.Identifiers.TransactionPoolProcessor)
+    private readonly processor!: Contracts.TransactionPool.Processor;
+
     public async postTransactions(request: Hapi.Request, h: Hapi.ResponseToolkit): Promise<string[]> {
-        const createProcessor: Contracts.TransactionPool.ProcessorFactory = this.app.get(
-            Container.Identifiers.TransactionPoolProcessorFactory,
-        );
-        const processor: Contracts.TransactionPool.Processor = createProcessor();
-        await processor.process((request.payload as any).transactions as Buffer[]);
-        return processor.accept;
+        const result = await this.processor.process((request.payload as any).transactions as Buffer[]);
+        return result.accept;
     }
 }

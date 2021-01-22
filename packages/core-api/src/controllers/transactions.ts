@@ -25,8 +25,8 @@ export class TransactionsController extends Controller {
     @Container.inject(Container.Identifiers.BlockHistoryService)
     private readonly blockHistoryService!: Contracts.Shared.BlockHistoryService;
 
-    @Container.inject(Container.Identifiers.TransactionPoolProcessorFactory)
-    private readonly createProcessor!: Contracts.TransactionPool.ProcessorFactory;
+    @Container.inject(Container.Identifiers.TransactionPoolProcessor)
+    private readonly processor!: Contracts.TransactionPool.Processor;
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         const criteria: Contracts.Shared.TransactionCriteria = request.query;
@@ -55,16 +55,15 @@ export class TransactionsController extends Controller {
     }
 
     public async store(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const processor: Contracts.TransactionPool.Processor = this.createProcessor();
-        await processor.process(request.payload.transactions);
+        const result = await this.processor.process(request.payload.transactions);
         return {
             data: {
-                accept: processor.accept,
-                broadcast: processor.broadcast,
-                excess: processor.excess,
-                invalid: processor.invalid,
+                accept: result.accept,
+                broadcast: result.broadcast,
+                excess: result.excess,
+                invalid: result.invalid,
             },
-            errors: processor.errors,
+            errors: result.errors,
         };
     }
 
