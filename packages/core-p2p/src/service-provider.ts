@@ -62,7 +62,9 @@ export class ServiceProvider extends Providers.ServiceProvider {
     public configSchema(): object {
         return Joi.object({
             server: Joi.object({
-                hostname: Joi.string().required(),
+                hostname: Joi.string()
+                    .ip({ version: ["ipv4", "ipv6"] })
+                    .required(),
                 port: Joi.number().required(),
                 logLevel: Joi.number().required(), // TODO: Check
             }).required(),

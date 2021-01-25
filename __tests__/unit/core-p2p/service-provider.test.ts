@@ -224,5 +224,163 @@ describe("ServiceProvider", () => {
             expect(result.value.skipDiscovery).toBeUndefined();
             expect(result.value.ignoreMinimumNetworkReach).toBeUndefined();
         });
+
+        describe("process.env.CORE_P2P_HOST", () => {
+            it("should parse process.env.CORE_P2P_HOST", async () => {
+                process.env.CORE_P2P_HOST = "127.0.0.1";
+
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-p2p/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.server.hostname).toEqual("127.0.0.1");
+            });
+
+            it("should throw if process.env.CORE_MONITOR_PUBLIC_IP is not ipv4 or ipv6 address", async () => {
+                process.env.CORE_P2P_HOST = "123";
+
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-p2p/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeDefined();
+                expect(result.error!.message).toEqual(
+                    '"server.hostname" must be a valid ip address of one of the following versions [ipv4, ipv6] with a optional CIDR',
+                );
+            });
+        });
+
+        describe("process.env.CORE_P2P_PORT", () => {
+            it("should parse process.env.CORE_P2P_PORT", async () => {
+                process.env.CORE_P2P_PORT = "5000";
+
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-p2p/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.server.port).toEqual(5000);
+            });
+
+            it("should throw if process.env.CORE_P2P_PORT is not number", async () => {
+                process.env.CORE_P2P_PORT = "false";
+
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-p2p/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeDefined();
+                expect(result.error!.message).toEqual('"server.port" must be a number');
+            });
+        });
+
+        describe("process.env.CORE_NETWORK_NAME", () => {
+            it("should return 1 if process.env.CORE_NETWORK_NAME is testnet", async () => {
+                process.env.CORE_NETWORK_NAME = "testnet";
+
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-p2p/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.server.logLevel).toEqual(1);
+            });
+
+            it("should return 0 if process.env.CORE_NETWORK_NAME is not testnet", async () => {
+                process.env.CORE_NETWORK_NAME = "devnet";
+
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-p2p/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.server.logLevel).toEqual(0);
+            });
+        });
+
+        describe("process.env.CORE_P2P_MAX_PEERS_SAME_SUBNET", () => {
+            it("should parse process.env.CORE_P2P_MAX_PEERS_SAME_SUBNET", async () => {
+                process.env.CORE_P2P_MAX_PEERS_SAME_SUBNET = "5000";
+
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-p2p/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.maxSameSubnetPeers).toEqual(5000);
+            });
+
+            it("should throw if process.env.CORE_P2P_MAX_PEERS_SAME_SUBNET is not number", async () => {
+                process.env.CORE_P2P_MAX_PEERS_SAME_SUBNET = "false";
+
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-p2p/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeDefined();
+                expect(result.error!.message).toEqual('"maxSameSubnetPeers" must be a number');
+            });
+        });
+
+        describe("process.env.CORE_P2P_MAX_PEER_SEQUENTIAL_ERRORS", () => {
+            it("should parse process.env.CORE_P2P_MAX_PEER_SEQUENTIAL_ERRORS", async () => {
+                process.env.CORE_P2P_MAX_PEER_SEQUENTIAL_ERRORS = "5000";
+
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-p2p/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.maxPeerSequentialErrors).toEqual(5000);
+            });
+
+            it("should throw if process.env.CORE_P2P_MAX_PEER_SEQUENTIAL_ERRORS is not number", async () => {
+                process.env.CORE_P2P_MAX_PEER_SEQUENTIAL_ERRORS = "false";
+
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-p2p/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeDefined();
+                expect(result.error!.message).toEqual('"maxPeerSequentialErrors" must be a number');
+            });
+        });
+
+        describe("process.env.CORE_P2P_RATE_LIMIT", () => {
+            it("should parse process.env.CORE_P2P_RATE_LIMIT", async () => {
+                process.env.CORE_P2P_RATE_LIMIT = "5000";
+
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-p2p/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.rateLimit).toEqual(5000);
+            });
+
+            it("should throw if process.env.CORE_P2P_RATE_LIMIT is not number", async () => {
+                process.env.CORE_P2P_RATE_LIMIT = "false";
+
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-p2p/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeDefined();
+                expect(result.error!.message).toEqual('"rateLimit" must be a number');
+            });
+        });
     });
 });
