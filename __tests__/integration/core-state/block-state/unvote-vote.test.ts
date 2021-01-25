@@ -4,6 +4,7 @@ import { delegates } from "@arkecosystem/core-test-framework";
 import { BIP39 } from "../../../../packages/core-forger/src/methods/bip39";
 
 import { setUp, tearDown } from "../__support__/setup";
+import { getActualVoteBalances, getExpectedVoteBalances } from "../__support__/utils";
 
 let app: Application;
 
@@ -47,15 +48,13 @@ test("BlockState handling [unvote+vote] block", async () => {
         reward: Utils.BigNumber.make("100"),
     });
 
-    const delegate2 = walletRepository.findByPublicKey(delegates[2].publicKey);
-
-    expect(delegate2.getAttribute("delegate.voteBalance").toFixed()).toBe("300000000000000");
+    expect(getActualVoteBalances(walletRepository)).toEqual(getExpectedVoteBalances(walletRepository));
 
     await blockState.applyBlock(block2);
 
-    expect(delegate2.getAttribute("delegate.voteBalance").toFixed()).toBe("299999999999900");
+    expect(getActualVoteBalances(walletRepository)).toEqual(getExpectedVoteBalances(walletRepository));
 
     await blockState.revertBlock(block2);
 
-    expect(delegate2.getAttribute("delegate.voteBalance").toFixed()).toBe("300000000000000");
+    expect(getActualVoteBalances(walletRepository)).toEqual(getExpectedVoteBalances(walletRepository));
 });
