@@ -6,13 +6,13 @@ export type ProcessorError = {
 };
 
 export interface Processor {
-    accept: string[];
-    broadcast: string[];
-    excess: string[];
-    invalid: string[];
-    errors?: { [id: string]: ProcessorError };
-
-    process(data: Interfaces.ITransactionData[] | Buffer[]): Promise<void>;
+    process(data: Interfaces.ITransactionData[] | Buffer[]): Promise<{
+        accept: string[],
+        broadcast: string[],
+        invalid: string[],
+        excess: string[],
+        errors?: { [id: string]: ProcessorError },
+    }>;
 }
 
 export type ProcessorFactory = () => Processor;

@@ -207,6 +207,10 @@ export class Client {
         }
     }
 
+    public setTimeout(timeout: number) {
+        this._settings.timeout = timeout;
+    }
+
     private _connect(options, initial, next) {
         const ws = new WebSocket(this._url, this._settings.ws);
         this._ws = ws;

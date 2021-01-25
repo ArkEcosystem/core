@@ -26,13 +26,10 @@ export class PluginFactory implements Plugins.PluginFactory {
     @Container.inject(Identifiers.TokenValidator)
     private readonly tokenValidator!: Authentication.TokenValidator;
 
-    public preparePlugins(): Array<Plugins.RegisterPluginObject> {
+    public preparePlugins(options: Plugins.PluginFactoryOptions): Array<Plugins.RegisterPluginObject> {
         const pluginConfig = this.configuration.get("plugins");
 
-        const plugins = [
-            {
-                plugin: rpcResponseHandler,
-            },
+        const plugins: Plugins.RegisterPluginObject[] = [
             {
                 plugin: whitelist,
                 options: {
@@ -40,42 +37,12 @@ export class PluginFactory implements Plugins.PluginFactory {
                     whitelist: pluginConfig.whitelist,
                 },
             },
-            {
-                plugin: rpc,
-                options: {
-                    methods: this.actionReader.discoverActions(),
-                    processor: {
-                        schema: {
-                            properties: {
-                                id: {
-                                    type: ["number", "string"],
-                                },
-                                jsonrpc: {
-                                    pattern: "2.0",
-                                    type: "string",
-                                },
-                                method: {
-                                    type: "string",
-                                },
-                                params: {
-                                    type: "object",
-                                },
-                            },
-                            required: ["jsonrpc", "method", "id"],
-                            type: "object",
-                        },
-                        validate(data: object, schema: object) {
-                            try {
-                                const { error } = Validation.validator.validate(schema, data);
-                                return { value: data, error: error ? error : null };
-                            } catch (error) {
-                                return { value: null, error: error.stack };
-                            }
-                        },
-                    },
-                },
-            },
         ];
+
+        if (options.jsonRpcEnabled) {
+            plugins.push(this.prepareJsonRpc());
+            plugins.push(this.prepareJsonRpcResponseHandler());
+        }
 
         // @ts-ignore
         if (pluginConfig.basicAuthentication.enabled) {
@@ -88,6 +55,50 @@ export class PluginFactory implements Plugins.PluginFactory {
         }
 
         return plugins;
+    }
+
+    private prepareJsonRpc(): Plugins.RegisterPluginObject {
+        return {
+            plugin: rpc,
+            options: {
+                methods: this.actionReader.discoverActions(),
+                processor: {
+                    schema: {
+                        properties: {
+                            id: {
+                                type: ["number", "string"],
+                            },
+                            jsonrpc: {
+                                pattern: "2.0",
+                                type: "string",
+                            },
+                            method: {
+                                type: "string",
+                            },
+                            params: {
+                                type: "object",
+                            },
+                        },
+                        required: ["jsonrpc", "method", "id"],
+                        type: "object",
+                    },
+                    validate(data: object, schema: object) {
+                        try {
+                            const { error } = Validation.validator.validate(schema, data);
+                            return { value: data, error: error ? error : null };
+                        } catch (error) {
+                            return { value: null, error: error.stack };
+                        }
+                    },
+                },
+            },
+        };
+    }
+
+    private prepareJsonRpcResponseHandler(): Plugins.RegisterPluginObject {
+        return {
+            plugin: rpcResponseHandler,
+        };
     }
 
     private prepareBasicAuthentication(): Plugins.RegisterPluginObject {
@@ -125,6 +136,8 @@ export class PluginFactory implements Plugins.PluginFactory {
                     await server.register(tokenAuthenticationPlugin);
 
                     server.auth.strategy("simple", "bearer-access-token", {
+                        allowQueryToken: true,
+                        accessTokenName: "token",
                         validate: async (...params) => {
                             // @ts-ignore
                             return this.validateToken(...params);
