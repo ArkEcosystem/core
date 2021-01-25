@@ -1,5 +1,6 @@
 import "jest-extended";
 
+import { AnySchema } from "@hapi/joi";
 import { Identifiers, Server, ServiceProvider as CoreApiServiceProvider } from "@packages/core-api/src";
 import { defaults } from "@packages/core-api/src/defaults";
 import { Application, Container, Providers } from "@packages/core-kernel";
@@ -140,5 +141,183 @@ describe("ServiceProvider", () => {
 
     it("should not be required", async () => {
         await expect(serviceProvider.required()).resolves.toBeFalse();
+    });
+
+    describe("ServiceProvider.configSchema", () => {
+        beforeEach(() => {
+            serviceProvider = app.resolve<ServiceProvider>(ServiceProvider);
+
+            for (const key of Object.keys(process.env)) {
+                if (key.includes("CORE_WEBHOOKS_")) {
+                    delete process.env[key];
+                }
+            }
+        });
+
+        it("should validate schema using defaults", async () => {
+            jest.resetModules();
+            const result = (serviceProvider.configSchema() as AnySchema).validate(
+                (await import("@packages/core-webhooks/src/defaults")).defaults,
+            );
+
+            expect(result.error).toBeUndefined();
+
+            expect(result.value.enabled).toBeFalse();
+            expect(result.value.server.http.host).toBeString();
+            expect(result.value.server.http.port).toBeNumber();
+            expect(result.value.server.http.port).toBeNumber();
+            expect(result.value.server.whitelist).toBeArray();
+            result.value.server.whitelist.forEach((item) => {
+                expect(item).toBeString();
+            });
+            expect(result.value.timeout).toBeNumber();
+        });
+
+        describe("process.env.CORE_WEBHOOKS_ENABLED", () => {
+            it("should return true if process.env.CORE_WEBHOOKS_ENABLED is defined", async () => {
+                process.env.CORE_WEBHOOKS_ENABLED = "true";
+
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-webhooks/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.enabled).toEqual(true);
+            });
+        });
+
+        describe("process.env.CORE_WEBHOOKS_HOST", () => {
+            it("should return value of process.env.CORE_WEBHOOKS_HOST if defined", async () => {
+                process.env.CORE_WEBHOOKS_HOST = "127.0.0.1";
+
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-webhooks/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.server.http.host).toEqual("127.0.0.1");
+            });
+        });
+
+        describe("process.env.CORE_WEBHOOKS_TIMEOUT", () => {
+            it("should return value of process.env.CORE_WEBHOOKS_TIMEOUT if defined", async () => {
+                process.env.CORE_WEBHOOKS_TIMEOUT = "5000";
+
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-webhooks/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.timeout).toEqual(5000);
+            });
+        });
+
+        describe("schema restrictions", () => {
+            let defaults;
+
+            beforeEach(async () => {
+                jest.resetModules();
+                defaults = (await import("@packages/core-webhooks/src/defaults")).defaults;
+            });
+
+            it("enabled is required && is boolean", async () => {
+                defaults.enabled = 123;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"enabled" must be a boolean');
+
+                delete defaults.enabled;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"enabled" is required');
+            });
+
+            it("server is required && is object", async () => {
+                defaults.server = false;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server" must be of type object');
+
+                delete defaults.server;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server" is required');
+            });
+
+            it("server.http is required && is object", async () => {
+                defaults.server.http = false;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.http" must be of type object');
+
+                delete defaults.server.http;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.http" is required');
+            });
+
+            it("server.http.host is required && is IP address", async () => {
+                defaults.server.http.host = false;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.http.host" must be a string');
+
+                defaults.server.http.host = "dummy";
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual(
+                    '"server.http.host" must be a valid ip address of one of the following versions [ipv4, ipv6] with a optional CIDR',
+                );
+
+                delete defaults.server.http.host;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.http.host" is required');
+            });
+
+            it("server.http.port is required && is number", async () => {
+                defaults.server.http.port = false;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.http.port" must be a number');
+
+                delete defaults.server.http.port;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.http.port" is required');
+            });
+
+            it("server.whitelist is required && is array && contains strings", async () => {
+                defaults.server.whitelist = false;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.whitelist" must be an array');
+
+                defaults.server.whitelist = [false];
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.whitelist[0]" must be a string');
+
+                delete defaults.server.whitelist;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.whitelist" is required');
+            });
+
+            it("timeout is required && is number", async () => {
+                defaults.timeout = false;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"timeout" must be a number');
+
+                delete defaults.timeout;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"timeout" is required');
+            });
+        });
     });
 });
