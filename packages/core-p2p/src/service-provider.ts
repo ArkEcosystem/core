@@ -1,4 +1,5 @@
 import { Container, Providers, Services, Types, Utils } from "@arkecosystem/core-kernel";
+import Joi from "joi";
 
 import { ValidateAndAcceptPeerAction } from "./actions";
 import { EventListener } from "./event-listener";
@@ -56,6 +57,37 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
     public async required(): Promise<boolean> {
         return true;
+    }
+
+    public configSchema(): object {
+        return Joi.object({
+            server: Joi.object({
+                hostname: Joi.string().required(),
+                port: Joi.number().required(),
+                logLevel: Joi.number().required(), // TODO: Check
+            }).required(),
+            minimumVersions: Joi.array().items(Joi.string()).required(),
+            minimumNetworkReach: Joi.number().min(0).required(),
+            verifyTimeout: Joi.number().min(0).required(),
+            getBlocksTimeout: Joi.number().min(0).required(),
+            maxPeersBroadcast: Joi.number().min(0).required(),
+            maxSameSubnetPeers: Joi.number().min(0).required(),
+            maxPeerSequentialErrors: Joi.number().min(0).required(),
+            whitelist: Joi.array().items(Joi.string()).required(),
+            blacklist: Joi.array().items(Joi.string()).required(),
+            remoteAccess: Joi.array()
+                .items(Joi.string().ip({ version: ["ipv4", "ipv6"] }))
+                .required(),
+            dns: Joi.array()
+                .items(Joi.string().ip({ version: ["ipv4", "ipv6"] }))
+                .required(),
+            ntp: Joi.array().items(Joi.string()).required(),
+            rateLimit: Joi.number().min(0).required(),
+            networkStart: Joi.bool(),
+            disableDiscovery: Joi.bool(),
+            skipDiscovery: Joi.bool(),
+            ignoreMinimumNetworkReach: Joi.bool(),
+        });
     }
 
     private registerFactories(): void {
