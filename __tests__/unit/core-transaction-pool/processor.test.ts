@@ -57,17 +57,17 @@ describe("Processor.process", () => {
             });
 
         const processor = container.resolve(Processor);
-        await processor.process([transaction1.data, transaction2.data]);
+        const result = await processor.process([transaction1.data, transaction2.data]);
 
         expect(pool.addTransaction).toBeCalledTimes(2);
         expect(dynamicFeeMatcher.throwIfCannotBroadcast).toBeCalledTimes(2);
         expect(spyBroadcastTransactions).not.toBeCalled();
 
-        expect(processor.accept).toEqual([transaction1.id, transaction2.id]);
-        expect(processor.broadcast).toEqual([]);
-        expect(processor.invalid).toEqual([]);
-        expect(processor.excess).toEqual([]);
-        expect(processor.errors).toBeUndefined();
+        expect(result.accept).toEqual([transaction1.id, transaction2.id]);
+        expect(result.broadcast).toEqual([]);
+        expect(result.invalid).toEqual([]);
+        expect(result.excess).toEqual([]);
+        expect(result.errors).toBeUndefined();
     });
 
     it("should wrap deserialize errors into BAD_DATA pool error", async () => {
@@ -76,13 +76,13 @@ describe("Processor.process", () => {
         workerPool.isTypeGroupSupported.mockReturnValueOnce(true);
         workerPool.getTransactionFromData.mockRejectedValueOnce(new Error("Version 1 not supported"));
 
-        await processor.process([transaction1.data]);
+        const result = await processor.process([transaction1.data]);
 
         expect(workerPool.isTypeGroupSupported).toBeCalledWith(transaction1.data.typeGroup);
         expect(workerPool.getTransactionFromData).toBeCalledWith(transaction1.data);
 
-        expect(processor.invalid).toEqual([transaction1.id]);
-        expect(processor.errors).toEqual({
+        expect(result.invalid).toEqual([transaction1.id]);
+        expect(result.errors).toEqual({
             [transaction1.data.id]: {
                 type: "ERR_BAD_DATA",
                 message: "Invalid transaction data: Version 1 not supported",
@@ -100,18 +100,18 @@ describe("Processor.process", () => {
             });
 
         const processor = container.resolve(Processor);
-        await processor.process([transaction1.data, transaction2.data]);
+        const result = await processor.process([transaction1.data, transaction2.data]);
 
         expect(pool.addTransaction).toBeCalledTimes(2);
         expect(dynamicFeeMatcher.throwIfCannotBroadcast).toBeCalledTimes(1);
         expect(spyBroadcastTransactions).toBeCalledTimes(1);
 
-        expect(processor.accept).toEqual([transaction1.id]);
-        expect(processor.broadcast).toEqual([transaction1.id]);
-        expect(processor.invalid).toEqual([transaction2.id]);
-        expect(processor.excess).toEqual([]);
-        expect(processor.errors[transaction2.id]).toBeTruthy();
-        expect(processor.errors[transaction2.id].type).toBe("ERR_LOW_FEE");
+        expect(result.accept).toEqual([transaction1.id]);
+        expect(result.broadcast).toEqual([transaction1.id]);
+        expect(result.invalid).toEqual([transaction2.id]);
+        expect(result.excess).toEqual([]);
+        expect(result.errors[transaction2.id]).toBeTruthy();
+        expect(result.errors[transaction2.id].type).toBe("ERR_LOW_FEE");
     });
 
     it("should add broadcast eligible transaction", async () => {
@@ -124,17 +124,17 @@ describe("Processor.process", () => {
             });
 
         const processor = container.resolve(Processor);
-        await processor.process([transaction1.data, transaction2.data]);
+        const result = await processor.process([transaction1.data, transaction2.data]);
 
         expect(pool.addTransaction).toBeCalledTimes(2);
         expect(dynamicFeeMatcher.throwIfCannotBroadcast).toBeCalledTimes(2);
         expect(spyBroadcastTransactions).toBeCalled();
 
-        expect(processor.accept).toEqual([transaction1.id, transaction2.id]);
-        expect(processor.broadcast).toEqual([transaction1.id]);
-        expect(processor.invalid).toEqual([]);
-        expect(processor.excess).toEqual([]);
-        expect(processor.errors).toEqual(undefined);
+        expect(result.accept).toEqual([transaction1.id, transaction2.id]);
+        expect(result.broadcast).toEqual([transaction1.id]);
+        expect(result.invalid).toEqual([]);
+        expect(result.excess).toEqual([]);
+        expect(result.errors).toEqual(undefined);
     });
 
     it("should rethrow unexpected error", async () => {
@@ -149,12 +149,6 @@ describe("Processor.process", () => {
         expect(pool.addTransaction).toBeCalledTimes(1);
         expect(dynamicFeeMatcher.throwIfCannotBroadcast).toBeCalledTimes(0);
         expect(spyBroadcastTransactions).not.toBeCalled();
-
-        expect(processor.accept).toEqual([]);
-        expect(processor.broadcast).toEqual([]);
-        expect(processor.invalid).toEqual([transaction1.id]);
-        expect(processor.excess).toEqual([]);
-        expect(processor.errors).toEqual(undefined);
     });
 
     it("should track excess transactions", async () => {
@@ -164,17 +158,17 @@ describe("Processor.process", () => {
         pool.addTransaction.mockRejectedValueOnce(exceedsError);
 
         const processor = container.resolve(Processor);
-        await processor.process([transaction1.data]);
+        const result = await processor.process([transaction1.data]);
 
         expect(pool.addTransaction).toBeCalledTimes(1);
         expect(dynamicFeeMatcher.throwIfCannotBroadcast).toBeCalledTimes(0);
         expect(spyBroadcastTransactions).not.toBeCalled();
 
-        expect(processor.accept).toEqual([]);
-        expect(processor.broadcast).toEqual([]);
-        expect(processor.invalid).toEqual([transaction1.id]);
-        expect(processor.excess).toEqual([transaction1.id]);
-        expect(processor.errors[transaction1.id]).toBeTruthy();
-        expect(processor.errors[transaction1.id].type).toBe("ERR_EXCEEDS_MAX_COUNT");
+        expect(result.accept).toEqual([]);
+        expect(result.broadcast).toEqual([]);
+        expect(result.invalid).toEqual([transaction1.id]);
+        expect(result.excess).toEqual([transaction1.id]);
+        expect(result.errors[transaction1.id]).toBeTruthy();
+        expect(result.errors[transaction1.id].type).toBe("ERR_EXCEEDS_MAX_COUNT");
     });
 });

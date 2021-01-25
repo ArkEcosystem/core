@@ -18,6 +18,9 @@ describe("TransactionsController", () => {
         pingBlock: jest.fn(),
         getLastDownloadedBlock: jest.fn(),
     };
+    const processor = {
+        process: jest.fn().mockReturnValue({ accept: []}),
+    };
     const createProcessor = jest.fn();
     const appPlugins = [{ package: "@arkecosystem/core-api", options: {} }];
     const coreApiServiceProvider = {
@@ -60,6 +63,7 @@ describe("TransactionsController", () => {
         container.bind(Container.Identifiers.PeerStorage).toConstantValue(peerStorage);
         container.bind(Container.Identifiers.DatabaseService).toConstantValue(database);
         container.bind(Container.Identifiers.Application).toConstantValue(app);
+        container.bind(Container.Identifiers.TransactionPoolProcessor).toConstantValue(processor);
     });
 
     beforeEach(() => {
@@ -69,8 +73,7 @@ describe("TransactionsController", () => {
     describe("postTransactions", () => {
         it("should create transaction processor and use it to process the transactions", async () => {
             const transactions = Networks.testnet.genesisBlock.transactions;
-            const processor = { process: jest.fn(), accept: [transactions[0].id] };
-            createProcessor.mockReturnValueOnce(processor);
+            processor.process.mockReturnValueOnce({ accept: [transactions[0].id] });
 
             expect(await transactionsController.postTransactions({ payload: { transactions } }, {})).toEqual([
                 transactions[0].id,

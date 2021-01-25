@@ -41,6 +41,8 @@ beforeEach(() => {
 
     app.bind(Container.Identifiers.TransactionPoolProcessorFactory).toConstantValue({});
 
+    app.bind(Container.Identifiers.TransactionPoolProcessor).toConstantValue({});
+
     app.bind(Container.Identifiers.EventDispatcherService).toConstantValue({});
 
     app.bind(Container.Identifiers.BlockHistoryService).toConstantValue({});
