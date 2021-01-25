@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-state",
-    "version": "3.0.0-next.19",
+    "version": "3.0.0-next.20",
     "description": "State Management for ARK Core",
     "license": "MIT",
     "contributors": [
@@ -22,10 +22,10 @@
         "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
-        "@arkecosystem/core-database": "^3.0.0-next.19",
-        "@arkecosystem/core-kernel": "^3.0.0-next.19",
-        "@arkecosystem/core-transactions": "^3.0.0-next.19",
-        "@arkecosystem/crypto": "^3.0.0-next.19",
+        "@arkecosystem/core-database": "^3.0.0-next.20",
+        "@arkecosystem/core-kernel": "^3.0.0-next.20",
+        "@arkecosystem/core-transactions": "^3.0.0-next.20",
+        "@arkecosystem/crypto": "^3.0.0-next.20",
         "@arkecosystem/utils": "^1.2.1",
         "immutable": "^4.0.0-rc.12"
     },

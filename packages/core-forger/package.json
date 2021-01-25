@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-forger",
-    "version": "3.0.0-next.19",
+    "version": "3.0.0-next.20",
     "description": "Forger for ARK Core",
     "license": "MIT",
     "contributors": [
@@ -22,9 +22,9 @@
         "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
-        "@arkecosystem/core-kernel": "^3.0.0-next.19",
-        "@arkecosystem/core-p2p": "^3.0.0-next.19",
-        "@arkecosystem/crypto": "^3.0.0-next.19",
+        "@arkecosystem/core-kernel": "^3.0.0-next.20",
+        "@arkecosystem/core-p2p": "^3.0.0-next.20",
+        "@arkecosystem/crypto": "^3.0.0-next.20",
         "@hapi/hapi": "^20.0.3",
         "node-forge": "^0.9.1",
         "otplib": "^12.0.0",
