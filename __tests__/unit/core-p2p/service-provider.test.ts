@@ -3,6 +3,7 @@ import "jest-extended";
 import { Application, Container, Providers, Services } from "@arkecosystem/core-kernel";
 import { Peer } from "@arkecosystem/core-p2p/src/peer";
 import { ServiceProvider } from "@arkecosystem/core-p2p/src/service-provider";
+import { AnySchema } from "@hapi/joi";
 
 describe("ServiceProvider", () => {
     const serverSymbol = Symbol.for("P2P<Server>");
@@ -153,6 +154,75 @@ describe("ServiceProvider", () => {
             expect(testPeer).toBeInstanceOf(Peer);
             expect(typeof testPeer.port).toBe("number");
             expect(testPeer.port).toEqual(4005);
+        });
+    });
+
+    describe("configSchema", () => {
+        beforeEach(() => {
+            serviceProvider = app.resolve<ServiceProvider>(ServiceProvider);
+
+            for (const key of Object.keys(process.env)) {
+                if (key.includes("CORE_P2P_")) {
+                    delete process.env[key];
+                }
+            }
+        });
+
+        it("should validate schema using defaults", async () => {
+            jest.resetModules();
+            const result = (serviceProvider.configSchema() as AnySchema).validate(
+                (await import("@packages/core-p2p/src/defaults")).defaults,
+            );
+
+            expect(result.error).toBeUndefined();
+
+            expect(result.value.server.hostname).toBeString();
+            expect(result.value.server.port).toBeNumber();
+            expect(result.value.server.logLevel).toBeNumber();
+
+            expect(result.value.minimumVersions).toBeArray();
+            result.value.minimumVersions.forEach((item) => {
+                expect(item).toBeString();
+            });
+
+            expect(result.value.minimumNetworkReach).toBeNumber();
+            expect(result.value.verifyTimeout).toBeNumber();
+            expect(result.value.getBlocksTimeout).toBeNumber();
+            expect(result.value.maxPeersBroadcast).toBeNumber();
+            expect(result.value.maxSameSubnetPeers).toBeNumber();
+            expect(result.value.maxPeerSequentialErrors).toBeNumber();
+
+            expect(result.value.whitelist).toBeArray();
+            result.value.whitelist.forEach((item) => {
+                expect(item).toBeString();
+            });
+
+            expect(result.value.blacklist).toBeArray();
+            result.value.blacklist.forEach((item) => {
+                expect(item).toBeString();
+            });
+
+            expect(result.value.remoteAccess).toBeArray();
+            result.value.remoteAccess.forEach((item) => {
+                expect(item).toBeString();
+            });
+
+            expect(result.value.dns).toBeArray();
+            result.value.dns.forEach((item) => {
+                expect(item).toBeString();
+            });
+
+            expect(result.value.ntp).toBeArray();
+            result.value.ntp.forEach((item) => {
+                expect(item).toBeString();
+            });
+
+            expect(result.value.rateLimit).toBeNumber();
+
+            expect(result.value.networkStart).toBeUndefined();
+            expect(result.value.disableDiscovery).toBeUndefined();
+            expect(result.value.skipDiscovery).toBeUndefined();
+            expect(result.value.ignoreMinimumNetworkReach).toBeUndefined();
         });
     });
 });
