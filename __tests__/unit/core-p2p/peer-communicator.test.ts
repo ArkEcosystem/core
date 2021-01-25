@@ -97,7 +97,7 @@ describe("PeerCommunicator", () => {
             await peerCommunicator.postBlock(peer, payload.block);
 
             expect(connector.emit).toBeCalledTimes(1);
-            expect(connector.emit).toBeCalledWith(peer, event,  { block: expect.any(Buffer), headers });
+            expect(connector.emit).toBeCalledWith(peer, event,  { block: expect.any(Buffer), headers }, 10000);
         });
     });
 
@@ -110,7 +110,7 @@ describe("PeerCommunicator", () => {
             await peerCommunicator.postTransactions(peer, payload.transactions);
 
             expect(connector.emit).toBeCalledTimes(1);
-            expect(connector.emit).toBeCalledWith(peer, event,  { ...payload, headers });
+            expect(connector.emit).toBeCalledWith(peer, event,  { ...payload, headers }, 10000);
         });
     });
     describe("ping", () => {
@@ -153,7 +153,7 @@ describe("PeerCommunicator", () => {
             await expect(peerCommunicator.ping(peer, 1000)).rejects.toThrow(PeerStatusResponseError);
 
             expect(connector.emit).toBeCalledTimes(1);
-            expect(connector.emit).toBeCalledWith(peer, event,  { headers });
+            expect(connector.emit).toBeCalledWith(peer, event,  { headers }, 1000);
         });
 
         it("should throw PeerStatusResponseError when there is no reply schema for getStatus", async () => {
@@ -170,7 +170,7 @@ describe("PeerCommunicator", () => {
             await expect(peerCommunicator.ping(peer, 1000)).rejects.toThrow(PeerStatusResponseError);
 
             expect(connector.emit).toBeCalledTimes(1);
-            expect(connector.emit).toBeCalledWith(peer, event,  { headers });
+            expect(connector.emit).toBeCalledWith(peer, event,  { headers }, 1000);
 
             replySchemas["p2p.peer.getStatus"] = getStatusReplySchema;
         });
@@ -195,7 +195,7 @@ describe("PeerCommunicator", () => {
                     await expect(peerCommunicator.ping(peer, 1000)).rejects.toThrow(PeerVerificationFailedError);
 
                     expect(connector.emit).toBeCalledTimes(1);
-                    expect(connector.emit).toBeCalledWith(peer, event,  { headers });
+                    expect(connector.emit).toBeCalledWith(peer, event,  { headers }, 1000);
                 },
             );
 
@@ -213,7 +213,7 @@ describe("PeerCommunicator", () => {
                 await expect(peerCommunicator.ping(peer, timeout)).rejects.toThrow(PeerPingTimeoutError);
 
                 expect(connector.emit).toBeCalledTimes(1);
-                expect(connector.emit).toBeCalledWith(peer, event,  { headers });
+                expect(connector.emit).toBeCalledWith(peer, event,  { headers }, timeout);
             });
 
             it("should throw PeerVerificationFailedError when verification fails", async () => {
@@ -226,7 +226,7 @@ describe("PeerCommunicator", () => {
                 await expect(peerCommunicator.ping(peer, 1000)).rejects.toThrow(PeerVerificationFailedError);
 
                 expect(connector.emit).toBeCalledTimes(1);
-                expect(connector.emit).toBeCalledWith(peer, event,  { headers });
+                expect(connector.emit).toBeCalledWith(peer, event,  { headers }, 1000);
             });
 
             it("should not throw otherwise", async () => {
@@ -240,7 +240,7 @@ describe("PeerCommunicator", () => {
                 const pingResult = await peerCommunicator.ping(peer, 6000);
 
                 expect(connector.emit).toBeCalledTimes(1);
-                expect(connector.emit).toBeCalledWith(peer, event,  { headers });
+                expect(connector.emit).toBeCalledWith(peer, event,  { headers }, 5000);
                 expect(pingResult).toEqual(baseGetStatusResponse.state);
             });
         });
@@ -260,7 +260,7 @@ describe("PeerCommunicator", () => {
                 const pingResult = await peerCommunicator.ping(peer, 1000);
 
                 expect(connector.emit).toBeCalledTimes(1);
-                expect(connector.emit).toBeCalledWith(peer, event,  { headers });
+                expect(connector.emit).toBeCalledWith(peer, event,  { headers }, 1000);
                 expect(pingResult).toEqual(baseGetStatusResponse.state);
                 expect(peer.state).toEqual(baseGetStatusResponse.state);
                 expect(peer.plugins).toEqual(baseGetStatusResponse.config.plugins);
@@ -358,7 +358,7 @@ describe("PeerCommunicator", () => {
             const getPeersResult = await peerCommunicator.getPeers(peer);
 
             expect(connector.emit).toBeCalledTimes(1);
-            expect(connector.emit).toBeCalledWith(peer, event,  { ...payload, headers });
+            expect(connector.emit).toBeCalledWith(peer, event,  { ...payload, headers }, 5000);
             expect(getPeersResult).toEqual(mockConnectorResponse.payload);
         });
 
@@ -372,7 +372,7 @@ describe("PeerCommunicator", () => {
             const getPeersResult = await peerCommunicator.getPeers(peer);
 
             expect(connector.emit).toBeCalledTimes(1);
-            expect(connector.emit).toBeCalledWith(peer, event,  { ...payload, headers });
+            expect(connector.emit).toBeCalledWith(peer, event,  { ...payload, headers }, 5000);
             expect(getPeersResult).toBeUndefined();
         });
 
@@ -386,7 +386,7 @@ describe("PeerCommunicator", () => {
             const getPeersResult = await peerCommunicator.getPeers(peer);
 
             expect(connector.emit).toBeCalledTimes(1);
-            expect(connector.emit).toBeCalledWith(peer, event,  { ...payload, headers });
+            expect(connector.emit).toBeCalledWith(peer, event,  { ...payload, headers }, 5000);
             expect(getPeersResult).toBeUndefined();
             expect(logger.debug).toBeCalledWith(expect.stringContaining("Got unexpected reply from"));
         });
@@ -403,7 +403,7 @@ describe("PeerCommunicator", () => {
             const hasCommonBlocksResult = await peerCommunicator.hasCommonBlocks(peer, payload.ids, 1000);
 
             expect(connector.emit).toBeCalledTimes(1);
-            expect(connector.emit).toBeCalledWith(peer, event,  { ...payload, headers });
+            expect(connector.emit).toBeCalledWith(peer, event,  { ...payload, headers }, 1000);
             expect(hasCommonBlocksResult).toEqual(mockConnectorResponse.payload.common);
         });
 
@@ -417,7 +417,7 @@ describe("PeerCommunicator", () => {
             const hasCommonBlocksResult = await peerCommunicator.hasCommonBlocks(peer, payload.ids, 6000);
 
             expect(connector.emit).toBeCalledTimes(1);
-            expect(connector.emit).toBeCalledWith(peer, event,  { ...payload, headers });
+            expect(connector.emit).toBeCalledWith(peer, event,  { ...payload, headers }, 5000);
             expect(hasCommonBlocksResult).toBe(false);
         });
     });
@@ -480,7 +480,7 @@ describe("PeerCommunicator", () => {
                 headers,
             };
             expect(connector.emit).toBeCalledTimes(1);
-            expect(connector.emit).toBeCalledWith(peer, event,  expectedEmitPayload);
+            expect(connector.emit).toBeCalledWith(peer, event,  expectedEmitPayload, undefined);
             expect(getPeerBlocksResult).toEqual(cloneMockConnectorResponse.payload.map((b) => ({
                 ...b,
                 transactions: b.transactions.map((transaction) => {
@@ -513,7 +513,7 @@ describe("PeerCommunicator", () => {
                 headers,
             };
             expect(connector.emit).toBeCalledTimes(1);
-            expect(connector.emit).toBeCalledWith(peer, event,  expectedEmitPayload);
+            expect(connector.emit).toBeCalledWith(peer, event,  expectedEmitPayload, undefined);
             expect(getPeerBlocksResult).toEqual(cloneMockConnectorResponse.payload.map((b) => {
                 delete b.transactions;
                 return b;
@@ -540,7 +540,7 @@ describe("PeerCommunicator", () => {
                 headers,
             };
             expect(connector.emit).toBeCalledTimes(1);
-            expect(connector.emit).toBeCalledWith(peer, event,  expectedEmitPayload);
+            expect(connector.emit).toBeCalledWith(peer, event,  expectedEmitPayload, undefined);
             expect(getPeerBlocksResult).toEqual([]);
             expect(logger.debug).toBeCalledWith(
                 `Peer ${peer.ip} did not return any blocks via height ${options.fromBlockHeight}.`,

@@ -94,13 +94,13 @@ beforeEach(() => {
 
     sandbox = new Sandbox();
 
-    sandbox.app.bind(Identifiers.HTTP).to(Server).inSingletonScope();
+    sandbox.app.bind(Identifiers.HTTP_JSON_RPC).to(Server).inSingletonScope();
     sandbox.app.bind(Identifiers.ActionReader).toConstantValue(actionReader);
     sandbox.app.bind(Identifiers.PluginFactory).toConstantValue(mockPluginFactory);
 
     sandbox.app.bind(Container.Identifiers.LogService).toConstantValue(logger);
 
-    server = sandbox.app.get<Server>(Identifiers.HTTP);
+    server = sandbox.app.get<Server>(Identifiers.HTTP_JSON_RPC);
 });
 
 afterEach(async () => {

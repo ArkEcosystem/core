@@ -1,6 +1,7 @@
 import { Container, Contracts, Types } from "@arkecosystem/core-kernel";
 import { Server as HapiServer, ServerInjectOptions, ServerInjectResponse, ServerRoute } from "@hapi/hapi";
 import { readFileSync } from "fs";
+import { cloneDeep } from "lodash";
 
 import { Plugins } from "../contracts";
 import { Identifiers } from "../ioc";
@@ -8,24 +9,28 @@ import { Identifiers } from "../ioc";
 @Container.injectable()
 export class Server {
     @Container.inject(Container.Identifiers.Application)
-    private readonly app!: Contracts.Kernel.Application;
+    protected readonly app!: Contracts.Kernel.Application;
 
     @Container.inject(Container.Identifiers.LogService)
-    private readonly logger!: Contracts.Kernel.Logger;
+    protected readonly logger!: Contracts.Kernel.Logger;
 
     @Container.inject(Identifiers.PluginFactory)
-    private readonly pluginFactory!: Plugins.PluginFactory;
+    protected readonly pluginFactory!: Plugins.PluginFactory;
 
-    private server!: HapiServer;
+    protected server!: HapiServer;
 
-    private name!: string;
+    protected name!: string;
 
     public async initialize(name: string, serverOptions: Types.JsonObject): Promise<void> {
         this.name = name;
         this.server = new HapiServer(this.getServerOptions(serverOptions));
         this.server.app.app = this.app;
 
-        await this.server.register(this.pluginFactory.preparePlugins());
+        await this.server.register(
+            this.pluginFactory.preparePlugins({
+                jsonRpcEnabled: true,
+            }),
+        );
 
         // Disable 2 minute socket timout
         this.getRoute("POST", "/").settings.timeout.socket = false;
@@ -59,17 +64,17 @@ export class Server {
         }
     }
 
-    private getServerOptions(options: Record<string, any>): object {
-        options = { ...options };
+    protected getServerOptions(options: Record<string, any>): object {
+        const tmpOptions = cloneDeep(options);
 
-        delete options.enabled;
+        delete tmpOptions.enabled;
 
-        if (options.tls) {
-            options.tls.key = readFileSync(options.tls.key).toString();
-            options.tls.cert = readFileSync(options.tls.cert).toString();
+        if (tmpOptions.tls) {
+            tmpOptions.tls.key = readFileSync(options.tls.key).toString();
+            tmpOptions.tls.cert = readFileSync(options.tls.cert).toString();
         }
 
-        return options;
+        return tmpOptions;
     }
 
     private getRoute(method: string, path: string): ServerRoute | undefined {

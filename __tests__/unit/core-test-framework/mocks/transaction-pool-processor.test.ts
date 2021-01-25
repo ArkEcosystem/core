@@ -22,23 +22,23 @@ const clear = () => {
 describe("TransactionPoolProcessor", () => {
     describe("default values", () => {
         it("accept should be empty array", async () => {
-            expect(TransactionPoolProcessor.instance.accept).toEqual([]);
+            expect((await TransactionPoolProcessor.instance.process([])).accept).toEqual([]);
         });
 
         it("broadcast should be empty array", async () => {
-            expect(TransactionPoolProcessor.instance.broadcast).toEqual([]);
+            expect((await TransactionPoolProcessor.instance.process([])).broadcast).toEqual([]);
         });
 
         it("invalid should be empty array", async () => {
-            expect(TransactionPoolProcessor.instance.invalid).toEqual([]);
+            expect((await TransactionPoolProcessor.instance.process([])).invalid).toEqual([]);
         });
 
         it("excess should be empty array", async () => {
-            expect(TransactionPoolProcessor.instance.excess).toEqual([]);
+            expect((await TransactionPoolProcessor.instance.process([])).excess).toEqual([]);
         });
 
         it("errors should be empty array", async () => {
-            expect(TransactionPoolProcessor.instance.errors).toBeUndefined();
+            expect((await TransactionPoolProcessor.instance.process([])).errors).toBeUndefined();
         });
     });
 
@@ -50,23 +50,23 @@ describe("TransactionPoolProcessor", () => {
         });
 
         it("accept should be mocked value", async () => {
-            expect(TransactionPoolProcessor.instance.accept).toEqual(processorState.accept);
+            expect((await TransactionPoolProcessor.instance.process([])).accept).toEqual(processorState.accept);
         });
 
         it("broadcast should be mocked value", async () => {
-            expect(TransactionPoolProcessor.instance.broadcast).toEqual(processorState.broadcast);
+            expect((await TransactionPoolProcessor.instance.process([])).accept).toEqual(processorState.accept);
         });
 
         it("invalid should be mocked value", async () => {
-            expect(TransactionPoolProcessor.instance.invalid).toEqual(processorState.invalid);
+            expect((await TransactionPoolProcessor.instance.process([])).invalid).toEqual(processorState.invalid);
         });
 
         it("excess should be mocked value", async () => {
-            expect(TransactionPoolProcessor.instance.excess).toEqual(processorState.excess);
+            expect((await TransactionPoolProcessor.instance.process([])).excess).toEqual(processorState.excess);
         });
 
         it("errors should be mocked value", async () => {
-            expect(TransactionPoolProcessor.instance.errors).toEqual(processorState.errors);
+            expect((await TransactionPoolProcessor.instance.process([])).errors).toEqual(processorState.errors);
         });
     });
 
