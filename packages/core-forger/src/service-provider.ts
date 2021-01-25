@@ -81,6 +81,8 @@ export class ServiceProvider extends Providers.ServiceProvider {
                 )
                 .required(),
             tracker: Joi.bool().required(),
+            bip38: Joi.string(),
+            password: Joi.string(),
         });
     }
 
