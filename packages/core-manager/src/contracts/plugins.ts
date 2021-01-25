@@ -3,6 +3,10 @@ export interface RegisterPluginObject {
     options?: any;
 }
 
+export interface PluginFactoryOptions {
+    jsonRpcEnabled: boolean;
+}
+
 export interface PluginFactory {
-    preparePlugins(): Array<RegisterPluginObject>;
+    preparePlugins(options: PluginFactoryOptions): Array<RegisterPluginObject>;
 }

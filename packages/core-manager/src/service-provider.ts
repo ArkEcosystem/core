@@ -1,5 +1,6 @@
 import { ApplicationFactory } from "@arkecosystem/core-cli";
 import { Container, Contracts, Providers, Types } from "@arkecosystem/core-kernel";
+import { cloneDeep } from "lodash";
 import Joi from "joi";
 
 import { ActionReader } from "./action-reader";
@@ -9,9 +10,9 @@ import { LogsDatabaseService } from "./database/logs-database-service";
 import { Identifiers } from "./ioc";
 import { Listener } from "./listener";
 import { LogServiceWrapper } from "./log-service-wrapper";
+import { HttpServer, Server } from "./server";
 import Handlers from "./server/handlers";
 import { PluginFactory } from "./server/plugins";
-import { Server } from "./server/server";
 import { Argon2id, SimpleTokenValidator } from "./server/validators";
 import { SnapshotsManager } from "./snapshots/snapshots-manager";
 import { CliManager } from "./utils/cli-manager";
@@ -66,13 +67,19 @@ export class ServiceProvider extends Providers.ServiceProvider {
     public async boot(): Promise<void> {
         if (this.isProcessTypeManager()) {
             if (this.config().get("server.http.enabled")) {
+                await this.buildJsonRpcServer("http", Identifiers.HTTP_JSON_RPC);
+                await this.app.get<Server>(Identifiers.HTTP_JSON_RPC).boot();
+
                 await this.buildServer("http", Identifiers.HTTP);
-                await this.app.get<Server>(Identifiers.HTTP).boot();
+                await this.app.get<HttpServer>(Identifiers.HTTP).boot();
             }
 
             if (this.config().get("server.https.enabled")) {
+                await this.buildJsonRpcServer("https", Identifiers.HTTPS_JSON_RPC);
+                await this.app.get<Server>(Identifiers.HTTPS_JSON_RPC).boot();
+
                 await this.buildServer("https", Identifiers.HTTPS);
-                await this.app.get<Server>(Identifiers.HTTPS).boot();
+                await this.app.get<HttpServer>(Identifiers.HTTPS).boot();
             }
         }
 
@@ -82,6 +89,14 @@ export class ServiceProvider extends Providers.ServiceProvider {
     }
 
     public async dispose(): Promise<void> {
+        if (this.app.isBound(Identifiers.HTTP_JSON_RPC)) {
+            await this.app.get<Server>(Identifiers.HTTP_JSON_RPC).dispose();
+        }
+
+        if (this.app.isBound(Identifiers.HTTPS_JSON_RPC)) {
+            await this.app.get<Server>(Identifiers.HTTPS_JSON_RPC).dispose();
+        }
+
         if (this.app.isBound(Identifiers.HTTP)) {
             await this.app.get<Server>(Identifiers.HTTP).dispose();
         }
@@ -179,6 +194,28 @@ export class ServiceProvider extends Providers.ServiceProvider {
     }
 
     private async buildServer(type: string, id: symbol): Promise<void> {
+        this.app.bind<HttpServer>(id).to(HttpServer).inSingletonScope();
+
+        const server: HttpServer = this.app.get<HttpServer>(id);
+
+        const config = cloneDeep(this.config().getRequired<{ port: number }>(`server.${type}`));
+        config.port++;
+
+        await server.initialize(`Public API (${type.toUpperCase()})`, {
+            ...config,
+            ...{
+                routes: {
+                    cors: true,
+                },
+            },
+        });
+
+        await server.register({
+            plugin: Handlers,
+        });
+    }
+
+    private async buildJsonRpcServer(type: string, id: symbol): Promise<void> {
         this.app.bind<Server>(id).to(Server).inSingletonScope();
 
         const server: Server = this.app.get<Server>(id);
@@ -190,10 +227,6 @@ export class ServiceProvider extends Providers.ServiceProvider {
                     cors: true,
                 },
             },
-        });
-
-        await server.register({
-            plugin: Handlers,
         });
     }
 }
