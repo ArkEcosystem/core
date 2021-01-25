@@ -1,6 +1,9 @@
-import { ServiceProvider } from "@packages/core-forger/src/service-provider";
+import "jest-extended";
+
+import { AnySchema } from "@hapi/joi";
 import { DelegateFactory } from "@packages/core-forger/src/delegate-factory";
-import { Container, Application, Providers } from "@packages/core-kernel";
+import { ServiceProvider } from "@packages/core-forger/src/service-provider";
+import { Application, Container, Providers } from "@packages/core-kernel";
 import { Pm2ProcessActionsService } from "@packages/core-kernel/src/services/process-actions/drivers/pm2";
 
 describe("ServiceProvider", () => {
@@ -130,6 +133,39 @@ describe("ServiceProvider", () => {
             const bootWhenResultSecrets = await serviceProvider.bootWhen();
 
             expect(bootWhenResultSecrets).toBeTrue();
+        });
+    });
+
+    describe("configSchema", () => {
+        beforeEach(() => {
+            serviceProvider = app.resolve<ServiceProvider>(ServiceProvider);
+
+            for (const key of Object.keys(process.env)) {
+                if (key === "CORE_P2P_PORT") {
+                    delete process.env[key];
+                }
+            }
+        });
+
+        it("should validate schema using defaults", async () => {
+            jest.resetModules();
+            const result = (serviceProvider.configSchema() as AnySchema).validate(
+                (await import("@packages/core-forger/src/defaults")).defaults,
+            );
+
+            expect(result.error).toBeUndefined();
+
+            expect(result.value.hosts).toBeArray();
+            expect(result.value.hosts.length).toBeGreaterThanOrEqual(1);
+            result.value.hosts.forEach((item) => {
+                expect(item.hostname).toBeString();
+                expect(item.port).toBeNumber();
+            });
+
+            expect(result.value.tracker).toBeBoolean();
+
+            expect(result.value.bip38).toBeUndefined();
+            expect(result.value.password).toBeUndefined();
         });
     });
 });
