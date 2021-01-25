@@ -1,5 +1,6 @@
 import { Models, Utils } from "@arkecosystem/core-database";
 import { Container, Providers } from "@arkecosystem/core-kernel";
+import Joi from "joi";
 import { Connection, createConnection, getCustomRepository } from "typeorm";
 
 import { SnapshotDatabaseService } from "./database-service";
@@ -24,6 +25,23 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
     public async required(): Promise<boolean> {
         return true;
+    }
+
+    public configSchema(): object {
+        return Joi.object({
+            updateStep: Joi.number().required(),
+            connection: Joi.object({
+                type: Joi.string().required(),
+                host: Joi.string().required(),
+                port: Joi.number().required(),
+                database: Joi.string().required(),
+                username: Joi.string().required(),
+                password: Joi.string().required(),
+                entityPrefix: Joi.string().required(),
+                synchronize: Joi.bool().required(),
+                logging: Joi.bool().required(),
+            }).required(),
+        });
     }
 
     private registerServices(): void {
