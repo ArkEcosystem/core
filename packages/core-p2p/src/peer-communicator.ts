@@ -254,12 +254,17 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
             maxPayload = maxPayload || constants.DEFAULT_MAX_PAYLOAD_CLIENT;
             await this.connector.connect(peer, maxPayload);
 
-            response = await this.connector.emit(peer, event, codec.request.serialize({
-                ...payload,
-                headers: {
-                    version: this.app.version(),
-                },
-            }));
+            response = await this.connector.emit(
+                peer,
+                event,
+                codec.request.serialize({
+                    ...payload,
+                    headers: {
+                            version: this.app.version(),
+                    },
+                }),
+                timeout,
+            );
             parsedResponsePayload = codec.response.deserialize(response.payload);
 
             peer.sequentialErrorCounter = 0; // reset counter if response is successful, keep it after emit

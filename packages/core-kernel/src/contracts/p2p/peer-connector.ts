@@ -10,7 +10,7 @@ export interface PeerConnector {
 
     disconnect(peer: Peer): void;
 
-    emit(peer: Peer, event: string, payload: any): Promise<any>;
+    emit(peer: Peer, event: string, payload: any, timeout?: number): Promise<any>;
 
     getError(peer: Peer): string | undefined;
 
