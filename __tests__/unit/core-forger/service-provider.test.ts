@@ -167,5 +167,119 @@ describe("ServiceProvider", () => {
             expect(result.value.bip38).toBeUndefined();
             expect(result.value.password).toBeUndefined();
         });
+
+        describe("process.env.CORE_P2P_PORT", () => {
+            it("should parse process.env.CORE_API_PORT", async () => {
+                process.env.CORE_P2P_PORT = "5000";
+
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-forger/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.hosts[0].port).toEqual(5000);
+            });
+
+            it("should throw if process.env.CORE_API_PORT is not number", async () => {
+                process.env.CORE_P2P_PORT = "false";
+
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-forger/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeDefined();
+                expect(result.error!.message).toEqual('"hosts[0].port" must be a number');
+            });
+        });
+
+        describe("schema restrictions", () => {
+            let defaults;
+
+            beforeEach(async () => {
+                jest.resetModules();
+                defaults = (await import("@packages/core-forger/src/defaults")).defaults;
+            });
+
+            it("hosts is required && must be array", async () => {
+                defaults.hosts = false;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"hosts" must be an array');
+
+                delete defaults.hosts;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"hosts" is required');
+            });
+
+            it("hosts.hostname is required && is ipv4 or ipv6 string", async () => {
+                defaults.hosts = [{ hostname: false }];
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"hosts[0].hostname" must be a string');
+
+                defaults.hosts = [{ hostname: "not an IP" }];
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual(
+                    '"hosts[0].hostname" must be a valid ip address of one of the following versions [ipv4, ipv6] with a optional CIDR',
+                );
+
+                defaults.hosts = [{}];
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"hosts[0].hostname" is required');
+            });
+
+            it("hosts.port is required && is number", async () => {
+                defaults.hosts = [{ hostname: "127.0.0.1", port: false }];
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"hosts[0].port" must be a number');
+
+                defaults.hosts = [{ hostname: "127.0.0.1" }];
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"hosts[0].port" is required');
+            });
+
+            it("tracker is required && is boolean", async () => {
+                defaults.tracker = 123;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"tracker" must be a boolean');
+
+                delete defaults.tracker;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"tracker" is required');
+            });
+
+            it("bip38 is optional && is string", async () => {
+                defaults.bip38 = false;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"bip38" must be a string');
+
+                delete defaults.bip38;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error).toBeUndefined();
+            });
+
+            it("password is optional && is string", async () => {
+                defaults.password = false;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"password" must be a string');
+
+                delete defaults.password;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error).toBeUndefined();
+            });
+        });
     });
 });
