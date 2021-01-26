@@ -1,5 +1,6 @@
 import { Container, Contracts, Providers, Services } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
+import Joi from "joi";
 
 import { BuildDelegateRankingAction, GetActiveDelegatesAction } from "./actions";
 import { BlockState } from "./block-state";
@@ -109,6 +110,18 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
     public async bootWhen(serviceProvider?: string): Promise<boolean> {
         return serviceProvider === "@arkecosystem/core-database";
+    }
+
+    public configSchema(): object {
+        return Joi.object({
+            storage: Joi.object({
+                maxLastBlocks: Joi.number().min(1).required(),
+                maxLastTransactionIds: Joi.number().min(1).required(),
+            }).required(),
+            walletSync: Joi.object({
+                enabled: Joi.boolean().required(),
+            }).required(),
+        });
     }
 
     private registerActions(): void {
