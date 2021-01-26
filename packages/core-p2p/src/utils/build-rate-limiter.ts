@@ -31,6 +31,10 @@ export const buildRateLimiter = (options) =>
                     rateLimit: 9,
                     endpoint: "p2p.peer.getCommonBlocks",
                 },
+                {
+                    rateLimit: 25,
+                    endpoint: "p2p.transactions.postTransactions",
+                },
             ],
         },
     });
