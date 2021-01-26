@@ -1,4 +1,5 @@
 import { Container, Contracts, Providers, Types } from "@arkecosystem/core-kernel";
+import Joi from "joi";
 
 import { Database } from "./database";
 import { Identifiers } from "./identifiers";
@@ -52,6 +53,22 @@ export class ServiceProvider extends Providers.ServiceProvider {
      */
     public async bootWhen(): Promise<boolean> {
         return this.config().get("enabled") === true;
+    }
+
+    public configSchema(): object {
+        return Joi.object({
+            enabled: Joi.boolean().required(),
+            server: Joi.object({
+                http: Joi.object({
+                    host: Joi.string()
+                        .ip({ version: ["ipv4", "ipv6"] })
+                        .required(),
+                    port: Joi.number().required(),
+                }).required(),
+                whitelist: Joi.array().items(Joi.string()).required(),
+            }).required(),
+            timeout: Joi.number().required(),
+        });
     }
 
     /**

@@ -1,5 +1,5 @@
 export const defaults = {
-    enabled: process.env.CORE_WEBHOOKS_ENABLED,
+    enabled: !!process.env.CORE_WEBHOOKS_ENABLED,
     server: {
         http: {
             host: process.env.CORE_WEBHOOKS_HOST || "0.0.0.0",
