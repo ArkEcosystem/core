@@ -5,7 +5,7 @@ import { Application, Container, Services } from "@packages/core-kernel/src";
 import { ServiceProvider } from "@packages/core-logger-pino/src";
 import { defaults } from "@packages/core-logger-pino/src/defaults";
 import { dirSync } from "tmp";
-import { AnySchema } from "@hapi/joi";
+import { AnySchema } from "joi";
 
 let app: Application;
 

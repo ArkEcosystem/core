@@ -3,7 +3,7 @@ import "jest-extended";
 import { Application, Container, Providers, Services } from "@arkecosystem/core-kernel";
 import { Peer } from "@arkecosystem/core-p2p/src/peer";
 import { ServiceProvider } from "@arkecosystem/core-p2p/src/service-provider";
-import { AnySchema } from "@hapi/joi";
+import { AnySchema } from "joi";
 
 describe("ServiceProvider", () => {
     const serverSymbol = Symbol.for("P2P<Server>");
