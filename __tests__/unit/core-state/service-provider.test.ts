@@ -2,6 +2,7 @@ import "jest-extended";
 
 import { Application, Container, Services } from "@packages/core-kernel";
 import { ServiceProvider } from "@packages/core-state/src";
+import { AnySchema } from "joi";
 
 let app: Application;
 
@@ -36,5 +37,114 @@ describe("ServiceProvider", () => {
     it("should boot when the package is core-database", async () => {
         expect(await serviceProvider.bootWhen()).toEqual(false);
         expect(await serviceProvider.bootWhen("@arkecosystem/core-database")).toEqual(true);
+    });
+
+    describe("ServiceProvider.configSchema", () => {
+        beforeEach(() => {
+            serviceProvider = app.resolve<ServiceProvider>(ServiceProvider);
+
+            for (const key of Object.keys(process.env)) {
+                if (key === "CORE_WALLET_SYNC_ENABLED") {
+                    delete process.env[key];
+                }
+            }
+        });
+
+        it("should validate schema using defaults", async () => {
+            jest.resetModules();
+            const result = (serviceProvider.configSchema() as AnySchema).validate(
+                (await import("@packages/core-state/src/defaults")).defaults,
+            );
+
+            expect(result.error).toBeUndefined();
+
+            expect(result.value.storage.maxLastBlocks).toBeNumber();
+            expect(result.value.storage.maxLastTransactionIds).toBeNumber();
+
+            expect(result.value.walletSync.enabled).toBeFalse();
+        });
+
+        describe("process.env.CORE_WALLET_SYNC_ENABLED", () => {
+            it("should return value of process.env.CORE_WALLET_SYNC_ENABLED if defined", async () => {
+                process.env.CORE_WALLET_SYNC_ENABLED = "true";
+
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-state/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.walletSync.enabled).toBeTrue();
+            });
+        });
+
+        describe("schema restrictions", () => {
+            let defaults;
+
+            beforeEach(async () => {
+                jest.resetModules();
+                defaults = (await import("@packages/core-state/src/defaults")).defaults;
+            });
+
+            it("storage is required && is object", async () => {
+                defaults.storage = true;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"storage" must be of type object');
+
+                delete defaults.storage;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"storage" is required');
+            });
+
+            it("storage.maxLastBlocks is required && is number", async () => {
+                defaults.storage.maxLastBlocks = true;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"storage.maxLastBlocks" must be a number');
+
+                delete defaults.storage.maxLastBlocks;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"storage.maxLastBlocks" is required');
+            });
+
+            it("storage.maxLastTransactionIds is required && is number", async () => {
+                defaults.storage.maxLastTransactionIds = true;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"storage.maxLastTransactionIds" must be a number');
+
+                delete defaults.storage.maxLastTransactionIds;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"storage.maxLastTransactionIds" is required');
+            });
+
+            it("walletSync is required && is object", async () => {
+                defaults.walletSync = true;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"walletSync" must be of type object');
+
+                delete defaults.walletSync;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"walletSync" is required');
+            });
+
+            it("walletSync.enabled is required && is boolean", async () => {
+                defaults.walletSync.enabled = 123;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"walletSync.enabled" must be a boolean');
+
+                delete defaults.walletSync.enabled;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"walletSync.enabled" is required');
+            });
+        });
     });
 });

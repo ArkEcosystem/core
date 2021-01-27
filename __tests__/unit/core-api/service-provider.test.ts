@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { AnySchema } from "@hapi/joi";
+import { AnySchema } from "joi";
 import { Identifiers, Server, ServiceProvider as CoreApiServiceProvider } from "@packages/core-api/src";
 import { defaults } from "@packages/core-api/src/defaults";
 import { Application, Container, Providers } from "@packages/core-kernel";

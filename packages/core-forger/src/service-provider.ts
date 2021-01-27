@@ -1,4 +1,5 @@
 import { Container, Contracts, Enums, Providers, Services } from "@arkecosystem/core-kernel";
+import Joi from "joi";
 
 import { ForgeNewBlockAction, IsForgingAllowedAction } from "./actions";
 import { DelegateFactory } from "./delegate-factory";
@@ -63,6 +64,26 @@ export class ServiceProvider extends Providers.ServiceProvider {
         }
 
         return true;
+    }
+
+    public configSchema(): object {
+        return Joi.object({
+            hosts: Joi.array()
+                .items(
+                    Joi.object({
+                        hostname: Joi.string()
+                            .ip({
+                                version: ["ipv4", "ipv6"],
+                            })
+                            .required(),
+                        port: Joi.number().required(),
+                    }),
+                )
+                .required(),
+            tracker: Joi.bool().required(),
+            bip38: Joi.string(),
+            password: Joi.string(),
+        });
     }
 
     private registerActions(): void {

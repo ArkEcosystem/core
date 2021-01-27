@@ -5,6 +5,7 @@ import { Application, Container, Services } from "@packages/core-kernel/src";
 import { ServiceProvider } from "@packages/core-logger-pino/src";
 import { defaults } from "@packages/core-logger-pino/src/defaults";
 import { dirSync } from "tmp";
+import { AnySchema } from "joi";
 
 let app: Application;
 
@@ -36,5 +37,130 @@ describe("ServiceProvider", () => {
 
     it("should be disposable", async () => {
         await expect(serviceProvider.dispose()).toResolve();
+    });
+
+    describe("ServiceProvider.configSchema", () => {
+        let serviceProvider: ServiceProvider;
+
+        beforeEach(() => {
+            serviceProvider = app.resolve<ServiceProvider>(ServiceProvider);
+
+            for (const key of Object.keys(process.env)) {
+                if (key.includes("CORE_LOG_LEVEL")) {
+                    delete process.env[key];
+                }
+            }
+        });
+
+        it("should validate schema using defaults", async () => {
+            jest.resetModules();
+            const result = (serviceProvider.configSchema() as AnySchema).validate(
+                (await import("@packages/core-logger-pino/src/defaults")).defaults,
+            );
+
+            expect(result.error).toBeUndefined();
+
+            expect(result.value.levels.console).toBeString();
+            expect(result.value.levels.file).toBeString();
+
+            expect(result.value.fileRotator.interval).toBeString();
+        });
+
+        describe("process.env.CORE_LOG_LEVEL", () => {
+            it("should return value of process.env.CORE_LOG_LEVEL if defined", async () => {
+                process.env.CORE_LOG_LEVEL = "dummy";
+
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-logger-pino/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.levels.console).toEqual("dummy");
+            });
+        });
+
+        describe("process.env.CORE_LOG_LEVEL_FILE", () => {
+            it("should return value of process.env.CORE_LOG_LEVEL_FILE if defined", async () => {
+                process.env.CORE_LOG_LEVEL_FILE = "dummy";
+
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-logger-pino/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.levels.file).toEqual("dummy");
+            });
+        });
+
+        describe("schema restrictions", () => {
+            let defaults;
+
+            beforeEach(async () => {
+                jest.resetModules();
+                defaults = (await import("@packages/core-logger-pino/src/defaults")).defaults;
+            });
+
+            it("levels is required && is object", async () => {
+                defaults.levels = false;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"levels" must be of type object');
+
+                delete defaults.levels;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"levels" is required');
+            });
+
+            it("levels.console is required && is string", async () => {
+                defaults.levels.console = false;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"levels.console" must be a string');
+
+                delete defaults.levels.console;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"levels.console" is required');
+            });
+
+            it("levels.file is required && is string", async () => {
+                defaults.levels.file = false;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"levels.file" must be a string');
+
+                delete defaults.levels.file;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"levels.file" is required');
+            });
+
+            it("fileRotator is required && is object", async () => {
+                defaults.fileRotator = false;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"fileRotator" must be of type object');
+
+                delete defaults.fileRotator;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"fileRotator" is required');
+            });
+
+            it("fileRotator.interval is required && is string", async () => {
+                defaults.fileRotator.interval = false;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"fileRotator.interval" must be a string');
+
+                delete defaults.fileRotator.interval;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"fileRotator.interval" is required');
+            });
+        });
     });
 });
