@@ -2,7 +2,7 @@ import "jest-extended";
 
 import { Application, Container, Services } from "@packages/core-kernel";
 import { ServiceProvider } from "@packages/core-state/src";
-import { AnySchema } from "@hapi/joi";
+import { AnySchema } from "joi";
 
 let app: Application;
 

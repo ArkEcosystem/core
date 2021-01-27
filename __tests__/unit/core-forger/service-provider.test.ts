@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { AnySchema } from "@hapi/joi";
+import { AnySchema } from "joi";
 import { DelegateFactory } from "@packages/core-forger/src/delegate-factory";
 import { ServiceProvider } from "@packages/core-forger/src/service-provider";
 import { Application, Container, Providers } from "@packages/core-kernel";
