@@ -37,7 +37,7 @@ describe("NetworkMonitor", () => {
         postBlock: jest.fn(),
         pingPorts: jest.fn(),
     };
-    const storage = { getPeers: jest.fn(), forgetPeer: jest.fn() };
+    const repository = { getPeers: jest.fn(), forgetPeer: jest.fn() };
 
     const triggerService = { call: jest.fn() }; // validateAndAcceptPeer
     const stateStore = { getLastBlock: jest.fn() };
@@ -67,7 +67,7 @@ describe("NetworkMonitor", () => {
         container.bind(Container.Identifiers.PeerNetworkMonitor).to(NetworkMonitor);
         container.bind(Container.Identifiers.EventDispatcherService).toConstantValue(emitter);
         container.bind(Container.Identifiers.PeerCommunicator).toConstantValue(communicator);
-        container.bind(Container.Identifiers.PeerStorage).toConstantValue(storage);
+        container.bind(Container.Identifiers.PeerRepository).toConstantValue(repository);
         container.bind(Container.Identifiers.PluginConfiguration).toConstantValue(pluginConfiguration);
         container.bind(Container.Identifiers.Application).toConstantValue(app);
     });
@@ -204,7 +204,7 @@ describe("NetworkMonitor", () => {
                     { ip: "190.177.54.44", port: 4000, version: "3.0.2" },
                     { ip: "191.177.54.44", port: 4000, version: "3.0.2" },
                 ];
-                storage.getPeers = jest.fn().mockReturnValueOnce(peers);
+                repository.getPeers = jest.fn().mockReturnValueOnce(peers);
 
                 await networkMonitor.boot();
 
@@ -276,7 +276,7 @@ describe("NetworkMonitor", () => {
         });
 
         it("should discover new peers from existing", async () => {
-            storage.getPeers.mockReturnValue([]);
+            repository.getPeers.mockReturnValue([]);
 
             const spyDiscoverPeers = jest.spyOn(networkMonitor, "discoverPeers");
             await networkMonitor.updateNetworkStatus();
@@ -285,7 +285,7 @@ describe("NetworkMonitor", () => {
         });
 
         it("should log an error when discovering new peers fails", async () => {
-            storage.getPeers.mockReturnValue([]);
+            repository.getPeers.mockReturnValue([]);
             const spyDiscoverPeers = jest.spyOn(networkMonitor, "discoverPeers");
             const errorMessage = "failed discovering peers";
             spyDiscoverPeers.mockRejectedValueOnce(new Error(errorMessage));
@@ -300,7 +300,7 @@ describe("NetworkMonitor", () => {
         describe("when we are below minimum peers", () => {
             it("should fall back to seed peers when after discovering we are below minimum peers", async () => {
                 config.minimumNetworkReach = 5;
-                storage.getPeers.mockReturnValue([]);
+                repository.getPeers.mockReturnValue([]);
 
                 await networkMonitor.updateNetworkStatus();
 
@@ -310,7 +310,7 @@ describe("NetworkMonitor", () => {
             it("should not fall back to seed peers when config.ignoreMinimumNetworkReach", async () => {
                 config.minimumNetworkReach = 5;
                 config.ignoreMinimumNetworkReach = true;
-                storage.getPeers.mockReturnValue([]);
+                repository.getPeers.mockReturnValue([]);
 
                 await networkMonitor.updateNetworkStatus();
 
@@ -319,7 +319,7 @@ describe("NetworkMonitor", () => {
         });
 
         it("should schedule the next updateNetworkStatus only once", async () => {
-            storage.getPeers.mockReturnValue([]);
+            repository.getPeers.mockReturnValue([]);
 
             let sleeping = true;
             const mockSleep = async () => {
@@ -353,11 +353,11 @@ describe("NetworkMonitor", () => {
             new Peer("191.177.54.44", 4000),
         ];
         beforeEach(() => {
-            storage.getPeers = jest.fn().mockReturnValue(peers);
+            repository.getPeers = jest.fn().mockReturnValue(peers);
         });
         afterEach(() => {
             jest.clearAllMocks();
-            storage.getPeers = jest.fn();
+            repository.getPeers = jest.fn();
         });
 
         it("should ping every peer when the peers length is <= <peerCount>", async () => {
@@ -421,10 +421,10 @@ describe("NetworkMonitor", () => {
             new Peer("189.177.54.4", 4000),
         ];
         beforeEach(() => {
-            storage.getPeers = jest.fn().mockReturnValue(peers);
+            repository.getPeers = jest.fn().mockReturnValue(peers);
         });
         afterEach(() => {
-            storage.getPeers = jest.fn();
+            repository.getPeers = jest.fn();
         });
 
         it("should get peers from 8 of our peers, and add them to our peers", async () => {
@@ -489,22 +489,22 @@ describe("NetworkMonitor", () => {
                 peer.state.height = peersHeights[i];
                 peers.push(peer);
             }
-            storage.getPeers = jest.fn().mockReturnValue(peers);
+            repository.getPeers = jest.fn().mockReturnValue(peers);
 
             expect(networkMonitor.getNetworkHeight()).toBe(expectedNetworkHeight);
 
-            storage.getPeers = jest.fn();
+            repository.getPeers = jest.fn();
         });
     });
 
     describe("getNetworkState", () => {
         beforeEach(() => {
             process.env.CORE_ENV = "test"; // for NetworkState analyze
-            storage.getPeers = jest.fn().mockReturnValue([]);
+            repository.getPeers = jest.fn().mockReturnValue([]);
         });
         afterEach(() => {
             delete process.env.CORE_ENV;
-            storage.getPeers = jest.fn();
+            repository.getPeers = jest.fn();
         });
 
         const block = {
@@ -541,10 +541,10 @@ describe("NetworkMonitor", () => {
 
     describe("refreshPeersAfterFork", () => {
         beforeEach(() => {
-            storage.getPeers = jest.fn().mockReturnValue([]);
+            repository.getPeers = jest.fn().mockReturnValue([]);
         });
         afterEach(() => {
-            storage.getPeers = jest.fn();
+            repository.getPeers = jest.fn();
         });
 
         it("should call cleansePeers with {forcePing}", async () => {
@@ -560,10 +560,10 @@ describe("NetworkMonitor", () => {
     describe("checkNetworkHealth", () => {
         describe("when we have 0 peer", () => {
             beforeEach(() => {
-                storage.getPeers = jest.fn().mockReturnValue([]);
+                repository.getPeers = jest.fn().mockReturnValue([]);
             });
             afterEach(() => {
-                storage.getPeers = jest.fn();
+                repository.getPeers = jest.fn();
             });
 
             it("should return {forked: false}", async () => {
@@ -593,10 +593,10 @@ describe("NetworkMonitor", () => {
             peers[3].verificationResult = new PeerVerificationResult(3, 4, 2);
 
             beforeEach(() => {
-                storage.getPeers = jest.fn().mockReturnValue(peers);
+                repository.getPeers = jest.fn().mockReturnValue(peers);
             });
             afterEach(() => {
-                storage.getPeers = jest.fn();
+                repository.getPeers = jest.fn();
             });
             it("should return {forked: false}", async () => {
                 const networkStatus = await networkMonitor.checkNetworkHealth();
@@ -629,10 +629,10 @@ describe("NetworkMonitor", () => {
 
             beforeEach(() => {
                 stateStore.getLastBlock = jest.fn().mockReturnValueOnce({ data: { height: 43 } });
-                storage.getPeers = jest.fn().mockReturnValue(peers);
+                repository.getPeers = jest.fn().mockReturnValue(peers);
             });
             afterEach(() => {
-                storage.getPeers = jest.fn();
+                repository.getPeers = jest.fn();
             });
 
             it("should return {forked: true, blocksToRollback:<current height - highestCommonHeight>}", async () => {
@@ -646,7 +646,7 @@ describe("NetworkMonitor", () => {
     describe("downloadBlocksFromHeight", () => {
         afterEach(() => {
             communicator.getPeerBlocks = jest.fn();
-            storage.getPeers = jest.fn();
+            repository.getPeers = jest.fn();
         });
 
         const downloadChunkSize = 400;
@@ -671,7 +671,7 @@ describe("NetworkMonitor", () => {
         };
 
         it("should return empty array and log an error when we have zero peer", async () => {
-            storage.getPeers = jest.fn().mockReturnValue([]);
+            repository.getPeers = jest.fn().mockReturnValue([]);
 
             expect(await networkMonitor.downloadBlocksFromHeight(1)).toEqual([]);
             expect(logger.error).toBeCalledTimes(1);
@@ -682,7 +682,7 @@ describe("NetworkMonitor", () => {
             const peer = new Peer("1.1.1.1", 4000);
             peer.state = { height: 4, currentSlot: 4, forgingAllowed: true, header: {} };
             peer.verificationResult = new PeerVerificationResult(3, 4, 2);
-            storage.getPeers = jest.fn().mockReturnValue([peer]);
+            repository.getPeers = jest.fn().mockReturnValue([peer]);
 
             expect(await networkMonitor.downloadBlocksFromHeight(1, maxParallelDownloads)).toEqual([]);
             expect(logger.error).toBeCalledTimes(1);
@@ -699,7 +699,7 @@ describe("NetworkMonitor", () => {
             const peer = new Peer("1.1.1.1", 4000);
             peer.state = { height: 2, currentSlot: 2, forgingAllowed: true, header: {} };
             peer.verificationResult = { forked: false, hisHeight: 2, myHeight: 2, highestCommonHeight: 2 };
-            storage.getPeers = jest.fn().mockReturnValue([peer]);
+            repository.getPeers = jest.fn().mockReturnValue([peer]);
 
             expect(await networkMonitor.downloadBlocksFromHeight(1, maxParallelDownloads)).toEqual([mockBlock]);
         });
@@ -710,7 +710,7 @@ describe("NetworkMonitor", () => {
             const peer = new Peer("1.1.1.1", 4000);
             peer.state = { height: 2, currentSlot: 2, forgingAllowed: true, header: {} };
             peer.verificationResult = { forked: false, hisHeight: 2, myHeight: 2, highestCommonHeight: 2 };
-            storage.getPeers = jest.fn().mockReturnValue([peer]);
+            repository.getPeers = jest.fn().mockReturnValue([peer]);
 
             expect(await networkMonitor.downloadBlocksFromHeight(1, maxParallelDownloads)).toEqual([]);
         });
@@ -726,7 +726,7 @@ describe("NetworkMonitor", () => {
 
                 peers.push(peer);
             }
-            storage.getPeers = jest.fn().mockReturnValue(peers);
+            repository.getPeers = jest.fn().mockReturnValue(peers);
 
             const fromHeight = 1;
 
@@ -749,7 +749,7 @@ describe("NetworkMonitor", () => {
 
                 peers.push(peer);
             }
-            storage.getPeers = jest.fn().mockReturnValue(peers);
+            repository.getPeers = jest.fn().mockReturnValue(peers);
 
             const fromHeight = 1;
 
@@ -778,7 +778,7 @@ describe("NetworkMonitor", () => {
 
                 peers.push(peer);
             }
-            storage.getPeers = jest.fn().mockReturnValue(peers);
+            repository.getPeers = jest.fn().mockReturnValue(peers);
 
             const chunksToDownloadBeforeThrow = 2;
             let fromHeight = baseHeight - 1 - chunksToDownloadBeforeThrow * downloadChunkSize;
@@ -795,9 +795,10 @@ describe("NetworkMonitor", () => {
             // (so it will try (numPeers - 1) more times)
             expect(mockFn.mock.calls.length).toEqual(numPeers + (numPeers - 1));
             for (let i = 0; i < numPeers; i++) {
-                if (i >= chunksToDownloadBeforeThrow && i < (chunksToDownloadBeforeThrow + numPeers)) {
-                    expect(mockFn.mock.calls[i][1].fromBlockHeight).toEqual(fromHeight + chunksToDownloadBeforeThrow * downloadChunkSize);
-
+                if (i >= chunksToDownloadBeforeThrow && i < chunksToDownloadBeforeThrow + numPeers) {
+                    expect(mockFn.mock.calls[i][1].fromBlockHeight).toEqual(
+                        fromHeight + chunksToDownloadBeforeThrow * downloadChunkSize,
+                    );
                 } else {
                     expect(mockFn.mock.calls[i][1].fromBlockHeight).toEqual(fromHeight + i * downloadChunkSize);
                 }
@@ -844,7 +845,7 @@ describe("NetworkMonitor", () => {
 
                 peers.push(peer);
             }
-            storage.getPeers = jest.fn().mockReturnValue(peers);
+            repository.getPeers = jest.fn().mockReturnValue(peers);
 
             const chunksToDownload = 2;
             const fromHeight = baseHeight - 1 - chunksToDownload * downloadChunkSize;
@@ -862,7 +863,7 @@ describe("NetworkMonitor", () => {
             const peer = new Peer("1.1.1.1", 4000);
             peer.state = { height: 20, currentSlot: 2, forgingAllowed: true, header: {} };
             peer.verificationResult = { forked: false, hisHeight: 20, myHeight: 20, highestCommonHeight: 20 };
-            storage.getPeers = jest.fn().mockReturnValue([peer]);
+            repository.getPeers = jest.fn().mockReturnValue([peer]);
 
             expect(await networkMonitor.downloadBlocksFromHeight(20, maxParallelDownloads)).toEqual([mockBlock]);
         });
@@ -884,7 +885,7 @@ describe("NetworkMonitor", () => {
                 peer.verificationResult = { forked: false, hisHeight: 1, myHeight: 1, highestCommonHeight: 1 };
                 peers.push(peer);
             }
-            storage.getPeers = jest.fn().mockReturnValue(peers);
+            repository.getPeers = jest.fn().mockReturnValue(peers);
 
             const fromHeight = 1;
 
@@ -892,7 +893,10 @@ describe("NetworkMonitor", () => {
             for (const expectedBlockLimit of [400, 40, 4, 1, 1, 1]) {
                 // @ts-ignore
                 communicator.getPeerBlocks.mockReset();
-                const downloadedBlocks = await networkMonitor.downloadBlocksFromHeight(fromHeight, maxParallelDownloads);
+                const downloadedBlocks = await networkMonitor.downloadBlocksFromHeight(
+                    fromHeight,
+                    maxParallelDownloads,
+                );
 
                 expect(downloadedBlocks).toEqual([]);
                 // getPeerBlocks fails every time for every peer, so it will try for each peer
@@ -911,7 +915,10 @@ describe("NetworkMonitor", () => {
                     .fn()
                     .mockImplementation(expectedBlockLimit === 1 ? mockGetPeerBlocks1Block : mockedGetPeerBlocks);
 
-                const downloadedBlocks = await networkMonitor.downloadBlocksFromHeight(fromHeight, maxParallelDownloads);
+                const downloadedBlocks = await networkMonitor.downloadBlocksFromHeight(
+                    fromHeight,
+                    maxParallelDownloads,
+                );
 
                 const expectedBlocks = expectedBlocksFromHeight(fromHeight).slice(0, numPeers * expectedBlockLimit);
 
@@ -955,10 +962,10 @@ describe("NetworkMonitor", () => {
         ];
 
         beforeEach(() => {
-            storage.getPeers = jest.fn().mockReturnValue(peers);
+            repository.getPeers = jest.fn().mockReturnValue(peers);
         });
         afterEach(() => {
-            storage.getPeers = jest.fn();
+            repository.getPeers = jest.fn();
             blockchain.getBlockPing = jest.fn();
         });
 
@@ -973,7 +980,7 @@ describe("NetworkMonitor", () => {
                 expect(logger.info).toBeCalledWith(
                     `Skipping broadcast of block ${block.data.height.toLocaleString()} as blockchain is not ready`,
                 );
-                expect(storage.getPeers).toBeCalledTimes(0);
+                expect(repository.getPeers).toBeCalledTimes(0);
                 expect(communicator.postBlock).toBeCalledTimes(0);
 
                 // @ts-ignore

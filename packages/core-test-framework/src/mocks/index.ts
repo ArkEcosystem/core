@@ -1,7 +1,7 @@
 export * as BlockRepository from "./block-repository";
 export * as Blockchain from "./blockchain";
 export * as NetworkMonitor from "./network-monitor";
-export * as PeerStorage from "./peer-storage";
+export * as PeerRepository from "./peer-repository";
 export * as TransactionPoolQuery from "./query";
 export * as RoundRepository from "./round-repository";
 export * as ServiceProviderRepository from "./service-provider-repository";

@@ -1,10 +1,10 @@
 import { Container } from "@arkecosystem/core-kernel";
 
-import { PeerStorage } from "@arkecosystem/core-p2p/src/peer-storage";
+import { PeerRepository } from "@arkecosystem/core-p2p/src/peer-repository";
 import { Peer } from "@arkecosystem/core-p2p/src/peer";
 
-describe("PeerStorage", () => {
-    let peerStorage: PeerStorage;
+describe("PeerRepository", () => {
+    let peerStorage: PeerRepository;
 
     beforeEach(() => {
         const container = new Container.Container();
@@ -13,9 +13,9 @@ describe("PeerStorage", () => {
 
         container.unbindAll();
         container.bind(Container.Identifiers.LogService).toConstantValue(logger);
-        container.bind(Container.Identifiers.PeerStorage).to(PeerStorage);
+        container.bind(Container.Identifiers.PeerRepository).to(PeerRepository);
 
-        peerStorage = container.get<PeerStorage>(Container.Identifiers.PeerStorage);
+        peerStorage = container.get<PeerRepository>(Container.Identifiers.PeerRepository);
     });
 
     describe("getPeers", () => {

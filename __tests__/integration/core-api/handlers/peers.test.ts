@@ -45,7 +45,7 @@ beforeAll(async () => {
 
     for (const peerMock of Object.values(peerMocks)) {
         // @ts-ignore
-        app.get<Contracts.P2P.PeerStorage>(Container.Identifiers.PeerStorage).setPeer(peerMock);
+        app.get<Contracts.P2P.PeerRepository>(Container.Identifiers.PeerRepository).setPeer(peerMock);
     }
 });
 

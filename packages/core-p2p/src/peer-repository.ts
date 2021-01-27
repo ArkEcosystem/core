@@ -3,7 +3,7 @@ import { cidr } from "ip";
 
 // todo: review the implementation
 @Container.injectable()
-export class PeerStorage implements Contracts.P2P.PeerStorage {
+export class PeerRepository implements Contracts.P2P.PeerRepository {
     private readonly peers: Map<string, Contracts.P2P.Peer> = new Map<string, Contracts.P2P.Peer>();
     private readonly peersPending: Map<string, Contracts.P2P.Peer> = new Map<string, Contracts.P2P.Peer>();
 

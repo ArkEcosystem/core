@@ -19,11 +19,11 @@ export class DisconnectInvalidPeers implements Contracts.Kernel.EventListener {
 
     /**
      * @private
-     * @type {Contracts.P2P.PeerStorage}
+     * @type {Contracts.P2P.PeerRepository}
      * @memberof DisconnectInvalidPeers
      */
-    @Container.inject(Container.Identifiers.PeerStorage)
-    private readonly storage!: Contracts.P2P.PeerStorage;
+    @Container.inject(Container.Identifiers.PeerRepository)
+    private readonly repository!: Contracts.P2P.PeerRepository;
 
     /**
      * @private
@@ -38,7 +38,7 @@ export class DisconnectInvalidPeers implements Contracts.Kernel.EventListener {
      * @memberof DisconnectInvalidPeers
      */
     public async handle(): Promise<void> {
-        const peers: Contracts.P2P.Peer[] = this.storage.getPeers();
+        const peers: Contracts.P2P.Peer[] = this.repository.getPeers();
 
         for (const peer of peers) {
             if (!isValidVersion(this.app, peer)) {
@@ -64,11 +64,11 @@ export class DisconnectPeer implements Contracts.Kernel.EventListener {
 
     /**
      * @private
-     * @type {Contracts.P2P.PeerStorage}
+     * @type {Contracts.P2P.PeerRepository}
      * @memberof DisconnectPeer
      */
-    @Container.inject(Container.Identifiers.PeerStorage)
-    private readonly storage!: Contracts.P2P.PeerStorage;
+    @Container.inject(Container.Identifiers.PeerRepository)
+    private readonly repository!: Contracts.P2P.PeerRepository;
 
     /**
      * @param {*} {peer}
@@ -78,6 +78,6 @@ export class DisconnectPeer implements Contracts.Kernel.EventListener {
     public async handle({ data }): Promise<void> {
         this.connector.disconnect(data.peer);
 
-        this.storage.forgetPeer(data.peer);
+        this.repository.forgetPeer(data.peer);
     }
 }

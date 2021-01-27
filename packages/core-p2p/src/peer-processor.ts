@@ -20,8 +20,8 @@ export class PeerProcessor implements Contracts.P2P.PeerProcessor {
     @Container.inject(Container.Identifiers.PeerConnector)
     private readonly connector!: Contracts.P2P.PeerConnector;
 
-    @Container.inject(Container.Identifiers.PeerStorage)
-    private readonly storage!: Contracts.P2P.PeerStorage;
+    @Container.inject(Container.Identifiers.PeerRepository)
+    private readonly repository!: Contracts.P2P.PeerRepository;
 
     @Container.inject(Container.Identifiers.EventDispatcherService)
     private readonly events!: Contracts.Kernel.EventDispatcher;
@@ -57,7 +57,7 @@ export class PeerProcessor implements Contracts.P2P.PeerProcessor {
             return false;
         }
 
-        if (!Utils.isValidPeer(peer) || this.storage.hasPendingPeer(peer.ip)) {
+        if (!Utils.isValidPeer(peer) || this.repository.hasPendingPeer(peer.ip)) {
             return false;
         }
 
@@ -73,7 +73,7 @@ export class PeerProcessor implements Contracts.P2P.PeerProcessor {
 
         const maxSameSubnetPeers = this.configuration.getRequired<number>("maxSameSubnetPeers");
 
-        if (this.storage.getSameSubnetPeers(peer.ip).length >= maxSameSubnetPeers && !options.seed) {
+        if (this.repository.getSameSubnetPeers(peer.ip).length >= maxSameSubnetPeers && !options.seed) {
             /* istanbul ignore else */
             if (process.env.CORE_P2P_PEER_VERIFIER_DEBUG_EXTRA) {
                 this.logger.warning(
@@ -88,20 +88,20 @@ export class PeerProcessor implements Contracts.P2P.PeerProcessor {
     }
 
     private async acceptNewPeer(peer, options: Contracts.P2P.AcceptNewPeerOptions): Promise<void> {
-        if (this.storage.hasPeer(peer.ip)) {
+        if (this.repository.hasPeer(peer.ip)) {
             return;
         }
 
         const newPeer: Contracts.P2P.Peer = this.app.get<PeerFactory>(Container.Identifiers.PeerFactory)(peer.ip);
 
         try {
-            this.storage.setPendingPeer(peer);
+            this.repository.setPendingPeer(peer);
 
             const verifyTimeout = this.configuration.getRequired<number>("verifyTimeout");
 
             await this.communicator.ping(newPeer, verifyTimeout);
 
-            this.storage.setPeer(newPeer);
+            this.repository.setPeer(newPeer);
 
             /* istanbul ignore next */
             if (!options.lessVerbose || process.env.CORE_P2P_PEER_VERIFIER_DEBUG_EXTRA) {
@@ -112,7 +112,7 @@ export class PeerProcessor implements Contracts.P2P.PeerProcessor {
         } catch (error) {
             this.connector.disconnect(newPeer);
         } finally {
-            this.storage.forgetPendingPeer(peer);
+            this.repository.forgetPendingPeer(peer);
         }
 
         return;

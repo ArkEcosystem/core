@@ -72,7 +72,7 @@ describe("ServiceProvider", () => {
             const Identifiers = Container.Identifiers;
             for (const identifier of [
                 Identifiers.PeerFactory,
-                Identifiers.PeerStorage,
+                Identifiers.PeerRepository,
                 Identifiers.PeerConnector,
                 Identifiers.PeerCommunicator,
                 Identifiers.PeerProcessor,
