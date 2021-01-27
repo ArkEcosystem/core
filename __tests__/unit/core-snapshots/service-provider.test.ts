@@ -4,7 +4,7 @@ import { Container } from "@packages/core-kernel";
 import { ServiceProvider } from "@packages/core-snapshots/src";
 import { Sandbox } from "@packages/core-test-framework";
 import * as typeorm from "typeorm";
-import { AnySchema } from "@hapi/joi";
+import { AnySchema } from "joi";
 
 let sandbox: Sandbox;
 

@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { AnySchema } from "@hapi/joi";
+import { AnySchema } from "joi";
 import { ServiceProvider } from "@packages/core-blockchain/src/service-provider";
 import { Application, Container, Providers } from "@packages/core-kernel";
 import { Services } from "@packages/core-kernel/dist";

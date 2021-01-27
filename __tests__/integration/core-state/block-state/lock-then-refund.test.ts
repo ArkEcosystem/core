@@ -1,12 +1,12 @@
 import { createHash } from "crypto";
 import { Application, Container, Contracts } from "@arkecosystem/core-kernel";
-import { Utils, Transactions, Identities } from "@arkecosystem/crypto";
+import { Utils, Transactions, Identities, Enums } from "@arkecosystem/crypto";
 import { Repositories } from "@arkecosystem/core-database";
 import { delegates } from "@arkecosystem/core-test-framework";
 import { BIP39 } from "../../../../packages/core-forger/src/methods/bip39";
 
 import { setUp, tearDown } from "../__support__/setup";
-import { HtlcLockExpirationType } from "@arkecosystem/crypto/dist/enums";
+import { getActualVoteBalances, getExpectedVoteBalances } from "../__support__/utils";
 
 let app: Application;
 
@@ -42,7 +42,7 @@ test("BlockState handling [lock], [claim] blocks", async () => {
 
     const lockTransaction = Transactions.BuilderFactory.htlcLock()
         .htlcLockAsset({
-            expiration: { type: HtlcLockExpirationType.BlockHeight, value: 2 },
+            expiration: { type: Enums.HtlcLockExpirationType.BlockHeight, value: 2 },
             secretHash: lockSecretHash.toString("hex"),
         })
         .recipientId(Identities.Address.fromPublicKey(delegates[3].publicKey))
@@ -77,37 +77,23 @@ test("BlockState handling [lock], [claim] blocks", async () => {
         reward: Utils.BigNumber.make("100"),
     });
 
-    const delegate1 = walletRepository.findByPublicKey(delegates[1].publicKey);
-    const delegate2 = walletRepository.findByPublicKey(delegates[2].publicKey);
-    const delegate3 = walletRepository.findByPublicKey(delegates[3].publicKey);
-
-    expect(delegate1.getAttribute("delegate.voteBalance").toFixed()).toBe("300000000000000");
-    expect(delegate2.getAttribute("delegate.voteBalance").toFixed()).toBe("300000000000000");
-    expect(delegate3.getAttribute("delegate.voteBalance").toFixed()).toBe("300000000000000");
+    expect(getActualVoteBalances(walletRepository)).toEqual(getExpectedVoteBalances(walletRepository));
 
     await blockState.applyBlock(block2);
 
-    expect(delegate1.getAttribute("delegate.voteBalance").toFixed()).toBe("300000000000200");
-    expect(delegate2.getAttribute("delegate.voteBalance").toFixed()).toBe("299999999999900");
-    expect(delegate3.getAttribute("delegate.voteBalance").toFixed()).toBe("300000000000000");
+    expect(getActualVoteBalances(walletRepository)).toEqual(getExpectedVoteBalances(walletRepository));
 
     await blockState.applyBlock(block3);
 
-    expect(delegate1.getAttribute("delegate.voteBalance").toFixed()).toBe("300000000000300");
-    expect(delegate2.getAttribute("delegate.voteBalance").toFixed()).toBe("299999999999900");
-    expect(delegate3.getAttribute("delegate.voteBalance").toFixed()).toBe("300000000000000");
+    expect(getActualVoteBalances(walletRepository)).toEqual(getExpectedVoteBalances(walletRepository));
 
     jest.spyOn(transactionRepository, "findByIds").mockResolvedValueOnce([lockTransaction.data as any]);
 
     await blockState.revertBlock(block3);
 
-    expect(delegate1.getAttribute("delegate.voteBalance").toFixed()).toBe("300000000000200");
-    expect(delegate2.getAttribute("delegate.voteBalance").toFixed()).toBe("299999999999900");
-    expect(delegate3.getAttribute("delegate.voteBalance").toFixed()).toBe("300000000000000");
+    expect(getActualVoteBalances(walletRepository)).toEqual(getExpectedVoteBalances(walletRepository));
 
     await blockState.revertBlock(block2);
 
-    expect(delegate1.getAttribute("delegate.voteBalance").toFixed()).toBe("300000000000000");
-    expect(delegate2.getAttribute("delegate.voteBalance").toFixed()).toBe("300000000000000");
-    expect(delegate3.getAttribute("delegate.voteBalance").toFixed()).toBe("300000000000000");
+    expect(getActualVoteBalances(walletRepository)).toEqual(getExpectedVoteBalances(walletRepository));
 });
