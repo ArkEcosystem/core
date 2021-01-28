@@ -1,10 +1,11 @@
 import { Identifiers as ApiIdentifiers, Server } from "@arkecosystem/core-api";
 import { Providers } from "@arkecosystem/core-kernel";
+import { Enums } from "@arkecosystem/core-magistrate-crypto";
+import { Managers } from "@arkecosystem/crypto";
 
 import Handlers from "./handlers";
 import { Identifiers } from "./identifiers";
 import { EntitySearchService } from "./services";
-import { Enums } from "@arkecosystem/core-magistrate-crypto";
 
 /**
  * @export
@@ -39,7 +40,11 @@ export class ServiceProvider extends Providers.ServiceProvider {
         const originalNodeFeesHandler = nodeFeesRoute.settings.handler;
         nodeFeesRoute.settings.handler = async (request) => {
             const originalResponse = await originalNodeFeesHandler(request);
-            
+
+            if (Managers.configManager.getMilestone().aip36 !== true) {
+                return originalResponse;
+            }
+
             return {
                 ...originalResponse,
                 data: {
@@ -64,7 +69,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
                             sum: "0",
                         },
                     },
-                }
+                },
             };
         };
     }
@@ -74,7 +79,11 @@ export class ServiceProvider extends Providers.ServiceProvider {
         const originalTransactionsFeesHandler = transactionsFeesRoute.settings.handler;
         transactionsFeesRoute.settings.handler = async (request) => {
             const originalResponse = await originalTransactionsFeesHandler(request);
-            
+
+            if (Managers.configManager.getMilestone().aip36 !== true) {
+                return originalResponse;
+            }
+
             return {
                 ...originalResponse,
                 data: {
@@ -84,7 +93,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
                         entityResignation: Enums.MagistrateTransactionStaticFees.EntityResign,
                         entityUpdate: Enums.MagistrateTransactionStaticFees.EntityUpdate,
                     },
-                }
+                },
             };
         };
     }
