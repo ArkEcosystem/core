@@ -64,6 +64,19 @@ describe("ServiceProvider", () => {
             expect(result.value.walletSync.enabled).toBeFalse();
         });
 
+        it("should allow configuration extension", async () => {
+            jest.resetModules();
+            const defaults = (await import("@packages/core-state/src/defaults")).defaults;
+
+            // @ts-ignore
+            defaults.customField = "dummy";
+
+            const result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+            expect(result.error).toBeUndefined();
+            expect(result.value.customField).toEqual("dummy");
+        });
+
         describe("process.env.CORE_WALLET_SYNC_ENABLED", () => {
             it("should return value of process.env.CORE_WALLET_SYNC_ENABLED if defined", async () => {
                 process.env.CORE_WALLET_SYNC_ENABLED = "true";
