@@ -41,7 +41,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
                 synchronize: Joi.bool().required(),
                 logging: Joi.bool().required(),
             }).required(),
-        });
+        }).unknown(true);
     }
 
     private registerServices(): void {

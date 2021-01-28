@@ -3,8 +3,8 @@ import "jest-extended";
 import { Container } from "@packages/core-kernel";
 import { ServiceProvider } from "@packages/core-snapshots/src";
 import { Sandbox } from "@packages/core-test-framework";
-import * as typeorm from "typeorm";
 import { AnySchema } from "joi";
+import * as typeorm from "typeorm";
 
 let sandbox: Sandbox;
 
@@ -95,6 +95,19 @@ describe("ServiceProvider", () => {
             expect(result.value.connection.entityPrefix).toBeString();
             expect(result.value.connection.synchronize).toBeFalse();
             expect(result.value.connection.logging).toBeFalse();
+        });
+
+        it("should allow configuration extension", async () => {
+            jest.resetModules();
+            const defaults = (await import("@packages/core-snapshots/src/defaults")).defaults;
+
+            // @ts-ignore
+            defaults.customField = "dummy";
+
+            const result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+            expect(result.error).toBeUndefined();
+            expect(result.value.customField).toEqual("dummy");
         });
 
         describe("process.env.CORE_DB_HOST", () => {
@@ -309,5 +322,3 @@ describe("ServiceProvider", () => {
         });
     });
 });
-
-
