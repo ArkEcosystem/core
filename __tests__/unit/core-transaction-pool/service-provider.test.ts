@@ -1,9 +1,9 @@
 import "jest-extended";
 
 import { Application, Container, Contracts, Services } from "@arkecosystem/core-kernel";
-import { AnySchema } from "joi";
 import { ServiceProvider } from "@packages/core-transaction-pool/src";
 import { fork } from "child_process";
+import { AnySchema } from "joi";
 
 jest.mock("child_process");
 
@@ -103,6 +103,19 @@ describe("ServiceProvider", () => {
                 expect(item.typeGroup).toBeNumber();
                 expect(item.packageName).toBeString();
             });
+        });
+
+        it("should allow configuration extension", async () => {
+            jest.resetModules();
+            const defaults = (await import("@packages/core-transaction-pool/src/defaults")).defaults;
+
+            // @ts-ignore
+            defaults.customField = "dummy";
+
+            const result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+            expect(result.error).toBeUndefined();
+            expect(result.value.customField).toEqual("dummy");
         });
 
         describe("process.env.CORE_TRANSACTION_POOL_DISABLED", () => {
