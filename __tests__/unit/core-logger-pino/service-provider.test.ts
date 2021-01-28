@@ -4,8 +4,8 @@ import { Providers } from "@arkecosystem/core-kernel";
 import { Application, Container, Services } from "@packages/core-kernel/src";
 import { ServiceProvider } from "@packages/core-logger-pino/src";
 import { defaults } from "@packages/core-logger-pino/src/defaults";
-import { dirSync } from "tmp";
 import { AnySchema } from "joi";
+import { dirSync } from "tmp";
 
 let app: Application;
 
@@ -64,6 +64,19 @@ describe("ServiceProvider", () => {
             expect(result.value.levels.file).toBeString();
 
             expect(result.value.fileRotator.interval).toBeString();
+        });
+
+        it("should allow configuration extension", async () => {
+            jest.resetModules();
+            const defaults = (await import("@packages/core-logger-pino/src/defaults")).defaults;
+
+            // @ts-ignore
+            defaults.customField = "dummy";
+
+            const result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+            expect(result.error).toBeUndefined();
+            expect(result.value.customField).toEqual("dummy");
         });
 
         describe("process.env.CORE_LOG_LEVEL", () => {
