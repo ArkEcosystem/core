@@ -1,9 +1,9 @@
 import "jest-extended";
 
-import { AnySchema } from "joi";
 import { Identifiers, Server, ServiceProvider as CoreApiServiceProvider } from "@packages/core-api/src";
 import { defaults } from "@packages/core-api/src/defaults";
 import { Application, Container, Providers } from "@packages/core-kernel";
+import { AnySchema } from "joi";
 import path from "path";
 
 let app: Application;
@@ -508,6 +508,428 @@ describe("ServiceProvider", () => {
 
                 expect(result.error).toBeUndefined();
                 expect(result.value.options.estimateTotalCount).toEqual(false);
+            });
+        });
+
+        describe("schema restrictions", () => {
+            let defaults;
+
+            beforeEach(async () => {
+                jest.resetModules();
+                defaults = (await import("@packages/core-api/src/defaults")).defaults;
+            });
+
+            it("server is required && is object", async () => {
+                defaults.server = false;
+                let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server" must be of type object');
+
+                delete defaults.server;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server" is required');
+            });
+
+            it("server.http is required && is object", async () => {
+                defaults.server.http = false;
+                let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.http" must be of type object');
+
+                delete defaults.server.http;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.http" is required');
+            });
+
+            it("server.http.enabled is required && is boolean", async () => {
+                defaults.server.http.enabled = 123;
+                let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.http.enabled" must be a boolean');
+
+                delete defaults.server.http.enabled;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.http.enabled" is required');
+            });
+
+            it("server.http.host is required && is string", async () => {
+                defaults.server.http.host = false;
+                let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.http.host" must be a string');
+
+                delete defaults.server.http.host;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.http.host" is required');
+            });
+
+            it("server.http.port is required && is number", async () => {
+                defaults.server.http.port = false;
+                let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.http.port" must be a number');
+
+                delete defaults.server.http.port;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.http.port" is required');
+            });
+
+            it("server.https is required && is object", async () => {
+                defaults.server.https = false;
+                let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.https" must be of type object');
+
+                delete defaults.server.https;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.https" is required');
+            });
+
+            it("server.https.enabled is required && is boolean", async () => {
+                defaults.server.https.enabled = 123;
+                let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.https.enabled" must be a boolean');
+
+                delete defaults.server.https.enabled;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.https.enabled" is required');
+            });
+
+            it("server.https.host is required && is string", async () => {
+                defaults.server.https.host = false;
+                let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.https.host" must be a string');
+
+                delete defaults.server.https.host;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.https.host" is required');
+            });
+
+            it("server.https.port is required && is number", async () => {
+                defaults.server.https.port = false;
+                let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.https.port" must be a number');
+
+                delete defaults.server.https.port;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.https.port" is required');
+            });
+
+            it("server.https.tls is required && is object", async () => {
+                defaults.server.https.tls = false;
+                let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.https.tls" must be of type object');
+
+                delete defaults.server.https.tls;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.https.tls" is required');
+            });
+
+            it("server.https.tls.key is required when server.https.enabled && is string", async () => {
+                delete defaults.server.https.tls.key;
+                let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error).toBeUndefined();
+
+                defaults.server.https.enabled = true;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.https.tls.key" is required');
+
+                defaults.server.https.tls.key = false;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.https.tls.key" must be a string');
+            });
+
+            it("server.https.tls.cert is required when server.https.enabled && is string", async () => {
+                delete defaults.server.https.tls.cert;
+                let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error).toBeUndefined();
+
+                defaults.server.https.enabled = true;
+                defaults.server.https.tls.key = "path/to/key";
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.https.tls.cert" is required');
+
+                defaults.server.https.tls.cert = false;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.https.tls.cert" must be a string');
+            });
+
+            it("plugins is required && is object", async () => {
+                defaults.plugins = false;
+                let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins" must be of type object');
+
+                delete defaults.plugins;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins" is required');
+            });
+
+            it("plugins.cache is required && is object", async () => {
+                defaults.plugins.cache = false;
+                let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.cache" must be of type object');
+
+                delete defaults.plugins.cache;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.cache" is required');
+            });
+
+            it("plugins.cache.enabled is required && is boolean", async () => {
+                defaults.plugins.cache.enabled = 123;
+                let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.cache.enabled" must be a boolean');
+
+                delete defaults.plugins.cache.enabled;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.cache.enabled" is required');
+            });
+
+            it("plugins.cache.stdTTL is required && is number && >= 0", async () => {
+                defaults.plugins.cache.stdTTL = false;
+                let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.cache.stdTTL" must be a number');
+
+                defaults.plugins.cache.stdTTL = -1;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.cache.stdTTL" must be greater than or equal to 0');
+
+                delete defaults.plugins.cache.stdTTL;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.cache.stdTTL" is required');
+            });
+
+            it("plugins.cache.checkperiod is required && is number && >= 0", async () => {
+                defaults.plugins.cache.checkperiod = false;
+                let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.cache.checkperiod" must be a number');
+
+                defaults.plugins.cache.checkperiod = -1;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.cache.checkperiod" must be greater than or equal to 0');
+
+                delete defaults.plugins.cache.checkperiod;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.cache.checkperiod" is required');
+            });
+
+            it("plugins.rateLimit is required && is object", async () => {
+                defaults.plugins.rateLimit = false;
+                let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.rateLimit" must be of type object');
+
+                delete defaults.plugins.rateLimit;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.rateLimit" is required');
+            });
+
+            it("plugins.rateLimit.enabled is required && is boolean", async () => {
+                defaults.plugins.rateLimit.enabled = 123;
+                let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.rateLimit.enabled" must be a boolean');
+
+                delete defaults.plugins.rateLimit.enabled;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.rateLimit.enabled" is required');
+            });
+
+            it("plugins.rateLimit.points is required && is number", async () => {
+                defaults.plugins.rateLimit.points = false;
+                let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.rateLimit.points" must be a number');
+
+                defaults.plugins.rateLimit.points = -1;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.rateLimit.points" must be greater than or equal to 0');
+
+                delete defaults.plugins.rateLimit.points;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.rateLimit.points" is required');
+            });
+
+            it("plugins.rateLimit.duration is required && is number", async () => {
+                defaults.plugins.rateLimit.duration = false;
+                let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.rateLimit.duration" must be a number');
+
+                defaults.plugins.rateLimit.duration = -1;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual(
+                    '"plugins.rateLimit.duration" must be greater than or equal to 0',
+                );
+
+                delete defaults.plugins.rateLimit.duration;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.rateLimit.duration" is required');
+            });
+
+            it("plugins.rateLimit.whitelist is required && is array && must contain strings", async () => {
+                defaults.plugins.rateLimit.whitelist = {};
+                let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.rateLimit.whitelist" must be an array');
+
+                defaults.plugins.rateLimit.whitelist = [false];
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.rateLimit.whitelist[0]" must be a string');
+
+                delete defaults.plugins.rateLimit.whitelist;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.rateLimit.whitelist" is required');
+            });
+
+            it("plugins.rateLimit.blacklist is required && is array && must contain strings", async () => {
+                defaults.plugins.rateLimit.blacklist = {};
+                let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.rateLimit.blacklist" must be an array');
+
+                defaults.plugins.rateLimit.blacklist = [false];
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.rateLimit.blacklist[0]" must be a string');
+
+                delete defaults.plugins.rateLimit.blacklist;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.rateLimit.blacklist" is required');
+            });
+
+            it("plugins.pagination is required && is object", async () => {
+                defaults.plugins.pagination = false;
+                let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.pagination" must be of type object');
+
+                delete defaults.plugins.pagination;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.pagination" is required');
+            });
+
+            it("plugins.pagination.limit is required && is number", async () => {
+                defaults.plugins.pagination.limit = false;
+                let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.pagination.limit" must be a number');
+
+                delete defaults.plugins.pagination.limit;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.pagination.limit" is required');
+            });
+
+            it("plugins.socketTimeout is required && is number", async () => {
+                defaults.plugins.socketTimeout = false;
+                let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.socketTimeout" must be a number');
+
+                defaults.plugins.socketTimeout = -1;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.socketTimeout" must be greater than or equal to 0');
+
+                delete defaults.plugins.socketTimeout;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.socketTimeout" is required');
+            });
+
+            it("plugins.whitelist is required && is array && must contain strings", async () => {
+                defaults.plugins.whitelist = {};
+                let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.whitelist" must be an array');
+
+                defaults.plugins.whitelist = [false];
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.whitelist[0]" must be a string');
+
+                delete defaults.plugins.whitelist;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.whitelist" is required');
+            });
+
+            it("plugins.trustProxy is required && is boolean", async () => {
+                defaults.plugins.trustProxy = 123;
+                let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.trustProxy" must be a boolean');
+
+                delete defaults.plugins.trustProxy;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.trustProxy" is required');
+            });
+
+            it("options is required && is object", async () => {
+                defaults.options = false;
+                let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"options" must be of type object');
+
+                delete defaults.options;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"options" is required');
+            });
+
+            it("options.estimateTotalCount is required && is boolean", async () => {
+                defaults.options.estimateTotalCount = 123;
+                let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"options.estimateTotalCount" must be a boolean');
+
+                delete defaults.options.estimateTotalCount;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"options.estimateTotalCount" is required');
             });
         });
     });
