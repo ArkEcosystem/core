@@ -89,7 +89,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
             disableDiscovery: Joi.bool(),
             skipDiscovery: Joi.bool(),
             ignoreMinimumNetworkReach: Joi.bool(),
-        });
+        }).unknown(true);
     }
 
     private registerFactories(): void {
