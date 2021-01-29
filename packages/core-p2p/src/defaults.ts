@@ -11,7 +11,7 @@ export const defaults = {
     /**
      * The number of peers we expect to be available to start a relay
      */
-    minimumNetworkReach: 20,
+    minimumNetworkReach: process.env.CORE_P2P_MIN_NETWORK_REACH || 20,
     /**
      * The timeout to verify a peer. [milliseconds]
      */
