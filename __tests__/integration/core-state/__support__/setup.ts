@@ -10,7 +10,7 @@ const peerNetworkMonitor = {
     boot: jest.fn(),
     cleansePeers: jest.fn(),
 };
-const peerStorage = null;
+const peerRepository = null;
 
 export const setUp = async (): Promise<Application> => {
     jest.setTimeout(60000);
@@ -45,7 +45,7 @@ export const setUp = async (): Promise<Application> => {
             app.bind(Container.Identifiers.TransactionPoolQuery).toConstantValue(transactionPoolQuery);
             app.bind(Container.Identifiers.TransactionPoolService).toConstantValue(transactionPoolService);
             app.bind(Container.Identifiers.PeerNetworkMonitor).toConstantValue(peerNetworkMonitor);
-            app.bind(Container.Identifiers.PeerStorage).toConstantValue(peerStorage);
+            app.bind(Container.Identifiers.PeerRepository).toConstantValue(peerRepository);
 
             await app.bootstrap({
                 flags: {

@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { PeerStorage } from "@packages/core-test-framework/src/mocks";
+import { PeerRepository } from "@packages/core-test-framework/src/mocks";
 import { Contracts } from "@packages/core-kernel";
 
 let peer: Partial<Contracts.P2P.Peer> = {
@@ -20,21 +20,21 @@ let peer: Partial<Contracts.P2P.Peer> = {
 };
 
 const clear = () => {
-    PeerStorage.setPeers([]);
+    PeerRepository.setPeers([]);
 };
 
-describe("PeerStorage", () => {
+describe("PeerRepository", () => {
     describe("default values", () => {
         it("getPeers should return empty array", async () => {
-            expect(PeerStorage.instance.getPeers()).toEqual([]);
+            expect(PeerRepository.instance.getPeers()).toEqual([]);
         });
 
         it("hasPeer should return false", async () => {
-            expect(PeerStorage.instance.hasPeer("127.0.0.1")).toBeFalse();
+            expect(PeerRepository.instance.hasPeer("127.0.0.1")).toBeFalse();
         });
 
         it("getPeer should return undefined", async () => {
-            expect(PeerStorage.instance.getPeer("127.0.0.1")).toBeUndefined();
+            expect(PeerRepository.instance.getPeer("127.0.0.1")).toBeUndefined();
         });
     });
 
@@ -42,19 +42,19 @@ describe("PeerStorage", () => {
         beforeEach(() => {
             clear();
 
-            PeerStorage.setPeers([peer]);
+            PeerRepository.setPeers([peer]);
         });
 
         it("getPeers should return mocked peer", async () => {
-            expect(PeerStorage.instance.getPeers()).toEqual([peer]);
+            expect(PeerRepository.instance.getPeers()).toEqual([peer]);
         });
 
         it("getPeers should return true", async () => {
-            expect(PeerStorage.instance.hasPeer("127.0.0.1")).toBeTrue();
+            expect(PeerRepository.instance.hasPeer("127.0.0.1")).toBeTrue();
         });
 
         it("getPeers should return first peer", async () => {
-            expect(PeerStorage.instance.getPeer("127.0.0.1")).toEqual(peer);
+            expect(PeerRepository.instance.getPeer("127.0.0.1")).toEqual(peer);
         });
     });
 });

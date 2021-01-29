@@ -1,5 +1,5 @@
 import { Contracts } from "@arkecosystem/core-kernel";
-import { PeerStorage } from "@arkecosystem/core-p2p";
+import { PeerRepository } from "@arkecosystem/core-p2p";
 
 let mockPeers: Partial<Contracts.P2P.Peer>[] = [];
 
@@ -7,7 +7,7 @@ export const setPeers = (peers: Partial<Contracts.P2P.Peer>[]) => {
     mockPeers = peers;
 };
 
-class PeerStorageMock implements Partial<PeerStorage> {
+class PeerRepositoryMock implements Partial<PeerRepository> {
     public getPeers(): Contracts.P2P.Peer[] {
         return mockPeers as Contracts.P2P.Peer[];
     }
@@ -21,4 +21,4 @@ class PeerStorageMock implements Partial<PeerStorage> {
     }
 }
 
-export const instance = new PeerStorageMock();
+export const instance = new PeerRepositoryMock();

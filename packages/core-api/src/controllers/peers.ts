@@ -8,11 +8,11 @@ import { Controller } from "./controller";
 
 @Container.injectable()
 export class PeersController extends Controller {
-    @Container.inject(Container.Identifiers.PeerStorage)
-    private readonly peerStorage!: Contracts.P2P.PeerStorage;
+    @Container.inject(Container.Identifiers.PeerRepository)
+    private readonly peerRepository!: Contracts.P2P.PeerRepository;
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const allPeers: Contracts.P2P.Peer[] = [...this.peerStorage.getPeers()];
+        const allPeers: Contracts.P2P.Peer[] = [...this.peerRepository.getPeers()];
 
         let results = allPeers;
 
@@ -85,10 +85,10 @@ export class PeersController extends Controller {
     }
 
     public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        if (!this.peerStorage.hasPeer(request.params.ip)) {
+        if (!this.peerRepository.hasPeer(request.params.ip)) {
             return Boom.notFound("Peer not found");
         }
 
-        return super.respondWithResource(this.peerStorage.getPeer(request.params.ip), PeerResource);
+        return super.respondWithResource(this.peerRepository.getPeer(request.params.ip), PeerResource);
     }
 }

@@ -12,8 +12,8 @@ export class TransactionBroadcaster implements Contracts.P2P.TransactionBroadcas
     @Container.tagged("plugin", "@arkecosystem/core-p2p")
     private readonly configuration!: Providers.PluginConfiguration;
 
-    @Container.inject(Container.Identifiers.PeerStorage)
-    private readonly storage!: Contracts.P2P.PeerStorage;
+    @Container.inject(Container.Identifiers.PeerRepository)
+    private readonly repository!: Contracts.P2P.PeerRepository;
 
     @Container.inject(Container.Identifiers.PeerCommunicator)
     private readonly communicator!: PeerCommunicator;
@@ -25,15 +25,13 @@ export class TransactionBroadcaster implements Contracts.P2P.TransactionBroadcas
         }
 
         const maxPeersBroadcast: number = this.configuration.getRequired<number>("maxPeersBroadcast");
-        const peers: Contracts.P2P.Peer[] = Utils.take(Utils.shuffle(this.storage.getPeers()), maxPeersBroadcast);
+        const peers: Contracts.P2P.Peer[] = Utils.take(Utils.shuffle(this.repository.getPeers()), maxPeersBroadcast);
 
         const transactionsStr = Utils.pluralize("transaction", transactions.length, true);
         const peersStr = Utils.pluralize("peer", peers.length, true);
         this.logger.debug(`Broadcasting ${transactionsStr} to ${peersStr}`);
 
-        const transactionsBroadcast: Buffer[] = transactions.map(
-            (t) => Transactions.Serializer.serialize(t)
-        );
+        const transactionsBroadcast: Buffer[] = transactions.map((t) => Transactions.Serializer.serialize(t));
         const promises = peers.map((p) => this.communicator.postTransactions(p, transactionsBroadcast));
 
         await Promise.all(promises);

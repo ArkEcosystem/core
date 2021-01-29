@@ -1,6 +1,6 @@
 import { Peer } from "./peer";
 
-export interface PeerStorage {
+export interface PeerRepository {
     getPeers(): Peer[];
 
     hasPeers(): boolean;

@@ -70,7 +70,7 @@ export class NetworkState implements Contracts.P2P.NetworkState {
 
     public static async analyze(
         monitor: Contracts.P2P.NetworkMonitor,
-        storage: Contracts.P2P.PeerStorage,
+        repository: Contracts.P2P.PeerRepository,
     ): Promise<Contracts.P2P.NetworkState> {
         // @ts-ignore - app exists but isn't on the interface for now
         const lastBlock: Interfaces.IBlock = monitor.app
@@ -83,7 +83,7 @@ export class NetworkState implements Contracts.P2P.NetworkState {
             lastBlock.data.height,
         );
 
-        const peers: Contracts.P2P.Peer[] = storage.getPeers();
+        const peers: Contracts.P2P.Peer[] = repository.getPeers();
         // @ts-ignore - app exists but isn't on the interface for now
         const configuration = monitor.app.getTagged<Providers.PluginConfiguration>(
             Container.Identifiers.PluginConfiguration,

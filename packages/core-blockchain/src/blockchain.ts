@@ -38,8 +38,8 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
     @Container.inject(Container.Identifiers.PeerNetworkMonitor)
     private readonly networkMonitor!: Contracts.P2P.NetworkMonitor;
 
-    @Container.inject(Container.Identifiers.PeerStorage)
-    private readonly peerStorage!: Contracts.P2P.PeerStorage;
+    @Container.inject(Container.Identifiers.PeerRepository)
+    private readonly peerRepository!: Contracts.P2P.PeerRepository;
 
     @Container.inject(Container.Identifiers.EventDispatcherService)
     private readonly events!: Contracts.Kernel.EventDispatcher;
@@ -419,7 +419,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
      * Determine if the blockchain is synced.
      */
     public isSynced(block?: Interfaces.IBlockData): boolean {
-        if (!this.peerStorage.hasPeers()) {
+        if (!this.peerRepository.hasPeers()) {
             return true;
         }
 

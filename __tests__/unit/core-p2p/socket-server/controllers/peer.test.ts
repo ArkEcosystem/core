@@ -13,7 +13,7 @@ describe("PeerController", () => {
     const container = new Container.Container();
 
     const logger = { warning: jest.fn(), debug: jest.fn(), info: jest.fn() };
-    const peerStorage = { getPeers: jest.fn() };
+    const peerRepository = { getPeers: jest.fn() };
     const database = { getCommonBlocks: jest.fn(), getBlocksForDownload: jest.fn() };
     const databaseInteractions = {
         getCommonBlocks: jest.fn(),
@@ -64,7 +64,7 @@ describe("PeerController", () => {
     beforeAll(() => {
         container.unbindAll();
         container.bind(Container.Identifiers.LogService).toConstantValue(logger);
-        container.bind(Container.Identifiers.PeerStorage).toConstantValue(peerStorage);
+        container.bind(Container.Identifiers.PeerRepository).toConstantValue(peerRepository);
         container.bind(Container.Identifiers.DatabaseService).toConstantValue(database);
         container.bind(Container.Identifiers.DatabaseInteraction).toConstantValue(databaseInteractions);
         container.bind(Container.Identifiers.Application).toConstantValue(app);
@@ -88,7 +88,7 @@ describe("PeerController", () => {
             peers[2].latency = 117634;
             peers[3].latency = 297600;
             peers[4].latency = 1197634;
-            peerStorage.getPeers = jest.fn().mockReturnValueOnce(peers);
+            peerRepository.getPeers = jest.fn().mockReturnValueOnce(peers);
 
             const request = {
                 socket: {
@@ -113,7 +113,7 @@ describe("PeerController", () => {
             peers[2].latency = 117634;
             peers[3].latency = 297600;
             peers[4].latency = 1197634;
-            peerStorage.getPeers = jest.fn().mockReturnValueOnce(peers);
+            peerRepository.getPeers = jest.fn().mockReturnValueOnce(peers);
 
             const request = {
                 socket: {

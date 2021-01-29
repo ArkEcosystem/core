@@ -59,7 +59,7 @@ export const initApp = (): Application => {
     app.bind(Container.Identifiers.DatabaseTransactionRepository).toConstantValue({});
     app.bind(Container.Identifiers.DatabaseRoundRepository).toConstantValue({});
     app.bind(Container.Identifiers.PeerNetworkMonitor).toConstantValue({});
-    app.bind(Container.Identifiers.PeerStorage).toConstantValue({});
+    app.bind(Container.Identifiers.PeerRepository).toConstantValue({});
     app.bind(Container.Identifiers.TransactionPoolQuery).toConstantValue({});
     app.bind(Container.Identifiers.TransactionPoolProcessorFactory).toConstantValue({});
     app.bind(Container.Identifiers.TransactionHistoryService).toConstantValue({});
