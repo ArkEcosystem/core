@@ -305,6 +305,32 @@ describe("ServiceProvider", () => {
             });
         });
 
+        describe("process.env.CORE_P2P_MIN_NETWORK_REACH", () => {
+            it("should parse process.env.CORE_P2P_MIN_NETWORK_REACH", async () => {
+                process.env.CORE_P2P_MIN_NETWORK_REACH = "10";
+
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-p2p/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.minimumNetworkReach).toEqual(10);
+            });
+
+            it("should throw if process.env.CORE_P2P_MIN_NETWORK_REACH is not number", async () => {
+                process.env.CORE_P2P_MIN_NETWORK_REACH = "false";
+
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-p2p/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeDefined();
+                expect(result.error!.message).toEqual('"minimumNetworkReach" must be a number');
+            });
+        });
+
         describe("process.env.CORE_P2P_MAX_PEERS_SAME_SUBNET", () => {
             it("should parse process.env.CORE_P2P_MAX_PEERS_SAME_SUBNET", async () => {
                 process.env.CORE_P2P_MAX_PEERS_SAME_SUBNET = "5000";
