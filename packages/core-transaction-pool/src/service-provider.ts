@@ -91,7 +91,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
                     )
                     .required(),
             }).required(),
-        });
+        }).unknown(true);
     }
 
     private registerServices(): void {

@@ -83,7 +83,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
             options: Joi.object({
                 estimateTotalCount: Joi.bool().required(),
             }).required(),
-        });
+        }).unknown(true);
     }
 
     private async buildServer(type: string, id: symbol): Promise<void> {

@@ -225,6 +225,19 @@ describe("ServiceProvider", () => {
             expect(result.value.ignoreMinimumNetworkReach).toBeUndefined();
         });
 
+        it("should allow configuration extension", async () => {
+            jest.resetModules();
+            const defaults = (await import("@packages/core-p2p/src/defaults")).defaults;
+
+            // @ts-ignore
+            defaults.customField = "dummy";
+
+            const result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+            expect(result.error).toBeUndefined();
+            expect(result.value.customField).toEqual("dummy");
+        });
+
         describe("process.env.CORE_P2P_HOST", () => {
             it("should parse process.env.CORE_P2P_HOST", async () => {
                 process.env.CORE_P2P_HOST = "127.0.0.1";

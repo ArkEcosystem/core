@@ -1,9 +1,9 @@
 import "jest-extended";
 
-import { AnySchema } from "joi";
 import { ServiceProvider } from "@packages/core-blockchain/src/service-provider";
 import { Application, Container, Providers } from "@packages/core-kernel";
 import { Services } from "@packages/core-kernel/dist";
+import { AnySchema } from "joi";
 
 describe("ServiceProvider", () => {
     let app: Application;
@@ -106,6 +106,19 @@ describe("ServiceProvider", () => {
 
             expect(result.value.databaseRollback.maxBlockRewind).toBeNumber();
             expect(result.value.databaseRollback.steps).toBeNumber();
+        });
+
+        it("should allow configuration extension", async () => {
+            jest.resetModules();
+            const defaults = (await import("@packages/core-blockchain/src/defaults")).defaults;
+
+            // @ts-ignore
+            defaults.customField = "dummy";
+
+            const result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+            expect(result.error).toBeUndefined();
+            expect(result.value.customField).toEqual("dummy");
         });
 
         describe("schema restrictions", () => {

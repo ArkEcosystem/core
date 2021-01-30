@@ -121,7 +121,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
             walletSync: Joi.object({
                 enabled: Joi.boolean().required(),
             }).required(),
-        });
+        }).unknown(true);
     }
 
     private registerActions(): void {

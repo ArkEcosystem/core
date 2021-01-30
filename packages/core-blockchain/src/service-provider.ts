@@ -41,7 +41,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
             // used in core:run & relay:run
             networkStart: Joi.bool(),
-        });
+        }).unknown(true);
     }
 
     private registerActions(): void {

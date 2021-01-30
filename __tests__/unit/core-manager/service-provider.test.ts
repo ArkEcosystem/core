@@ -1,10 +1,10 @@
 import "jest-extended";
 
-import { AnySchema } from "joi";
 import { Application, Container, Providers } from "@packages/core-kernel";
 import { defaults } from "@packages/core-manager/src/defaults";
 import { Identifiers } from "@packages/core-manager/src/ioc";
 import { ServiceProvider } from "@packages/core-manager/src/service-provider";
+import { AnySchema } from "joi";
 import { cloneDeep } from "lodash";
 import path from "path";
 import { dirSync, setGracefulCleanup } from "tmp";
@@ -270,6 +270,19 @@ describe("ServiceProvider", () => {
 
             expect(result.value.plugins.basicAuthentication.enabled).toBeFalse();
             expect(result.value.plugins.basicAuthentication.users).toEqual([]);
+        });
+
+        it("should allow configuration extension", async () => {
+            jest.resetModules();
+            const defaults = (await import("@packages/core-manager/src/defaults")).defaults;
+
+            // @ts-ignore
+            defaults.customField = "dummy";
+
+            const result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+            expect(result.error).toBeUndefined();
+            expect(result.value.customField).toEqual("dummy");
         });
 
         describe("process.env.CORE_WATCHER_ENABLED", () => {

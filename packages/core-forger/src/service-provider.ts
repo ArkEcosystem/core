@@ -83,7 +83,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
             tracker: Joi.bool().required(),
             bip38: Joi.string(),
             password: Joi.string(),
-        });
+        }).unknown(true);
     }
 
     private registerActions(): void {

@@ -206,6 +206,21 @@ describe("ServiceProvider", () => {
             expect(result.value.options.estimateTotalCount).toBeTrue();
         });
 
+        it("should allow configuration extension", async () => {
+            jest.resetModules();
+            const defaults = (await import("@packages/core-api/src/defaults")).defaults;
+
+            // @ts-ignore
+            defaults.customField = "dummy";
+
+            const result = (coreApiServiceProvider.configSchema() as AnySchema).validate(
+               defaults
+            );
+
+            expect(result.error).toBeUndefined();
+            expect(result.value.customField).toEqual("dummy");
+        });
+
         describe("process.env.CORE_API_DISABLED", () => {
             it("should return true when process.env.CORE_API_DISABLED is undefined", async () => {
                 jest.resetModules();

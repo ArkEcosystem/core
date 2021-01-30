@@ -1,9 +1,9 @@
 import "jest-extended";
 
-import { AnySchema } from "joi";
 import { defaults } from "@packages/core-database/src/defaults";
 import { ServiceProvider } from "@packages/core-database/src/service-provider";
 import { Application, Container, Providers } from "@packages/core-kernel";
+import { AnySchema } from "joi";
 import { createConnection, getCustomRepository } from "typeorm";
 
 jest.mock("typeorm", () => {
@@ -127,6 +127,19 @@ describe("ServiceProvider.configSchema", () => {
         expect(result.value.connection.entityPrefix).toBeString();
         expect(result.value.connection.synchronize).toBeFalse();
         expect(result.value.connection.logging).toBeFalse();
+    });
+
+    it("should allow configuration extension", async () => {
+        jest.resetModules();
+        const defaults = (await import("@packages/core-database/src/defaults")).defaults;
+
+        // @ts-ignore
+        defaults.customField = "dummy";
+
+        const result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+        expect(result.error).toBeUndefined();
+        expect(result.value.customField).toEqual("dummy");
     });
 
     describe("process.env.CORE_DB_HOST", () => {
