@@ -1,7 +1,7 @@
 import "jest-extended";
 
 import { Database } from "@packages/core-manager/src/database/database";
-import { GenerateLog } from "@packages/core-manager/src/workers/actions/generate-log";
+import { GenerateLogGz } from "@packages/core-manager/src/workers/actions/generate-log-gz";
 import { createReadStream } from "fs-extra";
 import { join } from "path";
 import { dirSync, setGracefulCleanup } from "tmp";
@@ -9,10 +9,8 @@ import zlib from "zlib";
 
 jest.mock("@packages/core-manager/src/database/database");
 
-const mockIterator = {};
-mockIterator[Symbol.iterator] = function* () {
-    yield { timestamp: 1607948405, level: "info", content: "log message" };
-};
+const mockLogArray = [{ timestamp: 1607948405, level: "info", content: "log message" }];
+const mockIterator = mockLogArray[Symbol.iterator]();
 
 beforeEach(() => {
     setGracefulCleanup();
@@ -33,7 +31,7 @@ describe("Generate Log", () => {
         const spyOnGetAllIterator = jest.spyOn(Database.prototype, "getAllIterator").mockReturnValue(mockIterator);
 
         // @ts-ignore
-        const generateLog = new GenerateLog({
+        const generateLog = new GenerateLogGz({
             databaseFilePath: "path/to/db",
             schema: { tables: [] },
             logFileName: "test.log.gz",

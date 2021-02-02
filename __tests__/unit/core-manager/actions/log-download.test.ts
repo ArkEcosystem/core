@@ -18,7 +18,7 @@ beforeEach(() => {
 
     workerManager = {
         canRun: jest.fn().mockReturnValue(true),
-        generateLog: jest.fn(),
+        generateLog: jest.fn().mockResolvedValue("archive.zip"),
     };
 
     sandbox = new Sandbox();
@@ -37,14 +37,15 @@ describe("Log:Download", () => {
     it("should return file name and call generateLog", async () => {
         const result = await action.execute({ dateFrom: 1607786170, dateTo: 1607948405, levels: ["info", "debug"] });
 
+        // @ts-ignore
         const query = {
             $order: { id: "ASC" },
             level: { $in: ["info", "debug"] },
             timestamp: { $gte: 1607786170, $lte: 1607948405 },
         };
 
-        expect(result).toContain(".log.gz");
-        expect(workerManager.generateLog).toHaveBeenCalledWith("path/to/db", {}, query, expect.toBeString());
+        expect(result).toEqual("archive.zip");
+        expect(workerManager.generateLog).toHaveBeenCalledWith("path/to/db", {}, query);
     });
 
     it("should return file name and call generateLog with included process names", async () => {
@@ -62,8 +63,8 @@ describe("Log:Download", () => {
             timestamp: { $gte: 1607786170, $lte: 1607948405 },
         };
 
-        expect(result).toContain(".log.gz");
-        expect(workerManager.generateLog).toHaveBeenCalledWith("path/to/db", {}, query, expect.toBeString());
+        expect(result).toEqual("archive.zip");
+        expect(workerManager.generateLog).toHaveBeenCalledWith("path/to/db", {}, query);
     });
 
     it("should throw error if another log process is running", async () => {

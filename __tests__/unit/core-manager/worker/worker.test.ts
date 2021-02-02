@@ -1,11 +1,15 @@
-import { GenerateLog } from "@packages/core-manager/src/workers/actions/generate-log";
+import * as GenerateLogFactory from "@packages/core-manager/src/workers/actions/generate-log-factory";
 
-jest.mock("@packages/core-manager/src/workers/actions/generate-log");
+const mockGenerateLog = {
+    execute: jest.fn(),
+};
+// @ts-ignore
+GenerateLogFactory.generateLogFactory = jest.fn().mockReturnValue(mockGenerateLog);
 
 describe("Worker", () => {
     it("should call generate log action", async () => {
         require("@packages/core-manager/src/workers/worker");
 
-        expect(GenerateLog.prototype.execute).toHaveBeenCalled();
+        expect(mockGenerateLog.execute).toHaveBeenCalled();
     });
 });
