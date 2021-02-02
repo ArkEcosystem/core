@@ -56,6 +56,26 @@ export class RateLimiter {
         return false;
     }
 
+    public async hasExceededRateLimitNoConsume(ip: string, endpoint?: string): Promise<boolean> {
+        const global = await this.global.get(ip);
+        if(global !== null && global.remainingPoints <= 0) {
+            return true;
+        }
+
+        if (endpoint && this.endpoints.has(endpoint)) {
+            const endpointLimiters: RateLimiterMemory | undefined = this.endpoints.get(endpoint);
+
+            Utils.assert.defined<RateLimiterMemory>(endpointLimiters);
+
+            const endpointLimiter = await endpointLimiters.get(ip);
+            if(endpointLimiter !== null && endpointLimiter.remainingPoints <= 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public getRateLimitedEndpoints(): string[] {
         return Array.from(this.endpoints.keys());
     }
