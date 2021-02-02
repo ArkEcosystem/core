@@ -37,7 +37,14 @@ describe("PeerCommunicator", () => {
     peerVerifier.initialize = () => peerVerifier;
     const version = "3.0.0";
     const headers = { version };
-    const app = { resolve: (_) => peerVerifier, getTagged: () => configuration, version: () => version };
+    const jobsQueued = [];
+    const queue = { resolve: jest.fn(), resume: jest.fn(), push: (job) => jobsQueued.push(job) };
+    const app = {
+        resolve: (_) => peerVerifier,
+        getTagged: () => configuration,
+        version: () => version,
+        get: () => { return () => queue },
+    };
     const emitter = { dispatch: jest.fn() };
     const connector = { forgetError: jest.fn(), connect: jest.fn(), emit: jest.fn(), setError: jest.fn() };
 
@@ -108,6 +115,8 @@ describe("PeerCommunicator", () => {
             const peer = new Peer("187.168.65.65", 4000);
 
             await peerCommunicator.postTransactions(peer, payload.transactions);
+
+            await jobsQueued.pop().handle(); // manually trigger the call of last job queued
 
             expect(connector.emit).toBeCalledTimes(1);
             expect(connector.emit).toBeCalledWith(peer, event,  { ...payload, headers }, 10000);
