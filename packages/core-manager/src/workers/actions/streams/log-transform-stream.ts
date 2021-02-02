@@ -6,11 +6,11 @@ import utc from "dayjs/plugin/utc";
 dayjs.extend(utc);
 
 export class LogTransformStream extends Transform {
-    public constructor() {
-        super({ objectMode: true });
+    public constructor(options: any = { objectMode: true }) {
+        super(options);
     }
 
-    public _transform(chunk: any, encoding: string, callback: TransformCallback) {
+    public _transform(chunk: any, encoding: string, callback: TransformCallback): void {
         this.push(this.formatLog(chunk));
         callback();
     }
