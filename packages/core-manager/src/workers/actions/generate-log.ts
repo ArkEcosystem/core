@@ -1,9 +1,4 @@
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-
 import { Database, Schema } from "../../database/database";
-
-dayjs.extend(utc);
 
 export interface Options {
     archiveFormat: string;
