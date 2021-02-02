@@ -1,6 +1,6 @@
 import archiver from "archiver";
 import { createWriteStream, ensureDirSync, renameSync } from "fs-extra";
-import { dirname } from "path";
+import { dirname, parse } from "path";
 import { Writable } from "stream";
 
 import { GenerateLog, Options } from "./generate-log";
@@ -28,7 +28,7 @@ export class GenerateLogZip extends GenerateLog {
                     writableObjectMode: true,
                 }),
             ),
-            { name: "log.txt" },
+            { name: parse(this.options.logFileName).name + ".log" },
         );
 
         archive.finalize();
