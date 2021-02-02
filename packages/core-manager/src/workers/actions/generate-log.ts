@@ -11,6 +11,7 @@ import { LogsResult } from "../../database/logs-database-service";
 dayjs.extend(utc);
 
 export interface Options {
+    archiveFormat: string;
     databaseFilePath: string;
     schema: Schema;
     logFileName: string;

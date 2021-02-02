@@ -1,4 +1,4 @@
-import { Container } from "@arkecosystem/core-kernel";
+import { Container, Providers } from "@arkecosystem/core-kernel";
 import dayjs from "dayjs";
 import { Worker } from "worker_threads";
 
@@ -31,6 +31,10 @@ class ResolveRejectOnce {
 
 @Container.injectable()
 export class WorkerManager {
+    @Container.inject(Container.Identifiers.PluginConfiguration)
+    @Container.tagged("plugin", "@arkecosystem/core-manager")
+    private readonly configuration!: Providers.PluginConfiguration;
+
     private runningWorkers: number = 0;
 
     public canRun(): Boolean {
@@ -41,14 +45,25 @@ export class WorkerManager {
         return new Promise<string>((resolve, reject) => {
             this.runningWorkers++;
 
-            const logFileName = this.generateFileName();
+            let workerData: GenerateLogOptions;
 
-            const workerData: GenerateLogOptions = {
-                databaseFilePath,
-                schema,
-                query,
-                logFileName,
-            };
+            if (this.configuration.getRequired("archiveFormat") === "zip") {
+                workerData = {
+                    archiveFormat: "zip",
+                    databaseFilePath,
+                    schema,
+                    query,
+                    logFileName: dayjs().format("YYYY-MM-DD_HH-mm-ss") + ".zip",
+                };
+            } else {
+                workerData = {
+                    archiveFormat: "gz",
+                    databaseFilePath,
+                    schema,
+                    query,
+                    logFileName: dayjs().format("YYYY-MM-DD_HH-mm-ss") + ".log.gz",
+                };
+            }
 
             const worker = new Worker(__dirname + "/worker.js", { workerData });
 
@@ -58,15 +73,11 @@ export class WorkerManager {
 
             worker
                 .on("exit", () => {
-                    resolver.resolve(logFileName);
+                    resolver.resolve(workerData.logFileName);
                 })
                 .on("error", async (err) => {
                     resolver.reject(err);
                 });
         });
-    }
-
-    private generateFileName(): string {
-        return dayjs().format("YYYY-MM-DD_HH-mm-ss") + ".log.gz";
     }
 }
