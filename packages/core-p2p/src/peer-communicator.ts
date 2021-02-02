@@ -39,7 +39,8 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
             // them requests, ie we could spam them.
             whitelist: [],
             remoteAccess: [],
-            rateLimit: this.configuration.getOptional<boolean>("rateLimit", false),
+            rateLimit: this.configuration.getOptional<number>("rateLimit", 100),
+            rateLimitPostTransactions: this.configuration.getOptional<number>("rateLimitPostTransactions", 25),
         });
     }
 

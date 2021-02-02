@@ -23,6 +23,7 @@ export class RateLimitPlugin {
             whitelist: [],
             remoteAccess: this.configuration.getOptional<Array<string>>("remoteAccess", []),
             rateLimit: this.configuration.getOptional<number>("rateLimit", 100),
+            rateLimitPostTransactions: this.configuration.getOptional<number>("rateLimitPostTransactions", 25),
         });
 
         const allRoutesConfigByPath = {
