@@ -270,6 +270,9 @@ describe("ServiceProvider", () => {
 
             expect(result.value.plugins.basicAuthentication.enabled).toBeFalse();
             expect(result.value.plugins.basicAuthentication.users).toEqual([]);
+
+            // Other
+            expect(result.value.archiveFormat).toEqual("zip");
         });
 
         it("should allow configuration extension", async () => {
@@ -767,6 +770,20 @@ describe("ServiceProvider", () => {
 
                 expect(result.error).toBeDefined();
                 expect(result.error!.message).toEqual('"server.https.port" must be a number');
+            });
+        });
+
+        describe("process.env.CORE_MONITOR_ARCHIVE_FORMAT", () => {
+            it("should parse process.env.CORE_MONITOR_ARCHIVE_FORMAT", async () => {
+                process.env.CORE_MONITOR_ARCHIVE_FORMAT = "gz";
+
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-manager/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.archiveFormat).toEqual("gz");
             });
         });
 
@@ -1272,6 +1289,33 @@ describe("ServiceProvider", () => {
                 expect(result.error!.message).toEqual(
                     '"plugins.basicAuthentication.users[0].password" must be a string',
                 );
+            });
+
+            it("archiveFormat is required && is string && is zip or gz", async () => {
+                defaults.archiveFormat = "zip";
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error).toBeUndefined();
+
+                defaults.archiveFormat = "gz";
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error).toBeUndefined();
+
+                defaults.archiveFormat = "dummy";
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"archiveFormat" must be one of [zip, gz]');
+
+                defaults.archiveFormat = 123;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"archiveFormat" must be one of [zip, gz]');
+
+                delete defaults.archiveFormat;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"archiveFormat" is required');
             });
         });
     });
