@@ -1,4 +1,5 @@
 import { Container } from "@arkecosystem/core-kernel";
+import dayjs from "dayjs";
 import { Worker } from "worker_threads";
 
 import { Schema } from "../database/database";
@@ -13,9 +14,9 @@ class ResolveRejectOnce {
         private readonly onFinish: Function,
     ) {}
 
-    public resolve(): void {
+    public resolve(logFileName: string): void {
         if (this.counter++ === 0) {
-            this.resolveMethod();
+            this.resolveMethod(logFileName);
             this.onFinish();
         }
     }
@@ -36,9 +37,11 @@ export class WorkerManager {
         return this.runningWorkers === 0;
     }
 
-    public generateLog(databaseFilePath: string, schema: Schema, query: any, logFileName: string): Promise<void> {
-        return new Promise<void>((resolve, reject) => {
+    public generateLog(databaseFilePath: string, schema: Schema, query: any): Promise<string> {
+        return new Promise<string>((resolve, reject) => {
             this.runningWorkers++;
+
+            const logFileName = this.generateFileName();
 
             const workerData: GenerateLogOptions = {
                 databaseFilePath,
@@ -55,11 +58,15 @@ export class WorkerManager {
 
             worker
                 .on("exit", () => {
-                    resolver.resolve();
+                    resolver.resolve(logFileName);
                 })
                 .on("error", async (err) => {
                     resolver.reject(err);
                 });
         });
+    }
+
+    private generateFileName(): string {
+        return dayjs().format("YYYY-MM-DD_HH-mm-ss") + ".log.gz";
     }
 }
