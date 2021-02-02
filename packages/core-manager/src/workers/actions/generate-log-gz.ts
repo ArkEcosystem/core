@@ -3,18 +3,12 @@ import { dirname } from "path";
 import { Writable } from "stream";
 import zlib from "zlib";
 
-import { GenerateLog, Options } from "./generate-log";
+import { GenerateLog } from "./generate-log";
 import { IteratorToStream, LogTransformStream } from "./streams";
 
 export class GenerateLogGz extends GenerateLog {
-    public constructor(options: Options) {
-        super(options);
-    }
-
     public async execute(): Promise<void> {
-        const iterator = this.database.getAllIterator("logs", this.options.query);
-
-        const readStream = new IteratorToStream(iterator);
+        const readStream = new IteratorToStream(this.database.getAllIterator("logs", this.options.query));
         const writeStream = this.prepareOutputStream();
 
         readStream.pipe(new LogTransformStream()).pipe(writeStream);

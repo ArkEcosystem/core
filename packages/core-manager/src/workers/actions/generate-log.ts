@@ -1,20 +1,13 @@
 import { join } from "path";
 import { Writable } from "stream";
 
-import { Database, Schema } from "../../database/database";
+import { GenerateLog as GenerateLogContracts } from "../../contracts";
+import { Database } from "../../database/database";
 
-export interface Options {
-    archiveFormat: string;
-    databaseFilePath: string;
-    schema: Schema;
-    logFileName: string;
-    query: any;
-}
-
-export class GenerateLog {
+export class GenerateLog implements GenerateLogContracts.GenerateLog {
     protected readonly database: Database;
 
-    public constructor(protected readonly options: Options) {
+    public constructor(protected readonly options: GenerateLogContracts.GenerateLogOptions) {
         this.database = new Database(options.databaseFilePath, options.schema);
 
         this.database.boot();

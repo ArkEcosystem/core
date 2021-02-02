@@ -3,18 +3,12 @@ import { createWriteStream, ensureDirSync, renameSync } from "fs-extra";
 import { dirname, parse } from "path";
 import { Writable } from "stream";
 
-import { GenerateLog, Options } from "./generate-log";
+import { GenerateLog } from "./generate-log";
 import { IteratorToStream, LogTransformStream } from "./streams";
 
 export class GenerateLogZip extends GenerateLog {
-    public constructor(options: Options) {
-        super(options);
-    }
-
     public async execute(): Promise<void> {
-        const iterator = this.database.getAllIterator("logs", this.options.query);
-
-        const readStream = new IteratorToStream(iterator);
+        const readStream = new IteratorToStream(this.database.getAllIterator("logs", this.options.query));
         const writeStream = this.prepareOutputStream();
 
         const archive = archiver("zip", {

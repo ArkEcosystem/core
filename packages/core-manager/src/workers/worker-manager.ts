@@ -2,8 +2,8 @@ import { Container, Providers } from "@arkecosystem/core-kernel";
 import dayjs from "dayjs";
 import { Worker } from "worker_threads";
 
+import { GenerateLog } from "../contracts";
 import { Schema } from "../database/database";
-import { Options as GenerateLogOptions } from "./actions/generate-log";
 
 class ResolveRejectOnce {
     private counter: number = 0;
@@ -45,7 +45,7 @@ export class WorkerManager {
         return new Promise<string>((resolve, reject) => {
             this.runningWorkers++;
 
-            let workerData: GenerateLogOptions;
+            let workerData: GenerateLog.GenerateLogOptions;
 
             if (this.configuration.getRequired("archiveFormat") === "zip") {
                 workerData = {
