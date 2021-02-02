@@ -30,6 +30,6 @@ export class ServiceProvider extends Providers.ServiceProvider {
             fileRotator: Joi.object({
                 interval: Joi.string().required(),
             }).required(),
-        });
+        }).unknown(true);
     }
 }

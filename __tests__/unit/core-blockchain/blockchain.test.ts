@@ -24,7 +24,7 @@ describe("Blockchain", () => {
     const stateMachine: any = {};
     const eventDispatcherService: any = {};
     const peerNetworkMonitor: any = {};
-    const peerStorage: any = {};
+    const peerRepository: any = {};
     const blockProcessor: any = {};
     const databaseInteractions: any = {};
 
@@ -41,7 +41,7 @@ describe("Blockchain", () => {
         sandbox.app.bind(Container.Identifiers.StateMachine).toConstantValue(stateMachine);
         sandbox.app.bind(Container.Identifiers.EventDispatcherService).toConstantValue(eventDispatcherService);
         sandbox.app.bind(Container.Identifiers.PeerNetworkMonitor).toConstantValue(peerNetworkMonitor);
-        sandbox.app.bind(Container.Identifiers.PeerStorage).toConstantValue(peerStorage);
+        sandbox.app.bind(Container.Identifiers.PeerRepository).toConstantValue(peerRepository);
         sandbox.app.bind(Container.Identifiers.BlockchainService).to(Blockchain).inSingletonScope();
         sandbox.app.bind(Container.Identifiers.BlockProcessor).toConstantValue(blockProcessor);
         sandbox.app.bind(Container.Identifiers.DatabaseTransactionRepository).toConstantValue({});
@@ -112,7 +112,7 @@ describe("Blockchain", () => {
         peerNetworkMonitor.broadcastBlock = jest.fn();
         peerNetworkMonitor.checkNetworkHealth = jest.fn();
 
-        peerStorage.hasPeers = jest.fn();
+        peerRepository.hasPeers = jest.fn();
 
         blockProcessor.process = jest.fn();
 
@@ -756,7 +756,7 @@ describe("Blockchain", () => {
         it("should return true if we have no peer", () => {
             const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
 
-            peerStorage.hasPeers = jest.fn().mockReturnValue(false);
+            peerRepository.hasPeers = jest.fn().mockReturnValue(false);
 
             expect(blockchain.isSynced()).toBeTrue();
         });
@@ -764,7 +764,7 @@ describe("Blockchain", () => {
         it("should return true if last block is less than 3 blocktimes away from current slot time", () => {
             const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
 
-            peerStorage.hasPeers = jest.fn().mockReturnValue(true);
+            peerRepository.hasPeers = jest.fn().mockReturnValue(true);
             const mockBlock = { data: { id: "123", height: 444, timestamp: Crypto.Slots.getTime() - 16 } };
             stateStore.getLastBlock = jest.fn().mockReturnValue(mockBlock);
 
@@ -774,7 +774,7 @@ describe("Blockchain", () => {
         it("should return false if last block is more than 3 blocktimes away from current slot time", () => {
             const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
 
-            peerStorage.hasPeers = jest.fn().mockReturnValue(true);
+            peerRepository.hasPeers = jest.fn().mockReturnValue(true);
             const mockBlock = { data: { id: "123", height: 444, timestamp: Crypto.Slots.getTime() - 25 } };
             stateStore.getLastBlock = jest.fn().mockReturnValue(mockBlock);
 

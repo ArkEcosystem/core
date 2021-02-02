@@ -1,12 +1,12 @@
 import "jest-extended";
 
-import { AnySchema } from "joi";
 import { Identifiers, Server, ServiceProvider as CoreApiServiceProvider } from "@packages/core-api/src";
 import { defaults } from "@packages/core-api/src/defaults";
 import { Application, Container, Providers } from "@packages/core-kernel";
 import { NullEventDispatcher } from "@packages/core-kernel/src/services/events/drivers/null";
 import { ServiceProvider } from "@packages/core-webhooks/src";
 import { defaults as webhooksDefaults } from "@packages/core-webhooks/src/defaults";
+import { AnySchema } from "joi";
 import { dirSync, setGracefulCleanup } from "tmp";
 
 let app: Application;
@@ -34,7 +34,7 @@ beforeEach(() => {
 
     app.bind(Container.Identifiers.PeerNetworkMonitor).toConstantValue({});
 
-    app.bind(Container.Identifiers.PeerStorage).toConstantValue({});
+    app.bind(Container.Identifiers.PeerRepository).toConstantValue({});
 
     app.bind(Container.Identifiers.DatabaseRoundRepository).toConstantValue({});
 
@@ -171,6 +171,19 @@ describe("ServiceProvider", () => {
                 expect(item).toBeString();
             });
             expect(result.value.timeout).toBeNumber();
+        });
+
+        it("should allow configuration extension", async () => {
+            jest.resetModules();
+            const defaults = (await import("@packages/core-webhooks/src/defaults")).defaults;
+
+            // @ts-ignore
+            defaults.customField = "dummy";
+
+            const result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+            expect(result.error).toBeUndefined();
+            expect(result.value.customField).toEqual("dummy");
         });
 
         describe("process.env.CORE_WEBHOOKS_ENABLED", () => {

@@ -10,7 +10,7 @@ describe("TransactionsController", () => {
     const container = new Container.Container();
 
     const logger = { warning: jest.fn(), debug: jest.fn(), info: jest.fn() };
-    const peerStorage = { getPeers: jest.fn() };
+    const peerRepository = { getPeers: jest.fn() };
     const database = { getCommonBlocks: jest.fn(), getBlocksForDownload: jest.fn() };
     const blockchain = {
         getLastBlock: jest.fn(),
@@ -19,7 +19,7 @@ describe("TransactionsController", () => {
         getLastDownloadedBlock: jest.fn(),
     };
     const processor = {
-        process: jest.fn().mockReturnValue({ accept: []}),
+        process: jest.fn().mockReturnValue({ accept: [] }),
     };
     const createProcessor = jest.fn();
     const appPlugins = [{ package: "@arkecosystem/core-api", options: {} }];
@@ -60,7 +60,7 @@ describe("TransactionsController", () => {
     beforeAll(() => {
         container.unbindAll();
         container.bind(Container.Identifiers.LogService).toConstantValue(logger);
-        container.bind(Container.Identifiers.PeerStorage).toConstantValue(peerStorage);
+        container.bind(Container.Identifiers.PeerRepository).toConstantValue(peerRepository);
         container.bind(Container.Identifiers.DatabaseService).toConstantValue(database);
         container.bind(Container.Identifiers.Application).toConstantValue(app);
         container.bind(Container.Identifiers.TransactionPoolProcessor).toConstantValue(processor);

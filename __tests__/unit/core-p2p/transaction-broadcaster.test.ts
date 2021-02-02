@@ -9,14 +9,14 @@ describe("TransactionBroadcaster", () => {
     describe("broadcastTransactions", () => {
         const logger = { warning: jest.fn(), debug: jest.fn() };
         const configuration = { getRequired: jest.fn() };
-        const storage = { getPeers: jest.fn() };
+        const repository = { getPeers: jest.fn() };
         const communicator = { postTransactions: jest.fn() };
 
         beforeAll(() => {
             container.unbindAll();
             container.bind(Container.Identifiers.LogService).toConstantValue(logger);
             container.bind(Container.Identifiers.PluginConfiguration).toConstantValue(configuration);
-            container.bind(Container.Identifiers.PeerStorage).toConstantValue(storage);
+            container.bind(Container.Identifiers.PeerRepository).toConstantValue(repository);
             container.bind(Container.Identifiers.PeerCommunicator).toConstantValue(communicator);
         });
 
@@ -24,7 +24,7 @@ describe("TransactionBroadcaster", () => {
             logger.warning.mockClear();
             logger.debug.mockClear();
             configuration.getRequired.mockClear();
-            storage.getPeers.mockClear();
+            repository.getPeers.mockClear();
             communicator.postTransactions.mockClear();
         });
 
@@ -35,14 +35,14 @@ describe("TransactionBroadcaster", () => {
 
             expect(logger.warning).toBeCalledWith("Broadcasting 0 transactions");
             expect(configuration.getRequired).not.toBeCalled();
-            expect(storage.getPeers).not.toBeCalled();
+            expect(repository.getPeers).not.toBeCalled();
             expect(communicator.postTransactions).not.toBeCalled();
         });
 
         it("should broadcast transaction to peers", async () => {
             const peers = [{}, {}, {}];
             configuration.getRequired.mockReturnValue(3);
-            storage.getPeers.mockReturnValue(peers);
+            repository.getPeers.mockReturnValue(peers);
             const transactions = [{}];
 
             const serializedTx = Buffer.alloc(0);
@@ -52,7 +52,7 @@ describe("TransactionBroadcaster", () => {
             await broadcaster.broadcastTransactions(transactions as Interfaces.ITransaction[]);
 
             expect(configuration.getRequired).toBeCalledWith("maxPeersBroadcast");
-            expect(storage.getPeers).toBeCalled();
+            expect(repository.getPeers).toBeCalled();
             expect(logger.debug).toBeCalledWith("Broadcasting 1 transaction to 3 peers");
             expect(spySerialize).toBeCalled();
             expect(communicator.postTransactions).toBeCalledWith(peers[0], [serializedTx]);

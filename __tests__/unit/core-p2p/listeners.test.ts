@@ -8,7 +8,7 @@ describe("DisconnectInvalidPeers", () => {
     const container = new Container.Container();
 
     const logger = { warning: jest.fn(), debug: jest.fn() };
-    const storage = { getPeers: jest.fn() };
+    const repository = { getPeers: jest.fn() };
     const app = {
         getTagged: () => ({
             getOptional: () => ["^3.0.0", "^3.0.0-next.0"], // minimumVersions
@@ -19,7 +19,7 @@ describe("DisconnectInvalidPeers", () => {
     beforeAll(() => {
         container.unbindAll();
         container.bind(Container.Identifiers.LogService).toConstantValue(logger);
-        container.bind(Container.Identifiers.PeerStorage).toConstantValue(storage);
+        container.bind(Container.Identifiers.PeerRepository).toConstantValue(repository);
         container.bind(Container.Identifiers.Application).toConstantValue(app);
         container.bind(Container.Identifiers.EventDispatcherService).toConstantValue(emitter);
     });
@@ -38,10 +38,10 @@ describe("DisconnectInvalidPeers", () => {
     peers[4].version = "3.0.1"; // valid
     beforeEach(() => {
         disconnectInvalidPeers = container.resolve<DisconnectInvalidPeers>(DisconnectInvalidPeers);
-        storage.getPeers = jest.fn().mockReturnValue(peers);
+        repository.getPeers = jest.fn().mockReturnValue(peers);
     });
     afterEach(() => {
-        storage.getPeers = jest.fn();
+        repository.getPeers = jest.fn();
     });
 
     describe("handle", () => {
@@ -59,13 +59,13 @@ describe("DisconnectPeer", () => {
     const container = new Container.Container();
 
     const logger = { warning: jest.fn(), debug: jest.fn() };
-    const storage = { forgetPeer: jest.fn() };
+    const repository = { forgetPeer: jest.fn() };
     const connector = { disconnect: jest.fn() };
 
     beforeAll(() => {
         container.unbindAll();
         container.bind(Container.Identifiers.LogService).toConstantValue(logger);
-        container.bind(Container.Identifiers.PeerStorage).toConstantValue(storage);
+        container.bind(Container.Identifiers.PeerRepository).toConstantValue(repository);
         container.bind(Container.Identifiers.PeerConnector).toConstantValue(connector);
     });
 
@@ -78,8 +78,8 @@ describe("DisconnectPeer", () => {
             const peer = new Peer("187.176.1.1", 4000);
             await disconnectPeer.handle({ data: { peer: peer, port: 4000 } });
 
-            expect(storage.forgetPeer).toBeCalledTimes(1);
-            expect(storage.forgetPeer).toBeCalledWith(peer);
+            expect(repository.forgetPeer).toBeCalledTimes(1);
+            expect(repository.forgetPeer).toBeCalledWith(peer);
             expect(connector.disconnect).toBeCalledTimes(1);
             expect(connector.disconnect).toBeCalledWith(peer);
         });

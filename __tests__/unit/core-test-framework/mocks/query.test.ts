@@ -13,7 +13,7 @@ const clear = () => {
     TransactionPoolQuery.setTransactions([]);
 };
 
-describe("PeerStorage", () => {
+describe("TransactionPoolQuery", () => {
     describe("default values", () => {
         it("getFromHighestPriority should return", async () => {
             expect(TransactionPoolQuery.instance.getFromHighestPriority()).toEqual({ transactions: [] });

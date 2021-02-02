@@ -68,7 +68,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
                 whitelist: Joi.array().items(Joi.string()).required(),
             }).required(),
             timeout: Joi.number().required(),
-        });
+        }).unknown(true);
     }
 
     /**

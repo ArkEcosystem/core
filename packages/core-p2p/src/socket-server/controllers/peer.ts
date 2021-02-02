@@ -10,8 +10,8 @@ import { getPeerIp } from "../../utils/get-peer-ip";
 import { constants } from "../../constants";
 
 export class PeerController extends Controller {
-    @Container.inject(Container.Identifiers.PeerStorage)
-    private readonly peerStorage!: Contracts.P2P.PeerStorage;
+    @Container.inject(Container.Identifiers.PeerRepository)
+    private readonly peerRepository!: Contracts.P2P.PeerRepository;
 
     @Container.inject(Container.Identifiers.DatabaseInteraction)
     private readonly databaseInteraction!: DatabaseInteraction;
@@ -19,7 +19,7 @@ export class PeerController extends Controller {
     public getPeers(request: Hapi.Request, h: Hapi.ResponseToolkit): Contracts.P2P.PeerBroadcast[] {
         const peerIp = getPeerIp(request.socket);
 
-        return this.peerStorage
+        return this.peerRepository
             .getPeers()
             .filter((peer) => peer.ip !== peerIp)
             .filter((peer) => peer.port !== -1)

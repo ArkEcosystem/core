@@ -1,7 +1,7 @@
 import { ApplicationFactory } from "@arkecosystem/core-cli";
 import { Container, Contracts, Providers, Types } from "@arkecosystem/core-kernel";
-import { cloneDeep } from "lodash";
 import Joi from "joi";
+import { cloneDeep } from "lodash";
 
 import { ActionReader } from "./action-reader";
 import { DatabaseLogger } from "./database-logger";
@@ -186,7 +186,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
                         .when("enabled", { is: true, then: Joi.required() }),
                 }).required(),
             }).required(),
-        });
+        }).unknown(true);
     }
 
     private isProcessTypeManager() {

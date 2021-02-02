@@ -11,7 +11,7 @@ describe("BlocksController", () => {
     const container = new Container.Container();
 
     const logger = { warning: jest.fn(), debug: jest.fn(), info: jest.fn() };
-    const peerStorage = { getPeers: jest.fn() };
+    const peerRepository = { getPeers: jest.fn() };
     const database = { getCommonBlocks: jest.fn(), getBlocksForDownload: jest.fn() };
     const blockchain = {
         getLastBlock: jest.fn(),
@@ -59,7 +59,7 @@ describe("BlocksController", () => {
     beforeAll(() => {
         container.unbindAll();
         container.bind(Container.Identifiers.LogService).toConstantValue(logger);
-        container.bind(Container.Identifiers.PeerStorage).toConstantValue(peerStorage);
+        container.bind(Container.Identifiers.PeerRepository).toConstantValue(peerRepository);
         container.bind(Container.Identifiers.DatabaseService).toConstantValue(database);
         container.bind(Container.Identifiers.Application).toConstantValue(app);
     });

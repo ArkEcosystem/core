@@ -4,6 +4,7 @@ import { Identifiers, Server, ServiceProvider as CoreApiServiceProvider } from "
 import { defaults } from "@packages/core-api/src/defaults";
 import { Application, Container, Providers } from "@packages/core-kernel";
 import { ServiceProvider } from "@packages/core-magistrate-api/src";
+import { Managers } from "@packages/crypto";
 
 let app: Application;
 
@@ -24,7 +25,7 @@ beforeEach(() => {
 
     app.bind(Container.Identifiers.PeerNetworkMonitor).toConstantValue({});
 
-    app.bind(Container.Identifiers.PeerStorage).toConstantValue({});
+    app.bind(Container.Identifiers.PeerRepository).toConstantValue({});
 
     app.bind(Container.Identifiers.DatabaseRoundRepository).toConstantValue({});
 
@@ -69,5 +70,95 @@ describe("ServiceProvider", () => {
 
     it("should not be required", async () => {
         await expect(serviceProvider.required()).resolves.toBeFalse();
+    });
+
+    describe("API", () => {
+        let server;
+        let route;
+
+        beforeEach(() => {
+            serviceProvider = app.resolve<ServiceProvider>(ServiceProvider);
+
+            route = {
+                settings: {
+                    handler: jest.fn().mockReturnValue({}),
+                },
+            };
+
+            server = {
+                getRoute: jest.fn().mockReturnValue(route),
+            };
+        });
+
+        describe("NodeFees", () => {
+            it("should return original response when AIP36 not set", async () => {
+                Managers.configManager.getMilestone = jest.fn().mockReturnValue({});
+                // @ts-ignore
+                serviceProvider.extendApiNodeFees(server);
+
+                await expect(route.settings.handler({})).resolves.toEqual({});
+            });
+
+            it("should return entity fees in response when AIP36 is set", async () => {
+                Managers.configManager.getMilestone = jest.fn().mockReturnValue({
+                    aip36: true,
+                });
+                // @ts-ignore
+                serviceProvider.extendApiNodeFees(server);
+
+                await expect(route.settings.handler({})).resolves.toEqual({
+                    data: {
+                        "2": {
+                            entityRegistration: {
+                                avg: "5000000000",
+                                max: "5000000000",
+                                min: "5000000000",
+                                sum: "0",
+                            },
+                            entityResignation: {
+                                avg: "500000000",
+                                max: "500000000",
+                                min: "500000000",
+                                sum: "0",
+                            },
+                            entityUpdate: {
+                                avg: "500000000",
+                                max: "500000000",
+                                min: "500000000",
+                                sum: "0",
+                            },
+                        },
+                    },
+                });
+            });
+        });
+
+        describe("TransactionFees", () => {
+            it("should return original response when AIP36 not set", async () => {
+                Managers.configManager.getMilestone = jest.fn().mockReturnValue({});
+                // @ts-ignore
+                serviceProvider.extendApiTransactionsFees(server);
+
+                await expect(route.settings.handler({})).resolves.toEqual({});
+            });
+
+            it("should return entity fees in response when AIP36 is set", async () => {
+                Managers.configManager.getMilestone = jest.fn().mockReturnValue({
+                    aip36: true,
+                });
+                // @ts-ignore
+                serviceProvider.extendApiTransactionsFees(server);
+
+                await expect(route.settings.handler({})).resolves.toEqual({
+                    data: {
+                        "2": {
+                            entityRegistration: "5000000000",
+                            entityResignation: "500000000",
+                            entityUpdate: "500000000",
+                        },
+                    },
+                });
+            });
+        });
     });
 });

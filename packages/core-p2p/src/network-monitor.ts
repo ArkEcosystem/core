@@ -23,8 +23,8 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
     @Container.inject(Container.Identifiers.PeerCommunicator)
     private readonly communicator!: PeerCommunicator;
 
-    @Container.inject(Container.Identifiers.PeerStorage)
-    private readonly storage!: Contracts.P2P.PeerStorage;
+    @Container.inject(Container.Identifiers.PeerRepository)
+    private readonly repository!: Contracts.P2P.PeerRepository;
 
     @Container.inject(Container.Identifiers.EventDispatcherService)
     private readonly events!: Contracts.Kernel.EventDispatcher;
@@ -69,7 +69,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
 
             for (const [version, peers] of Object.entries(
                 // @ts-ignore
-                Utils.groupBy(this.storage.getPeers(), (peer) => peer.version),
+                Utils.groupBy(this.repository.getPeers(), (peer) => peer.version),
             )) {
                 this.logger.info(`Discovered ${Utils.pluralize("peer", peers.length, true)} with v${version}.`);
             }
@@ -123,7 +123,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
         forcePing = false,
         peerCount,
     }: { fast?: boolean; forcePing?: boolean; peerCount?: number } = {}): Promise<void> {
-        let peers = this.storage.getPeers();
+        let peers = this.repository.getPeers();
         let max = peers.length;
 
         let unresponsivePeers = 0;
@@ -183,11 +183,11 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
 
     public async discoverPeers(pingAll?: boolean): Promise<boolean> {
         const maxPeersPerPeer = 50;
-        const ownPeers: Contracts.P2P.Peer[] = this.storage.getPeers();
+        const ownPeers: Contracts.P2P.Peer[] = this.repository.getPeers();
         const theirPeers: Contracts.P2P.Peer[] = Object.values(
             (
                 await Promise.all(
-                    Utils.shuffle(this.storage.getPeers())
+                    Utils.shuffle(this.repository.getPeers())
                         .slice(0, 8)
                         .map(async (peer: Contracts.P2P.Peer) => {
                             try {
@@ -242,7 +242,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
     }
 
     public getNetworkHeight(): number {
-        const medians = this.storage
+        const medians = this.repository
             .getPeers()
             .filter((peer) => peer.state.height)
             .map((peer) => peer.state.height)
@@ -259,11 +259,11 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
     public async getNetworkState(): Promise<Contracts.P2P.NetworkState> {
         await this.cleansePeers({ fast: true, forcePing: true });
 
-        return await NetworkState.analyze(this, this.storage);
+        return await NetworkState.analyze(this, this.repository);
     }
 
     public async refreshPeersAfterFork(): Promise<void> {
-        this.logger.info(`Refreshing ${this.storage.getPeers().length} peers after fork.`);
+        this.logger.info(`Refreshing ${this.repository.getPeers().length} peers after fork.`);
 
         await this.cleansePeers({ forcePing: true });
     }
@@ -276,7 +276,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
             .get<Contracts.State.StateStore>(Container.Identifiers.StateStore)
             .getLastBlock();
 
-        const allPeers: Contracts.P2P.Peer[] = this.storage.getPeers();
+        const allPeers: Contracts.P2P.Peer[] = this.repository.getPeers();
 
         if (!allPeers.length) {
             this.logger.info("No peers available.");
@@ -326,7 +326,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
         fromBlockHeight: number,
         maxParallelDownloads = 10,
     ): Promise<Interfaces.IBlockData[]> {
-        const peersAll: Contracts.P2P.Peer[] = this.storage.getPeers();
+        const peersAll: Contracts.P2P.Peer[] = this.repository.getPeers();
 
         if (peersAll.length === 0) {
             this.logger.error(`Could not download blocks: we have 0 peers`);
@@ -391,7 +391,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
                 if (peersToTry.length === 1) {
                     // special case where we don't have "backup peers" (that have not been first-attempt for any job)
                     // so add peers that have been first-attempt as backup peers
-                    peersToTry.push(...peersNotForked.filter(p => p.ip !== peersNotForked[i].ip));
+                    peersToTry.push(...peersNotForked.filter((p) => p.ip !== peersNotForked[i].ip));
                 }
 
                 for (peer of peersToTry) {
@@ -488,7 +488,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
         }
 
         let blockPing = blockchain.getBlockPing();
-        let peers: Contracts.P2P.Peer[] = this.storage.getPeers();
+        let peers: Contracts.P2P.Peer[] = this.repository.getPeers();
 
         if (blockPing && blockPing.block.id === block.data.id) {
             // wait a bit before broadcasting if a bit early
@@ -525,7 +525,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
     }
 
     private async pingPeerPorts(pingAll?: boolean): Promise<void> {
-        let peers = this.storage.getPeers();
+        let peers = this.repository.getPeers();
         if (!pingAll) {
             peers = Utils.shuffle(peers).slice(0, Math.floor(peers.length / 2));
         }
@@ -578,7 +578,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
             return true;
         }
 
-        return Object.keys(this.storage.getPeers()).length >= this.config.minimumNetworkReach;
+        return Object.keys(this.repository.getPeers()).length >= this.config.minimumNetworkReach;
     }
 
     private async populateSeedPeers(): Promise<any> {
@@ -609,7 +609,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
         return Promise.all(
             // @ts-ignore
             Object.values(peers).map((peer: Contracts.P2P.Peer) => {
-                this.storage.forgetPeer(peer);
+                this.repository.forgetPeer(peer);
 
                 return this.app
                     .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)

@@ -8,7 +8,7 @@ import { Peer } from "./peer";
 import { PeerCommunicator } from "./peer-communicator";
 import { PeerConnector } from "./peer-connector";
 import { PeerProcessor } from "./peer-processor";
-import { PeerStorage } from "./peer-storage";
+import { PeerRepository } from "./peer-repository";
 import { Server } from "./socket-server/server";
 import { TransactionBroadcaster } from "./transaction-broadcaster";
 
@@ -90,7 +90,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
             disableDiscovery: Joi.bool(),
             skipDiscovery: Joi.bool(),
             ignoreMinimumNetworkReach: Joi.bool(),
-        });
+        }).unknown(true);
     }
 
     private registerFactories(): void {
@@ -100,7 +100,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
     }
 
     private registerServices(): void {
-        this.app.bind(Container.Identifiers.PeerStorage).to(PeerStorage).inSingletonScope();
+        this.app.bind(Container.Identifiers.PeerRepository).to(PeerRepository).inSingletonScope();
 
         this.app.bind(Container.Identifiers.PeerConnector).to(PeerConnector).inSingletonScope();
 

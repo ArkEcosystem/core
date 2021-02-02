@@ -168,6 +168,19 @@ describe("ServiceProvider", () => {
             expect(result.value.password).toBeUndefined();
         });
 
+        it("should allow configuration extension", async () => {
+            jest.resetModules();
+            const defaults = (await import("@packages/core-forger/src/defaults")).defaults;
+
+            // @ts-ignore
+            defaults.customField = "dummy";
+
+            const result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+            expect(result.error).toBeUndefined();
+            expect(result.value.customField).toEqual("dummy");
+        });
+
         describe("process.env.CORE_P2P_PORT", () => {
             it("should parse process.env.CORE_API_PORT", async () => {
                 process.env.CORE_P2P_PORT = "5000";
