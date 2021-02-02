@@ -296,7 +296,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
             await delay(msBeforeReCheck);
         }
         try {
-            await this.outgoingRateLimiter.hasExceededRateLimit(peer.ip, event);
+            await this.outgoingRateLimiter.consume(peer.ip, event);
         } //@ts-ignore
         catch {}
     }

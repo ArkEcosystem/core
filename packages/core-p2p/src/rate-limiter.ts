@@ -38,17 +38,21 @@ export class RateLimiter {
         }
     }
 
+    public async consume(ip: string, endpoint?: string): Promise<void> {
+        await this.global.consume(ip);
+
+        if (endpoint && this.endpoints.has(endpoint)) {
+            const rateLimiter: RateLimiterMemory | undefined = this.endpoints.get(endpoint);
+
+            Utils.assert.defined<RateLimiterMemory>(rateLimiter);
+
+            await rateLimiter.consume(ip);
+        }
+    }
+
     public async hasExceededRateLimit(ip: string, endpoint?: string): Promise<boolean> {
         try {
-            await this.global.consume(ip);
-
-            if (endpoint && this.endpoints.has(endpoint)) {
-                const rateLimiter: RateLimiterMemory | undefined = this.endpoints.get(endpoint);
-
-                Utils.assert.defined<RateLimiterMemory>(rateLimiter);
-
-                await rateLimiter.consume(ip);
-            }
+            await this.consume(ip, endpoint);
         } catch {
             return true;
         }
