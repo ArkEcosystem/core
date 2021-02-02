@@ -1,5 +1,5 @@
 import { createWriteStream, ensureDirSync, renameSync } from "fs-extra";
-import { dirname, join } from "path";
+import { dirname } from "path";
 import { Writable } from "stream";
 import zlib from "zlib";
 
@@ -18,30 +18,16 @@ export class GenerateLogGz extends GenerateLog {
         const writeStream = this.prepareOutputStream();
 
         readStream.pipe(new LogTransformStream()).pipe(writeStream);
-
-        await new Promise((resolve) => {
-            writeStream.on("close", () => {
-                resolve();
-            });
-        });
+        await this.resolveOnClose(writeStream);
 
         ensureDirSync(dirname(this.getFilePath()));
         renameSync(this.getTempFilePath(), this.getFilePath());
-    }
-
-    private getFilePath(): string {
-        return join(process.env.CORE_PATH_DATA!, "log-archive", this.options.logFileName);
-    }
-
-    private getTempFilePath(): string {
-        return join(process.env.CORE_PATH_TEMP!, "log-archive", this.options.logFileName);
     }
 
     private prepareOutputStream(): Writable {
         ensureDirSync(dirname(this.getTempFilePath()));
 
         const stream = zlib.createGzip();
-
         stream.pipe(createWriteStream(this.getTempFilePath()));
 
         return stream;
