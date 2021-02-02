@@ -1,4 +1,4 @@
-import { Container, Contracts, Enums, Providers, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Enums, Providers, Types, Utils } from "@arkecosystem/core-kernel";
 import { Blocks, Interfaces, Managers, Transactions, Validation } from "@arkecosystem/crypto";
 import dayjs from "dayjs";
 
@@ -33,6 +33,8 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
 
     private outgoingRateLimiter!: RateLimiter;
 
+    private postTransactionsQueueByIp: Map<string, Contracts.Kernel.Queue> = new Map();
+
     public initialize(): void {
         this.outgoingRateLimiter = buildRateLimiter({
             // White listing anybody here means we would not throttle ourselves when sending
@@ -59,9 +61,27 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
         );
     }
 
-    public async postTransactions(peer: Contracts.P2P.Peer, transactions: Buffer[]): Promise<any> {
+    public async postTransactions(peer: Contracts.P2P.Peer, transactions: Buffer[]): Promise<void> {
         const postTransactionsTimeout = 10000;
-        return this.emit(peer, "p2p.transactions.postTransactions", { transactions }, postTransactionsTimeout);
+        const postTransactionsRateLimit = this.configuration.getOptional<number>("rateLimitPostTransactions", 25);
+
+        if (!this.postTransactionsQueueByIp.get(peer.ip)) {
+            this.postTransactionsQueueByIp.set(
+                peer.ip,
+                await this.app.get<Types.QueueFactory>(Container.Identifiers.QueueFactory)()
+            );
+        }
+
+        const queue = this.postTransactionsQueueByIp.get(peer.ip)!;
+        queue.resume();
+        queue.push({
+            handle: async () => {
+                await this.emit(peer, "p2p.transactions.postTransactions", { transactions }, postTransactionsTimeout);
+                await delay(Math.ceil(1000 / postTransactionsRateLimit));
+                // to space up between consecutive calls to postTransactions according to rate limit
+                // optimized here because default throttling would not be effective for postTransactions
+            }
+        });
     }
 
     // ! do not rely on parameter timeoutMsec as guarantee that ping method will resolve within it !
