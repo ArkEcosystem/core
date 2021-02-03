@@ -31,6 +31,9 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
 
+    @Container.inject(Container.Identifiers.QueueFactory)
+    private readonly createQueue!: Types.QueueFactory;
+
     private outgoingRateLimiter!: RateLimiter;
 
     private postTransactionsQueueByIp: Map<string, Contracts.Kernel.Queue> = new Map();
@@ -72,7 +75,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
         if (!this.postTransactionsQueueByIp.get(peer.ip)) {
             this.postTransactionsQueueByIp.set(
                 peer.ip,
-                await this.app.get<Types.QueueFactory>(Container.Identifiers.QueueFactory)()
+                await this.createQueue(),
             );
         }
 
