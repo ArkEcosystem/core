@@ -28,6 +28,57 @@ beforeEach(() => {
 afterAll(() => setGracefulCleanup());
 
 describe("ConfigManagerCommand", () => {
+    describe("Flags", () => {
+        it("should set the manager host, port and create manager section", async () => {
+            // Arrange
+            const existsSync = jest.spyOn(fs, "existsSync").mockReturnValueOnce(true);
+            const parseFileSync = jest.spyOn(envfile, "parseFileSync").mockImplementation(() => ({}));
+            const writeFileSync = jest.spyOn(fs, "writeFileSync").mockImplementation();
+            const readJSONSync = jest.spyOn(fs, "readJSONSync").mockReturnValue(appJson);
+            const writeJSONSync = jest.spyOn(fs, "writeJSONSync").mockImplementation();
+
+            // Act
+            await cli.withFlags({ host: "127.0.0.1", port: 4000 }).execute(Command);
+
+            // Assert
+            expect(existsSync).toHaveBeenCalledWith(envFile);
+            expect(parseFileSync).toHaveBeenCalledWith(envFile);
+            expect(writeFileSync).toHaveBeenCalledWith(envFile, expect.toInclude("CORE_MONITOR_HOST=127.0.0.1"));
+            expect(writeFileSync).toHaveBeenCalledWith(envFile, expect.toInclude("CORE_MONITOR_PORT=4000"));
+            expect(readJSONSync).toHaveBeenCalledWith(appJsonFile);
+            expect(writeJSONSync).toHaveBeenCalledWith(
+                appJsonFile,
+                {
+                    core: expect.toBeObject(),
+                    forger: expect.toBeObject(),
+                    relay: expect.toBeObject(),
+                    snapshot: expect.toBeObject(),
+                    manager: {
+                        plugins: [
+                            {
+                                package: "@arkecosystem/core-logger-pino",
+                            },
+                            {
+                                package: "@arkecosystem/core-snapshots",
+                            },
+                            {
+                                package: "@arkecosystem/core-manager",
+                            },
+                        ],
+                    },
+                },
+                { spaces: 4 },
+            );
+
+            // Reset
+            existsSync.mockReset();
+            parseFileSync.mockReset();
+            writeFileSync.mockReset();
+            readJSONSync.mockReset();
+            writeJSONSync.mockReset();
+        });
+    });
+
     describe("Prompts", () => {
         it("should throw if configuration is not confirmed", async () => {
             prompts.inject(["127.0.0.1", 4000, undefined, "none", false]);
@@ -82,6 +133,8 @@ describe("ConfigManagerCommand", () => {
             existsSync.mockReset();
             parseFileSync.mockReset();
             writeFileSync.mockReset();
+            readJSONSync.mockReset();
+            writeJSONSync.mockReset();
         });
 
         it("should set the whitelist", async () => {
@@ -136,6 +189,8 @@ describe("ConfigManagerCommand", () => {
             existsSync.mockReset();
             parseFileSync.mockReset();
             writeFileSync.mockReset();
+            readJSONSync.mockReset();
+            writeJSONSync.mockReset();
         });
 
         it("should set the token authentication", async () => {
@@ -193,6 +248,8 @@ describe("ConfigManagerCommand", () => {
             existsSync.mockReset();
             parseFileSync.mockReset();
             writeFileSync.mockReset();
+            readJSONSync.mockReset();
+            writeJSONSync.mockReset();
         });
 
         it("should set the basic authentication", async () => {
@@ -256,6 +313,8 @@ describe("ConfigManagerCommand", () => {
             existsSync.mockReset();
             parseFileSync.mockReset();
             writeFileSync.mockReset();
+            readJSONSync.mockReset();
+            writeJSONSync.mockReset();
         });
     });
 });
