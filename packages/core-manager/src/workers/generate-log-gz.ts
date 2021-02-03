@@ -4,7 +4,7 @@ import { Writable, Readable } from "stream";
 import zlib from "zlib";
 
 import { GenerateLog } from "./generate-log";
-import { LogTransformStream } from "./streams";
+import { LogTransformStream } from "./log-transform-stream";
 
 export class GenerateLogGz extends GenerateLog {
     public async execute(): Promise<void> {

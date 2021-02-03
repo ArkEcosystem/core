@@ -1,11 +1,11 @@
 import "jest-extended";
 
-import { generateLogFactory } from "@packages/core-manager/src/workers/actions/generate-log-factory";
-import { GenerateLogZip } from "@packages/core-manager/src/workers/actions/generate-log-zip";
-import { GenerateLogGz } from "@packages/core-manager/src/workers/actions/generate-log-gz";
+import { generateLogFactory } from "@packages/core-manager/src/workers/generate-log-factory";
+import { GenerateLogZip } from "@packages/core-manager/src/workers/generate-log-zip";
+import { GenerateLogGz } from "@packages/core-manager/src/workers/generate-log-gz";
 
-jest.mock("@packages/core-manager/src/workers/actions/generate-log-zip");
-jest.mock("@packages/core-manager/src/workers/actions/generate-log-gz");
+jest.mock("@packages/core-manager/src/workers/generate-log-zip");
+jest.mock("@packages/core-manager/src/workers/generate-log-gz");
 
 describe("Generate Log Factory", () => {
     it("should return instance of GenerateLogZip", async () => {

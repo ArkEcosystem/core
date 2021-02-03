@@ -1,5 +1,5 @@
 import { Transform, TransformCallback } from "stream";
-import { LogsResult } from "../../../database/logs-database-service";
+import { LogsResult } from "../database/logs-database-service";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 

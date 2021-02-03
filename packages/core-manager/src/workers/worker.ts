@@ -1,6 +1,6 @@
 import { workerData } from "worker_threads";
 
-import { generateLogFactory } from "./actions/generate-log-factory";
+import { generateLogFactory } from "./generate-log-factory";
 
 const main = async () => {
     const action = generateLogFactory(workerData);

@@ -1,8 +1,8 @@
 import { join } from "path";
 import { Writable } from "stream";
 
-import { GenerateLog as GenerateLogContracts } from "../../contracts";
-import { Database } from "../../database/database";
+import { GenerateLog as GenerateLogContracts } from "../contracts";
+import { Database } from "../database/database";
 
 export class GenerateLog implements GenerateLogContracts.GenerateLog {
     protected readonly database: Database;

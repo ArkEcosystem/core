@@ -1,10 +1,11 @@
 import "jest-extended";
 
 import { Database } from "@packages/core-manager/src/database/database";
-import { GenerateLogZip } from "@packages/core-manager/src/workers/actions/generate-log-zip";
-import { existsSync } from "fs-extra";
+import { GenerateLogGz } from "@packages/core-manager/src/workers/generate-log-gz";
+import { createReadStream } from "fs-extra";
 import { join } from "path";
 import { dirSync, setGracefulCleanup } from "tmp";
+import zlib from "zlib";
 
 jest.mock("@packages/core-manager/src/database/database");
 
@@ -30,10 +31,10 @@ describe("Generate Log", () => {
         const spyOnGetAllIterator = jest.spyOn(Database.prototype, "getAllIterator").mockReturnValue(mockIterator);
 
         // @ts-ignore
-        const generateLog = new GenerateLogZip({
+        const generateLog = new GenerateLogGz({
             databaseFilePath: "path/to/db",
             schema: { tables: [] },
-            logFileName: "test.zip",
+            logFileName: "test.log.gz",
             query: {},
         });
 
@@ -43,6 +44,16 @@ describe("Generate Log", () => {
 
         expect(spyOnGetAllIterator).toHaveBeenCalled();
 
-        expect(existsSync(join(process.env.CORE_PATH_DATA!, "log-archive", "test.zip"))).toBeTrue();
+        const stream = createReadStream(join(process.env.CORE_PATH_DATA!, "log-archive", "test.log.gz")).pipe(
+            zlib.createGunzip(),
+        );
+
+        await new Promise((resolve) => {
+            stream.on("readable", () => {
+                resolve();
+            });
+        });
+
+        expect(stream.read().toString()).toEqual("[2020-12-14 12:20:05.000] INFO : log message\n");
     });
 });

@@ -1,4 +1,4 @@
-import * as GenerateLogFactory from "@packages/core-manager/src/workers/actions/generate-log-factory";
+import * as GenerateLogFactory from "@packages/core-manager/src/workers/generate-log-factory";
 
 const mockGenerateLog = {
     execute: jest.fn(),

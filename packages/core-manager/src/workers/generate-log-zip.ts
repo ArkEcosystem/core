@@ -4,7 +4,7 @@ import { dirname, parse } from "path";
 import { Writable, Readable } from "stream";
 
 import { GenerateLog } from "./generate-log";
-import { LogTransformStream } from "./streams";
+import { LogTransformStream } from "./log-transform-stream";
 
 export class GenerateLogZip extends GenerateLog {
     public async execute(): Promise<void> {

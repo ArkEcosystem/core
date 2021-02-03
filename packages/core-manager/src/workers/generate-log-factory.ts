@@ -1,4 +1,4 @@
-import { GenerateLog } from "../../contracts";
+import { GenerateLog } from "../contracts";
 import { GenerateLogGz } from "./generate-log-gz";
 import { GenerateLogZip } from "./generate-log-zip";
 
