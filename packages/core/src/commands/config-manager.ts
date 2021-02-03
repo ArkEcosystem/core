@@ -6,6 +6,8 @@ import Joi from "joi";
 interface Options {
     host: string;
     port: number;
+
+    authenticationToken?: string;
 }
 
 /**
@@ -50,7 +52,8 @@ export class Command extends Commands.Command {
             .setFlag("token", "The name of the token.", Joi.string().default("ark"))
             .setFlag("network", "The name of the network.", Joi.string().valid(...Object.keys(Networks)))
             .setFlag("host", "The host address of the manager.", Joi.string().default("0.0.0.0"))
-            .setFlag("port", "The port of the manager.", Joi.number().default(4005));
+            .setFlag("port", "The port of the manager.", Joi.number().default(4005))
+            .setFlag("authenticationToken", "Secret token for token authentication.", Joi.string());
     }
 
     /**
@@ -78,6 +81,24 @@ export class Command extends Commands.Command {
                     value < 1 || value > 65535 ? `The port must be in the range of 1-65535.` : true,
             },
             {
+                type: "select",
+                name: "authenticationType",
+                message: "Which authentication do you want to use?",
+                choices: [
+                    { title: "None", value: "none" },
+                    { title: "Token", value: "token" },
+                    { title: "Basic", value: "basic" },
+                ],
+                initial: 2,
+            },
+            {
+                type: (prev, values) => {
+                    return values.authenticationType === "token" ? "password" : null;
+                },
+                name: "authenticationToken",
+                message: "Enter authentication token:",
+            },
+            {
                 type: "confirm",
                 name: "confirm",
                 message: "Can you confirm?",
@@ -87,6 +108,8 @@ export class Command extends Commands.Command {
         if (!response.confirm) {
             throw new Error("You'll need to confirm the input to continue.");
         }
+
+        console.log(response);
 
         // @ts-ignore
         this.updateEnvironmentVariables(response);
@@ -115,7 +138,7 @@ export class Command extends Commands.Command {
     }
 
     private generateManagerSection(options: Options): any {
-        return {
+        const result: any = {
             plugins: [
                 {
                     package: "@arkecosystem/core-logger-pino",
@@ -128,5 +151,22 @@ export class Command extends Commands.Command {
                 },
             ],
         };
+
+        const packageOptions: any = {
+            plugins: {},
+        };
+
+        if (options.authenticationToken) {
+            packageOptions.plugins.tokenAuthentication = {
+                enabled: true,
+                token: options.authenticationToken,
+            };
+        }
+
+        if (Object.keys(packageOptions.plugins).length) {
+            result.plugins[2].options = packageOptions;
+        }
+
+        return result;
     }
 }
