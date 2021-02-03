@@ -8,6 +8,8 @@ interface Options {
     port: number;
 
     authenticationToken?: string;
+    username?: string;
+    password?: string;
 }
 
 /**
@@ -53,7 +55,9 @@ export class Command extends Commands.Command {
             .setFlag("network", "The name of the network.", Joi.string().valid(...Object.keys(Networks)))
             .setFlag("host", "The host address of the manager.", Joi.string().default("0.0.0.0"))
             .setFlag("port", "The port of the manager.", Joi.number().default(4005))
-            .setFlag("authenticationToken", "Secret token for token authentication.", Joi.string());
+            .setFlag("authenticationToken", "Secret token for token authentication.", Joi.string())
+            .setFlag("username", "Basic authentication username.", Joi.string())
+            .setFlag("password", "Basic authentication password.", Joi.string());
     }
 
     /**
@@ -97,6 +101,20 @@ export class Command extends Commands.Command {
                 },
                 name: "authenticationToken",
                 message: "Enter authentication token:",
+            },
+            {
+                type: (prev, values) => {
+                    return values.authenticationType === "basic" ? "text" : null;
+                },
+                name: "username",
+                message: "Enter username:",
+            },
+            {
+                type: (prev, values) => {
+                    return values.authenticationType === "basic" ? "password" : null;
+                },
+                name: "password",
+                message: "Enter password:",
             },
             {
                 type: "confirm",
@@ -156,7 +174,18 @@ export class Command extends Commands.Command {
             plugins: {},
         };
 
-        if (options.authenticationToken) {
+        if (options.username && options.password) {
+            packageOptions.plugins.basicAuthentication = {
+                enabled: true,
+                secret: "secret",
+                users: [
+                    {
+                        username: options.username,
+                        password: options.password,
+                    },
+                ],
+            };
+        } else if (options.authenticationToken) {
             packageOptions.plugins.tokenAuthentication = {
                 enabled: true,
                 token: options.authenticationToken,
