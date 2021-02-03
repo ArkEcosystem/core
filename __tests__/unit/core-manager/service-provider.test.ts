@@ -215,7 +215,7 @@ describe("ServiceProvider", () => {
                 if (
                     key.includes("CORE_WATCHER_") ||
                     key.includes("CORE_WATCH_") ||
-                    key.includes("CORE_MONITOR_") ||
+                    key.includes("CORE_MANAGER_") ||
                     key === "CORE_RESET_DATABASE"
                 ) {
                     delete process.env[key];
@@ -590,9 +590,9 @@ describe("ServiceProvider", () => {
             });
         });
 
-        describe("process.env.CORE_MONITOR_PUBLIC_IP", () => {
-            it("should parse process.env.CORE_MONITOR_PUBLIC_IP", async () => {
-                process.env.CORE_MONITOR_PUBLIC_IP = "4000";
+        describe("process.env.CORE_MANAGER_PUBLIC_IP", () => {
+            it("should parse process.env.CORE_MANAGER_PUBLIC_IP", async () => {
+                process.env.CORE_MANAGER_PUBLIC_IP = "4000";
 
                 jest.resetModules();
                 const result = (serviceProvider.configSchema() as AnySchema).validate(
@@ -603,8 +603,8 @@ describe("ServiceProvider", () => {
                 expect(result.value.server.ip).toEqual(4000);
             });
 
-            it("should throw if process.env.CORE_MONITOR_PUBLIC_IP is not number", async () => {
-                process.env.CORE_MONITOR_PUBLIC_IP = "false";
+            it("should throw if process.env.CORE_MANAGER_PUBLIC_IP is not number", async () => {
+                process.env.CORE_MANAGER_PUBLIC_IP = "false";
 
                 jest.resetModules();
                 const result = (serviceProvider.configSchema() as AnySchema).validate(
@@ -616,8 +616,8 @@ describe("ServiceProvider", () => {
             });
         });
 
-        describe("process.env.CORE_MONITOR_DISABLED", () => {
-            it("should return true when process.env.CORE_MONITOR_DISABLED is undefined", async () => {
+        describe("process.env.CORE_MANAGER_DISABLED", () => {
+            it("should return true when process.env.CORE_MANAGER_DISABLED is undefined", async () => {
                 jest.resetModules();
                 const result = (serviceProvider.configSchema() as AnySchema).validate(
                     (await import("@packages/core-manager/src/defaults")).defaults,
@@ -627,8 +627,8 @@ describe("ServiceProvider", () => {
                 expect(result.value.server.http.enabled).toBeTrue();
             });
 
-            it("should return false when process.env.CORE_MONITOR_DISABLED is present", async () => {
-                process.env.CORE_MONITOR_DISABLED = "true";
+            it("should return false when process.env.CORE_MANAGER_DISABLED is present", async () => {
+                process.env.CORE_MANAGER_DISABLED = "true";
 
                 jest.resetModules();
                 const result = (serviceProvider.configSchema() as AnySchema).validate(
@@ -640,9 +640,9 @@ describe("ServiceProvider", () => {
             });
         });
 
-        describe("process.env.CORE_MONITOR_HOST", () => {
-            it("should parse process.env.CORE_MONITOR_HOST", async () => {
-                process.env.CORE_MONITOR_HOST = "127.0.0.1";
+        describe("process.env.CORE_MANAGER_HOST", () => {
+            it("should parse process.env.CORE_MANAGER_HOST", async () => {
+                process.env.CORE_MANAGER_HOST = "127.0.0.1";
 
                 jest.resetModules();
                 const result = (serviceProvider.configSchema() as AnySchema).validate(
@@ -654,9 +654,9 @@ describe("ServiceProvider", () => {
             });
         });
 
-        describe("process.env.CORE_MONITOR_PORT", () => {
-            it("should parse process.env.CORE_MONITOR_PORT", async () => {
-                process.env.CORE_MONITOR_PORT = "4000";
+        describe("process.env.CORE_MANAGER_PORT", () => {
+            it("should parse process.env.CORE_MANAGER_PORT", async () => {
+                process.env.CORE_MANAGER_PORT = "4000";
 
                 jest.resetModules();
                 const result = (serviceProvider.configSchema() as AnySchema).validate(
@@ -667,8 +667,8 @@ describe("ServiceProvider", () => {
                 expect(result.value.server.http.port).toEqual(4000);
             });
 
-            it("should throw if process.env.CORE_MONITOR_PORT is not number", async () => {
-                process.env.CORE_MONITOR_PORT = "false";
+            it("should throw if process.env.CORE_MANAGER_PORT is not number", async () => {
+                process.env.CORE_MANAGER_PORT = "false";
 
                 jest.resetModules();
                 const result = (serviceProvider.configSchema() as AnySchema).validate(
@@ -680,8 +680,8 @@ describe("ServiceProvider", () => {
             });
         });
 
-        describe("process.env.CORE_MONITOR_SSL", () => {
-            it("should return false when process.env.CORE_MONITOR_SSL is undefined", async () => {
+        describe("process.env.CORE_MANAGER_SSL", () => {
+            it("should return false when process.env.CORE_MANAGER_SSL is undefined", async () => {
                 jest.resetModules();
                 const result = (serviceProvider.configSchema() as AnySchema).validate(
                     (await import("@packages/core-manager/src/defaults")).defaults,
@@ -691,10 +691,10 @@ describe("ServiceProvider", () => {
                 expect(result.value.server.https.enabled).toBeFalse();
             });
 
-            it("should return false when process.env.CORE_MONITOR_SSL is present", async () => {
-                process.env.CORE_MONITOR_SSL = "true";
-                process.env.CORE_MONITOR_SSL_KEY = "path/to/key";
-                process.env.CORE_MONITOR_SSL_CERT = "path/to/cert";
+            it("should return false when process.env.CORE_MANAGER_SSL is present", async () => {
+                process.env.CORE_MANAGER_SSL = "true";
+                process.env.CORE_MANAGER_SSL_KEY = "path/to/key";
+                process.env.CORE_MANAGER_SSL_CERT = "path/to/cert";
 
                 jest.resetModules();
                 const result = (serviceProvider.configSchema() as AnySchema).validate(
@@ -705,9 +705,9 @@ describe("ServiceProvider", () => {
                 expect(result.value.server.https.enabled).toBeTrue();
             });
 
-            it("should throw error if process.env.CORE_MONITOR_SSL = true and CORE_MONITOR_SSL_KEY or CORE_MONITOR_SSL_CERT is undefined", async () => {
-                process.env.CORE_MONITOR_SSL = "true";
-                process.env.CORE_MONITOR_SSL_KEY = "path/to/key";
+            it("should throw error if process.env.CORE_MANAGER_SSL = true and CORE_MANAGER_SSL_KEY or CORE_MANAGER_SSL_CERT is undefined", async () => {
+                process.env.CORE_MANAGER_SSL = "true";
+                process.env.CORE_MANAGER_SSL_KEY = "path/to/key";
 
                 jest.resetModules();
                 let result = (serviceProvider.configSchema() as AnySchema).validate(
@@ -717,8 +717,8 @@ describe("ServiceProvider", () => {
                 expect(result.error).toBeDefined();
                 expect(result.error!.message).toEqual('"server.https.tls.cert" is required');
 
-                delete process.env.CORE_MONITOR_SSL_KEY;
-                process.env.CORE_MONITOR_SSL_CERT = "path/to/cert";
+                delete process.env.CORE_MANAGER_SSL_KEY;
+                process.env.CORE_MANAGER_SSL_CERT = "path/to/cert";
 
                 jest.resetModules();
                 result = (serviceProvider.configSchema() as AnySchema).validate(
@@ -730,9 +730,9 @@ describe("ServiceProvider", () => {
             });
         });
 
-        describe("process.env.CORE_MONITOR_SSL_HOST", () => {
-            it("should parse process.env.CORE_MONITOR_SSL_HOST", async () => {
-                process.env.CORE_MONITOR_SSL_HOST = "127.0.0.1";
+        describe("process.env.CORE_MANAGER_SSL_HOST", () => {
+            it("should parse process.env.CORE_MANAGER_SSL_HOST", async () => {
+                process.env.CORE_MANAGER_SSL_HOST = "127.0.0.1";
 
                 jest.resetModules();
                 const result = (serviceProvider.configSchema() as AnySchema).validate(
@@ -744,9 +744,9 @@ describe("ServiceProvider", () => {
             });
         });
 
-        describe("process.env.CORE_MONITOR_SSL_PORT", () => {
-            it("should parse process.env.CORE_MONITOR_SSL_PORT", async () => {
-                process.env.CORE_MONITOR_SSL_PORT = "4000";
+        describe("process.env.CORE_MANAGER_SSL_PORT", () => {
+            it("should parse process.env.CORE_MANAGER_SSL_PORT", async () => {
+                process.env.CORE_MANAGER_SSL_PORT = "4000";
 
                 jest.resetModules();
                 const result = (serviceProvider.configSchema() as AnySchema).validate(
@@ -757,8 +757,8 @@ describe("ServiceProvider", () => {
                 expect(result.value.server.https.port).toEqual(4000);
             });
 
-            it("should throw if process.env.CORE_MONITOR_SSL_PORT is not number", async () => {
-                process.env.CORE_MONITOR_SSL_PORT = "false";
+            it("should throw if process.env.CORE_MANAGER_SSL_PORT is not number", async () => {
+                process.env.CORE_MANAGER_SSL_PORT = "false";
 
                 jest.resetModules();
                 const result = (serviceProvider.configSchema() as AnySchema).validate(
