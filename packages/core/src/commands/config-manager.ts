@@ -1,5 +1,6 @@
 import { Commands, Container, Contracts, Services } from "@arkecosystem/core-cli";
 import { Networks } from "@arkecosystem/crypto";
+import { readJSONSync, writeJSONSync } from "fs-extra";
 import Joi from "joi";
 
 interface Options {
@@ -89,6 +90,9 @@ export class Command extends Commands.Command {
 
         // @ts-ignore
         this.updateEnvironmentVariables(response);
+
+        // @ts-ignore
+        this.updateAppJson(response);
     }
 
     private updateEnvironmentVariables(options: Options): void {
@@ -99,5 +103,30 @@ export class Command extends Commands.Command {
 
         const envFile = this.app.getCorePath("config", ".env");
         this.environment.updateVariables(envFile, variables);
+    }
+
+    private updateAppJson(options: Options): void {
+        const appJsonFile = this.app.getCorePath("config", "app.json");
+        const appJson = readJSONSync(appJsonFile);
+
+        appJson.manager = this.generateManagerSection(options);
+
+        writeJSONSync(appJsonFile, appJson, { spaces: 4 });
+    }
+
+    private generateManagerSection(options: Options): any {
+        return {
+            plugins: [
+                {
+                    package: "@arkecosystem/core-logger-pino",
+                },
+                {
+                    package: "@arkecosystem/core-snapshots",
+                },
+                {
+                    package: "@arkecosystem/core-manager",
+                },
+            ],
+        };
     }
 }
