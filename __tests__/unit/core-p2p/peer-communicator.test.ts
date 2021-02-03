@@ -39,11 +39,11 @@ describe("PeerCommunicator", () => {
     const headers = { version };
     const jobsQueued = [];
     const queue = { resolve: jest.fn(), resume: jest.fn(), push: (job) => jobsQueued.push(job) };
+    const createQueue = () => queue;
     const app = {
         resolve: (_) => peerVerifier,
         getTagged: () => configuration,
         version: () => version,
-        get: () => { return () => queue },
     };
     const emitter = { dispatch: jest.fn(), listen: jest.fn() };
     const connector = { forgetError: jest.fn(), connect: jest.fn(), emit: jest.fn(), setError: jest.fn() };
@@ -55,6 +55,7 @@ describe("PeerCommunicator", () => {
         container.bind(Container.Identifiers.PluginConfiguration).toConstantValue(configuration);
         container.bind(Container.Identifiers.EventDispatcherService).toConstantValue(emitter);
         container.bind(Container.Identifiers.PeerConnector).toConstantValue(connector);
+        container.bind(Container.Identifiers.QueueFactory).toConstantValue(createQueue);
         container.bind(Container.Identifiers.PeerCommunicator).to(PeerCommunicator);
 
         process.env.CORE_P2P_PEER_VERIFIER_DEBUG_EXTRA = "true";
