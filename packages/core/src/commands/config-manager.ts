@@ -70,9 +70,7 @@ export class Command extends Commands.Command {
      * @memberof Command
      */
     public async execute(): Promise<void> {
-        console.log(this.app.getCorePath("config", ".env"));
-
-        const response = await this.components.prompt([
+        const response: any = await this.components.prompt([
             {
                 type: "text",
                 name: "host",
@@ -84,18 +82,18 @@ export class Command extends Commands.Command {
                 name: "port",
                 message: "What port do you want to use?",
                 initial: 4005,
-                validate: /* istanbul ignore next */ (value) =>
-                    value < 1 || value > 65535 ? `The port must be in the range of 1-65535.` : true,
+                min: 1,
+                max: 65535,
             },
             {
                 type: "text",
                 name: "whitelist",
-                message: "Which IPs can be whitelisted?",
+                message: "Which IPs can be whitelisted? Separate values with comma. Enter * for all.",
             },
             {
                 type: "select",
                 name: "authenticationType",
-                message: "Which authentication do you want to use?",
+                message: "Which authentication system do you want to use?",
                 choices: [
                     { title: "None", value: "none" },
                     { title: "Token", value: "token" },
@@ -135,12 +133,7 @@ export class Command extends Commands.Command {
             throw new Error("You'll need to confirm the input to continue.");
         }
 
-        console.log(response);
-
-        // @ts-ignore
         this.updateEnvironmentVariables(response);
-
-        // @ts-ignore
         await this.updateAppJson(response);
     }
 
