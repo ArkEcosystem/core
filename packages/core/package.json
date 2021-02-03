@@ -59,6 +59,7 @@
         "@arkecosystem/core-webhooks": "^3.0.0-next.20",
         "@arkecosystem/crypto": "^3.0.0-next.20",
         "@arkecosystem/utils": "^1.2.1",
+        "argon2": "^0.26.2",
         "bip39": "^3.0.2",
         "boxen": "^4.2.0",
         "bytebuffer": "^5.0.1",

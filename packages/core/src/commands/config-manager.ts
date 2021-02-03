@@ -1,5 +1,6 @@
 import { Commands, Container, Contracts, Services } from "@arkecosystem/core-cli";
 import { Networks } from "@arkecosystem/crypto";
+import argon2 from "argon2";
 import { readJSONSync, writeJSONSync } from "fs-extra";
 import Joi from "joi";
 
@@ -133,7 +134,7 @@ export class Command extends Commands.Command {
         this.updateEnvironmentVariables(response);
 
         // @ts-ignore
-        this.updateAppJson(response);
+        await this.updateAppJson(response);
     }
 
     private updateEnvironmentVariables(options: Options): void {
@@ -146,16 +147,16 @@ export class Command extends Commands.Command {
         this.environment.updateVariables(envFile, variables);
     }
 
-    private updateAppJson(options: Options): void {
+    private async updateAppJson(options: Options): Promise<void> {
         const appJsonFile = this.app.getCorePath("config", "app.json");
         const appJson = readJSONSync(appJsonFile);
 
-        appJson.manager = this.generateManagerSection(options);
+        appJson.manager = await this.generateManagerSection(options);
 
         writeJSONSync(appJsonFile, appJson, { spaces: 4 });
     }
 
-    private generateManagerSection(options: Options): any {
+    private async generateManagerSection(options: Options): Promise<any> {
         const result: any = {
             plugins: [
                 {
@@ -175,13 +176,18 @@ export class Command extends Commands.Command {
         };
 
         if (options.username && options.password) {
+            const secret = this.generateSecret();
+
             packageOptions.plugins.basicAuthentication = {
                 enabled: true,
-                secret: "secret",
+                secret,
                 users: [
                     {
                         username: options.username,
-                        password: options.password,
+                        password: await argon2.hash(options.password, {
+                            type: argon2.argon2id,
+                            secret: Buffer.from(secret),
+                        }),
                     },
                 ],
             };
@@ -194,6 +200,16 @@ export class Command extends Commands.Command {
 
         if (Object.keys(packageOptions.plugins).length) {
             result.plugins[2].options = packageOptions;
+        }
+
+        return result;
+    }
+
+    private generateSecret(): string {
+        let result = "";
+
+        for (let i = 0; i < 8; i++) {
+            result += Math.random().toString(36).substring(2, 6);
         }
 
         return result;
