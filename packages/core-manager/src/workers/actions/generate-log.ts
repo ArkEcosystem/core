@@ -25,6 +25,10 @@ export class GenerateLog implements GenerateLogContracts.GenerateLog {
 
     protected resolveOnClose(stream: Writable): Promise<void> {
         return new Promise((resolve) => {
+            stream.on("end", () => {
+                stream.destroy();
+            });
+
             stream.on("close", () => {
                 resolve();
             });
