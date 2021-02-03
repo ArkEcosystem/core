@@ -45,6 +45,8 @@ export class Command extends Commands.Command {
      */
     public description: string = "Update the Manager configuration.";
 
+    private readonly requiredFlags: string[] = ["host", "port"];
+
     /**
      * Configure the console command.
      *
@@ -55,8 +57,8 @@ export class Command extends Commands.Command {
         this.definition
             .setFlag("token", "The name of the token.", Joi.string().default("ark"))
             .setFlag("network", "The name of the network.", Joi.string().valid(...Object.keys(Networks)))
-            .setFlag("host", "The host address of the manager.", Joi.string().default("0.0.0.0"))
-            .setFlag("port", "The port of the manager.", Joi.number().default(4005))
+            .setFlag("host", "The host address of the manager.", Joi.string())
+            .setFlag("port", "The port of the manager.", Joi.number())
             .setFlag("authenticationToken", "Secret token for token authentication.", Joi.string())
             .setFlag("username", "Basic authentication username.", Joi.string())
             .setFlag("password", "Basic authentication password.", Joi.string())
@@ -70,6 +72,13 @@ export class Command extends Commands.Command {
      * @memberof Command
      */
     public async execute(): Promise<void> {
+        if (this.requiredFlags.every((flag: string) => this.getFlag(flag))) {
+            this.updateEnvironmentVariables(this.getFlags() as Options);
+            await this.updateAppJson(this.getFlags() as Options);
+
+            return;
+        }
+
         const response: any = await this.components.prompt([
             {
                 type: "text",
