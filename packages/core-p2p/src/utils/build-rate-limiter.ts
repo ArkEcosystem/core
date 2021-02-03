@@ -6,7 +6,6 @@ export const buildRateLimiter = (options) =>
         configurations: {
             global: {
                 rateLimit: options.rateLimit,
-                blockDuration: 60 * 1, // 1 minute ban for now
             },
             endpoints: [
                 {
@@ -30,6 +29,10 @@ export const buildRateLimiter = (options) =>
                 {
                     rateLimit: 9,
                     endpoint: "p2p.peer.getCommonBlocks",
+                },
+                {
+                    rateLimit: options.rateLimitPostTransactions || 25,
+                    endpoint: "p2p.transactions.postTransactions",
                 },
             ],
         },
