@@ -11,6 +11,7 @@ interface Options {
     authenticationToken?: string;
     username?: string;
     password?: string;
+    whitelist?: string;
 }
 
 /**
@@ -58,7 +59,8 @@ export class Command extends Commands.Command {
             .setFlag("port", "The port of the manager.", Joi.number().default(4005))
             .setFlag("authenticationToken", "Secret token for token authentication.", Joi.string())
             .setFlag("username", "Basic authentication username.", Joi.string())
-            .setFlag("password", "Basic authentication password.", Joi.string());
+            .setFlag("password", "Basic authentication password.", Joi.string())
+            .setFlag("whitelist", "Comma separated IP whitelist .", Joi.string());
     }
 
     /**
@@ -84,6 +86,11 @@ export class Command extends Commands.Command {
                 initial: 4005,
                 validate: /* istanbul ignore next */ (value) =>
                     value < 1 || value > 65535 ? `The port must be in the range of 1-65535.` : true,
+            },
+            {
+                type: "text",
+                name: "whitelist",
+                message: "Which IPs can be whitelisted?",
             },
             {
                 type: "select",
@@ -196,6 +203,10 @@ export class Command extends Commands.Command {
                 enabled: true,
                 token: options.authenticationToken,
             };
+        }
+
+        if (options.whitelist) {
+            packageOptions.plugins.whitelist = options.whitelist.replace(" ", "").split(",");
         }
 
         if (Object.keys(packageOptions.plugins).length) {
