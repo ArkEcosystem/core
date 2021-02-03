@@ -1,6 +1,7 @@
 import { Commands, Container, Contracts, Services } from "@arkecosystem/core-cli";
 import { Networks } from "@arkecosystem/crypto";
 import argon2 from "argon2";
+import crypto from "crypto";
 import { readJSONSync, writeJSONSync } from "fs-extra";
 import Joi from "joi";
 
@@ -219,12 +220,7 @@ export class Command extends Commands.Command {
     }
 
     private generateSecret(): string {
-        let result = "";
-
-        for (let i = 0; i < 8; i++) {
-            result += Math.random().toString(36).substring(2, 6);
-        }
-
-        return result;
+        const buf = Buffer.alloc(64);
+        return crypto.randomFillSync(buf).toString("hex");
     }
 }
