@@ -44,6 +44,10 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
             rateLimit: this.configuration.getOptional<number>("rateLimit", 100),
             rateLimitPostTransactions: this.configuration.getOptional<number>("rateLimitPostTransactions", 25),
         });
+
+        this.events.listen(Enums.PeerEvent.Disconnect, {
+            handle: ({ data }) => this.postTransactionsQueueByIp.delete(data.peer.ip),
+        });
     }
 
     public async postBlock(peer: Contracts.P2P.Peer, block: Interfaces.IBlock) {
