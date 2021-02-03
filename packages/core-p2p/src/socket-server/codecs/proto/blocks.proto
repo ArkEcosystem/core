@@ -32,8 +32,8 @@ message GetBlocksResponse {
         string payloadHash = 13;
         string generatorPublicKey = 14;
         string blockSignature = 15;
-        repeated string transactions = 16;
+        bytes transactions = 16; // custom ser/deser instead of repeated string
     }
 
-    repeated BlockHeader blocks = 1;
+    bytes blocks = 1; // custom ser/deser instead of repeated BlockHeader
 }

@@ -529,7 +529,7 @@ $root.blocks = (function() {
          * Properties of a GetBlocksResponse.
          * @memberof blocks
          * @interface IGetBlocksResponse
-         * @property {Array.<blocks.GetBlocksResponse.IBlockHeader>|null} [blocks] GetBlocksResponse blocks
+         * @property {Uint8Array|null} [blocks] GetBlocksResponse blocks
          */
 
         /**
@@ -541,7 +541,6 @@ $root.blocks = (function() {
          * @param {blocks.IGetBlocksResponse=} [properties] Properties to set
          */
         function GetBlocksResponse(properties) {
-            this.blocks = [];
             if (properties)
                 for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                     if (properties[keys[i]] != null)
@@ -550,11 +549,11 @@ $root.blocks = (function() {
 
         /**
          * GetBlocksResponse blocks.
-         * @member {Array.<blocks.GetBlocksResponse.IBlockHeader>} blocks
+         * @member {Uint8Array} blocks
          * @memberof blocks.GetBlocksResponse
          * @instance
          */
-        GetBlocksResponse.prototype.blocks = $util.emptyArray;
+        GetBlocksResponse.prototype.blocks = $util.newBuffer([]);
 
         /**
          * Creates a new GetBlocksResponse instance using the specified properties.
@@ -580,9 +579,8 @@ $root.blocks = (function() {
         GetBlocksResponse.encode = function encode(message, writer) {
             if (!writer)
                 writer = $Writer.create();
-            if (message.blocks != null && message.blocks.length)
-                for (var i = 0; i < message.blocks.length; ++i)
-                    $root.blocks.GetBlocksResponse.BlockHeader.encode(message.blocks[i], writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
+            if (message.blocks != null && Object.hasOwnProperty.call(message, "blocks"))
+                writer.uint32(/* id 1, wireType 2 =*/10).bytes(message.blocks);
             return writer;
         };
 
@@ -618,9 +616,7 @@ $root.blocks = (function() {
                 var tag = reader.uint32();
                 switch (tag >>> 3) {
                 case 1:
-                    if (!(message.blocks && message.blocks.length))
-                        message.blocks = [];
-                    message.blocks.push($root.blocks.GetBlocksResponse.BlockHeader.decode(reader, reader.uint32()));
+                    message.blocks = reader.bytes();
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -657,15 +653,9 @@ $root.blocks = (function() {
         GetBlocksResponse.verify = function verify(message) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
-            if (message.blocks != null && message.hasOwnProperty("blocks")) {
-                if (!Array.isArray(message.blocks))
-                    return "blocks: array expected";
-                for (var i = 0; i < message.blocks.length; ++i) {
-                    var error = $root.blocks.GetBlocksResponse.BlockHeader.verify(message.blocks[i]);
-                    if (error)
-                        return "blocks." + error;
-                }
-            }
+            if (message.blocks != null && message.hasOwnProperty("blocks"))
+                if (!(message.blocks && typeof message.blocks.length === "number" || $util.isString(message.blocks)))
+                    return "blocks: buffer expected";
             return null;
         };
 
@@ -681,16 +671,11 @@ $root.blocks = (function() {
             if (object instanceof $root.blocks.GetBlocksResponse)
                 return object;
             var message = new $root.blocks.GetBlocksResponse();
-            if (object.blocks) {
-                if (!Array.isArray(object.blocks))
-                    throw TypeError(".blocks.GetBlocksResponse.blocks: array expected");
-                message.blocks = [];
-                for (var i = 0; i < object.blocks.length; ++i) {
-                    if (typeof object.blocks[i] !== "object")
-                        throw TypeError(".blocks.GetBlocksResponse.blocks: object expected");
-                    message.blocks[i] = $root.blocks.GetBlocksResponse.BlockHeader.fromObject(object.blocks[i]);
-                }
-            }
+            if (object.blocks != null)
+                if (typeof object.blocks === "string")
+                    $util.base64.decode(object.blocks, message.blocks = $util.newBuffer($util.base64.length(object.blocks)), 0);
+                else if (object.blocks.length)
+                    message.blocks = object.blocks;
             return message;
         };
 
@@ -707,13 +692,16 @@ $root.blocks = (function() {
             if (!options)
                 options = {};
             var object = {};
-            if (options.arrays || options.defaults)
-                object.blocks = [];
-            if (message.blocks && message.blocks.length) {
-                object.blocks = [];
-                for (var j = 0; j < message.blocks.length; ++j)
-                    object.blocks[j] = $root.blocks.GetBlocksResponse.BlockHeader.toObject(message.blocks[j], options);
-            }
+            if (options.defaults)
+                if (options.bytes === String)
+                    object.blocks = "";
+                else {
+                    object.blocks = [];
+                    if (options.bytes !== Array)
+                        object.blocks = $util.newBuffer(object.blocks);
+                }
+            if (message.blocks != null && message.hasOwnProperty("blocks"))
+                object.blocks = options.bytes === String ? $util.base64.encode(message.blocks, 0, message.blocks.length) : options.bytes === Array ? Array.prototype.slice.call(message.blocks) : message.blocks;
             return object;
         };
 
@@ -749,7 +737,7 @@ $root.blocks = (function() {
              * @property {string|null} [payloadHash] BlockHeader payloadHash
              * @property {string|null} [generatorPublicKey] BlockHeader generatorPublicKey
              * @property {string|null} [blockSignature] BlockHeader blockSignature
-             * @property {Array.<string>|null} [transactions] BlockHeader transactions
+             * @property {Uint8Array|null} [transactions] BlockHeader transactions
              */
 
             /**
@@ -761,7 +749,6 @@ $root.blocks = (function() {
              * @param {blocks.GetBlocksResponse.IBlockHeader=} [properties] Properties to set
              */
             function BlockHeader(properties) {
-                this.transactions = [];
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                         if (properties[keys[i]] != null)
@@ -890,11 +877,11 @@ $root.blocks = (function() {
 
             /**
              * BlockHeader transactions.
-             * @member {Array.<string>} transactions
+             * @member {Uint8Array} transactions
              * @memberof blocks.GetBlocksResponse.BlockHeader
              * @instance
              */
-            BlockHeader.prototype.transactions = $util.emptyArray;
+            BlockHeader.prototype.transactions = $util.newBuffer([]);
 
             /**
              * Creates a new BlockHeader instance using the specified properties.
@@ -950,9 +937,8 @@ $root.blocks = (function() {
                     writer.uint32(/* id 14, wireType 2 =*/114).string(message.generatorPublicKey);
                 if (message.blockSignature != null && Object.hasOwnProperty.call(message, "blockSignature"))
                     writer.uint32(/* id 15, wireType 2 =*/122).string(message.blockSignature);
-                if (message.transactions != null && message.transactions.length)
-                    for (var i = 0; i < message.transactions.length; ++i)
-                        writer.uint32(/* id 16, wireType 2 =*/130).string(message.transactions[i]);
+                if (message.transactions != null && Object.hasOwnProperty.call(message, "transactions"))
+                    writer.uint32(/* id 16, wireType 2 =*/130).bytes(message.transactions);
                 return writer;
             };
 
@@ -1033,9 +1019,7 @@ $root.blocks = (function() {
                         message.blockSignature = reader.string();
                         break;
                     case 16:
-                        if (!(message.transactions && message.transactions.length))
-                            message.transactions = [];
-                        message.transactions.push(reader.string());
+                        message.transactions = reader.bytes();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -1117,13 +1101,9 @@ $root.blocks = (function() {
                 if (message.blockSignature != null && message.hasOwnProperty("blockSignature"))
                     if (!$util.isString(message.blockSignature))
                         return "blockSignature: string expected";
-                if (message.transactions != null && message.hasOwnProperty("transactions")) {
-                    if (!Array.isArray(message.transactions))
-                        return "transactions: array expected";
-                    for (var i = 0; i < message.transactions.length; ++i)
-                        if (!$util.isString(message.transactions[i]))
-                            return "transactions: string[] expected";
-                }
+                if (message.transactions != null && message.hasOwnProperty("transactions"))
+                    if (!(message.transactions && typeof message.transactions.length === "number" || $util.isString(message.transactions)))
+                        return "transactions: buffer expected";
                 return null;
             };
 
@@ -1169,13 +1149,11 @@ $root.blocks = (function() {
                     message.generatorPublicKey = String(object.generatorPublicKey);
                 if (object.blockSignature != null)
                     message.blockSignature = String(object.blockSignature);
-                if (object.transactions) {
-                    if (!Array.isArray(object.transactions))
-                        throw TypeError(".blocks.GetBlocksResponse.BlockHeader.transactions: array expected");
-                    message.transactions = [];
-                    for (var i = 0; i < object.transactions.length; ++i)
-                        message.transactions[i] = String(object.transactions[i]);
-                }
+                if (object.transactions != null)
+                    if (typeof object.transactions === "string")
+                        $util.base64.decode(object.transactions, message.transactions = $util.newBuffer($util.base64.length(object.transactions)), 0);
+                    else if (object.transactions.length)
+                        message.transactions = object.transactions;
                 return message;
             };
 
@@ -1192,8 +1170,6 @@ $root.blocks = (function() {
                 if (!options)
                     options = {};
                 var object = {};
-                if (options.arrays || options.defaults)
-                    object.transactions = [];
                 if (options.defaults) {
                     object.id = "";
                     object.idHex = "";
@@ -1210,6 +1186,13 @@ $root.blocks = (function() {
                     object.payloadHash = "";
                     object.generatorPublicKey = "";
                     object.blockSignature = "";
+                    if (options.bytes === String)
+                        object.transactions = "";
+                    else {
+                        object.transactions = [];
+                        if (options.bytes !== Array)
+                            object.transactions = $util.newBuffer(object.transactions);
+                    }
                 }
                 if (message.id != null && message.hasOwnProperty("id"))
                     object.id = message.id;
@@ -1241,11 +1224,8 @@ $root.blocks = (function() {
                     object.generatorPublicKey = message.generatorPublicKey;
                 if (message.blockSignature != null && message.hasOwnProperty("blockSignature"))
                     object.blockSignature = message.blockSignature;
-                if (message.transactions && message.transactions.length) {
-                    object.transactions = [];
-                    for (var j = 0; j < message.transactions.length; ++j)
-                        object.transactions[j] = message.transactions[j];
-                }
+                if (message.transactions != null && message.hasOwnProperty("transactions"))
+                    object.transactions = options.bytes === String ? $util.base64.encode(message.transactions, 0, message.transactions.length) : options.bytes === Array ? Array.prototype.slice.call(message.transactions) : message.transactions;
                 return object;
             };
 
