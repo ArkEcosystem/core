@@ -22,20 +22,20 @@ export const defaults = {
         history: 30, // Days
     },
     server: {
-        ip: process.env.CORE_MONITOR_PUBLIC_IP,
+        ip: process.env.CORE_MANAGER_PUBLIC_IP,
         http: {
-            enabled: !process.env.CORE_MONITOR_DISABLED,
-            host: process.env.CORE_MONITOR_HOST || "0.0.0.0",
-            port: process.env.CORE_MONITOR_PORT || 4005,
+            enabled: !process.env.CORE_MANAGER_DISABLED,
+            host: process.env.CORE_MANAGER_HOST || "0.0.0.0",
+            port: process.env.CORE_MANAGER_PORT || 4005,
         },
         // @see https://hapijs.com/api#-serveroptionstls
         https: {
-            enabled: !!process.env.CORE_MONITOR_SSL,
-            host: process.env.CORE_MONITOR_SSL_HOST || "0.0.0.0",
-            port: process.env.CORE_MONITOR_SSL_PORT || 8445,
+            enabled: !!process.env.CORE_MANAGER_SSL,
+            host: process.env.CORE_MANAGER_SSL_HOST || "0.0.0.0",
+            port: process.env.CORE_MANAGER_SSL_PORT || 8445,
             tls: {
-                key: process.env.CORE_MONITOR_SSL_KEY,
-                cert: process.env.CORE_MONITOR_SSL_CERT,
+                key: process.env.CORE_MANAGER_SSL_KEY,
+                cert: process.env.CORE_MANAGER_SSL_CERT,
             },
         },
     },
