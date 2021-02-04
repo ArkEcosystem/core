@@ -38,19 +38,43 @@ export class RateLimiter {
         }
     }
 
+    public async consume(ip: string, endpoint?: string): Promise<void> {
+        await this.global.consume(ip);
+
+        if (endpoint && this.endpoints.has(endpoint)) {
+            const rateLimiter: RateLimiterMemory | undefined = this.endpoints.get(endpoint);
+
+            Utils.assert.defined<RateLimiterMemory>(rateLimiter);
+
+            await rateLimiter.consume(ip);
+        }
+    }
+
     public async hasExceededRateLimit(ip: string, endpoint?: string): Promise<boolean> {
         try {
-            await this.global.consume(ip);
-
-            if (endpoint && this.endpoints.has(endpoint)) {
-                const rateLimiter: RateLimiterMemory | undefined = this.endpoints.get(endpoint);
-
-                Utils.assert.defined<RateLimiterMemory>(rateLimiter);
-
-                await rateLimiter.consume(ip);
-            }
+            await this.consume(ip, endpoint);
         } catch {
             return true;
+        }
+
+        return false;
+    }
+
+    public async hasExceededRateLimitNoConsume(ip: string, endpoint?: string): Promise<boolean> {
+        const global = await this.global.get(ip);
+        if(global !== null && global.remainingPoints <= 0) {
+            return true;
+        }
+
+        if (endpoint && this.endpoints.has(endpoint)) {
+            const endpointLimiters: RateLimiterMemory | undefined = this.endpoints.get(endpoint);
+
+            Utils.assert.defined<RateLimiterMemory>(endpointLimiters);
+
+            const endpointLimiter = await endpointLimiters.get(ip);
+            if(endpointLimiter !== null && endpointLimiter.remainingPoints <= 0) {
+                return true;
+            }
         }
 
         return false;

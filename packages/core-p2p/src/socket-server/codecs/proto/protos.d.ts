@@ -216,7 +216,7 @@ export namespace blocks {
     interface IGetBlocksResponse {
 
         /** GetBlocksResponse blocks */
-        blocks?: (blocks.GetBlocksResponse.IBlockHeader[]|null);
+        blocks?: (Uint8Array|null);
     }
 
     /** Represents a GetBlocksResponse. */
@@ -229,7 +229,7 @@ export namespace blocks {
         constructor(properties?: blocks.IGetBlocksResponse);
 
         /** GetBlocksResponse blocks. */
-        public blocks: blocks.GetBlocksResponse.IBlockHeader[];
+        public blocks: Uint8Array;
 
         /**
          * Creates a new GetBlocksResponse instance using the specified properties.
@@ -353,7 +353,7 @@ export namespace blocks {
             blockSignature?: (string|null);
 
             /** BlockHeader transactions */
-            transactions?: (string[]|null);
+            transactions?: (Uint8Array|null);
         }
 
         /** Represents a BlockHeader. */
@@ -411,7 +411,7 @@ export namespace blocks {
             public blockSignature: string;
 
             /** BlockHeader transactions. */
-            public transactions: string[];
+            public transactions: Uint8Array;
 
             /**
              * Creates a new BlockHeader instance using the specified properties.

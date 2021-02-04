@@ -186,6 +186,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
                         .when("enabled", { is: true, then: Joi.required() }),
                 }).required(),
             }).required(),
+            archiveFormat: Joi.string().valid("zip", "gz").required(),
         }).unknown(true);
     }
 

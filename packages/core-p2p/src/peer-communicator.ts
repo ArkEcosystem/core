@@ -1,4 +1,4 @@
-import { Container, Contracts, Enums, Providers, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Enums, Providers, Types, Utils } from "@arkecosystem/core-kernel";
 import { Blocks, Interfaces, Managers, Transactions, Validation } from "@arkecosystem/crypto";
 import dayjs from "dayjs";
 
@@ -31,7 +31,12 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
 
+    @Container.inject(Container.Identifiers.QueueFactory)
+    private readonly createQueue!: Types.QueueFactory;
+
     private outgoingRateLimiter!: RateLimiter;
+
+    private postTransactionsQueueByIp: Map<string, Contracts.Kernel.Queue> = new Map();
 
     public initialize(): void {
         this.outgoingRateLimiter = buildRateLimiter({
@@ -41,6 +46,10 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
             remoteAccess: [],
             rateLimit: this.configuration.getOptional<number>("rateLimit", 100),
             rateLimitPostTransactions: this.configuration.getOptional<number>("rateLimitPostTransactions", 25),
+        });
+
+        this.events.listen(Enums.PeerEvent.Disconnect, {
+            handle: ({ data }) => this.postTransactionsQueueByIp.delete(data.peer.ip),
         });
     }
 
@@ -59,9 +68,27 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
         );
     }
 
-    public async postTransactions(peer: Contracts.P2P.Peer, transactions: Buffer[]): Promise<any> {
+    public async postTransactions(peer: Contracts.P2P.Peer, transactions: Buffer[]): Promise<void> {
         const postTransactionsTimeout = 10000;
-        return this.emit(peer, "p2p.transactions.postTransactions", { transactions }, postTransactionsTimeout);
+        const postTransactionsRateLimit = this.configuration.getOptional<number>("rateLimitPostTransactions", 25);
+
+        if (!this.postTransactionsQueueByIp.get(peer.ip)) {
+            this.postTransactionsQueueByIp.set(
+                peer.ip,
+                await this.createQueue(),
+            );
+        }
+
+        const queue = this.postTransactionsQueueByIp.get(peer.ip)!;
+        queue.resume();
+        queue.push({
+            handle: async () => {
+                await this.emit(peer, "p2p.transactions.postTransactions", { transactions }, postTransactionsTimeout);
+                await delay(Math.ceil(1000 / postTransactionsRateLimit));
+                // to space up between consecutive calls to postTransactions according to rate limit
+                // optimized here because default throttling would not be effective for postTransactions
+            }
+        });
     }
 
     // ! do not rely on parameter timeoutMsec as guarantee that ping method will resolve within it !
@@ -290,12 +317,16 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
 
     private async throttle(peer: Contracts.P2P.Peer, event: string): Promise<void> {
         const msBeforeReCheck = 1000;
-        while (await this.outgoingRateLimiter.hasExceededRateLimit(peer.ip, event)) {
+        while (await this.outgoingRateLimiter.hasExceededRateLimitNoConsume(peer.ip, event)) {
             this.logger.debug(
                 `Throttling outgoing requests to ${peer.ip}/${event} to avoid triggering their rate limit`,
             );
             await delay(msBeforeReCheck);
         }
+        try {
+            await this.outgoingRateLimiter.consume(peer.ip, event);
+        } //@ts-ignore
+        catch {}
     }
 
     private handleSocketError(peer: Contracts.P2P.Peer, event: string, error: Error, disconnect: boolean = true): void {

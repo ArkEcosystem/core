@@ -1,9 +1,9 @@
 import { workerData } from "worker_threads";
 
-import { GenerateLog, Options as GenerateLogOptions } from "./actions/generate-log";
+import { generateLogFactory } from "./generate-log-factory";
 
 const main = async () => {
-    const action = new GenerateLog(workerData as GenerateLogOptions);
+    const action = generateLogFactory(workerData);
 
     await action.execute();
 };
