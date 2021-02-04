@@ -38,16 +38,4 @@ export class GenerateLog implements GenerateLogContracts.GenerateLog {
     protected removeTempFiles(): void {
         removeSync(this.getTempFilePath());
     }
-
-    protected resolveOnClose(stream: Writable): Promise<void> {
-        return new Promise((resolve) => {
-            stream.on("end", () => {
-                stream.destroy();
-            });
-
-            stream.on("close", () => {
-                resolve();
-            });
-        });
-    }
 }

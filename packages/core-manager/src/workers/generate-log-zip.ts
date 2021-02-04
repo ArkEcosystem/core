@@ -7,44 +7,54 @@ import { LogTransformStream } from "./log-transform-stream";
 
 export class GenerateLogZip extends GenerateLog {
     public async execute(): Promise<void> {
-        const writeStream = this.prepareOutputStream();
+        await new Promise(async (resolve, reject) => {
+            const writeStream = this.prepareOutputStream();
 
-        const archive = archiver("zip", {
-            zlib: { level: 9 },
+            writeStream.on("end", () => {
+                writeStream.destroy();
+            });
+
+            writeStream.on("close", () => {
+                resolve();
+            });
+
+            const archive = archiver("zip", {
+                zlib: { level: 9 },
+            });
+
+            const handleError = (err) => {
+                writeStream.removeAllListeners("close");
+
+                archive.abort();
+                writeStream.destroy();
+                this.removeTempFiles();
+
+                reject(err);
+            };
+
+            archive.on("error", function (err) {
+                handleError(err);
+            });
+
+            const readStream = pipeline(
+                Readable.from(this.database.getAllIterator("logs", this.options.query), {
+                    objectMode: true,
+                }),
+                new LogTransformStream(),
+                (err) => {
+                    if (err) {
+                        handleError(err);
+                    }
+                },
+            );
+
+            archive.pipe(writeStream);
+            archive.append(readStream, {
+                name: parse(this.options.logFileName).name + ".log",
+            });
+
+            archive.finalize();
         });
-
-        const handleError = (err) => {
-            archive.abort();
-            writeStream.destroy();
-            this.removeTempFiles();
-
-            throw err;
-        };
-
-        archive.on("error", function (err) {
-            handleError(err);
-        });
-
-        const readStream = pipeline(
-            Readable.from(this.database.getAllIterator("logs", this.options.query), {
-                objectMode: true,
-            }),
-            new LogTransformStream(),
-            (err) => {
-                if (err) {
-                    handleError(err);
-                }
-            },
-        );
-
-        archive.pipe(writeStream);
-        archive.append(readStream, {
-            name: parse(this.options.logFileName).name + ".log",
-        });
-
-        archive.finalize();
-
-        await this.resolveOnClose(writeStream);
 
         this.moveArchive();
     }
