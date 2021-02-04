@@ -1,6 +1,6 @@
-import { createWriteStream, ensureDirSync, renameSync } from "fs-extra";
+import { createWriteStream, ensureDirSync, removeSync, renameSync } from "fs-extra";
 import { dirname } from "path";
-import { Writable, Readable } from "stream";
+import { pipeline, Readable, Writable } from "stream";
 import zlib from "zlib";
 
 import { GenerateLog } from "./generate-log";
@@ -8,12 +8,27 @@ import { LogTransformStream } from "./log-transform-stream";
 
 export class GenerateLogGz extends GenerateLog {
     public async execute(): Promise<void> {
-        const readStream = Readable.from(this.database.getAllIterator("logs", this.options.query), { objectMode: true });
         const writeStream = this.prepareOutputStream();
 
-        readStream.pipe(new LogTransformStream()).pipe(writeStream);
-        await this.resolveOnClose(writeStream);
+        pipeline(
+            Readable.from(this.database.getAllIterator("logs", this.options.query), { objectMode: true }),
+            new LogTransformStream(),
+            zlib.createGzip(),
+            writeStream,
+            (err) => {
+                if (err) {
+                    writeStream.destroy();
+                    removeSync(this.getTempFilePath());
 
+                    throw err;
+                } else {
+                    this.moveArchive();
+                }
+            },
+        );
+    }
+
+    private moveArchive(): void {
         ensureDirSync(dirname(this.getFilePath()));
         renameSync(this.getTempFilePath(), this.getFilePath());
     }
@@ -21,9 +36,6 @@ export class GenerateLogGz extends GenerateLog {
     private prepareOutputStream(): Writable {
         ensureDirSync(dirname(this.getTempFilePath()));
 
-        const stream = zlib.createGzip();
-        stream.pipe(createWriteStream(this.getTempFilePath()));
-
-        return stream;
+        return createWriteStream(this.getTempFilePath());
     }
 }
