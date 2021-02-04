@@ -1,7 +1,6 @@
 import archiver from "archiver";
-import { createWriteStream, ensureDirSync, removeSync, renameSync } from "fs-extra";
-import { dirname, parse } from "path";
-import { pipeline, Readable, Writable } from "stream";
+import { parse } from "path";
+import { pipeline, Readable } from "stream";
 
 import { GenerateLog } from "./generate-log";
 import { LogTransformStream } from "./log-transform-stream";
@@ -17,7 +16,7 @@ export class GenerateLogZip extends GenerateLog {
         const handleError = (err) => {
             archive.abort();
             writeStream.destroy();
-            removeSync(this.getTempFilePath());
+            this.removeTempFiles();
 
             throw err;
         };
@@ -47,13 +46,6 @@ export class GenerateLogZip extends GenerateLog {
 
         await this.resolveOnClose(writeStream);
 
-        ensureDirSync(dirname(this.getFilePath()));
-        renameSync(this.getTempFilePath(), this.getFilePath());
-    }
-
-    private prepareOutputStream(): Writable {
-        ensureDirSync(dirname(this.getTempFilePath()));
-
-        return createWriteStream(this.getTempFilePath());
+        this.moveArchive();
     }
 }

@@ -1,6 +1,4 @@
-import { createWriteStream, ensureDirSync, removeSync, renameSync } from "fs-extra";
-import { dirname } from "path";
-import { pipeline, Readable, Writable } from "stream";
+import { pipeline, Readable } from "stream";
 import zlib from "zlib";
 
 import { GenerateLog } from "./generate-log";
@@ -18,7 +16,7 @@ export class GenerateLogGz extends GenerateLog {
             (err) => {
                 if (err) {
                     writeStream.destroy();
-                    removeSync(this.getTempFilePath());
+                    this.removeTempFiles();
 
                     throw err;
                 } else {
@@ -26,16 +24,5 @@ export class GenerateLogGz extends GenerateLog {
                 }
             },
         );
-    }
-
-    private moveArchive(): void {
-        ensureDirSync(dirname(this.getFilePath()));
-        renameSync(this.getTempFilePath(), this.getFilePath());
-    }
-
-    private prepareOutputStream(): Writable {
-        ensureDirSync(dirname(this.getTempFilePath()));
-
-        return createWriteStream(this.getTempFilePath());
     }
 }
