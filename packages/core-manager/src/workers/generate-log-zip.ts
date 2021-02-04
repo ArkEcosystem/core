@@ -10,10 +10,6 @@ export class GenerateLogZip extends GenerateLog {
         await new Promise(async (resolve, reject) => {
             const writeStream = this.prepareOutputStream();
 
-            writeStream.on("end", () => {
-                writeStream.destroy();
-            });
-
             writeStream.on("close", () => {
                 resolve();
             });
@@ -32,7 +28,7 @@ export class GenerateLogZip extends GenerateLog {
                 reject(err);
             };
 
-            archive.on("error", function (err) {
+            archive.on("error", (err) => {
                 handleError(err);
             });
 
