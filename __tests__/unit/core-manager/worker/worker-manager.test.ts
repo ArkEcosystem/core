@@ -1,5 +1,7 @@
 import "jest-extended";
 
+import { Container, Providers } from "@arkecosystem/core-kernel";
+import { Sandbox } from "@arkecosystem/core-test-framework";
 import { WorkerManager } from "@packages/core-manager/src/workers/worker-manager";
 import { EventEmitter } from "events";
 import { Worker } from "worker_threads";
@@ -9,8 +11,20 @@ jest.mock("worker_threads");
 let mockWorker;
 let workerManager: WorkerManager;
 
+let sandbox: Sandbox;
+const mockConfiguration = {
+    archiveFormat: "zip",
+};
+
 beforeEach(() => {
-    workerManager = new WorkerManager();
+    sandbox = new Sandbox();
+
+    sandbox.app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
+    sandbox.app
+        .get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration)
+        .from("@arkecosystem/core-manager", mockConfiguration);
+
+    workerManager = sandbox.app.resolve(WorkerManager);
 
     mockWorker = new EventEmitter();
     mockWorker.new = jest.fn();
@@ -36,16 +50,43 @@ describe("WorkerManager", () => {
     });
 
     describe("generateLog", () => {
-        it("should resolve if worker exit without error", async () => {
-            const promise = workerManager.generateLog("/path/to/db", { tables: [] }, {}, "test.log.gz");
+        it("should resolve if worker exit without error using archiveFormat === zip", async () => {
+            const promise = workerManager.generateLog("/path/to/db", { tables: [] }, {});
 
             mockWorker.emit("exit");
 
-            await expect(promise).toResolve();
+            await expect(promise).resolves.toInclude("zip");
+            await expect(Worker).toHaveBeenCalledWith(expect.toBeString(), {
+                workerData: {
+                    archiveFormat: "zip",
+                    databaseFilePath: "/path/to/db",
+                    logFileName: expect.toInclude("zip"),
+                    query: {},
+                    schema: { tables: [] },
+                },
+            });
+        });
+
+        it("should resolve if worker exit without error using archiveFormat === gz", async () => {
+            mockConfiguration.archiveFormat = "gz";
+            const promise = workerManager.generateLog("/path/to/db", { tables: [] }, {});
+
+            mockWorker.emit("exit");
+
+            await expect(promise).resolves.toInclude("log.gz");
+            await expect(Worker).toHaveBeenCalledWith(expect.toBeString(), {
+                workerData: {
+                    archiveFormat: "gz",
+                    databaseFilePath: "/path/to/db",
+                    logFileName: expect.toInclude("log.gz"),
+                    query: {},
+                    schema: { tables: [] },
+                },
+            });
         });
 
         it("should reject if worker throws error", async () => {
-            const promise = workerManager.generateLog("/path/to/db", { tables: [] }, {}, "test.log.gz");
+            const promise = workerManager.generateLog("/path/to/db", { tables: [] }, {});
 
             mockWorker.emit("error", new Error("Test error"));
 
@@ -53,7 +94,7 @@ describe("WorkerManager", () => {
         });
 
         it("should reject only once", async () => {
-            const promise = workerManager.generateLog("/path/to/db", { tables: [] }, {}, "test.log.gz");
+            const promise = workerManager.generateLog("/path/to/db", { tables: [] }, {});
 
             mockWorker.emit("error", new Error("Test error"));
             mockWorker.emit("error", new Error("Test error"));

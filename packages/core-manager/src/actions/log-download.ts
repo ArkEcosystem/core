@@ -1,5 +1,4 @@
 import { Container } from "@arkecosystem/core-kernel";
-import dayjs from "dayjs";
 
 import { Actions } from "../contracts";
 import { LogsDatabaseService } from "../database/logs-database-service";
@@ -43,24 +42,15 @@ export class Action implements Actions.Action {
     };
 
     public async execute(params: Params): Promise<any> {
-        const fileName = this.generateFileName();
-
         if (!this.workerManager.canRun()) {
             throw new Error("Previous log generation is still in progress.");
         }
 
-        await this.workerManager.generateLog(
+        return this.workerManager.generateLog(
             this.database.getDBFilePath(),
             this.database.getSchema(),
             this.prepareQueryConditions(params),
-            fileName,
         );
-
-        return fileName;
-    }
-
-    private generateFileName(): string {
-        return dayjs().format("YYYY-MM-DD_HH-mm-ss") + ".log.gz";
     }
 
     private prepareQueryConditions(params: Params): any {
