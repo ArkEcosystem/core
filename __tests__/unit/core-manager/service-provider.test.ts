@@ -996,11 +996,21 @@ describe("ServiceProvider", () => {
                 expect(result.error!.message).toEqual('"logs.storage" is required');
             });
 
-            it("logs.history is required && is number", async () => {
+            it("logs.history is required && is integer && >= 1", async () => {
                 defaults.logs.history = false;
                 let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
 
                 expect(result.error!.message).toEqual('"logs.history" must be a number');
+
+                defaults.logs.history = 1.12;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"logs.history" must be an integer');
+
+                defaults.logs.history = 0;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"logs.history" must be greater than or equal to 1');
 
                 delete defaults.logs.history;
                 result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
@@ -1058,11 +1068,26 @@ describe("ServiceProvider", () => {
                 expect(result.error!.message).toEqual('"server.http.host" is required');
             });
 
-            it("server.http.port is required && is number", async () => {
+            it("server.http.port is required && is integer && >= 1 && <= 65535", async () => {
                 defaults.server.http.port = false;
                 let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
 
                 expect(result.error!.message).toEqual('"server.http.port" must be a number');
+
+                defaults.server.http.port = 1.12;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.http.port" must be an integer');
+
+                defaults.server.http.port = 0;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.http.port" must be greater than or equal to 1');
+
+                defaults.server.http.port = 65536;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.http.port" must be less than or equal to 65535');
 
                 delete defaults.server.http.port;
                 result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
@@ -1101,11 +1126,26 @@ describe("ServiceProvider", () => {
                 expect(result.error!.message).toEqual('"server.https.host" is required');
             });
 
-            it("server.https.port is required && is number", async () => {
+            it("server.https.port is required && is integer && >= 1 && <= 65535", async () => {
                 defaults.server.https.port = false;
                 let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
 
                 expect(result.error!.message).toEqual('"server.https.port" must be a number');
+
+                defaults.server.https.port = 1.12;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.https.port" must be an integer');
+
+                defaults.server.https.port = 0;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.https.port" must be greater than or equal to 1');
+
+                defaults.server.https.port = 65536;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.https.port" must be less than or equal to 65535');
 
                 delete defaults.server.https.port;
                 result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
