@@ -279,6 +279,7 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
                 genesisBlockId: Managers.configManager.get("genesisBlock").id,
                 updateStep: this.configuration.getOptional("updateStep", 1000),
             },
+            cryptoPackages: this.configuration.getRequired("cryptoPackages"),
             connection: this.configuration.get("connection"),
         };
 
