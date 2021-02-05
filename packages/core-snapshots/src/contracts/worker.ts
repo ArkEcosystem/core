@@ -14,10 +14,7 @@ export interface ActionOptions {
     codec: string;
     skipCompression: boolean;
     verify: boolean;
-
     filePath: string;
-
-    genesisBlockId?: string;
     updateStep?: number;
 
     network: Types.NetworkName;

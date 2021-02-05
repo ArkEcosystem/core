@@ -1,5 +1,6 @@
 import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts } from "@arkecosystem/core-kernel";
+import { Managers } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
 import { pascalize } from "xcase";
 
@@ -17,7 +18,6 @@ export abstract class AbstractWorkerAction implements WorkerAction {
     protected codec?: string;
     protected skipCompression?: boolean;
     protected filePath?: string;
-    protected genesisBlockId?: string;
     protected updateStep?: number;
 
     protected options?: Worker.ActionOptions;
@@ -27,7 +27,6 @@ export abstract class AbstractWorkerAction implements WorkerAction {
         this.codec = options.codec;
         this.skipCompression = options.skipCompression;
         this.filePath = options.filePath;
-        this.genesisBlockId = options.genesisBlockId;
         this.updateStep = options.updateStep;
 
         this.options = options;
@@ -77,7 +76,7 @@ export abstract class AbstractWorkerAction implements WorkerAction {
 
     protected applyGenesisBlockFix(block: Models.Block): void {
         if (block.height === 1) {
-            block.id = this.genesisBlockId!;
+            block.id = Managers.configManager.get<string>("genesisBlock.id")!;
         }
     }
 

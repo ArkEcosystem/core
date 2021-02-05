@@ -276,7 +276,6 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
                 skipCompression: this.skipCompression,
                 verify: this.verifyData,
                 filePath: `${this.filesystem.getSnapshotPath()}${table}`,
-                genesisBlockId: Managers.configManager.get("genesisBlock").id,
                 updateStep: this.configuration.getOptional("updateStep", 1000),
             },
             networkConfig: Managers.configManager.all()!,
