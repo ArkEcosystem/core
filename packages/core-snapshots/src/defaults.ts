@@ -11,5 +11,5 @@ export const defaults = {
         synchronize: false,
         logging: false,
     },
-    cryptoPackages: [{ typeGroup: 2, packageName: "@arkecosystem/core-magistrate-crypto" }],
+    cryptoPackages: ["@arkecosystem/core-magistrate-crypto"],
 };

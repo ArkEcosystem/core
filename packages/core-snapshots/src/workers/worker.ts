@@ -27,7 +27,7 @@ const connect = async (options: any): Promise<Connection> => {
 
 export const init = async () => {
     for (const cryptoPackage of _workerData.cryptoPackages) {
-        const transactions = require(cryptoPackage.packageName).Transactions;
+        const transactions = require(cryptoPackage).Transactions;
 
         for (const transaction of Object.values(transactions)) {
             Transactions.TransactionRegistry.registerTransactionType(transaction as typeof Transactions.Transaction);

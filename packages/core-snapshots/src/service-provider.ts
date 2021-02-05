@@ -41,14 +41,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
                 synchronize: Joi.bool().required(),
                 logging: Joi.bool().required(),
             }).required(),
-            cryptoPackages: Joi.array()
-                .items(
-                    Joi.object({
-                        typeGroup: Joi.number().min(2).required(),
-                        packageName: Joi.string().required(),
-                    }),
-                )
-                .required(),
+            cryptoPackages: Joi.array().items(Joi.string()).required(),
         }).unknown(true);
     }
 
