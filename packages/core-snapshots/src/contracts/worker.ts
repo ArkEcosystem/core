@@ -1,4 +1,4 @@
-import { Interfaces, Types } from "@arkecosystem/crypto";
+import { Interfaces } from "@arkecosystem/crypto";
 
 export interface WorkerData {
     actionOptions: ActionOptions;
@@ -16,8 +16,6 @@ export interface ActionOptions {
     verify: boolean;
     filePath: string;
     updateStep?: number;
-
-    network: Types.NetworkName;
 }
 
 export interface WorkerMessage {

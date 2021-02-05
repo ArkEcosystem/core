@@ -1,6 +1,6 @@
 import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
-import { Blocks, Interfaces, Managers, Types } from "@arkecosystem/crypto";
+import { Blocks, Interfaces, Managers } from "@arkecosystem/crypto";
 
 import { Database, Meta, Options } from "./contracts";
 import { Filesystem } from "./filesystem/filesystem";
@@ -267,7 +267,6 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
     private prepareWorkerData(action: string, table: string, meta: Meta.MetaData): any {
         return {
             actionOptions: {
-                network: this.app.network() as Types.NetworkName,
                 action: action,
                 table: table,
                 start: meta[table].start,
