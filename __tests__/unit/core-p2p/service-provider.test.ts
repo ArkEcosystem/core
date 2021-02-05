@@ -461,11 +461,26 @@ describe("ServiceProvider", () => {
                 expect(result.error!.message).toEqual('"server.hostname" is required');
             });
 
-            it("server.port is required && is number", async () => {
+            it("server.port is required && is integer && >= 1 && <= 65535", async () => {
                 defaults.server.port = false;
                 let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
 
                 expect(result.error!.message).toEqual('"server.port" must be a number');
+
+                defaults.server.port = 1.12;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.port" must be an integer');
+
+                defaults.server.port = 0;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.port" must be greater than or equal to 1');
+
+                defaults.server.port = 65536;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.port" must be less than or equal to 65535');
 
                 delete defaults.server.port;
                 result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
@@ -473,11 +488,21 @@ describe("ServiceProvider", () => {
                 expect(result.error!.message).toEqual('"server.port" is required');
             });
 
-            it("server.logLevel is required && is number", async () => {
+            it("server.logLevel is required && is integer && >= 0", async () => {
                 defaults.server.logLevel = false;
                 let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
 
                 expect(result.error!.message).toEqual('"server.logLevel" must be a number');
+
+                defaults.server.logLevel = 1.12;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.logLevel" must be an integer');
+
+                defaults.server.logLevel = -1;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.logLevel" must be greater than or equal to 0');
 
                 delete defaults.server.logLevel;
                 result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
@@ -502,11 +527,21 @@ describe("ServiceProvider", () => {
                 expect(result.error!.message).toEqual('"minimumVersions" is required');
             });
 
-            it("minimumNetworkReach is required && is number", async () => {
+            it("minimumNetworkReach is required && is integer && >= 0", async () => {
                 defaults.minimumNetworkReach = false;
                 let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
 
                 expect(result.error!.message).toEqual('"minimumNetworkReach" must be a number');
+
+                defaults.minimumNetworkReach = 1.12;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"minimumNetworkReach" must be an integer');
+
+                defaults.minimumNetworkReach = -1;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"minimumNetworkReach" must be greater than or equal to 0');
 
                 delete defaults.minimumNetworkReach;
                 result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
@@ -514,11 +549,21 @@ describe("ServiceProvider", () => {
                 expect(result.error!.message).toEqual('"minimumNetworkReach" is required');
             });
 
-            it("verifyTimeout is required && is number", async () => {
+            it("verifyTimeout is required && is integer && >= 0", async () => {
                 defaults.verifyTimeout = false;
                 let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
 
                 expect(result.error!.message).toEqual('"verifyTimeout" must be a number');
+
+                defaults.verifyTimeout = 1.12;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"verifyTimeout" must be an integer');
+
+                defaults.verifyTimeout = -1;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"verifyTimeout" must be greater than or equal to 0');
 
                 delete defaults.verifyTimeout;
                 result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
@@ -526,11 +571,21 @@ describe("ServiceProvider", () => {
                 expect(result.error!.message).toEqual('"verifyTimeout" is required');
             });
 
-            it("getBlocksTimeout is required && is number", async () => {
+            it("getBlocksTimeout is required && is integer && >= 0", async () => {
                 defaults.getBlocksTimeout = false;
                 let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
 
                 expect(result.error!.message).toEqual('"getBlocksTimeout" must be a number');
+
+                defaults.getBlocksTimeout = 1.12;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"getBlocksTimeout" must be an integer');
+
+                defaults.getBlocksTimeout = -1;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"getBlocksTimeout" must be greater than or equal to 0');
 
                 delete defaults.getBlocksTimeout;
                 result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
@@ -538,11 +593,21 @@ describe("ServiceProvider", () => {
                 expect(result.error!.message).toEqual('"getBlocksTimeout" is required');
             });
 
-            it("maxPeersBroadcast is required && is number", async () => {
+            it("maxPeersBroadcast is required && is integer && >= 0", async () => {
                 defaults.maxPeersBroadcast = false;
                 let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
 
                 expect(result.error!.message).toEqual('"maxPeersBroadcast" must be a number');
+
+                defaults.maxPeersBroadcast = 1.12;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"maxPeersBroadcast" must be an integer');
+
+                defaults.maxPeersBroadcast = -1;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"maxPeersBroadcast" must be greater than or equal to 0');
 
                 delete defaults.maxPeersBroadcast;
                 result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
@@ -550,11 +615,21 @@ describe("ServiceProvider", () => {
                 expect(result.error!.message).toEqual('"maxPeersBroadcast" is required');
             });
 
-            it("maxSameSubnetPeers is required && is number", async () => {
+            it("maxSameSubnetPeers is required && is integer && >= 0", async () => {
                 defaults.maxSameSubnetPeers = false;
                 let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
 
                 expect(result.error!.message).toEqual('"maxSameSubnetPeers" must be a number');
+
+                defaults.maxSameSubnetPeers = 1.12;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"maxSameSubnetPeers" must be an integer');
+
+                defaults.maxSameSubnetPeers = -1;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"maxSameSubnetPeers" must be greater than or equal to 0');
 
                 delete defaults.maxSameSubnetPeers;
                 result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
@@ -562,11 +637,21 @@ describe("ServiceProvider", () => {
                 expect(result.error!.message).toEqual('"maxSameSubnetPeers" is required');
             });
 
-            it("maxPeerSequentialErrors is required && is number", async () => {
+            it("maxPeerSequentialErrors is required && is integer && >= 0", async () => {
                 defaults.maxPeerSequentialErrors = false;
                 let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
 
                 expect(result.error!.message).toEqual('"maxPeerSequentialErrors" must be a number');
+
+                defaults.maxPeerSequentialErrors = 1.12;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"maxPeerSequentialErrors" must be an integer');
+
+                defaults.maxPeerSequentialErrors = -1;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"maxPeerSequentialErrors" must be greater than or equal to 0');
 
                 delete defaults.maxPeerSequentialErrors;
                 result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
@@ -673,11 +758,21 @@ describe("ServiceProvider", () => {
                 expect(result.error!.message).toEqual('"ntp" is required');
             });
 
-            it("rateLimit is required && is number", async () => {
+            it("rateLimit is required && is integer && >= 0", async () => {
                 defaults.rateLimit = false;
                 let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
 
                 expect(result.error!.message).toEqual('"rateLimit" must be a number');
+
+                defaults.rateLimit = 1.12;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"rateLimit" must be an integer');
+
+                defaults.rateLimit = 0;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"rateLimit" must be greater than or equal to 1');
 
                 delete defaults.rateLimit;
                 result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
