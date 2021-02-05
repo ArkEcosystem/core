@@ -37,8 +37,15 @@ describe("PeerCommunicator", () => {
     peerVerifier.initialize = () => peerVerifier;
     const version = "3.0.0";
     const headers = { version };
-    const app = { resolve: (_) => peerVerifier, getTagged: () => configuration, version: () => version };
-    const emitter = { dispatch: jest.fn() };
+    const jobsQueued = [];
+    const queue = { resolve: jest.fn(), resume: jest.fn(), push: (job) => jobsQueued.push(job) };
+    const createQueue = () => queue;
+    const app = {
+        resolve: (_) => peerVerifier,
+        getTagged: () => configuration,
+        version: () => version,
+    };
+    const emitter = { dispatch: jest.fn(), listen: jest.fn() };
     const connector = { forgetError: jest.fn(), connect: jest.fn(), emit: jest.fn(), setError: jest.fn() };
 
     beforeAll(() => {
@@ -48,6 +55,7 @@ describe("PeerCommunicator", () => {
         container.bind(Container.Identifiers.PluginConfiguration).toConstantValue(configuration);
         container.bind(Container.Identifiers.EventDispatcherService).toConstantValue(emitter);
         container.bind(Container.Identifiers.PeerConnector).toConstantValue(connector);
+        container.bind(Container.Identifiers.QueueFactory).toConstantValue(createQueue);
         container.bind(Container.Identifiers.PeerCommunicator).to(PeerCommunicator);
 
         process.env.CORE_P2P_PEER_VERIFIER_DEBUG_EXTRA = "true";
@@ -108,6 +116,8 @@ describe("PeerCommunicator", () => {
             const peer = new Peer("187.168.65.65", 4000);
 
             await peerCommunicator.postTransactions(peer, payload.transactions);
+
+            await jobsQueued.pop().handle(); // manually trigger the call of last job queued
 
             expect(connector.emit).toBeCalledTimes(1);
             expect(connector.emit).toBeCalledWith(peer, event,  { ...payload, headers }, 10000);

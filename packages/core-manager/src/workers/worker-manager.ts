@@ -1,8 +1,9 @@
-import { Container } from "@arkecosystem/core-kernel";
+import { Container, Providers } from "@arkecosystem/core-kernel";
+import dayjs from "dayjs";
 import { Worker } from "worker_threads";
 
+import { GenerateLog } from "../contracts";
 import { Schema } from "../database/database";
-import { Options as GenerateLogOptions } from "./actions/generate-log";
 
 class ResolveRejectOnce {
     private counter: number = 0;
@@ -13,9 +14,9 @@ class ResolveRejectOnce {
         private readonly onFinish: Function,
     ) {}
 
-    public resolve(): void {
+    public resolve(logFileName: string): void {
         if (this.counter++ === 0) {
-            this.resolveMethod();
+            this.resolveMethod(logFileName);
             this.onFinish();
         }
     }
@@ -30,22 +31,39 @@ class ResolveRejectOnce {
 
 @Container.injectable()
 export class WorkerManager {
+    @Container.inject(Container.Identifiers.PluginConfiguration)
+    @Container.tagged("plugin", "@arkecosystem/core-manager")
+    private readonly configuration!: Providers.PluginConfiguration;
+
     private runningWorkers: number = 0;
 
     public canRun(): Boolean {
         return this.runningWorkers === 0;
     }
 
-    public generateLog(databaseFilePath: string, schema: Schema, query: any, logFileName: string): Promise<void> {
-        return new Promise<void>((resolve, reject) => {
+    public generateLog(databaseFilePath: string, schema: Schema, query: any): Promise<string> {
+        return new Promise<string>((resolve, reject) => {
             this.runningWorkers++;
 
-            const workerData: GenerateLogOptions = {
-                databaseFilePath,
-                schema,
-                query,
-                logFileName,
-            };
+            let workerData: GenerateLog.GenerateLogOptions;
+
+            if (this.configuration.getRequired("archiveFormat") === "zip") {
+                workerData = {
+                    archiveFormat: "zip",
+                    databaseFilePath,
+                    schema,
+                    query,
+                    logFileName: dayjs().format("YYYY-MM-DD_HH-mm-ss") + ".zip",
+                };
+            } else {
+                workerData = {
+                    archiveFormat: "gz",
+                    databaseFilePath,
+                    schema,
+                    query,
+                    logFileName: dayjs().format("YYYY-MM-DD_HH-mm-ss") + ".log.gz",
+                };
+            }
 
             const worker = new Worker(__dirname + "/worker.js", { workerData });
 
@@ -55,7 +73,7 @@ export class WorkerManager {
 
             worker
                 .on("exit", () => {
-                    resolver.resolve();
+                    resolver.resolve(workerData.logFileName);
                 })
                 .on("error", async (err) => {
                     resolver.reject(err);
