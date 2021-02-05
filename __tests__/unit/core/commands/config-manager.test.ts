@@ -43,8 +43,8 @@ describe("ConfigManagerCommand", () => {
             // Assert
             expect(existsSync).toHaveBeenCalledWith(envFile);
             expect(parseFileSync).toHaveBeenCalledWith(envFile);
-            expect(writeFileSync).toHaveBeenCalledWith(envFile, expect.toInclude("CORE_MONITOR_HOST=127.0.0.1"));
-            expect(writeFileSync).toHaveBeenCalledWith(envFile, expect.toInclude("CORE_MONITOR_PORT=4000"));
+            expect(writeFileSync).toHaveBeenCalledWith(envFile, expect.toInclude("CORE_MANAGER_HOST=127.0.0.1"));
+            expect(writeFileSync).toHaveBeenCalledWith(envFile, expect.toInclude("CORE_MANAGER_PORT=4000"));
             expect(readJSONSync).toHaveBeenCalledWith(appJsonFile);
             expect(writeJSONSync).toHaveBeenCalledWith(
                 appJsonFile,
@@ -102,8 +102,8 @@ describe("ConfigManagerCommand", () => {
             // Assert
             expect(existsSync).toHaveBeenCalledWith(envFile);
             expect(parseFileSync).toHaveBeenCalledWith(envFile);
-            expect(writeFileSync).toHaveBeenCalledWith(envFile, expect.toInclude("CORE_MONITOR_HOST=127.0.0.1"));
-            expect(writeFileSync).toHaveBeenCalledWith(envFile, expect.toInclude("CORE_MONITOR_PORT=4000"));
+            expect(writeFileSync).toHaveBeenCalledWith(envFile, expect.toInclude("CORE_MANAGER_HOST=127.0.0.1"));
+            expect(writeFileSync).toHaveBeenCalledWith(envFile, expect.toInclude("CORE_MANAGER_PORT=4000"));
             expect(readJSONSync).toHaveBeenCalledWith(appJsonFile);
             expect(writeJSONSync).toHaveBeenCalledWith(
                 appJsonFile,
@@ -153,8 +153,8 @@ describe("ConfigManagerCommand", () => {
             // Assert
             expect(existsSync).toHaveBeenCalledWith(envFile);
             expect(parseFileSync).toHaveBeenCalledWith(envFile);
-            expect(writeFileSync).toHaveBeenCalledWith(envFile, expect.toInclude("CORE_MONITOR_HOST=127.0.0.1"));
-            expect(writeFileSync).toHaveBeenCalledWith(envFile, expect.toInclude("CORE_MONITOR_PORT=4000"));
+            expect(writeFileSync).toHaveBeenCalledWith(envFile, expect.toInclude("CORE_MANAGER_HOST=127.0.0.1"));
+            expect(writeFileSync).toHaveBeenCalledWith(envFile, expect.toInclude("CORE_MANAGER_PORT=4000"));
             expect(readJSONSync).toHaveBeenCalledWith(appJsonFile);
             expect(writeJSONSync).toHaveBeenCalledWith(
                 appJsonFile,
@@ -209,8 +209,8 @@ describe("ConfigManagerCommand", () => {
             // Assert
             expect(existsSync).toHaveBeenCalledWith(envFile);
             expect(parseFileSync).toHaveBeenCalledWith(envFile);
-            expect(writeFileSync).toHaveBeenCalledWith(envFile, expect.toInclude("CORE_MONITOR_HOST=127.0.0.1"));
-            expect(writeFileSync).toHaveBeenCalledWith(envFile, expect.toInclude("CORE_MONITOR_PORT=4000"));
+            expect(writeFileSync).toHaveBeenCalledWith(envFile, expect.toInclude("CORE_MANAGER_HOST=127.0.0.1"));
+            expect(writeFileSync).toHaveBeenCalledWith(envFile, expect.toInclude("CORE_MANAGER_PORT=4000"));
             expect(readJSONSync).toHaveBeenCalledWith(appJsonFile);
             expect(writeJSONSync).toHaveBeenCalledWith(
                 appJsonFile,
@@ -268,8 +268,8 @@ describe("ConfigManagerCommand", () => {
             // Assert
             expect(existsSync).toHaveBeenCalledWith(envFile);
             expect(parseFileSync).toHaveBeenCalledWith(envFile);
-            expect(writeFileSync).toHaveBeenCalledWith(envFile, expect.toInclude("CORE_MONITOR_HOST=127.0.0.1"));
-            expect(writeFileSync).toHaveBeenCalledWith(envFile, expect.toInclude("CORE_MONITOR_PORT=4000"));
+            expect(writeFileSync).toHaveBeenCalledWith(envFile, expect.toInclude("CORE_MANAGER_HOST=127.0.0.1"));
+            expect(writeFileSync).toHaveBeenCalledWith(envFile, expect.toInclude("CORE_MANAGER_PORT=4000"));
             expect(readJSONSync).toHaveBeenCalledWith(appJsonFile);
             expect(writeJSONSync).toHaveBeenCalledWith(
                 appJsonFile,

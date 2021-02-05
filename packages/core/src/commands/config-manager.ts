@@ -149,8 +149,8 @@ export class Command extends Commands.Command {
 
     private updateEnvironmentVariables(options: Options): void {
         const variables: Contracts.AnyObject = {
-            CORE_MONITOR_HOST: options.host,
-            CORE_MONITOR_PORT: options.port,
+            CORE_MANAGER_HOST: options.host,
+            CORE_MANAGER_PORT: options.port,
         };
 
         const envFile = this.app.getCorePath("config", ".env");
