@@ -1,7 +1,8 @@
-import { Types } from "@arkecosystem/crypto";
+import { Interfaces, Types } from "@arkecosystem/crypto";
 
 export interface WorkerData {
     actionOptions: ActionOptions;
+    networkConfig: Interfaces.NetworkConfig;
     connection?: any;
 }
 

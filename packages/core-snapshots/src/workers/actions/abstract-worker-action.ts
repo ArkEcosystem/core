@@ -1,6 +1,5 @@
 import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts } from "@arkecosystem/core-kernel";
-import { Managers } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
 import { pascalize } from "xcase";
 
@@ -32,8 +31,6 @@ export abstract class AbstractWorkerAction implements WorkerAction {
         this.updateStep = options.updateStep;
 
         this.options = options;
-
-        Managers.configManager.setFromPreset(options.network);
     }
 
     protected getRepository(): Repository {
