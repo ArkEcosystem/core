@@ -6,11 +6,10 @@ import { StreamReader, StreamWriter } from "@packages/core-snapshots/src/codecs"
 import { Identifiers } from "@packages/core-snapshots/src/ioc";
 import * as Actions from "@packages/core-snapshots/src/workers/actions";
 import { Sandbox } from "@packages/core-test-framework";
-import { Types } from "@packages/crypto";
+import { Managers, Types } from "@packages/crypto";
 import { dirSync, setGracefulCleanup } from "tmp";
 import { Connection } from "typeorm";
 
-import { Assets } from "../../__fixtures__";
 import { ReadableStream, waitForMessage } from "./__support__";
 
 jest.mock("worker_threads", () => {
@@ -47,7 +46,6 @@ const roundsStream = new ReadableStream("Round_", "rounds");
 class Repository {
     public constructor(private table: string) {}
 
-    // public getReadStream = jest.fn().mockResolvedValue(stream);
     public getReadStream() {
         if (this.table === "blocks") {
             return blocksStream;
@@ -62,6 +60,8 @@ class Repository {
 }
 
 beforeEach(() => {
+    Managers.configManager.setFromPreset("testnet");
+
     connection = {
         isConnected: true,
     };
@@ -173,7 +173,6 @@ describe("WorkerAction", () => {
 
     describe.each(cases)("Table [%s] with codec [%s] and compression: [%s]", (table, codec, skipCompression) => {
         let dir: string;
-        const genesisBlockId = Assets.blocks[1].previousBlock;
 
         it(`should DUMP with [${codec}] codec`, async () => {
             dir = dirSync({ mode: 0o777 }).name;
@@ -186,7 +185,6 @@ describe("WorkerAction", () => {
                 end: 100,
                 skipCompression: skipCompression as boolean,
                 filePath: dir + "/" + table,
-                genesisBlockId: genesisBlockId,
                 updateStep: 1,
                 verify: true,
                 network: "testnet" as Types.NetworkName,
@@ -206,7 +204,6 @@ describe("WorkerAction", () => {
                 end: 100,
                 skipCompression: skipCompression as boolean,
                 filePath: dir + "/" + table,
-                genesisBlockId: genesisBlockId,
                 updateStep: 1,
                 verify: true,
                 network: "testnet" as Types.NetworkName,
@@ -238,7 +235,6 @@ describe("WorkerAction", () => {
                 end: 100,
                 skipCompression: skipCompression as boolean,
                 filePath: dir + "/" + table,
-                genesisBlockId: genesisBlockId,
                 updateStep: 1,
                 verify: true,
                 network: "testnet" as Types.NetworkName,
@@ -270,7 +266,6 @@ describe("WorkerAction", () => {
                 end: 100,
                 skipCompression: skipCompression as boolean,
                 filePath: dir + "/" + table,
-                genesisBlockId: genesisBlockId,
                 updateStep: 2,
                 verify: false,
                 network: "testnet" as Types.NetworkName,

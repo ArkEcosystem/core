@@ -14,7 +14,6 @@ jest.mock("worker_threads", () => {
                 codec: "default",
                 skipCompression: false,
                 filePath: "",
-                genesisBlockId: "123",
                 updateStep: 1000,
                 network: "testnet",
             },

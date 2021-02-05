@@ -14,7 +14,6 @@ const _workerData: Contracts.Worker.WorkerData = {
         end: 100,
         skipCompression: false,
         filePath: "",
-        genesisBlockId: "123",
         updateStep: 1000,
         verify: true,
         network: "testnet",
