@@ -65,16 +65,16 @@ export class ServiceProvider extends Providers.ServiceProvider {
                 hostname: Joi.string()
                     .ip({ version: ["ipv4", "ipv6"] })
                     .required(),
-                port: Joi.number().required(),
-                logLevel: Joi.number().required(), // TODO: Check
+                port: Joi.number().integer().min(1).max(65535).required(),
+                logLevel: Joi.number().integer().min(0).required(), // TODO: Check
             }).required(),
             minimumVersions: Joi.array().items(Joi.string()).required(),
-            minimumNetworkReach: Joi.number().min(0).required(),
-            verifyTimeout: Joi.number().min(0).required(),
-            getBlocksTimeout: Joi.number().min(0).required(),
-            maxPeersBroadcast: Joi.number().min(0).required(),
-            maxSameSubnetPeers: Joi.number().min(0).required(),
-            maxPeerSequentialErrors: Joi.number().min(0).required(),
+            minimumNetworkReach: Joi.number().integer().min(0).required(),
+            verifyTimeout: Joi.number().integer().min(0).required(),
+            getBlocksTimeout: Joi.number().integer().min(0).required(),
+            maxPeersBroadcast: Joi.number().integer().min(0).required(),
+            maxSameSubnetPeers: Joi.number().integer().min(0).required(),
+            maxPeerSequentialErrors: Joi.number().integer().min(0).required(),
             whitelist: Joi.array().items(Joi.string()).required(),
             blacklist: Joi.array().items(Joi.string()).required(),
             remoteAccess: Joi.array()
@@ -84,8 +84,8 @@ export class ServiceProvider extends Providers.ServiceProvider {
                 .items(Joi.string().ip({ version: ["ipv4", "ipv6"] }))
                 .required(),
             ntp: Joi.array().items(Joi.string()).required(),
-            rateLimit: Joi.number().min(0).required(),
-            rateLimitPostTransactions: Joi.number().min(1),
+            rateLimit: Joi.number().integer().min(1).required(),
+            rateLimitPostTransactions: Joi.number().integer().min(1),
             networkStart: Joi.bool(),
             disableDiscovery: Joi.bool(),
             skipDiscovery: Joi.bool(),
