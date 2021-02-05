@@ -96,9 +96,7 @@ describe("ServiceProvider", () => {
             expect(result.value.connection.synchronize).toBeFalse();
             expect(result.value.connection.logging).toBeFalse();
 
-            expect(result.value.cryptoPackages).toEqual([
-                { typeGroup: 2, packageName: "@arkecosystem/core-magistrate-crypto" },
-            ]);
+            expect(result.value.cryptoPackages).toEqual(["@arkecosystem/core-magistrate-crypto"]);
         });
 
         it("should allow configuration extension", async () => {
@@ -324,47 +322,21 @@ describe("ServiceProvider", () => {
                 expect(result.error!.message).toEqual('"connection.logging" is required');
             });
 
-            it("cryptoPackages is required && is array", async () => {
+            it("cryptoPackages is required && is array && contain strings", async () => {
                 defaults.cryptoPackages = false;
                 let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
 
                 expect(result.error!.message).toEqual('"cryptoPackages" must be an array');
 
+                defaults.cryptoPackages = [false];
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"cryptoPackages[0]" must be a string');
+
                 delete defaults.cryptoPackages;
                 result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
 
                 expect(result.error!.message).toEqual('"cryptoPackages" is required');
-            });
-
-            it("cryptoPackages[x].typeGroup is required && is number && must be larger or equal 2", async () => {
-                defaults.cryptoPackages[0].typeGroup = false;
-                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
-
-                expect(result.error!.message).toEqual('"cryptoPackages[0].typeGroup" must be a number');
-
-                defaults.cryptoPackages[0].typeGroup = 0;
-                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
-
-                expect(result.error!.message).toEqual(
-                    '"cryptoPackages[0].typeGroup" must be greater than or equal to 2',
-                );
-
-                delete defaults.cryptoPackages[0].typeGroup;
-                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
-
-                expect(result.error!.message).toEqual('"cryptoPackages[0].typeGroup" is required');
-            });
-
-            it("cryptoPackages[x].packageName is required && must be string", async () => {
-                defaults.cryptoPackages[0].packageName = 0;
-                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
-
-                expect(result.error!.message).toEqual('"cryptoPackages[0].packageName" must be a string');
-
-                delete defaults.cryptoPackages[0].packageName;
-                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
-
-                expect(result.error!.message).toEqual('"cryptoPackages[0].packageName" is required');
             });
         });
     });
