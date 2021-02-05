@@ -422,6 +422,32 @@ describe("ServiceProvider", () => {
             });
         });
 
+        describe("process.env.CORE_P2P_RATE_LIMIT_POST_TRANSACTIONS", () => {
+            it("should parse process.env.CORE_P2P_RATE_LIMIT_POST_TRANSACTIONS", async () => {
+                process.env.CORE_P2P_RATE_LIMIT_POST_TRANSACTIONS = "5000";
+
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-p2p/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.rateLimitPostTransactions).toEqual(5000);
+            });
+
+            it("should throw if process.env.CORE_P2P_RATE_LIMIT_POST_TRANSACTIONS is not number", async () => {
+                process.env.CORE_P2P_RATE_LIMIT_POST_TRANSACTIONS = "false";
+
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-p2p/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeDefined();
+                expect(result.error!.message).toEqual('"rateLimitPostTransactions" must be a number');
+            });
+        });
+
         describe("schema restrictions", () => {
             let defaults;
 
@@ -778,6 +804,28 @@ describe("ServiceProvider", () => {
                 result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
 
                 expect(result.error!.message).toEqual('"rateLimit" is required');
+            });
+
+            it("rateLimitPostTransactions is required && is integer && >= 0", async () => {
+                defaults.rateLimitPostTransactions = false;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"rateLimitPostTransactions" must be a number');
+
+                defaults.rateLimitPostTransactions = 1.12;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"rateLimitPostTransactions" must be an integer');
+
+                defaults.rateLimitPostTransactions = 0;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"rateLimitPostTransactions" must be greater than or equal to 1');
+
+                delete defaults.rateLimitPostTransactions;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"rateLimitPostTransactions" is required');
             });
 
             it("networkStart is optional && is boolean", async () => {

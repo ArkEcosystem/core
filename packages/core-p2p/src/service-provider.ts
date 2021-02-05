@@ -85,7 +85,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
                 .required(),
             ntp: Joi.array().items(Joi.string()).required(),
             rateLimit: Joi.number().integer().min(1).required(),
-            rateLimitPostTransactions: Joi.number().integer().min(1),
+            rateLimitPostTransactions: Joi.number().integer().min(1).required(),
             networkStart: Joi.bool(),
             disableDiscovery: Joi.bool(),
             skipDiscovery: Joi.bool(),
