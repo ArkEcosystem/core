@@ -111,11 +111,21 @@ describe("ServiceProvider", () => {
                 expect(result.error!.message).toEqual('"storage" is required');
             });
 
-            it("storage.maxLastBlocks is required && is number", async () => {
+            it("storage.maxLastBlocks is required && is integer && >= 1", async () => {
                 defaults.storage.maxLastBlocks = true;
                 let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
 
                 expect(result.error!.message).toEqual('"storage.maxLastBlocks" must be a number');
+
+                defaults.storage.maxLastBlocks = 1.12;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"storage.maxLastBlocks" must be an integer');
+
+                defaults.storage.maxLastBlocks = 0;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"storage.maxLastBlocks" must be greater than or equal to 1');
 
                 delete defaults.storage.maxLastBlocks;
                 result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
@@ -123,11 +133,23 @@ describe("ServiceProvider", () => {
                 expect(result.error!.message).toEqual('"storage.maxLastBlocks" is required');
             });
 
-            it("storage.maxLastTransactionIds is required && is number", async () => {
+            it("storage.maxLastTransactionIds is required && is integer && >= 1", async () => {
                 defaults.storage.maxLastTransactionIds = true;
                 let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
 
                 expect(result.error!.message).toEqual('"storage.maxLastTransactionIds" must be a number');
+
+                defaults.storage.maxLastTransactionIds = 1.12;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"storage.maxLastTransactionIds" must be an integer');
+
+                defaults.storage.maxLastTransactionIds = 0;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual(
+                    '"storage.maxLastTransactionIds" must be greater than or equal to 1',
+                );
 
                 delete defaults.storage.maxLastTransactionIds;
                 result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
