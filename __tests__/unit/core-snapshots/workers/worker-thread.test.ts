@@ -16,7 +16,6 @@ const _workerData: Contracts.Worker.WorkerData = {
         filePath: "",
         updateStep: 1000,
         verify: true,
-        network: "testnet",
     },
     networkConfig: Managers.configManager.all()!,
 };

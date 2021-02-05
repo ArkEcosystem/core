@@ -15,7 +15,6 @@ jest.mock("worker_threads", () => {
                 skipCompression: false,
                 filePath: "",
                 updateStep: 1000,
-                network: "testnet",
             },
             networkConfig: require("@packages/crypto").Managers.configManager.all(),
         },

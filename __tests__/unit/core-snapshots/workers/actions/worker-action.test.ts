@@ -6,7 +6,7 @@ import { StreamReader, StreamWriter } from "@packages/core-snapshots/src/codecs"
 import { Identifiers } from "@packages/core-snapshots/src/ioc";
 import * as Actions from "@packages/core-snapshots/src/workers/actions";
 import { Sandbox } from "@packages/core-test-framework";
-import { Managers, Types } from "@packages/crypto";
+import { Managers } from "@packages/crypto";
 import { dirSync, setGracefulCleanup } from "tmp";
 import { Connection } from "typeorm";
 
@@ -187,7 +187,6 @@ describe("WorkerAction", () => {
                 filePath: dir + "/" + table,
                 updateStep: 1,
                 verify: true,
-                network: "testnet" as Types.NetworkName,
             };
 
             dumpWorkerAction.init(options);
@@ -206,7 +205,6 @@ describe("WorkerAction", () => {
                 filePath: dir + "/" + table,
                 updateStep: 1,
                 verify: true,
-                network: "testnet" as Types.NetworkName,
             };
 
             verifyWorkerAction.init(options);
@@ -237,7 +235,6 @@ describe("WorkerAction", () => {
                 filePath: dir + "/" + table,
                 updateStep: 1,
                 verify: true,
-                network: "testnet" as Types.NetworkName,
             };
 
             restoreWorkerAction.init(options);
@@ -268,7 +265,6 @@ describe("WorkerAction", () => {
                 filePath: dir + "/" + table,
                 updateStep: 2,
                 verify: false,
-                network: "testnet" as Types.NetworkName,
             };
 
             restoreWorkerAction.init(options);
