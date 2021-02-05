@@ -60,5 +60,5 @@ export const defaults = {
             ],
         },
     },
-    archiveFormat: process.env.CORE_MONITOR_ARCHIVE_FORMAT || "zip",
+    archiveFormat: process.env.CORE_MANAGER_ARCHIVE_FORMAT || "zip",
 };

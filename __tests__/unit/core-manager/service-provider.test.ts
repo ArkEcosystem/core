@@ -773,9 +773,9 @@ describe("ServiceProvider", () => {
             });
         });
 
-        describe("process.env.CORE_MONITOR_ARCHIVE_FORMAT", () => {
-            it("should parse process.env.CORE_MONITOR_ARCHIVE_FORMAT", async () => {
-                process.env.CORE_MONITOR_ARCHIVE_FORMAT = "gz";
+        describe("process.env.CORE_MANAGER_ARCHIVE_FORMAT", () => {
+            it("should parse process.env.CORE_MANAGER_ARCHIVE_FORMAT", async () => {
+                process.env.CORE_MANAGER_ARCHIVE_FORMAT = "gz";
 
                 jest.resetModules();
                 const result = (serviceProvider.configSchema() as AnySchema).validate(
