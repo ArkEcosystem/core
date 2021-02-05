@@ -251,7 +251,7 @@ describe("ServiceProvider", () => {
                 expect(result.value.server.hostname).toEqual("127.0.0.1");
             });
 
-            it("should throw if process.env.CORE_MONITOR_PUBLIC_IP is not ipv4 or ipv6 address", async () => {
+            it("should throw if process.env.CORE_P2P_HOST is not ipv4 or ipv6 address", async () => {
                 process.env.CORE_P2P_HOST = "123";
 
                 jest.resetModules();
