@@ -1,10 +1,11 @@
 import "jest-extended";
 
-import { Worker } from "worker_threads";
-import { resolve } from "path";
 import * as Contracts from "@packages/core-snapshots/src/contracts";
+import { Managers } from "@packages/crypto";
+import { resolve } from "path";
+import { Worker } from "worker_threads";
 
-let _workerData: Contracts.Worker.WorkerData = {
+const _workerData: Contracts.Worker.WorkerData = {
     actionOptions: {
         action: "test",
         table: "blocks",
@@ -18,9 +19,10 @@ let _workerData: Contracts.Worker.WorkerData = {
         verify: true,
         network: "testnet",
     },
+    networkConfig: Managers.configManager.all()!,
 };
 
-let eventListener = {
+const eventListener = {
     onExit: (data: any) => {},
     onError: (data: any) => {},
     onMessage: (data: any) => {},
@@ -42,7 +44,7 @@ const appendListeners = (worker: Worker) => {
 
 const waitForEvent = (worker: Worker, message?: any): Promise<void> => {
     return new Promise<void>((resolve) => {
-        let onEvent = (event, data) => {
+        const onEvent = (event, data) => {
             worker.removeAllListeners();
 
             resolve();
@@ -68,7 +70,7 @@ let spyOnExit;
 let spyOnError;
 let spyOnMessage;
 
-let workerPath = resolve("packages/core-snapshots/dist/workers/worker.js");
+const workerPath = resolve("packages/core-snapshots/dist/workers/worker.js");
 
 beforeEach(() => {
     spyOnExit = jest.spyOn(eventListener, "onExit");
@@ -82,7 +84,7 @@ afterEach(() => {
 
 describe("Worker", () => {
     it("should exit without error", async () => {
-        let worker = new Worker(workerPath, { workerData: _workerData });
+        const worker = new Worker(workerPath, { workerData: _workerData });
 
         appendListeners(worker);
 
@@ -94,11 +96,11 @@ describe("Worker", () => {
     });
 
     it("should run init and start Action", async () => {
-        let worker = new Worker(workerPath, { workerData: _workerData });
+        const worker = new Worker(workerPath, { workerData: _workerData });
 
         appendListeners(worker);
 
-        let message: Contracts.Worker.WorkerMessage = {
+        const message: Contracts.Worker.WorkerMessage = {
             action: "start",
             data: {},
         };
@@ -113,14 +115,14 @@ describe("Worker", () => {
     });
 
     it("should catch unhandled rejection and pass it in message", async () => {
-        let tmpWorkerData = { ..._workerData };
+        const tmpWorkerData = { ..._workerData };
         tmpWorkerData.actionOptions.table = "throwError";
 
-        let worker = new Worker(workerPath, { workerData: _workerData });
+        const worker = new Worker(workerPath, { workerData: _workerData });
 
         appendListeners(worker);
 
-        let message: Contracts.Worker.WorkerMessage = {
+        const message: Contracts.Worker.WorkerMessage = {
             action: "start",
             data: {},
         };
@@ -138,12 +140,12 @@ describe("Worker", () => {
     });
 
     it("should throw exception", async () => {
-        let tmpWorkerData = { ..._workerData };
+        const tmpWorkerData = { ..._workerData };
         tmpWorkerData.actionOptions.table = "wait";
 
-        let worker = new Worker(workerPath, { workerData: _workerData });
+        const worker = new Worker(workerPath, { workerData: _workerData });
 
-        let message: Contracts.Worker.WorkerMessage = {
+        const message: Contracts.Worker.WorkerMessage = {
             action: "start",
             data: {},
         };
@@ -158,7 +160,7 @@ describe("Worker", () => {
 
         appendListeners(worker);
 
-        let message2 = {
+        const message2 = {
             action: "sync",
             data: {
                 execute: "throwError",
