@@ -11,6 +11,7 @@ import { PeerProcessor } from "./peer-processor";
 import { PeerRepository } from "./peer-repository";
 import { Server } from "./socket-server/server";
 import { TransactionBroadcaster } from "./transaction-broadcaster";
+import { PeerRateLimiter } from "./peer-rate-limiter";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     private serverSymbol = Symbol.for("P2P<Server>");
@@ -107,6 +108,8 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.app.bind(Container.Identifiers.PeerCommunicator).to(PeerCommunicator).inSingletonScope();
 
         this.app.bind(Container.Identifiers.PeerProcessor).to(PeerProcessor).inSingletonScope();
+
+        this.app.bind(Container.Identifiers.PeerRateLimiter).to(PeerRateLimiter).inSingletonScope();
 
         this.app.bind(Container.Identifiers.PeerNetworkMonitor).to(NetworkMonitor).inSingletonScope();
 

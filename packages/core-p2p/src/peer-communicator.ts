@@ -8,8 +8,7 @@ import { PeerPingTimeoutError, PeerStatusResponseError, PeerVerificationFailedEr
 import { PeerVerifier } from "./peer-verifier";
 import { getCodec } from "./socket-server/utils/get-codec";
 import { replySchemas } from "./schemas";
-import { buildRateLimiter, isValidVersion } from "./utils";
-import { RateLimiter } from "./rate-limiter";
+import { isValidVersion } from "./utils";
 import delay from "delay";
 
 // todo: review the implementation
@@ -34,20 +33,12 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
     @Container.inject(Container.Identifiers.QueueFactory)
     private readonly createQueue!: Types.QueueFactory;
 
-    private outgoingRateLimiter!: RateLimiter;
+    @Container.inject(Container.Identifiers.PeerRateLimiter)
+    private readonly rateLimiter!: Contracts.P2P.PeerRateLimiter;
 
     private postTransactionsQueueByIp: Map<string, Contracts.Kernel.Queue> = new Map();
 
     public initialize(): void {
-        this.outgoingRateLimiter = buildRateLimiter({
-            // White listing anybody here means we would not throttle ourselves when sending
-            // them requests, ie we could spam them.
-            whitelist: [],
-            remoteAccess: [],
-            rateLimit: this.configuration.getOptional<number>("rateLimit", 100),
-            rateLimitPostTransactions: this.configuration.getOptional<number>("rateLimitPostTransactions", 25),
-        });
-
         this.events.listen(Enums.PeerEvent.Disconnect, {
             handle: ({ data }) => this.postTransactionsQueueByIp.delete(data.peer.ip),
         });
@@ -73,10 +64,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
         const postTransactionsRateLimit = this.configuration.getOptional<number>("rateLimitPostTransactions", 25);
 
         if (!this.postTransactionsQueueByIp.get(peer.ip)) {
-            this.postTransactionsQueueByIp.set(
-                peer.ip,
-                await this.createQueue(),
-            );
+            this.postTransactionsQueueByIp.set(peer.ip, await this.createQueue());
         }
 
         const queue = this.postTransactionsQueueByIp.get(peer.ip)!;
@@ -87,7 +75,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
                 await delay(Math.ceil(1000 / postTransactionsRateLimit));
                 // to space up between consecutive calls to postTransactions according to rate limit
                 // optimized here because default throttling would not be effective for postTransactions
-            }
+            },
         });
     }
 
@@ -268,7 +256,10 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
         maxPayload?: number,
         disconnectOnError: boolean = true,
     ) {
-        await this.throttle(peer, event);
+        while (!(await this.rateLimiter.tryConsumeOutgoing(peer.ip, event))) {
+            this.logger.debug(`Throttling outgoing requests to ${peer.ip}/${event}`);
+            await delay(1000);
+        }
 
         const codec = getCodec(this.app, event);
 
@@ -288,7 +279,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
                 codec.request.serialize({
                     ...payload,
                     headers: {
-                            version: this.app.version(),
+                        version: this.app.version(),
                     },
                 }),
                 timeout,
@@ -313,20 +304,6 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
         }
 
         return parsedResponsePayload;
-    }
-
-    private async throttle(peer: Contracts.P2P.Peer, event: string): Promise<void> {
-        const msBeforeReCheck = 1000;
-        while (await this.outgoingRateLimiter.hasExceededRateLimitNoConsume(peer.ip, event)) {
-            this.logger.debug(
-                `Throttling outgoing requests to ${peer.ip}/${event} to avoid triggering their rate limit`,
-            );
-            await delay(msBeforeReCheck);
-        }
-        try {
-            await this.outgoingRateLimiter.consume(peer.ip, event);
-        } //@ts-ignore
-        catch {}
     }
 
     private handleSocketError(peer: Contracts.P2P.Peer, event: string, error: Error, disconnect: boolean = true): void {
