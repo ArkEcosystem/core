@@ -1,5 +1,5 @@
 export const defaults = {
-    updateStep: 1000, // Doesn't work with 5000
+    updateStep: 1000,
     connection: {
         type: "postgres",
         host: process.env.CORE_DB_HOST || "localhost",

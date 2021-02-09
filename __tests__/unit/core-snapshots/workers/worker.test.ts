@@ -1,10 +1,7 @@
 import "jest-extended";
 
-// @ts-ignore
-import { workerData } from "worker_threads";
-
-import { init, dispose } from "@packages/core-snapshots/src/workers/worker";
 import { DumpWorkerAction } from "@packages/core-snapshots/src/workers/actions/dump-worker-action";
+import { dispose, init } from "@packages/core-snapshots/src/workers/worker";
 
 jest.mock("worker_threads", () => {
     return {
@@ -17,10 +14,9 @@ jest.mock("worker_threads", () => {
                 codec: "default",
                 skipCompression: false,
                 filePath: "",
-                genesisBlockId: "123",
                 updateStep: 1000,
-                network: "testnet",
             },
+            networkConfig: require("@packages/crypto").Managers.configManager.all(),
         },
     };
 });
@@ -33,7 +29,7 @@ describe("Worker", () => {
     it("should run worker", async () => {
         DumpWorkerAction.prototype.start = jest.fn();
 
-        await init();
-        await dispose();
+        await expect(init()).toResolve();
+        await expect(dispose()).toResolve();
     });
 });

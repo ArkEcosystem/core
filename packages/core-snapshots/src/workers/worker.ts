@@ -1,7 +1,7 @@
 import { Models, Utils } from "@arkecosystem/core-database";
 import { Container } from "@arkecosystem/core-kernel";
 import { Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
-import { Transactions } from "@arkecosystem/crypto";
+import { Managers, Transactions } from "@arkecosystem/crypto";
 import { Connection, createConnection, getCustomRepository } from "typeorm";
 import { parentPort, workerData } from "worker_threads";
 
@@ -27,6 +27,8 @@ const connect = async (options: any): Promise<Connection> => {
 };
 
 export const init = async () => {
+    Managers.configManager.setConfig(_workerData.networkConfig);
+
     Transactions.TransactionRegistry.registerTransactionType(MagistrateTransactions.BridgechainRegistrationTransaction);
     Transactions.TransactionRegistry.registerTransactionType(MagistrateTransactions.BridgechainResignationTransaction);
     Transactions.TransactionRegistry.registerTransactionType(MagistrateTransactions.BridgechainUpdateTransaction);
