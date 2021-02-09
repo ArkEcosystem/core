@@ -14,7 +14,7 @@ export class BlockRepository extends AbstractRepository<Models.Block> {
     }
 
     public async countInRange(start: number, end: number): Promise<number> {
-        return this.createQueryBuilder().where("height >= :start AND height <= :end", { start, end }).getCount();
+        return this.fastCount({ where: "height >= :start AND height <= :end", parameters: { start, end } });
     }
 
     public async rollback(roundInfo: Contracts.Shared.RoundInfo): Promise<void> {

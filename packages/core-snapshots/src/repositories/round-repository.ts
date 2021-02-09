@@ -13,6 +13,6 @@ export class RoundRepository extends AbstractRepository<Models.Round> {
     }
 
     public async countInRange(start: number, end: number): Promise<number> {
-        return this.createQueryBuilder().where("round >= :start AND round <= :end", { start, end }).getCount();
+        return this.fastCount({ where: "round >= :start AND round <= :end", parameters: { start, end } });
     }
 }

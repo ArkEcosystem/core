@@ -14,6 +14,6 @@ export class TransactionRepository extends AbstractRepository<Models.Transaction
     }
 
     public async countInRange(start: number, end: number): Promise<number> {
-        return this.createQueryBuilder().where("timestamp >= :start AND timestamp <= :end", { start, end }).getCount();
+        return this.fastCount({ where: "timestamp >= :start AND timestamp <= :end", parameters: { start, end } });
     }
 }
