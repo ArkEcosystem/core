@@ -21,7 +21,7 @@ let database: SnapshotDatabaseService;
 let filesystem: Filesystem;
 
 class MockWorkerWrapper extends EventEmitter {
-    constructor() {
+    public constructor() {
         super();
     }
 
@@ -114,11 +114,6 @@ beforeEach(() => {
 
     sandbox.app.bind(Container.Identifiers.ApplicationNetwork).toConstantValue("testnet");
 
-    sandbox.app
-        .bind(Container.Identifiers.PluginConfiguration)
-        .to(Providers.PluginConfiguration)
-        .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("plugin", "@arkecosystem/core-snapshots"));
-
     sandbox.app.bind(Container.Identifiers.FilesystemService).to(LocalFilesystem).inSingletonScope();
     sandbox.app.bind(Identifiers.SnapshotFilesystem).to(Filesystem).inSingletonScope();
 
@@ -132,15 +127,10 @@ beforeEach(() => {
 
     sandbox.app.bind(Identifiers.SnapshotDatabaseService).to(SnapshotDatabaseService).inSingletonScope();
 
-    const pluginConfiguration = sandbox.app.getTagged<Providers.PluginConfiguration>(
-        Container.Identifiers.PluginConfiguration,
-        "plugin",
-        "@arkecosystem/core-snapshots",
-    );
-
-    pluginConfiguration.set("chunkSize", configuration.chunkSize);
-    pluginConfiguration.set("dispatchUpdateStep", configuration.dispatchUpdateStep);
-    pluginConfiguration.set("connection", configuration.connection);
+    sandbox.app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
+    sandbox.app
+        .get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration)
+        .from("@arkecosystem/core-snapshots", configuration);
 
     database = sandbox.app.get<SnapshotDatabaseService>(Identifiers.SnapshotDatabaseService);
     filesystem = sandbox.app.get<Filesystem>(Identifiers.SnapshotFilesystem);
