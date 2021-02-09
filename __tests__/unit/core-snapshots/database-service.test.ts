@@ -21,7 +21,7 @@ let database: SnapshotDatabaseService;
 let filesystem: Filesystem;
 
 class MockWorkerWrapper extends EventEmitter {
-    constructor() {
+    public constructor() {
         super();
     }
 
@@ -76,7 +76,7 @@ beforeEach(() => {
     lastBlock.height = 100;
 
     blockRepository = {
-        count: jest.fn().mockResolvedValue(1),
+        fastCount: jest.fn().mockResolvedValue(1),
         clear: jest.fn(),
         delete: jest.fn(),
         findFirst: jest.fn().mockResolvedValue(Assets.blocksBigNumber[0] as any),
@@ -87,14 +87,14 @@ beforeEach(() => {
     };
 
     transactionRepository = {
-        count: jest.fn(),
+        fastCount: jest.fn(),
         clear: jest.fn(),
         delete: jest.fn(),
         countInRange: jest.fn().mockResolvedValue(5),
     };
 
     roundRepository = {
-        count: jest.fn(),
+        fastCount: jest.fn(),
         clear: jest.fn(),
         delete: jest.fn(),
         countInRange: jest.fn().mockResolvedValue(5),
