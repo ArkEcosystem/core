@@ -1,11 +1,11 @@
-import { Models, Repositories } from "@arkecosystem/core-database";
+import { Models } from "@arkecosystem/core-database";
 import { Contracts } from "@arkecosystem/core-kernel";
 import { EntityRepository } from "typeorm";
 
-import { Repository } from "../contracts";
+import { AbstractRepository } from "./abstract-repository";
 
 @EntityRepository(Models.Block)
-export class BlockRepository extends Repositories.AbstractRepository<Models.Block> implements Repository {
+export class BlockRepository extends AbstractRepository<Models.Block> {
     public async getReadStream(start: number, end: number): Promise<NodeJS.ReadableStream> {
         return this.createQueryBuilder()
             .where("height >= :start AND height <= :end", { start, end })

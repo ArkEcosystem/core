@@ -45,12 +45,12 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
 
     public async truncate(): Promise<void> {
         this.logger.info(
-            `Clearing:  ${await this.blockRepository.count()} blocks,   ${await this.transactionRepository.count()} transactions,  ${await this.roundRepository.count()} rounds`,
+            `Clearing:  ${await this.blockRepository.countAll()} blocks,   ${await this.transactionRepository.countAll()} transactions,  ${await this.roundRepository.countAll()} rounds`,
         );
 
         await this.transactionRepository.clear();
         await this.roundRepository.clear();
-        await this.blockRepository.delete({}); // Clear does't work on tables with relations
+        await this.blockRepository.delete({}); // Clear doesn't work on tables with relations
     }
 
     public async rollback(roundInfo: Contracts.Shared.RoundInfo): Promise<Interfaces.IBlock> {
