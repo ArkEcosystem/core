@@ -173,6 +173,9 @@ export class Command extends Commands.Command {
                     package: "@arkecosystem/core-logger-pino",
                 },
                 {
+                    package: "@arkecosystem/core-database",
+                },
+                {
                     package: "@arkecosystem/core-snapshots",
                 },
                 {
@@ -213,7 +216,7 @@ export class Command extends Commands.Command {
         }
 
         if (Object.keys(packageOptions.plugins).length) {
-            result.plugins[2].options = packageOptions;
+            result.plugins.find((plugin) => plugin.package === "@arkecosystem/core-manager").options = packageOptions;
         }
 
         return result;
