@@ -45,7 +45,7 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
 
     public async truncate(): Promise<void> {
         this.logger.info(
-            `Clearing:  ${await this.blockRepository.countAll()} blocks,   ${await this.transactionRepository.countAll()} transactions,  ${await this.roundRepository.countAll()} rounds`,
+            `Clearing:  ${await this.blockRepository.fastCount()} blocks,   ${await this.transactionRepository.fastCount()} transactions,  ${await this.roundRepository.fastCount()} rounds`,
         );
 
         await this.transactionRepository.clear();
