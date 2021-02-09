@@ -148,19 +148,19 @@ export class ServiceProvider extends Providers.ServiceProvider {
                 enabled: Joi.bool().required(),
                 resetDatabase: Joi.bool().required(),
                 storage: Joi.string().required(),
-                history: Joi.number().min(1).required(),
+                history: Joi.number().integer().min(1).required(),
             }).required(),
             server: Joi.object({
                 ip: Joi.number(),
                 http: Joi.object({
                     enabled: Joi.bool().required(),
                     host: Joi.string().required(),
-                    port: Joi.number().required(),
+                    port: Joi.number().integer().min(1).max(65535).required(),
                 }).required(),
                 https: Joi.object({
                     enabled: Joi.bool().required(),
                     host: Joi.string().required(),
-                    port: Joi.number().required(),
+                    port: Joi.number().integer().min(1).max(65535).required(),
                     tls: Joi.object({
                         key: Joi.string().when("...enabled", { is: true, then: Joi.required() }),
                         cert: Joi.string().when("...enabled", { is: true, then: Joi.required() }),

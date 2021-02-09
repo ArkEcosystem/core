@@ -115,8 +115,8 @@ export class ServiceProvider extends Providers.ServiceProvider {
     public configSchema(): object {
         return Joi.object({
             storage: Joi.object({
-                maxLastBlocks: Joi.number().min(1).required(),
-                maxLastTransactionIds: Joi.number().min(1).required(),
+                maxLastBlocks: Joi.number().integer().min(1).required(),
+                maxLastTransactionIds: Joi.number().integer().min(1).required(),
             }).required(),
             walletSync: Joi.object({
                 enabled: Joi.boolean().required(),
