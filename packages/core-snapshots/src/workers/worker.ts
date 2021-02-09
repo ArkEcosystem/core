@@ -1,6 +1,6 @@
 import { Models, Utils } from "@arkecosystem/core-database";
 import { Container } from "@arkecosystem/core-kernel";
-import { Transactions } from "@arkecosystem/crypto";
+import { Managers, Transactions } from "@arkecosystem/crypto";
 import { Connection, createConnection, getCustomRepository } from "typeorm";
 import { parentPort, workerData } from "worker_threads";
 
@@ -26,6 +26,8 @@ const connect = async (options: any): Promise<Connection> => {
 };
 
 export const init = async () => {
+    Managers.configManager.setConfig(_workerData.networkConfig);
+
     for (const cryptoPackage of _workerData.cryptoPackages) {
         const transactions = require(cryptoPackage).Transactions;
 
@@ -33,7 +35,6 @@ export const init = async () => {
             Transactions.TransactionRegistry.registerTransactionType(transaction as typeof Transactions.Transaction);
         }
     }
-
     app = new Application(new Container.Container());
 
     /* istanbul ignore next */

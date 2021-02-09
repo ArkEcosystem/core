@@ -38,7 +38,6 @@ export class SnapshotService implements Contracts.Snapshot.SnapshotService {
             Utils.assert.defined<string>(options.network);
             Utils.assert.defined<string>(options.blocks);
 
-            // this.filesystem.setNetwork(options.network);
             this.filesystem.setSnapshot(options.blocks);
 
             if (!(await this.filesystem.snapshotExists())) {
@@ -79,7 +78,6 @@ export class SnapshotService implements Contracts.Snapshot.SnapshotService {
             Utils.assert.defined<string>(options.network);
             Utils.assert.defined<string>(options.blocks);
 
-            // this.filesystem.setNetwork(options.network);
             this.filesystem.setSnapshot(options.blocks);
 
             if (!(await this.filesystem.snapshotExists())) {

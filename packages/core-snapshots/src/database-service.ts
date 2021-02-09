@@ -1,8 +1,8 @@
 import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
-import { Blocks, Interfaces, Managers, Types } from "@arkecosystem/crypto";
+import { Blocks, Interfaces, Managers } from "@arkecosystem/crypto";
 
-import { Database, Meta, Options, Worker } from "./contracts";
+import { Database, Meta, Options } from "./contracts";
 import { Filesystem } from "./filesystem/filesystem";
 import { Identifiers } from "./ioc";
 import { ProgressDispatcher } from "./progress-dispatcher";
@@ -265,9 +265,8 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
     }
 
     private prepareWorkerData(action: string, table: string, meta: Meta.MetaData): any {
-        const result: Worker.WorkerData = {
+        return {
             actionOptions: {
-                network: this.app.network() as Types.NetworkName,
                 action: action,
                 table: table,
                 start: meta[table].start,
@@ -276,17 +275,14 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
                 skipCompression: this.skipCompression,
                 verify: this.verifyData,
                 filePath: `${this.filesystem.getSnapshotPath()}${table}`,
-                genesisBlockId: Managers.configManager.get("genesisBlock").id,
                 updateStep: this.configuration.getOptional("updateStep", 1000),
             },
+            networkConfig: Managers.configManager.all()!,
             cryptoPackages: this.configuration.getRequired("cryptoPackages"),
             connection: this.configuration.get("connection"),
         };
-
-        return result;
     }
 
-    // @ts-ignore
     private async prepareProgressDispatcher(worker: WorkerWrapper, table: string, count: number): Promise<Function> {
         const progressDispatcher = this.app.get<ProgressDispatcher>(Identifiers.ProgressDispatcher);
 

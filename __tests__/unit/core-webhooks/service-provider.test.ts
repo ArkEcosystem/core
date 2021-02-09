@@ -291,11 +291,26 @@ describe("ServiceProvider", () => {
                 expect(result.error!.message).toEqual('"server.http.host" is required');
             });
 
-            it("server.http.port is required && is number", async () => {
+            it("server.http.port is required && is integer && >= 1 && <= 65535", async () => {
                 defaults.server.http.port = false;
                 let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
 
                 expect(result.error!.message).toEqual('"server.http.port" must be a number');
+
+                defaults.server.http.port = 1.12;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.http.port" must be an integer');
+
+                defaults.server.http.port = 0;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.http.port" must be greater than or equal to 1');
+
+                defaults.server.http.port = 65536;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.http.port" must be less than or equal to 65535');
 
                 delete defaults.server.http.port;
                 result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
@@ -320,11 +335,21 @@ describe("ServiceProvider", () => {
                 expect(result.error!.message).toEqual('"server.whitelist" is required');
             });
 
-            it("timeout is required && is number", async () => {
+            it("timeout is required && is integer && >= 1", async () => {
                 defaults.timeout = false;
                 let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
 
                 expect(result.error!.message).toEqual('"timeout" must be a number');
+
+                defaults.timeout = 1.1;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"timeout" must be an integer');
+
+                defaults.timeout = 0;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"timeout" must be greater than or equal to 1');
 
                 delete defaults.timeout;
                 result = (serviceProvider.configSchema() as AnySchema).validate(defaults);

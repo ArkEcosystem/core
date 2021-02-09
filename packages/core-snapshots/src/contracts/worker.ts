@@ -1,7 +1,8 @@
-import { Types } from "@arkecosystem/crypto";
+import { Interfaces } from "@arkecosystem/crypto";
 
 export interface WorkerData {
     actionOptions: ActionOptions;
+    networkConfig: Interfaces.NetworkConfig;
     cryptoPackages: string[];
     connection?: any;
 }
@@ -14,13 +15,8 @@ export interface ActionOptions {
     codec: string;
     skipCompression: boolean;
     verify: boolean;
-
     filePath: string;
-
-    genesisBlockId?: string;
     updateStep?: number;
-
-    network: Types.NetworkName;
 }
 
 export interface WorkerMessage {

@@ -190,11 +190,26 @@ describe("ServiceProvider", () => {
                 defaults = (await import("@packages/core-snapshots/src/defaults")).defaults;
             });
 
-            it("updateStep is required && is number", async () => {
+            it("updateStep is required && is integer && >= 1 && <= 2000", async () => {
                 defaults.updateStep = false;
                 let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
 
                 expect(result.error!.message).toEqual('"updateStep" must be a number');
+
+                defaults.updateStep = 1.12;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"updateStep" must be an integer');
+
+                defaults.updateStep = 0;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"updateStep" must be greater than or equal to 1');
+
+                defaults.updateStep = 5000;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"updateStep" must be less than or equal to 2000');
 
                 delete defaults.updateStep;
                 result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
@@ -238,11 +253,26 @@ describe("ServiceProvider", () => {
                 expect(result.error!.message).toEqual('"connection.host" is required');
             });
 
-            it("connection.port is required && is number", async () => {
+            it("connection.port is required && is integer && >= 1 && <= 65535", async () => {
                 defaults.connection.port = false;
                 let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
 
                 expect(result.error!.message).toEqual('"connection.port" must be a number');
+
+                defaults.connection.port = 1.12;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"connection.port" must be an integer');
+
+                defaults.connection.port = 0;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"connection.port" must be greater than or equal to 1');
+
+                defaults.connection.port = 65536;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"connection.port" must be less than or equal to 65535');
 
                 delete defaults.connection.port;
                 result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
