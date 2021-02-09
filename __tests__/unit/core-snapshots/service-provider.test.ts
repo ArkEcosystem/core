@@ -52,8 +52,17 @@ describe("ServiceProvider", () => {
         await expect(serviceProvider.dispose()).toResolve();
     });
 
-    it("should not be required", async () => {
+    it("should be required", async () => {
         await expect(serviceProvider.required()).resolves.toBeTrue();
+    });
+
+    it("should depend on core-database", async () => {
+        expect(serviceProvider.dependencies()).toEqual([
+            {
+                name: "@arkecosystem/core-database",
+                required: true,
+            },
+        ]);
     });
 
     describe("ServiceProvider.configSchema", () => {
