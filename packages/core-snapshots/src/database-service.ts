@@ -18,6 +18,10 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
     @Container.tagged("plugin", "@arkecosystem/core-snapshots")
     private readonly configuration!: Providers.PluginConfiguration;
 
+    @Container.inject(Container.Identifiers.PluginConfiguration)
+    @Container.tagged("plugin", "@arkecosystem/core-database")
+    private readonly coreDatabaseConfiguration!: Providers.PluginConfiguration;
+
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
 
@@ -279,7 +283,7 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
             },
             networkConfig: Managers.configManager.all()!,
             cryptoPackages: this.configuration.getRequired("cryptoPackages"),
-            connection: this.configuration.get("connection"),
+            connection: this.coreDatabaseConfiguration.getRequired("connection"),
         };
     }
 
