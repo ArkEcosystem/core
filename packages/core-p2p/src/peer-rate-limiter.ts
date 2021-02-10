@@ -3,15 +3,15 @@ import { RateLimiterMemory, RLWrapperBlackAndWhite, RateLimiterAbstract } from "
 
 @Container.injectable()
 export class PeerRateLimiter {
+    @Container.inject(Container.Identifiers.PluginConfiguration)
+    @Container.tagged("plugin", "@arkecosystem/core-p2p")
+    private readonly configuration!: Providers.PluginConfiguration;
+
     private globalIncomingRateLimiter!: RateLimiterAbstract;
     private globalOutgoingRateLimiter!: RateLimiterAbstract;
 
     private endpointIncomingRateLimiters: Map<string, RateLimiterAbstract> = new Map<string, RateLimiterAbstract>();
     private endpointOutgoingRateLimiters: Map<string, RateLimiterAbstract> = new Map<string, RateLimiterAbstract>();
-
-    @Container.inject(Container.Identifiers.PluginConfiguration)
-    @Container.tagged("plugin", "@arkecosystem/core-p2p")
-    private readonly configuration!: Providers.PluginConfiguration;
 
     @Container.postConstruct()
     public initialize(): void {
