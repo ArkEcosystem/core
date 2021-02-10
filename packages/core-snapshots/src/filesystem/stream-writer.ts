@@ -12,7 +12,6 @@ export class StreamWriter {
 
     private writeStream?: Writable;
 
-    // @ts-ignore
     public constructor(
         private dbStream: Readable,
         private path: string,
@@ -69,6 +68,9 @@ export class StreamWriter {
             const onEnd = () => {
                 removeListeners(stream, eventListenerPairs);
                 this.writeStream!.end(() => {
+                    this.dbStream.destroy();
+                    this.writeStream!.destroy();
+
                     resolve();
                 });
             };
@@ -76,6 +78,10 @@ export class StreamWriter {
             /* istanbul ignore next */
             const onError = (err) => {
                 removeListeners(stream, eventListenerPairs);
+
+                this.dbStream.destroy();
+                this.writeStream!.destroy();
+
                 reject(err);
             };
 
