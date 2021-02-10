@@ -77,7 +77,7 @@ beforeEach(() => {
 
     blockRepository = {
         fastCount: jest.fn().mockResolvedValue(1),
-        clear: jest.fn(),
+        truncate: jest.fn(),
         delete: jest.fn(),
         findFirst: jest.fn().mockResolvedValue(Assets.blocksBigNumber[0] as any),
         findLast: jest.fn().mockResolvedValue(lastBlock as any),
@@ -88,14 +88,12 @@ beforeEach(() => {
 
     transactionRepository = {
         fastCount: jest.fn(),
-        clear: jest.fn(),
         delete: jest.fn(),
         countInRange: jest.fn().mockResolvedValue(5),
     };
 
     roundRepository = {
         fastCount: jest.fn(),
-        clear: jest.fn(),
         delete: jest.fn(),
         countInRange: jest.fn().mockResolvedValue(5),
     };
@@ -155,9 +153,7 @@ describe("DatabaseService", () => {
         it("should call delete and clear method on transaction, block and round", async () => {
             await expect(database.truncate()).toResolve();
 
-            expect(blockRepository.delete).toHaveBeenCalled();
-            expect(transactionRepository.clear).toHaveBeenCalled();
-            expect(roundRepository.clear).toHaveBeenCalled();
+            expect(blockRepository.truncate).toHaveBeenCalled();
         });
     });
 

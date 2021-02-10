@@ -50,6 +50,16 @@ describe("BlockRepository", () => {
         expect(mockQueryBuilder.stream).toHaveBeenCalled();
     });
 
+    it("truncate should resolve", async () => {
+        // @ts-ignore
+        repository.manager = {
+            query: jest.fn(),
+        };
+
+        await expect(repository.truncate()).toResolve();
+        expect(repository.manager.query).toHaveBeenCalledWith("TRUNCATE TABLE transactions, rounds, blocks");
+    });
+
     it("fastCount should resolve", async () => {
         mockQueryBuilder.getRawOne = jest.fn().mockResolvedValue({
             total_count: "100",
