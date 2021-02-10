@@ -31,10 +31,12 @@ export class PeerRateLimiter {
             },
         };
 
+        const remoteAccessAddresses = this.configuration.getOptional<string[]>("remoteAccess", []);
+
         this.globalOutgoingRateLimiter = new RateLimiterMemory(globalConfig);
         this.globalIncomingRateLimiter = new RLWrapperBlackAndWhite({
             limiter: new RateLimiterMemory(globalConfig),
-            whiteList: this.configuration.getOptional<string[]>("remoteAccess", []),
+            whiteList: remoteAccessAddresses,
         });
 
         for (const [endpoint, endpointConfig] of Object.entries(endpointConfigs)) {
@@ -43,7 +45,7 @@ export class PeerRateLimiter {
                 endpoint,
                 new RLWrapperBlackAndWhite({
                     limiter: new RateLimiterMemory(endpointConfig),
-                    whiteList: this.configuration.getOptional<string[]>("remoteAccess", []),
+                    whiteList: remoteAccessAddresses,
                 }),
             );
         }
