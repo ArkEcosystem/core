@@ -63,7 +63,6 @@ export class StreamWriter {
 
             const onData = (data) => {
                 this.writeStream!.write(data);
-                this.count++;
             };
 
             const onEnd = () => {
@@ -82,6 +81,10 @@ export class StreamWriter {
             eventListenerPairs.push({ event: "data", listener: onData });
             eventListenerPairs.push({ event: "error", listener: onError });
             eventListenerPairs.push({ event: "end", listener: onEnd });
+
+            this.dbStream.on("data", () => {
+                this.count++;
+            });
 
             stream.on("data", onData);
 
