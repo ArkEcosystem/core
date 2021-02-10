@@ -131,6 +131,27 @@ describe("StreamReader and StreamWriter", () => {
             await expect(streamWriter.write()).rejects.toThrow(Exceptions.Stream.StreamNotOpen);
         });
 
+        it(`Should throw error if error in stream`, async () => {
+            file = dirSync({ mode: 0o777 }).name + "/" + table;
+
+            const dbStream = new DbStream(table as string);
+
+            dbStream._read = () => {
+                dbStream.emit("error", new Error("Dummy error"));
+            };
+
+            const streamWriter = streamWriterFactory(
+                dbStream,
+                file,
+                useCompression as boolean,
+                getEncode(table, codec),
+            );
+
+            await expect(streamWriter.open()).toResolve();
+
+            await expect(streamWriter.write()).rejects.toThrow("Dummy error");
+        });
+
         it(`Should write all entities`, async () => {
             file = dirSync({ mode: 0o777 }).name + "/" + table;
 
