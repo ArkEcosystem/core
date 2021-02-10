@@ -1,5 +1,5 @@
 import fs from "fs-extra";
-import { Readable, Writable } from "stream";
+import { pipeline, Readable, Transform, Writable } from "stream";
 import zlib from "zlib";
 
 import { Stream as StreamContracts } from "../contracts";
@@ -50,54 +50,30 @@ export class StreamWriter {
                 throw new StreamExceptions.StreamNotOpen(this.path);
             }
 
-            const transformer = new TransformEncoder(this.encode);
-
-            let stream;
-            if (this.useCompression) {
-                stream = this.dbStream.pipe(transformer).pipe(zlib.createGzip());
-            } else {
-                stream = this.dbStream.pipe(transformer);
-            }
-
-            const eventListenerPairs = [] as StreamContracts.EventListenerPair[];
-
-            const onData = (data) => {
-                this.writeStream!.write(data);
-            };
-
-            const onEnd = () => {
-                removeListeners(stream, eventListenerPairs);
-                this.writeStream!.end(() => {
-                    this.dbStream.destroy();
-                    this.writeStream!.destroy();
-
-                    resolve();
-                });
-            };
-
-            /* istanbul ignore next */
-            const onError = (err) => {
-                removeListeners(stream, eventListenerPairs);
-
-                this.dbStream.destroy();
-                this.writeStream!.destroy();
-
-                reject(err);
-            };
-
-            eventListenerPairs.push({ event: "data", listener: onData });
-            eventListenerPairs.push({ event: "error", listener: onError });
-            eventListenerPairs.push({ event: "end", listener: onEnd });
-
             this.dbStream.on("data", () => {
                 this.count++;
             });
 
-            stream.on("data", onData);
+            const transforms: Transform[] = [new TransformEncoder(this.encode)];
 
-            stream.once("end", onEnd);
+            if (this.useCompression) {
+                transforms.push(zlib.createGzip());
+            }
 
-            stream.once("error", onError);
+            // @ts-ignore
+            pipeline(this.dbStream, ...transforms, this.writeStream, (err) => {
+                if (err) {
+                    this.dbStream.destroy();
+                    this.writeStream!.destroy();
+
+                    reject(err);
+                } else {
+                    this.dbStream.destroy();
+                    this.writeStream!.destroy();
+
+                    resolve();
+                }
+            });
         });
     }
 }
