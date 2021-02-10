@@ -1,9 +1,11 @@
+import { Readable } from "stream";
+
 import { StreamReader, StreamWriter } from "../filesystem";
 
 export type StreamReaderFactory = (file: string, useCompression: boolean, decode: Function) => StreamReader;
 
 export type StreamWriterFactory = (
-    dbStream: NodeJS.ReadableStream,
+    dbStream: Readable,
     file: string,
     useCompression: boolean,
     encode: Function,

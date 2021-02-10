@@ -1,4 +1,5 @@
 import fs from "fs-extra";
+import { Readable, Writable } from "stream";
 import zlib from "zlib";
 
 import { Stream as StreamContracts } from "../contracts";
@@ -9,11 +10,11 @@ import { removeListeners } from "./utils";
 export class StreamWriter {
     public count: number = 0;
 
-    private writeStream: NodeJS.WritableStream | undefined;
+    private writeStream?: Writable;
 
     // @ts-ignore
     public constructor(
-        private dbStream: NodeJS.ReadableStream,
+        private dbStream: Readable,
         private path: string,
         private useCompression: boolean,
         private encode: Function,

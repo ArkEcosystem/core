@@ -1,5 +1,6 @@
 import ByteBuffer from "bytebuffer";
 import fs from "fs-extra";
+import { Readable } from "stream";
 import zlib from "zlib";
 
 import { Stream as StreamContracts } from "../contracts";
@@ -10,7 +11,7 @@ export class StreamReader {
     public count: number = 0;
 
     private isEnd = false;
-    private readStream: NodeJS.ReadableStream | undefined;
+    private readStream?: Readable;
 
     private buffer: ByteBuffer = new ByteBuffer(0);
     private offset = 0;
