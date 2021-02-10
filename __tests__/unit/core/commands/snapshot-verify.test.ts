@@ -1,30 +1,31 @@
-import { Console } from "@arkecosystem/core-test-framework";
+import { Container } from "@arkecosystem/core-kernel";
+import { Utils } from "@packages/core-cli";
+import { Console, Sandbox } from "@packages/core-test-framework";
 import { Command } from "@packages/core/src/commands/snapshot-verify";
-import { Application, Container } from "@arkecosystem/core-kernel";
-import { ServiceProvider } from "@packages/core-snapshots";
-import { join, resolve } from "path";
 
 let cli;
 let mockSnapshotService;
+let mockEventListener;
+let spyOnTerminate;
+
 beforeEach(() => {
     cli = new Console();
 
-    ServiceProvider.prototype.register = jest.fn();
-    Application.prototype.configPath = jest
-        .fn()
-        .mockImplementation((path: string = "") => join(resolve("packages/core/bin/config/testnet/"), path));
+    const sandbox = new Sandbox();
 
     mockSnapshotService = {
         verify: jest.fn(),
     };
-    // @ts-ignore
-    Application.prototype.get = function (serviceIdentifier) {
-        if (serviceIdentifier === Container.Identifiers.SnapshotService) {
-            return mockSnapshotService;
-        }
 
-        return this.container.get(serviceIdentifier);
+    mockEventListener = {
+        listen: jest.fn(),
     };
+
+    sandbox.app.bind(Container.Identifiers.SnapshotService).toConstantValue(mockSnapshotService);
+    sandbox.app.bind(Container.Identifiers.EventDispatcherService).toConstantValue(mockEventListener);
+
+    jest.spyOn(Utils, "buildApplication").mockResolvedValue(sandbox.app);
+    spyOnTerminate = jest.spyOn(sandbox.app, "terminate").mockImplementation(async () => {});
 });
 
 afterEach(() => {
@@ -35,9 +36,10 @@ describe("SnapshotVerifyCommand", () => {
     it("should run verify", async () => {
         await expect(cli.withFlags({ blocks: "1-99" }).execute(Command)).toResolve();
         expect(mockSnapshotService.verify).toHaveBeenCalled();
+        expect(spyOnTerminate).toHaveBeenCalled();
     });
 
-    it("should throw error blocks flag is missing", async () => {
+    it("should throw error if blocks flag is missing", async () => {
         await expect(cli.withFlags().execute(Command)).toReject();
     });
 });

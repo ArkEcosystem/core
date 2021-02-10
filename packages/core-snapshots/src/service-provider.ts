@@ -1,7 +1,6 @@
-import { Models, Utils } from "@arkecosystem/core-database";
-import { Container, Providers } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
 import Joi from "joi";
-import { Connection, createConnection, getCustomRepository } from "typeorm";
+import { getCustomRepository } from "typeorm";
 
 import { SnapshotDatabaseService } from "./database-service";
 import { Filesystem } from "./filesystem/filesystem";
@@ -14,33 +13,25 @@ export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
         this.app.bind(Identifiers.SnapshotVersion).toConstantValue(this.version());
 
-        this.app.bind(Identifiers.SnapshotDatabaseConnection).toConstantValue(await this.connect());
-
         this.registerServices();
-    }
-
-    public async dispose(): Promise<void> {
-        await this.app.get<Connection>(Identifiers.SnapshotDatabaseConnection).close();
     }
 
     public async required(): Promise<boolean> {
         return true;
     }
 
+    public dependencies(): Contracts.Kernel.PluginDependency[] {
+        return [
+            {
+                name: "@arkecosystem/core-database",
+                required: true,
+            },
+        ];
+    }
+
     public configSchema(): object {
         return Joi.object({
             updateStep: Joi.number().integer().min(1).max(2000).required(),
-            connection: Joi.object({
-                type: Joi.string().required(),
-                host: Joi.string().required(),
-                port: Joi.number().integer().min(1).max(65535).required(),
-                database: Joi.string().required(),
-                username: Joi.string().required(),
-                password: Joi.string().required(),
-                entityPrefix: Joi.string().required(),
-                synchronize: Joi.bool().required(),
-                logging: Joi.bool().required(),
-            }).required(),
         }).unknown(true);
     }
 
@@ -58,19 +49,5 @@ export class ServiceProvider extends Providers.ServiceProvider {
             .bind(Identifiers.SnapshotTransactionRepository)
             .toConstantValue(getCustomRepository(TransactionRepository));
         this.app.bind(Identifiers.SnapshotRoundRepository).toConstantValue(getCustomRepository(RoundRepository));
-    }
-
-    private async connect(): Promise<Connection> {
-        const options: Record<string, any> = this.config().all();
-
-        if (this.app.isBound(Container.Identifiers.DatabaseConnection)) {
-            options.connection.name = "snapshots_connection";
-        }
-
-        return createConnection({
-            ...options.connection,
-            namingStrategy: new Utils.SnakeNamingStrategy(),
-            entities: [Models.Block, Models.Transaction, Models.Round],
-        });
     }
 }

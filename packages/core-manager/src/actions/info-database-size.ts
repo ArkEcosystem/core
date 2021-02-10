@@ -1,5 +1,4 @@
 import { Application, Container } from "@arkecosystem/core-kernel";
-import { Identifiers } from "@arkecosystem/core-snapshots";
 import { Connection } from "typeorm";
 
 import { Actions } from "../contracts";
@@ -18,7 +17,7 @@ export class Action implements Actions.Action {
     }
 
     private async getDatabaseSize(): Promise<number> {
-        const connection = this.app.get<Connection>(Identifiers.SnapshotDatabaseConnection);
+        const connection = this.app.get<Connection>(Container.Identifiers.DatabaseConnection);
 
         const result = await connection.query(`SELECT pg_database_size('${connection.options.database}');`);
 
