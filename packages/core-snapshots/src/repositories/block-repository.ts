@@ -13,6 +13,10 @@ export class BlockRepository extends AbstractRepository<Models.Block> {
             .stream();
     }
 
+    public async truncate(): Promise<void> {
+        await this.manager.query("TRUNCATE TABLE transactions, rounds, blocks");
+    }
+
     public async countInRange(start: number, end: number): Promise<number> {
         return this.fastCount({ where: "height >= :start AND height <= :end", parameters: { start, end } });
     }
