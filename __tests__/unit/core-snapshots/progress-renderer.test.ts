@@ -1,9 +1,10 @@
 import "jest-extended";
-import { Sandbox } from "@packages/core-test-framework/src";
+
 import { Container } from "@packages/core-kernel";
 import { MemoryEventDispatcher } from "@packages/core-kernel/src/services/events/drivers/memory";
-import { ProgressRenderer } from "@packages/core/src/utils/snapshot-progress-renderer";
 import { SnapshotApplicationEvents } from "@packages/core-snapshots";
+import { ProgressRenderer } from "@packages/core-snapshots/src/progress-renderer";
+import { Sandbox } from "@packages/core-test-framework/src";
 
 let sandbox: Sandbox;
 let eventDispatcher: MemoryEventDispatcher;
@@ -28,7 +29,7 @@ afterEach(() => {
 
 describe("SnapshotProgressRenderer", () => {
     it("should render on start", async () => {
-        new ProgressRenderer(mockOra as any, sandbox.app);
+        new ProgressRenderer(mockOra, sandbox.app);
 
         await eventDispatcher.dispatch(SnapshotApplicationEvents.SnapshotStart, {
             table: "blocks",
@@ -39,7 +40,7 @@ describe("SnapshotProgressRenderer", () => {
     });
 
     it("should render on update", async () => {
-        new ProgressRenderer(mockOra as any, sandbox.app);
+        new ProgressRenderer(mockOra, sandbox.app);
 
         await eventDispatcher.dispatch(SnapshotApplicationEvents.SnapshotStart, {
             table: "blocks",
@@ -55,7 +56,7 @@ describe("SnapshotProgressRenderer", () => {
     });
 
     it("should render on end", async () => {
-        new ProgressRenderer(mockOra as any, sandbox.app);
+        new ProgressRenderer(mockOra, sandbox.app);
 
         await eventDispatcher.dispatch(SnapshotApplicationEvents.SnapshotStart, {
             table: "blocks",
