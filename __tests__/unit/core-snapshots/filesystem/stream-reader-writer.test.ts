@@ -75,7 +75,7 @@ beforeEach(() => {
         .bind<StreamWriter>(Identifiers.StreamWriterFactory)
         .toFactory<StreamWriter>(
             (context: Container.interfaces.Context) => (
-                dbStream: NodeJS.ReadableStream,
+                dbStream: Readable,
                 path: string,
                 useCompression: boolean,
                 encode: Function,
