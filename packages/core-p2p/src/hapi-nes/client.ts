@@ -75,7 +75,6 @@ export class Client {
 
     public id;
 
-    private _isBrowser;
     private _url;
     private _settings;
     private _heartbeatTimeout;
@@ -92,15 +91,10 @@ export class Client {
     public constructor(url, options?) {
         options = options || {};
 
-        this._isBrowser = false;
+        options.ws = options.ws || {};
 
-        /* istanbul ignore else */
-        if (!this._isBrowser) {
-            options.ws = options.ws || {};
-
-            if (options.ws.maxPayload === undefined) {
-                options.ws.maxPayload = 0; // Override default 100Mb limit in ws module to avoid breaking change
-            }
+        if (options.ws.maxPayload === undefined) {
+            options.ws.maxPayload = DEFAULT_MAX_PAYLOAD_CLIENT;
         }
 
         // Configuration
