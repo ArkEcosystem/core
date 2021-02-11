@@ -106,11 +106,11 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
                 stopTransactionsDispatcher();
                 stopRoundDispatcher();
 
-                throw err;
-            } finally {
                 await blocksWorker.terminate();
                 await transactionsWorker.terminate();
                 await roundsWorker.terminate();
+
+                throw err;
             }
         } catch (err) {
             await this.filesystem.deleteSnapshot();
