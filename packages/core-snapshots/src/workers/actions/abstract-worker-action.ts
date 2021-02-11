@@ -5,13 +5,13 @@ import pluralize from "pluralize";
 import { Readable } from "stream";
 import { pascalize } from "xcase";
 
-import { Codec, Repository, RepositoryFactory, Stream, Worker, WorkerAction } from "../../contracts";
+import { Codec, Repository, RepositoryFactory, Stream, Worker } from "../../contracts";
 import { StreamReader, StreamWriter } from "../../filesystem";
 import { Identifiers } from "../../ioc";
 import { Verifier } from "../../verifier";
 
 @Container.injectable()
-export abstract class AbstractWorkerAction implements WorkerAction {
+export abstract class AbstractWorkerAction implements Worker.WorkerAction {
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Contracts.Kernel.Application;
 

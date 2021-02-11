@@ -1,11 +1,11 @@
 import { Container } from "@arkecosystem/core-kernel";
 import { parentPort } from "worker_threads";
 
-import { WorkerAction } from "../../contracts";
+import { Worker } from "../../contracts";
 
 // For testing purposes only
 @Container.injectable()
-export class TestWorkerAction implements WorkerAction {
+export class TestWorkerAction implements Worker.WorkerAction {
     private options: any | undefined;
     private resume: Function | undefined;
 
