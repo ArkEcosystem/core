@@ -1,6 +1,6 @@
 import ByteBuffer from "bytebuffer";
 import fs from "fs-extra";
-import { Readable } from "stream";
+import { pipeline, Readable } from "stream";
 import zlib from "zlib";
 
 import { Stream as StreamContracts } from "../contracts";
@@ -12,6 +12,7 @@ export class StreamReader {
 
     private isEnd = false;
     private readStream?: Readable;
+    private stream?: Readable;
 
     private buffer: ByteBuffer = new ByteBuffer(0);
     private offset = 0;
@@ -21,34 +22,37 @@ export class StreamReader {
 
     public open(): Promise<void> {
         return new Promise<void>((resolve, reject) => {
-            const readStream = fs.createReadStream(this.path);
+            this.readStream = fs.createReadStream(this.path);
 
             if (this.useCompression) {
-                this.readStream = readStream.pipe(zlib.createGunzip());
+                this.stream = pipeline(this.readStream, zlib.createGunzip(), () => {});
             } else {
-                this.readStream = readStream;
+                this.stream = this.readStream;
             }
 
             const eventListenerPairs = [] as StreamContracts.EventListenerPair[];
 
             const onOpen = () => {
-                removeListeners(readStream, eventListenerPairs);
+                removeListeners(this.readStream!, eventListenerPairs);
                 resolve();
             };
 
             const onError = (err) => {
-                removeListeners(readStream, eventListenerPairs);
+                removeListeners(this.readStream!, eventListenerPairs);
+
+                this.readStream?.destroy();
                 reject(err);
             };
 
             eventListenerPairs.push({ event: "open", listener: onOpen });
             eventListenerPairs.push({ event: "error", listener: onError });
 
-            readStream.once("open", onOpen);
-            readStream.once("error", onError);
+            this.readStream.on("open", onOpen);
+            this.readStream.on("error", onError);
 
-            this.readStream.on("end", () => {
+            this.stream.on("end", () => {
                 this.isEnd = true;
+                this.readStream?.destroy();
             });
         });
     }
@@ -79,13 +83,13 @@ export class StreamReader {
             throw new StreamExceptions.EndOfFile(this.path);
         }
 
-        if (!this.readStream) {
+        if (!this.stream) {
             throw new StreamExceptions.StreamNotOpen(this.path);
         }
 
         await this.waitUntilReadable();
 
-        const chunk: Buffer | null = this.readStream.read() as Buffer;
+        const chunk: Buffer | null = this.stream.read() as Buffer;
 
         if (chunk === null) {
             throw new StreamExceptions.EndOfFile(this.path);
@@ -102,18 +106,22 @@ export class StreamReader {
             const eventListenerPairs = [] as StreamContracts.EventListenerPair[];
 
             const onReadable = () => {
-                removeListeners(this.readStream!, eventListenerPairs);
+                removeListeners(this.stream!, eventListenerPairs);
                 resolve();
             };
 
             /* istanbul ignore next */
             const onError = () => {
-                removeListeners(this.readStream!, eventListenerPairs);
+                removeListeners(this.stream!, eventListenerPairs);
+
+                this.readStream?.destroy();
                 reject(new Error("Error on stream"));
             };
 
             const onEnd = () => {
-                removeListeners(this.readStream!, eventListenerPairs);
+                removeListeners(this.stream!, eventListenerPairs);
+
+                this.readStream?.destroy();
                 reject(new StreamExceptions.EndOfFile(this.path));
             };
 
@@ -121,11 +129,11 @@ export class StreamReader {
             eventListenerPairs.push({ event: "error", listener: onError });
             eventListenerPairs.push({ event: "end", listener: onEnd });
 
-            this.readStream!.once("readable", onReadable);
+            this.stream!.once("readable", onReadable);
 
-            this.readStream!.once("error", onError);
+            this.stream!.once("error", onError);
 
-            this.readStream!.once("end", onEnd);
+            this.stream!.once("end", onEnd);
         });
     }
 
