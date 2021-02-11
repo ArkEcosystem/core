@@ -11,8 +11,6 @@ import { Sandbox } from "@packages/core-test-framework";
 import { EventEmitter } from "events";
 import { dirSync, setGracefulCleanup } from "tmp";
 import { Connection } from "typeorm";
-// @ts-ignore
-import * as workerThreads from "worker_threads";
 
 import { Assets } from "./__fixtures__";
 
@@ -48,6 +46,7 @@ const configuration = {
     chunkSize: 50000,
     dispatchUpdateStep: 1000,
     connection: {},
+    cryptoPackages: [],
 };
 
 let logger;
@@ -76,8 +75,8 @@ beforeEach(() => {
     lastBlock.height = 100;
 
     blockRepository = {
-        count: jest.fn().mockResolvedValue(1),
-        clear: jest.fn(),
+        fastCount: jest.fn().mockResolvedValue(1),
+        truncate: jest.fn(),
         delete: jest.fn(),
         findFirst: jest.fn().mockResolvedValue(Assets.blocksBigNumber[0] as any),
         findLast: jest.fn().mockResolvedValue(lastBlock as any),
@@ -87,15 +86,13 @@ beforeEach(() => {
     };
 
     transactionRepository = {
-        count: jest.fn(),
-        clear: jest.fn(),
+        fastCount: jest.fn(),
         delete: jest.fn(),
         countInRange: jest.fn().mockResolvedValue(5),
     };
 
     roundRepository = {
-        count: jest.fn(),
-        clear: jest.fn(),
+        fastCount: jest.fn(),
         delete: jest.fn(),
         countInRange: jest.fn().mockResolvedValue(5),
     };
@@ -155,9 +152,7 @@ describe("DatabaseService", () => {
         it("should call delete and clear method on transaction, block and round", async () => {
             await expect(database.truncate()).toResolve();
 
-            expect(blockRepository.delete).toHaveBeenCalled();
-            expect(transactionRepository.clear).toHaveBeenCalled();
-            expect(roundRepository.clear).toHaveBeenCalled();
+            expect(blockRepository.truncate).toHaveBeenCalled();
         });
     });
 
@@ -193,9 +188,8 @@ describe("DatabaseService", () => {
                 codec: "default",
             };
 
-            const promise = database.dump(dumpOptions);
-
-            await expect(promise).toResolve();
+            // await expect(database.dump(dumpOptions)).toResolve();
+            await database.dump(dumpOptions);
         });
 
         it("should throw error if last block is not found", async () => {

@@ -3,6 +3,7 @@ import { Interfaces } from "@arkecosystem/crypto";
 export interface WorkerData {
     actionOptions: ActionOptions;
     networkConfig: Interfaces.NetworkConfig;
+    cryptoPackages: string[];
     connection?: any;
 }
 

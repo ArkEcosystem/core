@@ -1,4 +1,5 @@
 import "jest-extended";
+
 import { TransactionRepository } from "@packages/core-snapshots/src/repositories";
 
 class MockQueryBuilder {
@@ -21,6 +22,10 @@ class MockQueryBuilder {
     public from(...data) {
         return this;
     }
+
+    public select(...data) {
+        return this;
+    }
 }
 
 let mockQueryBuilder;
@@ -41,15 +46,26 @@ afterEach(() => {
 describe("TransactionRepository", () => {
     it("getReadStream should resolve", async () => {
         mockQueryBuilder.stream = jest.fn();
-        await expect(repository.getReadStream(1, 100)).toResolve();
 
+        await expect(repository.getReadStream(1, 100)).toResolve();
         expect(mockQueryBuilder.stream).toHaveBeenCalled();
     });
 
-    it("countInRange should resolve", async () => {
-        mockQueryBuilder.getCount = jest.fn();
-        await expect(repository.countInRange(1, 100)).toResolve();
+    it("fastCount should resolve", async () => {
+        mockQueryBuilder.getRawOne = jest.fn().mockResolvedValue({
+            total_count: "100",
+        });
 
-        expect(mockQueryBuilder.getCount).toHaveBeenCalled();
+        await expect(repository.fastCount()).resolves.toEqual(100);
+        expect(mockQueryBuilder.getRawOne).toHaveBeenCalled();
+    });
+
+    it("countInRange should resolve", async () => {
+        mockQueryBuilder.getRawOne = jest.fn().mockResolvedValue({
+            total_count: "100",
+        });
+
+        await expect(repository.countInRange(1, 100)).resolves.toEqual(100);
+        expect(mockQueryBuilder.getRawOne).toHaveBeenCalled();
     });
 });
