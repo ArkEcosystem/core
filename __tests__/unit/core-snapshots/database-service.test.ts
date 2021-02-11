@@ -11,8 +11,6 @@ import { Sandbox } from "@packages/core-test-framework";
 import { EventEmitter } from "events";
 import { dirSync, setGracefulCleanup } from "tmp";
 import { Connection } from "typeorm";
-// @ts-ignore
-import * as workerThreads from "worker_threads";
 
 import { Assets } from "./__fixtures__";
 
@@ -48,6 +46,7 @@ const configuration = {
     chunkSize: 50000,
     dispatchUpdateStep: 1000,
     connection: {},
+    cryptoPackages: [],
 };
 
 let logger;
@@ -189,9 +188,8 @@ describe("DatabaseService", () => {
                 codec: "default",
             };
 
-            const promise = database.dump(dumpOptions);
-
-            await expect(promise).toResolve();
+            // await expect(database.dump(dumpOptions)).toResolve();
+            await database.dump(dumpOptions);
         });
 
         it("should throw error if last block is not found", async () => {

@@ -32,6 +32,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
     public configSchema(): object {
         return Joi.object({
             updateStep: Joi.number().integer().min(1).max(2000).required(),
+            cryptoPackages: Joi.array().items(Joi.string()).required(),
         }).unknown(true);
     }
 

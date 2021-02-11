@@ -1,6 +1,5 @@
 import { Models, Utils } from "@arkecosystem/core-database";
 import { Container } from "@arkecosystem/core-kernel";
-import { Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
 import { Managers, Transactions } from "@arkecosystem/crypto";
 import { Connection, createConnection, getCustomRepository } from "typeorm";
 import { parentPort, workerData } from "worker_threads";
@@ -29,13 +28,13 @@ const connect = async (options: any): Promise<Connection> => {
 export const init = async () => {
     Managers.configManager.setConfig(_workerData.networkConfig);
 
-    Transactions.TransactionRegistry.registerTransactionType(MagistrateTransactions.BridgechainRegistrationTransaction);
-    Transactions.TransactionRegistry.registerTransactionType(MagistrateTransactions.BridgechainResignationTransaction);
-    Transactions.TransactionRegistry.registerTransactionType(MagistrateTransactions.BridgechainUpdateTransaction);
-    Transactions.TransactionRegistry.registerTransactionType(MagistrateTransactions.BusinessRegistrationTransaction);
-    Transactions.TransactionRegistry.registerTransactionType(MagistrateTransactions.BusinessResignationTransaction);
-    Transactions.TransactionRegistry.registerTransactionType(MagistrateTransactions.BusinessUpdateTransaction);
+    for (const cryptoPackage of _workerData.cryptoPackages) {
+        const transactions = require(cryptoPackage).Transactions;
 
+        for (const transaction of Object.values(transactions)) {
+            Transactions.TransactionRegistry.registerTransactionType(transaction as typeof Transactions.Transaction);
+        }
+    }
     app = new Application(new Container.Container());
 
     /* istanbul ignore next */

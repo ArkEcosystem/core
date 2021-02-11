@@ -79,6 +79,7 @@ describe("ServiceProvider", () => {
             expect(result.error).toBeUndefined();
 
             expect(result.value.updateStep).toBeNumber();
+            expect(result.value.cryptoPackages).toEqual(["@arkecosystem/core-magistrate-crypto"]);
         });
 
         it("should allow configuration extension", async () => {
@@ -127,6 +128,23 @@ describe("ServiceProvider", () => {
                 result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
 
                 expect(result.error!.message).toEqual('"updateStep" is required');
+            });
+
+            it("cryptoPackages is required && is array && contain strings", async () => {
+                defaults.cryptoPackages = false;
+                let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"cryptoPackages" must be an array');
+
+                defaults.cryptoPackages = [false];
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"cryptoPackages[0]" must be a string');
+
+                delete defaults.cryptoPackages;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"cryptoPackages" is required');
             });
         });
     });
