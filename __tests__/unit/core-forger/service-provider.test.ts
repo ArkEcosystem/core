@@ -246,11 +246,26 @@ describe("ServiceProvider", () => {
                 expect(result.error!.message).toEqual('"hosts[0].hostname" is required');
             });
 
-            it("hosts.port is required && is number", async () => {
+            it("hosts.port is required && is integer && is >= 0 and <= 65535", async () => {
                 defaults.hosts = [{ hostname: "127.0.0.1", port: false }];
                 let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
 
                 expect(result.error!.message).toEqual('"hosts[0].port" must be a number');
+
+                defaults.hosts = [{ hostname: "127.0.0.1", port: 1.12 }];
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"hosts[0].port" must be an integer');
+
+                defaults.hosts = [{ hostname: "127.0.0.1", port: 0 }];
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"hosts[0].port" must be greater than or equal to 1');
+
+                defaults.hosts = [{ hostname: "127.0.0.1", port: 655356 }];
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"hosts[0].port" must be less than or equal to 65535');
 
                 defaults.hosts = [{ hostname: "127.0.0.1" }];
                 result = (serviceProvider.configSchema() as AnySchema).validate(defaults);

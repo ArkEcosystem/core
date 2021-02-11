@@ -1,4 +1,5 @@
-import { join } from "path";
+import { createWriteStream, ensureDirSync, removeSync, renameSync } from "fs-extra";
+import { dirname, join } from "path";
 import { Writable } from "stream";
 
 import { GenerateLog as GenerateLogContracts } from "../contracts";
@@ -23,15 +24,18 @@ export class GenerateLog implements GenerateLogContracts.GenerateLog {
         return join(process.env.CORE_PATH_TEMP!, "log-archive", this.options.logFileName);
     }
 
-    protected resolveOnClose(stream: Writable): Promise<void> {
-        return new Promise((resolve) => {
-            stream.on("end", () => {
-                stream.destroy();
-            });
+    protected prepareOutputStream(): Writable {
+        ensureDirSync(dirname(this.getTempFilePath()));
 
-            stream.on("close", () => {
-                resolve();
-            });
-        });
+        return createWriteStream(this.getTempFilePath());
+    }
+
+    protected moveArchive(): void {
+        ensureDirSync(dirname(this.getFilePath()));
+        renameSync(this.getTempFilePath(), this.getFilePath());
+    }
+
+    protected removeTempFiles(): void {
+        removeSync(this.getTempFilePath());
     }
 }

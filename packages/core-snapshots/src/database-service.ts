@@ -1,8 +1,8 @@
 import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
-import { Blocks, Interfaces, Managers, Types } from "@arkecosystem/crypto";
+import { Blocks, Interfaces, Managers } from "@arkecosystem/crypto";
 
-import { Database, Meta, Options, Worker } from "./contracts";
+import { Database, Meta, Options } from "./contracts";
 import { Filesystem } from "./filesystem/filesystem";
 import { Identifiers } from "./ioc";
 import { ProgressDispatcher } from "./progress-dispatcher";
@@ -17,6 +17,10 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
     @Container.inject(Container.Identifiers.PluginConfiguration)
     @Container.tagged("plugin", "@arkecosystem/core-snapshots")
     private readonly configuration!: Providers.PluginConfiguration;
+
+    @Container.inject(Container.Identifiers.PluginConfiguration)
+    @Container.tagged("plugin", "@arkecosystem/core-database")
+    private readonly coreDatabaseConfiguration!: Providers.PluginConfiguration;
 
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
@@ -45,12 +49,10 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
 
     public async truncate(): Promise<void> {
         this.logger.info(
-            `Clearing:  ${await this.blockRepository.count()} blocks,   ${await this.transactionRepository.count()} transactions,  ${await this.roundRepository.count()} rounds`,
+            `Clearing:  ${await this.blockRepository.fastCount()} blocks,   ${await this.transactionRepository.fastCount()} transactions,  ${await this.roundRepository.fastCount()} rounds`,
         );
 
-        await this.transactionRepository.clear();
-        await this.roundRepository.clear();
-        await this.blockRepository.delete({}); // Clear does't work on tables with relations
+        await this.blockRepository.truncate();
     }
 
     public async rollback(roundInfo: Contracts.Shared.RoundInfo): Promise<Interfaces.IBlock> {
@@ -220,7 +222,7 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
         Utils.assert.defined<Models.Block>(firstBlock);
         Utils.assert.defined<Models.Block>(lastBlock);
 
-        const result: Database.DumpRange = {
+        return {
             firstBlockHeight: firstBlock.height,
             lastBlockHeight: lastBlock.height,
             blocksCount: await this.blockRepository.countInRange(firstBlock.height, lastBlock.height),
@@ -233,8 +235,6 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
             lastTransactionTimestamp: lastBlock.timestamp,
             transactionsCount: await this.transactionRepository.countInRange(firstBlock.timestamp, lastBlock.timestamp),
         };
-
-        return result;
     }
 
     private prepareMetaData(options: Options.DumpOptions, dumpRange: Database.DumpRange): Meta.MetaData {
@@ -265,9 +265,8 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
     }
 
     private prepareWorkerData(action: string, table: string, meta: Meta.MetaData): any {
-        const result: Worker.WorkerData = {
+        return {
             actionOptions: {
-                network: this.app.network() as Types.NetworkName,
                 action: action,
                 table: table,
                 start: meta[table].start,
@@ -276,16 +275,14 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
                 skipCompression: this.skipCompression,
                 verify: this.verifyData,
                 filePath: `${this.filesystem.getSnapshotPath()}${table}`,
-                genesisBlockId: Managers.configManager.get("genesisBlock").id,
                 updateStep: this.configuration.getOptional("updateStep", 1000),
             },
-            connection: this.configuration.get("connection"),
+            networkConfig: Managers.configManager.all()!,
+            cryptoPackages: this.configuration.getRequired("cryptoPackages"),
+            connection: this.coreDatabaseConfiguration.getRequired("connection"),
         };
-
-        return result;
     }
 
-    // @ts-ignore
     private async prepareProgressDispatcher(worker: WorkerWrapper, table: string, count: number): Promise<Function> {
         const progressDispatcher = this.app.get<ProgressDispatcher>(Identifiers.ProgressDispatcher);
 

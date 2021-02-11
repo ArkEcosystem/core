@@ -1,10 +1,10 @@
-import { Models, Repositories } from "@arkecosystem/core-database";
+import { Models } from "@arkecosystem/core-database";
 import { EntityRepository } from "typeorm";
 
-import { Repository } from "../contracts";
+import { AbstractRepository } from "./abstract-repository";
 
 @EntityRepository(Models.Round)
-export class RoundRepository extends Repositories.AbstractRepository<Models.Round> implements Repository {
+export class RoundRepository extends AbstractRepository<Models.Round> {
     public async getReadStream(start: number, end: number): Promise<NodeJS.ReadableStream> {
         return this.createQueryBuilder()
             .where("round >= :start AND round <= :end", { start, end })
@@ -13,6 +13,6 @@ export class RoundRepository extends Repositories.AbstractRepository<Models.Roun
     }
 
     public async countInRange(start: number, end: number): Promise<number> {
-        return this.createQueryBuilder().where("round >= :start AND round <= :end", { start, end }).getCount();
+        return this.fastCount({ where: "round >= :start AND round <= :end", parameters: { start, end } });
     }
 }

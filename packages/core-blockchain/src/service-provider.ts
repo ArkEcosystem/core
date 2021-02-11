@@ -35,8 +35,8 @@ export class ServiceProvider extends Providers.ServiceProvider {
     public configSchema(): object {
         return Joi.object({
             databaseRollback: Joi.object({
-                maxBlockRewind: Joi.number().min(1).required(),
-                steps: Joi.number().min(1).required(),
+                maxBlockRewind: Joi.number().integer().min(1).required(),
+                steps: Joi.number().integer().min(1).required(),
             }).required(),
 
             // used in core:run & relay:run

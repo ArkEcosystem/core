@@ -1,39 +1,57 @@
 import archiver from "archiver";
-import { createWriteStream, ensureDirSync, renameSync } from "fs-extra";
-import { dirname, parse } from "path";
-import { Writable, Readable } from "stream";
+import { parse } from "path";
+import { pipeline, Readable } from "stream";
 
 import { GenerateLog } from "./generate-log";
 import { LogTransformStream } from "./log-transform-stream";
 
 export class GenerateLogZip extends GenerateLog {
     public async execute(): Promise<void> {
-        const readStream = Readable.from(this.database.getAllIterator("logs", this.options.query), {objectMode: true});
-        const writeStream = this.prepareOutputStream();
+        await new Promise(async (resolve, reject) => {
+            const writeStream = this.prepareOutputStream();
 
-        const archive = archiver("zip", {
-            zlib: { level: 9 },
-        });
-        archive.pipe(writeStream);
+            writeStream.on("close", () => {
+                resolve();
+            });
 
-        archive.append(
-            readStream.pipe(
+            const archive = archiver("zip", {
+                zlib: { level: 9 },
+            });
+
+            const handleError = (err) => {
+                writeStream.removeAllListeners("close");
+
+                archive.abort();
+                writeStream.destroy();
+                this.removeTempFiles();
+
+                reject(err);
+            };
+
+            archive.on("error", (err) => {
+                handleError(err);
+            });
+
+            const readStream = pipeline(
+                Readable.from(this.database.getAllIterator("logs", this.options.query), {
+                    objectMode: true,
+                }),
                 new LogTransformStream(),
-            ),
-            { name: parse(this.options.logFileName).name + ".log" },
-        );
+                (err) => {
+                    if (err) {
+                        handleError(err);
+                    }
+                },
+            );
 
-        archive.finalize();
+            archive.pipe(writeStream);
+            archive.append(readStream, {
+                name: parse(this.options.logFileName).name + ".log",
+            });
 
-        await this.resolveOnClose(writeStream);
+            archive.finalize();
+        });
 
-        ensureDirSync(dirname(this.getFilePath()));
-        renameSync(this.getTempFilePath(), this.getFilePath());
-    }
-
-    private prepareOutputStream(): Writable {
-        ensureDirSync(dirname(this.getTempFilePath()));
-
-        return createWriteStream(this.getTempFilePath());
+        this.moveArchive();
     }
 }

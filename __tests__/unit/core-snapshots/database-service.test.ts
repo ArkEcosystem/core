@@ -11,8 +11,6 @@ import { Sandbox } from "@packages/core-test-framework";
 import { EventEmitter } from "events";
 import { dirSync, setGracefulCleanup } from "tmp";
 import { Connection } from "typeorm";
-// @ts-ignore
-import * as workerThreads from "worker_threads";
 
 import { Assets } from "./__fixtures__";
 
@@ -21,7 +19,7 @@ let database: SnapshotDatabaseService;
 let filesystem: Filesystem;
 
 class MockWorkerWrapper extends EventEmitter {
-    constructor() {
+    public constructor() {
         super();
     }
 
@@ -48,6 +46,7 @@ const configuration = {
     chunkSize: 50000,
     dispatchUpdateStep: 1000,
     connection: {},
+    cryptoPackages: [],
 };
 
 let logger;
@@ -76,8 +75,8 @@ beforeEach(() => {
     lastBlock.height = 100;
 
     blockRepository = {
-        count: jest.fn().mockResolvedValue(1),
-        clear: jest.fn(),
+        fastCount: jest.fn().mockResolvedValue(1),
+        truncate: jest.fn(),
         delete: jest.fn(),
         findFirst: jest.fn().mockResolvedValue(Assets.blocksBigNumber[0] as any),
         findLast: jest.fn().mockResolvedValue(lastBlock as any),
@@ -87,15 +86,13 @@ beforeEach(() => {
     };
 
     transactionRepository = {
-        count: jest.fn(),
-        clear: jest.fn(),
+        fastCount: jest.fn(),
         delete: jest.fn(),
         countInRange: jest.fn().mockResolvedValue(5),
     };
 
     roundRepository = {
-        count: jest.fn(),
-        clear: jest.fn(),
+        fastCount: jest.fn(),
         delete: jest.fn(),
         countInRange: jest.fn().mockResolvedValue(5),
     };
@@ -114,11 +111,6 @@ beforeEach(() => {
 
     sandbox.app.bind(Container.Identifiers.ApplicationNetwork).toConstantValue("testnet");
 
-    sandbox.app
-        .bind(Container.Identifiers.PluginConfiguration)
-        .to(Providers.PluginConfiguration)
-        .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("plugin", "@arkecosystem/core-snapshots"));
-
     sandbox.app.bind(Container.Identifiers.FilesystemService).to(LocalFilesystem).inSingletonScope();
     sandbox.app.bind(Identifiers.SnapshotFilesystem).to(Filesystem).inSingletonScope();
 
@@ -132,15 +124,10 @@ beforeEach(() => {
 
     sandbox.app.bind(Identifiers.SnapshotDatabaseService).to(SnapshotDatabaseService).inSingletonScope();
 
-    const pluginConfiguration = sandbox.app.getTagged<Providers.PluginConfiguration>(
-        Container.Identifiers.PluginConfiguration,
-        "plugin",
-        "@arkecosystem/core-snapshots",
-    );
-
-    pluginConfiguration.set("chunkSize", configuration.chunkSize);
-    pluginConfiguration.set("dispatchUpdateStep", configuration.dispatchUpdateStep);
-    pluginConfiguration.set("connection", configuration.connection);
+    sandbox.app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
+    sandbox.app
+        .get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration)
+        .from("@arkecosystem/core-snapshots", configuration);
 
     database = sandbox.app.get<SnapshotDatabaseService>(Identifiers.SnapshotDatabaseService);
     filesystem = sandbox.app.get<Filesystem>(Identifiers.SnapshotFilesystem);
@@ -165,9 +152,7 @@ describe("DatabaseService", () => {
         it("should call delete and clear method on transaction, block and round", async () => {
             await expect(database.truncate()).toResolve();
 
-            expect(blockRepository.delete).toHaveBeenCalled();
-            expect(transactionRepository.clear).toHaveBeenCalled();
-            expect(roundRepository.clear).toHaveBeenCalled();
+            expect(blockRepository.truncate).toHaveBeenCalled();
         });
     });
 
@@ -203,9 +188,8 @@ describe("DatabaseService", () => {
                 codec: "default",
             };
 
-            const promise = database.dump(dumpOptions);
-
-            await expect(promise).toResolve();
+            // await expect(database.dump(dumpOptions)).toResolve();
+            await database.dump(dumpOptions);
         });
 
         it("should throw error if last block is not found", async () => {

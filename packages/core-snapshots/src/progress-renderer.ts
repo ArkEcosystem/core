@@ -1,6 +1,7 @@
 import { Container, Contracts } from "@arkecosystem/core-kernel";
-import { SnapshotApplicationEvents } from "@arkecosystem/core-snapshots";
 import { Ora } from "ora";
+
+import { SnapshotApplicationEvents } from "./events";
 
 export class ProgressRenderer {
     private isAnyStarted: boolean = false;

@@ -567,11 +567,26 @@ describe("ServiceProvider", () => {
                 expect(result.error!.message).toEqual('"server.http.host" is required');
             });
 
-            it("server.http.port is required && is number", async () => {
+            it("server.http.port is required && is integer && is >= 1 and <= 65535", async () => {
                 defaults.server.http.port = false;
                 let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
 
                 expect(result.error!.message).toEqual('"server.http.port" must be a number');
+
+                defaults.server.http.port = 1.12;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.http.port" must be an integer');
+
+                defaults.server.http.port = 0;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.http.port" must be greater than or equal to 1');
+
+                defaults.server.http.port = 65536;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.http.port" must be less than or equal to 65535');
 
                 delete defaults.server.http.port;
                 result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
@@ -615,11 +630,26 @@ describe("ServiceProvider", () => {
                 expect(result.error!.message).toEqual('"server.https.host" is required');
             });
 
-            it("server.https.port is required && is number", async () => {
+            it("server.https.port is required && is integer && is >= 1 and <= 65535", async () => {
                 defaults.server.https.port = false;
                 let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
 
                 expect(result.error!.message).toEqual('"server.https.port" must be a number');
+
+                defaults.server.https.port = 1.12;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.https.port" must be an integer');
+
+                defaults.server.https.port = 0;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.https.port" must be greater than or equal to 1');
+
+                defaults.server.https.port = 65536;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"server.https.port" must be less than or equal to 65535');
 
                 delete defaults.server.https.port;
                 result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
@@ -710,11 +740,16 @@ describe("ServiceProvider", () => {
                 expect(result.error!.message).toEqual('"plugins.cache.enabled" is required');
             });
 
-            it("plugins.cache.stdTTL is required && is number && >= 0", async () => {
+            it("plugins.cache.stdTTL is required && is integer && >= 0", async () => {
                 defaults.plugins.cache.stdTTL = false;
                 let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
 
                 expect(result.error!.message).toEqual('"plugins.cache.stdTTL" must be a number');
+
+                defaults.plugins.cache.stdTTL = 1.12;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.cache.stdTTL" must be an integer');
 
                 defaults.plugins.cache.stdTTL = -1;
                 result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
@@ -727,11 +762,16 @@ describe("ServiceProvider", () => {
                 expect(result.error!.message).toEqual('"plugins.cache.stdTTL" is required');
             });
 
-            it("plugins.cache.checkperiod is required && is number && >= 0", async () => {
+            it("plugins.cache.checkperiod is required && is integer && >= 0", async () => {
                 defaults.plugins.cache.checkperiod = false;
                 let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
 
                 expect(result.error!.message).toEqual('"plugins.cache.checkperiod" must be a number');
+
+                defaults.plugins.cache.checkperiod = 1.12;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.cache.checkperiod" must be an integer');
 
                 defaults.plugins.cache.checkperiod = -1;
                 result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
@@ -768,11 +808,16 @@ describe("ServiceProvider", () => {
                 expect(result.error!.message).toEqual('"plugins.rateLimit.enabled" is required');
             });
 
-            it("plugins.rateLimit.points is required && is number", async () => {
+            it("plugins.rateLimit.points is required && is integer && >= 0", async () => {
                 defaults.plugins.rateLimit.points = false;
                 let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
 
                 expect(result.error!.message).toEqual('"plugins.rateLimit.points" must be a number');
+
+                defaults.plugins.rateLimit.points = 1.12;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.rateLimit.points" must be an integer');
 
                 defaults.plugins.rateLimit.points = -1;
                 result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
@@ -785,11 +830,16 @@ describe("ServiceProvider", () => {
                 expect(result.error!.message).toEqual('"plugins.rateLimit.points" is required');
             });
 
-            it("plugins.rateLimit.duration is required && is number", async () => {
+            it("plugins.rateLimit.duration is required && is integer && >= 0", async () => {
                 defaults.plugins.rateLimit.duration = false;
                 let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
 
                 expect(result.error!.message).toEqual('"plugins.rateLimit.duration" must be a number');
+
+                defaults.plugins.rateLimit.duration = 1.12;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.rateLimit.duration" must be an integer');
 
                 defaults.plugins.rateLimit.duration = -1;
                 result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
@@ -850,11 +900,21 @@ describe("ServiceProvider", () => {
                 expect(result.error!.message).toEqual('"plugins.pagination" is required');
             });
 
-            it("plugins.pagination.limit is required && is number", async () => {
+            it("plugins.pagination.limit is required && is integer && >= 0", async () => {
                 defaults.plugins.pagination.limit = false;
                 let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
 
                 expect(result.error!.message).toEqual('"plugins.pagination.limit" must be a number');
+
+                defaults.plugins.pagination.limit = 1.12;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.pagination.limit" must be an integer');
+
+                defaults.plugins.pagination.limit = -1;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.pagination.limit" must be greater than or equal to 0');
 
                 delete defaults.plugins.pagination.limit;
                 result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
@@ -862,11 +922,16 @@ describe("ServiceProvider", () => {
                 expect(result.error!.message).toEqual('"plugins.pagination.limit" is required');
             });
 
-            it("plugins.socketTimeout is required && is number", async () => {
+            it("plugins.socketTimeout is required && is integer && >= 0", async () => {
                 defaults.plugins.socketTimeout = false;
                 let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
 
                 expect(result.error!.message).toEqual('"plugins.socketTimeout" must be a number');
+
+                defaults.plugins.socketTimeout = 1.12;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.socketTimeout" must be an integer');
 
                 defaults.plugins.socketTimeout = -1;
                 result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);

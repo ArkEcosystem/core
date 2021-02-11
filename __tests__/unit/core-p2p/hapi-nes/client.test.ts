@@ -48,10 +48,10 @@ const createServerWithPlugin = async (pluginOptions = {}, serverOptions = {}, wi
 };
 
 describe("Client", () => {
-    it("defaults options.ws.maxPayload to zero (node)", () => {
+    it("defaults options.ws.maxPayload to 102400 (node)", () => {
         const client = new Client("http://localhost");
         // @ts-ignore
-        expect(client._settings.ws).toEqual({ maxPayload: 0 });
+        expect(client._settings.ws).toEqual({ maxPayload: 102400 });
     });
 
     it("allows setting options.ws.maxPayload (node)", () => {

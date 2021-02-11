@@ -1,10 +1,9 @@
 import "jest-extended";
 
-// @ts-ignore
-import { workerData } from "worker_threads";
-
-import { init, dispose } from "@packages/core-snapshots/src/workers/worker";
+import { Transactions as CryptoTransactions } from "@packages/core-magistrate-crypto";
 import { DumpWorkerAction } from "@packages/core-snapshots/src/workers/actions/dump-worker-action";
+import { dispose, init } from "@packages/core-snapshots/src/workers/worker";
+import { Transactions } from "@packages/crypto";
 
 jest.mock("worker_threads", () => {
     return {
@@ -17,10 +16,10 @@ jest.mock("worker_threads", () => {
                 codec: "default",
                 skipCompression: false,
                 filePath: "",
-                genesisBlockId: "123",
                 updateStep: 1000,
-                network: "testnet",
             },
+            cryptoPackages: ["@arkecosystem/core-magistrate-crypto"],
+            networkConfig: require("@packages/crypto").Managers.configManager.all(),
         },
     };
 });
@@ -30,10 +29,16 @@ afterEach(() => {
 });
 
 describe("Worker", () => {
-    it("should run worker", async () => {
+    it("should run worker and register crypto packages", async () => {
+        const spyOnRegisterTransactionType = jest.spyOn(Transactions.TransactionRegistry, "registerTransactionType");
+
         DumpWorkerAction.prototype.start = jest.fn();
 
-        await init();
-        await dispose();
+        await expect(init()).toResolve();
+        await expect(dispose()).toResolve();
+
+        for (const transaction of Object.values(CryptoTransactions)) {
+            expect(spyOnRegisterTransactionType).toHaveBeenCalledWith(transaction);
+        }
     });
 });

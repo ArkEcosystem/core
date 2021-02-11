@@ -1,32 +1,26 @@
-import { Console } from "@arkecosystem/core-test-framework";
+import { Services, Utils } from "@packages/core-cli";
+import { Container } from "@packages/core-kernel";
+import { Console, Sandbox } from "@packages/core-test-framework";
 import { Command } from "@packages/core/src/commands/snapshot-rollback";
-import { Application, Container } from "@arkecosystem/core-kernel";
-import { ServiceProvider } from "@packages/core-snapshots";
-import { join, resolve } from "path";
 
 let cli;
 let mockSnapshotService;
+let spyOnTerminate;
 
 beforeEach(() => {
     cli = new Console();
 
-    ServiceProvider.prototype.register = jest.fn();
-    Application.prototype.configPath = jest
-        .fn()
-        .mockImplementation((path: string = "") => join(resolve("packages/core/bin/config/testnet/"), path));
+    const sandbox = new Sandbox();
 
     mockSnapshotService = {
         rollbackByHeight: jest.fn(),
         rollbackByNumber: jest.fn(),
     };
-    // @ts-ignore
-    Application.prototype.get = function (serviceIdentifier) {
-        if (serviceIdentifier === Container.Identifiers.SnapshotService) {
-            return mockSnapshotService;
-        }
 
-        return this.container.get(serviceIdentifier);
-    };
+    sandbox.app.bind(Container.Identifiers.SnapshotService).toConstantValue(mockSnapshotService);
+
+    jest.spyOn(Utils, "buildApplication").mockResolvedValue(sandbox.app);
+    spyOnTerminate = jest.spyOn(sandbox.app, "terminate").mockImplementation(async () => {});
 });
 
 afterEach(() => {
@@ -36,17 +30,23 @@ afterEach(() => {
 describe("SnapshotRollbackCommand", () => {
     it("should run rollback by height", async () => {
         await expect(cli.withFlags({ height: 100 }).execute(Command)).toResolve();
-        expect(mockSnapshotService.rollbackByHeight).toHaveBeenCalled();
+        expect(mockSnapshotService.rollbackByHeight).toHaveBeenCalledWith(100);
+        expect(spyOnTerminate).toHaveBeenCalled();
     });
 
     it("should run rollback by number", async () => {
         await expect(cli.withFlags({ number: 100 }).execute(Command)).toResolve();
-        expect(mockSnapshotService.rollbackByNumber).toHaveBeenCalled();
+        expect(mockSnapshotService.rollbackByNumber).toHaveBeenCalledWith(100);
+        expect(spyOnTerminate).toHaveBeenCalled();
     });
 
     it("should not run rollback if height or number is not provided", async () => {
+        const spyOnError = jest.spyOn(Services.Logger.prototype, "error");
+
         await expect(cli.execute(Command)).toResolve();
         expect(mockSnapshotService.rollbackByNumber).not.toHaveBeenCalled();
         expect(mockSnapshotService.rollbackByHeight).not.toHaveBeenCalled();
+        expect(spyOnError).toHaveBeenCalled();
+        expect(spyOnTerminate).toHaveBeenCalled();
     });
 });

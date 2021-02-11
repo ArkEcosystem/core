@@ -136,9 +136,19 @@ describe("ServiceProvider", () => {
                 expect(result.error!.message).toEqual('"databaseRollback" is required');
             });
 
-            it("databaseRollback.maxBlockRewind is required && greater or equal 1", async () => {
-                defaults.databaseRollback.maxBlockRewind = 0;
+            it("databaseRollback.maxBlockRewind is required && is integer && >= 1", async () => {
+                defaults.databaseRollback.maxBlockRewind = false;
                 let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"databaseRollback.maxBlockRewind" must be a number');
+
+                defaults.databaseRollback.maxBlockRewind = 1.12;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"databaseRollback.maxBlockRewind" must be an integer');
+
+                defaults.databaseRollback.maxBlockRewind = 0;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
 
                 expect(result.error!.message).toEqual(
                     '"databaseRollback.maxBlockRewind" must be greater than or equal to 1',
@@ -150,9 +160,19 @@ describe("ServiceProvider", () => {
                 expect(result.error!.message).toEqual('"databaseRollback.maxBlockRewind" is required');
             });
 
-            it("databaseRollback.steps is required && greater or equal 1", async () => {
-                defaults.databaseRollback.steps = 0;
+            it("databaseRollback.steps is required && is integer && >= 1", async () => {
+                defaults.databaseRollback.steps = false;
                 let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"databaseRollback.steps" must be a number');
+
+                defaults.databaseRollback.steps = 1.12;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"databaseRollback.steps" must be an integer');
+
+                defaults.databaseRollback.steps = 0;
+                result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
 
                 expect(result.error!.message).toEqual('"databaseRollback.steps" must be greater than or equal to 1');
 

@@ -90,7 +90,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
             connection: Joi.object({
                 type: Joi.string().required(),
                 host: Joi.string().required(),
-                port: Joi.number().required(),
+                port: Joi.number().integer().min(1).max(65535).required(),
                 database: Joi.string().required(),
                 username: Joi.string().required(),
                 password: Joi.string().required(),

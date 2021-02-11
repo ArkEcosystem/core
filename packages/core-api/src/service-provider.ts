@@ -48,12 +48,12 @@ export class ServiceProvider extends Providers.ServiceProvider {
                 http: Joi.object({
                     enabled: Joi.bool().required(),
                     host: Joi.string().required(),
-                    port: Joi.number().required(),
+                    port: Joi.number().integer().min(1).max(65535).required(),
                 }).required(),
                 https: Joi.object({
                     enabled: Joi.bool().required(),
                     host: Joi.string().required(),
-                    port: Joi.number().required(),
+                    port: Joi.number().integer().min(1).max(65535).required(),
                     tls: Joi.object({
                         key: Joi.string().when("...enabled", { is: true, then: Joi.required() }),
                         cert: Joi.string().when("...enabled", { is: true, then: Joi.required() }),
@@ -63,20 +63,20 @@ export class ServiceProvider extends Providers.ServiceProvider {
             plugins: Joi.object({
                 cache: Joi.object({
                     enabled: Joi.bool().required(),
-                    stdTTL: Joi.number().min(0).required(),
-                    checkperiod: Joi.number().min(0).required(),
+                    stdTTL: Joi.number().integer().min(0).required(),
+                    checkperiod: Joi.number().integer().min(0).required(),
                 }).required(),
                 rateLimit: Joi.object({
                     enabled: Joi.bool().required(),
-                    points: Joi.number().min(0).required(),
-                    duration: Joi.number().min(0).required(),
+                    points: Joi.number().integer().min(0).required(),
+                    duration: Joi.number().integer().min(0).required(),
                     whitelist: Joi.array().items(Joi.string()).required(),
                     blacklist: Joi.array().items(Joi.string()).required(),
                 }).required(),
                 pagination: Joi.object({
-                    limit: Joi.number().required(),
+                    limit: Joi.number().integer().min(0).required(),
                 }).required(),
-                socketTimeout: Joi.number().min(0).required(),
+                socketTimeout: Joi.number().integer().min(0).required(),
                 whitelist: Joi.array().items(Joi.string()).required(),
                 trustProxy: Joi.bool().required(),
             }).required(),

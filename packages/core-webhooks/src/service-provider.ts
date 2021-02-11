@@ -63,11 +63,11 @@ export class ServiceProvider extends Providers.ServiceProvider {
                     host: Joi.string()
                         .ip({ version: ["ipv4", "ipv6"] })
                         .required(),
-                    port: Joi.number().required(),
+                    port: Joi.number().integer().min(1).max(65535).required(),
                 }).required(),
                 whitelist: Joi.array().items(Joi.string()).required(),
             }).required(),
-            timeout: Joi.number().required(),
+            timeout: Joi.number().integer().min(1).required(),
         }).unknown(true);
     }
 

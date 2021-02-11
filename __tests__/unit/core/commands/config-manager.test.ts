@@ -59,6 +59,9 @@ describe("ConfigManagerCommand", () => {
                                 package: "@arkecosystem/core-logger-pino",
                             },
                             {
+                                package: "@arkecosystem/core-database",
+                            },
+                            {
                                 package: "@arkecosystem/core-snapshots",
                             },
                             {
@@ -118,6 +121,9 @@ describe("ConfigManagerCommand", () => {
                                 package: "@arkecosystem/core-logger-pino",
                             },
                             {
+                                package: "@arkecosystem/core-database",
+                            },
+                            {
                                 package: "@arkecosystem/core-snapshots",
                             },
                             {
@@ -167,6 +173,9 @@ describe("ConfigManagerCommand", () => {
                         plugins: [
                             {
                                 package: "@arkecosystem/core-logger-pino",
+                            },
+                            {
+                                package: "@arkecosystem/core-database",
                             },
                             {
                                 package: "@arkecosystem/core-snapshots",
@@ -223,6 +232,9 @@ describe("ConfigManagerCommand", () => {
                         plugins: [
                             {
                                 package: "@arkecosystem/core-logger-pino",
+                            },
+                            {
+                                package: "@arkecosystem/core-database",
                             },
                             {
                                 package: "@arkecosystem/core-snapshots",
@@ -282,6 +294,9 @@ describe("ConfigManagerCommand", () => {
                         plugins: [
                             {
                                 package: "@arkecosystem/core-logger-pino",
+                            },
+                            {
+                                package: "@arkecosystem/core-database",
                             },
                             {
                                 package: "@arkecosystem/core-snapshots",

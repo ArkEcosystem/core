@@ -1,7 +1,7 @@
 import "jest-extended";
 
+import { Container } from "@packages/core-kernel";
 import { Action } from "@packages/core-manager/src/actions/info-database-size";
-import { Identifiers } from "@packages/core-snapshots";
 import { Sandbox } from "@packages/core-test-framework";
 
 let sandbox: Sandbox;
@@ -20,7 +20,7 @@ const databaseConnection = {
 beforeEach(() => {
     sandbox = new Sandbox();
 
-    sandbox.app.bind(Identifiers.SnapshotDatabaseConnection).toConstantValue(databaseConnection);
+    sandbox.app.bind(Container.Identifiers.DatabaseConnection).toConstantValue(databaseConnection);
 
     action = sandbox.app.resolve(Action);
 });

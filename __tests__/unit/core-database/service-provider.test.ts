@@ -251,11 +251,26 @@ describe("ServiceProvider.configSchema", () => {
             expect(result.error!.message).toEqual('"connection.host" is required');
         });
 
-        it("connection.port is required && is number", async () => {
+        it("connection.port is required && is integer && is >= 1 and <= 65535", async () => {
             defaults.connection.port = false;
             let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
 
             expect(result.error!.message).toEqual('"connection.port" must be a number');
+
+            defaults.connection.port = 1.12;
+            result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+            expect(result.error!.message).toEqual('"connection.port" must be an integer');
+
+            defaults.connection.port = 0;
+            result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+            expect(result.error!.message).toEqual('"connection.port" must be greater than or equal to 1');
+
+            defaults.connection.port = 65536;
+            result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+            expect(result.error!.message).toEqual('"connection.port" must be less than or equal to 65535');
 
             delete defaults.connection.port;
             result = (serviceProvider.configSchema() as AnySchema).validate(defaults);

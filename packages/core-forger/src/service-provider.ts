@@ -76,7 +76,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
                                 version: ["ipv4", "ipv6"],
                             })
                             .required(),
-                        port: Joi.number().required(),
+                        port: Joi.number().integer().min(1).max(65535).required(),
                     }),
                 )
                 .required(),
