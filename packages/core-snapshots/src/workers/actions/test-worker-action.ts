@@ -1,6 +1,7 @@
 import { Container } from "@arkecosystem/core-kernel";
-import { WorkerAction } from "../../contracts";
 import { parentPort } from "worker_threads";
+
+import { WorkerAction } from "../../contracts";
 
 // For testing purposes only
 @Container.injectable()
