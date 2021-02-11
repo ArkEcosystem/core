@@ -17,7 +17,12 @@ export class StreamWriter {
         private path: string,
         private useCompression: boolean,
         private encode: Function,
-    ) {}
+    ) {
+        /* istanbul ignore next */
+        process.on("exit", () => {
+            this.destroyStreams();
+        });
+    }
 
     public open(): Promise<void> {
         return new Promise<void>((resolve, reject) => {
@@ -33,6 +38,8 @@ export class StreamWriter {
             /* istanbul ignore next */
             const onError = (err) => {
                 removeListeners(this.writeStream!, eventListenerPairs);
+
+                this.destroyStreams();
                 reject(err);
             };
 
@@ -62,18 +69,19 @@ export class StreamWriter {
 
             // @ts-ignore
             pipeline(this.dbStream, ...transforms, this.writeStream, (err) => {
-                if (err) {
-                    this.dbStream.destroy();
-                    this.writeStream!.destroy();
+                this.destroyStreams();
 
+                if (err) {
                     reject(err);
                 } else {
-                    this.dbStream.destroy();
-                    this.writeStream!.destroy();
-
                     resolve();
                 }
             });
         });
+    }
+
+    private destroyStreams(): void {
+        this.dbStream.destroy();
+        this.writeStream!.destroy();
     }
 }

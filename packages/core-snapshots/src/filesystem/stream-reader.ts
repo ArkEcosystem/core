@@ -18,7 +18,12 @@ export class StreamReader {
     private offset = 0;
     private length = 0;
 
-    public constructor(private path: string, private useCompression: boolean, private decode: Function) {}
+    public constructor(private path: string, private useCompression: boolean, private decode: Function) {
+        /* istanbul ignore next */
+        process.on("exit", () => {
+            this.destroyStreams();
+        });
+    }
 
     public open(): Promise<void> {
         return new Promise<void>((resolve, reject) => {
@@ -40,7 +45,7 @@ export class StreamReader {
             const onError = (err) => {
                 removeListeners(this.readStream!, eventListenerPairs);
 
-                this.readStream?.destroy();
+                this.destroyStreams();
                 reject(err);
             };
 
@@ -52,7 +57,7 @@ export class StreamReader {
 
             this.stream.on("end", () => {
                 this.isEnd = true;
-                this.readStream?.destroy();
+                this.destroyStreams();
             });
         });
     }
@@ -114,14 +119,14 @@ export class StreamReader {
             const onError = () => {
                 removeListeners(this.stream!, eventListenerPairs);
 
-                this.readStream?.destroy();
+                this.destroyStreams();
                 reject(new Error("Error on stream"));
             };
 
             const onEnd = () => {
                 removeListeners(this.stream!, eventListenerPairs);
 
-                this.readStream?.destroy();
+                this.destroyStreams();
                 reject(new StreamExceptions.EndOfFile(this.path));
             };
 
@@ -162,5 +167,10 @@ export class StreamReader {
 
         bufferToReturn.reset();
         return bufferToReturn;
+    }
+
+    private destroyStreams(): void {
+        /* istanbul ignore next */
+        this.readStream?.destroy();
     }
 }
