@@ -24,7 +24,7 @@ export class TestWorkerAction implements Worker.WorkerAction {
         }
     }
 
-    public async start() {
+    public async start(): Promise<void> {
         if (this.options.table === "throwError") {
             throw new Error("Start Error");
         }

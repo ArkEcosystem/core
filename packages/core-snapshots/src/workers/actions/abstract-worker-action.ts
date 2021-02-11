@@ -23,7 +23,7 @@ export abstract class AbstractWorkerAction implements Worker.WorkerAction {
 
     protected options?: Worker.ActionOptions;
 
-    public init(options: Worker.ActionOptions) {
+    public init(options: Worker.ActionOptions): void {
         this.table = options.table;
         this.codec = options.codec;
         this.skipCompression = options.skipCompression;
@@ -39,7 +39,7 @@ export abstract class AbstractWorkerAction implements Worker.WorkerAction {
         return repositoryFactory(this.table!);
     }
 
-    protected getSingularCapitalizedTableName() {
+    protected getSingularCapitalizedTableName(): string {
         return pascalize(pluralize.singular(this.table));
     }
 
@@ -81,7 +81,7 @@ export abstract class AbstractWorkerAction implements Worker.WorkerAction {
         }
     }
 
-    public abstract async start();
+    public abstract async start(): Promise<void>;
 
-    public abstract sync(data: any);
+    public abstract sync(data: Worker.WorkerSyncData): void;
 }
