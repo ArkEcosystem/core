@@ -49,12 +49,10 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
 
     public async truncate(): Promise<void> {
         this.logger.info(
-            `Clearing:  ${await this.blockRepository.count()} blocks,   ${await this.transactionRepository.count()} transactions,  ${await this.roundRepository.count()} rounds`,
+            `Clearing:  ${await this.blockRepository.fastCount()} blocks,   ${await this.transactionRepository.fastCount()} transactions,  ${await this.roundRepository.fastCount()} rounds`,
         );
 
-        await this.transactionRepository.clear();
-        await this.roundRepository.clear();
-        await this.blockRepository.delete({}); // Clear does't work on tables with relations
+        await this.blockRepository.truncate();
     }
 
     public async rollback(roundInfo: Contracts.Shared.RoundInfo): Promise<Interfaces.IBlock> {
@@ -224,7 +222,7 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
         Utils.assert.defined<Models.Block>(firstBlock);
         Utils.assert.defined<Models.Block>(lastBlock);
 
-        const result: Database.DumpRange = {
+        return {
             firstBlockHeight: firstBlock.height,
             lastBlockHeight: lastBlock.height,
             blocksCount: await this.blockRepository.countInRange(firstBlock.height, lastBlock.height),
@@ -237,8 +235,6 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
             lastTransactionTimestamp: lastBlock.timestamp,
             transactionsCount: await this.transactionRepository.countInRange(firstBlock.timestamp, lastBlock.timestamp),
         };
-
-        return result;
     }
 
     private prepareMetaData(options: Options.DumpOptions, dumpRange: Database.DumpRange): Meta.MetaData {

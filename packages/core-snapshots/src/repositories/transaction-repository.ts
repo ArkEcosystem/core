@@ -1,10 +1,10 @@
-import { Models, Repositories } from "@arkecosystem/core-database";
+import { Models } from "@arkecosystem/core-database";
 import { EntityRepository } from "typeorm";
 
-import { Repository } from "../contracts";
+import { AbstractRepository } from "./abstract-repository";
 
 @EntityRepository(Models.Transaction)
-export class TransactionRepository extends Repositories.AbstractRepository<Models.Transaction> implements Repository {
+export class TransactionRepository extends AbstractRepository<Models.Transaction> {
     public async getReadStream(start: number, end: number): Promise<NodeJS.ReadableStream> {
         return this.createQueryBuilder()
             .where("timestamp >= :start AND timestamp <= :end", { start, end })
@@ -14,6 +14,6 @@ export class TransactionRepository extends Repositories.AbstractRepository<Model
     }
 
     public async countInRange(start: number, end: number): Promise<number> {
-        return this.createQueryBuilder().where("timestamp >= :start AND timestamp <= :end", { start, end }).getCount();
+        return this.fastCount({ where: "timestamp >= :start AND timestamp <= :end", parameters: { start, end } });
     }
 }
