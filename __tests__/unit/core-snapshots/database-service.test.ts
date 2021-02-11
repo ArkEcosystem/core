@@ -218,6 +218,8 @@ describe("DatabaseService", () => {
             const subdir: string = `${dir}/sub`;
 
             filesystem.getSnapshotPath = jest.fn().mockReturnValue(subdir);
+            const spyOnDeleteSnapshot = jest.spyOn(filesystem, "deleteSnapshot");
+
 
             const dumpOptions = {
                 network: "testnet",
@@ -228,6 +230,7 @@ describe("DatabaseService", () => {
             const promise = database.dump(dumpOptions);
 
             await expect(promise).rejects.toThrow();
+            expect(spyOnDeleteSnapshot).toHaveBeenCalled();
         });
 
         it("should throw error if error in worker", async () => {
@@ -235,6 +238,7 @@ describe("DatabaseService", () => {
             const subdir: string = `${dir}/sub`;
 
             filesystem.getSnapshotPath = jest.fn().mockReturnValue(subdir);
+            const spyOnDeleteSnapshot = jest.spyOn(filesystem, "deleteSnapshot");
 
             const dumpOptions = {
                 network: "testnet",
@@ -247,6 +251,7 @@ describe("DatabaseService", () => {
             const promise = database.dump(dumpOptions);
 
             await expect(promise).rejects.toThrow();
+            expect(spyOnDeleteSnapshot).toHaveBeenCalled();
         });
     });
 
