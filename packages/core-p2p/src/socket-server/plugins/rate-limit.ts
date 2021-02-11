@@ -13,7 +13,7 @@ export class RateLimitPlugin {
     @Container.inject(Container.Identifiers.PeerRateLimiter)
     private readonly rateLimiter!: Contracts.P2P.PeerRateLimiter;
 
-    private readonly endpointByPath: Map<string, string> = new Map<string, string>();
+    private readonly endpointsByPath: Map<string, string> = new Map<string, string>();
 
     @Container.postConstruct()
     public initialize(): void {
@@ -25,7 +25,7 @@ export class RateLimitPlugin {
         };
 
         for (const [path, config] of Object.entries(configs)) {
-            this.endpointByPath.set(path, config.id);
+            this.endpointsByPath.set(path, config.id);
         }
     }
 
@@ -34,7 +34,7 @@ export class RateLimitPlugin {
     }
 
     public async onPreAuth(request, h) {
-        const endpoint: string | undefined = this.endpointByPath.get(request.path);
+        const endpoint: string | undefined = this.endpointsByPath.get(request.path);
 
         if (await this.rateLimiter.consumeIncoming(request.info.remoteAddress, endpoint)) {
             return h.continue;
