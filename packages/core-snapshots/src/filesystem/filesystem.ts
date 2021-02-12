@@ -19,6 +19,10 @@ export class Filesystem {
         return `${process.env.CORE_PATH_DATA}/snapshots/${this.snapshot}/`;
     }
 
+    public async deleteSnapshot(): Promise<void> {
+        await this.filesystem.delete(this.getSnapshotPath());
+    }
+
     public async snapshotExists(): Promise<boolean> {
         return this.filesystem.exists(this.getSnapshotPath());
     }

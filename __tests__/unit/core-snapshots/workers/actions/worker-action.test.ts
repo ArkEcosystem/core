@@ -7,6 +7,7 @@ import { Identifiers } from "@packages/core-snapshots/src/ioc";
 import * as Actions from "@packages/core-snapshots/src/workers/actions";
 import { Sandbox } from "@packages/core-test-framework";
 import { Managers } from "@packages/crypto";
+import { Readable } from "stream";
 import { dirSync, setGracefulCleanup } from "tmp";
 import { Connection } from "typeorm";
 
@@ -101,7 +102,7 @@ beforeEach(() => {
         .bind<StreamWriter>(Identifiers.StreamWriterFactory)
         .toFactory<StreamWriter>(
             (context: Container.interfaces.Context) => (
-                dbStream: NodeJS.ReadableStream,
+                dbStream: Readable,
                 path: string,
                 useCompression: boolean,
                 encode: Function,

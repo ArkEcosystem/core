@@ -1,4 +1,5 @@
 import fs from "fs-extra";
+import { pipeline, Readable, Transform, Writable } from "stream";
 import zlib from "zlib";
 
 import { Stream as StreamContracts } from "../contracts";
@@ -9,15 +10,19 @@ import { removeListeners } from "./utils";
 export class StreamWriter {
     public count: number = 0;
 
-    private writeStream: NodeJS.WritableStream | undefined;
+    private writeStream?: Writable;
 
-    // @ts-ignore
     public constructor(
-        private dbStream: NodeJS.ReadableStream,
+        private dbStream: Readable,
         private path: string,
         private useCompression: boolean,
         private encode: Function,
-    ) {}
+    ) {
+        /* istanbul ignore next */
+        process.on("exit", () => {
+            this.destroyStreams();
+        });
+    }
 
     public open(): Promise<void> {
         return new Promise<void>((resolve, reject) => {
@@ -33,6 +38,8 @@ export class StreamWriter {
             /* istanbul ignore next */
             const onError = (err) => {
                 removeListeners(this.writeStream!, eventListenerPairs);
+
+                this.destroyStreams();
                 reject(err);
             };
 
@@ -50,44 +57,31 @@ export class StreamWriter {
                 throw new StreamExceptions.StreamNotOpen(this.path);
             }
 
-            const transformer = new TransformEncoder(this.encode);
+            this.dbStream.on("data", () => {
+                this.count++;
+            });
 
-            let stream;
+            const transforms: Transform[] = [new TransformEncoder(this.encode)];
+
             if (this.useCompression) {
-                stream = this.dbStream.pipe(transformer).pipe(zlib.createGzip());
-            } else {
-                stream = this.dbStream.pipe(transformer);
+                transforms.push(zlib.createGzip());
             }
 
-            const eventListenerPairs = [] as StreamContracts.EventListenerPair[];
+            // @ts-ignore
+            pipeline(this.dbStream, ...transforms, this.writeStream, (err) => {
+                this.destroyStreams();
 
-            const onData = (data) => {
-                this.writeStream!.write(data);
-                this.count++;
-            };
-
-            const onEnd = () => {
-                removeListeners(stream, eventListenerPairs);
-                this.writeStream!.end(() => {
+                if (err) {
+                    reject(err);
+                } else {
                     resolve();
-                });
-            };
-
-            /* istanbul ignore next */
-            const onError = (err) => {
-                removeListeners(stream, eventListenerPairs);
-                reject(err);
-            };
-
-            eventListenerPairs.push({ event: "data", listener: onData });
-            eventListenerPairs.push({ event: "error", listener: onError });
-            eventListenerPairs.push({ event: "end", listener: onEnd });
-
-            stream.on("data", onData);
-
-            stream.once("end", onEnd);
-
-            stream.once("error", onError);
+                }
+            });
         });
+    }
+
+    private destroyStreams(): void {
+        this.dbStream.destroy();
+        this.writeStream!.destroy();
     }
 }

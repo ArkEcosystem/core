@@ -1,6 +1,7 @@
 import { Models, Utils } from "@arkecosystem/core-database";
 import { Container } from "@arkecosystem/core-kernel";
 import { Managers, Transactions } from "@arkecosystem/crypto";
+import { Readable } from "stream";
 import { Connection, createConnection, getCustomRepository } from "typeorm";
 import { parentPort, workerData } from "worker_threads";
 
@@ -45,7 +46,7 @@ export const init = async () => {
     }
 
     /* istanbul ignore next */
-    app.bind<Repository>(Identifiers.SnapshotRepositoryFactory).toFactory<Repository>(
+    app.bind(Identifiers.SnapshotRepositoryFactory).toFactory<Repository>(
         (context: Container.interfaces.Context) => (table: string) => {
             if (table === "blocks") {
                 return getCustomRepository(Repositories.BlockRepository);
@@ -66,7 +67,7 @@ export const init = async () => {
     /* istanbul ignore next */
     app.bind<StreamWriter>(Identifiers.StreamWriterFactory).toFactory<StreamWriter>(
         (context: Container.interfaces.Context) => (
-            dbStream: NodeJS.ReadableStream,
+            dbStream: Readable,
             path: string,
             useCompression: boolean,
             encode: Function,

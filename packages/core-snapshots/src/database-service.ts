@@ -68,44 +68,54 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
     }
 
     public async dump(options: Options.DumpOptions): Promise<void> {
-        this.logger.info("Start counting blocks, rounds and transactions");
-
-        const dumpRage = await this.getDumpRange(options.start, options.end);
-        const meta = this.prepareMetaData(options, dumpRage);
-
-        this.logger.info(
-            `Start running dump for ${dumpRage.blocksCount} blocks, ${dumpRage.roundsCount} rounds and ${dumpRage.transactionsCount} transactions`,
-        );
-
-        this.filesystem.setSnapshot(meta.folder);
-        await this.filesystem.prepareDir();
-
-        const blocksWorker = new WorkerWrapper(this.prepareWorkerData("dump", "blocks", meta));
-        const transactionsWorker = new WorkerWrapper(this.prepareWorkerData("dump", "transactions", meta));
-        const roundsWorker = new WorkerWrapper(this.prepareWorkerData("dump", "rounds", meta));
-
-        const stopBlocksDispatcher = await this.prepareProgressDispatcher(blocksWorker, "blocks", meta.blocks.count);
-        const stopTransactionsDispatcher = await this.prepareProgressDispatcher(
-            transactionsWorker,
-            "transactions",
-            meta.transactions.count,
-        );
-        const stopRoundDispatcher = await this.prepareProgressDispatcher(roundsWorker, "rounds", meta.rounds.count);
-
         try {
-            await Promise.all([blocksWorker.start(), transactionsWorker.start(), roundsWorker.start()]);
+            this.logger.info("Start counting blocks, rounds and transactions");
 
-            await this.filesystem.writeMetaData(meta);
+            const dumpRage = await this.getDumpRange(options.start, options.end);
+            const meta = this.prepareMetaData(options, dumpRage);
+
+            this.logger.info(
+                `Start running dump for ${dumpRage.blocksCount} blocks, ${dumpRage.roundsCount} rounds and ${dumpRage.transactionsCount} transactions`,
+            );
+
+            this.filesystem.setSnapshot(meta.folder);
+            await this.filesystem.prepareDir();
+
+            const blocksWorker = new WorkerWrapper(this.prepareWorkerData("dump", "blocks", meta));
+            const transactionsWorker = new WorkerWrapper(this.prepareWorkerData("dump", "transactions", meta));
+            const roundsWorker = new WorkerWrapper(this.prepareWorkerData("dump", "rounds", meta));
+
+            const stopBlocksDispatcher = await this.prepareProgressDispatcher(
+                blocksWorker,
+                "blocks",
+                meta.blocks.count,
+            );
+            const stopTransactionsDispatcher = await this.prepareProgressDispatcher(
+                transactionsWorker,
+                "transactions",
+                meta.transactions.count,
+            );
+            const stopRoundDispatcher = await this.prepareProgressDispatcher(roundsWorker, "rounds", meta.rounds.count);
+
+            try {
+                await Promise.all([blocksWorker.start(), transactionsWorker.start(), roundsWorker.start()]);
+
+                await this.filesystem.writeMetaData(meta);
+            } catch (err) {
+                stopBlocksDispatcher();
+                stopTransactionsDispatcher();
+                stopRoundDispatcher();
+
+                await blocksWorker.terminate();
+                await transactionsWorker.terminate();
+                await roundsWorker.terminate();
+
+                throw err;
+            }
         } catch (err) {
-            stopBlocksDispatcher();
-            stopTransactionsDispatcher();
-            stopRoundDispatcher();
+            await this.filesystem.deleteSnapshot();
 
             throw err;
-        } finally {
-            await blocksWorker.terminate();
-            await transactionsWorker.terminate();
-            await roundsWorker.terminate();
         }
     }
 

@@ -57,6 +57,20 @@ describe("Filesystem", () => {
         });
     });
 
+    describe("deleteSnapshot", () => {
+        it("should make directory", async () => {
+            const dir: string = dirSync().name;
+
+            filesystem.getSnapshotPath = jest.fn().mockReturnValue(dir);
+
+            await expect(filesystem.writeMetaData(metaData)).toResolve();
+
+            await expect(filesystem.snapshotExists()).resolves.toBeTrue();
+            await expect(filesystem.deleteSnapshot()).toResolve();
+            await expect(filesystem.snapshotExists()).resolves.toBeFalse();
+        });
+    });
+
     describe("writeMetaData", () => {
         it("should write meta data", async () => {
             const dir: string = dirSync().name;
