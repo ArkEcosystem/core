@@ -58,9 +58,7 @@ let blockRepository: Partial<BlockRepository>;
 let transactionRepository: Partial<TransactionRepository>;
 let roundRepository: Partial<RoundRepository>;
 let progressDispatcher: Partial<ProgressDispatcher>;
-const eventDispatcher = {
-    dispatch: jest.fn(),
-};
+let eventDispatcher;
 
 beforeEach(() => {
     mockWorkerWrapper = new MockWorkerWrapper();
@@ -71,10 +69,15 @@ beforeEach(() => {
     logger = {
         info: jest.fn(),
         error: jest.fn(),
+        warning: jest.fn(),
     };
 
     connection = {
         isConnected: true,
+    };
+
+    eventDispatcher = {
+        dispatch: jest.fn(),
     };
 
     const lastBlock = Assets.blocksBigNumber[0];
@@ -315,6 +318,52 @@ describe("DatabaseService", () => {
             const promise = database.restore(Assets.metaData, { truncate: true });
 
             await expect(promise).rejects.toThrow();
+        });
+
+        it("should throw error if error on sync in blocks worker", async () => {
+            const dir: string = dirSync().name;
+            const subdir: string = `${dir}/sub`;
+
+            filesystem.getSnapshotPath = jest.fn().mockReturnValue(subdir);
+
+            mockWorkerWrapper.sync = jest.fn().mockRejectedValueOnce(new Error("Blocks error"));
+
+            const promise = database.restore(Assets.metaData, { truncate: true });
+
+            await expect(promise).rejects.toThrow("Blocks error");
+        });
+
+        it("should throw error if error on sync in transactions worker", async () => {
+            const dir: string = dirSync().name;
+            const subdir: string = `${dir}/sub`;
+
+            filesystem.getSnapshotPath = jest.fn().mockReturnValue(subdir);
+
+            mockWorkerWrapper.sync = jest
+                .fn()
+                .mockResolvedValueOnce({ numberOfTransactions: 1, height: 1 })
+                .mockRejectedValueOnce(new Error("Transactions error"));
+
+            const promise = database.restore(Assets.metaData, { truncate: true });
+
+            await expect(promise).rejects.toThrow("Transactions error");
+        });
+
+        it("should throw error if error on sync in rounds worker", async () => {
+            const dir: string = dirSync().name;
+            const subdir: string = `${dir}/sub`;
+
+            filesystem.getSnapshotPath = jest.fn().mockReturnValue(subdir);
+
+            mockWorkerWrapper.sync = jest
+                .fn()
+                .mockResolvedValueOnce({ numberOfTransactions: 1, height: 1 })
+                .mockResolvedValueOnce({})
+                .mockRejectedValueOnce(new Error("Rounds error"));
+
+            const promise = database.restore(Assets.metaData, { truncate: true });
+
+            await expect(promise).rejects.toThrow("Rounds error");
         });
     });
 
