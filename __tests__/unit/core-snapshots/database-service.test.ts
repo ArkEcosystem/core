@@ -1,6 +1,9 @@
 import "jest-extended";
 
 import { Container, Providers } from "@packages/core-kernel";
+import { Queue } from "@packages/core-kernel/dist/contracts/kernel";
+import { interfaces } from "@packages/core-kernel/dist/ioc";
+import { MemoryQueue } from "@packages/core-kernel/dist/services/queue/drivers/memory";
 import { LocalFilesystem } from "@packages/core-kernel/src/services/filesystem/drivers/local";
 import { SnapshotDatabaseService } from "@packages/core-snapshots/src/database-service";
 import { Filesystem } from "@packages/core-snapshots/src/filesystem/filesystem";
@@ -55,6 +58,9 @@ let blockRepository: Partial<BlockRepository>;
 let transactionRepository: Partial<TransactionRepository>;
 let roundRepository: Partial<RoundRepository>;
 let progressDispatcher: Partial<ProgressDispatcher>;
+const eventDispatcher = {
+    dispatch: jest.fn(),
+};
 
 beforeEach(() => {
     mockWorkerWrapper = new MockWorkerWrapper();
@@ -121,6 +127,14 @@ beforeEach(() => {
     sandbox.app.bind(Identifiers.ProgressDispatcher).toConstantValue(progressDispatcher);
 
     sandbox.app.bind(Identifiers.SnapshotVersion).toConstantValue("3.0.0-next.0");
+
+    sandbox.app.bind(Container.Identifiers.EventDispatcherService).toConstantValue(eventDispatcher);
+
+    sandbox.app
+        .bind(Container.Identifiers.QueueFactory)
+        .toFactory((context: interfaces.Context) => async <K, T>(name?: string): Promise<Queue> =>
+            sandbox.app.resolve<Queue>(MemoryQueue).make(),
+        );
 
     sandbox.app.bind(Identifiers.SnapshotDatabaseService).to(SnapshotDatabaseService).inSingletonScope();
 
