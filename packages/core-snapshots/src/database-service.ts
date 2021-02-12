@@ -1,5 +1,5 @@
 import { Models } from "@arkecosystem/core-database";
-import { Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Providers, Types, Utils } from "@arkecosystem/core-kernel";
 import { Blocks, Interfaces, Managers } from "@arkecosystem/crypto";
 
 import { Database, Meta, Options, Worker } from "./contracts";
@@ -169,30 +169,66 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
             milestoneHeights.push(Number.POSITIVE_INFINITY);
             milestoneHeights.push(Number.POSITIVE_INFINITY);
 
-            let result: Worker.WorkerResult | undefined;
+            const transactionsQueue = await this.app.get<Types.QueueFactory>(Container.Identifiers.QueueFactory)();
+            const roundsQueue = await this.app.get<Types.QueueFactory>(Container.Identifiers.QueueFactory)();
+
+            transactionsQueue.start();
+            roundsQueue.start();
+
+            transactionsQueue.onError((err) => {
+                throw err;
+            });
+
+            roundsQueue.onError((err) => {
+                throw err;
+            });
+
             for (const height of milestoneHeights) {
-                const promises = [] as any;
-
-                promises.push(blocksWorker.sync({ nextValue: height, nextField: "height" }));
-
-                if (result && result.height > 0) {
-                    promises.push(
-                        transactionsWorker.sync({ nextCount: result.numberOfTransactions, height: result.height - 1 }),
-                    );
-                    promises.push(
-                        roundsWorker.sync({
-                            nextValue: Utils.roundCalculator.calculateRound(result.height).round,
-                            nextField: "round",
-                        }),
-                    );
-                }
-
-                result = (await Promise.all(promises))[0] as Worker.WorkerResult;
+                const result: Worker.WorkerResult = await blocksWorker.sync({ nextValue: height, nextField: "height" });
 
                 if (!result) {
                     break;
                 }
+
+                transactionsQueue.push({
+                    handle: async () => {
+                        await transactionsWorker.sync({
+                            nextCount: result.numberOfTransactions,
+                            height: result.height - 1,
+                        });
+                    },
+                });
+
+                roundsQueue.push({
+                    handle: async () => {
+                        await roundsWorker.sync({
+                            nextValue: Utils.roundCalculator.calculateRound(result.height).round,
+                            nextField: "round",
+                        });
+                    },
+                });
             }
+
+            await Promise.all([
+                new Promise((resolve) => {
+                    if (!transactionsQueue.isRunning()) {
+                        resolve();
+                    } else {
+                        transactionsQueue.onDrain(() => {
+                            resolve();
+                        });
+                    }
+                }),
+                new Promise((resolve) => {
+                    if (!roundsQueue.isRunning()) {
+                        resolve();
+                    } else {
+                        roundsQueue.onDrain(() => {
+                            resolve();
+                        });
+                    }
+                }),
+            ]);
         } catch (err) {
             stopBlocksProgressDispatcher();
             stopTransactionsProgressDispatcher();
