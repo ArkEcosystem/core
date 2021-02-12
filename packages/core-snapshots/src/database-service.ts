@@ -2,7 +2,7 @@ import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
 import { Blocks, Interfaces, Managers } from "@arkecosystem/crypto";
 
-import { Database, Meta, Options } from "./contracts";
+import { Database, Meta, Options, Worker } from "./contracts";
 import { Filesystem } from "./filesystem/filesystem";
 import { Identifiers } from "./ioc";
 import { ProgressDispatcher } from "./progress-dispatcher";
@@ -169,7 +169,7 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
             milestoneHeights.push(Number.POSITIVE_INFINITY);
             milestoneHeights.push(Number.POSITIVE_INFINITY);
 
-            let result: any = undefined;
+            let result: Worker.WorkerResult | undefined;
             for (const height of milestoneHeights) {
                 const promises = [] as any;
 
@@ -187,7 +187,7 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
                     );
                 }
 
-                result = (await Promise.all(promises))[0];
+                result = (await Promise.all(promises))[0] as Worker.WorkerResult;
 
                 if (!result) {
                     break;
