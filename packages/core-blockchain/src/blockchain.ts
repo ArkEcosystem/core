@@ -77,7 +77,11 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             const blocks = (job as ProcessBlocksJob).getBlocks();
 
             this.logger.error(
-                `Failed to process ${blocks.length.toLocaleString()} blocks from height ${blocks[0].height.toLocaleString()} in queue.`,
+                `Failed to process ${Utils.pluralize(
+                    "block",
+                    blocks.length,
+                    true,
+                )} from height ${blocks[0].height.toLocaleString()} in queue.`,
             );
         });
     }
