@@ -1,6 +1,8 @@
 import "jest-extended";
-import { Crypto, Transactions } from "@arkecosystem/crypto";
+
 import { Verifier } from "@arkecosystem/core-snapshots/src/verifier";
+import { Crypto, Transactions } from "@arkecosystem/crypto";
+
 import { Assets } from "./__fixtures__";
 
 afterEach(() => {
@@ -14,8 +16,8 @@ describe("Verifier", () => {
         });
 
         it("should be true if chained", async () => {
-            let firstBlock = { ...Assets.blocksBigNumber[0] };
-            let secondBlock = { ...Assets.blocksBigNumber[1] };
+            const firstBlock = { ...Assets.blocksBigNumber[0] };
+            const secondBlock = { ...Assets.blocksBigNumber[1] };
 
             firstBlock.id = secondBlock.previousBlock; // Genesis block fix
 
@@ -23,8 +25,8 @@ describe("Verifier", () => {
         });
 
         it("should throw if block is not chained", async () => {
-            let firstBlock = { ...Assets.blocksBigNumber[0] };
-            let secondBlock = { ...Assets.blocksBigNumber[1] };
+            const firstBlock = { ...Assets.blocksBigNumber[0] };
+            const secondBlock = { ...Assets.blocksBigNumber[1] };
 
             firstBlock.id = "123";
 
@@ -34,7 +36,7 @@ describe("Verifier", () => {
         });
 
         it("should throw", async () => {
-            let block = { ...Assets.blocksBigNumber[0] };
+            const block = { ...Assets.blocksBigNumber[0] };
 
             block.payloadLength = 123;
 
@@ -48,7 +50,7 @@ describe("Verifier", () => {
                 throw new Error();
             });
 
-            let block = { ...Assets.blocksBigNumber[0] };
+            const block = { ...Assets.blocksBigNumber[0] };
 
             expect(() => {
                 Verifier.verifyBlock(block, undefined);
@@ -62,8 +64,10 @@ describe("Verifier", () => {
         });
 
         it("should pass if transaction is  signed with multisignature", async () => {
-            Transactions.TransactionFactory.fromBytes = jest.fn().mockReturnValue({ isVerified: true, data: { signatures: [] } });
-            let transaction = { ...Assets.transactions[0] };
+            Transactions.TransactionFactory.fromBytes = jest
+                .fn()
+                .mockReturnValue({ isVerified: true, data: { signatures: [] } });
+            const transaction = { ...Assets.transactions[0] };
 
             transaction.timestamp = 100;
 
@@ -72,7 +76,7 @@ describe("Verifier", () => {
 
         it("should pass if transaction is valid", async () => {
             Transactions.TransactionFactory.fromBytes = jest.fn().mockReturnValue({ isVerified: true, data: {} });
-            let transaction = { ...Assets.transactions[0] };
+            const transaction = { ...Assets.transactions[0] };
 
             transaction.timestamp = 100;
 
@@ -81,7 +85,7 @@ describe("Verifier", () => {
 
         it("should throw if transaction is not valid", async () => {
             Transactions.TransactionFactory.fromBytes = jest.fn().mockReturnValue({ isVerified: false, data: {} });
-            let transaction = { ...Assets.transactions[0] };
+            const transaction = { ...Assets.transactions[0] };
 
             transaction.timestamp = 100;
 
@@ -95,7 +99,7 @@ describe("Verifier", () => {
                 throw new Error();
             });
 
-            let transaction = { ...Assets.transactions[0] };
+            const transaction = { ...Assets.transactions[0] };
 
             transaction.timestamp = 100;
 
@@ -111,7 +115,7 @@ describe("Verifier", () => {
         });
 
         it("should throw", async () => {
-            let round = { ...Assets.rounds[0] };
+            const round = { ...Assets.rounds[0] };
 
             round.publicKey = "123123";
 

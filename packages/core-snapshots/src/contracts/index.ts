@@ -1,4 +1,3 @@
-export * from "./worker-action";
 export * from "./codec";
 export * from "./repository";
 import * as Database from "./database";
