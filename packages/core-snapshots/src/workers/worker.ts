@@ -7,14 +7,14 @@ import { parentPort, workerData } from "worker_threads";
 
 import * as Codecs from "../codecs";
 import { StreamReader, StreamWriter } from "../codecs";
-import { Repository, Worker, WorkerAction } from "../contracts";
+import { Repository, Worker } from "../contracts";
 import { Identifiers } from "../ioc";
 import * as Repositories from "../repositories";
 import * as Actions from "./actions";
 import { Application } from "./application";
 
 let app: Application;
-let action: WorkerAction;
+let action: Worker.WorkerAction;
 const _workerData: Worker.WorkerData = workerData;
 
 /* istanbul ignore next */
@@ -26,7 +26,7 @@ const connect = async (options: any): Promise<Connection> => {
     });
 };
 
-export const init = async () => {
+export const init = async (): Promise<void> => {
     Managers.configManager.setConfig(_workerData.networkConfig);
 
     for (const cryptoPackage of _workerData.cryptoPackages) {
@@ -46,32 +46,26 @@ export const init = async () => {
     }
 
     /* istanbul ignore next */
-    app.bind(Identifiers.SnapshotRepositoryFactory).toFactory<Repository>(
-        (context: Container.interfaces.Context) => (table: string) => {
-            if (table === "blocks") {
-                return getCustomRepository(Repositories.BlockRepository);
-            }
-            if (table === "transactions") {
-                return getCustomRepository(Repositories.TransactionRepository);
-            }
-            return getCustomRepository(Repositories.RoundRepository);
-        },
-    );
+    app.bind(Identifiers.SnapshotRepositoryFactory).toFactory<Repository>(() => (table: string) => {
+        if (table === "blocks") {
+            return getCustomRepository(Repositories.BlockRepository);
+        }
+        if (table === "transactions") {
+            return getCustomRepository(Repositories.TransactionRepository);
+        }
+        return getCustomRepository(Repositories.RoundRepository);
+    });
 
     /* istanbul ignore next */
     app.bind<StreamReader>(Identifiers.StreamReaderFactory).toFactory<StreamReader>(
-        (context: Container.interfaces.Context) => (path: string, useCompression: boolean, decode: Function) =>
+        () => (path: string, useCompression: boolean, decode: Function) =>
             new StreamReader(path, useCompression, decode),
     );
 
     /* istanbul ignore next */
     app.bind<StreamWriter>(Identifiers.StreamWriterFactory).toFactory<StreamWriter>(
-        (context: Container.interfaces.Context) => (
-            dbStream: Readable,
-            path: string,
-            useCompression: boolean,
-            encode: Function,
-        ) => new StreamWriter(dbStream, path, useCompression, encode),
+        () => (dbStream: Readable, path: string, useCompression: boolean, encode: Function) =>
+            new StreamWriter(dbStream, path, useCompression, encode),
     );
 
     app.bind(Identifiers.SnapshotCodec)
@@ -105,7 +99,7 @@ export const init = async () => {
         .inSingletonScope()
         .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("action", "test"));
 
-    action = app.getTagged<WorkerAction>(Identifiers.SnapshotAction, "action", _workerData.actionOptions.action);
+    action = app.getTagged<Worker.WorkerAction>(Identifiers.SnapshotAction, "action", _workerData.actionOptions.action);
 
     action.init(workerData.actionOptions);
 };
@@ -120,7 +114,7 @@ export const dispose = async (): Promise<void> => {
 };
 
 /* istanbul ignore next */
-parentPort?.on("message", async (data) => {
+parentPort?.on("message", async (data: { action: string; data: Worker.WorkerSyncData }) => {
     if (data.action === "start") {
         await init();
 
