@@ -134,7 +134,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
             max = Math.min(peers.length, peerCount);
         }
 
-        this.logger.info(`Checking ${max} peers`);
+        this.logger.info(`Checking ${Utils.pluralize("peer", max, true)}`);
         const peerErrors = {};
 
         // we use Promise.race to cut loose in case some communicator.ping() does not resolve within the delay
@@ -176,7 +176,13 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
         }
 
         if (this.initializing) {
-            this.logger.info(`${max - unresponsivePeers} of ${max} peers on the network are responsive`);
+            this.logger.info(
+                `${Utils.pluralize("peer", max - unresponsivePeers, true)} of ${Utils.pluralize(
+                    "peer",
+                    max,
+                    true,
+                )} on the network are responsive`,
+            );
             this.logger.info(`Median Network Height: ${this.getNetworkHeight().toLocaleString()}`);
         }
     }
@@ -263,7 +269,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
     }
 
     public async refreshPeersAfterFork(): Promise<void> {
-        this.logger.info(`Refreshing ${this.repository.getPeers().length} peers after fork.`);
+        this.logger.info(`Refreshing ${Utils.pluralize("peer", this.repository.getPeers().length, true)} after fork.`);
 
         await this.cleansePeers({ forcePing: true });
     }
