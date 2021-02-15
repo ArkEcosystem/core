@@ -134,7 +134,7 @@ describe("Command", () => {
         });
 
         it("should run the command in non-interactive mode", async () => {
-            cmd.register(["env:paths", "--no-interaction"]);
+            cmd.register(["env:paths"]);
 
             const interact = jest.spyOn(cmd, "interact");
 
