@@ -81,7 +81,9 @@ ${blue().bold("Usage")}
 ${blue().bold("Flags")}
   --help              Display the corresponding help message.
   --quiet             Do not output any message
-  --v|vv|vvv          Increase the verbosity of messages: 1 for normal output, 2 for more verbose output and 3 for debug
+
+${blue().bold("Arguments")}
+  -v|vv|vvv          Increase the verbosity of messages: 1 for normal output, 2 for more verbose output and 3 for debug
 
 ${blue().bold("Available Commands")}
 ${commandsAsString.join("\n")}`,
