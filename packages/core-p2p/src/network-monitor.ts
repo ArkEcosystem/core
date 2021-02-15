@@ -177,11 +177,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
 
         if (this.initializing) {
             this.logger.info(
-                `${Utils.pluralize("peer", max - unresponsivePeers, true)} of ${Utils.pluralize(
-                    "peer",
-                    max,
-                    true,
-                )} on the network are responsive`,
+                `${max - unresponsivePeers} of ${Utils.pluralize("peer", max, true)} on the network are responsive`,
             );
             this.logger.info(`Median Network Height: ${this.getNetworkHeight().toLocaleString()}`);
         }
