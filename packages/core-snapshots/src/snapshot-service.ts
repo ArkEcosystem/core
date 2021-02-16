@@ -50,7 +50,7 @@ export class SnapshotService implements Contracts.Snapshot.SnapshotService {
                 meta = await this.filesystem.readMetaData();
             } catch (e) {
                 this.logger.error(
-                    `Metadata for snapshot ${options.blocks} of network ${options.network} is not valid.`,
+                    `Metadata for snapshot ${options.blocks} of network ${options.network} are not valid.`,
                 );
                 return;
             }
@@ -62,9 +62,11 @@ export class SnapshotService implements Contracts.Snapshot.SnapshotService {
             await this.database.restore(meta!, { truncate: !!options.truncate });
 
             this.logger.info(
-                `Successfully restore  ${meta!.blocks.count.toLocaleString()} blocks, ${meta!.transactions.count.toLocaleString()} transactions, ${
-                    meta!.rounds.count
-                } rounds`,
+                `Successfully restore  ${Utils.pluralize("block", meta!.blocks.count, true)}, ${Utils.pluralize(
+                    "transaction",
+                    meta!.transactions.count,
+                    true,
+                )}, ${Utils.pluralize("round", meta!.rounds.count, true)}`,
             );
         } catch (err) {
             this.logger.error(`RESTORE failed.`);
@@ -90,7 +92,7 @@ export class SnapshotService implements Contracts.Snapshot.SnapshotService {
                 meta = await this.filesystem.readMetaData();
             } catch (e) {
                 this.logger.error(
-                    `Metadata for snapshot ${options.blocks} of network ${options.network} is not valid.`,
+                    `Metadata for snapshot ${options.blocks} of network ${options.network} are not valid.`,
                 );
             }
 
