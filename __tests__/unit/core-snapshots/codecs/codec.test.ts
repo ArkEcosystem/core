@@ -1,15 +1,16 @@
 import "jest-extended";
-import { decamelize } from "xcase";
 
 import { MessagePackCodec } from "@packages/core-snapshots/src/codecs";
+import { decamelize } from "xcase";
+
 import { Assets } from "../__fixtures__";
 
 const appendPrefix = (prefix: string, entity: any) => {
-    let itemToReturn = {};
+    const itemToReturn = {};
 
-    let item = entity;
+    const item = entity;
 
-    for (let key of Object.keys(item)) {
+    for (const key of Object.keys(item)) {
         itemToReturn[prefix + decamelize(key)] = item[key];
     }
 
@@ -25,13 +26,13 @@ beforeEach(() => {
 describe("Codec", () => {
     describe("encodeBlock", () => {
         it("should be ok", async () => {
-            let encoded = codec.encodeBlock(appendPrefix("Block_", Assets.blocks[1]));
+            const encoded = codec.encodeBlock(appendPrefix("Block_", Assets.blocks[1]));
 
             expect(encoded).toBeDefined();
         });
 
         it("should throw error", async () => {
-            let corruptedBlock = {
+            const corruptedBlock = {
                 Block_id: "123",
             };
 
@@ -43,11 +44,11 @@ describe("Codec", () => {
 
     describe("decodeBlock", () => {
         it("should be ok", async () => {
-            let encoded = codec.encodeBlock(appendPrefix("Block_", Assets.blocks[1]));
+            const encoded = codec.encodeBlock(appendPrefix("Block_", Assets.blocks[1]));
 
             expect(encoded).toBeDefined();
 
-            let decoded = codec.decodeBlock(encoded);
+            const decoded = codec.decodeBlock(encoded);
 
             expect(decoded).toBeDefined();
         });
@@ -61,7 +62,7 @@ describe("Codec", () => {
 
     describe("encodeTransaction", () => {
         it("should be ok", async () => {
-            let encoded = codec.encodeTransaction(Assets.transactions[0]);
+            const encoded = codec.encodeTransaction(Assets.transactions[0]);
 
             expect(encoded).toBeDefined();
         });
@@ -75,11 +76,11 @@ describe("Codec", () => {
 
     describe("decodeTransaction", () => {
         it("should be ok", async () => {
-            let encoded = codec.encodeTransaction(appendPrefix("Transaction_", Assets.transactions[0]));
+            const encoded = codec.encodeTransaction(appendPrefix("Transaction_", Assets.transactions[0]));
 
             expect(encoded).toBeDefined();
 
-            let decoded = codec.decodeTransaction(encoded);
+            const decoded = codec.decodeTransaction(encoded);
 
             expect(decoded).toBeDefined();
         });
@@ -93,7 +94,7 @@ describe("Codec", () => {
 
     describe("encodeRound", () => {
         it("should be ok", async () => {
-            let encoded = codec.encodeRound(appendPrefix("Round_", Assets.rounds[0]));
+            const encoded = codec.encodeRound(appendPrefix("Round_", Assets.rounds[0]));
 
             expect(encoded).toBeDefined();
         });
@@ -107,11 +108,11 @@ describe("Codec", () => {
 
     describe("decodeRound", () => {
         it("should be ok", async () => {
-            let encoded = codec.encodeRound(appendPrefix("Round_", Assets.rounds[0]));
+            const encoded = codec.encodeRound(appendPrefix("Round_", Assets.rounds[0]));
 
             expect(encoded).toBeDefined();
 
-            let decoded = codec.decodeRound(encoded);
+            const decoded = codec.decodeRound(encoded);
 
             expect(decoded).toBeDefined();
         });

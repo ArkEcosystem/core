@@ -27,7 +27,7 @@ afterEach(() => {
 describe("WorkerWrapper", () => {
     describe("Terminate", () => {
         it("should call terminate", async () => {
-            const workerWrapper = new WorkerWrapper({});
+            const workerWrapper = new WorkerWrapper({} as any);
 
             await workerWrapper.terminate();
 
@@ -37,7 +37,7 @@ describe("WorkerWrapper", () => {
 
     describe("Start", () => {
         it("should resolve on [started] event", async () => {
-            const workerWrapper = new WorkerWrapper({});
+            const workerWrapper = new WorkerWrapper({} as any);
 
             const promise = workerWrapper.start();
 
@@ -55,7 +55,7 @@ describe("WorkerWrapper", () => {
         });
 
         it("should resolve on [exit] event", async () => {
-            const workerWrapper = new WorkerWrapper({});
+            const workerWrapper = new WorkerWrapper({} as any);
 
             const promise = workerWrapper.start();
 
@@ -70,7 +70,7 @@ describe("WorkerWrapper", () => {
         });
 
         it("should reject on [exception] message event", async () => {
-            const workerWrapper = new WorkerWrapper({});
+            const workerWrapper = new WorkerWrapper({} as any);
 
             const promise = workerWrapper.start();
 
@@ -88,7 +88,7 @@ describe("WorkerWrapper", () => {
         });
 
         it("should reject on [any] message event", async () => {
-            const workerWrapper = new WorkerWrapper({});
+            const workerWrapper = new WorkerWrapper({} as any);
 
             const promise = workerWrapper.start();
 
@@ -106,7 +106,7 @@ describe("WorkerWrapper", () => {
         });
 
         it("should reject on [error] event", async () => {
-            const workerWrapper = new WorkerWrapper({});
+            const workerWrapper = new WorkerWrapper({} as any);
 
             const promise = workerWrapper.start();
 
@@ -123,7 +123,7 @@ describe("WorkerWrapper", () => {
 
     describe("Sync", () => {
         it("should resolve on [synced] event", async () => {
-            const workerWrapper = new WorkerWrapper({});
+            const workerWrapper = new WorkerWrapper({} as any);
 
             const promise = workerWrapper.sync({});
 
@@ -145,7 +145,7 @@ describe("WorkerWrapper", () => {
         });
 
         it("should resolve with undefined on [exit] event", async () => {
-            const workerWrapper = new WorkerWrapper({});
+            const workerWrapper = new WorkerWrapper({} as any);
 
             const promise = workerWrapper.sync({});
 
@@ -160,7 +160,7 @@ describe("WorkerWrapper", () => {
         });
 
         it("should resolve if worker already exit", async () => {
-            const workerWrapper = new WorkerWrapper({});
+            const workerWrapper = new WorkerWrapper({} as any);
 
             // @ts-ignore
             workerWrapper.isDone = true;
@@ -171,7 +171,7 @@ describe("WorkerWrapper", () => {
         });
 
         it("should reject on [exception] message event", async () => {
-            const workerWrapper = new WorkerWrapper({});
+            const workerWrapper = new WorkerWrapper({} as any);
 
             const promise = workerWrapper.sync({});
 
@@ -189,7 +189,7 @@ describe("WorkerWrapper", () => {
         });
 
         it("should reject on [any] message event", async () => {
-            const workerWrapper = new WorkerWrapper({});
+            const workerWrapper = new WorkerWrapper({} as any);
 
             const promise = workerWrapper.sync({});
 
@@ -207,7 +207,7 @@ describe("WorkerWrapper", () => {
         });
 
         it("should reject on [error] event", async () => {
-            const workerWrapper = new WorkerWrapper({});
+            const workerWrapper = new WorkerWrapper({} as any);
 
             const promise = workerWrapper.sync({});
 

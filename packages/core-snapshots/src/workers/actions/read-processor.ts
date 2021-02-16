@@ -2,12 +2,13 @@ import { Models } from "@arkecosystem/core-database";
 import { Managers } from "@arkecosystem/crypto";
 import { parentPort } from "worker_threads";
 
+import { Worker } from "../../contracts";
 import { StreamReader } from "../../filesystem";
 
 export class ReadProcessor {
-    private nextField = "";
-    private nextValue = undefined;
-    private nextCount = undefined;
+    private nextField?: string = "";
+    private nextValue?: number;
+    private nextCount?: number;
 
     private callOnMessage;
     private count = 0;
@@ -23,7 +24,7 @@ export class ReadProcessor {
         private onResume?: Function,
     ) {}
 
-    public sync(data: any): void {
+    public sync(data: Worker.WorkerSyncData): void {
         this.nextField = data.nextField;
         this.nextValue = data.nextValue;
         this.nextCount = data.nextCount;
@@ -47,7 +48,7 @@ export class ReadProcessor {
         }
     }
 
-    public async start() {
+    public async start(): Promise<void> {
         await this.streamReader.open();
 
         parentPort!.postMessage({
@@ -69,8 +70,8 @@ export class ReadProcessor {
         while ((entity = await this.streamReader.readNext())) {
             this.count++;
 
-            if (this.nextValue && entity[this.nextField] > this.nextValue!) {
-                await this.waitOrContinue(this.count, previousEntity, entity);
+            if (this.nextValue && this.nextField) {
+                await this.waitOrContinue(entity);
             }
 
             await this.onItem(entity, previousEntity);
@@ -104,9 +105,9 @@ export class ReadProcessor {
         });
     }
 
-    private waitOrContinue(count, previousEntity: any, entity: any): Promise<void> {
+    private waitOrContinue(entity: any): Promise<void> {
         return new Promise<void>(async (resolve) => {
-            while (entity[this.nextField] > this.nextValue!) {
+            while (entity[this.nextField!] > this.nextValue!) {
                 await this.waitForSynchronization();
             }
             resolve();

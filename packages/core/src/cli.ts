@@ -82,7 +82,7 @@ export class CommandLineInterface {
         if (commandInstance && flags.help) {
             commandInstance.showHelp();
 
-            process.exit(2);
+            process.exit(0);
         }
 
         commandInstance.register(this.argv);
