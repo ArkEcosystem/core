@@ -83,7 +83,7 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
                     "round",
                     dumpRage.roundsCount,
                     true,
-                )} rounds and ${Utils.pluralize("transaction", dumpRage.transactionsCount, true)}`,
+                )} and ${Utils.pluralize("transaction", dumpRage.transactionsCount, true)}`,
             );
 
             this.filesystem.setSnapshot(meta.folder);

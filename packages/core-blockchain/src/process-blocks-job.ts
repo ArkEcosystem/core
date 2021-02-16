@@ -147,7 +147,7 @@ export class ProcessBlocksJob implements Contracts.Kernel.QueueJob {
                 await this.blockRepository.saveBlocks(acceptedBlocks);
             } catch (error) {
                 this.logger.error(
-                    `Could not save ${Utils.pluralize("block", acceptedBlocks.length, true)}) blocks to database : ${
+                    `Could not save ${Utils.pluralize("block", acceptedBlocks.length, true)}) to database : ${
                         error.stack
                     }`,
                 );
