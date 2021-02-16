@@ -1,10 +1,23 @@
 import { Interfaces } from "@arkecosystem/crypto";
 
+export interface WorkerAction {
+    init(options: any): void;
+    start(): Promise<void>;
+    sync(data: any): void;
+}
+
 export interface WorkerData {
     actionOptions: ActionOptions;
     networkConfig: Interfaces.NetworkConfig;
     cryptoPackages: string[];
     connection?: any;
+}
+
+export interface WorkerSyncData {
+    nextValue?: number;
+    nextField?: string;
+    nextCount?: number;
+    height?: number;
 }
 
 export interface ActionOptions {
