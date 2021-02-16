@@ -72,30 +72,30 @@ export interface Queue {
     /**
      * Push a new job onto the default queue.
      *
-     * @param {Function|QueueJob} job
+     * @param {QueueJob} job
      * @returns {Promise<void>}
      * @memberof Queue
      */
-    push(job: Function | QueueJob): Promise<void>;
+    push(job: QueueJob): Promise<void>;
 
     /**
      * Push a new job onto the default queue after a delay.
      *
      * @param {number} delay
-     * @param {Function|QueueJob} job
+     * @param {QueueJob} job
      * @returns {Promise<void>}
      * @memberof Queue
      */
-    later(delay: number, job: Function | QueueJob): Promise<void>;
+    later(delay: number, job: QueueJob): Promise<void>;
 
     /**
      * Push an array of jobs onto the default queue.
      *
-     * @param {(Function|QueueJob)[]} jobs
+     * @param {(QueueJob)[]} jobs
      * @returns {Promise<void>}
      * @memberof Queue
      */
-    bulk(jobs: Function[] | QueueJob[]): Promise<void>;
+    bulk(jobs: QueueJob[]): Promise<void>;
 
     /**
      * Get the size of the given queue.

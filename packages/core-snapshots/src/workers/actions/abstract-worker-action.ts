@@ -5,13 +5,13 @@ import pluralize from "pluralize";
 import { Readable } from "stream";
 import { pascalize } from "xcase";
 
-import { Codec, Repository, RepositoryFactory, Stream, Worker, WorkerAction } from "../../contracts";
+import { Codec, Repository, RepositoryFactory, Stream, Worker } from "../../contracts";
 import { StreamReader, StreamWriter } from "../../filesystem";
 import { Identifiers } from "../../ioc";
 import { Verifier } from "../../verifier";
 
 @Container.injectable()
-export abstract class AbstractWorkerAction implements WorkerAction {
+export abstract class AbstractWorkerAction implements Worker.WorkerAction {
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Contracts.Kernel.Application;
 
@@ -23,7 +23,7 @@ export abstract class AbstractWorkerAction implements WorkerAction {
 
     protected options?: Worker.ActionOptions;
 
-    public init(options: Worker.ActionOptions) {
+    public init(options: Worker.ActionOptions): void {
         this.table = options.table;
         this.codec = options.codec;
         this.skipCompression = options.skipCompression;
@@ -39,7 +39,7 @@ export abstract class AbstractWorkerAction implements WorkerAction {
         return repositoryFactory(this.table!);
     }
 
-    protected getSingularCapitalizedTableName() {
+    protected getSingularCapitalizedTableName(): string {
         return pascalize(pluralize.singular(this.table));
     }
 
@@ -81,7 +81,7 @@ export abstract class AbstractWorkerAction implements WorkerAction {
         }
     }
 
-    public abstract async start();
+    public abstract async start(): Promise<void>;
 
-    public abstract sync(data: any);
+    public abstract sync(data: Worker.WorkerSyncData): void;
 }

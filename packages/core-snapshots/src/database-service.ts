@@ -136,10 +136,7 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
 
         Utils.assert.defined<Interfaces.IBlockData>(block);
 
-        /* istanbul ignore next */
-        const lastBlock: Interfaces.IBlock = Blocks.BlockFactory.fromData(block)!;
-
-        return lastBlock;
+        return Blocks.BlockFactory.fromData(block)!;
     }
 
     private async runSynchronizedAction(action: string, meta: Meta.MetaData): Promise<void> {

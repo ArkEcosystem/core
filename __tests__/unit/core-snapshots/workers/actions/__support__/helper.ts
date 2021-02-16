@@ -1,4 +1,4 @@
-import { WorkerAction } from "@packages/core-snapshots/src/contracts";
+import { Worker } from "@packages/core-snapshots/src/contracts";
 import { Readable } from "stream";
 import WorkerThreads from "worker_threads";
 import { decamelize } from "xcase";
@@ -12,7 +12,7 @@ export class ReadableStream extends Readable {
         super({ objectMode: true });
     }
 
-    public _read() {
+    public _read(): void {
         if (this.count !== Assets[this.table].length) {
             this.push(this.appendPrefix(Assets[this.table][this.count]));
             this.count++;
@@ -34,7 +34,7 @@ export class ReadableStream extends Readable {
     }
 }
 
-export const waitForMessage = (action: WorkerAction, actionName: string, params: any): Promise<void> => {
+export const waitForMessage = (action: Worker.WorkerAction, actionName: string, params: any): Promise<void> => {
     return new Promise<void>((resolve) => {
         WorkerThreads.parentPort!.once("message", (data) => {
             resolve(data);
