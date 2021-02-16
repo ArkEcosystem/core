@@ -1,5 +1,6 @@
 import { Container } from "@arkecosystem/core-kernel";
 
+import { Worker } from "../../contracts";
 import { AbstractWorkerAction } from "./abstract-worker-action";
 import { ReadProcessor } from "./read-processor";
 
@@ -8,11 +9,7 @@ export class RestoreWorkerAction extends AbstractWorkerAction {
     private readProcessor: ReadProcessor | undefined = undefined;
     private entities = [] as any[];
 
-    public sync(data: any): void {
-        this.readProcessor!.sync(data);
-    }
-
-    public async start() {
+    public async start(): Promise<void> {
         const isBlock = this.table === "blocks";
         const streamReader = this.getStreamReader();
         const verify = this.getVerifyFunction();
@@ -41,6 +38,10 @@ export class RestoreWorkerAction extends AbstractWorkerAction {
         );
 
         await this.readProcessor.start();
+    }
+
+    public sync(data: Worker.WorkerSyncData): void {
+        this.readProcessor!.sync(data);
     }
 
     private async saveValues<T>() {

@@ -1,10 +1,11 @@
 import { Container } from "@arkecosystem/core-kernel";
-import { WorkerAction } from "../../contracts";
 import { parentPort } from "worker_threads";
+
+import { Worker } from "../../contracts";
 
 // For testing purposes only
 @Container.injectable()
-export class TestWorkerAction implements WorkerAction {
+export class TestWorkerAction implements Worker.WorkerAction {
     private options: any | undefined;
     private resume: Function | undefined;
 
@@ -23,7 +24,7 @@ export class TestWorkerAction implements WorkerAction {
         }
     }
 
-    public async start() {
+    public async start(): Promise<void> {
         if (this.options.table === "throwError") {
             throw new Error("Start Error");
         }

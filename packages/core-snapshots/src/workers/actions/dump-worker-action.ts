@@ -1,11 +1,12 @@
 import { Container } from "@arkecosystem/core-kernel";
 import { parentPort } from "worker_threads";
 
+import { Worker } from "../../contracts";
 import { AbstractWorkerAction } from "./abstract-worker-action";
 
 @Container.injectable()
 export class DumpWorkerAction extends AbstractWorkerAction {
-    public async start() {
+    public async start(): Promise<void> {
         const databaseStream = await this.getRepository().getReadStream(this.options!.start, this.options!.end);
         const streamWriter = this.getStreamWriter(databaseStream);
 
@@ -25,5 +26,5 @@ export class DumpWorkerAction extends AbstractWorkerAction {
     }
 
     /* istanbul ignore next */
-    public sync(data: any) {}
+    public sync(data: Worker.WorkerSyncData): void {}
 }

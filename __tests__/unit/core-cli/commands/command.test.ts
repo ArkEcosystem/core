@@ -1,7 +1,7 @@
 import { Container } from "@arkecosystem/core-cli";
 import { Console } from "@arkecosystem/core-test-framework";
-import Joi from "joi";
 import { Command, DiscoverConfig } from "@packages/core-cli/src/commands";
+import Joi from "joi";
 import { setGracefulCleanup } from "tmp";
 
 @Container.injectable()
@@ -22,6 +22,7 @@ class StubCommand extends Command {
 
 let cli;
 let cmd;
+let spyOnSetVerbosity;
 
 beforeAll(() => setGracefulCleanup());
 
@@ -30,6 +31,8 @@ beforeEach(() => {
 
     cmd = cli.app.resolve(StubCommand);
     cmd.register(["env:paths", "john", "doe", "--hello=world"]);
+
+    spyOnSetVerbosity = jest.spyOn(cmd.output, "setVerbosity");
 });
 
 afterEach(() => jest.resetAllMocks());
@@ -38,22 +41,32 @@ describe("Command", () => {
     describe("#register", () => {
         it("should register the command", () => {
             cmd.register(["env:paths", "john", "doe", "--hello=world"]);
+
+            expect(spyOnSetVerbosity).toHaveBeenCalledWith(1);
         });
 
         it("should register the command with an output verbosity of quiet", () => {
             cmd.register(["env:paths", "--quiet"]);
+
+            expect(spyOnSetVerbosity).toHaveBeenCalledWith(0);
         });
 
         it("should register the command with an output verbosity of normal", () => {
             cmd.register(["env:paths", "-v"]);
+
+            expect(spyOnSetVerbosity).toHaveBeenCalledWith(1);
         });
 
         it("should register the command with an output verbosity of verbose", () => {
             cmd.register(["env:paths", "-vv"]);
+
+            expect(spyOnSetVerbosity).toHaveBeenCalledWith(2);
         });
 
         it("should register the command with an output verbosity of debug", () => {
             cmd.register(["env:paths", "-vvv"]);
+
+            expect(spyOnSetVerbosity).toHaveBeenCalledWith(3);
         });
 
         it("should register the command and encounter an error", () => {
@@ -121,7 +134,7 @@ describe("Command", () => {
         });
 
         it("should run the command in non-interactive mode", async () => {
-            cmd.register(["env:paths", "--no-interaction"]);
+            cmd.register(["env:paths"]);
 
             const interact = jest.spyOn(cmd, "interact");
 
