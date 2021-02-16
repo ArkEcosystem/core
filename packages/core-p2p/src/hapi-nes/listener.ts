@@ -33,8 +33,7 @@ export class Listener {
         this._stopped = false;
 
         // WebSocket listener
-
-        const options: any = { server: this._server.listener, maxPayload: settings.maxPayload };
+        const options: any = { port: settings.port, host: settings.host, maxPayload: settings.maxPayload };
         if (settings.origin) {
             options.verifyClient = (info) => settings.origin.indexOf(info.origin) >= 0;
         }

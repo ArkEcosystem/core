@@ -3,15 +3,15 @@ import { Server as HapiServer, ServerInjectOptions, ServerInjectResponse, Server
 
 import { plugin as hapiNesPlugin } from "../hapi-nes";
 import { AcceptPeerPlugin } from "./plugins/accept-peer";
-import { IsAppReadyPlugin } from "./plugins/is-app-ready";
-import { ValidatePlugin } from "./plugins/validate";
 import { CodecPlugin } from "./plugins/codec";
+import { IsAppReadyPlugin } from "./plugins/is-app-ready";
+import { RateLimitPlugin } from "./plugins/rate-limit";
+import { ValidatePlugin } from "./plugins/validate";
 import { WhitelistForgerPlugin } from "./plugins/whitelist-forger";
 import { BlocksRoute } from "./routes/blocks";
 import { InternalRoute } from "./routes/internal";
 import { PeerRoute } from "./routes/peer";
 import { TransactionsRoute } from "./routes/transactions";
-import { RateLimitPlugin } from "./plugins/rate-limit";
 
 // todo: review the implementation
 @Container.injectable()
@@ -55,16 +55,18 @@ export class Server {
     public async initialize(name: string, optionsServer: Types.JsonObject): Promise<void> {
         this.name = name;
 
-        const address = optionsServer.hostname;
+        const host = optionsServer.hostname;
         const port = Number(optionsServer.port);
 
-        this.server = new HapiServer({ address, port });
+        this.server = new HapiServer();
         this.server.app = this.app;
         await this.server.register({
             plugin: hapiNesPlugin,
             options: {
+                host,
+                port,
                 maxPayload: 20971520, // 20 MB TODO to adjust
-            }
+            },
         });
 
         this.app.resolve(InternalRoute).register(this.server);

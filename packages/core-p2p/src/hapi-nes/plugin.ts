@@ -35,6 +35,8 @@ internals.schema = Joi.object({
     maxConnections: Joi.number().integer().min(1).allow(false),
     origin: Joi.array().items(Joi.string()).single().min(1),
     maxPayload: Joi.number().integer().min(1),
+    port: Joi.number().integer().min(1).max(65535),
+    host: Joi.string().ip({ version: ["ipv4", "ipv6"] }),
 });
 
 const plugin = {
