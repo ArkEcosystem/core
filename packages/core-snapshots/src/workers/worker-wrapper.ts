@@ -1,11 +1,12 @@
 import { EventEmitter } from "events";
 import { Worker } from "worker_threads";
+import { WorkerData, WorkerSyncData } from "../contracts/worker";
 
 export class WorkerWrapper extends EventEmitter {
     private worker: Worker;
     private isDone: boolean = false;
 
-    public constructor(data: any) {
+    public constructor(data: WorkerData) {
         super();
         this.worker = new Worker(__dirname + "/worker.js", { workerData: data });
 
@@ -42,7 +43,7 @@ export class WorkerWrapper extends EventEmitter {
         });
     }
 
-    public sync(data: any): Promise<any> {
+    public sync(data: WorkerSyncData): Promise<any> {
         return new Promise((resolve, reject) => {
             if (this.isDone) {
                 resolve();
@@ -68,7 +69,7 @@ export class WorkerWrapper extends EventEmitter {
         });
     }
 
-    public async terminate() {
+    public async terminate(): Promise<void> {
         await this.worker.terminate();
     }
 

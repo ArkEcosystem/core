@@ -220,7 +220,6 @@ describe("DatabaseService", () => {
             filesystem.getSnapshotPath = jest.fn().mockReturnValue(subdir);
             const spyOnDeleteSnapshot = jest.spyOn(filesystem, "deleteSnapshot");
 
-
             const dumpOptions = {
                 network: "testnet",
                 skipCompression: false,

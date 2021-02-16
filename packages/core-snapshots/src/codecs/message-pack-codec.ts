@@ -37,7 +37,7 @@ export class MessagePackCodec implements Codec {
         }
     }
 
-    public encodeTransaction(transaction): Buffer {
+    public encodeTransaction(transaction: any): Buffer {
         try {
             return encode([
                 transaction.Transaction_id,
@@ -89,7 +89,7 @@ export class MessagePackCodec implements Codec {
         }
     }
 
-    public encodeRound(round): Buffer {
+    public encodeRound(round: any): Buffer {
         try {
             const roundCamelized = camelizeKeys(MessagePackCodec.removePrefix(round, "Round_"));
 
