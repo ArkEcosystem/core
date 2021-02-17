@@ -33,6 +33,7 @@ describe("InternalRoute", () => {
                 payload: {
                     maxBytes: config.maxBytes,
                 },
+                isInternal: true,
             },
         }));
 
