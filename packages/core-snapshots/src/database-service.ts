@@ -49,7 +49,11 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
 
     public async truncate(): Promise<void> {
         this.logger.info(
-            `Clearing:  ${await this.blockRepository.fastCount()} blocks,   ${await this.transactionRepository.fastCount()} transactions,  ${await this.roundRepository.fastCount()} rounds`,
+            `Clearing:  ${Utils.pluralize("block", await this.blockRepository.fastCount(), true)},   ${Utils.pluralize(
+                "transaction",
+                await this.transactionRepository.fastCount(),
+                true,
+            )},  ${Utils.pluralize("round", await this.roundRepository.fastCount(), true)}`,
         );
 
         await this.blockRepository.truncate();
@@ -75,7 +79,11 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
             const meta = this.prepareMetaData(options, dumpRage);
 
             this.logger.info(
-                `Start running dump for ${dumpRage.blocksCount} blocks, ${dumpRage.roundsCount} rounds and ${dumpRage.transactionsCount} transactions`,
+                `Start running dump for ${Utils.pluralize("block", dumpRage.blocksCount, true)}, ${Utils.pluralize(
+                    "round",
+                    dumpRage.roundsCount,
+                    true,
+                )} and ${Utils.pluralize("transaction", dumpRage.transactionsCount, true)}`,
             );
 
             this.filesystem.setSnapshot(meta.folder);

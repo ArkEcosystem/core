@@ -18,6 +18,7 @@ export class Action implements Actions.Action {
                 type: "string",
             },
         },
+        required: ["name"],
     };
 
     public async execute(params: any): Promise<any> {

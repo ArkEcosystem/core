@@ -37,7 +37,7 @@ export class Command extends Commands.Command {
         this.definition
             .setFlag("token", "The name of the token.", Joi.string().default("ark"))
             .setFlag("network", "The name of the network.", Joi.string().valid(...Object.keys(Networks)))
-            .setFlag("codec", "The name of the codec.", Joi.string())
+            .setFlag("codec", "The name of the codec.", Joi.string().valid("default", "json"))
             .setFlag("skipCompression", "Skip gzip compression.", Joi.boolean())
             .setFlag("start", "The start network height to export.", Joi.number())
             .setFlag("end", "The end network height to export.", Joi.number());

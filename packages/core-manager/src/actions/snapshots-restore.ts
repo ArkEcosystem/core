@@ -31,6 +31,7 @@ export class Action implements Actions.Action {
                 type: "boolean",
             },
         },
+        required: ["name"],
     };
 
     public async execute(params: { name: string; truncate?: boolean; verify?: boolean }): Promise<any> {
