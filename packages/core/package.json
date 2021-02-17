@@ -58,7 +58,7 @@
         "@arkecosystem/core-transactions": "^3.0.0-next.21",
         "@arkecosystem/core-webhooks": "^3.0.0-next.21",
         "@arkecosystem/crypto": "^3.0.0-next.21",
-        "@arkecosystem/utils": "^1.2.1",
+        "@arkecosystem/utils": "^1.3.0",
         "argon2": "^0.26.2",
         "bip39": "^3.0.2",
         "boxen": "^4.2.0",

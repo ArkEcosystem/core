@@ -26,7 +26,7 @@
         "@arkecosystem/core-kernel": "^3.0.0-next.21",
         "@arkecosystem/core-transactions": "^3.0.0-next.21",
         "@arkecosystem/crypto": "^3.0.0-next.21",
-        "@arkecosystem/utils": "^1.2.1",
+        "@arkecosystem/utils": "^1.3.0",
         "immutable": "^4.0.0-rc.12",
         "joi": "^17.3.0"
     },
