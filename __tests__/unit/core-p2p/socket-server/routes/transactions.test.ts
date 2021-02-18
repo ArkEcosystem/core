@@ -38,6 +38,7 @@ describe("BlocksRoute", () => {
                 payload: {
                     maxBytes: config.maxBytes,
                 },
+                isInternal: true,
             },
         }));
 

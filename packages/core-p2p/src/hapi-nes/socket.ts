@@ -341,6 +341,7 @@ export class Socket {
                 },
             },
             remoteAddress: this.info.remoteAddress,
+            allowInternals: true,
         };
 
         const res = await this.server.inject(shot);

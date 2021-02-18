@@ -8,11 +8,11 @@ export type Codec = {
     request: {
         serialize: any;
         deserialize: any;
-    },
+    };
     response: {
         serialize: any;
         deserialize: any;
-    },
+    };
 };
 
 export type RouteConfig = {
@@ -42,6 +42,7 @@ export abstract class Route {
                     payload: {
                         maxBytes: config.maxBytes,
                     },
+                    isInternal: true,
                 },
             });
         }
