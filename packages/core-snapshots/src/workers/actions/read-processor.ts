@@ -149,7 +149,7 @@ export class ReadProcessor {
                 numberOfTransactions: this.transactionsCount,
                 height: this.height,
                 count: this.count,
-            },
+            } as Worker.WorkerResult,
         });
     }
 }

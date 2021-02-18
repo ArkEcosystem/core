@@ -1,8 +1,8 @@
 import { Models } from "@arkecosystem/core-database";
-import { Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Providers, Types, Utils } from "@arkecosystem/core-kernel";
 import { Blocks, Interfaces, Managers } from "@arkecosystem/crypto";
 
-import { Database, Meta, Options } from "./contracts";
+import { Database, Meta, Options, Worker } from "./contracts";
 import { Filesystem } from "./filesystem/filesystem";
 import { Identifiers } from "./ioc";
 import { ProgressDispatcher } from "./progress-dispatcher";
@@ -147,71 +147,125 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
         return Blocks.BlockFactory.fromData(block)!;
     }
 
-    private async runSynchronizedAction(action: string, meta: Meta.MetaData): Promise<void> {
-        const blocksWorker = new WorkerWrapper(this.prepareWorkerData(action, "blocks", meta));
-        const transactionsWorker = new WorkerWrapper(this.prepareWorkerData(action, "transactions", meta));
-        const roundsWorker = new WorkerWrapper(this.prepareWorkerData(action, "rounds", meta));
+    private runSynchronizedAction(action: string, meta: Meta.MetaData): Promise<void> {
+        return new Promise(async (resolve, reject) => {
+            const blocksWorker = new WorkerWrapper(this.prepareWorkerData(action, "blocks", meta));
+            const transactionsWorker = new WorkerWrapper(this.prepareWorkerData(action, "transactions", meta));
+            const roundsWorker = new WorkerWrapper(this.prepareWorkerData(action, "rounds", meta));
 
-        const stopBlocksProgressDispatcher = await this.prepareProgressDispatcher(
-            blocksWorker,
-            "blocks",
-            meta.blocks.count,
-        );
-        const stopTransactionsProgressDispatcher = await this.prepareProgressDispatcher(
-            transactionsWorker,
-            "transactions",
-            meta.transactions.count,
-        );
-        const stopRoundsProgressDispatcher = await this.prepareProgressDispatcher(
-            roundsWorker,
-            "rounds",
-            meta.rounds.count,
-        );
+            const stopBlocksProgressDispatcher = await this.prepareProgressDispatcher(
+                blocksWorker,
+                "blocks",
+                meta.blocks.count,
+            );
+            const stopTransactionsProgressDispatcher = await this.prepareProgressDispatcher(
+                transactionsWorker,
+                "transactions",
+                meta.transactions.count,
+            );
+            const stopRoundsProgressDispatcher = await this.prepareProgressDispatcher(
+                roundsWorker,
+                "rounds",
+                meta.rounds.count,
+            );
 
-        try {
-            await blocksWorker.start();
-            await transactionsWorker.start();
-            await roundsWorker.start();
+            const transactionsQueue = await this.app.get<Types.QueueFactory>(Container.Identifiers.QueueFactory)();
+            const roundsQueue = await this.app.get<Types.QueueFactory>(Container.Identifiers.QueueFactory)();
+
+            const clear = async () => {
+                transactionsQueue.clear();
+                roundsQueue.clear();
+
+                await blocksWorker.terminate();
+                await transactionsWorker.terminate();
+                await roundsWorker.terminate();
+
+                stopBlocksProgressDispatcher();
+                stopTransactionsProgressDispatcher();
+                stopRoundsProgressDispatcher();
+            };
+
+            const handleError = async (err) => {
+                await clear();
+                reject(err);
+            };
+
+            transactionsQueue.onError((job, err) => {
+                handleError(err);
+            });
+
+            roundsQueue.onError((job, err) => {
+                handleError(err);
+            });
 
             const milestoneHeights = Managers.configManager.getMilestones().map((x) => x.height);
             milestoneHeights.push(Number.POSITIVE_INFINITY);
             milestoneHeights.push(Number.POSITIVE_INFINITY);
 
-            let result: any = undefined;
-            for (const height of milestoneHeights) {
-                const promises = [] as any;
+            try {
+                await blocksWorker.start();
+                await transactionsWorker.start();
+                await roundsWorker.start();
 
-                promises.push(blocksWorker.sync({ nextValue: height, nextField: "height" }));
+                transactionsQueue.start();
+                roundsQueue.start();
 
-                if (result && result.height > 0) {
-                    promises.push(
-                        transactionsWorker.sync({ nextCount: result.numberOfTransactions, height: result.height - 1 }),
-                    );
-                    promises.push(
-                        roundsWorker.sync({
-                            nextValue: Utils.roundCalculator.calculateRound(result.height).round,
-                            nextField: "round",
-                        }),
-                    );
+                for (const height of milestoneHeights) {
+                    const result: Worker.WorkerResult = await blocksWorker.sync({
+                        nextValue: height,
+                        nextField: "height",
+                    });
+
+                    if (!result) {
+                        break;
+                    }
+
+                    transactionsQueue.push({
+                        handle: async () => {
+                            await transactionsWorker.sync({
+                                nextCount: result.numberOfTransactions,
+                                height: result.height - 1,
+                            });
+                        },
+                    });
+
+                    roundsQueue.push({
+                        handle: async () => {
+                            await roundsWorker.sync({
+                                nextValue: Utils.roundCalculator.calculateRound(result.height).round,
+                                nextField: "round",
+                            });
+                        },
+                    });
                 }
 
-                result = (await Promise.all(promises))[0];
+                await Promise.all([
+                    new Promise((resolve) => {
+                        if (!transactionsQueue.isRunning()) {
+                            resolve();
+                        } else {
+                            transactionsQueue.onDrain(() => {
+                                resolve();
+                            });
+                        }
+                    }),
+                    new Promise((resolve) => {
+                        if (!roundsQueue.isRunning()) {
+                            resolve();
+                        } else {
+                            roundsQueue.onDrain(() => {
+                                resolve();
+                            });
+                        }
+                    }),
+                ]);
 
-                if (!result) {
-                    break;
-                }
+                await clear();
+                resolve();
+            } catch (err) {
+                await handleError(err);
             }
-        } catch (err) {
-            stopBlocksProgressDispatcher();
-            stopTransactionsProgressDispatcher();
-            stopRoundsProgressDispatcher();
-
-            throw err;
-        } finally {
-            await blocksWorker.terminate();
-            await transactionsWorker.terminate();
-            await roundsWorker.terminate();
-        }
+        });
     }
 
     private async getDumpRange(start?: number, end?: number): Promise<Database.DumpRange> {

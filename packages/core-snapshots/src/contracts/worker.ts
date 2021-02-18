@@ -36,3 +36,9 @@ export interface WorkerMessage {
     action: string;
     data: any;
 }
+
+export interface WorkerResult {
+    numberOfTransactions: number;
+    height: number;
+    count: number;
+}

@@ -1,6 +1,9 @@
 import "jest-extended";
 
 import { Container, Providers } from "@packages/core-kernel";
+import { Queue } from "@packages/core-kernel/dist/contracts/kernel";
+import { interfaces } from "@packages/core-kernel/dist/ioc";
+import { MemoryQueue } from "@packages/core-kernel/dist/services/queue/drivers/memory";
 import { LocalFilesystem } from "@packages/core-kernel/src/services/filesystem/drivers/local";
 import { SnapshotDatabaseService } from "@packages/core-snapshots/src/database-service";
 import { Filesystem } from "@packages/core-snapshots/src/filesystem/filesystem";
@@ -55,6 +58,7 @@ let blockRepository: Partial<BlockRepository>;
 let transactionRepository: Partial<TransactionRepository>;
 let roundRepository: Partial<RoundRepository>;
 let progressDispatcher: Partial<ProgressDispatcher>;
+let eventDispatcher;
 
 beforeEach(() => {
     mockWorkerWrapper = new MockWorkerWrapper();
@@ -65,10 +69,15 @@ beforeEach(() => {
     logger = {
         info: jest.fn(),
         error: jest.fn(),
+        warning: jest.fn(),
     };
 
     connection = {
         isConnected: true,
+    };
+
+    eventDispatcher = {
+        dispatch: jest.fn(),
     };
 
     const lastBlock = Assets.blocksBigNumber[0];
@@ -121,6 +130,14 @@ beforeEach(() => {
     sandbox.app.bind(Identifiers.ProgressDispatcher).toConstantValue(progressDispatcher);
 
     sandbox.app.bind(Identifiers.SnapshotVersion).toConstantValue("3.0.0-next.0");
+
+    sandbox.app.bind(Container.Identifiers.EventDispatcherService).toConstantValue(eventDispatcher);
+
+    sandbox.app
+        .bind(Container.Identifiers.QueueFactory)
+        .toFactory((context: interfaces.Context) => async <K, T>(name?: string): Promise<Queue> =>
+            sandbox.app.resolve<Queue>(MemoryQueue).make(),
+        );
 
     sandbox.app.bind(Identifiers.SnapshotDatabaseService).to(SnapshotDatabaseService).inSingletonScope();
 
@@ -301,6 +318,52 @@ describe("DatabaseService", () => {
             const promise = database.restore(Assets.metaData, { truncate: true });
 
             await expect(promise).rejects.toThrow();
+        });
+
+        it("should throw error if error on sync in blocks worker", async () => {
+            const dir: string = dirSync().name;
+            const subdir: string = `${dir}/sub`;
+
+            filesystem.getSnapshotPath = jest.fn().mockReturnValue(subdir);
+
+            mockWorkerWrapper.sync = jest.fn().mockRejectedValueOnce(new Error("Blocks error"));
+
+            const promise = database.restore(Assets.metaData, { truncate: true });
+
+            await expect(promise).rejects.toThrow("Blocks error");
+        });
+
+        it("should throw error if error on sync in transactions worker", async () => {
+            const dir: string = dirSync().name;
+            const subdir: string = `${dir}/sub`;
+
+            filesystem.getSnapshotPath = jest.fn().mockReturnValue(subdir);
+
+            mockWorkerWrapper.sync = jest
+                .fn()
+                .mockResolvedValueOnce({ numberOfTransactions: 1, height: 1 })
+                .mockRejectedValueOnce(new Error("Transactions error"));
+
+            const promise = database.restore(Assets.metaData, { truncate: true });
+
+            await expect(promise).rejects.toThrow("Transactions error");
+        });
+
+        it("should throw error if error on sync in rounds worker", async () => {
+            const dir: string = dirSync().name;
+            const subdir: string = `${dir}/sub`;
+
+            filesystem.getSnapshotPath = jest.fn().mockReturnValue(subdir);
+
+            mockWorkerWrapper.sync = jest
+                .fn()
+                .mockResolvedValueOnce({ numberOfTransactions: 1, height: 1 })
+                .mockResolvedValueOnce({})
+                .mockRejectedValueOnce(new Error("Rounds error"));
+
+            const promise = database.restore(Assets.metaData, { truncate: true });
+
+            await expect(promise).rejects.toThrow("Rounds error");
         });
     });
 
