@@ -2,7 +2,7 @@ import { Utils } from "@arkecosystem/crypto";
 import { blocks } from "./proto/protos";
 
 const hardLimitNumberOfBlocks = 400;
-const hardLimitNumberOfTransactions = 400;
+const hardLimitNumberOfTransactions = 500;
 
 export const getBlocks = {
     request: {

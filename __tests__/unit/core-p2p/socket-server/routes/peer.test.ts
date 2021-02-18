@@ -33,6 +33,7 @@ describe("PeerRoute", () => {
                 payload: {
                     maxBytes: config.maxBytes,
                 },
+                isInternal: true,
             },
         }));
 
