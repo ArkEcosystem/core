@@ -44,8 +44,11 @@ export interface ITransactionsBusinessRepository {
     ): Promise<
         Array<{
             type: number;
-            fee: number;
-            timestamp: number;
+            typeGroup: number;
+            avg: number;
+            min: number;
+            max: number;
+            sum: number;
         }>
     >;
 }

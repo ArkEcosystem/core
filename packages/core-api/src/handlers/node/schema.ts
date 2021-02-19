@@ -6,8 +6,7 @@ export const fees: object = {
             .number()
             .integer()
             .min(1)
-            .max(30)
-            .default(7),
+            .max(30),
     },
 };
 
