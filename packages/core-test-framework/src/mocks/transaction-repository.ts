@@ -68,7 +68,7 @@ class TransactionRepositoryMock implements Partial<Repositories.TransactionRepos
         });
     }
 
-    public async getFeeStatistics(days: number, minFee?: number): Promise<FeeStatistics[]> {
+    public async getFeeStatistics(txTypes: Array<{ type: number, typeGroup: number }>, days: number, minFee?: number): Promise<FeeStatistics[]> {
         return mockFeeStatistics;
     }
 }
