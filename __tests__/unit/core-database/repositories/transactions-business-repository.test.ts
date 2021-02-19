@@ -532,8 +532,11 @@ describe("Transactions Business Repository", () => {
                 async () => [
                     {
                         type: 0,
-                        fee: 1,
-                        timestamp: 123,
+                        typeGroup: 1,
+                        avg: 1,
+                        min: 1,
+                        max: 1,
+                        sum: 1,
                     },
                 ],
             );
