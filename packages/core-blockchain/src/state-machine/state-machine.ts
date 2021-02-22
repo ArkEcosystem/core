@@ -41,8 +41,12 @@ export class StateMachine {
         this.stateStore.setBlockchain(nextState);
 
         for (const actionKey of nextState.actions) {
-            const action: Action = this.app.resolve(actions[actionKey]);
+            let action: Action;
+            try {
+                action = this.app.resolve(actions[actionKey]);
+            } catch {}
 
+            // @ts-ignore
             if (action) {
                 setImmediate(() => action.handle());
             } else {
@@ -54,6 +58,6 @@ export class StateMachine {
     }
 
     public getState(): string | undefined {
-        return this.stateStore.getBlockchain();
+        return this.stateStore.getBlockchain().value;
     }
 }
