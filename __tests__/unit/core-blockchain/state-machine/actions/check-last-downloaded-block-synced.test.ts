@@ -1,5 +1,5 @@
-import { Container } from "@packages/core-kernel";
 import { CheckLastDownloadedBlockSynced } from "@packages/core-blockchain/src/state-machine/actions/check-last-downloaded-block-synced";
+import { Container } from "@packages/core-kernel";
 
 describe("CheckLastDownloadedBlockSynced", () => {
     let container: Container.Container;
@@ -22,6 +22,8 @@ describe("CheckLastDownloadedBlockSynced", () => {
             numberOfBlocksToRollback: undefined,
             getLastDownloadedBlock: jest.fn(),
             networkStart: undefined,
+            getNoBlockCounter: jest.fn().mockReturnValue(0),
+            setNoBlockCounter: jest.fn(),
         };
         peerNetworkMonitor = { checkNetworkHealth: jest.fn() };
         logger = { warn: jest.fn(), debug: jest.fn(), info: jest.fn(), error: jest.fn() };
@@ -91,7 +93,7 @@ describe("CheckLastDownloadedBlockSynced", () => {
 
         describe("when stateStore.noBlockCounter > 5 && !blockchain.getQueue().isRunning()", () => {
             beforeEach(() => {
-                stateStore.noBlockCounter = 6;
+                stateStore.getNoBlockCounter = jest.fn().mockReturnValue(6);
                 blockchain.getQueue().isRunning = jest.fn().mockReturnValue(false);
             });
 
@@ -111,6 +113,7 @@ describe("CheckLastDownloadedBlockSynced", () => {
                     expect(blockchain.dispatch).toBeCalledTimes(1);
                     expect(blockchain.dispatch).toHaveBeenLastCalledWith("NETWORKHALTED");
                     expect(stateStore.p2pUpdateCounter).toBe(0); // should be reset
+                    expect(stateStore.setNoBlockCounter).toHaveBeenCalledWith(0);
                 });
 
                 it("should dispatch FORK when networkStatus.forked", async () => {
@@ -158,6 +161,7 @@ describe("CheckLastDownloadedBlockSynced", () => {
 
             expect(blockchain.dispatch).toBeCalledTimes(1);
             expect(blockchain.dispatch).toHaveBeenLastCalledWith("SYNCED");
+            expect(stateStore.setNoBlockCounter).toHaveBeenLastCalledWith(0);
         });
     });
 });

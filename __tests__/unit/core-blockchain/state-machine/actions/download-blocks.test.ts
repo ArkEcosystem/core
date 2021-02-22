@@ -26,6 +26,8 @@ describe("DownloadBlocks", () => {
             getLastBlock: () => lastBlock,
             getLastDownloadedBlock: jest.fn(),
             setLastDownloadedBlock: jest.fn(),
+            getNoBlockCounter: jest.fn().mockReturnValue(0),
+            setNoBlockCounter: jest.fn(),
         };
         logger = { warning: jest.fn(), debug: jest.fn(), info: jest.fn(), error: jest.fn() };
         peerNetworkMonitor = { downloadBlocksFromHeight: jest.fn() };
@@ -86,6 +88,7 @@ describe("DownloadBlocks", () => {
 
             expect(blockchain.dispatch).toHaveBeenCalledTimes(1);
             expect(blockchain.dispatch).toHaveBeenLastCalledWith("NOBLOCK");
+            expect(stateStore.setNoBlockCounter).toHaveBeenLastCalledWith(1);
         });
 
         it("should dispatch NOBLOCK when downloadBlocksFromHeight returns no chained block", async () => {
@@ -96,6 +99,7 @@ describe("DownloadBlocks", () => {
 
             expect(blockchain.dispatch).toHaveBeenCalledTimes(1);
             expect(blockchain.dispatch).toHaveBeenLastCalledWith("NOBLOCK");
+            expect(stateStore.setNoBlockCounter).toHaveBeenLastCalledWith(1);
         });
 
         it("should enqueueBlocks and dispatch DOWNLOADED when downloadBlocksFromHeight returns chained blocks", async () => {
