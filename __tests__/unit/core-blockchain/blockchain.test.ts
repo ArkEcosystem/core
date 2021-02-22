@@ -80,9 +80,10 @@ describe("Blockchain", () => {
         stateStore.getMaxLastBlocks = jest.fn().mockReturnValue(200);
         stateStore.clearWakeUpTimeout = jest.fn();
         stateStore.wakeUpTimeout = undefined;
-        stateStore.lastDownloadedBlock = undefined;
         stateStore.blockPing = undefined;
         stateStore.getGenesisBlock = jest.fn().mockReturnValue(Networks.testnet.genesisBlock);
+        stateStore.getLastDownloadedBlock = jest.fn();
+        stateStore.setLastDownloadedBlock = jest.fn();
         stateStore.getLastBlock = jest.fn();
         stateStore.setLastBlock = jest.fn();
         stateStore.pushPingBlock = jest.fn();
@@ -316,13 +317,14 @@ describe("Blockchain", () => {
             await blockchain.initialize();
 
             const spyClearQueue = jest.spyOn(blockchain, "clearQueue");
-            stateStore.lastDownloadedBlock = undefined;
+            stateStore.getLastDownloadedBlock = jest.fn();
+            stateStore.setLastDownloadedBlock = jest.fn();
             const mockLastBlock = { data: { id: "abcd1234" } };
             stateStore.getLastBlock = jest.fn().mockImplementation(() => mockLastBlock);
 
             blockchain.clearAndStopQueue();
 
-            expect(stateStore.lastDownloadedBlock).toEqual(mockLastBlock.data);
+            expect(stateStore.setLastDownloadedBlock).toHaveBeenCalledWith(mockLastBlock.data);
             expect(spyClearQueue).toBeCalledTimes(1);
         });
     });
@@ -513,7 +515,7 @@ describe("Blockchain", () => {
             const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
             await blockchain.initialize();
 
-            stateStore.lastDownloadedBlock = { height: 23111 };
+            stateStore.getLastDownloadedBlock = jest.fn().mockReturnValue({ height: 23111 });
 
             // @ts-ignore
             const spyQueuePush = jest.spyOn(blockchain.queue, "push");
@@ -529,7 +531,7 @@ describe("Blockchain", () => {
             const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
             await blockchain.initialize();
 
-            stateStore.lastDownloadedBlock = { height: 23111 };
+            stateStore.getLastDownloadedBlock = jest.fn().mockReturnValue({ height: 23111 });
 
             // @ts-ignore
             const spyQueuePush = jest.spyOn(blockchain.queue, "push");
@@ -551,7 +553,7 @@ describe("Blockchain", () => {
             const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
             await blockchain.initialize();
 
-            stateStore.lastDownloadedBlock = { height: 23111 };
+            stateStore.getLastDownloadedBlock = jest.fn().mockReturnValue({ height: 23111 });
 
             // @ts-ignore
             const spyQueuePush = jest.spyOn(blockchain.queue, "push");
@@ -573,7 +575,7 @@ describe("Blockchain", () => {
             const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
             await blockchain.initialize();
 
-            stateStore.lastDownloadedBlock = { height: 7555 };
+            stateStore.getLastDownloadedBlock = jest.fn().mockReturnValue({ height: 23111 });
 
             // @ts-ignore
             const spyQueuePush = jest.spyOn(blockchain.queue, "push");
@@ -707,13 +709,12 @@ describe("Blockchain", () => {
         it("should set this.state.lastDownloadedBlock = this.getLastBlock().data", () => {
             const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
 
-            stateStore.lastDownloadedBlock = undefined;
             const mockBlock = { data: { id: "123", height: 444 } };
             stateStore.getLastBlock = jest.fn().mockReturnValue(mockBlock);
 
             blockchain.resetLastDownloadedBlock();
 
-            expect(stateStore.lastDownloadedBlock).toEqual(mockBlock.data);
+            expect(stateStore.setLastDownloadedBlock).toHaveBeenCalledWith(mockBlock.data);
         });
     });
 
@@ -812,7 +813,7 @@ describe("Blockchain", () => {
             const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
 
             const mockBlock = { data: { id: "123", height: 444 } };
-            stateStore.lastDownloadedBlock = mockBlock.data;
+            stateStore.getLastDownloadedBlock = jest.fn().mockReturnValue(mockBlock.data);
 
             expect(blockchain.getLastDownloadedBlock()).toEqual(mockBlock.data);
         });
@@ -820,7 +821,6 @@ describe("Blockchain", () => {
         it("should return getLastBlock().data if state.lastDownloadedBlock is undefined", () => {
             const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
 
-            stateStore.lastDownloadedBlock = undefined;
             const mockBlock = { data: { id: "123", height: 444 } };
             stateStore.getLastBlock = jest.fn().mockReturnValue(mockBlock);
             const spyGetLastBlock = jest.spyOn(blockchain, "getLastBlock");

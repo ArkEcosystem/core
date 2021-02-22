@@ -23,8 +23,9 @@ describe("DownloadBlocks", () => {
         };
         lastBlock = { data: { id: "1234", height: 3333, timestamp: 11111 } };
         stateStore = {
-            lastDownloadedBlock: undefined,
             getLastBlock: () => lastBlock,
+            getLastDownloadedBlock: jest.fn(),
+            setLastDownloadedBlock: jest.fn(),
         };
         logger = { warning: jest.fn(), debug: jest.fn(), info: jest.fn(), error: jest.fn() };
         peerNetworkMonitor = { downloadBlocksFromHeight: jest.fn() };
@@ -61,7 +62,7 @@ describe("DownloadBlocks", () => {
             expect(blockchain.dispatch).toHaveBeenCalledTimes(0);
         });
 
-        it("should do nothing when stateStore.lastDownloadedBlock !== lastDownloadedBlock", async () => {
+        it("should do nothing when stateStore.getLastDownloadedBlock !== lastDownloadedBlock", async () => {
             const downloadBlocks = container.resolve<DownloadBlocks>(DownloadBlocks);
 
             peerNetworkMonitor.downloadBlocksFromHeight = jest.fn().mockImplementationOnce(async () => {
@@ -69,7 +70,9 @@ describe("DownloadBlocks", () => {
                 return [];
             });
             const handlePromise = downloadBlocks.handle();
-            stateStore.lastDownloadedBlock = { data: { id: "987", height: 233, timestamp: 111 } };
+            stateStore.getLastDownloadedBlock = jest
+                .fn()
+                .mockReturnValue({ data: { id: "987", height: 233, timestamp: 111 } });
             await handlePromise;
 
             expect(blockchain.dispatch).toHaveBeenCalledTimes(0);

@@ -1,7 +1,7 @@
-import { Container } from "@arkecosystem/core-kernel";
-import { Interfaces } from "@arkecosystem/crypto";
 import { BlockProcessorResult } from "@packages/core-blockchain/src/processor";
 import { AcceptBlockHandler } from "@packages/core-blockchain/src/processor/handlers/accept-block-handler";
+import { Container } from "@packages/core-kernel";
+import { Interfaces } from "@packages/crypto";
 
 describe("AcceptBlockHandler", () => {
     const container = new Container.Container();
@@ -12,8 +12,9 @@ describe("AcceptBlockHandler", () => {
         forkedBlock: undefined,
         started: undefined,
         setLastBlock: jest.fn(),
-        lastDownloadedBlock: undefined,
         getLastBlock: jest.fn(),
+        getLastDownloadedBlock: jest.fn(),
+        setLastDownloadedBlock: jest.fn(),
     };
     const transactionPool = { removeForgedTransaction: jest.fn() };
     const databaseInteractions = {
@@ -85,12 +86,13 @@ describe("AcceptBlockHandler", () => {
         it("should set state.lastDownloadedBlock if incoming block height is higher", async () => {
             const acceptBlockHandler = container.resolve<AcceptBlockHandler>(AcceptBlockHandler);
 
-            state.lastDownloadedBlock = { height: block.data.height - 1 };
+            state.getLastDownloadedBlock = jest.fn().mockReturnValue({ height: block.data.height - 1 });
             const result = await acceptBlockHandler.execute(block as Interfaces.IBlock);
 
             expect(result).toBe(BlockProcessorResult.Accepted);
 
-            expect(state.lastDownloadedBlock).toBe(block.data);
+            expect(state.setLastDownloadedBlock).toHaveBeenCalledWith(block.data);
+            expect(state.setLastDownloadedBlock).toHaveBeenCalledTimes(1);
         });
 
         describe("Revert", () => {
