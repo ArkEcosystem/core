@@ -92,6 +92,19 @@ describe("State Storage", () => {
         });
     });
 
+    describe("getNoBlockCounter", () => {
+        it("should return 0 by default", () => {
+            expect(stateStorage.getNoBlockCounter()).toEqual(0);
+        });
+    });
+
+    describe("setNoBlockCounter", () => {
+        it("should set noBlockCounter", () => {
+            stateStorage.setNoBlockCounter(3);
+            expect(stateStorage.getNoBlockCounter()).toEqual(3);
+        });
+    });
+
     describe("getMaxLastBlocks", () => {
         it("should return max last blocks limit", () => {
             expect(stateStorage.getMaxLastBlocks()).toBe(100);
