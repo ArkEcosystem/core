@@ -24,6 +24,8 @@ describe("CheckLastDownloadedBlockSynced", () => {
             networkStart: undefined,
             getNoBlockCounter: jest.fn().mockReturnValue(0),
             setNoBlockCounter: jest.fn(),
+            getP2pUpdateCounter: jest.fn().mockReturnValue(0),
+            setP2pUpdateCounter: jest.fn(),
         };
         peerNetworkMonitor = { checkNetworkHealth: jest.fn() };
         logger = { warn: jest.fn(), debug: jest.fn(), info: jest.fn(), error: jest.fn() };
@@ -97,9 +99,9 @@ describe("CheckLastDownloadedBlockSynced", () => {
                 blockchain.getQueue().isRunning = jest.fn().mockReturnValue(false);
             });
 
-            describe("when stateStore.p2pUpdateCounter + 1 > 3", () => {
+            describe("when stateStore.getP2pUpdateCounter + 1 > 3", () => {
                 beforeEach(() => {
-                    stateStore.p2pUpdateCounter = 3;
+                    stateStore.getP2pUpdateCounter = jest.fn().mockReturnValue(3);
                 });
 
                 it("should dispatch NETWORKHALTED when !networkStatus.forked", async () => {
@@ -112,7 +114,7 @@ describe("CheckLastDownloadedBlockSynced", () => {
 
                     expect(blockchain.dispatch).toBeCalledTimes(1);
                     expect(blockchain.dispatch).toHaveBeenLastCalledWith("NETWORKHALTED");
-                    expect(stateStore.p2pUpdateCounter).toBe(0); // should be reset
+                    expect(stateStore.setP2pUpdateCounter).toHaveBeenCalledWith(0); // should be reset
                     expect(stateStore.setNoBlockCounter).toHaveBeenCalledWith(0);
                 });
 
@@ -126,16 +128,16 @@ describe("CheckLastDownloadedBlockSynced", () => {
 
                     expect(blockchain.dispatch).toBeCalledTimes(1);
                     expect(blockchain.dispatch).toHaveBeenLastCalledWith("FORK");
-                    expect(stateStore.p2pUpdateCounter).toBe(0); // should be reset
+                    expect(stateStore.setP2pUpdateCounter).toHaveBeenCalledWith(0); // should be reset
                 });
             });
 
-            describe("when stateStore.p2pUpdateCounter + 1 <= 3", () => {
+            describe("when stateStore.getP2pUpdateCounter + 1 <= 3", () => {
                 beforeEach(() => {
-                    stateStore.p2pUpdateCounter = 0;
+                    stateStore.getP2pUpdateCounter = jest.fn().mockReturnValue(0);
                 });
 
-                it("should dispatch NETWORKHALTED and do stateStore.p2pUpdateCounter++", async () => {
+                it("should dispatch NETWORKHALTED and do stateStore.setP2pUpdateCounter++", async () => {
                     const checkLastDownloadedBlockSynced = container.resolve<CheckLastDownloadedBlockSynced>(
                         CheckLastDownloadedBlockSynced,
                     );
@@ -144,7 +146,7 @@ describe("CheckLastDownloadedBlockSynced", () => {
 
                     expect(blockchain.dispatch).toBeCalledTimes(1);
                     expect(blockchain.dispatch).toHaveBeenLastCalledWith("NETWORKHALTED");
-                    expect(stateStore.p2pUpdateCounter).toBe(1); // should have done counter++
+                    expect(stateStore.setP2pUpdateCounter).toHaveBeenCalledWith(1); // should have done counter++
                 });
             });
         });
