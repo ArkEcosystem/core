@@ -18,8 +18,8 @@ export class StateStore implements Contracts.State.StateStore {
     private readonly logger!: Contracts.Kernel.Logger;
 
     private blockchain: any = {};
-    private genesisBlock: Interfaces.IBlock | undefined = undefined;
-    private lastDownloadedBlock: Interfaces.IBlockData | undefined = undefined;
+    private genesisBlock?: Interfaces.IBlock;
+    private lastDownloadedBlock?: Interfaces.IBlockData;
     private blockPing?: Contracts.State.BlockPing;
 
     // @todo: make all properties private and expose them one-by-one through a getter if used outside of this class
