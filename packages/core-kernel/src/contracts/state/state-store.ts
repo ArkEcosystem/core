@@ -15,6 +15,17 @@ export interface StateStore {
 
     setBlockchain(blockchain: any): void;
 
+    /**
+     * Get the genesis block.
+     */
+    getGenesisBlock(): Interfaces.IBlock;
+
+    /**
+     * Sets the genesis block.
+     * @returns {void}
+     */
+    setGenesisBlock(block: Interfaces.IBlock): void;
+
     reset(blockchainMachine): void;
 
     /**
@@ -36,17 +47,6 @@ export interface StateStore {
      * Get the last block height.
      */
     getLastHeight(): number;
-
-    /**
-     * Get the genesis block.
-     */
-    getGenesisBlock(): Interfaces.IBlock;
-
-    /**
-     * Sets the genesis block.
-     * @returns {void}
-     */
-    setGenesisBlock(block: Interfaces.IBlock): void;
 
     /**
      * Get the last block.

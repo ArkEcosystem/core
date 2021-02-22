@@ -18,8 +18,9 @@ export class StateStore implements Contracts.State.StateStore {
     private readonly logger!: Contracts.Kernel.Logger;
 
     private blockchain: any = {};
+    private genesisBlock: Interfaces.IBlock | undefined = undefined;
+
     // @todo: make all properties private and expose them one-by-one through a getter if used outside of this class
-    public genesisBlock: Interfaces.IBlock | undefined = undefined;
     public lastDownloadedBlock: Interfaces.IBlockData | undefined = undefined;
     public blockPing: any = undefined;
     public started = false;
@@ -43,6 +44,22 @@ export class StateStore implements Contracts.State.StateStore {
 
     public setBlockchain(blockchain: any): void {
         this.blockchain = blockchain;
+    }
+
+    /**
+     * Get the genesis block.
+     */
+    public getGenesisBlock(): Interfaces.IBlock {
+        Utils.assert.defined<Interfaces.IBlock>(this.genesisBlock);
+
+        return this.genesisBlock;
+    }
+
+    /**
+     * Sets the genesis block.
+     */
+    public setGenesisBlock(block: Interfaces.IBlock): void {
+        this.genesisBlock = block;
     }
 
     /**
@@ -80,22 +97,6 @@ export class StateStore implements Contracts.State.StateStore {
      */
     public getLastHeight(): number {
         return this.getLastBlock().data.height;
-    }
-
-    /**
-     * Get the genesis block.
-     */
-    public getGenesisBlock(): Interfaces.IBlock {
-        Utils.assert.defined<Interfaces.IBlock>(this.genesisBlock);
-
-        return this.genesisBlock;
-    }
-
-    /**
-     * Sets the genesis block.
-     */
-    public setGenesisBlock(block: Interfaces.IBlock): void {
-        this.genesisBlock = block;
     }
 
     /**
