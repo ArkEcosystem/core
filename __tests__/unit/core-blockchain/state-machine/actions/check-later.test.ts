@@ -1,12 +1,11 @@
-import { Container } from "@arkecosystem/core-kernel";
-
 import { CheckLater } from "@packages/core-blockchain/src/state-machine/actions/check-later";
+import { Container } from "@packages/core-kernel";
 
 describe("CheckLater", () => {
     const container = new Container.Container();
 
     const blockchain = { isStopped: jest.fn().mockReturnValue(false), setWakeUp: jest.fn() };
-    const stateStore = { wakeUpTimeout: undefined };
+    const stateStore = { isWakeUpTimeoutSet: jest.fn().mockReturnValue(false) };
 
     const application = { resolve: jest.fn() };
 

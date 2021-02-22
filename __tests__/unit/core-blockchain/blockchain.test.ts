@@ -86,6 +86,7 @@ describe("Blockchain", () => {
         stateStore.getLastBlock = jest.fn();
         stateStore.setLastBlock = jest.fn();
         stateStore.setForkedBlock = jest.fn();
+        stateStore.setWakeUpTimeout = jest.fn();
         stateStore.pushPingBlock = jest.fn();
         stateStore.pingBlock = jest.fn();
 
@@ -266,26 +267,24 @@ describe("Blockchain", () => {
         it("should set wakeUpTimeout on stateStore", () => {
             const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
 
-            expect(stateStore.wakeUpTimeout).toBeUndefined();
-
             blockchain.setWakeUp();
-            expect(stateStore.wakeUpTimeout).toBeDefined();
+            expect(stateStore.setWakeUpTimeout).toHaveBeenCalled();
         });
 
         it("should dispatch WAKEUP when wake up function is called", () => {
             const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
-            jest.useFakeTimers();
             const spyDispatch = jest.spyOn(blockchain, "dispatch");
 
             blockchain.setWakeUp();
             expect(spyDispatch).toBeCalledTimes(0);
 
-            jest.runAllTimers();
+            expect(stateStore.setWakeUpTimeout).toHaveBeenCalledWith(expect.toBeFunction(), 60000);
+
+            // Call given callback function
+            stateStore.setWakeUpTimeout.mock.calls[0][0]();
 
             expect(spyDispatch).toBeCalledTimes(1);
             expect(spyDispatch).toBeCalledWith("WAKEUP");
-
-            jest.useRealTimers();
         });
     });
 
