@@ -23,9 +23,9 @@ export class StateStore implements Contracts.State.StateStore {
     private blockPing?: Contracts.State.BlockPing;
     private started = false;
     private forkedBlock?: Interfaces.IBlock;
+    private wakeUpTimeout?: NodeJS.Timeout;
 
     // @todo: make all properties private and expose them one-by-one through a getter if used outside of this class
-    public wakeUpTimeout: any = undefined;
     public noBlockCounter = 0;
     public p2pUpdateCounter = 0;
     public numberOfBlocksToRollback: number | undefined = undefined;
@@ -108,6 +108,13 @@ export class StateStore implements Contracts.State.StateStore {
     public clear(): void {
         this.lastBlocks = this.lastBlocks.clear();
         this.cachedTransactionIds = this.cachedTransactionIds.clear();
+    }
+
+    public setWakeUpTimeout(callback: Function, timeout: number): void {
+        this.wakeUpTimeout = setTimeout(() => {
+            this.clearWakeUpTimeout();
+            callback();
+        }, timeout);
     }
 
     /**

@@ -8,7 +8,6 @@ export interface BlockPing {
 }
 
 export interface StateStore {
-    wakeUpTimeout: any;
     noBlockCounter: number;
     p2pUpdateCounter: number;
     numberOfBlocksToRollback: number | undefined;
@@ -51,6 +50,11 @@ export interface StateStore {
      * Clear last blocks.
      */
     clear(): void;
+
+    /**
+     * Clear wakeup timeout.
+     */
+    setWakeUpTimeout(callback: Function, timeout: number): void;
 
     /**
      * Clear wakeup timeout.
