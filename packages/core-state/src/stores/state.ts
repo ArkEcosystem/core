@@ -26,9 +26,9 @@ export class StateStore implements Contracts.State.StateStore {
     private wakeUpTimeout?: NodeJS.Timeout;
     private noBlockCounter: number = 0;
     private p2pUpdateCounter: number = 0;
+    private numberOfBlocksToRollback: number = 0;
 
     // @todo: make all properties private and expose them one-by-one through a getter if used outside of this class
-    public numberOfBlocksToRollback: number | undefined = undefined;
     public networkStart = false;
 
     // Stores the last n blocks in ascending height. The amount of last blocks
@@ -108,6 +108,14 @@ export class StateStore implements Contracts.State.StateStore {
 
     public setP2pUpdateCounter(p2pUpdateCounter: number): void {
         this.p2pUpdateCounter = p2pUpdateCounter;
+    }
+
+    public getNumberOfBlocksToRollback(): number {
+        return this.numberOfBlocksToRollback;
+    }
+
+    public setNumberOfBlocksToRollback(numberOfBlocksToRollback: number): void {
+        this.numberOfBlocksToRollback = numberOfBlocksToRollback;
     }
 
     /**

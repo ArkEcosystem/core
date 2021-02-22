@@ -8,7 +8,6 @@ export interface BlockPing {
 }
 
 export interface StateStore {
-    numberOfBlocksToRollback: number | undefined;
     networkStart: boolean;
 
     getBlockchain(): any;
@@ -49,6 +48,10 @@ export interface StateStore {
     getP2pUpdateCounter(): number;
 
     setP2pUpdateCounter(p2pUpdateCounter: number): void;
+
+    getNumberOfBlocksToRollback(): number;
+
+    setNumberOfBlocksToRollback(numberOfBlocksToRollback: number): void;
 
     reset(blockchainMachine): void;
 
