@@ -118,6 +118,19 @@ describe("State Storage", () => {
         });
     });
 
+    describe("getNumberOfBlocksToRollback", () => {
+        it("should return 0 by default", () => {
+            expect(stateStorage.getNumberOfBlocksToRollback()).toEqual(0);
+        });
+    });
+
+    describe("setNumberOfBlocksToRollback", () => {
+        it("should set numberOfBlocksToRollback", () => {
+            stateStorage.setNumberOfBlocksToRollback(3);
+            expect(stateStorage.getNumberOfBlocksToRollback()).toEqual(3);
+        });
+    });
+
     describe("getMaxLastBlocks", () => {
         it("should return max last blocks limit", () => {
             expect(stateStorage.getMaxLastBlocks()).toBe(100);
