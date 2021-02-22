@@ -22,9 +22,9 @@ export class StateStore implements Contracts.State.StateStore {
     private lastDownloadedBlock?: Interfaces.IBlockData;
     private blockPing?: Contracts.State.BlockPing;
     private started = false;
+    private forkedBlock?: Interfaces.IBlock;
 
     // @todo: make all properties private and expose them one-by-one through a getter if used outside of this class
-    public forkedBlock: Interfaces.IBlock | undefined = undefined;
     public wakeUpTimeout: any = undefined;
     public noBlockCounter = 0;
     public p2pUpdateCounter = 0;
@@ -80,6 +80,18 @@ export class StateStore implements Contracts.State.StateStore {
 
     public setStarted(started: boolean): void {
         this.started = started;
+    }
+
+    public getForkedBlock(): Interfaces.IBlock | undefined {
+        return this.forkedBlock;
+    }
+
+    public setForkedBlock(block: Interfaces.IBlock): void {
+        this.forkedBlock = block;
+    }
+
+    public clearForkedBlock(): void {
+        this.forkedBlock = undefined;
     }
 
     /**

@@ -407,7 +407,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
      * Fork the chain at the given block.
      */
     public forkBlock(block: Interfaces.IBlock, numberOfBlockToRollback?: number): void {
-        this.stateStore.forkedBlock = block;
+        this.stateStore.setForkedBlock(block);
 
         this.clearAndStopQueue();
 

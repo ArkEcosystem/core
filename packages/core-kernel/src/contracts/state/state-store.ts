@@ -8,7 +8,6 @@ export interface BlockPing {
 }
 
 export interface StateStore {
-    forkedBlock: Interfaces.IBlock | undefined;
     wakeUpTimeout: any;
     noBlockCounter: number;
     p2pUpdateCounter: number;
@@ -39,6 +38,12 @@ export interface StateStore {
     isStarted(): boolean;
 
     setStarted(started: boolean): void;
+
+    getForkedBlock(): Interfaces.IBlock | undefined;
+
+    setForkedBlock(block: Interfaces.IBlock): void;
+
+    clearForkedBlock(): void;
 
     reset(blockchainMachine): void;
 
