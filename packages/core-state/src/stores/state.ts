@@ -24,9 +24,9 @@ export class StateStore implements Contracts.State.StateStore {
     private started = false;
     private forkedBlock?: Interfaces.IBlock;
     private wakeUpTimeout?: NodeJS.Timeout;
+    private noBlockCounter: number = 0;
 
     // @todo: make all properties private and expose them one-by-one through a getter if used outside of this class
-    public noBlockCounter = 0;
     public p2pUpdateCounter = 0;
     public numberOfBlocksToRollback: number | undefined = undefined;
     public networkStart = false;
@@ -92,6 +92,14 @@ export class StateStore implements Contracts.State.StateStore {
 
     public clearForkedBlock(): void {
         this.forkedBlock = undefined;
+    }
+
+    public getNoBlockCounter(): number {
+        return this.noBlockCounter;
+    }
+
+    public setNoBlockCounter(noBlockCounter: number): void {
+        this.noBlockCounter = noBlockCounter;
     }
 
     /**
