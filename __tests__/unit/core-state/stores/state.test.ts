@@ -497,6 +497,22 @@ describe("State Storage", () => {
         });
     });
 
+    describe("isWakeUpTimeoutSet", () => {
+        it("should return false if timer is not set", async () => {
+            expect(stateStorage.isWakeUpTimeoutSet()).toBeFalse();
+        });
+
+        it("should return true if timer is set", async () => {
+            stateStorage.setWakeUpTimeout(jest.fn(), 100);
+
+            expect(stateStorage.isWakeUpTimeoutSet()).toBeTrue();
+
+            await delay(200);
+
+            expect(stateStorage.isWakeUpTimeoutSet()).toBeFalse();
+        });
+    });
+
     describe("setWakeUpTimeout", () => {
         it("should call callback and clear timeout", async () => {
             const callbackFn = jest.fn();
