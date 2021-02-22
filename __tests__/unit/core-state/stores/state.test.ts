@@ -31,6 +31,23 @@ beforeEach(() => {
 afterAll(() => jest.clearAllMocks());
 
 describe("State Storage", () => {
+    describe("getBlockchain", () => {
+        it("should return initial state", () => {
+            expect(stateStorage.getBlockchain()).toEqual({});
+        });
+    });
+
+    describe("setBlockchain", () => {
+        it("should set blockchain state", () => {
+            const state = {
+                value: "dummy_state",
+            };
+
+            stateStorage.setBlockchain(state);
+            expect(stateStorage.getBlockchain()).toEqual(state);
+        });
+    });
+
     describe("getMaxLastBlocks", () => {
         it("should return max last blocks limit", () => {
             expect(stateStorage.getMaxLastBlocks()).toBe(100);
@@ -332,7 +349,7 @@ describe("State Storage", () => {
             };
             stateStorage.reset(mockBlockChainMachine);
 
-            expect(stateStorage.blockchain).toEqual(mockBlockChainMachine.initialState);
+            expect(stateStorage.getBlockchain()).toEqual(mockBlockChainMachine.initialState);
         });
     });
 
