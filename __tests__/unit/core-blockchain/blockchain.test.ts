@@ -85,6 +85,7 @@ describe("Blockchain", () => {
         stateStore.setLastDownloadedBlock = jest.fn();
         stateStore.getLastBlock = jest.fn();
         stateStore.setLastBlock = jest.fn();
+        stateStore.setForkedBlock = jest.fn();
         stateStore.pushPingBlock = jest.fn();
         stateStore.pingBlock = jest.fn();
 
@@ -744,7 +745,7 @@ describe("Blockchain", () => {
 
             blockchain.forkBlock(forkedBlock as Interfaces.IBlock, numberOfBlocksToRollback);
 
-            expect(stateStore.forkedBlock).toEqual(forkedBlock);
+            expect(stateStore.setForkedBlock).toHaveBeenCalledWith(forkedBlock);
             expect(stateStore.numberOfBlocksToRollback).toEqual(numberOfBlocksToRollback);
             expect(spyClearAndStopQueue).toBeCalledTimes(1);
             expect(spyDispatch).toBeCalledTimes(1);

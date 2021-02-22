@@ -61,6 +61,37 @@ describe("State Storage", () => {
         });
     });
 
+    describe("getForkedBlock", () => {
+        it("should be undefined by default", () => {
+            expect(stateStorage.getForkedBlock()).toBeUndefined();
+        });
+    });
+
+    describe("setForkedBlock", () => {
+        it("should set forkedBlock", () => {
+            const block = {
+                id: "dummy_id",
+            };
+            // @ts-ignore
+            stateStorage.setForkedBlock(block);
+            expect(stateStorage.getForkedBlock()).toBe(block);
+        });
+    });
+
+    describe("clearForkedBlock", () => {
+        it("should clear forkedBlock", () => {
+            const block = {
+                id: "dummy_id",
+            };
+            // @ts-ignore
+            stateStorage.setForkedBlock(block);
+            expect(stateStorage.getForkedBlock()).toBe(block);
+
+            stateStorage.clearForkedBlock();
+            expect(stateStorage.getForkedBlock()).toBeUndefined();
+        });
+    });
+
     describe("getMaxLastBlocks", () => {
         it("should return max last blocks limit", () => {
             expect(stateStorage.getMaxLastBlocks()).toBe(100);

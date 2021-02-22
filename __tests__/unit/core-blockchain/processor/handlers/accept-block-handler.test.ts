@@ -9,12 +9,14 @@ describe("AcceptBlockHandler", () => {
     const logger = { warning: jest.fn(), debug: jest.fn(), info: jest.fn() };
     const blockchain = { resetLastDownloadedBlock: jest.fn(), resetWakeUp: jest.fn() };
     const state = {
-        forkedBlock: undefined,
         setLastBlock: jest.fn(),
         getLastBlock: jest.fn(),
         getLastDownloadedBlock: jest.fn(),
         setLastDownloadedBlock: jest.fn(),
         isStarted: jest.fn().mockReturnValue(false),
+        getForkedBlock: jest.fn(),
+        setForkedBlock: jest.fn(),
+        clearForkedBlock: jest.fn(),
     };
     const transactionPool = { removeForgedTransaction: jest.fn() };
     const databaseInteractions = {
@@ -72,15 +74,15 @@ describe("AcceptBlockHandler", () => {
             expect(transactionPool.removeForgedTransaction).toHaveBeenCalledWith(block.transactions[1]);
         });
 
-        it("should reset state.forkedBlock if incoming block has same height", async () => {
+        it("should clear forkedBlock if incoming block has same height", async () => {
             const acceptBlockHandler = container.resolve<AcceptBlockHandler>(AcceptBlockHandler);
 
-            state.forkedBlock = { data: { height: block.data.height } };
+            state.getForkedBlock = jest.fn().mockReturnValue({ data: { height: block.data.height } });
             const result = await acceptBlockHandler.execute(block as Interfaces.IBlock);
 
             expect(result).toBe(BlockProcessorResult.Accepted);
 
-            expect(state.forkedBlock).toBeUndefined();
+            expect(state.clearForkedBlock).toHaveBeenCalled();
         });
 
         it("should set state.lastDownloadedBlock if incoming block height is higher", async () => {
