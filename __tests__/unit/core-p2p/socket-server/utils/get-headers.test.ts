@@ -5,7 +5,7 @@ describe("getHeaders", () => {
     const version = "3.0.9";
     const port = 4007;
     const height = 387;
-    const stateStore = { started: true };
+    const stateStore = { isStarted: jest.fn().mockReturnValue(true) };
     const blockchain = { getLastHeight: () => height };
     const appGet = {
         [Container.Identifiers.StateStore]: stateStore,
@@ -24,7 +24,7 @@ describe("getHeaders", () => {
     });
 
     it("should return { version, port, height: undefined } when state is not 'started'", () => {
-        stateStore.started = false;
+        stateStore.isStarted = jest.fn().mockReturnValue(false);
         const headers = getHeaders(app as any);
 
         expect(headers).toEqual({ version, port, height: undefined });
@@ -34,7 +34,6 @@ describe("getHeaders", () => {
         const version = "3.0.9";
         const port = "4005";
         const height = 387;
-        const stateStore = { started: true };
         const blockchain = { getLastHeight: () => height };
         const appGet = {
             [Container.Identifiers.StateStore]: stateStore,
@@ -46,7 +45,7 @@ describe("getHeaders", () => {
             get: (key) => appGet[key],
         };
 
-        stateStore.started = false;
+        stateStore.isStarted = jest.fn().mockReturnValue(false);
         const headers = getHeaders(app as any);
 
         const portNumberAsString = app.getTagged().get();
