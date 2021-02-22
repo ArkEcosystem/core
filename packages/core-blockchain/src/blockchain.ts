@@ -458,13 +458,8 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
     /**
      * Get the block ping.
      */
-    public getBlockPing(): {
-        count: number;
-        first: number;
-        last: number;
-        block: Interfaces.IBlockData;
-    } {
-        return this.stateStore.blockPing;
+    public getBlockPing(): Contracts.State.BlockPing | undefined {
+        return this.stateStore.getBlockPing();
     }
 
     /**

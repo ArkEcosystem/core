@@ -501,7 +501,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
             if (diff < 500 && broadcastQuota > 0) {
                 await Utils.sleep(500 - diff);
 
-                blockPing = blockchain.getBlockPing();
+                blockPing = blockchain.getBlockPing()!;
 
                 // got aleady a new block, no broadcast
                 if (blockPing.block.id !== block.data.id) {
