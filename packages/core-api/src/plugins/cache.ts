@@ -34,22 +34,17 @@ export = {
             type: "onPreHandler",
             async method(request: Hapi.Request, h: Hapi.ResponseToolkit) {
                 const cacheKey: string = generateCacheKey(request);
+                const value: { isBoom: boolean; data: Record<string, any> } | undefined = cache.get(cacheKey);
 
-                if (cache.has(cacheKey)) {
-                    const value: { isBoom: boolean; data: Record<string, any> } | undefined = cache.get(cacheKey);
-
-                    if (value === undefined || value === null) {
-                        return h.continue;
-                    }
-
+                if (value) {
                     if (value.isBoom) {
                         return h.response(value.data.payload).code(value.data.statusCode).takeover();
                     }
 
                     return h.response(value.data).code(200).takeover();
+                } else {
+                    return h.continue;
                 }
-
-                return h.continue;
             },
         });
 
