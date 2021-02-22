@@ -76,7 +76,6 @@ describe("Blockchain", () => {
         logService.debug = jest.fn();
 
         stateStore.reset = jest.fn();
-        stateStore.started = false;
         stateStore.getMaxLastBlocks = jest.fn().mockReturnValue(200);
         stateStore.clearWakeUpTimeout = jest.fn();
         stateStore.wakeUpTimeout = undefined;
@@ -160,7 +159,7 @@ describe("Blockchain", () => {
             const spyDispatch = jest.spyOn(blockchain, "dispatch");
 
             expect(blockchain.isBooted()).toBeFalse();
-            stateStore.started = true;
+            stateStore.isStarted = jest.fn().mockReturnValue(true);
             await blockchain.boot();
 
             expect(spyDispatch).toBeCalledTimes(1);
@@ -195,7 +194,7 @@ describe("Blockchain", () => {
         it("should wait for stateStore to be started before resolving", async () => {
             const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
 
-            stateStore.started = false;
+            stateStore.isStarted = jest.fn().mockReturnValue(false);
             const resolved = jest.fn();
             const checkBootResolved = async () => {
                 await blockchain.boot();
@@ -208,7 +207,7 @@ describe("Blockchain", () => {
             expect(resolved).toBeCalledTimes(0);
 
             // will resolve after 1 second when stateStore.started is true
-            stateStore.started = true;
+            stateStore.isStarted = jest.fn().mockReturnValue(true);
             await delay(1100);
 
             expect(resolved).toBeCalledTimes(1);
@@ -216,7 +215,7 @@ describe("Blockchain", () => {
 
         it("should call cleansePeers and set listener on ForgerEvent.Missing and RoundEvent.Applied", async () => {
             const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
-            stateStore.started = true;
+            stateStore.isStarted = jest.fn().mockReturnValue(true);
 
             expect(peerNetworkMonitor.cleansePeers).toBeCalledTimes(0);
 
@@ -470,7 +469,7 @@ describe("Blockchain", () => {
             it("should dispatch BlockEvent.Disregarded and not enqueue the block", async () => {
                 const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
                 const spyEnqueue = jest.spyOn(blockchain, "enqueueBlocks");
-                stateStore.started = false;
+                stateStore.isStarted = jest.fn().mockReturnValue(false);
 
                 await blockchain.handleIncomingBlock(blockData);
 

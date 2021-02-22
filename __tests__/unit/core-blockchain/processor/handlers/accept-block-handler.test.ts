@@ -10,11 +10,11 @@ describe("AcceptBlockHandler", () => {
     const blockchain = { resetLastDownloadedBlock: jest.fn(), resetWakeUp: jest.fn() };
     const state = {
         forkedBlock: undefined,
-        started: undefined,
         setLastBlock: jest.fn(),
         getLastBlock: jest.fn(),
         getLastDownloadedBlock: jest.fn(),
         setLastDownloadedBlock: jest.fn(),
+        isStarted: jest.fn().mockReturnValue(false),
     };
     const transactionPool = { removeForgedTransaction: jest.fn() };
     const databaseInteractions = {
@@ -57,7 +57,7 @@ describe("AcceptBlockHandler", () => {
         it("should apply block to database, transaction pool, blockchain and state", async () => {
             const acceptBlockHandler = container.resolve<AcceptBlockHandler>(AcceptBlockHandler);
 
-            state.started = true;
+            state.isStarted = jest.fn().mockReturnValue(true);
             const result = await acceptBlockHandler.execute(block as Interfaces.IBlock);
 
             expect(result).toBe(BlockProcessorResult.Accepted);
