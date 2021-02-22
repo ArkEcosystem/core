@@ -37,7 +37,7 @@ export class CheckLastDownloadedBlockSynced implements Action {
                 const networkStatus = await this.networkMonitor.checkNetworkHealth();
 
                 if (networkStatus.forked) {
-                    this.stateStore.numberOfBlocksToRollback = networkStatus.blocksToRollback;
+                    this.stateStore.setNumberOfBlocksToRollback(networkStatus.blocksToRollback || 0);
                     event = "FORK";
                 }
 
