@@ -213,9 +213,7 @@ describe("ServiceProvider", () => {
             // @ts-ignore
             defaults.customField = "dummy";
 
-            const result = (coreApiServiceProvider.configSchema() as AnySchema).validate(
-               defaults
-            );
+            const result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
 
             expect(result.error).toBeUndefined();
             expect(result.value.customField).toEqual("dummy");
@@ -346,7 +344,7 @@ describe("ServiceProvider", () => {
                 expect(result.value.plugins.cache.enabled).toEqual(false);
             });
 
-            it("should return true if process.env.CORE_API_CACHE_DISABLED is defined", async () => {
+            it("should return true if process.env.CORE_API_CACHE is defined", async () => {
                 process.env.CORE_API_CACHE = "true";
 
                 jest.resetModules();
