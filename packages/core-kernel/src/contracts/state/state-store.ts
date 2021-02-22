@@ -8,7 +8,6 @@ export interface BlockPing {
 }
 
 export interface StateStore {
-    started: boolean;
     forkedBlock: Interfaces.IBlock | undefined;
     wakeUpTimeout: any;
     noBlockCounter: number;
@@ -36,6 +35,10 @@ export interface StateStore {
     setLastDownloadedBlock(block: Interfaces.IBlockData): void;
 
     getBlockPing(): BlockPing | undefined;
+
+    isStarted(): boolean;
+
+    setStarted(started: boolean): void;
 
     reset(blockchainMachine): void;
 

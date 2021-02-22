@@ -163,7 +163,7 @@ export class ProcessBlocksJob implements Contracts.Kernel.QueueJob {
                 lastProcessResult === BlockProcessorResult.DiscardedButCanBeBroadcasted) &&
             lastProcessedBlock
         ) {
-            if (this.stateStore.started && this.stateMachine.getState() === "newBlock") {
+            if (this.stateStore.isStarted() && this.stateMachine.getState() === "newBlock") {
                 this.networkMonitor.broadcastBlock(lastProcessedBlock);
             }
         } else if (forkBlock) {

@@ -14,8 +14,8 @@ export class BlockchainReady implements Action {
     private readonly events!: Contracts.Kernel.EventDispatcher;
 
     public async handle(): Promise<void> {
-        if (!this.stateStore.started) {
-            this.stateStore.started = true;
+        if (!this.stateStore.isStarted()) {
+            this.stateStore.setStarted(true);
 
             this.events.dispatch(Enums.StateEvent.Started, true);
         }

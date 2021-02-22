@@ -125,7 +125,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             return true;
         }
 
-        while (!this.stateStore.started && !this.stopped) {
+        while (!this.stateStore.isStarted() && !this.stopped) {
             await Utils.sleep(1000);
         }
 
@@ -227,7 +227,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             return;
         }
 
-        if (this.stateStore.started) {
+        if (this.stateStore.isStarted()) {
             this.dispatch("NEWBLOCK");
             this.enqueueBlocks([block]);
 

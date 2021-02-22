@@ -44,7 +44,7 @@ export class AcceptBlockHandler implements BlockHandler {
             // wake up at all if blocks arrive periodically. Only wake up when there are
             // no new blocks.
             /* istanbul ignore else */
-            if (this.state.started) {
+            if (this.state.isStarted()) {
                 this.blockchain.resetWakeUp();
             }
 
