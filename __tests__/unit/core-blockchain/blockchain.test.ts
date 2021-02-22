@@ -838,7 +838,7 @@ describe("Blockchain", () => {
             (blockPing) => {
                 const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
 
-                stateStore.blockPing = blockPing;
+                stateStore.getBlockPing = jest.fn().mockReturnValue(blockPing);
 
                 expect(blockchain.getBlockPing()).toEqual(blockPing);
             },
