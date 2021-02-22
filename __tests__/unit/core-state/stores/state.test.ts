@@ -48,6 +48,19 @@ describe("State Storage", () => {
         });
     });
 
+    describe("isStarted", () => {
+        it("should be false by default", () => {
+            expect(stateStorage.isStarted()).toEqual(false);
+        });
+    });
+
+    describe("setStarted", () => {
+        it("should set value", () => {
+            stateStorage.setStarted(true);
+            expect(stateStorage.isStarted()).toEqual(true);
+        });
+    });
+
     describe("getMaxLastBlocks", () => {
         it("should return max last blocks limit", () => {
             expect(stateStorage.getMaxLastBlocks()).toBe(100);
