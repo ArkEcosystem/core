@@ -497,9 +497,24 @@ describe("State Storage", () => {
         });
     });
 
+    describe("setWakeUpTimeout", () => {
+        it("should call callback and clear timeout", async () => {
+            const callbackFn = jest.fn();
+            const spyOnClearWakeUpTimeout = jest.spyOn(stateStorage, "clearWakeUpTimeout");
+
+            stateStorage.setWakeUpTimeout(callbackFn, 100);
+
+            await delay(200);
+
+            expect(callbackFn).toHaveBeenCalled();
+            expect(spyOnClearWakeUpTimeout).toHaveBeenCalled();
+        });
+    });
+
     describe("clearWakeUpTimeout", () => {
         it("should clear wake up timers", () => {
             jest.useFakeTimers();
+            // @ts-ignore
             stateStorage.wakeUpTimeout = 1;
 
             stateStorage.clearWakeUpTimeout();
