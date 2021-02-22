@@ -355,12 +355,14 @@ describe("State Storage", () => {
 
     describe("pingBlock", () => {
         it("should return false if there is no blockPing", () => {
+            // @ts-ignore
             stateStorage.blockPing = undefined;
             expect(stateStorage.pingBlock(blocks[5].data)).toBeFalse();
         });
 
         it("should return true if block pinged == current blockPing and should update stats", async () => {
             const currentTime = new Date().getTime();
+            // @ts-ignore
             stateStorage.blockPing = {
                 count: 1,
                 first: currentTime,
@@ -370,14 +372,17 @@ describe("State Storage", () => {
             await delay(20);
 
             expect(stateStorage.pingBlock(blocks[5].data)).toBeTrue();
-            expect(stateStorage.blockPing.count).toBe(2);
-            expect(stateStorage.blockPing.block).toBe(blocks[5].data);
-            expect(stateStorage.blockPing.last).toBeGreaterThan(currentTime);
-            expect(stateStorage.blockPing.first).toBe(currentTime);
+
+            const blockPing = stateStorage.getBlockPing()!;
+            expect(blockPing.count).toBe(2);
+            expect(blockPing.block).toBe(blocks[5].data);
+            expect(blockPing.last).toBeGreaterThan(currentTime);
+            expect(blockPing.first).toBe(currentTime);
         });
 
         it("should return false if block pinged != current blockPing", () => {
             const currentTime = new Date().getTime();
+            // @ts-ignore
             stateStorage.blockPing = {
                 count: 1,
                 first: currentTime,
@@ -385,25 +390,30 @@ describe("State Storage", () => {
                 block: blocks[3].data,
             };
             expect(stateStorage.pingBlock(blocks[5].data)).toBeFalse();
-            expect(stateStorage.blockPing.count).toBe(1);
-            expect(stateStorage.blockPing.block).toBe(blocks[3].data);
-            expect(stateStorage.blockPing.last).toBe(currentTime);
-            expect(stateStorage.blockPing.first).toBe(currentTime);
+
+            const blockPing = stateStorage.getBlockPing()!;
+            expect(blockPing.count).toBe(1);
+            expect(blockPing.block).toBe(blocks[3].data);
+            expect(blockPing.last).toBe(currentTime);
+            expect(blockPing.first).toBe(currentTime);
         });
     });
 
     describe("pushPingBlock", () => {
         it("should push the block provided as blockPing", () => {
+            // @ts-ignore
             stateStorage.blockPing = undefined;
 
             stateStorage.pushPingBlock(blocks[5].data);
 
-            expect(stateStorage.blockPing).toBeObject();
-            expect(stateStorage.blockPing.block).toBe(blocks[5].data);
-            expect(stateStorage.blockPing.count).toBe(1);
+            const blockPing = stateStorage.getBlockPing()!;
+            expect(blockPing).toBeObject();
+            expect(blockPing.block).toBe(blocks[5].data);
+            expect(blockPing.count).toBe(1);
         });
 
         it("should log info message if there is already a blockPing", async () => {
+            // @ts-ignore
             stateStorage.blockPing = {
                 count: 1,
                 first: new Date().getTime(),
@@ -415,12 +425,15 @@ describe("State Storage", () => {
             expect(logger).toHaveBeenCalledWith(
                 `Previous block ${blocks[3].data.height.toLocaleString()} pinged blockchain 1 times`,
             );
-            expect(stateStorage.blockPing).toBeObject();
-            expect(stateStorage.blockPing.block).toBe(blocks[5].data);
-            expect(stateStorage.blockPing.count).toBe(1);
+
+            const blockPing = stateStorage.getBlockPing()!;
+            expect(blockPing).toBeObject();
+            expect(blockPing.block).toBe(blocks[5].data);
+            expect(blockPing.count).toBe(1);
         });
 
         it("should log info message if there is already a blockPing when pushed fromForger", async () => {
+            // @ts-ignore
             stateStorage.blockPing = {
                 count: 0,
                 first: new Date().getTime(),
@@ -432,14 +445,16 @@ describe("State Storage", () => {
             expect(logger).toHaveBeenCalledWith(
                 `Previous block ${blocks[3].data.height.toLocaleString()} pinged blockchain 1 times`,
             );
-            expect(stateStorage.blockPing).toBeObject();
-            expect(stateStorage.blockPing.block).toBe(blocks[5].data);
-            expect(stateStorage.blockPing.count).toBe(0);
+
+            const blockPing = stateStorage.getBlockPing()!;
+            expect(blockPing).toBeObject();
+            expect(blockPing.block).toBe(blocks[5].data);
+            expect(blockPing.count).toBe(0);
         });
     });
 
     describe("clearWakeUpTimeout", () => {
-        it("it should clear wake up timers", () => {
+        it("should clear wake up timers", () => {
             jest.useFakeTimers();
             stateStorage.wakeUpTimeout = 1;
 
@@ -448,7 +463,7 @@ describe("State Storage", () => {
             expect(clearTimeout).toHaveBeenCalledWith(1);
         });
 
-        it("it should do nothing if a timer is not set", () => {
+        it("should do nothing if a timer is not set", () => {
             jest.useFakeTimers();
 
             stateStorage.clearWakeUpTimeout();
