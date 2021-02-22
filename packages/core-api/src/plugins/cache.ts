@@ -53,12 +53,10 @@ export = {
             async method(request: Hapi.Request, h: Hapi.ResponseToolkit) {
                 const cacheKey: string = generateCacheKey(request);
 
-                if (!cache.has(cacheKey)) {
-                    cache.set(cacheKey, {
-                        isBoom: request.response.isBoom === true,
-                        data: request.response.isBoom ? request.response.output : request.response.source,
-                    });
-                }
+                cache.set(cacheKey, {
+                    isBoom: request.response.isBoom === true,
+                    data: request.response.isBoom ? request.response.output : request.response.source,
+                });
 
                 return h.continue;
             },
