@@ -105,6 +105,19 @@ describe("State Storage", () => {
         });
     });
 
+    describe("getP2pUpdateCounter", () => {
+        it("should return 0 by default", () => {
+            expect(stateStorage.getP2pUpdateCounter()).toEqual(0);
+        });
+    });
+
+    describe("setP2pUpdateCounter", () => {
+        it("should set p2pUpdateCounter", () => {
+            stateStorage.setP2pUpdateCounter(3);
+            expect(stateStorage.getP2pUpdateCounter()).toEqual(3);
+        });
+    });
+
     describe("getMaxLastBlocks", () => {
         it("should return max last blocks limit", () => {
             expect(stateStorage.getMaxLastBlocks()).toBe(100);
