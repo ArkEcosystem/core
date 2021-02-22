@@ -188,7 +188,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
      * @return {void}
      */
     public clearAndStopQueue(): void {
-        this.stateStore.lastDownloadedBlock = this.getLastBlock().data;
+        this.stateStore.setLastDownloadedBlock(this.getLastBlock().data);
 
         this.queue.pause();
         this.clearQueue();
@@ -339,7 +339,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             }
 
             this.stateStore.setLastBlock(newLastBlock);
-            this.stateStore.lastDownloadedBlock = newLastBlock.data;
+            this.stateStore.setLastDownloadedBlock(newLastBlock.data);
         };
 
         const __removeBlocks = async (numberOfBlocks) => {
@@ -364,7 +364,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             `Removing ${Utils.pluralize("block", nblocks, true)}. Reset to height ${resetHeight.toLocaleString()}`,
         );
 
-        this.stateStore.lastDownloadedBlock = lastBlock.data;
+        this.stateStore.setLastDownloadedBlock(lastBlock.data);
 
         await __removeBlocks(nblocks);
 
@@ -390,7 +390,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
      * Reset the last downloaded block to last chained block.
      */
     public resetLastDownloadedBlock(): void {
-        this.stateStore.lastDownloadedBlock = this.getLastBlock().data;
+        this.stateStore.setLastDownloadedBlock(this.getLastBlock().data);
     }
 
     /**
@@ -452,7 +452,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
      * Get the last downloaded block of the blockchain.
      */
     public getLastDownloadedBlock(): Interfaces.IBlockData {
-        return this.stateStore.lastDownloadedBlock || this.getLastBlock().data;
+        return this.stateStore.getLastDownloadedBlock() || this.getLastBlock().data;
     }
 
     /**

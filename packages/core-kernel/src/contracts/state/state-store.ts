@@ -1,7 +1,6 @@
 import { Interfaces } from "@arkecosystem/crypto";
 
 export interface StateStore {
-    lastDownloadedBlock: Interfaces.IBlockData | undefined;
     blockPing: any;
     started: boolean;
     forkedBlock: Interfaces.IBlock | undefined;
@@ -25,6 +24,10 @@ export interface StateStore {
      * @returns {void}
      */
     setGenesisBlock(block: Interfaces.IBlock): void;
+
+    getLastDownloadedBlock(): Interfaces.IBlockData | undefined;
+
+    setLastDownloadedBlock(block: Interfaces.IBlockData): void;
 
     reset(blockchainMachine): void;
 

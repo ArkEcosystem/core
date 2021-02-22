@@ -19,9 +19,9 @@ export class StateStore implements Contracts.State.StateStore {
 
     private blockchain: any = {};
     private genesisBlock: Interfaces.IBlock | undefined = undefined;
+    private lastDownloadedBlock: Interfaces.IBlockData | undefined = undefined;
 
     // @todo: make all properties private and expose them one-by-one through a getter if used outside of this class
-    public lastDownloadedBlock: Interfaces.IBlockData | undefined = undefined;
     public blockPing: any = undefined;
     public started = false;
     public forkedBlock: Interfaces.IBlock | undefined = undefined;
@@ -60,6 +60,14 @@ export class StateStore implements Contracts.State.StateStore {
      */
     public setGenesisBlock(block: Interfaces.IBlock): void {
         this.genesisBlock = block;
+    }
+
+    public getLastDownloadedBlock(): Interfaces.IBlockData | undefined {
+        return this.lastDownloadedBlock;
+    }
+
+    public setLastDownloadedBlock(block: Interfaces.IBlockData): void {
+        this.lastDownloadedBlock = block;
     }
 
     /**

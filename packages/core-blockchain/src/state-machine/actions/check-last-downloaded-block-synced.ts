@@ -46,8 +46,8 @@ export class CheckLastDownloadedBlockSynced implements Action {
                 this.stateStore.p2pUpdateCounter++;
             }
         } else if (
-            this.stateStore.lastDownloadedBlock &&
-            this.blockchain.isSynced(this.stateStore.lastDownloadedBlock)
+            this.stateStore.getLastDownloadedBlock() &&
+            this.blockchain.isSynced(this.stateStore.getLastDownloadedBlock())
         ) {
             this.stateStore.noBlockCounter = 0;
             this.stateStore.p2pUpdateCounter = 0;

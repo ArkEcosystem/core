@@ -128,7 +128,7 @@ export class ProcessBlocksJob implements Contracts.Kernel.QueueJob {
                 } else {
                     if (lastProcessResult === BlockProcessorResult.Rollback) {
                         forkBlock = blockInstance;
-                        this.stateStore.lastDownloadedBlock = blockInstance.data;
+                        this.stateStore.setLastDownloadedBlock(blockInstance.data);
                     }
 
                     break; // if one block is not accepted, the other ones won't be chained anyway
