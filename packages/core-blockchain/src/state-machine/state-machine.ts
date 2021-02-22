@@ -22,23 +22,23 @@ export class StateMachine {
      * @return {void}
      */
     public transition(event) {
-        const nextState = blockchainMachine.transition(this.stateStore.blockchain, event);
+        const nextState = blockchainMachine.transition(this.stateStore.getBlockchain(), event);
 
         if (nextState.actions.length > 0) {
             this.logger.debug(
-                `event '${event}': ${JSON.stringify(this.stateStore.blockchain.value)} -> ${JSON.stringify(
+                `event '${event}': ${JSON.stringify(this.stateStore.getBlockchain().value)} -> ${JSON.stringify(
                     nextState.value,
                 )} -> actions: [${nextState.actions.map((a) => a.type).join(", ")}]`,
             );
         } else {
             this.logger.debug(
-                `event '${event}': ${JSON.stringify(this.stateStore.blockchain.value)} -> ${JSON.stringify(
+                `event '${event}': ${JSON.stringify(this.stateStore.getBlockchain().value)} -> ${JSON.stringify(
                     nextState.value,
                 )}`,
             );
         }
 
-        this.stateStore.blockchain = nextState;
+        this.stateStore.setBlockchain(nextState);
 
         for (const actionKey of nextState.actions) {
             const action: Action = this.app.resolve(actions[actionKey]);
@@ -54,6 +54,6 @@ export class StateMachine {
     }
 
     public getState(): string | undefined {
-        return this.stateStore.blockchain.value;
+        return this.stateStore.getBlockchain();
     }
 }

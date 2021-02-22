@@ -17,8 +17,8 @@ export class StateStore implements Contracts.State.StateStore {
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
 
+    private blockchain: any = {};
     // @todo: make all properties private and expose them one-by-one through a getter if used outside of this class
-    public blockchain: any = {};
     public genesisBlock: Interfaces.IBlock | undefined = undefined;
     public lastDownloadedBlock: Interfaces.IBlockData | undefined = undefined;
     public blockPing: any = undefined;
@@ -36,6 +36,14 @@ export class StateStore implements Contracts.State.StateStore {
     // Stores the last n incoming transaction ids. The amount of transaction ids
     // can be configured with the option `state.maxLastTransactionIds`.
     private cachedTransactionIds: OrderedSet<string> = OrderedSet();
+
+    public getBlockchain(): any {
+        return this.blockchain;
+    }
+
+    public setBlockchain(blockchain: any): void {
+        this.blockchain = blockchain;
+    }
 
     /**
      * Resets the state.

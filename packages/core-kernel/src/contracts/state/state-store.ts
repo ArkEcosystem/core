@@ -1,7 +1,6 @@
 import { Interfaces } from "@arkecosystem/crypto";
 
 export interface StateStore {
-    blockchain: any;
     lastDownloadedBlock: Interfaces.IBlockData | undefined;
     blockPing: any;
     started: boolean;
@@ -11,6 +10,10 @@ export interface StateStore {
     p2pUpdateCounter: number;
     numberOfBlocksToRollback: number | undefined;
     networkStart: boolean;
+
+    getBlockchain(): any;
+
+    setBlockchain(blockchain: any): void;
 
     reset(blockchainMachine): void;
 
