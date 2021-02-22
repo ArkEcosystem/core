@@ -160,9 +160,8 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
      * Set wakeup timeout to check the network for new blocks.
      */
     public setWakeUp(): void {
-        this.stateStore.wakeUpTimeout = setTimeout(() => {
-            this.stateStore.wakeUpTimeout = undefined;
-            return this.dispatch("WAKEUP");
+        this.stateStore.setWakeUpTimeout(() => {
+            this.dispatch("WAKEUP");
         }, 60000);
     }
 
