@@ -52,7 +52,12 @@ export interface StateStore {
     clear(): void;
 
     /**
-     * Clear wakeup timeout.
+     * Is wakeup timeout set.
+     */
+    isWakeUpTimeoutSet(): boolean;
+
+    /**
+     * Set wakeup timeout.
      */
     setWakeUpTimeout(callback: Function, timeout: number): void;
 

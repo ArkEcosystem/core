@@ -110,6 +110,10 @@ export class StateStore implements Contracts.State.StateStore {
         this.cachedTransactionIds = this.cachedTransactionIds.clear();
     }
 
+    public isWakeUpTimeoutSet(): boolean {
+        return !!this.wakeUpTimeout;
+    }
+
     public setWakeUpTimeout(callback: Function, timeout: number): void {
         this.wakeUpTimeout = setTimeout(() => {
             this.clearWakeUpTimeout();
