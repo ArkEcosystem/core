@@ -16,11 +16,11 @@ let logger: jest.SpyInstance;
 let dispatchSpy: jest.SpyInstance;
 
 beforeAll(async () => {
-    const initalEnv = await setUp();
-    factory = initalEnv.factory;
-    logger = initalEnv.spies.logger.info;
-    dispatchSpy = initalEnv.spies.dispatchSpy;
-    stateStorage = initalEnv.sandbox.app.get(Container.Identifiers.StateStore);
+    const initialEnv = await setUp();
+    factory = initialEnv.factory;
+    logger = initialEnv.spies.logger.info;
+    dispatchSpy = initialEnv.spies.dispatchSpy;
+    stateStorage = initialEnv.sandbox.app.get(Container.Identifiers.StateStore);
 });
 
 beforeEach(() => {
@@ -128,6 +128,19 @@ describe("State Storage", () => {
         it("should set numberOfBlocksToRollback", () => {
             stateStorage.setNumberOfBlocksToRollback(3);
             expect(stateStorage.getNumberOfBlocksToRollback()).toEqual(3);
+        });
+    });
+
+    describe("getNetworkStart", () => {
+        it("should return false by default", () => {
+            expect(stateStorage.getNetworkStart()).toBeFalse();
+        });
+    });
+
+    describe("setNetworkStart", () => {
+        it("should set numberOfBlocksToRollback", () => {
+            stateStorage.setNetworkStart(true);
+            expect(stateStorage.getNetworkStart()).toBeTrue();
         });
     });
 
