@@ -10,10 +10,10 @@ import { AbstractRepository } from "./abstract-repository";
 type FeeStatistics = {
     type: number;
     typeGroup: number;
-    avg: string;
-    min: string;
-    max: string;
-    sum: string;
+    avg: number;
+    min: number;
+    max: number;
+    sum: number;
 };
 @EntityRepository(Transaction)
 export class TransactionRepository extends AbstractRepository<Transaction> {
