@@ -83,6 +83,8 @@ describe("Blockchain", () => {
         stateStore.getGenesisBlock = jest.fn().mockReturnValue(Networks.testnet.genesisBlock);
         stateStore.getLastDownloadedBlock = jest.fn();
         stateStore.setLastDownloadedBlock = jest.fn();
+        stateStore.getNumberOfBlocksToRollback = jest.fn().mockReturnValue(0);
+        stateStore.setNumberOfBlocksToRollback = jest.fn();
         stateStore.getLastBlock = jest.fn();
         stateStore.setLastBlock = jest.fn();
         stateStore.setForkedBlock = jest.fn();
@@ -745,7 +747,7 @@ describe("Blockchain", () => {
             blockchain.forkBlock(forkedBlock as Interfaces.IBlock, numberOfBlocksToRollback);
 
             expect(stateStore.setForkedBlock).toHaveBeenCalledWith(forkedBlock);
-            expect(stateStore.numberOfBlocksToRollback).toEqual(numberOfBlocksToRollback);
+            expect(stateStore.setNumberOfBlocksToRollback).toHaveBeenCalledWith(numberOfBlocksToRollback);
             expect(spyClearAndStopQueue).toBeCalledTimes(1);
             expect(spyDispatch).toBeCalledTimes(1);
             expect(spyDispatch).toHaveBeenLastCalledWith("FORK");

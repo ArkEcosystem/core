@@ -26,6 +26,7 @@ describe("CheckLastDownloadedBlockSynced", () => {
             setNoBlockCounter: jest.fn(),
             getP2pUpdateCounter: jest.fn().mockReturnValue(0),
             setP2pUpdateCounter: jest.fn(),
+            setNumberOfBlocksToRollback: jest.fn(),
         };
         peerNetworkMonitor = { checkNetworkHealth: jest.fn() };
         logger = { warn: jest.fn(), debug: jest.fn(), info: jest.fn(), error: jest.fn() };
@@ -129,6 +130,7 @@ describe("CheckLastDownloadedBlockSynced", () => {
                     expect(blockchain.dispatch).toBeCalledTimes(1);
                     expect(blockchain.dispatch).toHaveBeenLastCalledWith("FORK");
                     expect(stateStore.setP2pUpdateCounter).toHaveBeenCalledWith(0); // should be reset
+                    expect(stateStore.setNumberOfBlocksToRollback).toHaveBeenCalledWith(0);
                 });
             });
 
