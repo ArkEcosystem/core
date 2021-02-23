@@ -59,9 +59,9 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
         this.stopped = false;
 
         // flag to force a network start
-        this.stateStore.networkStart = this.configuration.getOptional("options.networkStart", false);
+        this.stateStore.setNetworkStart(this.configuration.getOptional("options.networkStart", false));
 
-        if (this.stateStore.networkStart) {
+        if (this.stateStore.getNetworkStart()) {
             this.logger.warning(
                 "ARK Core is launched in Genesis Start mode. This is usually for starting the first node on the blockchain. Unless you know what you are doing, this is likely wrong.",
             );

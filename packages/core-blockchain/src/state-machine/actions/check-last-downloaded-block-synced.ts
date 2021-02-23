@@ -55,7 +55,7 @@ export class CheckLastDownloadedBlockSynced implements Action {
             event = "SYNCED";
         }
 
-        if (this.stateStore.networkStart) {
+        if (this.stateStore.getNetworkStart()) {
             event = "SYNCED";
         }
 

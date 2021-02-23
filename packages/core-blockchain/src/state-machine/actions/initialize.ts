@@ -67,7 +67,7 @@ export class Initialize implements Action {
             const roundInfo = AppUtils.roundCalculator.calculateRound(block.data.height);
             await this.databaseService.deleteRound(roundInfo.round + 1);
 
-            if (this.stateStore.networkStart) {
+            if (this.stateStore.getNetworkStart()) {
                 await this.app.get<Contracts.State.StateBuilder>(Container.Identifiers.StateBuilder).run();
                 await this.databaseInteraction.restoreCurrentRound(block.data.height);
                 await this.transactionPool.readdTransactions();
