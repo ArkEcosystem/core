@@ -3,10 +3,10 @@ import { Models, Repositories } from "@arkecosystem/core-database";
 export type FeeStatistics = {
     type: number;
     typeGroup: number;
-    avg: string;
-    min: string;
-    max: string;
-    sum: string;
+    avg: number;
+    min: number;
+    max: number;
+    sum: number;
 };
 
 let mockTransaction: Partial<Models.Transaction> | undefined;
