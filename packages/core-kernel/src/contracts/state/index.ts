@@ -1,5 +1,5 @@
+export * from "./block-state";
 export * from "./block-store";
-export * from "./blocks";
 export * from "./dpos";
 export * from "./state-builder";
 export * from "./state-store";
