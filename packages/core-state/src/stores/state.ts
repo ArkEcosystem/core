@@ -27,9 +27,9 @@ export class StateStore implements Contracts.State.StateStore {
     private noBlockCounter: number = 0;
     private p2pUpdateCounter: number = 0;
     private numberOfBlocksToRollback: number = 0;
+    private networkStart = false;
 
     // @todo: make all properties private and expose them one-by-one through a getter if used outside of this class
-    public networkStart = false;
 
     // Stores the last n blocks in ascending height. The amount of last blocks
     // can be configured with the option `state.maxLastBlocks`.
@@ -116,6 +116,14 @@ export class StateStore implements Contracts.State.StateStore {
 
     public setNumberOfBlocksToRollback(numberOfBlocksToRollback: number): void {
         this.numberOfBlocksToRollback = numberOfBlocksToRollback;
+    }
+
+    public getNetworkStart(): boolean {
+        return this.networkStart;
+    }
+
+    public setNetworkStart(networkStart: boolean): void {
+        this.networkStart = networkStart;
     }
 
     /**

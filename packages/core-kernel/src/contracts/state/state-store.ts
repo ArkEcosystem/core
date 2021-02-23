@@ -8,8 +8,6 @@ export interface BlockPing {
 }
 
 export interface StateStore {
-    networkStart: boolean;
-
     getBlockchain(): any;
 
     setBlockchain(blockchain: any): void;
@@ -52,6 +50,10 @@ export interface StateStore {
     getNumberOfBlocksToRollback(): number;
 
     setNumberOfBlocksToRollback(numberOfBlocksToRollback: number): void;
+
+    getNetworkStart(): boolean;
+
+    setNetworkStart(networkStart: boolean): void;
 
     reset(blockchainMachine): void;
 
