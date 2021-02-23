@@ -29,8 +29,6 @@ export class StateStore implements Contracts.State.StateStore {
     private numberOfBlocksToRollback: number = 0;
     private networkStart = false;
 
-    // @todo: make all properties private and expose them one-by-one through a getter if used outside of this class
-
     // Stores the last n blocks in ascending height. The amount of last blocks
     // can be configured with the option `state.maxLastBlocks`.
     private lastBlocks: OrderedMap<number, Interfaces.IBlock> = OrderedMap<number, Interfaces.IBlock>();
