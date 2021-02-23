@@ -5,7 +5,7 @@ describe("DownloadFinished", () => {
     const container = new Container.Container();
 
     const blockchain = { dispatch: jest.fn(), getQueue: jest.fn() };
-    const stateStore = { networkStart: false };
+    const stateStore = { getNetworkStart: jest.fn().mockReturnValue(false), setNetworkStart: jest.fn() };
     const logger = { warning: jest.fn(), debug: jest.fn(), info: jest.fn(), error: jest.fn() };
 
     const application = { resolve: jest.fn() };
@@ -26,11 +26,12 @@ describe("DownloadFinished", () => {
         it("should dispatch SYNCFINISHED when stateStore.networkStart", async () => {
             const downloadFinished = container.resolve<DownloadFinished>(DownloadFinished);
 
-            stateStore.networkStart = true;
+            stateStore.getNetworkStart = jest.fn().mockReturnValue(true);
             await downloadFinished.handle();
 
             expect(blockchain.dispatch).toHaveBeenCalledTimes(1);
             expect(blockchain.dispatch).toHaveBeenCalledWith("SYNCFINISHED");
+            expect(stateStore.setNetworkStart).toHaveBeenCalledWith(false);
         });
 
         it("should dispatch PROCESSFINISHED when !blockchain.getQueue.isRunning()", async () => {

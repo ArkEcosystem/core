@@ -85,6 +85,8 @@ describe("Blockchain", () => {
         stateStore.setLastDownloadedBlock = jest.fn();
         stateStore.getNumberOfBlocksToRollback = jest.fn().mockReturnValue(0);
         stateStore.setNumberOfBlocksToRollback = jest.fn();
+        stateStore.getNetworkStart = jest.fn().mockReturnValue(false);
+        stateStore.setNetworkStart = jest.fn();
         stateStore.getLastBlock = jest.fn();
         stateStore.setLastBlock = jest.fn();
         stateStore.setForkedBlock = jest.fn();
@@ -126,8 +128,12 @@ describe("Blockchain", () => {
     describe("initialize", () => {
         it("should log a warning if networkStart option is provided", () => {
             configuration.getOptional.mockReturnValueOnce(true);
+            stateStore.getNetworkStart = jest.fn().mockReturnValue(true);
+
             sandbox.app.resolve<Blockchain>(Blockchain);
+
             expect(logService.warning).toBeCalledTimes(1);
+            expect(stateStore.setNetworkStart).toHaveBeenCalledWith(true);
         });
 
         it("should not log a warning if networkStart option isn't provided", () => {

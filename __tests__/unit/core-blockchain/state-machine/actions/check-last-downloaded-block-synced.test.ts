@@ -21,12 +21,12 @@ describe("CheckLastDownloadedBlockSynced", () => {
             p2pUpdateCounter: undefined,
             numberOfBlocksToRollback: undefined,
             getLastDownloadedBlock: jest.fn(),
-            networkStart: undefined,
             getNoBlockCounter: jest.fn().mockReturnValue(0),
             setNoBlockCounter: jest.fn(),
             getP2pUpdateCounter: jest.fn().mockReturnValue(0),
             setP2pUpdateCounter: jest.fn(),
             setNumberOfBlocksToRollback: jest.fn(),
+            getNetworkStart: jest.fn().mockReturnValue(false),
         };
         peerNetworkMonitor = { checkNetworkHealth: jest.fn() };
         logger = { warn: jest.fn(), debug: jest.fn(), info: jest.fn(), error: jest.fn() };
@@ -38,7 +38,6 @@ describe("CheckLastDownloadedBlockSynced", () => {
         container.bind(Container.Identifiers.PeerNetworkMonitor).toConstantValue(peerNetworkMonitor);
 
         process.env.CORE_ENV = "";
-        stateStore.networkStart = false;
     });
 
     describe("handle", () => {
@@ -66,12 +65,12 @@ describe("CheckLastDownloadedBlockSynced", () => {
             expect(blockchain.dispatch).toHaveBeenLastCalledWith("TEST");
         });
 
-        it("should dispatch SYNCED when stateStore.networkStart", async () => {
+        it("should dispatch SYNCED when stateStore.getNetworkStart", async () => {
             const checkLastDownloadedBlockSynced = container.resolve<CheckLastDownloadedBlockSynced>(
                 CheckLastDownloadedBlockSynced,
             );
 
-            stateStore.networkStart = true;
+            stateStore.getNetworkStart = jest.fn().mockReturnValue(true);
 
             await checkLastDownloadedBlockSynced.handle();
 
