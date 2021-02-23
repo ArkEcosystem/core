@@ -89,7 +89,7 @@ export class DposState implements Contracts.State.DposState {
         }
     }
 
-    public setDelegatesRound(roundInfo: Contracts.Shared.RoundInfo) {
+    public setDelegatesRound(roundInfo: Contracts.Shared.RoundInfo): void {
         if (this.activeDelegates.length < roundInfo.maxDelegates) {
             throw new Error(
                 `Expected to find ${roundInfo.maxDelegates} delegates but only found ${this.activeDelegates.length}.` +

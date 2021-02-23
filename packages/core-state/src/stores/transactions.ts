@@ -1,4 +1,4 @@
-import { Container, Utils, Contracts } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 
 // todo: review its implementation and finally integrate it as planned in v2
