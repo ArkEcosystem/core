@@ -25,9 +25,8 @@ export class DatabaseInteraction {
     @Container.inject(Container.Identifiers.StateStore)
     private readonly stateStore!: Contracts.State.StateStore;
 
-    // TODO: StateTransactionStore interface
     @Container.inject(Container.Identifiers.StateTransactionStore)
-    private readonly stateTransactionStore!: any;
+    private readonly stateTransactionStore!: Contracts.State.TransactionStore;
 
     @Container.inject(Container.Identifiers.StateBlockStore)
     private readonly stateBlockStore!: Contracts.State.BlockStore;
