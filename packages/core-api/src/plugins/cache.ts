@@ -4,7 +4,7 @@ import NodeCache from "node-cache";
 
 type CachedResponse = {
     code: number;
-    headers: Record<string, string>;
+    headers: Record<string, string | string[]>;
     payload: unknown;
 };
 
@@ -46,11 +46,7 @@ export = {
                     const newResponse = h.response(cachedResponse.payload).code(cachedResponse.code);
 
                     for (const [headerName, headerValue] of Object.entries(cachedResponse.headers)) {
-                        newResponse.header(headerName, headerValue, {
-                            append: false,
-                            override: false,
-                            duplicate: false,
-                        });
+                        newResponse.header(headerName, headerValue);
                     }
 
                     return newResponse.takeover();
@@ -65,19 +61,31 @@ export = {
             async method(request: Hapi.Request, h: Hapi.ResponseToolkit) {
                 const cacheKey: string = generateCacheKey(request);
 
+                let code: number;
+                let headers: Record<string, string | string[]>;
+                let payload: unknown;
+
                 if (request.response.isBoom) {
-                    cache.set(cacheKey, {
-                        code: request.response.output.statusCode,
-                        headers: request.response.output.headers,
-                        payload: request.response.output.payload,
-                    });
+                    code = request.response.output.statusCode;
+                    headers = request.response.output.headers;
+                    payload = request.response.output.payload;
                 } else {
-                    cache.set(cacheKey, {
-                        code: request.response.statusCode,
-                        headers: request.response.headers,
-                        payload: request.response.source,
-                    });
+                    code = request.response.statusCode;
+                    headers = request.response.headers;
+                    payload = request.response.source;
                 }
+
+                const cachedResponse: CachedResponse = {
+                    code,
+                    headers: {},
+                    payload,
+                };
+
+                if (code >= 300 && code < 400 && "location" in headers) {
+                    cachedResponse.headers["location"] = headers["location"];
+                }
+
+                cache.set(cacheKey, cachedResponse);
 
                 return h.continue;
             },
