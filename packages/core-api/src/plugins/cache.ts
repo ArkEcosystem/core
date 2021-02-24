@@ -85,6 +85,10 @@ export = {
                     cachedResponse.headers["location"] = headers["location"];
                 }
 
+                if ("content-type" in headers) {
+                    cachedResponse["content-type"] = headers["content-type"];
+                }
+
                 cache.set(cacheKey, cachedResponse);
 
                 return h.continue;
