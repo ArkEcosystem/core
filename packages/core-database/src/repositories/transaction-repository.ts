@@ -80,11 +80,13 @@ export class TransactionRepository extends AbstractRepository<Transaction> {
                 .orderBy("type_group")
                 .getRawMany();
         }
-        
+
         // no days parameter, take the stats from each type for its last 20 txs
         const feeStatistics: FeeStatistics[] = [];
         for (const feeStatsByType of txTypes) {
-            const feeStatsForType: FeeStatistics = await this.createQueryBuilder()
+            // we don't use directly this.createQueryBuilder() because it forces to have FROM transactions
+            // instead of just the FROM (...) subquery
+            const feeStatsForType: FeeStatistics = await this.manager.connection.createQueryBuilder()
                 .select(['subquery.type_group AS "typeGroup"', "subquery.type"])
                 .addSelect("COALESCE(AVG(subquery.fee), 0)::int8", "avg")
                 .addSelect("COALESCE(MIN(subquery.fee), 0)::int8", "min")
@@ -99,7 +101,8 @@ export class TransactionRepository extends AbstractRepository<Transaction> {
                             "txs.type = :type and txs.type_group = :typeGroup",
                             { type: feeStatsByType.type, typeGroup: feeStatsByType.typeGroup }
                         )
-                        .orderBy("txs.timestamp", "DESC")
+                        .orderBy("txs.block_height", "DESC")
+                        .addOrderBy("txs.sequence", "DESC")
                         .limit(20),
                     "subquery"
                 )
