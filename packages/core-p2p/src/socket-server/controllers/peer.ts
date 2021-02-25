@@ -3,11 +3,11 @@ import { DatabaseInteraction } from "@arkecosystem/core-state";
 import { Crypto, Interfaces } from "@arkecosystem/crypto";
 import Hapi from "@hapi/hapi";
 
+import { constants } from "../../constants";
 import { MissingCommonBlockError } from "../../errors";
+import { getPeerIp } from "../../utils/get-peer-ip";
 import { getPeerConfig } from "../utils/get-peer-config";
 import { Controller } from "./controller";
-import { getPeerIp } from "../../utils/get-peer-ip";
-import { constants } from "../../constants";
 
 export class PeerController extends Controller {
     @Container.inject(Container.Identifiers.PeerRepository)
@@ -59,20 +59,7 @@ export class PeerController extends Controller {
         const blockchain = this.app.get<Contracts.Blockchain.Blockchain>(Container.Identifiers.BlockchainService);
         const lastBlock: Interfaces.IBlock = blockchain.getLastBlock();
 
-        if (!lastBlock) {
-            return {
-                state: {
-                    height: 0,
-                    forgingAllowed: false,
-                    currentSlot: 0,
-                    header: {},
-                },
-                config: getPeerConfig(this.app),
-            };
-        }
-
         const blockTimeLookup = await Utils.forgingInfoCalculator.getBlockTimeLookup(this.app, lastBlock.data.height);
-
         const slotInfo = Crypto.Slots.getSlotInfo(blockTimeLookup);
 
         return {
