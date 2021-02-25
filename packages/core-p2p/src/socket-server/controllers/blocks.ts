@@ -2,23 +2,24 @@ import { DatabaseService } from "@arkecosystem/core-database";
 import { Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
 import { Blocks, Interfaces, Managers } from "@arkecosystem/crypto";
 import Hapi from "@hapi/hapi";
-import { constants } from "../../constants";
 
+import { constants } from "../../constants";
 import { TooManyTransactionsError } from "../errors";
 import { mapAddr } from "../utils/map-addr";
 import { Controller } from "./controller";
 
 export class BlocksController extends Controller {
+    @Container.inject(Container.Identifiers.PluginConfiguration)
+    @Container.tagged("plugin", "@arkecosystem/core-p2p")
+    private readonly configuration!: Providers.PluginConfiguration;
+
+    @Container.inject(Container.Identifiers.BlockchainService)
+    private readonly blockchain!: Contracts.Blockchain.Blockchain;
+
     @Container.inject(Container.Identifiers.DatabaseService)
     private readonly database!: DatabaseService;
 
     public async postBlock(request: Hapi.Request, h: Hapi.ResponseToolkit): Promise<boolean> {
-        const configuration = this.app.getTagged<Providers.PluginConfiguration>(
-            Container.Identifiers.PluginConfiguration,
-            "plugin",
-            "@arkecosystem/core-p2p",
-        );
-
         const blockBuffer: Buffer = request.payload.block;
 
         const deserializedHeader = Blocks.Deserializer.deserialize(blockBuffer, true);
@@ -40,18 +41,16 @@ export class BlocksController extends Controller {
         };
 
         const fromForger: boolean = Utils.isWhitelisted(
-            configuration.getOptional<string[]>("remoteAccess", []),
+            this.configuration.getOptional<string[]>("remoteAccess", []),
             request.info.remoteAddress,
         );
 
-        const blockchain = this.app.get<Contracts.Blockchain.Blockchain>(Container.Identifiers.BlockchainService);
-
         if (!fromForger) {
-            if (blockchain.pingBlock(block)) {
+            if (this.blockchain.pingBlock(block)) {
                 return true;
             }
 
-            const lastDownloadedBlock: Interfaces.IBlockData = blockchain.getLastDownloadedBlock();
+            const lastDownloadedBlock: Interfaces.IBlockData = this.blockchain.getLastDownloadedBlock();
 
             const blockTimeLookup = await Utils.forgingInfoCalculator.getBlockTimeLookup(this.app, block.height);
 
@@ -75,8 +74,7 @@ export class BlocksController extends Controller {
             )} from ${mapAddr(request.info.remoteAddress)}`,
         );
 
-        // TODO: check we don't need to await here (handleIncomingBlock is now an async operation)
-        blockchain.handleIncomingBlock(block, fromForger);
+        await this.blockchain.handleIncomingBlock(block, fromForger);
         return true;
     }
 
@@ -88,9 +86,7 @@ export class BlocksController extends Controller {
         const reqBlockLimit: number = +(request.payload as any).blockLimit || 400;
         const reqHeadersOnly: boolean = !!(request.payload as any).headersOnly;
 
-        const lastHeight: number = this.app.get<Contracts.Blockchain.Blockchain>(
-            Container.Identifiers.BlockchainService
-        ).getLastHeight();
+        const lastHeight: number = this.blockchain.getLastHeight();
         if (reqBlockHeight > lastHeight) {
             return [];
         }
