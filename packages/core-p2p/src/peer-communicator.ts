@@ -38,6 +38,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
 
     private postTransactionsQueueByIp: Map<string, Contracts.Kernel.Queue> = new Map();
 
+    @Container.postConstruct()
     public initialize(): void {
         this.outgoingRateLimiter = buildRateLimiter({
             // White listing anybody here means we would not throttle ourselves when sending

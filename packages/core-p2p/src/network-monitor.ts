@@ -52,7 +52,8 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
 
     private initializing = true;
 
-    public initialize() {
+    @Container.postConstruct()
+    public initialize(): void {
         this.config = this.configuration.all(); // >_<
     }
 

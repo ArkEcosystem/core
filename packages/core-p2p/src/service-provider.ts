@@ -110,12 +110,6 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
         this.app.bind(Container.Identifiers.PeerNetworkMonitor).to(NetworkMonitor).inSingletonScope();
 
-        this.app.get<NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).initialize();
-
-        this.app.get<PeerCommunicator>(Container.Identifiers.PeerCommunicator).initialize();
-
-        this.app.get<PeerProcessor>(Container.Identifiers.PeerProcessor).initialize();
-
         this.app.bind(Container.Identifiers.PeerEventListener).to(EventListener).inSingletonScope();
 
         this.app.bind(Container.Identifiers.PeerTransactionBroadcaster).to(TransactionBroadcaster);
