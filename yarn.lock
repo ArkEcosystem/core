@@ -4186,12 +4186,12 @@
   dependencies:
     "@types/integer" "*"
 
-"@types/bip32@^1.0.2":
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/@types/bip32/-/bip32-1.0.2.tgz#41d69728bcd36ba998329b56959db25120647a45"
-  integrity sha512-gqkz3Jq2OA3s5QOHe7de9tUzW7Xjoct6ImCbt0KQnF0ParqDSvLo5Fu+mKQykFF1fgIcdzEmm0CO6HN+xG2SAA==
+"@types/bip32@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@types/bip32/-/bip32-2.0.0.tgz#7160aa49960021ecc8cacab2fe43a4dcacc59cca"
+  integrity sha512-c94+QKb7u2kg8wht+5JmbA8mBBelkNJR0mkuN73HtUhPYW5z/s5NZT0Cc3OO0sXNilXBfaxPHm11nUemoKjeJQ==
   dependencies:
-    "@types/node" "*"
+    bip32 "*"
 
 "@types/bip39@^2.4.2":
   version "2.4.2"
@@ -5500,16 +5500,16 @@ bindings@^1.3.0, bindings@^1.5.0:
   dependencies:
     file-uri-to-path "1.0.0"
 
-bip32@^2.0.4:
-  version "2.0.4"
-  resolved "https://registry.yarnpkg.com/bip32/-/bip32-2.0.4.tgz#b662bd28710d4676fb351ba8a13be45cb4d85d01"
-  integrity sha512-ioPytarPDIrWckWMuK4RNUtvwhvWEc2fvuhnO0WEwu732k5OLjUXv4rXi2c/KJHw9ZMNQMkYRJrBw81RujShGQ==
+bip32@*, bip32@^2.0.6:
+  version "2.0.6"
+  resolved "https://registry.yarnpkg.com/bip32/-/bip32-2.0.6.tgz#6a81d9f98c4cd57d05150c60d8f9e75121635134"
+  integrity sha512-HpV5OMLLGTjSVblmrtYRfFFKuQB+GArM0+XP8HGWfJ5vxYBqo+DesvJwOdC2WJ3bCkZShGf0QIfoIpeomVzVdA==
   dependencies:
     "@types/node" "10.12.18"
     bs58check "^2.1.1"
     create-hash "^1.2.0"
     create-hmac "^1.1.7"
-    tiny-secp256k1 "^1.1.0"
+    tiny-secp256k1 "^1.1.3"
     typeforce "^1.11.5"
     wif "^2.0.6"
 
@@ -15282,10 +15282,10 @@ thunkify@^2.1.2:
   resolved "https://registry.yarnpkg.com/thunkify/-/thunkify-2.1.2.tgz#faa0e9d230c51acc95ca13a361ac05ca7e04553d"
   integrity sha1-+qDp0jDFGsyVyhOjYawFyn4EVT0=
 
-tiny-secp256k1@^1.1.0:
-  version "1.1.3"
-  resolved "https://registry.yarnpkg.com/tiny-secp256k1/-/tiny-secp256k1-1.1.3.tgz#e93b1e1bf62e9bd1ad3ab24af27ff6127ce0e077"
-  integrity sha512-ZpobrhOtHP98VYEN51IYQH1YcrbFpnxFhI6ceWa3OEbJn7eHvSd8YFjGPxbedGCy7PNYU1v/+BRsdvyr5uRd4g==
+tiny-secp256k1@^1.1.3:
+  version "1.1.6"
+  resolved "https://registry.yarnpkg.com/tiny-secp256k1/-/tiny-secp256k1-1.1.6.tgz#7e224d2bee8ab8283f284e40e6b4acb74ffe047c"
+  integrity sha512-FmqJZGduTyvsr2cF3375fqGHUovSwDi/QytexX1Se4BPuPZpTE5Ftp5fg+EFSuEf3lhZqgCRjEG3ydUQ/aNiwA==
   dependencies:
     bindings "^1.3.0"
     bn.js "^4.11.8"
