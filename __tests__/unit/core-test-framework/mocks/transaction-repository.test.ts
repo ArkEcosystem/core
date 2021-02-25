@@ -19,10 +19,10 @@ const transaction: Partial<Models.Transaction> = {
 const feeStatistics: TransactionRepository.FeeStatistics = {
     type: 1,
     typeGroup: 1,
-    avg: "15",
-    min: "10",
-    max: "20",
-    sum: "500",
+    avg: 15,
+    min: 10,
+    max: 20,
+    sum: 500,
 };
 
 const clear = () => {
@@ -70,7 +70,7 @@ describe("TransactionRepository", () => {
         });
 
         it("getFeeStatistics should return empty search result", async () => {
-            await expect(TransactionRepository.instance.getFeeStatistics(1)).resolves.toEqual([]);
+            await expect(TransactionRepository.instance.getFeeStatistics([], 1)).resolves.toEqual([]);
         });
     });
 
@@ -149,7 +149,7 @@ describe("TransactionRepository", () => {
         });
 
         it("findByIdAndType should return mocked transaction", async () => {
-            await expect(TransactionRepository.instance.getFeeStatistics(1)).resolves.toEqual([feeStatistics]);
+            await expect(TransactionRepository.instance.getFeeStatistics([], 1)).resolves.toEqual([feeStatistics]);
         });
     });
 });

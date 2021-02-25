@@ -107,7 +107,7 @@ describe("TransactionRepository.getFeeStatistics", () => {
         const blockRepository = getCustomRepository(BlockRepository);
         const transactionRepository = getCustomRepository(TransactionRepository);
         await blockRepository.saveBlocks([block1, block2, block3]);
-        const feeStatistics = await transactionRepository.getFeeStatistics(14, 0);
+        const feeStatistics = await transactionRepository.getFeeStatistics([], 14, 0);
         expect(feeStatistics).toStrictEqual([
             {
                 typeGroup: Enums.TransactionTypeGroup.Core,
