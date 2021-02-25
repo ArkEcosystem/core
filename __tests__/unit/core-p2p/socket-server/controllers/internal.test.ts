@@ -1,14 +1,14 @@
-import { Container, Utils as KernelUtils } from "@arkecosystem/core-kernel";
-import { NetworkStateStatus } from "@arkecosystem/core-p2p/src/enums";
-import { NetworkState } from "@arkecosystem/core-p2p/src/network-state";
-import { InternalController } from "@arkecosystem/core-p2p/src/socket-server/controllers/internal";
-import { Blocks, Networks, Utils } from "@arkecosystem/crypto";
-import { TransactionFactory } from "@arkecosystem/crypto/dist/transactions";
+import { Sandbox } from "@packages/core-test-framework";
+import { Container, Utils as KernelUtils } from "@packages/core-kernel";
+import { NetworkStateStatus } from "@packages/core-p2p/src/enums";
+import { NetworkState } from "@packages/core-p2p/src/network-state";
+import { InternalController } from "@packages/core-p2p/src/socket-server/controllers/internal";
+import { Blocks, Networks, Utils } from "@packages/crypto";
+import { TransactionFactory } from "@packages/crypto/src/transactions";
 
 describe("InternalController", () => {
+    let sandbox: Sandbox;
     let internalController: InternalController;
-
-    const container = new Container.Container();
 
     const logger = { warning: jest.fn(), debug: jest.fn() };
     const peerProcessor = { validateAndAcceptPeer: jest.fn() };
@@ -19,28 +19,21 @@ describe("InternalController", () => {
     const poolCollator = { getBlockCandidateTransactions: jest.fn() };
     const poolService = { getPoolSize: jest.fn() };
     const blockchain = { getLastBlock: jest.fn(), forceWakeup: jest.fn() };
-    const appGet = {
-        [Container.Identifiers.TransactionPoolCollator]: poolCollator,
-        [Container.Identifiers.TransactionPoolService]: poolService,
-        [Container.Identifiers.BlockchainService]: blockchain,
-    };
-    const app = {
-        get: (key) => appGet[key],
-    };
-
-    beforeAll(() => {
-        container.unbindAll();
-        container.bind(Container.Identifiers.LogService).toConstantValue(logger);
-        container.bind(Container.Identifiers.PeerProcessor).toConstantValue(peerProcessor);
-        container.bind(Container.Identifiers.PeerNetworkMonitor).toConstantValue(networkMonitor);
-        container.bind(Container.Identifiers.EventDispatcherService).toConstantValue(emitter);
-        container.bind(Container.Identifiers.DatabaseService).toConstantValue(database);
-        container.bind(Container.Identifiers.DatabaseInteraction).toConstantValue(databaseInteractions);
-        container.bind(Container.Identifiers.Application).toConstantValue(app);
-    });
 
     beforeEach(() => {
-        internalController = container.resolve<InternalController>(InternalController);
+        sandbox = new Sandbox();
+
+        sandbox.app.bind(Container.Identifiers.LogService).toConstantValue(logger);
+        sandbox.app.bind(Container.Identifiers.PeerProcessor).toConstantValue(peerProcessor);
+        sandbox.app.bind(Container.Identifiers.PeerNetworkMonitor).toConstantValue(networkMonitor);
+        sandbox.app.bind(Container.Identifiers.EventDispatcherService).toConstantValue(emitter);
+        sandbox.app.bind(Container.Identifiers.DatabaseService).toConstantValue(database);
+        sandbox.app.bind(Container.Identifiers.DatabaseInteraction).toConstantValue(databaseInteractions);
+        sandbox.app.bind(Container.Identifiers.BlockchainService).toConstantValue(blockchain);
+        sandbox.app.bind(Container.Identifiers.TransactionPoolService).toConstantValue(poolService);
+        sandbox.app.bind(Container.Identifiers.TransactionPoolCollator).toConstantValue(poolCollator);
+
+        internalController = sandbox.app.resolve<InternalController>(InternalController);
     });
 
     describe("acceptNewPeer", () => {
@@ -68,6 +61,7 @@ describe("InternalController", () => {
         it("should return the unconfirmed transactions from the pool", async () => {
             const poolSize = 330;
             const unconfirmedTxs = Networks.testnet.genesisBlock.transactions.map((tx) =>
+                // @ts-ignore
                 TransactionFactory.fromData({
                     ...tx,
                     amount: Utils.BigNumber.make(tx.amount),
@@ -85,6 +79,7 @@ describe("InternalController", () => {
     });
 
     describe("getCurrentRound", () => {
+        // @ts-ignore
         const block = {
             data: {
                 id: "17882607875259085966",
