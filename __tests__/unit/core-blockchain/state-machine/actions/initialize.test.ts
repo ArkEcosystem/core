@@ -1,7 +1,6 @@
-import { Container } from "@arkecosystem/core-kernel";
-import { Managers } from "@arkecosystem/crypto";
-
-import { Initialize } from "../../../../../packages/core-blockchain/src/state-machine/actions/initialize";
+import { Initialize } from "@packages/core-blockchain/src/state-machine/actions/initialize";
+import { Container } from "@packages/core-kernel";
+import { Managers } from "@packages/crypto";
 
 describe("Initialize", () => {
     const container = new Container.Container();
@@ -11,7 +10,7 @@ describe("Initialize", () => {
     const stateStore = {
         getLastBlock: jest.fn(),
         setLastBlock: jest.fn(),
-        networkStart: undefined,
+        getNetworkStart: jest.fn().mockReturnValue(false),
     };
     const transactionPool = { readdTransactions: jest.fn() };
     const databaseService = {
@@ -38,7 +37,7 @@ describe("Initialize", () => {
     const appGet = {
         [Container.Identifiers.PeerNetworkMonitor]: peerNetworkMonitor,
         [Container.Identifiers.StateBuilder]: stateBuilder,
-    }
+    };
     const application = { get: (key) => appGet[key] };
 
     beforeAll(() => {
@@ -173,7 +172,7 @@ describe("Initialize", () => {
                     },
                 };
                 stateStore.getLastBlock = jest.fn().mockReturnValueOnce(lastBlock);
-                stateStore.networkStart = true;
+                stateStore.getNetworkStart = jest.fn().mockReturnValue(true);
                 databaseService.restoredDatabaseIntegrity = true;
                 process.env.NODE_ENV = "";
                 await initialize.handle();
@@ -194,7 +193,7 @@ describe("Initialize", () => {
                     },
                 };
                 stateStore.getLastBlock = jest.fn().mockReturnValueOnce(lastBlock);
-                stateStore.networkStart = false;
+                stateStore.getNetworkStart = jest.fn().mockReturnValue(false);
                 databaseService.restoredDatabaseIntegrity = true;
                 process.env.NODE_ENV = "test";
                 await initialize.handle();
