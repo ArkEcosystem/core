@@ -132,14 +132,6 @@ export class StateStore implements Contracts.State.StateStore {
         this.blockchain = blockchainMachine.initialState;
     }
 
-    /**
-     * Clear last blocks.
-     */
-    public clear(): void {
-        this.lastBlocks = this.lastBlocks.clear();
-        this.cachedTransactionIds = this.cachedTransactionIds.clear();
-    }
-
     public isWakeUpTimeoutSet(): boolean {
         return !!this.wakeUpTimeout;
     }

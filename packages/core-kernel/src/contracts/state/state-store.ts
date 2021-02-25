@@ -58,11 +58,6 @@ export interface StateStore {
     reset(blockchainMachine): void;
 
     /**
-     * Clear last blocks.
-     */
-    clear(): void;
-
-    /**
      * Is wakeup timeout set.
      */
     isWakeUpTimeoutSet(): boolean;
