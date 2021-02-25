@@ -59,9 +59,9 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
         this.stopped = false;
 
         // flag to force a network start
-        this.stateStore.networkStart = this.configuration.getOptional("options.networkStart", false);
+        this.stateStore.setNetworkStart(this.configuration.getOptional("options.networkStart", false));
 
-        if (this.stateStore.networkStart) {
+        if (this.stateStore.getNetworkStart()) {
             this.logger.warning(
                 "ARK Core is launched in Genesis Start mode. This is usually for starting the first node on the blockchain. Unless you know what you are doing, this is likely wrong.",
             );
@@ -125,7 +125,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             return true;
         }
 
-        while (!this.stateStore.started && !this.stopped) {
+        while (!this.stateStore.isStarted() && !this.stopped) {
             await Utils.sleep(1000);
         }
 
@@ -160,9 +160,8 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
      * Set wakeup timeout to check the network for new blocks.
      */
     public setWakeUp(): void {
-        this.stateStore.wakeUpTimeout = setTimeout(() => {
-            this.stateStore.wakeUpTimeout = undefined;
-            return this.dispatch("WAKEUP");
+        this.stateStore.setWakeUpTimeout(() => {
+            this.dispatch("WAKEUP");
         }, 60000);
     }
 
@@ -188,7 +187,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
      * @return {void}
      */
     public clearAndStopQueue(): void {
-        this.stateStore.lastDownloadedBlock = this.getLastBlock().data;
+        this.stateStore.setLastDownloadedBlock(this.getLastBlock().data);
 
         this.queue.pause();
         this.clearQueue();
@@ -227,7 +226,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             return;
         }
 
-        if (this.stateStore.started) {
+        if (this.stateStore.isStarted()) {
             this.dispatch("NEWBLOCK");
             this.enqueueBlocks([block]);
 
@@ -339,7 +338,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             }
 
             this.stateStore.setLastBlock(newLastBlock);
-            this.stateStore.lastDownloadedBlock = newLastBlock.data;
+            this.stateStore.setLastDownloadedBlock(newLastBlock.data);
         };
 
         const __removeBlocks = async (numberOfBlocks) => {
@@ -364,7 +363,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             `Removing ${Utils.pluralize("block", nblocks, true)}. Reset to height ${resetHeight.toLocaleString()}`,
         );
 
-        this.stateStore.lastDownloadedBlock = lastBlock.data;
+        this.stateStore.setLastDownloadedBlock(lastBlock.data);
 
         await __removeBlocks(nblocks);
 
@@ -390,7 +389,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
      * Reset the last downloaded block to last chained block.
      */
     public resetLastDownloadedBlock(): void {
-        this.stateStore.lastDownloadedBlock = this.getLastBlock().data;
+        this.stateStore.setLastDownloadedBlock(this.getLastBlock().data);
     }
 
     /**
@@ -407,13 +406,13 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
      * Fork the chain at the given block.
      */
     public forkBlock(block: Interfaces.IBlock, numberOfBlockToRollback?: number): void {
-        this.stateStore.forkedBlock = block;
+        this.stateStore.setForkedBlock(block);
 
         this.clearAndStopQueue();
 
         /* istanbul ignore else */
         if (numberOfBlockToRollback) {
-            this.stateStore.numberOfBlocksToRollback = numberOfBlockToRollback;
+            this.stateStore.setNumberOfBlocksToRollback(numberOfBlockToRollback);
         }
 
         this.dispatch("FORK");
@@ -452,19 +451,14 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
      * Get the last downloaded block of the blockchain.
      */
     public getLastDownloadedBlock(): Interfaces.IBlockData {
-        return this.stateStore.lastDownloadedBlock || this.getLastBlock().data;
+        return this.stateStore.getLastDownloadedBlock() || this.getLastBlock().data;
     }
 
     /**
      * Get the block ping.
      */
-    public getBlockPing(): {
-        count: number;
-        first: number;
-        last: number;
-        block: Interfaces.IBlockData;
-    } {
-        return this.stateStore.blockPing;
+    public getBlockPing(): Contracts.State.BlockPing | undefined {
+        return this.stateStore.getBlockPing();
     }
 
     /**
@@ -502,7 +496,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             const networkStatus = await this.networkMonitor.checkNetworkHealth();
 
             if (networkStatus.forked) {
-                this.stateStore.numberOfBlocksToRollback = networkStatus.blocksToRollback;
+                this.stateStore.setNumberOfBlocksToRollback(networkStatus.blocksToRollback || 0);
                 this.dispatch("FORK");
             }
         }

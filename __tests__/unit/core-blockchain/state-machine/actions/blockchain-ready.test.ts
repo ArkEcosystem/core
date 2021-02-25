@@ -1,11 +1,14 @@
 import { Container, Enums } from "@arkecosystem/core-kernel";
-import { BlockchainReady } from "../../../../../packages/core-blockchain/src/state-machine/actions/blockchain-ready";
+import { BlockchainReady } from "@packages/core-blockchain/src/state-machine/actions/blockchain-ready";
 
 describe("BlockchainReady", () => {
     const container = new Container.Container();
 
     const logService = { warning: jest.fn(), info: jest.fn(), error: jest.fn(), debug: jest.fn() };
-    const stateStore = { started: undefined };
+    const stateStore = {
+        isStarted: jest.fn().mockReturnValue(false),
+        setStarted: jest.fn(),
+    };
     const eventDispatcher = { dispatch: jest.fn() };
 
     const application = { resolve: jest.fn() };
@@ -26,10 +29,10 @@ describe("BlockchainReady", () => {
         it("should set stateStore.started = true and dispatch started event", () => {
             const blockchainReady = container.resolve<BlockchainReady>(BlockchainReady);
 
-            stateStore.started = false;
+            stateStore.isStarted = jest.fn().mockReturnValue(false);
             blockchainReady.handle();
 
-            expect(stateStore.started).toBeTrue();
+            expect(stateStore.setStarted).toHaveBeenCalledWith(true);
             expect(eventDispatcher.dispatch).toHaveBeenCalledTimes(1);
             expect(eventDispatcher.dispatch).toHaveBeenLastCalledWith(Enums.StateEvent.Started, true);
         });
@@ -37,7 +40,7 @@ describe("BlockchainReady", () => {
         it("should do nothing if stateStore.started is true", () => {
             const blockchainReady = container.resolve<BlockchainReady>(BlockchainReady);
 
-            stateStore.started = true;
+            stateStore.isStarted = jest.fn().mockReturnValue(true);
             blockchainReady.handle();
 
             expect(eventDispatcher.dispatch).toHaveBeenCalledTimes(0);

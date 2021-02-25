@@ -22,7 +22,7 @@ export class DownloadBlocks implements Action {
 
     public async handle(): Promise<void> {
         const lastDownloadedBlock: Interfaces.IBlockData =
-            this.stateStore.lastDownloadedBlock || this.stateStore.getLastBlock().data;
+            this.stateStore.getLastDownloadedBlock() || this.stateStore.getLastBlock().data;
 
         const blocks: Interfaces.IBlockData[] = await this.networkMonitor.downloadBlocksFromHeight(
             lastDownloadedBlock.height,
@@ -33,7 +33,8 @@ export class DownloadBlocks implements Action {
         }
 
         // Could have changed since entering this function, e.g. due to a rollback.
-        if (this.stateStore.lastDownloadedBlock && lastDownloadedBlock.id !== this.stateStore.lastDownloadedBlock.id) {
+        const lastDownloadedBlockFromStore = this.stateStore.getLastDownloadedBlock();
+        if (lastDownloadedBlockFromStore && lastDownloadedBlock.id !== lastDownloadedBlockFromStore.id) {
             return;
         }
 
@@ -60,7 +61,7 @@ export class DownloadBlocks implements Action {
 
             try {
                 this.blockchain.enqueueBlocks(blocks);
-                this.stateStore.lastDownloadedBlock = blocks[blocks.length - 1];
+                this.stateStore.setLastDownloadedBlock(blocks[blocks.length - 1]);
                 this.blockchain.dispatch("DOWNLOADED");
             } catch (error) {
                 this.logger.warning(`Failed to enqueue downloaded block.`);
@@ -85,8 +86,8 @@ export class DownloadBlocks implements Action {
 
             /* istanbul ignore else */
             if (this.blockchain.getQueue().size() === 0) {
-                this.stateStore.noBlockCounter++;
-                this.stateStore.lastDownloadedBlock = this.stateStore.getLastBlock().data;
+                this.stateStore.setNoBlockCounter(this.stateStore.getNoBlockCounter() + 1);
+                this.stateStore.setLastDownloadedBlock(this.stateStore.getLastBlock().data);
             }
 
             this.blockchain.dispatch("NOBLOCK");

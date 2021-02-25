@@ -3,10 +3,10 @@ import { Models, Repositories } from "@arkecosystem/core-database";
 export type FeeStatistics = {
     type: number;
     typeGroup: number;
-    avg: string;
-    min: string;
-    max: string;
-    sum: string;
+    avg: number;
+    min: number;
+    max: number;
+    sum: number;
 };
 
 let mockTransaction: Partial<Models.Transaction> | undefined;
@@ -68,7 +68,7 @@ class TransactionRepositoryMock implements Partial<Repositories.TransactionRepos
         });
     }
 
-    public async getFeeStatistics(days: number, minFee?: number): Promise<FeeStatistics[]> {
+    public async getFeeStatistics(txTypes: Array<{ type: number, typeGroup: number }>, days: number, minFee?: number): Promise<FeeStatistics[]> {
         return mockFeeStatistics;
     }
 }

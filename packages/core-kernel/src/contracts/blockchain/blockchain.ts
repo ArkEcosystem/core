@@ -1,6 +1,7 @@
 import { Interfaces } from "@arkecosystem/crypto";
 
 import { Queue } from "../kernel/queue";
+import { BlockPing } from "../state/state-store";
 
 export interface Blockchain {
     isStopped(): boolean;
@@ -110,12 +111,7 @@ export interface Blockchain {
     /**
      * Get the block ping.
      */
-    getBlockPing(): {
-        count: number;
-        first: number;
-        last: number;
-        block: Interfaces.IBlockData;
-    };
+    getBlockPing(): BlockPing | undefined;
 
     /**
      * Ping a block.

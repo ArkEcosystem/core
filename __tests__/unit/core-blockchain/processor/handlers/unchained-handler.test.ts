@@ -14,7 +14,10 @@ const blockchain = {
     getLastBlock: jest.fn(),
     getQueue: jest.fn().mockReturnValue({ size: jest.fn() }),
 };
-const stateStore = { numberOfBlocksToRollback: undefined };
+const stateStore = {
+    getNumberOfBlocksToRollback: jest.fn().mockReturnValue(0),
+    setNumberOfBlocksToRollback: jest.fn(),
+};
 const database = {};
 const databaseInteractions = {
     walletRepository: {
@@ -132,6 +135,7 @@ describe("UnchainedHandler", () => {
                 }
 
                 expect(await unchainedHandler.execute(block as Interfaces.IBlock)).toBe(BlockProcessorResult.Rollback);
+                expect(stateStore.setNumberOfBlocksToRollback).toHaveBeenCalledWith(5000);
             });
         });
 

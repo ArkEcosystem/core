@@ -2,9 +2,9 @@ import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kern
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Enums, Identities, Interfaces, Utils } from "@arkecosystem/crypto";
 
-// todo: review the implementation and make use of ioc
+// todo: review the implementation
 @Container.injectable()
-export class BlockState {
+export class BlockState implements Contracts.State.BlockState {
     @Container.inject(Container.Identifiers.WalletRepository)
     private walletRepository!: Contracts.State.WalletRepository;
 

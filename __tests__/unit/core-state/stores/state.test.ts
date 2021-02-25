@@ -16,11 +16,11 @@ let logger: jest.SpyInstance;
 let dispatchSpy: jest.SpyInstance;
 
 beforeAll(async () => {
-    const initalEnv = await setUp();
-    factory = initalEnv.factory;
-    logger = initalEnv.spies.logger.info;
-    dispatchSpy = initalEnv.spies.dispatchSpy;
-    stateStorage = initalEnv.sandbox.app.get(Container.Identifiers.StateStore);
+    const initialEnv = await setUp();
+    factory = initialEnv.factory;
+    logger = initialEnv.spies.logger.info;
+    dispatchSpy = initialEnv.spies.dispatchSpy;
+    stateStorage = initialEnv.sandbox.app.get(Container.Identifiers.StateStore);
 });
 
 beforeEach(() => {
@@ -31,6 +31,119 @@ beforeEach(() => {
 afterAll(() => jest.clearAllMocks());
 
 describe("State Storage", () => {
+    describe("getBlockchain", () => {
+        it("should return initial state", () => {
+            expect(stateStorage.getBlockchain()).toEqual({});
+        });
+    });
+
+    describe("setBlockchain", () => {
+        it("should set blockchain state", () => {
+            const state = {
+                value: "dummy_state",
+            };
+
+            stateStorage.setBlockchain(state);
+            expect(stateStorage.getBlockchain()).toEqual(state);
+        });
+    });
+
+    describe("isStarted", () => {
+        it("should be false by default", () => {
+            expect(stateStorage.isStarted()).toEqual(false);
+        });
+    });
+
+    describe("setStarted", () => {
+        it("should set value", () => {
+            stateStorage.setStarted(true);
+            expect(stateStorage.isStarted()).toEqual(true);
+        });
+    });
+
+    describe("getForkedBlock", () => {
+        it("should be undefined by default", () => {
+            expect(stateStorage.getForkedBlock()).toBeUndefined();
+        });
+    });
+
+    describe("setForkedBlock", () => {
+        it("should set forkedBlock", () => {
+            const block = {
+                id: "dummy_id",
+            };
+            // @ts-ignore
+            stateStorage.setForkedBlock(block);
+            expect(stateStorage.getForkedBlock()).toBe(block);
+        });
+    });
+
+    describe("clearForkedBlock", () => {
+        it("should clear forkedBlock", () => {
+            const block = {
+                id: "dummy_id",
+            };
+            // @ts-ignore
+            stateStorage.setForkedBlock(block);
+            expect(stateStorage.getForkedBlock()).toBe(block);
+
+            stateStorage.clearForkedBlock();
+            expect(stateStorage.getForkedBlock()).toBeUndefined();
+        });
+    });
+
+    describe("getNoBlockCounter", () => {
+        it("should return 0 by default", () => {
+            expect(stateStorage.getNoBlockCounter()).toEqual(0);
+        });
+    });
+
+    describe("setNoBlockCounter", () => {
+        it("should set noBlockCounter", () => {
+            stateStorage.setNoBlockCounter(3);
+            expect(stateStorage.getNoBlockCounter()).toEqual(3);
+        });
+    });
+
+    describe("getP2pUpdateCounter", () => {
+        it("should return 0 by default", () => {
+            expect(stateStorage.getP2pUpdateCounter()).toEqual(0);
+        });
+    });
+
+    describe("setP2pUpdateCounter", () => {
+        it("should set p2pUpdateCounter", () => {
+            stateStorage.setP2pUpdateCounter(3);
+            expect(stateStorage.getP2pUpdateCounter()).toEqual(3);
+        });
+    });
+
+    describe("getNumberOfBlocksToRollback", () => {
+        it("should return 0 by default", () => {
+            expect(stateStorage.getNumberOfBlocksToRollback()).toEqual(0);
+        });
+    });
+
+    describe("setNumberOfBlocksToRollback", () => {
+        it("should set numberOfBlocksToRollback", () => {
+            stateStorage.setNumberOfBlocksToRollback(3);
+            expect(stateStorage.getNumberOfBlocksToRollback()).toEqual(3);
+        });
+    });
+
+    describe("getNetworkStart", () => {
+        it("should return false by default", () => {
+            expect(stateStorage.getNetworkStart()).toBeFalse();
+        });
+    });
+
+    describe("setNetworkStart", () => {
+        it("should set numberOfBlocksToRollback", () => {
+            stateStorage.setNetworkStart(true);
+            expect(stateStorage.getNetworkStart()).toBeTrue();
+        });
+    });
+
     describe("getMaxLastBlocks", () => {
         it("should return max last blocks limit", () => {
             expect(stateStorage.getMaxLastBlocks()).toBe(100);
@@ -332,18 +445,20 @@ describe("State Storage", () => {
             };
             stateStorage.reset(mockBlockChainMachine);
 
-            expect(stateStorage.blockchain).toEqual(mockBlockChainMachine.initialState);
+            expect(stateStorage.getBlockchain()).toEqual(mockBlockChainMachine.initialState);
         });
     });
 
     describe("pingBlock", () => {
         it("should return false if there is no blockPing", () => {
+            // @ts-ignore
             stateStorage.blockPing = undefined;
             expect(stateStorage.pingBlock(blocks[5].data)).toBeFalse();
         });
 
         it("should return true if block pinged == current blockPing and should update stats", async () => {
             const currentTime = new Date().getTime();
+            // @ts-ignore
             stateStorage.blockPing = {
                 count: 1,
                 first: currentTime,
@@ -353,14 +468,17 @@ describe("State Storage", () => {
             await delay(20);
 
             expect(stateStorage.pingBlock(blocks[5].data)).toBeTrue();
-            expect(stateStorage.blockPing.count).toBe(2);
-            expect(stateStorage.blockPing.block).toBe(blocks[5].data);
-            expect(stateStorage.blockPing.last).toBeGreaterThan(currentTime);
-            expect(stateStorage.blockPing.first).toBe(currentTime);
+
+            const blockPing = stateStorage.getBlockPing()!;
+            expect(blockPing.count).toBe(2);
+            expect(blockPing.block).toBe(blocks[5].data);
+            expect(blockPing.last).toBeGreaterThan(currentTime);
+            expect(blockPing.first).toBe(currentTime);
         });
 
         it("should return false if block pinged != current blockPing", () => {
             const currentTime = new Date().getTime();
+            // @ts-ignore
             stateStorage.blockPing = {
                 count: 1,
                 first: currentTime,
@@ -368,25 +486,30 @@ describe("State Storage", () => {
                 block: blocks[3].data,
             };
             expect(stateStorage.pingBlock(blocks[5].data)).toBeFalse();
-            expect(stateStorage.blockPing.count).toBe(1);
-            expect(stateStorage.blockPing.block).toBe(blocks[3].data);
-            expect(stateStorage.blockPing.last).toBe(currentTime);
-            expect(stateStorage.blockPing.first).toBe(currentTime);
+
+            const blockPing = stateStorage.getBlockPing()!;
+            expect(blockPing.count).toBe(1);
+            expect(blockPing.block).toBe(blocks[3].data);
+            expect(blockPing.last).toBe(currentTime);
+            expect(blockPing.first).toBe(currentTime);
         });
     });
 
     describe("pushPingBlock", () => {
         it("should push the block provided as blockPing", () => {
+            // @ts-ignore
             stateStorage.blockPing = undefined;
 
             stateStorage.pushPingBlock(blocks[5].data);
 
-            expect(stateStorage.blockPing).toBeObject();
-            expect(stateStorage.blockPing.block).toBe(blocks[5].data);
-            expect(stateStorage.blockPing.count).toBe(1);
+            const blockPing = stateStorage.getBlockPing()!;
+            expect(blockPing).toBeObject();
+            expect(blockPing.block).toBe(blocks[5].data);
+            expect(blockPing.count).toBe(1);
         });
 
         it("should log info message if there is already a blockPing", async () => {
+            // @ts-ignore
             stateStorage.blockPing = {
                 count: 1,
                 first: new Date().getTime(),
@@ -398,12 +521,15 @@ describe("State Storage", () => {
             expect(logger).toHaveBeenCalledWith(
                 `Previous block ${blocks[3].data.height.toLocaleString()} pinged blockchain 1 times`,
             );
-            expect(stateStorage.blockPing).toBeObject();
-            expect(stateStorage.blockPing.block).toBe(blocks[5].data);
-            expect(stateStorage.blockPing.count).toBe(1);
+
+            const blockPing = stateStorage.getBlockPing()!;
+            expect(blockPing).toBeObject();
+            expect(blockPing.block).toBe(blocks[5].data);
+            expect(blockPing.count).toBe(1);
         });
 
         it("should log info message if there is already a blockPing when pushed fromForger", async () => {
+            // @ts-ignore
             stateStorage.blockPing = {
                 count: 0,
                 first: new Date().getTime(),
@@ -415,15 +541,48 @@ describe("State Storage", () => {
             expect(logger).toHaveBeenCalledWith(
                 `Previous block ${blocks[3].data.height.toLocaleString()} pinged blockchain 1 times`,
             );
-            expect(stateStorage.blockPing).toBeObject();
-            expect(stateStorage.blockPing.block).toBe(blocks[5].data);
-            expect(stateStorage.blockPing.count).toBe(0);
+
+            const blockPing = stateStorage.getBlockPing()!;
+            expect(blockPing).toBeObject();
+            expect(blockPing.block).toBe(blocks[5].data);
+            expect(blockPing.count).toBe(0);
+        });
+    });
+
+    describe("isWakeUpTimeoutSet", () => {
+        it("should return false if timer is not set", async () => {
+            expect(stateStorage.isWakeUpTimeoutSet()).toBeFalse();
+        });
+
+        it("should return true if timer is set", async () => {
+            stateStorage.setWakeUpTimeout(jest.fn(), 100);
+
+            expect(stateStorage.isWakeUpTimeoutSet()).toBeTrue();
+
+            await delay(200);
+
+            expect(stateStorage.isWakeUpTimeoutSet()).toBeFalse();
+        });
+    });
+
+    describe("setWakeUpTimeout", () => {
+        it("should call callback and clear timeout", async () => {
+            const callbackFn = jest.fn();
+            const spyOnClearWakeUpTimeout = jest.spyOn(stateStorage, "clearWakeUpTimeout");
+
+            stateStorage.setWakeUpTimeout(callbackFn, 100);
+
+            await delay(200);
+
+            expect(callbackFn).toHaveBeenCalled();
+            expect(spyOnClearWakeUpTimeout).toHaveBeenCalled();
         });
     });
 
     describe("clearWakeUpTimeout", () => {
-        it("it should clear wake up timers", () => {
+        it("should clear wake up timers", () => {
             jest.useFakeTimers();
+            // @ts-ignore
             stateStorage.wakeUpTimeout = 1;
 
             stateStorage.clearWakeUpTimeout();
@@ -431,7 +590,7 @@ describe("State Storage", () => {
             expect(clearTimeout).toHaveBeenCalledWith(1);
         });
 
-        it("it should do nothing if a timer is not set", () => {
+        it("should do nothing if a timer is not set", () => {
             jest.useFakeTimers();
 
             stateStorage.clearWakeUpTimeout();

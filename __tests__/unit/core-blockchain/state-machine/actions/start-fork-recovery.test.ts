@@ -19,7 +19,7 @@ describe("StartForkRecovery", () => {
             removeBlocks: jest.fn(),
             getQueue: jest.fn().mockReturnValue({ resume: jest.fn() }),
         };
-        stateStore = { numberOfBlocksToRollback: undefined };
+        stateStore = { getNumberOfBlocksToRollback: jest.fn().mockReturnValue(0), setNumberOfBlocksToRollback: jest.fn() };
         peerNetworkMonitor = { refreshPeersAfterFork: jest.fn() };
 
         application = {};
@@ -49,13 +49,13 @@ describe("StartForkRecovery", () => {
             expect(blockchain.getQueue().resume).toHaveBeenCalledTimes(1);
         });
 
-        it("should remove stateStore.numberOfBlocksToRollback blocks when defined", async () => {
+        it("should set stateStore.numberOfBlocksToRollback to 0 blocks when defined", async () => {
             const startForkRecovery = container.resolve<StartForkRecovery>(StartForkRecovery);
 
-            stateStore.numberOfBlocksToRollback = 7;
+            stateStore.getNumberOfBlocksToRollback = jest.fn().mockReturnValue(7);
             await startForkRecovery.handle();
 
-            expect(stateStore.numberOfBlocksToRollback).toBeUndefined();
+            expect(stateStore.setNumberOfBlocksToRollback).toHaveBeenCalledWith(0);
             expect(blockchain.clearAndStopQueue).toHaveBeenCalledTimes(1);
             expect(blockchain.removeBlocks).toHaveBeenCalledTimes(1);
             expect(blockchain.removeBlocks).toHaveBeenCalledWith(7);
