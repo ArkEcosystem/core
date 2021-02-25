@@ -18,6 +18,15 @@ export class InternalController extends Controller {
     @Container.inject(Container.Identifiers.EventDispatcherService)
     private readonly events!: Contracts.Kernel.EventDispatcher;
 
+    @Container.inject(Container.Identifiers.BlockchainService)
+    private readonly blockchain!: Contracts.Blockchain.Blockchain;
+
+    @Container.inject(Container.Identifiers.TransactionPoolService)
+    private readonly transactionPool!: Contracts.TransactionPool.Service;
+
+    @Container.inject(Container.Identifiers.TransactionPoolCollator)
+    private readonly collator!: Contracts.TransactionPool.Collator;
+
     public async acceptNewPeer(request: Hapi.Request, h: Hapi.ResponseToolkit): Promise<void> {
         return this.peerProcessor.validateAndAcceptPeer({
             ip: (request.payload as any).ip,
@@ -33,23 +42,16 @@ export class InternalController extends Controller {
         request: Hapi.Request,
         h: Hapi.ResponseToolkit,
     ): Promise<Contracts.P2P.UnconfirmedTransactions> {
-        const collator: Contracts.TransactionPool.Collator = this.app.get<Contracts.TransactionPool.Collator>(
-            Container.Identifiers.TransactionPoolCollator,
-        );
-        const transactionPool: Contracts.TransactionPool.Service = this.app.get<Contracts.TransactionPool.Service>(
-            Container.Identifiers.TransactionPoolService,
-        );
-        const transactions: Interfaces.ITransaction[] = await collator.getBlockCandidateTransactions();
+        const transactions: Interfaces.ITransaction[] = await this.collator.getBlockCandidateTransactions();
 
         return {
-            poolSize: transactionPool.getPoolSize(),
+            poolSize: this.transactionPool.getPoolSize(),
             transactions: transactions.map((t) => t.serialized.toString("hex")),
         };
     }
 
     public async getCurrentRound(request: Hapi.Request, h: Hapi.ResponseToolkit): Promise<Contracts.P2P.CurrentRound> {
-        const blockchain = this.app.get<Contracts.Blockchain.Blockchain>(Container.Identifiers.BlockchainService);
-        const lastBlock = blockchain.getLastBlock();
+        const lastBlock = this.blockchain.getLastBlock();
 
         const height = lastBlock.data.height + 1;
         const roundInfo = Utils.roundCalculator.calculateRound(height);
@@ -86,8 +88,7 @@ export class InternalController extends Controller {
     public syncBlockchain(request: Hapi.Request, h: Hapi.ResponseToolkit): boolean {
         this.logger.debug("Blockchain sync check WAKEUP requested by forger");
 
-        const blockchain = this.app.get<Contracts.Blockchain.Blockchain>(Container.Identifiers.BlockchainService);
-        blockchain.forceWakeup();
+        this.blockchain.forceWakeup();
 
         return true;
     }
