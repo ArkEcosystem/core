@@ -1,8 +1,8 @@
-import { Sandbox } from "@packages/core-test-framework";
 import { Container, Utils as KernelUtils } from "@packages/core-kernel";
 import { NetworkStateStatus } from "@packages/core-p2p/src/enums";
 import { NetworkState } from "@packages/core-p2p/src/network-state";
 import { InternalController } from "@packages/core-p2p/src/socket-server/controllers/internal";
+import { Sandbox } from "@packages/core-test-framework";
 import { Blocks, Networks, Utils } from "@packages/crypto";
 import { TransactionFactory } from "@packages/crypto/src/transactions";
 
