@@ -15,17 +15,13 @@ let factory: FactoryBuilder;
 let logger: jest.SpyInstance;
 let dispatchSpy: jest.SpyInstance;
 
-beforeAll(async () => {
+beforeEach(async () => {
     const initialEnv = await setUp();
     factory = initialEnv.factory;
     logger = initialEnv.spies.logger.info;
     dispatchSpy = initialEnv.spies.dispatchSpy;
     stateStorage = initialEnv.sandbox.app.get(Container.Identifiers.StateStore);
-});
-
-beforeEach(() => {
     blocks = makeChainedBlocks(101, factory.get("Block"));
-    stateStorage.clear();
 });
 
 afterAll(() => jest.clearAllMocks());
@@ -426,18 +422,6 @@ describe("State Storage", () => {
         });
     });
 
-    describe("clear", () => {
-        it("should clear the last blocks", () => {
-            for (let i = 0; i < 100; i++) {
-                stateStorage.setLastBlock(blocks[i]);
-            }
-
-            expect(stateStorage.getLastBlocks()).toHaveLength(100);
-            stateStorage.clear();
-            expect(stateStorage.getLastBlocks()).toHaveLength(0);
-        });
-    });
-
     describe("reset", () => {
         it("should reset initial blockchain state", () => {
             const mockBlockChainMachine = {
@@ -539,7 +523,7 @@ describe("State Storage", () => {
 
             stateStorage.pushPingBlock(blocks[5].data, true);
             expect(logger).toHaveBeenCalledWith(
-                `Previous block ${blocks[3].data.height.toLocaleString()} pinged blockchain 1 times`,
+                `Previous block ${blocks[3].data.height.toLocaleString()} pinged blockchain 0 times`,
             );
 
             const blockPing = stateStorage.getBlockPing()!;
