@@ -40,7 +40,7 @@
         "@hapi/sntp": "^4.0.0",
         "@hapi/teamwork": "5.x.x",
         "ajv": "^6.10.2",
-        "better-sqlite3": "^7.0.0",
+        "better-sqlite3": "^7.1.2",
         "dayjs": "^1.8.17",
         "delay": "^4.3.0",
         "fs-extra": "^8.1.0",
