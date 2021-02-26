@@ -1,4 +1,4 @@
-import { Container, Contracts, Providers, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
 import { Interfaces, Managers } from "@arkecosystem/crypto";
 
 @Container.injectable()
@@ -31,12 +31,12 @@ export class Collator implements Contracts.TransactionPool.Collator {
 
         const height: number = this.blockchain.getLastBlock().data.height;
         const milestone = Managers.configManager.getMilestone(height);
-        const transactions: Interfaces.ITransaction[] = [];
+        const candidateTransactions: Interfaces.ITransaction[] = [];
         const validator: Contracts.State.TransactionValidator = this.createTransactionValidator();
         const failedTransactions: Interfaces.ITransaction[] = [];
 
         for (const transaction of this.poolQuery.getFromHighestPriority()) {
-            if (transactions.length === milestone.block.maxTransactions) {
+            if (candidateTransactions.length === milestone.block.maxTransactions) {
                 break;
             }
 
@@ -44,7 +44,7 @@ export class Collator implements Contracts.TransactionPool.Collator {
                 continue;
             }
 
-            if (this.expirationService.isExpired(transaction)) {
+            if (await this.expirationService.isExpired(transaction)) {
                 failedTransactions.push(transaction);
                 continue;
             }
@@ -59,7 +59,7 @@ export class Collator implements Contracts.TransactionPool.Collator {
 
             try {
                 await validator.validate(transaction);
-                transactions.push(transaction);
+                candidateTransactions.push(transaction);
                 bytesLeft = bytesLeftNext;
             } catch (error) {
                 this.logger.warning(`${transaction} failed to collate: ${error.message}`);
@@ -73,6 +73,6 @@ export class Collator implements Contracts.TransactionPool.Collator {
             }
         })();
 
-        return transactions;
+        return candidateTransactions;
     }
 }
