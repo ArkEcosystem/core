@@ -1,4 +1,4 @@
-import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Providers, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Interfaces, Managers } from "@arkecosystem/crypto";
 
 @Container.injectable()
@@ -16,6 +16,9 @@ export class Collator implements Contracts.TransactionPool.Collator {
     @Container.inject(Container.Identifiers.TransactionPoolService)
     private readonly pool!: Contracts.TransactionPool.Service;
 
+    @Container.inject(Container.Identifiers.TransactionPoolExpirationService)
+    private readonly expirationService!: Contracts.TransactionPool.ExpirationService;
+
     @Container.inject(Container.Identifiers.TransactionPoolQuery)
     private readonly poolQuery!: Contracts.TransactionPool.Query;
 
@@ -30,12 +33,20 @@ export class Collator implements Contracts.TransactionPool.Collator {
         const milestone = Managers.configManager.getMilestone(height);
         const transactions: Interfaces.ITransaction[] = [];
         const validator: Contracts.State.TransactionValidator = this.createTransactionValidator();
-
-        await this.pool.cleanUp();
+        const failedTransactions: Interfaces.ITransaction[] = [];
 
         for (const transaction of this.poolQuery.getFromHighestPriority()) {
             if (transactions.length === milestone.block.maxTransactions) {
                 break;
+            }
+
+            if (failedTransactions.some((t) => t.data.senderPublicKey === transaction.data.senderPublicKey)) {
+                continue;
+            }
+
+            if (this.expirationService.isExpired(transaction)) {
+                failedTransactions.push(transaction);
+                continue;
             }
 
             if (bytesLeft !== undefined) {
@@ -52,9 +63,15 @@ export class Collator implements Contracts.TransactionPool.Collator {
                 bytesLeft = bytesLeftNext;
             } catch (error) {
                 this.logger.warning(`${transaction} failed to collate: ${error.message}`);
-                await this.pool.removeTransaction(transaction);
+                failedTransactions.push(transaction);
             }
         }
+
+        (async () => {
+            for (const failedTransaction of failedTransactions) {
+                await this.pool.removeTransaction(failedTransaction);
+            }
+        })();
 
         return transactions;
     }
