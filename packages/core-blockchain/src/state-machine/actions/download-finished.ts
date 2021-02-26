@@ -19,9 +19,9 @@ export class DownloadFinished implements Action {
     public async handle(): Promise<void> {
         this.logger.info("Block download finished");
 
-        if (this.stateStore.networkStart) {
+        if (this.stateStore.getNetworkStart()) {
             // next time we will use normal behaviour
-            this.stateStore.networkStart = false;
+            this.stateStore.setNetworkStart(false);
 
             this.blockchain.dispatch("SYNCFINISHED");
         } else if (!this.blockchain.getQueue().isRunning()) {

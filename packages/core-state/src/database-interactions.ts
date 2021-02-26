@@ -1,5 +1,6 @@
 import { DatabaseService } from "@arkecosystem/core-database";
 import { Container, Contracts, Enums, Services, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Handlers } from "@arkecosystem/core-transactions";
 import { Blocks, Crypto, Identities, Interfaces, Managers, Utils } from "@arkecosystem/crypto";
 import assert from "assert";
 
@@ -25,18 +26,15 @@ export class DatabaseInteraction {
     @Container.inject(Container.Identifiers.StateStore)
     private readonly stateStore!: Contracts.State.StateStore;
 
-    // TODO: StateTransactionStore interface
     @Container.inject(Container.Identifiers.StateTransactionStore)
-    private readonly stateTransactionStore!: any;
+    private readonly stateTransactionStore!: Contracts.State.TransactionStore;
 
-    // TODO: StateBlockStore interface
     @Container.inject(Container.Identifiers.StateBlockStore)
-    private readonly stateBlockStore!: any;
+    private readonly stateBlockStore!: Contracts.State.BlockStore;
 
-    // TODO: TransactionHandlerRegistry interface
     @Container.inject(Container.Identifiers.TransactionHandlerRegistry)
     @Container.tagged("state", "blockchain")
-    private readonly handlerRegistry!: any;
+    private readonly handlerRegistry!: Handlers.Registry;
 
     // core-state
     @Container.inject(Container.Identifiers.WalletRepository)

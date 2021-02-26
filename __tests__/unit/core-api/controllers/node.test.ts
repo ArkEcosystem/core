@@ -206,10 +206,10 @@ describe("NodeController", () => {
             const feeStatistics: Mocks.TransactionRepository.FeeStatistics = {
                 type: 1,
                 typeGroup: 1,
-                avg: "15",
-                min: "10",
-                max: "20",
-                sum: "500",
+                avg: 15,
+                min: 10,
+                max: 20,
+                sum: 500,
             };
 
             Mocks.TransactionRepository.setFeeStatistics([feeStatistics, feeStatistics]);

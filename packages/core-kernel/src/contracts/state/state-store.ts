@@ -1,16 +1,59 @@
 import { Interfaces } from "@arkecosystem/crypto";
 
+export interface BlockPing {
+    count: number;
+    first: number;
+    last: number;
+    block: Interfaces.IBlockData;
+}
+
 export interface StateStore {
-    blockchain: any;
-    lastDownloadedBlock: Interfaces.IBlockData | undefined;
-    blockPing: any;
-    started: boolean;
-    forkedBlock: Interfaces.IBlock | undefined;
-    wakeUpTimeout: any;
-    noBlockCounter: number;
-    p2pUpdateCounter: number;
-    numberOfBlocksToRollback: number | undefined;
-    networkStart: boolean;
+    getBlockchain(): any;
+
+    setBlockchain(blockchain: any): void;
+
+    /**
+     * Get the genesis block.
+     */
+    getGenesisBlock(): Interfaces.IBlock;
+
+    /**
+     * Sets the genesis block.
+     * @returns {void}
+     */
+    setGenesisBlock(block: Interfaces.IBlock): void;
+
+    getLastDownloadedBlock(): Interfaces.IBlockData | undefined;
+
+    setLastDownloadedBlock(block: Interfaces.IBlockData): void;
+
+    getBlockPing(): BlockPing | undefined;
+
+    isStarted(): boolean;
+
+    setStarted(started: boolean): void;
+
+    getForkedBlock(): Interfaces.IBlock | undefined;
+
+    setForkedBlock(block: Interfaces.IBlock): void;
+
+    clearForkedBlock(): void;
+
+    getNoBlockCounter(): number;
+
+    setNoBlockCounter(noBlockCounter: number): void;
+
+    getP2pUpdateCounter(): number;
+
+    setP2pUpdateCounter(p2pUpdateCounter: number): void;
+
+    getNumberOfBlocksToRollback(): number;
+
+    setNumberOfBlocksToRollback(numberOfBlocksToRollback: number): void;
+
+    getNetworkStart(): boolean;
+
+    setNetworkStart(networkStart: boolean): void;
 
     reset(blockchainMachine): void;
 
@@ -18,6 +61,16 @@ export interface StateStore {
      * Clear last blocks.
      */
     clear(): void;
+
+    /**
+     * Is wakeup timeout set.
+     */
+    isWakeUpTimeoutSet(): boolean;
+
+    /**
+     * Set wakeup timeout.
+     */
+    setWakeUpTimeout(callback: Function, timeout: number): void;
 
     /**
      * Clear wakeup timeout.
@@ -33,17 +86,6 @@ export interface StateStore {
      * Get the last block height.
      */
     getLastHeight(): number;
-
-    /**
-     * Get the genesis block.
-     */
-    getGenesisBlock(): Interfaces.IBlock;
-
-    /**
-     * Sets the genesis block.
-     * @returns {void}
-     */
-    setGenesisBlock(block: Interfaces.IBlock): void;
 
     /**
      * Get the last block.

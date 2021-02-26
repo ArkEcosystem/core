@@ -17,18 +17,17 @@ export class StateStore implements Contracts.State.StateStore {
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
 
-    // @todo: make all properties private and expose them one-by-one through a getter if used outside of this class
-    public blockchain: any = {};
-    public genesisBlock: Interfaces.IBlock | undefined = undefined;
-    public lastDownloadedBlock: Interfaces.IBlockData | undefined = undefined;
-    public blockPing: any = undefined;
-    public started = false;
-    public forkedBlock: Interfaces.IBlock | undefined = undefined;
-    public wakeUpTimeout: any = undefined;
-    public noBlockCounter = 0;
-    public p2pUpdateCounter = 0;
-    public numberOfBlocksToRollback: number | undefined = undefined;
-    public networkStart = false;
+    private blockchain: any = {};
+    private genesisBlock?: Interfaces.IBlock;
+    private lastDownloadedBlock?: Interfaces.IBlockData;
+    private blockPing?: Contracts.State.BlockPing;
+    private started = false;
+    private forkedBlock?: Interfaces.IBlock;
+    private wakeUpTimeout?: NodeJS.Timeout;
+    private noBlockCounter: number = 0;
+    private p2pUpdateCounter: number = 0;
+    private numberOfBlocksToRollback: number = 0;
+    private networkStart = false;
 
     // Stores the last n blocks in ascending height. The amount of last blocks
     // can be configured with the option `state.maxLastBlocks`.
@@ -36,6 +35,94 @@ export class StateStore implements Contracts.State.StateStore {
     // Stores the last n incoming transaction ids. The amount of transaction ids
     // can be configured with the option `state.maxLastTransactionIds`.
     private cachedTransactionIds: OrderedSet<string> = OrderedSet();
+
+    public getBlockchain(): any {
+        return this.blockchain;
+    }
+
+    public setBlockchain(blockchain: any): void {
+        this.blockchain = blockchain;
+    }
+
+    /**
+     * Get the genesis block.
+     */
+    public getGenesisBlock(): Interfaces.IBlock {
+        Utils.assert.defined<Interfaces.IBlock>(this.genesisBlock);
+
+        return this.genesisBlock;
+    }
+
+    /**
+     * Sets the genesis block.
+     */
+    public setGenesisBlock(block: Interfaces.IBlock): void {
+        this.genesisBlock = block;
+    }
+
+    public getLastDownloadedBlock(): Interfaces.IBlockData | undefined {
+        return this.lastDownloadedBlock;
+    }
+
+    public setLastDownloadedBlock(block: Interfaces.IBlockData): void {
+        this.lastDownloadedBlock = block;
+    }
+
+    public getBlockPing(): Contracts.State.BlockPing | undefined {
+        return this.blockPing;
+    }
+
+    public isStarted(): boolean {
+        return this.started;
+    }
+
+    public setStarted(started: boolean): void {
+        this.started = started;
+    }
+
+    public getForkedBlock(): Interfaces.IBlock | undefined {
+        return this.forkedBlock;
+    }
+
+    public setForkedBlock(block: Interfaces.IBlock): void {
+        this.forkedBlock = block;
+    }
+
+    public clearForkedBlock(): void {
+        this.forkedBlock = undefined;
+    }
+
+    public getNoBlockCounter(): number {
+        return this.noBlockCounter;
+    }
+
+    public setNoBlockCounter(noBlockCounter: number): void {
+        this.noBlockCounter = noBlockCounter;
+    }
+
+    public getP2pUpdateCounter(): number {
+        return this.p2pUpdateCounter;
+    }
+
+    public setP2pUpdateCounter(p2pUpdateCounter: number): void {
+        this.p2pUpdateCounter = p2pUpdateCounter;
+    }
+
+    public getNumberOfBlocksToRollback(): number {
+        return this.numberOfBlocksToRollback;
+    }
+
+    public setNumberOfBlocksToRollback(numberOfBlocksToRollback: number): void {
+        this.numberOfBlocksToRollback = numberOfBlocksToRollback;
+    }
+
+    public getNetworkStart(): boolean {
+        return this.networkStart;
+    }
+
+    public setNetworkStart(networkStart: boolean): void {
+        this.networkStart = networkStart;
+    }
 
     /**
      * Resets the state.
@@ -51,6 +138,17 @@ export class StateStore implements Contracts.State.StateStore {
     public clear(): void {
         this.lastBlocks = this.lastBlocks.clear();
         this.cachedTransactionIds = this.cachedTransactionIds.clear();
+    }
+
+    public isWakeUpTimeoutSet(): boolean {
+        return !!this.wakeUpTimeout;
+    }
+
+    public setWakeUpTimeout(callback: Function, timeout: number): void {
+        this.wakeUpTimeout = setTimeout(() => {
+            this.clearWakeUpTimeout();
+            callback();
+        }, timeout);
     }
 
     /**
@@ -72,22 +170,6 @@ export class StateStore implements Contracts.State.StateStore {
      */
     public getLastHeight(): number {
         return this.getLastBlock().data.height;
-    }
-
-    /**
-     * Get the genesis block.
-     */
-    public getGenesisBlock(): Interfaces.IBlock {
-        Utils.assert.defined<Interfaces.IBlock>(this.genesisBlock);
-
-        return this.genesisBlock;
-    }
-
-    /**
-     * Sets the genesis block.
-     */
-    public setGenesisBlock(block: Interfaces.IBlock): void {
-        this.genesisBlock = block;
     }
 
     /**

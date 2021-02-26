@@ -20,7 +20,7 @@ export const getHeaders = (app: Contracts.Kernel.Application) => {
     };
 
     const state: Contracts.State.StateStore = app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore);
-    if (state.started) {
+    if (state.isStarted()) {
         headers.height = app
             .get<Contracts.Blockchain.Blockchain>(Container.Identifiers.BlockchainService)
             .getLastHeight();

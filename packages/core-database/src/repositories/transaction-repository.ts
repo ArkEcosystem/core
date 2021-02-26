@@ -7,6 +7,14 @@ import { Block } from "../models/block";
 import { Transaction } from "../models/transaction";
 import { AbstractRepository } from "./abstract-repository";
 
+type FeeStatistics = {
+    type: number;
+    typeGroup: number;
+    avg: number;
+    min: number;
+    max: number;
+    sum: number;
+};
 @EntityRepository(Transaction)
 export class TransactionRepository extends AbstractRepository<Transaction> {
     public async findByBlockIds(
@@ -51,33 +59,67 @@ export class TransactionRepository extends AbstractRepository<Transaction> {
     }
 
     public async getFeeStatistics(
-        days: number,
+        txTypes: Array<{ type: number, typeGroup: number }>,
+        days?: number,
         minFee?: number,
-    ): Promise<
-        {
-            type: number;
-            typeGroup: number;
-            avg: string;
-            min: string;
-            max: string;
-            sum: string;
-        }[]
-    > {
+    ): Promise<FeeStatistics[]> {
         minFee = minFee || 0;
 
-        const age = Crypto.Slots.getTime(dayjs().subtract(days, "day").valueOf());
+        if (days) {
+            const age = Crypto.Slots.getTime(dayjs().subtract(days, "day").valueOf());
 
-        return this.createQueryBuilder()
-            .select(['type_group AS "typeGroup"', "type"])
-            .addSelect("COALESCE(AVG(fee), 0)::int8", "avg")
-            .addSelect("COALESCE(MIN(fee), 0)::int8", "min")
-            .addSelect("COALESCE(MAX(fee), 0)::int8", "max")
-            .addSelect("COALESCE(SUM(fee), 0)::int8", "sum")
-            .where("timestamp >= :age AND fee >= :minFee", { age, minFee })
-            .groupBy("type_group")
-            .addGroupBy("type")
-            .orderBy("type_group")
-            .getRawMany();
+            return this.createQueryBuilder()
+                .select(['type_group AS "typeGroup"', "type"])
+                .addSelect("COALESCE(AVG(fee), 0)::int8", "avg")
+                .addSelect("COALESCE(MIN(fee), 0)::int8", "min")
+                .addSelect("COALESCE(MAX(fee), 0)::int8", "max")
+                .addSelect("COALESCE(SUM(fee), 0)::int8", "sum")
+                .where("timestamp >= :age AND fee >= :minFee", { age, minFee })
+                .groupBy("type_group")
+                .addGroupBy("type")
+                .orderBy("type_group")
+                .getRawMany();
+        }
+
+        // no days parameter, take the stats from each type for its last 20 txs
+        const feeStatistics: FeeStatistics[] = [];
+        for (const feeStatsByType of txTypes) {
+            // we don't use directly this.createQueryBuilder() because it forces to have FROM transactions
+            // instead of just the FROM (...) subquery
+            const feeStatsForType: FeeStatistics = await this.manager.connection.createQueryBuilder()
+                .select(['subquery.type_group AS "typeGroup"', "subquery.type"])
+                .addSelect("COALESCE(AVG(subquery.fee), 0)::int8", "avg")
+                .addSelect("COALESCE(MIN(subquery.fee), 0)::int8", "min")
+                .addSelect("COALESCE(MAX(subquery.fee), 0)::int8", "max")
+                .addSelect("COALESCE(SUM(subquery.fee), 0)::int8", "sum")
+                .from(
+                    qb => qb
+                        .subQuery()
+                        .select()
+                        .from("transactions", "txs")
+                        .where(
+                            "txs.type = :type and txs.type_group = :typeGroup",
+                            { type: feeStatsByType.type, typeGroup: feeStatsByType.typeGroup }
+                        )
+                        .orderBy("txs.block_height", "DESC")
+                        .addOrderBy("txs.sequence", "DESC")
+                        .limit(20),
+                    "subquery"
+                )
+                .groupBy("subquery.type_group")
+                .addGroupBy("subquery.type")
+                .getRawOne();
+            feeStatistics.push(feeStatsForType ?? {
+                type: feeStatsByType.type,
+                typeGroup: feeStatsByType.typeGroup,
+                avg: 0,
+                min: 0,
+                max: 0,
+                sum: 0,
+            });
+        }
+
+        return feeStatistics;
     }
 
     public async getSentTransactions(): Promise<

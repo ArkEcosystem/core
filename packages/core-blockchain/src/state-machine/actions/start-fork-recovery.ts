@@ -22,11 +22,11 @@ export class StartForkRecovery implements Action {
         this.blockchain.clearAndStopQueue();
 
         const random: number = 4 + Math.floor(Math.random() * 99); // random int inside [4, 102] range
-        const blocksToRemove: number = this.stateStore.numberOfBlocksToRollback || random;
+        const blocksToRemove: number = this.stateStore.getNumberOfBlocksToRollback() || random;
 
         await this.blockchain.removeBlocks(blocksToRemove);
 
-        this.stateStore.numberOfBlocksToRollback = undefined;
+        this.stateStore.setNumberOfBlocksToRollback(0);
 
         this.logger.info(`Removed ${AppUtils.pluralize("block", blocksToRemove, true)}`);
 

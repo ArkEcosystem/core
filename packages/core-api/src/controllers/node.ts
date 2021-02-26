@@ -106,13 +106,15 @@ export class NodeController extends Controller {
         // @ts-ignore
         const handlers = this.nullHandlerRegistry.getRegisteredHandlers();
         const handlersKey = {};
+        const txsTypes: Array<{ type: number, typeGroup: number }> = [];
         for (const handler of handlers) {
             handlersKey[
                 `${handler.getConstructor().type}-${handler.getConstructor().typeGroup}`
             ] = handler.getConstructor().key;
+            txsTypes.push({ type: handler.getConstructor().type!, typeGroup: handler.getConstructor().typeGroup!});
         }
 
-        const results = await this.transactionRepository.getFeeStatistics(request.query.days);
+        const results = await this.transactionRepository.getFeeStatistics(txsTypes, request.query.days);
 
         const groupedByTypeGroup = {};
         for (const result of results) {

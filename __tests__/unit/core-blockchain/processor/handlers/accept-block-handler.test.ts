@@ -1,7 +1,7 @@
-import { Container } from "@arkecosystem/core-kernel";
-import { Interfaces } from "@arkecosystem/crypto";
 import { BlockProcessorResult } from "@packages/core-blockchain/src/processor";
 import { AcceptBlockHandler } from "@packages/core-blockchain/src/processor/handlers/accept-block-handler";
+import { Container } from "@packages/core-kernel";
+import { Interfaces } from "@packages/crypto";
 
 describe("AcceptBlockHandler", () => {
     const container = new Container.Container();
@@ -9,11 +9,14 @@ describe("AcceptBlockHandler", () => {
     const logger = { warning: jest.fn(), debug: jest.fn(), info: jest.fn() };
     const blockchain = { resetLastDownloadedBlock: jest.fn(), resetWakeUp: jest.fn() };
     const state = {
-        forkedBlock: undefined,
-        started: undefined,
         setLastBlock: jest.fn(),
-        lastDownloadedBlock: undefined,
         getLastBlock: jest.fn(),
+        getLastDownloadedBlock: jest.fn(),
+        setLastDownloadedBlock: jest.fn(),
+        isStarted: jest.fn().mockReturnValue(false),
+        getForkedBlock: jest.fn(),
+        setForkedBlock: jest.fn(),
+        clearForkedBlock: jest.fn(),
     };
     const transactionPool = { removeForgedTransaction: jest.fn() };
     const databaseInteractions = {
@@ -56,7 +59,7 @@ describe("AcceptBlockHandler", () => {
         it("should apply block to database, transaction pool, blockchain and state", async () => {
             const acceptBlockHandler = container.resolve<AcceptBlockHandler>(AcceptBlockHandler);
 
-            state.started = true;
+            state.isStarted = jest.fn().mockReturnValue(true);
             const result = await acceptBlockHandler.execute(block as Interfaces.IBlock);
 
             expect(result).toBe(BlockProcessorResult.Accepted);
@@ -71,26 +74,27 @@ describe("AcceptBlockHandler", () => {
             expect(transactionPool.removeForgedTransaction).toHaveBeenCalledWith(block.transactions[1]);
         });
 
-        it("should reset state.forkedBlock if incoming block has same height", async () => {
+        it("should clear forkedBlock if incoming block has same height", async () => {
             const acceptBlockHandler = container.resolve<AcceptBlockHandler>(AcceptBlockHandler);
 
-            state.forkedBlock = { data: { height: block.data.height } };
+            state.getForkedBlock = jest.fn().mockReturnValue({ data: { height: block.data.height } });
             const result = await acceptBlockHandler.execute(block as Interfaces.IBlock);
 
             expect(result).toBe(BlockProcessorResult.Accepted);
 
-            expect(state.forkedBlock).toBeUndefined();
+            expect(state.clearForkedBlock).toHaveBeenCalled();
         });
 
         it("should set state.lastDownloadedBlock if incoming block height is higher", async () => {
             const acceptBlockHandler = container.resolve<AcceptBlockHandler>(AcceptBlockHandler);
 
-            state.lastDownloadedBlock = { height: block.data.height - 1 };
+            state.getLastDownloadedBlock = jest.fn().mockReturnValue({ height: block.data.height - 1 });
             const result = await acceptBlockHandler.execute(block as Interfaces.IBlock);
 
             expect(result).toBe(BlockProcessorResult.Accepted);
 
-            expect(state.lastDownloadedBlock).toBe(block.data);
+            expect(state.setLastDownloadedBlock).toHaveBeenCalledWith(block.data);
+            expect(state.setLastDownloadedBlock).toHaveBeenCalledTimes(1);
         });
 
         describe("Revert", () => {

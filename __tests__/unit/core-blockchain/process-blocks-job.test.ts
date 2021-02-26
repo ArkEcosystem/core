@@ -1,6 +1,6 @@
-import { ProcessBlockAction } from "@arkecosystem/core-blockchain/src/actions";
-import { Container, Services } from "@arkecosystem/core-kernel";
-import { Crypto, Interfaces, Networks } from "@arkecosystem/crypto";
+import { ProcessBlockAction } from "@packages/core-blockchain/src/actions";
+import { Container, Services } from "@packages/core-kernel";
+import { Crypto, Interfaces, Networks } from "@packages/crypto";
 import { ProcessBlocksJob } from "@packages/core-blockchain/src/process-blocks-job";
 import { BlockProcessorResult } from "@packages/core-blockchain/src/processor";
 import { Sandbox } from "@packages/core-test-framework";
@@ -81,6 +81,7 @@ describe("Blockchain", () => {
             blockchainService.getLastBlock = jest.fn().mockReturnValue({ data: lastBlock }); // TODO: Use stateStore
             blockProcessor.process = jest.fn().mockReturnValue(BlockProcessorResult.Accepted);
             blockProcessor.validateGenerator = jest.fn().mockReturnValue(BlockProcessorResult.Accepted);
+            stateStore.isStarted = jest.fn().mockReturnValue(true);
 
             databaseBlockRepository.saveBlocks = jest.fn();
 
@@ -268,7 +269,7 @@ describe("Blockchain", () => {
                 timestamp: slotInfo.startTime,
             };
 
-            stateStore.started = true;
+            stateStore.isStarted = jest.fn().mockReturnValue(true);
             blockchainService.getLastBlock = jest.fn().mockReturnValue({ data: lastBlock });
             databaseService.getLastBlock = jest.fn().mockReturnValue({ data: lastBlock });
             blockProcessor.process = jest.fn().mockReturnValue(BlockProcessorResult.Accepted);
@@ -308,7 +309,7 @@ describe("Blockchain", () => {
                 timestamp: slotInfo.startTime,
             };
 
-            stateStore.started = true;
+            stateStore.isStarted = jest.fn().mockReturnValue(true);
             blockchainService.getLastBlock = jest.fn().mockReturnValue({ data: lastBlock });
             databaseService.getLastBlock = jest.fn().mockReturnValue({ data: lastBlock });
             blockProcessor.process = jest.fn().mockReturnValue(BlockProcessorResult.Accepted);

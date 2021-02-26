@@ -25,37 +25,37 @@ export class CheckLastDownloadedBlockSynced implements Action {
         }
 
         // tried to download but no luck after 5 tries (looks like network missing blocks)
-        if (this.stateStore.noBlockCounter > 5 && !this.blockchain.getQueue().isRunning()) {
+        if (this.stateStore.getNoBlockCounter() > 5 && !this.blockchain.getQueue().isRunning()) {
             this.logger.info("Tried to sync 5 times to different nodes, looks like the network is missing blocks");
 
-            this.stateStore.noBlockCounter = 0;
+            this.stateStore.setNoBlockCounter(0);
             event = "NETWORKHALTED";
 
-            if (this.stateStore.p2pUpdateCounter + 1 > 3) {
+            if (this.stateStore.getP2pUpdateCounter() + 1 > 3) {
                 this.logger.info("Network keeps missing blocks.");
 
                 const networkStatus = await this.networkMonitor.checkNetworkHealth();
 
                 if (networkStatus.forked) {
-                    this.stateStore.numberOfBlocksToRollback = networkStatus.blocksToRollback;
+                    this.stateStore.setNumberOfBlocksToRollback(networkStatus.blocksToRollback || 0);
                     event = "FORK";
                 }
 
-                this.stateStore.p2pUpdateCounter = 0;
+                this.stateStore.setP2pUpdateCounter(0);
             } else {
-                this.stateStore.p2pUpdateCounter++;
+                this.stateStore.setP2pUpdateCounter(this.stateStore.getP2pUpdateCounter() + 1);
             }
         } else if (
-            this.stateStore.lastDownloadedBlock &&
-            this.blockchain.isSynced(this.stateStore.lastDownloadedBlock)
+            this.stateStore.getLastDownloadedBlock() &&
+            this.blockchain.isSynced(this.stateStore.getLastDownloadedBlock())
         ) {
-            this.stateStore.noBlockCounter = 0;
-            this.stateStore.p2pUpdateCounter = 0;
+            this.stateStore.setNoBlockCounter(0);
+            this.stateStore.setP2pUpdateCounter(0);
 
             event = "SYNCED";
         }
 
-        if (this.stateStore.networkStart) {
+        if (this.stateStore.getNetworkStart()) {
             event = "SYNCED";
         }
 
