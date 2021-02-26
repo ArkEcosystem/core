@@ -24,6 +24,7 @@ export class Collator implements Contracts.TransactionPool.Collator {
 
     public async getBlockCandidateTransactions(): Promise<Interfaces.ITransaction[]> {
         let bytesLeft: number | undefined = this.configuration.get<number>("maxTransactionBytes");
+        let bytesLeftNext: number | undefined;
 
         const height: number = this.blockchain.getLastBlock().data.height;
         const milestone = Managers.configManager.getMilestone(height);
@@ -38,8 +39,9 @@ export class Collator implements Contracts.TransactionPool.Collator {
             }
 
             if (bytesLeft !== undefined) {
-                bytesLeft -= JSON.stringify(transaction.data).length;
-                if (bytesLeft < 0) {
+                bytesLeftNext = bytesLeft - JSON.stringify(transaction.data).length;
+
+                if (bytesLeftNext < 0) {
                     break;
                 }
             }
@@ -47,6 +49,7 @@ export class Collator implements Contracts.TransactionPool.Collator {
             try {
                 await validator.validate(transaction);
                 transactions.push(transaction);
+                bytesLeft = bytesLeftNext;
             } catch (error) {
                 this.logger.warning(`${transaction} failed to collate: ${error.message}`);
                 await this.pool.removeTransaction(transaction);
