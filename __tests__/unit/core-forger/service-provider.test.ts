@@ -1,10 +1,10 @@
 import "jest-extended";
 
-import { AnySchema } from "joi";
 import { DelegateFactory } from "@packages/core-forger/src/delegate-factory";
 import { ServiceProvider } from "@packages/core-forger/src/service-provider";
 import { Application, Container, Providers } from "@packages/core-kernel";
 import { Pm2ProcessActionsService } from "@packages/core-kernel/src/services/process-actions/drivers/pm2";
+import { AnySchema } from "joi";
 
 describe("ServiceProvider", () => {
     let app: Application;
@@ -60,11 +60,12 @@ describe("ServiceProvider", () => {
         it("should call boot on forger service", async () => {
             app.config("delegates", { secrets: ["this is a super secret passphrase"], bip38: "dummy bip 38" });
 
-            const forgerService = { boot: jest.fn() };
+            const forgerService = { boot: jest.fn(), register: jest.fn() };
             app.bind(Container.Identifiers.ForgerService).toConstantValue(forgerService);
 
             await serviceProvider.boot();
 
+            expect(forgerService.register).toBeCalledTimes(1);
             expect(forgerService.boot).toBeCalledTimes(1);
         });
 
@@ -75,7 +76,7 @@ describe("ServiceProvider", () => {
             const flagsConfig = { bip38: "dummy bip38", password: "dummy password" };
             app.config("app.flags", flagsConfig);
 
-            const forgerService = { boot: jest.fn() };
+            const forgerService = { boot: jest.fn(), register: jest.fn() };
             app.bind(Container.Identifiers.ForgerService).toConstantValue(forgerService);
 
             const anotherBip39DelegateMock = { address: "D6Z26L69gdk8qYmTv5uzk3uGepigtHY4fe" } as any;
@@ -83,6 +84,7 @@ describe("ServiceProvider", () => {
 
             await serviceProvider.boot();
 
+            expect(forgerService.register).toBeCalledTimes(1);
             expect(forgerService.boot).toBeCalledTimes(1);
             expect(forgerService.boot).toBeCalledWith([anotherBip39DelegateMock, bip39DelegateMock, bip38DelegateMock]);
         });
@@ -91,11 +93,12 @@ describe("ServiceProvider", () => {
             app.config("delegates", { secrets: [], bip38: undefined });
             app.config("app", { flags: { bip38: undefined, password: undefined } });
 
-            const forgerService = { boot: jest.fn() };
+            const forgerService = { boot: jest.fn(), register: jest.fn() };
             app.bind(Container.Identifiers.ForgerService).toConstantValue(forgerService);
 
             await serviceProvider.boot();
 
+            expect(forgerService.register).toBeCalledTimes(1);
             expect(forgerService.boot).toBeCalledTimes(1);
             expect(forgerService.boot).toBeCalledWith([]);
         });
