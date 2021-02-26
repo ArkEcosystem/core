@@ -34,6 +34,7 @@ export class ExpirationService implements Contracts.TransactionPool.ExpirationSe
             AppUtils.assert.defined<number>(transaction.data.expiration);
             return transaction.data.expiration;
         } else {
+            // ! dynamic block time wasn't available during v1 times
             const currentHeight: number = this.stateStore.getLastHeight();
             const blockTimeLookup = await AppUtils.forgingInfoCalculator.getBlockTimeLookup(this.app, currentHeight);
 
