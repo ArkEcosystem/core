@@ -9,7 +9,8 @@ const validator = { validate: jest.fn() };
 const configuration = { get: jest.fn() };
 const createTransactionValidator = jest.fn();
 const blockchain = { getLastBlock: jest.fn() };
-const pool = { cleanUp: jest.fn(), removeTransaction: jest.fn() };
+const pool = { removeTransaction: jest.fn() };
+const expirationService = { isExpired: jest.fn() };
 const poolQuery = { getFromHighestPriority: jest.fn() };
 const logger = { warning: jest.fn(), error: jest.fn() };
 
@@ -19,31 +20,31 @@ container.bind(Container.Identifiers.TransactionValidatorFactory).toConstantValu
 container.bind(Container.Identifiers.BlockchainService).toConstantValue(blockchain);
 container.bind(Container.Identifiers.TransactionPoolService).toConstantValue(pool);
 container.bind(Container.Identifiers.TransactionPoolQuery).toConstantValue(poolQuery);
+container.bind(Container.Identifiers.TransactionPoolExpirationService).toConstantValue(expirationService);
 container.bind(Container.Identifiers.LogService).toConstantValue(logger);
 
 beforeEach(() => {
-    (Managers.configManager.getMilestone as jest.Mock).mockReset();
-
-    validator.validate.mockReset();
-    configuration.get.mockReset();
-    createTransactionValidator.mockReset();
-    blockchain.getLastBlock.mockReset();
-    pool.cleanUp.mockReset();
-    poolQuery.getFromHighestPriority.mockReset();
-    logger.error.mockReset();
-
+    jest.resetAllMocks();
     createTransactionValidator.mockReturnValue(validator);
 });
 
 describe("Collator.getBlockCandidateTransactions", () => {
     it("should respect milestone transaction count limit", async () => {
-        const poolTransactions = new Array(10).fill({ data: "12345678" });
+        const poolTransactions = [
+            { data: { senderPublicKey: "0" } },
+            { data: { senderPublicKey: "1" } },
+            { data: { senderPublicKey: "2" } },
+            { data: { senderPublicKey: "3" } },
+            { data: { senderPublicKey: "4" } },
+        ];
+
         const milestone = { block: { maxTransactions: 5 } };
         const lastBlock = { data: { height: 10 } };
 
         (Managers.configManager.getMilestone as jest.Mock).mockReturnValueOnce(milestone);
         blockchain.getLastBlock.mockReturnValueOnce(lastBlock);
         poolQuery.getFromHighestPriority.mockReturnValueOnce(poolTransactions);
+        expirationService.isExpired.mockResolvedValue(false);
 
         const collator = container.resolve(Collator);
         const candidateTransaction = await collator.getBlockCandidateTransactions();
@@ -52,12 +53,18 @@ describe("Collator.getBlockCandidateTransactions", () => {
         expect(configuration.get).toBeCalled();
         expect(Managers.configManager.getMilestone).toBeCalled();
         expect(createTransactionValidator).toBeCalled();
-        expect(pool.cleanUp).toBeCalled();
         expect(validator.validate).toBeCalledTimes(5);
     });
 
     it("should respect maxTransactionBytes configuration limit", async () => {
-        const poolTransactions = new Array(10).fill({ data: "12345678" });
+        const poolTransactions = [
+            { data: { senderPublicKey: "0" } },
+            { data: { senderPublicKey: "1" } },
+            { data: { senderPublicKey: "2" } },
+            { data: { senderPublicKey: "3" } },
+            { data: { senderPublicKey: "4" } },
+        ];
+
         const milestone = { block: { maxTransactions: 100 } };
         const lastBlock = { data: { height: 10 } };
 
@@ -65,6 +72,7 @@ describe("Collator.getBlockCandidateTransactions", () => {
         configuration.get.mockReturnValueOnce(25);
         blockchain.getLastBlock.mockReturnValueOnce(lastBlock);
         poolQuery.getFromHighestPriority.mockReturnValueOnce(poolTransactions);
+        expirationService.isExpired.mockResolvedValue(false);
 
         const collator = container.resolve(Collator);
         const candidateTransaction = await collator.getBlockCandidateTransactions();
@@ -73,30 +81,64 @@ describe("Collator.getBlockCandidateTransactions", () => {
         expect(configuration.get).toBeCalled();
         expect(Managers.configManager.getMilestone).toBeCalled();
         expect(createTransactionValidator).toBeCalled();
-        expect(pool.cleanUp).toBeCalled();
         expect(validator.validate).toBeCalledTimes(2);
     });
 
-    it("should remove invalid transaction from pool", async () => {
-        const poolTransactions = new Array(5).fill({ data: "12345678" });
+    it("should ignore future sender transactions if one of them expired", async () => {
+        const poolTransactions = [
+            { data: { senderPublicKey: "0" } },
+            { data: { senderPublicKey: "0" } },
+            { data: { senderPublicKey: "2" } },
+            { data: { senderPublicKey: "3" } },
+            { data: { senderPublicKey: "4" } },
+        ];
+
         const milestone = { block: { maxTransactions: 5 } };
         const lastBlock = { data: { height: 10 } };
 
         (Managers.configManager.getMilestone as jest.Mock).mockReturnValueOnce(milestone);
         blockchain.getLastBlock.mockReturnValueOnce(lastBlock);
         poolQuery.getFromHighestPriority.mockReturnValueOnce(poolTransactions);
+        expirationService.isExpired.mockResolvedValue(false);
+        expirationService.isExpired.mockResolvedValueOnce(true);
+
+        const collator = container.resolve(Collator);
+        const candidateTransaction = await collator.getBlockCandidateTransactions();
+
+        expect(candidateTransaction.length).toBe(3);
+        expect(configuration.get).toBeCalled();
+        expect(Managers.configManager.getMilestone).toBeCalled();
+        expect(createTransactionValidator).toBeCalled();
+        expect(validator.validate).toBeCalledTimes(4);
+        expect(logger.warning).toBeCalledTimes(1);
+    });
+
+    it.only("should ignore future sender transactions if one of them failed", async () => {
+        const poolTransactions = [
+            { data: { senderPublicKey: "0" } },
+            { data: { senderPublicKey: "0" } },
+            { data: { senderPublicKey: "2" } },
+            { data: { senderPublicKey: "3" } },
+            { data: { senderPublicKey: "4" } },
+        ];
+
+        const milestone = { block: { maxTransactions: 5 } };
+        const lastBlock = { data: { height: 10 } };
+
+        (Managers.configManager.getMilestone as jest.Mock).mockReturnValueOnce(milestone);
+        blockchain.getLastBlock.mockReturnValueOnce(lastBlock);
+        poolQuery.getFromHighestPriority.mockReturnValueOnce(poolTransactions);
+        expirationService.isExpired.mockResolvedValue(false);
         validator.validate.mockRejectedValueOnce(new Error("Some error"));
 
         const collator = container.resolve(Collator);
         const candidateTransaction = await collator.getBlockCandidateTransactions();
 
-        expect(candidateTransaction.length).toBe(4);
+        expect(candidateTransaction.length).toBe(3);
         expect(configuration.get).toBeCalled();
         expect(Managers.configManager.getMilestone).toBeCalled();
         expect(createTransactionValidator).toBeCalled();
-        expect(pool.cleanUp).toBeCalled();
-        expect(validator.validate).toBeCalledTimes(5);
+        expect(validator.validate).toBeCalledTimes(4);
         expect(logger.warning).toBeCalledTimes(1);
-        expect(pool.removeTransaction).toBeCalledTimes(1);
     });
 });
