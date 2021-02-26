@@ -21,8 +21,6 @@ export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
         this.app.bind<ForgerService>(Container.Identifiers.ForgerService).to(ForgerService).inSingletonScope();
 
-        this.app.get<ForgerService>(Container.Identifiers.ForgerService).register(this.config().all()); // ? why it isn't in boot?
-
         this.registerActions();
 
         this.registerProcessActions();
@@ -35,7 +33,10 @@ export class ServiceProvider extends Providers.ServiceProvider {
     public async boot(): Promise<void> {
         const delegates: Delegate[] = this.makeDelegates();
 
-        await this.app.get<ForgerService>(Container.Identifiers.ForgerService).boot(delegates);
+        const forgerService = this.app.get<ForgerService>(Container.Identifiers.ForgerService);
+
+        forgerService.register(this.config().all());
+        await forgerService.boot(delegates);
 
         this.startTracker(delegates);
 
