@@ -1,9 +1,8 @@
 import { Server } from "@hapi/hapi";
+import { Container } from "@packages/core-kernel";
+import { protocol } from "@packages/core-p2p/src/hapi-nes/utils";
+import { IsAppReadyPlugin } from "@packages/core-p2p/src/socket-server/plugins/is-app-ready";
 import Joi from "joi";
-import { Container } from "@arkecosystem/core-kernel";
-
-import { IsAppReadyPlugin } from "@arkecosystem/core-p2p/src/socket-server/plugins/is-app-ready";
-import { protocol } from "@arkecosystem/core-p2p/src/hapi-nes/utils";
 
 afterEach(() => {
     jest.clearAllMocks();
@@ -33,14 +32,13 @@ describe("IsAppReadyPlugin", () => {
 
     const blockchainService = { isBooted: jest.fn().mockReturnValue(true) };
     const app = {
-        isBound: jest.fn().mockReturnValue(true),
-        get: jest.fn().mockReturnValue(blockchainService),
         resolve: jest.fn().mockReturnValue({ getRoutesConfigByPath: () => mockRouteByPath }),
     };
 
     beforeAll(() => {
         container.unbindAll();
         container.bind(Container.Identifiers.Application).toConstantValue(app);
+        container.bind(Container.Identifiers.BlockchainService).toConstantValue(blockchainService);
     });
 
     beforeEach(() => {
@@ -67,28 +65,7 @@ describe("IsAppReadyPlugin", () => {
         });
         expect(JSON.parse(responseValid.payload)).toEqual(responsePayload);
         expect(responseValid.statusCode).toBe(200);
-        expect(app.isBound).toBeCalledTimes(1);
         expect(blockchainService.isBooted).toBeCalledTimes(1);
-    });
-
-    it("should return a forbidden error when blockchain service is not bound", async () => {
-        const server = new Server({ port: 4100 });
-        server.route(mockRoute);
-        isAppReadyPlugin.register(server);
-
-        app.isBound.mockReturnValueOnce(false);
-
-        // try the route with a valid payload
-        const remoteAddress = "187.166.55.44";
-        const response = await server.inject({
-            method: "POST",
-            url: "/p2p/peer/mockroute",
-            payload: {},
-            remoteAddress,
-        });
-        expect(response.statusCode).toBe(protocol.gracefulErrorStatusCode);
-        expect(app.isBound).toBeCalledTimes(1);
-        expect(blockchainService.isBooted).toBeCalledTimes(0);
     });
 
     it("should return a forbidden error when blockchain service is not booted", async () => {
@@ -107,7 +84,6 @@ describe("IsAppReadyPlugin", () => {
             remoteAddress,
         });
         expect(response.statusCode).toBe(protocol.gracefulErrorStatusCode);
-        expect(app.isBound).toBeCalledTimes(1);
         expect(blockchainService.isBooted).toBeCalledTimes(1);
     });
 
@@ -142,7 +118,6 @@ describe("IsAppReadyPlugin", () => {
         });
         expect(JSON.parse(responseValid.payload)).toEqual(responsePayload);
         expect(responseValid.statusCode).toBe(200);
-        expect(app.isBound).toBeCalledTimes(1);
         expect(blockchainService.isBooted).toBeCalledTimes(1);
     });
 });
