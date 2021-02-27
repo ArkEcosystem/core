@@ -13,8 +13,6 @@ import { Server } from "./socket-server/server";
 import { TransactionBroadcaster } from "./transaction-broadcaster";
 
 export class ServiceProvider extends Providers.ServiceProvider {
-    private serverSymbol = Symbol.for("P2P<Server>");
-
     public async register(): Promise<void> {
         this.registerFactories();
 
@@ -26,7 +24,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
             return;
         }
 
-        await this.buildServer(this.serverSymbol);
+        await this.buildServer();
     }
 
     /**
@@ -44,7 +42,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
     public async boot(): Promise<void> {
         this.app.get<EventListener>(Container.Identifiers.PeerEventListener).initialize();
 
-        return this.app.get<Server>(this.serverSymbol).boot();
+        return this.app.get<Server>(Container.Identifiers.P2PServer).boot();
     }
 
     public async dispose(): Promise<void> {
@@ -52,7 +50,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
             return;
         }
 
-        this.app.get<Server>(this.serverSymbol).dispose();
+        this.app.get<Server>(Container.Identifiers.P2PServer).dispose();
     }
 
     public async required(): Promise<boolean> {
@@ -121,10 +119,10 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.app.bind(Container.Identifiers.PeerTransactionBroadcaster).to(TransactionBroadcaster);
     }
 
-    private async buildServer(id: symbol): Promise<void> {
-        this.app.bind<Server>(id).to(Server).inSingletonScope();
+    private async buildServer(): Promise<void> {
+        this.app.bind<Server>(Container.Identifiers.P2PServer).to(Server).inSingletonScope();
 
-        const server: Server = this.app.get<Server>(id);
+        const server: Server = this.app.get<Server>(Container.Identifiers.P2PServer);
         const serverConfig = this.config().get<Types.JsonObject>("server");
         Utils.assert.defined<Types.JsonObject>(serverConfig);
 

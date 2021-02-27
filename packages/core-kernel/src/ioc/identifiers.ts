@@ -95,6 +95,8 @@ export const Identifiers = {
     PeerRepository: Symbol.for("Peer<Repository>"),
     PeerTransactionBroadcaster: Symbol.for("Peer<TransactionBroadcaster>"),
     PeerEventListener: Symbol.for("Peer<EventListener>"),
+    P2PServer: Symbol.for("Server<P2P>"),
+
     // Transaction Pool
     TransactionPoolService: Symbol.for("TransactionPool<Service>"),
     TransactionPoolCleaner: Symbol.for("TransactionPool<Cleaner>"),
