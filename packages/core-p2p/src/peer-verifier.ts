@@ -41,8 +41,7 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
 
     private peer!: Contracts.P2P.Peer;
 
-    public initialize(communicator: Contracts.P2P.PeerCommunicator, peer: Contracts.P2P.Peer): PeerVerifier {
-        // this.communicator = communicator;
+    public initialize(peer: Contracts.P2P.Peer): PeerVerifier {
         this.peer = peer;
 
         this.logPrefix = `Peer verify ${peer.ip}:`;

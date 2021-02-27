@@ -1,16 +1,16 @@
 import { Container, Contracts, Enums, Providers, Types, Utils } from "@arkecosystem/core-kernel";
 import { Blocks, Interfaces, Managers, Transactions, Validation } from "@arkecosystem/crypto";
 import dayjs from "dayjs";
+import delay from "delay";
 
 import { constants } from "./constants";
 import { SocketErrors } from "./enums";
 import { PeerPingTimeoutError, PeerStatusResponseError, PeerVerificationFailedError } from "./errors";
 import { PeerVerifier } from "./peer-verifier";
-import { getCodec } from "./socket-server/utils/get-codec";
-import { replySchemas } from "./schemas";
-import { buildRateLimiter, isValidVersion } from "./utils";
 import { RateLimiter } from "./rate-limiter";
-import delay from "delay";
+import { replySchemas } from "./schemas";
+import { getCodec } from "./socket-server/utils/get-codec";
+import { buildRateLimiter, isValidVersion } from "./utils";
 
 // todo: review the implementation
 @Container.injectable()
@@ -74,10 +74,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
         const postTransactionsRateLimit = this.configuration.getOptional<number>("rateLimitPostTransactions", 25);
 
         if (!this.postTransactionsQueueByIp.get(peer.ip)) {
-            this.postTransactionsQueueByIp.set(
-                peer.ip,
-                await this.createQueue(),
-            );
+            this.postTransactionsQueueByIp.set(peer.ip, await this.createQueue());
         }
 
         const queue = this.postTransactionsQueueByIp.get(peer.ip)!;
@@ -88,7 +85,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
                 await delay(Math.ceil(1000 / postTransactionsRateLimit));
                 // to space up between consecutive calls to postTransactions according to rate limit
                 // optimized here because default throttling would not be effective for postTransactions
-            }
+            },
         });
     }
 
@@ -119,7 +116,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
                 throw new PeerVerificationFailedError();
             }
 
-            const peerVerifier = this.app.resolve(PeerVerifier).initialize(this, peer);
+            const peerVerifier = this.app.resolve(PeerVerifier).initialize(peer);
 
             if (deadline <= new Date().getTime()) {
                 throw new PeerPingTimeoutError(timeoutMsec);
@@ -289,7 +286,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
                 codec.request.serialize({
                     ...payload,
                     headers: {
-                            version: this.app.version(),
+                        version: this.app.version(),
                     },
                 }),
                 timeout,
@@ -326,8 +323,9 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
         }
         try {
             await this.outgoingRateLimiter.consume(peer.ip, event);
-        } //@ts-ignore
-        catch {}
+        } catch {
+            //@ts-ignore
+        }
     }
 
     private handleSocketError(peer: Contracts.P2P.Peer, event: string, error: Error, disconnect: boolean = true): void {
