@@ -19,12 +19,6 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.registerServices();
 
         this.registerActions();
-
-        if (process.env.DISABLE_P2P_SERVER) {
-            return;
-        }
-
-        await this.buildServer();
     }
 
     /**
@@ -41,6 +35,12 @@ export class ServiceProvider extends Providers.ServiceProvider {
      */
     public async boot(): Promise<void> {
         this.app.get<EventListener>(Container.Identifiers.PeerEventListener).initialize();
+
+        await this.buildServer();
+
+        if (process.env.DISABLE_P2P_SERVER) {
+            return;
+        }
 
         return this.app.get<Server>(Container.Identifiers.P2PServer).boot();
     }
@@ -117,11 +117,11 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.app.bind(Container.Identifiers.PeerEventListener).to(EventListener).inSingletonScope();
 
         this.app.bind(Container.Identifiers.PeerTransactionBroadcaster).to(TransactionBroadcaster);
+
+        this.app.bind<Server>(Container.Identifiers.P2PServer).to(Server).inSingletonScope();
     }
 
     private async buildServer(): Promise<void> {
-        this.app.bind<Server>(Container.Identifiers.P2PServer).to(Server).inSingletonScope();
-
         const server: Server = this.app.get<Server>(Container.Identifiers.P2PServer);
         const serverConfig = this.config().get<Types.JsonObject>("server");
         Utils.assert.defined<Types.JsonObject>(serverConfig);
