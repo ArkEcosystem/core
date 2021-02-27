@@ -1,7 +1,7 @@
-import { Application, Container, Contracts } from "@arkecosystem/core-kernel";
-import { Peer } from "@arkecosystem/core-p2p/src/peer";
-import { PeerVerificationResult, PeerVerifier } from "@arkecosystem/core-p2p/src/peer-verifier";
-import { Blocks } from "@arkecosystem/crypto";
+import { Application, Container, Contracts } from "@packages/core-kernel";
+import { Peer } from "@packages/core-p2p/src/peer";
+import { PeerVerificationResult, PeerVerifier } from "@packages/core-p2p/src/peer-verifier";
+import { Blocks } from "@packages/crypto";
 
 describe("PeerVerifier", () => {
     let app: Application;
@@ -75,7 +75,7 @@ describe("PeerVerifier", () => {
         peer = new Peer("176.165.56.77", 4000);
 
         peerVerifier = app.resolve<PeerVerifier>(PeerVerifier);
-        peerVerifier.initialize(peerCommunicator, peer);
+        peerVerifier.initialize(peer);
     });
 
     describe("checkState", () => {
