@@ -16,6 +16,9 @@ export class Collator implements Contracts.TransactionPool.Collator {
     @Container.inject(Container.Identifiers.TransactionPoolService)
     private readonly pool!: Contracts.TransactionPool.Service;
 
+    @Container.inject(Container.Identifiers.TransactionPoolExpirationService)
+    private readonly expirationService!: Contracts.TransactionPool.ExpirationService;
+
     @Container.inject(Container.Identifiers.TransactionPoolQuery)
     private readonly poolQuery!: Contracts.TransactionPool.Query;
 
@@ -24,35 +27,52 @@ export class Collator implements Contracts.TransactionPool.Collator {
 
     public async getBlockCandidateTransactions(): Promise<Interfaces.ITransaction[]> {
         let bytesLeft: number | undefined = this.configuration.get<number>("maxTransactionBytes");
+        let bytesLeftNext: number | undefined;
 
         const height: number = this.blockchain.getLastBlock().data.height;
         const milestone = Managers.configManager.getMilestone(height);
-        const transactions: Interfaces.ITransaction[] = [];
+        const candidateTransactions: Interfaces.ITransaction[] = [];
         const validator: Contracts.State.TransactionValidator = this.createTransactionValidator();
-
-        await this.pool.cleanUp();
+        const failedTransactions: Interfaces.ITransaction[] = [];
 
         for (const transaction of this.poolQuery.getFromHighestPriority()) {
-            if (transactions.length === milestone.block.maxTransactions) {
+            if (candidateTransactions.length === milestone.block.maxTransactions) {
                 break;
             }
 
+            if (failedTransactions.some((t) => t.data.senderPublicKey === transaction.data.senderPublicKey)) {
+                continue;
+            }
+
+            if (await this.expirationService.isExpired(transaction)) {
+                failedTransactions.push(transaction);
+                continue;
+            }
+
             if (bytesLeft !== undefined) {
-                bytesLeft -= JSON.stringify(transaction.data).length;
-                if (bytesLeft < 0) {
+                bytesLeftNext = bytesLeft - JSON.stringify(transaction.data).length;
+
+                if (bytesLeftNext < 0) {
                     break;
                 }
             }
 
             try {
                 await validator.validate(transaction);
-                transactions.push(transaction);
+                candidateTransactions.push(transaction);
+                bytesLeft = bytesLeftNext;
             } catch (error) {
                 this.logger.warning(`${transaction} failed to collate: ${error.message}`);
-                await this.pool.removeTransaction(transaction);
+                failedTransactions.push(transaction);
             }
         }
 
-        return transactions;
+        (async () => {
+            for (const failedTransaction of failedTransactions) {
+                await this.pool.removeTransaction(failedTransaction);
+            }
+        })();
+
+        return candidateTransactions;
     }
 }
