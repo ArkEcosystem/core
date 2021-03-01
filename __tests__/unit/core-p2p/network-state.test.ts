@@ -153,6 +153,54 @@ describe("NetworkState", () => {
         });
     });
 
+    describe("getNodeHeight", () => {
+        it("should return node height", () => {
+            const data = {
+                status: NetworkStateStatus.Test,
+                nodeHeight: 31,
+                lastBlockId: "10024d739768a68b43a6e4124718129e1fe07b0461630b3f275b7640d298c3b7",
+                quorumDetails: {
+                    peersQuorum: 31,
+                    peersNoQuorum: 7,
+                    peersOverHeight: 0,
+                    peersOverHeightBlockHeaders: {},
+                    peersForked: 0,
+                    peersDifferentSlot: 0,
+                    peersForgingNotAllowed: 1,
+                },
+            };
+
+            const networkState = NetworkState.parse(data);
+
+            expect(networkState.getNodeHeight()).toBe(31);
+        });
+    });
+
+    describe("getLastBlockId", () => {
+        it("should return lats block id", () => {
+            const data = {
+                status: NetworkStateStatus.Test,
+                nodeHeight: 31,
+                lastBlockId: "10024d739768a68b43a6e4124718129e1fe07b0461630b3f275b7640d298c3b7",
+                quorumDetails: {
+                    peersQuorum: 31,
+                    peersNoQuorum: 7,
+                    peersOverHeight: 0,
+                    peersOverHeightBlockHeaders: {},
+                    peersForked: 0,
+                    peersDifferentSlot: 0,
+                    peersForgingNotAllowed: 1,
+                },
+            };
+
+            const networkState = NetworkState.parse(data);
+
+            expect(networkState.getLastBlockId()).toBe(
+                "10024d739768a68b43a6e4124718129e1fe07b0461630b3f275b7640d298c3b7",
+            );
+        });
+    });
+
     describe("getQuorum", () => {
         it("should return 1 when NetworkStateStatus.Test", () => {
             const data = {
