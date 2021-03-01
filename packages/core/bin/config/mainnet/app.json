@@ -20,10 +20,10 @@
                 "package": "@arkecosystem/core-transaction-pool"
             },
             {
-                "package": "@arkecosystem/core-blockchain"
+                "package": "@arkecosystem/core-p2p"
             },
             {
-                "package": "@arkecosystem/core-p2p"
+                "package": "@arkecosystem/core-blockchain"
             },
             {
                 "package": "@arkecosystem/core-api"
@@ -60,10 +60,10 @@
                 "package": "@arkecosystem/core-transaction-pool"
             },
             {
-                "package": "@arkecosystem/core-blockchain"
+                "package": "@arkecosystem/core-p2p"
             },
             {
-                "package": "@arkecosystem/core-p2p"
+                "package": "@arkecosystem/core-blockchain"
             },
             {
                 "package": "@arkecosystem/core-api"
