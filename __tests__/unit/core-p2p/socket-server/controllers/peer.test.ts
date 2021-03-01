@@ -178,29 +178,5 @@ describe("PeerController", () => {
                 config: getPeerConfig(app as any),
             });
         });
-
-        it("should return height=0 and header={} when no last block found", async () => {
-            blockchain.getLastBlock = jest.fn();
-            const slotInfo = {
-                forgingStatus: true,
-                slotNumber: 344,
-                startTime: 98700,
-                endTime: 99000,
-                blockTime: 8,
-            };
-            jest.spyOn(Crypto.Slots, "getSlotInfo").mockReturnValueOnce(slotInfo);
-
-            const status = await peerController.getStatus({}, {});
-
-            expect(status).toEqual({
-                state: {
-                    height: 0,
-                    forgingAllowed: false,
-                    currentSlot: 0,
-                    header: {},
-                },
-                config: getPeerConfig(app as any),
-            });
-        });
     });
 });
