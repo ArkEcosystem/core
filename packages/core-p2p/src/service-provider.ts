@@ -13,20 +13,12 @@ import { Server } from "./socket-server/server";
 import { TransactionBroadcaster } from "./transaction-broadcaster";
 
 export class ServiceProvider extends Providers.ServiceProvider {
-    private serverSymbol = Symbol.for("P2P<Server>");
-
     public async register(): Promise<void> {
         this.registerFactories();
 
         this.registerServices();
 
         this.registerActions();
-
-        if (process.env.DISABLE_P2P_SERVER) {
-            return;
-        }
-
-        await this.buildServer(this.serverSymbol);
     }
 
     /**
@@ -44,15 +36,21 @@ export class ServiceProvider extends Providers.ServiceProvider {
     public async boot(): Promise<void> {
         this.app.get<EventListener>(Container.Identifiers.PeerEventListener).initialize();
 
-        return this.app.get<Server>(this.serverSymbol).boot();
+        await this.buildServer();
+
+        return this.app.get<Server>(Container.Identifiers.P2PServer).boot();
+    }
+
+    /**
+     * @returns {Promise<boolean>}
+     * @memberof ServiceProvider
+     */
+    public async disposeWhen(): Promise<boolean> {
+        return !process.env.DISABLE_P2P_SERVER;
     }
 
     public async dispose(): Promise<void> {
-        if (process.env.DISABLE_P2P_SERVER) {
-            return;
-        }
-
-        this.app.get<Server>(this.serverSymbol).dispose();
+        this.app.get<Server>(Container.Identifiers.P2PServer).dispose();
     }
 
     public async required(): Promise<boolean> {
@@ -119,12 +117,12 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.app.bind(Container.Identifiers.PeerEventListener).to(EventListener).inSingletonScope();
 
         this.app.bind(Container.Identifiers.PeerTransactionBroadcaster).to(TransactionBroadcaster);
+
+        this.app.bind<Server>(Container.Identifiers.P2PServer).to(Server).inSingletonScope();
     }
 
-    private async buildServer(id: symbol): Promise<void> {
-        this.app.bind<Server>(id).to(Server).inSingletonScope();
-
-        const server: Server = this.app.get<Server>(id);
+    private async buildServer(): Promise<void> {
+        const server: Server = this.app.get<Server>(Container.Identifiers.P2PServer);
         const serverConfig = this.config().get<Types.JsonObject>("server");
         Utils.assert.defined<Types.JsonObject>(serverConfig);
 

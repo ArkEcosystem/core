@@ -1,13 +1,11 @@
 import "jest-extended";
 
-import { Application, Container, Providers, Services } from "@arkecosystem/core-kernel";
-import { Peer } from "@arkecosystem/core-p2p/src/peer";
-import { ServiceProvider } from "@arkecosystem/core-p2p/src/service-provider";
+import { Application, Container, Providers, Services } from "@packages/core-kernel";
+import { Peer } from "@packages/core-p2p/src/peer";
+import { ServiceProvider } from "@packages/core-p2p/src/service-provider";
 import { AnySchema } from "joi";
 
 describe("ServiceProvider", () => {
-    const serverSymbol = Symbol.for("P2P<Server>");
-
     let app: Application;
     let serviceProvider: ServiceProvider;
 
@@ -19,7 +17,7 @@ describe("ServiceProvider", () => {
         [Container.Identifiers.PeerProcessor]: { initialize: jest.fn() },
         [Container.Identifiers.PeerCommunicator]: { initialize: jest.fn() },
         [Container.Identifiers.PeerEventListener]: { initialize: jest.fn() },
-        [serverSymbol]: mockServer,
+        [Container.Identifiers.P2PServer]: mockServer,
         [Container.Identifiers.TriggerService]: triggerService,
     };
     let factoryBound;
@@ -85,25 +83,12 @@ describe("ServiceProvider", () => {
 
             expect(triggerService.bind).toBeCalledWith("validateAndAcceptPeer", expect.anything());
 
-            expect(spyBind).toBeCalledWith(serverSymbol);
-            expect(mockServer.initialize).toBeCalledTimes(1);
+            expect(spyBind).toBeCalledWith(Container.Identifiers.P2PServer);
 
             // factory bound should be peer factory, testing it
             const ip = "188.133.1.2";
             const testPeer = factoryBound()(ip);
             expect(testPeer).toBeInstanceOf(Peer);
-        });
-
-        it("should not build server when process.env.DISABLE_P2P_SERVER", async () => {
-            process.env.DISABLE_P2P_SERVER = "true";
-            const spyBind = jest.spyOn(application, "bind");
-
-            await serviceProvider.register();
-
-            expect(spyBind).not.toBeCalledWith(serverSymbol);
-            expect(mockServer.initialize).toBeCalledTimes(0);
-
-            delete process.env.DISABLE_P2P_SERVER;
         });
     });
 
@@ -125,20 +110,24 @@ describe("ServiceProvider", () => {
             expect(mockServer.boot).toBeCalledTimes(1);
         });
     });
+
+    describe("disposeWhen", () => {
+        it("should return false when process.env.DISABLE_P2P_SERVER", async () => {
+            process.env.DISABLE_P2P_SERVER = "true";
+            expect(await serviceProvider.disposeWhen()).toBeFalse();
+            delete process.env.DISABLE_P2P_SERVER; // reset to initial undefined value
+        });
+
+        it("should return true when !process.env.DISABLE_P2P_SERVER", async () => {
+            expect(await serviceProvider.disposeWhen()).toBeTrue();
+        });
+    });
+
     describe("dispose", () => {
-        it("should call the server dispose method when !process.env.DISABLE_P2P_SERVER", async () => {
+        it("should call the server dispose method", async () => {
             await serviceProvider.dispose();
 
             expect(mockServer.dispose).toBeCalledTimes(1);
-        });
-
-        it("should not call the server dispose method when process.env.DISABLE_P2P_SERVER", async () => {
-            process.env.DISABLE_P2P_SERVER = "true";
-
-            await serviceProvider.dispose();
-
-            expect(mockServer.dispose).toBeCalledTimes(0);
-            delete process.env.DISABLE_P2P_SERVER; // reset to initial undefined value
         });
     });
     describe("required", () => {
