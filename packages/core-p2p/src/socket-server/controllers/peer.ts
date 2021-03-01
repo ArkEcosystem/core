@@ -60,20 +60,7 @@ export class PeerController extends Controller {
     public async getStatus(request: Hapi.Request, h: Hapi.ResponseToolkit): Promise<Contracts.P2P.PeerPingResponse> {
         const lastBlock: Interfaces.IBlock = this.blockchain.getLastBlock();
 
-        if (!lastBlock) {
-            return {
-                state: {
-                    height: 0,
-                    forgingAllowed: false,
-                    currentSlot: 0,
-                    header: {},
-                },
-                config: getPeerConfig(this.app),
-            };
-        }
-
         const blockTimeLookup = await Utils.forgingInfoCalculator.getBlockTimeLookup(this.app, lastBlock.data.height);
-
         const slotInfo = Crypto.Slots.getSlotInfo(blockTimeLookup);
 
         return {

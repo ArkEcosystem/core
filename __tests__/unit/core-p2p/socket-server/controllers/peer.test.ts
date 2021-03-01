@@ -1,4 +1,4 @@
-import { Container } from "@arkecosystem/core-kernel";
+import { Container } from "@packages/core-kernel";
 import { MissingCommonBlockError } from "@packages/core-p2p/src/errors";
 import { Peer } from "@packages/core-p2p/src/peer";
 import { PeerController } from "@packages/core-p2p/src/socket-server/controllers/peer";
@@ -136,6 +136,7 @@ describe("PeerController", () => {
                 blockTime: 8,
             };
             jest.spyOn(Crypto.Slots, "getSlotInfo").mockReturnValueOnce(slotInfo);
+
             const status = await peerController.getStatus({}, {});
 
             expect(getPeerConfig).toHaveBeenCalledTimes(1);
@@ -146,32 +147,7 @@ describe("PeerController", () => {
                     currentSlot: slotInfo.slotNumber,
                     header,
                 },
-                config: getPeerConfig({} as any),
-            });
-        });
-
-        it("should return height=0 and header={} when no last block found", async () => {
-            blockchain.getLastBlock = jest.fn();
-            const slotInfo = {
-                forgingStatus: true,
-                slotNumber: 344,
-                startTime: 98700,
-                endTime: 99000,
-                blockTime: 8,
-            };
-            jest.spyOn(Crypto.Slots, "getSlotInfo").mockReturnValueOnce(slotInfo);
-
-            const status = await peerController.getStatus({}, {});
-
-            expect(getPeerConfig).toHaveBeenCalledTimes(1);
-            expect(status).toEqual({
-                state: {
-                    height: 0,
-                    forgingAllowed: false,
-                    currentSlot: 0,
-                    header: {},
-                },
-                config: getPeerConfig({} as any),
+                config: getPeerConfig(app as any),
             });
         });
     });
