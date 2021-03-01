@@ -1,11 +1,12 @@
-import { Container, Utils as KernelUtils } from "@arkecosystem/core-kernel";
-import { NetworkStateStatus } from "@arkecosystem/core-p2p/src/enums";
-import { NetworkState } from "@arkecosystem/core-p2p/src/network-state";
-import { Peer } from "@arkecosystem/core-p2p/src/peer";
-import { PeerVerificationResult } from "@arkecosystem/core-p2p/src/peer-verifier";
-import { Blocks, Crypto, Utils } from "@arkecosystem/crypto";
+import { Container, Utils as KernelUtils } from "@packages/core-kernel";
+import { NetworkStateStatus } from "@packages/core-p2p/src/enums";
+import { NetworkState } from "@packages/core-p2p/src/network-state";
+import { Peer } from "@packages/core-p2p/src/peer";
+import { PeerVerificationResult } from "@packages/core-p2p/src/peer-verifier";
+import { Blocks, Crypto, Utils } from "@packages/crypto";
 
 describe("NetworkState", () => {
+    // @ts-ignore
     const lastBlock = {
         data: {
             id: "17882607875259085966",
