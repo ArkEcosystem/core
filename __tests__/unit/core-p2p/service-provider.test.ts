@@ -111,23 +111,20 @@ describe("ServiceProvider", () => {
         });
     });
 
-    describe("disposeWhen", () => {
-        it("should return false when process.env.DISABLE_P2P_SERVER", async () => {
-            process.env.DISABLE_P2P_SERVER = "true";
-            expect(await serviceProvider.disposeWhen()).toBeFalse();
-            delete process.env.DISABLE_P2P_SERVER; // reset to initial undefined value
-        });
-
-        it("should return true when !process.env.DISABLE_P2P_SERVER", async () => {
-            expect(await serviceProvider.disposeWhen()).toBeTrue();
-        });
-    });
-
     describe("dispose", () => {
-        it("should call the server dispose method", async () => {
+        it("should call the server dispose method when process.env.DISABLE_P2P_SERVER is undefined", async () => {
             await serviceProvider.dispose();
 
             expect(mockServer.dispose).toBeCalledTimes(1);
+        });
+
+        it("should not call the server dispose method when process.env.DISABLE_P2P_SERVER = true", async () => {
+            process.env.DISABLE_P2P_SERVER = "true";
+
+            await serviceProvider.dispose();
+            expect(mockServer.dispose).not.toHaveBeenCalled();
+
+            delete process.env.DISABLE_P2P_SERVER; // reset to initial undefined value
         });
     });
     describe("required", () => {
