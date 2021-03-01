@@ -41,16 +41,10 @@ export class ServiceProvider extends Providers.ServiceProvider {
         return this.app.get<Server>(Container.Identifiers.P2PServer).boot();
     }
 
-    /**
-     * @returns {Promise<boolean>}
-     * @memberof ServiceProvider
-     */
-    public async disposeWhen(): Promise<boolean> {
-        return !process.env.DISABLE_P2P_SERVER;
-    }
-
     public async dispose(): Promise<void> {
-        this.app.get<Server>(Container.Identifiers.P2PServer).dispose();
+        if (!process.env.DISABLE_P2P_SERVER) {
+            this.app.get<Server>(Container.Identifiers.P2PServer).dispose();
+        }
     }
 
     public async required(): Promise<boolean> {
