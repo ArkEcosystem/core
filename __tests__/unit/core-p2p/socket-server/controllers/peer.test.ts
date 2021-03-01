@@ -147,7 +147,7 @@ describe("PeerController", () => {
                     currentSlot: slotInfo.slotNumber,
                     header,
                 },
-                config: getPeerConfig(app as any),
+                config: getPeerConfig({} as any),
             });
         });
     });
