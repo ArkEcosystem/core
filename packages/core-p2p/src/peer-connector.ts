@@ -33,12 +33,10 @@ export class PeerConnector implements Contracts.P2P.PeerConnector {
             }
         }
         const connection = this.connection(peer) || (await this.create(peer));
-        
+
         if (maxPayload) {
             connection.setMaxPayload(maxPayload);
         }
-
-        this.connections.set(`${peer.ip}`, connection);
 
         return connection;
     }
@@ -100,11 +98,12 @@ export class PeerConnector implements Contracts.P2P.PeerConnector {
         const connection = new Client(`ws://${Utils.IpAddress.normalizeAddress(peer.ip)}:${peer.port}`, {
             timeout: 10000,
         });
+        this.connections.set(peer.ip, connection);
         this.lastConnectionCreate.set(peer.ip, Date.now());
 
         connection.onError = (error) => {
             this.logger.debug(`Socket error (peer ${Utils.IpAddress.normalizeAddress(peer.ip)}) : ${error.message}`);
-            connection.terminate();
+            this.disconnect(peer);
         };
 
         await connection.connect({ retries: 1, timeout: 5000 });
