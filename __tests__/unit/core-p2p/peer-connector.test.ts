@@ -1,10 +1,10 @@
 import "jest-extended";
 
 import { Container } from "@arkecosystem/core-kernel";
+import * as Nes from "@packages/core-p2p/src/hapi-nes";
+import { Peer } from "@packages/core-p2p/src/peer";
+import { PeerConnector } from "@packages/core-p2p/src/peer-connector";
 
-import * as Nes from "../../../packages/core-p2p/src/hapi-nes";
-import { Peer } from "../../../packages/core-p2p/src/peer";
-import { PeerConnector } from "../../../packages/core-p2p/src/peer-connector";
 import { NesClient } from "./mocks/nes";
 
 jest.setTimeout(60000);
@@ -87,7 +87,7 @@ describe("PeerConnector", () => {
             expect(peerConnection).toBe(peerConnector.connection(peer));
         });
 
-        it("should log if error on connection", async () => {
+        it("should log and remove if error on connection", async () => {
             const peer = new Peer("178.165.55.11", 4000);
             const peerConnection = await peerConnector.connect(peer);
 
@@ -95,6 +95,7 @@ describe("PeerConnector", () => {
 
             expect(peerConnection).toBeInstanceOf(NesClient);
             expect(logger.debug).toHaveBeenCalled();
+            expect(peerConnector.connection(peer)).toBeUndefined();
         });
 
         it("should delay connection create if re-connecting within 10 seconds", async () => {
@@ -105,7 +106,7 @@ describe("PeerConnector", () => {
 
             const before = Date.now();
             await peerConnector.connect(peer);
-            expect((Date.now() - before)/1000).toBeCloseTo(10, 1); // close to 10 seconds
+            expect((Date.now() - before) / 1000).toBeCloseTo(10, 1); // close to 10 seconds
         });
     });
 
