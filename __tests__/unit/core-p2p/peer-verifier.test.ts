@@ -13,7 +13,7 @@ describe("PeerVerifier", () => {
     const trigger = { call: jest.fn() };
     const stateStore = { getLastBlocks: jest.fn(), getLastHeight: jest.fn() };
     const database = {};
-    const databaseInteractions = {
+    const databaseInterceptor = {
         getBlocksByHeight: jest.fn(),
     };
     const dposState = { getRoundInfo: jest.fn(), getRoundDelegates: jest.fn() };
@@ -53,7 +53,7 @@ describe("PeerVerifier", () => {
         app.bind(Container.Identifiers.LogService).toConstantValue(logger);
         app.bind(Container.Identifiers.TriggerService).toConstantValue(trigger);
         app.bind(Container.Identifiers.StateStore).toConstantValue(stateStore);
-        app.bind(Container.Identifiers.DatabaseInteraction).toConstantValue(databaseInteractions);
+        app.bind(Container.Identifiers.DatabaseInterceptor).toConstantValue(databaseInterceptor);
         app.bind(Container.Identifiers.DatabaseService).toConstantValue(database);
         app.bind(Container.Identifiers.Application).toConstantValue(app);
         app.bind(Container.Identifiers.DposState).toConstantValue(dposState);
@@ -115,7 +115,7 @@ describe("PeerVerifier", () => {
                 stateStore.getLastBlocks = jest
                     .fn()
                     .mockReturnValue([{ data: { height: ourHeader.height }, getHeader: () => ourHeader }]);
-                databaseInteractions.getBlocksByHeight = jest.fn().mockImplementation((blockHeights) =>
+                databaseInterceptor.getBlocksByHeight = jest.fn().mockImplementation((blockHeights) =>
                     blockHeights.map((height: number) => ({
                         height,
                         id: height.toString().padStart(2, "0").repeat(20), // just using height to mock the id
@@ -149,7 +149,7 @@ describe("PeerVerifier", () => {
 
                 spyFromData.mockRestore();
                 peerCommunicator.getPeerBlocks = jest.fn();
-                databaseInteractions.getBlocksByHeight = jest.fn();
+                databaseInterceptor.getBlocksByHeight = jest.fn();
                 peerCommunicator.hasCommonBlocks = jest.fn();
                 stateStore.getLastHeight = jest.fn();
                 trigger.call = jest.fn();
@@ -180,7 +180,7 @@ describe("PeerVerifier", () => {
                 stateStore.getLastBlocks = jest
                     .fn()
                     .mockReturnValueOnce([{ data: { height: ourHeader.height }, getHeader: () => ourHeader }]);
-                databaseInteractions.getBlocksByHeight = jest.fn().mockImplementation((blockHeights) =>
+                databaseInterceptor.getBlocksByHeight = jest.fn().mockImplementation((blockHeights) =>
                     blockHeights.map((height: number) => ({
                         height,
                         id: height.toString().padStart(2, "0").repeat(20), // just using height to mock the id
@@ -206,7 +206,7 @@ describe("PeerVerifier", () => {
 
                 spyFromData.mockRestore();
                 peerCommunicator.getPeerBlocks = jest.fn();
-                databaseInteractions.getBlocksByHeight = jest.fn();
+                databaseInterceptor.getBlocksByHeight = jest.fn();
                 peerCommunicator.hasCommonBlocks = jest.fn();
             });
         });
@@ -229,7 +229,7 @@ describe("PeerVerifier", () => {
                     .mockReturnValueOnce([
                         { data: { height: claimedState.height }, getHeader: () => claimedState.header },
                     ]);
-                databaseInteractions.getBlocksByHeight = jest
+                databaseInterceptor.getBlocksByHeight = jest
                     .fn()
                     .mockReturnValueOnce([{ id: claimedState.header.id }]);
 
@@ -265,7 +265,7 @@ describe("PeerVerifier", () => {
                     stateStore.getLastBlocks = jest
                         .fn()
                         .mockReturnValueOnce([{ data: { height: claimedState.height }, getHeader: () => ourHeader }]);
-                    databaseInteractions.getBlocksByHeight = jest
+                    databaseInterceptor.getBlocksByHeight = jest
                         .fn()
                         .mockReturnValueOnce([{ id: ourHeader.id }])
                         .mockImplementation((blockHeights) =>
@@ -314,7 +314,7 @@ describe("PeerVerifier", () => {
 
                     spyFromData.mockRestore();
                     peerCommunicator.getPeerBlocks = jest.fn();
-                    databaseInteractions.getBlocksByHeight = jest.fn();
+                    databaseInterceptor.getBlocksByHeight = jest.fn();
                     peerCommunicator.hasCommonBlocks = jest.fn();
                 },
             );
@@ -327,11 +327,11 @@ describe("PeerVerifier", () => {
                 jest.spyOn(Blocks.BlockFactory, "fromData").mockReturnValue({
                     verifySignature: () => false,
                 } as Blocks.Block);
-                
+
                 const generatorPublicKey = "03c5282b639d0e8f94cfac6c0ed242d1634d8a2c93cbd76c6ed2856a9f19cf6a13";
                 trigger.call = jest.fn().mockReturnValue([{ publicKey: generatorPublicKey }]); // getActiveDelegates mock
                 stateStore.getLastBlocks = jest.fn();
-                
+
                 const result = await peerVerifier.checkState(claimedState, Date.now() + 2000);
 
                 expect(result).toBeUndefined();
@@ -342,7 +342,7 @@ describe("PeerVerifier", () => {
                 stateStore.getLastBlocks = jest
                     .fn()
                     .mockReturnValueOnce([{ data: { height: claimedState.height }, getHeader: () => ourHeader }]);
-                databaseInteractions.getBlocksByHeight = jest
+                databaseInterceptor.getBlocksByHeight = jest
                     .fn()
                     .mockReturnValueOnce([{ id: ourHeader.id }])
                     .mockImplementation((blockHeights) =>
@@ -363,7 +363,7 @@ describe("PeerVerifier", () => {
                 stateStore.getLastBlocks = jest
                     .fn()
                     .mockReturnValueOnce([{ data: { height: claimedState.height }, getHeader: () => ourHeader }]);
-                databaseInteractions.getBlocksByHeight = jest
+                databaseInterceptor.getBlocksByHeight = jest
                     .fn()
                     .mockReturnValueOnce([{ id: ourHeader.id }])
                     .mockImplementation((blockHeights) =>
@@ -385,7 +385,7 @@ describe("PeerVerifier", () => {
                 stateStore.getLastBlocks = jest
                     .fn()
                     .mockReturnValueOnce([{ data: { height: claimedState.height }, getHeader: () => ourHeader }]);
-                databaseInteractions.getBlocksByHeight = jest
+                databaseInterceptor.getBlocksByHeight = jest
                     .fn()
                     .mockReturnValueOnce([{ id: ourHeader.id }])
                     .mockImplementation((blockHeights) =>
@@ -409,7 +409,7 @@ describe("PeerVerifier", () => {
                 stateStore.getLastBlocks = jest
                     .fn()
                     .mockReturnValueOnce([{ data: { height: claimedState.height }, getHeader: () => ourHeader }]);
-                databaseInteractions.getBlocksByHeight = jest
+                databaseInterceptor.getBlocksByHeight = jest
                     .fn()
                     .mockReturnValueOnce([{ id: ourHeader.id }])
                     .mockImplementation((blockHeights) =>
@@ -435,7 +435,7 @@ describe("PeerVerifier", () => {
                 stateStore.getLastBlocks = jest
                     .fn()
                     .mockReturnValueOnce([{ data: { height: claimedState.height }, getHeader: () => ourHeader }]);
-                databaseInteractions.getBlocksByHeight = jest
+                databaseInterceptor.getBlocksByHeight = jest
                     .fn()
                     .mockReturnValueOnce([{ id: ourHeader.id }])
                     .mockImplementation((blockHeights) =>
@@ -463,7 +463,7 @@ describe("PeerVerifier", () => {
                     stateStore.getLastBlocks = jest
                         .fn()
                         .mockReturnValueOnce([{ data: { height: claimedState.height }, getHeader: () => ourHeader }]);
-                    databaseInteractions.getBlocksByHeight = jest
+                    databaseInterceptor.getBlocksByHeight = jest
                         .fn()
                         .mockReturnValueOnce([{ id: ourHeader.id }])
                         .mockImplementation((blockHeights) =>
@@ -499,7 +499,7 @@ describe("PeerVerifier", () => {
                 stateStore.getLastBlocks = jest
                     .fn()
                     .mockReturnValueOnce([{ data: { height: claimedState.height }, getHeader: () => ourHeader }]);
-                databaseInteractions.getBlocksByHeight = jest
+                databaseInterceptor.getBlocksByHeight = jest
                     .fn()
                     .mockReturnValueOnce([{ id: ourHeader.id }])
                     .mockImplementation((blockHeights) =>
@@ -537,7 +537,7 @@ describe("PeerVerifier", () => {
                 stateStore.getLastBlocks = jest
                     .fn()
                     .mockReturnValueOnce([{ data: { height: claimedState.height }, getHeader: () => ourHeader }]);
-                databaseInteractions.getBlocksByHeight = jest
+                databaseInterceptor.getBlocksByHeight = jest
                     .fn()
                     .mockReturnValueOnce([{ id: ourHeader.id }])
                     .mockImplementation((blockHeights) =>
@@ -574,7 +574,7 @@ describe("PeerVerifier", () => {
                 stateStore.getLastBlocks = jest
                     .fn()
                     .mockReturnValueOnce([{ data: { height: claimedState.height }, getHeader: () => ourHeader }]);
-                databaseInteractions.getBlocksByHeight = jest
+                databaseInterceptor.getBlocksByHeight = jest
                     .fn()
                     .mockReturnValueOnce([{ id: ourHeader.id }])
                     .mockImplementation((blockHeights) =>
@@ -610,7 +610,7 @@ describe("PeerVerifier", () => {
                 stateStore.getLastBlocks = jest
                     .fn()
                     .mockReturnValueOnce([{ data: { height: claimedState.height }, getHeader: () => ourHeader }]);
-                databaseInteractions.getBlocksByHeight = jest
+                databaseInterceptor.getBlocksByHeight = jest
                     .fn()
                     .mockReturnValueOnce([{ id: ourHeader.id }])
                     .mockImplementation((blockHeights) =>
@@ -638,7 +638,7 @@ describe("PeerVerifier", () => {
 
                 spyFromData.mockRestore();
                 peerCommunicator.getPeerBlocks = jest.fn();
-                databaseInteractions.getBlocksByHeight = jest.fn();
+                databaseInterceptor.getBlocksByHeight = jest.fn();
                 peerCommunicator.hasCommonBlocks = jest.fn();
             });
         });
@@ -665,7 +665,7 @@ describe("PeerVerifier", () => {
                     { data: { height: ourHeight }, getHeader: () => ourHeader },
                     { data: { height: claimedState.height }, getHeader: () => claimedState.header },
                 ]);
-                databaseInteractions.getBlocksByHeight = jest
+                databaseInterceptor.getBlocksByHeight = jest
                     .fn()
                     .mockReturnValueOnce([{ id: claimedState.header.id }]);
 
@@ -700,7 +700,7 @@ describe("PeerVerifier", () => {
                 stateStore.getLastBlocks = jest
                     .fn()
                     .mockReturnValueOnce([{ data: { height: ourHeader.height }, getHeader: () => ourHeader }]);
-                databaseInteractions.getBlocksByHeight = jest
+                databaseInterceptor.getBlocksByHeight = jest
                     .fn()
                     .mockReturnValueOnce([{ id: ourHeader.id }])
                     .mockImplementation((blockHeights) =>
@@ -729,7 +729,7 @@ describe("PeerVerifier", () => {
 
                 spyFromData.mockRestore();
                 peerCommunicator.getPeerBlocks = jest.fn();
-                databaseInteractions.getBlocksByHeight = jest.fn();
+                databaseInterceptor.getBlocksByHeight = jest.fn();
                 peerCommunicator.hasCommonBlocks = jest.fn();
             });
         });

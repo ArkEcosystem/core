@@ -15,7 +15,7 @@ describe("PeerController", () => {
     const logger = { warning: jest.fn(), debug: jest.fn(), info: jest.fn() };
     const peerRepository = { getPeers: jest.fn() };
     const database = { getCommonBlocks: jest.fn(), getBlocksForDownload: jest.fn() };
-    const databaseInteractions = {
+    const databaseInterceptor = {
         getCommonBlocks: jest.fn(),
         getBlocksForDownload: jest.fn(),
     };
@@ -66,7 +66,7 @@ describe("PeerController", () => {
         container.bind(Container.Identifiers.LogService).toConstantValue(logger);
         container.bind(Container.Identifiers.PeerRepository).toConstantValue(peerRepository);
         container.bind(Container.Identifiers.DatabaseService).toConstantValue(database);
-        container.bind(Container.Identifiers.DatabaseInteraction).toConstantValue(databaseInteractions);
+        container.bind(Container.Identifiers.DatabaseInterceptor).toConstantValue(databaseInterceptor);
         container.bind(Container.Identifiers.Application).toConstantValue(app);
     });
 
@@ -129,7 +129,7 @@ describe("PeerController", () => {
     describe("getCommonBlocks", () => {
         it("should return the last common block found and the last height", async () => {
             const request = { payload: { ids: ["123456789", "111116789"] } };
-            databaseInteractions.getCommonBlocks = jest.fn().mockReturnValueOnce(request.payload.ids);
+            databaseInterceptor.getCommonBlocks = jest.fn().mockReturnValueOnce(request.payload.ids);
             const height = 1433;
             blockchain.getLastBlock = jest.fn().mockReturnValueOnce({ data: { height } });
             const commonBlocks = await peerController.getCommonBlocks(request, {});
@@ -142,7 +142,7 @@ describe("PeerController", () => {
 
         it("should throw MissingCommonBlockError when no common block found", async () => {
             const request = { payload: { ids: ["123456789", "111116789"] } };
-            databaseInteractions.getCommonBlocks = jest.fn().mockReturnValueOnce([]);
+            databaseInterceptor.getCommonBlocks = jest.fn().mockReturnValueOnce([]);
 
             await expect(peerController.getCommonBlocks(request, {})).rejects.toBeInstanceOf(MissingCommonBlockError);
         });
