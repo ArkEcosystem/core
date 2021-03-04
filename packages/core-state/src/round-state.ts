@@ -86,9 +86,14 @@ export class RoundState {
             delegate.setAttribute("delegate.round", round);
         }
 
-        // ! extracting code below can simplify many call stacks and tests
+        return this.shuffleDelegates(roundInfo, delegates);
+    }
 
-        const seedSource: string = round.toString();
+    public shuffleDelegates(
+        roundInfo: Contracts.Shared.RoundInfo,
+        delegates: Contracts.State.Wallet[],
+    ): Contracts.State.Wallet[] {
+        const seedSource: string = roundInfo.round.toString();
         let currentSeed: Buffer = Crypto.HashAlgorithms.sha256(seedSource);
 
         delegates = delegates.map((delegate) => delegate.clone());
