@@ -71,6 +71,10 @@ beforeEach(() => {
     roundState = sandbox.app.resolve<RoundState>(RoundState);
 });
 
+afterEach(() => {
+    jest.restoreAllMocks();
+});
+
 describe("RoundState", () => {
     describe("GetBlocksForRound", () => {
         it("should return array with genesis block only when round 1 is requested", async () => {
@@ -111,6 +115,8 @@ describe("RoundState", () => {
             expect(databaseService.getBlocks).toBeCalledWith(2, 52);
             expect(spyOnFromData).toBeCalledTimes(51);
             expect(result).toEqual(blocks);
+
+            spyOnFromData.mockClear();
         });
     });
 
