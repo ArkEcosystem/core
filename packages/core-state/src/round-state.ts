@@ -58,9 +58,7 @@ export class RoundState {
         delegates?: Contracts.State.Wallet[],
     ): Promise<Contracts.State.Wallet[]> {
         if (!roundInfo) {
-            // ! use this.stateStore.getLastBlock()
-            const lastBlock = await this.databaseService.getLastBlock();
-            roundInfo = AppUtils.roundCalculator.calculateRound(lastBlock.data.height);
+            roundInfo = AppUtils.roundCalculator.calculateRound(this.stateStore.getLastBlock().data.height);
         }
 
         const { round } = roundInfo;

@@ -1,7 +1,9 @@
 import { Container } from "@packages/core-kernel";
 import { RoundState } from "@packages/core-state/src/round-state";
 import { Sandbox } from "@packages/core-test-framework";
-import { Blocks } from "@packages/crypto";
+import { Blocks, Identities, Utils } from "@packages/crypto";
+
+import block1760000 from "./__fixtures__/block1760000";
 
 let sandbox: Sandbox;
 let roundState: RoundState;
@@ -19,6 +21,7 @@ beforeEach(() => {
     databaseService = {
         getLastBlock: jest.fn(),
         getBlocks: jest.fn(),
+        getRound: jest.fn(),
     };
     dposState = {
         buildDelegateRanking: jest.fn(),
@@ -108,6 +111,56 @@ describe("RoundState", () => {
             expect(databaseService.getBlocks).toBeCalledWith(2, 52);
             expect(spyOnFromData).toBeCalledTimes(51);
             expect(result).toEqual(blocks);
+        });
+    });
+
+    describe("GetActiveDelegates", () => {
+        it("should return shuffled round delegates", async () => {
+            const lastBlock = Blocks.BlockFactory.fromData(block1760000);
+            stateStore.getLastBlock.mockReturnValue(lastBlock);
+
+            const delegatePublicKey = "03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37";
+            const delegateVoteBalance = Utils.BigNumber.make("100");
+            const roundDelegateModel = { publicKey: delegatePublicKey, balance: delegateVoteBalance };
+            databaseService.getRound.mockResolvedValueOnce([roundDelegateModel]);
+
+            const newDelegateWallet = { setAttribute: jest.fn(), clone: jest.fn() };
+            walletRepository.createWallet.mockReturnValueOnce(newDelegateWallet);
+
+            const oldDelegateWallet = { getAttribute: jest.fn() };
+            walletRepository.findByPublicKey.mockReturnValueOnce(oldDelegateWallet);
+
+            const delegateUsername = "test_delegate";
+            oldDelegateWallet.getAttribute.mockReturnValueOnce(delegateUsername);
+
+            const cloneDelegateWallet = {};
+            newDelegateWallet.clone.mockReturnValueOnce(cloneDelegateWallet);
+
+            await roundState.getActiveDelegates();
+
+            expect(walletRepository.findByPublicKey).toBeCalledWith(delegatePublicKey);
+            expect(walletRepository.createWallet).toBeCalledWith(Identities.Address.fromPublicKey(delegatePublicKey));
+            expect(oldDelegateWallet.getAttribute).toBeCalledWith("delegate.username", "");
+            expect(newDelegateWallet.setAttribute).toBeCalledWith("delegate", {
+                voteBalance: delegateVoteBalance,
+                username: delegateUsername,
+            });
+            expect(newDelegateWallet.clone).toBeCalled();
+        });
+
+        it("should return cached forgingDelegates when round is the same", async () => {
+            const forgingDelegate = { getAttribute: jest.fn() };
+            const forgingDelegateRound = 2;
+            forgingDelegate.getAttribute.mockReturnValueOnce(forgingDelegateRound);
+            // @ts-ignore
+            roundState.forgingDelegates = [forgingDelegate] as any;
+
+            const roundInfo = { round: 2 };
+            const result = await roundState.getActiveDelegates(roundInfo as any);
+
+            expect(forgingDelegate.getAttribute).toBeCalledWith("delegate.round");
+            // @ts-ignore
+            expect(result).toBe(roundState.forgingDelegates);
         });
     });
 });
