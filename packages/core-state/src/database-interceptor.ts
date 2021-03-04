@@ -1,6 +1,6 @@
-import { DatabaseService } from "@packages/core-database";
-import { Container, Contracts } from "@packages/core-kernel";
-import { Interfaces } from "@packages/crypto";
+import { DatabaseService } from "@arkecosystem/core-database";
+import { Container, Contracts } from "@arkecosystem/core-kernel";
+import { Interfaces } from "@arkecosystem/crypto";
 
 @Container.injectable()
 export class DatabaseInterceptor {
@@ -21,6 +21,8 @@ export class DatabaseInterceptor {
 
         return commonBlocks;
     }
+
+    // ! three methods below (getBlocks, getBlocksForDownload, getBlocksByHeight) can be merged into one
 
     public async getBlocks(offset: number, limit: number, headersOnly?: boolean): Promise<Interfaces.IBlockData[]> {
         // The functions below return matches in the range [start, end], including both ends.
