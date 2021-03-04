@@ -1,10 +1,10 @@
 import "jest-extended";
 
-import { Container, Enums } from "@arkecosystem/core-kernel";
-import { Blocks, Identities, Utils } from "@arkecosystem/crypto";
+import { DatabaseService } from "@packages/core-database";
+import { Container, Enums } from "@packages/core-kernel";
+import { DatabaseInteraction } from "@packages/core-state/src/database-interactions";
+import { Blocks, Identities, Utils } from "@packages/crypto";
 
-import { DatabaseService } from "../../../packages/core-database";
-import { DatabaseInteraction } from "../../../packages/core-state/src/database-interactions";
 import block1760000 from "./__fixtures__/block1760000";
 
 const app = {
@@ -260,6 +260,7 @@ describe("DatabaseInteraction.reset", () => {
         const genesisBlock = {};
         stateStore.getGenesisBlock.mockReturnValueOnce(genesisBlock);
 
+        // @ts-ignore
         await databaseInteraction.reset();
 
         expect(connection.query).toBeCalledWith("TRUNCATE TABLE blocks, rounds, transactions RESTART IDENTITY;");
@@ -351,6 +352,7 @@ describe("DatabaseInteraction.applyRound", () => {
         delegateWallet.getAttribute.mockReturnValueOnce(delegateUsername);
 
         const height = 51;
+        // @ts-ignore
         await databaseInteraction.applyRound(height);
 
         expect(dposState.buildDelegateRanking).toBeCalled();
@@ -390,6 +392,7 @@ describe("DatabaseInteraction.applyRound", () => {
         delegateWallet.getAttribute.mockReturnValueOnce(delegateUsername);
 
         const height = 1;
+        // @ts-ignore
         await databaseInteraction.applyRound(height);
 
         expect(dposState.buildDelegateRanking).toBeCalled();
@@ -429,6 +432,7 @@ describe("DatabaseInteraction.applyRound", () => {
         delegateWallet.getAttribute.mockReturnValueOnce(delegateUsername);
 
         const height = 51;
+        // @ts-ignore
         await databaseInteraction.applyRound(height);
 
         expect(dposState.buildDelegateRanking).toBeCalled();
@@ -450,6 +454,7 @@ describe("DatabaseInteraction.applyRound", () => {
         });
 
         const height = 51;
+        // @ts-ignore
         const check = () => databaseInteraction.applyRound(height);
 
         await expect(check()).rejects.toThrowError("Fail");
@@ -460,6 +465,7 @@ describe("DatabaseInteraction.applyRound", () => {
         const databaseInteraction: DatabaseInteraction = container.resolve(DatabaseInteraction);
 
         const height = 50;
+        // @ts-ignore
         await databaseInteraction.applyRound(height);
         expect(logger.info).not.toBeCalled();
     });
@@ -474,6 +480,7 @@ describe("DatabaseInteraction.applyRound", () => {
         databaseInteraction.forgingDelegates = [forgingDelegate] as any;
 
         const height = 51;
+        // @ts-ignore
         await databaseInteraction.applyRound(height);
 
         expect(logger.warning).toBeCalledWith(
@@ -540,29 +547,29 @@ describe("DatabaseInteraction.getActiveDelegates", () => {
     });
 });
 
-describe("DatabaseInteraction.getBlocksByHeight", () => {
-    it("should return blocks with transactions when full blocks are requested", async () => {
-        const databaseInteraction: DatabaseInteraction = container.resolve(DatabaseInteraction);
-
-        const block100 = { height: 100, transactions: [] };
-        const block101 = { height: 101, transactions: [] };
-        const block102 = { height: 102, transactions: [] };
-
-        stateStore.getLastBlocksByHeight.mockReturnValueOnce([block100]);
-        stateStore.getLastBlocksByHeight.mockReturnValueOnce([]);
-        stateStore.getLastBlocksByHeight.mockReturnValueOnce([block102]);
-
-        blockRepository.findByHeights.mockResolvedValueOnce([block101]);
-
-        const result = await databaseInteraction.getBlocksByHeight([100, 101, 102]);
-
-        expect(stateStore.getLastBlocksByHeight).toBeCalledWith(100, 100, true);
-        expect(stateStore.getLastBlocksByHeight).toBeCalledWith(101, 101, true);
-        expect(stateStore.getLastBlocksByHeight).toBeCalledWith(102, 102, true);
-        expect(blockRepository.findByHeights).toBeCalledWith([101]);
-        expect(result).toEqual([block100, block101, block102]);
-    });
-});
+// describe("DatabaseInteraction.getBlocksByHeight", () => {
+//     it("should return blocks with transactions when full blocks are requested", async () => {
+//         const databaseInteraction: DatabaseInteraction = container.resolve(DatabaseInteraction);
+//
+//         const block100 = { height: 100, transactions: [] };
+//         const block101 = { height: 101, transactions: [] };
+//         const block102 = { height: 102, transactions: [] };
+//
+//         stateStore.getLastBlocksByHeight.mockReturnValueOnce([block100]);
+//         stateStore.getLastBlocksByHeight.mockReturnValueOnce([]);
+//         stateStore.getLastBlocksByHeight.mockReturnValueOnce([block102]);
+//
+//         blockRepository.findByHeights.mockResolvedValueOnce([block101]);
+//
+//         const result = await databaseInteraction.getBlocksByHeight([100, 101, 102]);
+//
+//         expect(stateStore.getLastBlocksByHeight).toBeCalledWith(100, 100, true);
+//         expect(stateStore.getLastBlocksByHeight).toBeCalledWith(101, 101, true);
+//         expect(stateStore.getLastBlocksByHeight).toBeCalledWith(102, 102, true);
+//         expect(blockRepository.findByHeights).toBeCalledWith([101]);
+//         expect(result).toEqual([block100, block101, block102]);
+//     });
+// });
 
 describe("DatabaseInteraction.getBlocksForRound", () => {
     it("should return empty array if there are no blocks", async () => {
@@ -593,81 +600,81 @@ describe("DatabaseInteraction.getBlocksForRound", () => {
     });
 });
 
-describe("DatabaseInteraction.getCommonBlocks", () => {
-    it("should return blocks by ids", async () => {
-        const databaseInteraction: DatabaseInteraction = container.resolve(DatabaseInteraction);
+// describe("DatabaseInteraction.getCommonBlocks", () => {
+//     it("should return blocks by ids", async () => {
+//         const databaseInteraction: DatabaseInteraction = container.resolve(DatabaseInteraction);
+//
+//         const block100 = { id: "00100", height: 100, transactions: [] };
+//         const block101 = { id: "00101", height: 101, transactions: [] };
+//         const block102 = { id: "00102", height: 102, transactions: [] };
+//
+//         stateStore.getCommonBlocks.mockReturnValueOnce([block101, block102]);
+//         blockRepository.findByIds.mockResolvedValueOnce([block100, block101, block102]);
+//
+//         const result = await databaseInteraction.getCommonBlocks([block100.id, block101.id, block102.id]);
+//
+//         expect(stateStore.getCommonBlocks).toBeCalledWith([block100.id, block101.id, block102.id]);
+//         expect(blockRepository.findByIds).toBeCalledWith([block100.id, block101.id, block102.id]);
+//         expect(result).toEqual([block100, block101, block102]);
+//     });
+// });
 
-        const block100 = { id: "00100", height: 100, transactions: [] };
-        const block101 = { id: "00101", height: 101, transactions: [] };
-        const block102 = { id: "00102", height: 102, transactions: [] };
-
-        stateStore.getCommonBlocks.mockReturnValueOnce([block101, block102]);
-        blockRepository.findByIds.mockResolvedValueOnce([block100, block101, block102]);
-
-        const result = await databaseInteraction.getCommonBlocks([block100.id, block101.id, block102.id]);
-
-        expect(stateStore.getCommonBlocks).toBeCalledWith([block100.id, block101.id, block102.id]);
-        expect(blockRepository.findByIds).toBeCalledWith([block100.id, block101.id, block102.id]);
-        expect(result).toEqual([block100, block101, block102]);
-    });
-});
-
-describe("DatabaseInteraction.getRecentBlockIds", () => {
-    it("should return last 10 block ids", async () => {
-        const databaseInteraction: DatabaseInteraction = container.resolve(DatabaseInteraction);
-
-        const block101 = { id: "00101", height: 101, transactions: [] };
-        const block102 = { id: "00102", height: 102, transactions: [] };
-        const block103 = { id: "00103", height: 103, transactions: [] };
-        const block104 = { id: "00104", height: 104, transactions: [] };
-        const block105 = { id: "00105", height: 105, transactions: [] };
-        const block106 = { id: "00106", height: 106, transactions: [] };
-        const block107 = { id: "00107", height: 107, transactions: [] };
-        const block108 = { id: "00108", height: 108, transactions: [] };
-        const block109 = { id: "00109", height: 109, transactions: [] };
-        const block110 = { id: "00110", height: 110, transactions: [] };
-
-        stateStore.getLastBlockIds.mockReturnValueOnce([
-            block101,
-            block102,
-            block103,
-            block104,
-            block105,
-            block106,
-            block107,
-            block108,
-            block109,
-        ]);
-
-        blockRepository.findRecent.mockResolvedValueOnce([
-            block110,
-            block109,
-            block108,
-            block107,
-            block106,
-            block105,
-            block104,
-            block103,
-            block102,
-            block101,
-        ]);
-
-        const result = await databaseInteraction.getRecentBlockIds();
-
-        expect(result).toEqual([
-            block110.id,
-            block109.id,
-            block108.id,
-            block107.id,
-            block106.id,
-            block105.id,
-            block104.id,
-            block103.id,
-            block102.id,
-            block101.id,
-        ]);
-    });
-});
+// describe("DatabaseInteraction.getRecentBlockIds", () => {
+//     it("should return last 10 block ids", async () => {
+//         const databaseInteraction: DatabaseInteraction = container.resolve(DatabaseInteraction);
+//
+//         const block101 = { id: "00101", height: 101, transactions: [] };
+//         const block102 = { id: "00102", height: 102, transactions: [] };
+//         const block103 = { id: "00103", height: 103, transactions: [] };
+//         const block104 = { id: "00104", height: 104, transactions: [] };
+//         const block105 = { id: "00105", height: 105, transactions: [] };
+//         const block106 = { id: "00106", height: 106, transactions: [] };
+//         const block107 = { id: "00107", height: 107, transactions: [] };
+//         const block108 = { id: "00108", height: 108, transactions: [] };
+//         const block109 = { id: "00109", height: 109, transactions: [] };
+//         const block110 = { id: "00110", height: 110, transactions: [] };
+//
+//         stateStore.getLastBlockIds.mockReturnValueOnce([
+//             block101,
+//             block102,
+//             block103,
+//             block104,
+//             block105,
+//             block106,
+//             block107,
+//             block108,
+//             block109,
+//         ]);
+//
+//         blockRepository.findRecent.mockResolvedValueOnce([
+//             block110,
+//             block109,
+//             block108,
+//             block107,
+//             block106,
+//             block105,
+//             block104,
+//             block103,
+//             block102,
+//             block101,
+//         ]);
+//
+//         const result = await databaseInteraction.getRecentBlockIds();
+//
+//         expect(result).toEqual([
+//             block110.id,
+//             block109.id,
+//             block108.id,
+//             block107.id,
+//             block106.id,
+//             block105.id,
+//             block104.id,
+//             block103.id,
+//             block102.id,
+//             block101.id,
+//         ]);
+//     });
+// });
 
 describe("DatabaseInteraction.loadBlocksFromCurrentRound", () => {
     it("should initialize blocksInCurrentRound property", async () => {
@@ -741,6 +748,7 @@ describe("DatabaseInteraction.revertRound", () => {
         const forgingDelegates = [delegateWallet];
         triggers.call.mockResolvedValue(forgingDelegates);
 
+        // @ts-ignore
         await databaseInteraction.revertRound(51);
 
         expect(getDposPreviousRoundState).toBeCalled();
