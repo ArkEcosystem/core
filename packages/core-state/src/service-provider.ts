@@ -7,6 +7,7 @@ import { BlockState } from "./block-state";
 import { DatabaseInteraction } from "./database-interactions";
 import { DatabaseInterceptor } from "./database-interceptor";
 import { DposPreviousRoundState, DposState } from "./dpos";
+import { RoundState } from "./round-state";
 import { StateBuilder } from "./state-builder";
 import { BlockStore } from "./stores/blocks";
 import { StateStore } from "./stores/state";
@@ -76,6 +77,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
         this.app.bind(Container.Identifiers.DposState).to(DposState);
         this.app.bind(Container.Identifiers.BlockState).to(BlockState);
+        this.app.bind(Container.Identifiers.RoundState).to(RoundState);
 
         this.app.bind(Container.Identifiers.StateBlockStore).toConstantValue(new BlockStore(1000));
         this.app.bind(Container.Identifiers.StateTransactionStore).toConstantValue(new TransactionStore(1000));
