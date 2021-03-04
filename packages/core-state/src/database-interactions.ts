@@ -203,11 +203,6 @@ export class DatabaseInteraction {
         return delegates;
     }
 
-    public async verifyBlockchain(): Promise<boolean> {
-        const lastBlock = this.stateStore.getLastBlock();
-        return this.databaseService.verifyBlockchain(lastBlock);
-    }
-
     public async getCommonBlocks(ids: string[]): Promise<Interfaces.IBlockData[]> {
         let commonBlocks: Interfaces.IBlockData[] = this.stateStore.getCommonBlocks(ids);
 
