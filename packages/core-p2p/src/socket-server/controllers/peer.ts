@@ -1,5 +1,5 @@
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
-import { DatabaseInteraction } from "@arkecosystem/core-state";
+import { DatabaseInterceptor } from "@arkecosystem/core-state";
 import { Crypto, Interfaces } from "@arkecosystem/crypto";
 import Hapi from "@hapi/hapi";
 
@@ -13,8 +13,8 @@ export class PeerController extends Controller {
     @Container.inject(Container.Identifiers.PeerRepository)
     private readonly peerRepository!: Contracts.P2P.PeerRepository;
 
-    @Container.inject(Container.Identifiers.DatabaseInteraction)
-    private readonly databaseInteraction!: DatabaseInteraction;
+    @Container.inject(Container.Identifiers.DatabaseInterceptor)
+    private readonly databaseInterceptor!: DatabaseInterceptor;
 
     public getPeers(request: Hapi.Request, h: Hapi.ResponseToolkit): Contracts.P2P.PeerBroadcast[] {
         const peerIp = getPeerIp(request.socket);
@@ -40,7 +40,7 @@ export class PeerController extends Controller {
         common: Interfaces.IBlockData;
         lastBlockHeight: number;
     }> {
-        const commonBlocks: Interfaces.IBlockData[] = await this.databaseInteraction.getCommonBlocks(
+        const commonBlocks: Interfaces.IBlockData[] = await this.databaseInterceptor.getCommonBlocks(
             (request.payload as any).ids,
         );
 

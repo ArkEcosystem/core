@@ -1,5 +1,5 @@
 import { Container, Contracts, Services, Utils } from "@arkecosystem/core-kernel";
-import { DatabaseInteraction } from "@arkecosystem/core-state";
+import { DatabaseInterceptor } from "@arkecosystem/core-state";
 import { Blocks, Interfaces } from "@arkecosystem/crypto";
 import assert from "assert";
 import pluralize from "pluralize";
@@ -31,8 +31,9 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
 
-    // todo: make use of ioc
-    private databaseInteraction!: DatabaseInteraction;
+    @Container.inject(Container.Identifiers.DatabaseInterceptor)
+    private readonly databaseInterceptor!: DatabaseInterceptor;
+
     private logPrefix!: string;
 
     private communicator!: Contracts.P2P.PeerCommunicator;
@@ -49,7 +50,6 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
     public initialize(communicator: Contracts.P2P.PeerCommunicator, peer: Contracts.P2P.Peer) {
         this.communicator = communicator;
         this.peer = peer;
-        this.databaseInteraction = this.app.get<DatabaseInteraction>(Container.Identifiers.DatabaseInteraction);
 
         this.logPrefix = `Peer verify ${peer.ip}:`;
 
@@ -215,12 +215,12 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
             return false;
         }
 
-        const blocks = await this.databaseInteraction.getBlocksByHeight([claimedHeight]);
+        const blocks = await this.databaseInterceptor.getBlocksByHeight([claimedHeight]);
 
         assert.strictEqual(
             blocks.length,
             1,
-            `databaseInteraction.getBlocksByHeight([ ${claimedHeight} ]) returned ${blocks.length} results: ` +
+            `databaseInterceptor.getBlocksByHeight([ ${claimedHeight} ]) returned ${blocks.length} results: ` +
                 this.anyToString(blocks) +
                 ` (our chain is at height ${ourHeight})`,
         );
@@ -281,7 +281,7 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
         const nAry = 8;
 
         const probe = async (heightsToProbe: number[]): Promise<number | undefined> => {
-            const ourBlocks = await this.databaseInteraction.getBlocksByHeight(heightsToProbe);
+            const ourBlocks = await this.databaseInterceptor.getBlocksByHeight(heightsToProbe);
 
             assert.strictEqual(ourBlocks.length, heightsToProbe.length);
 
