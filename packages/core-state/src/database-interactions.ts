@@ -36,7 +36,6 @@ export class DatabaseInteraction {
     @Container.tagged("state", "blockchain")
     private readonly handlerRegistry!: Handlers.Registry;
 
-    // core-state
     @Container.inject(Container.Identifiers.WalletRepository)
     @Container.tagged("state", "blockchain")
     private readonly walletRepository!: Contracts.State.WalletRepository;
@@ -75,11 +74,6 @@ export class DatabaseInteraction {
         }
     }
 
-    public async reset(): Promise<void> {
-        await this.databaseService.reset();
-        await this.createGenesisBlock();
-    }
-
     public async restoreCurrentRound(height: number): Promise<void> {
         await this.initializeActiveDelegates(height);
         await this.applyRound(height);
@@ -106,53 +100,6 @@ export class DatabaseInteraction {
         this.events.dispatch(Enums.BlockEvent.Applied, block.data);
     }
 
-    public async applyRound(height: number): Promise<void> {
-        // ! this doesn't make sense
-        // ! next condition should be modified to include height === 1
-        const nextHeight: number = height === 1 ? 1 : height + 1;
-
-        if (AppUtils.roundCalculator.isNewRound(nextHeight)) {
-            const roundInfo: Contracts.Shared.RoundInfo = AppUtils.roundCalculator.calculateRound(nextHeight);
-            const { round } = roundInfo;
-
-            if (
-                nextHeight === 1 ||
-                this.forgingDelegates.length === 0 ||
-                this.forgingDelegates[0].getAttribute<number>("delegate.round") !== round
-            ) {
-                this.logger.info(`Starting Round ${roundInfo.round.toLocaleString()}`);
-
-                try {
-                    if (nextHeight > 1) {
-                        this.detectMissedRound(this.forgingDelegates);
-                    }
-
-                    this.dposState.buildDelegateRanking();
-                    this.dposState.setDelegatesRound(roundInfo);
-
-                    await this.setForgingDelegatesOfRound(roundInfo, this.dposState.getRoundDelegates().slice());
-                    await this.databaseService.saveRound(this.dposState.getRoundDelegates());
-
-                    this.blocksInCurrentRound = [];
-
-                    this.events.dispatch(Enums.RoundEvent.Applied);
-                } catch (error) {
-                    // trying to leave database state has it was
-                    // ! this.saveRound may not have been called
-                    // ! try should be moved below await this.setForgingDelegatesOfRound
-                    await this.databaseService.deleteRound(round);
-
-                    throw error;
-                }
-            } else {
-                // ! then applyRound should not be called at all
-                this.logger.warning(
-                    `Round ${round.toLocaleString()} has already been applied. This should happen only if you are a forger.`,
-                );
-            }
-        }
-    }
-
     public async revertBlock(block: Interfaces.IBlock): Promise<void> {
         await this.revertRound(block.data.height);
         await this.blockState.revertBlock(block);
@@ -165,26 +112,6 @@ export class DatabaseInteraction {
         }
 
         this.events.dispatch(Enums.BlockEvent.Reverted, block.data);
-    }
-
-    public async revertRound(height: number): Promise<void> {
-        const roundInfo: Contracts.Shared.RoundInfo = AppUtils.roundCalculator.calculateRound(height);
-        const { round, nextRound, maxDelegates } = roundInfo;
-
-        // ! height >= maxDelegates is always true
-        if (nextRound === round + 1 && height >= maxDelegates) {
-            this.logger.info(`Back to previous round: ${round.toLocaleString()}`);
-
-            this.blocksInCurrentRound = await this.getBlocksForRound(roundInfo);
-
-            await this.setForgingDelegatesOfRound(
-                roundInfo,
-                await this.calcPreviousActiveDelegates(roundInfo, this.blocksInCurrentRound),
-            );
-
-            // ! this will only delete one round
-            await this.databaseService.deleteRound(nextRound);
-        }
     }
 
     public async getBlocksForRound(roundInfo?: Contracts.Shared.RoundInfo): Promise<Interfaces.IBlock[]> {
@@ -374,6 +301,78 @@ export class DatabaseInteraction {
         }
 
         return blocks;
+    }
+
+    private async reset(): Promise<void> {
+        await this.databaseService.reset();
+        await this.createGenesisBlock();
+    }
+
+    private async applyRound(height: number): Promise<void> {
+        // ! this doesn't make sense
+        // ! next condition should be modified to include height === 1
+        const nextHeight: number = height === 1 ? 1 : height + 1;
+
+        if (AppUtils.roundCalculator.isNewRound(nextHeight)) {
+            const roundInfo: Contracts.Shared.RoundInfo = AppUtils.roundCalculator.calculateRound(nextHeight);
+            const { round } = roundInfo;
+
+            if (
+                nextHeight === 1 ||
+                this.forgingDelegates.length === 0 ||
+                this.forgingDelegates[0].getAttribute<number>("delegate.round") !== round
+            ) {
+                this.logger.info(`Starting Round ${roundInfo.round.toLocaleString()}`);
+
+                try {
+                    if (nextHeight > 1) {
+                        this.detectMissedRound(this.forgingDelegates);
+                    }
+
+                    this.dposState.buildDelegateRanking();
+                    this.dposState.setDelegatesRound(roundInfo);
+
+                    await this.setForgingDelegatesOfRound(roundInfo, this.dposState.getRoundDelegates().slice());
+                    await this.databaseService.saveRound(this.dposState.getRoundDelegates());
+
+                    this.blocksInCurrentRound = [];
+
+                    this.events.dispatch(Enums.RoundEvent.Applied);
+                } catch (error) {
+                    // trying to leave database state has it was
+                    // ! this.saveRound may not have been called
+                    // ! try should be moved below await this.setForgingDelegatesOfRound
+                    await this.databaseService.deleteRound(round);
+
+                    throw error;
+                }
+            } else {
+                // ! then applyRound should not be called at all
+                this.logger.warning(
+                    `Round ${round.toLocaleString()} has already been applied. This should happen only if you are a forger.`,
+                );
+            }
+        }
+    }
+
+    private async revertRound(height: number): Promise<void> {
+        const roundInfo: Contracts.Shared.RoundInfo = AppUtils.roundCalculator.calculateRound(height);
+        const { round, nextRound, maxDelegates } = roundInfo;
+
+        // ! height >= maxDelegates is always true
+        if (nextRound === round + 1 && height >= maxDelegates) {
+            this.logger.info(`Back to previous round: ${round.toLocaleString()}`);
+
+            this.blocksInCurrentRound = await this.getBlocksForRound(roundInfo);
+
+            await this.setForgingDelegatesOfRound(
+                roundInfo,
+                await this.calcPreviousActiveDelegates(roundInfo, this.blocksInCurrentRound),
+            );
+
+            // ! this will only delete one round
+            await this.databaseService.deleteRound(nextRound);
+        }
     }
 
     private async detectMissedBlocks(block: Interfaces.IBlock) {
