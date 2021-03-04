@@ -4,6 +4,8 @@ import { Handlers } from "@arkecosystem/core-transactions";
 import { Blocks, Crypto, Identities, Interfaces, Managers, Utils } from "@arkecosystem/crypto";
 import assert from "assert";
 
+import { RoundState } from "./round-state";
+
 @Container.injectable()
 export class DatabaseInteraction {
     @Container.inject(Container.Identifiers.Application)
@@ -49,11 +51,15 @@ export class DatabaseInteraction {
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
 
-    private blocksInCurrentRound: Interfaces.IBlock[] = [];
+    private roundState!: RoundState;
+
+    // private blocksInCurrentRound: Interfaces.IBlock[] = [];
 
     private forgingDelegates: Contracts.State.Wallet[] = [];
 
     public async initialize(): Promise<void> {
+        this.roundState = this.app.resolve<RoundState>(RoundState);
+
         try {
             this.events.dispatch(Enums.StateEvent.Starting);
 
@@ -81,7 +87,7 @@ export class DatabaseInteraction {
 
     public async loadBlocksFromCurrentRound(): Promise<void> {
         // ! this should not be public, this.blocksInCurrentRound is used by DatabaseService only
-        this.blocksInCurrentRound = await this.getBlocksForRound();
+        this.roundState.setBlocksInCurrentRound(await this.getBlocksForRound());
     }
 
     public async applyBlock(block: Interfaces.IBlock): Promise<void> {
@@ -89,7 +95,7 @@ export class DatabaseInteraction {
 
         await this.blockState.applyBlock(block);
 
-        this.blocksInCurrentRound.push(block);
+        this.roundState.pushBlock(block);
 
         await this.applyRound(block.data.height);
 
@@ -105,7 +111,7 @@ export class DatabaseInteraction {
         await this.blockState.revertBlock(block);
 
         // ! blockState is already reverted if this check fails
-        assert(this.blocksInCurrentRound.pop()!.data.id === block.data.id);
+        assert(this.roundState.popBlock()!.data.id === block.data.id);
 
         for (let i = block.transactions.length - 1; i >= 0; i--) {
             this.events.dispatch(Enums.TransactionEvent.Reverted, block.transactions[i].data);
@@ -235,7 +241,7 @@ export class DatabaseInteraction {
                     await this.setForgingDelegatesOfRound(roundInfo, this.dposState.getRoundDelegates().slice());
                     await this.databaseService.saveRound(this.dposState.getRoundDelegates());
 
-                    this.blocksInCurrentRound = [];
+                    this.roundState.resetBlocksInCurrentRound();
 
                     this.events.dispatch(Enums.RoundEvent.Applied);
                 } catch (error) {
@@ -263,11 +269,11 @@ export class DatabaseInteraction {
         if (nextRound === round + 1 && height >= maxDelegates) {
             this.logger.info(`Back to previous round: ${round.toLocaleString()}`);
 
-            this.blocksInCurrentRound = await this.getBlocksForRound(roundInfo);
+            this.roundState.setBlocksInCurrentRound(await this.getBlocksForRound(roundInfo));
 
             await this.setForgingDelegatesOfRound(
                 roundInfo,
-                await this.calcPreviousActiveDelegates(roundInfo, this.blocksInCurrentRound),
+                await this.calcPreviousActiveDelegates(roundInfo, this.roundState.getBlocksInCurrentRound()),
             );
 
             // ! this will only delete one round
@@ -365,22 +371,25 @@ export class DatabaseInteraction {
     }
 
     private detectMissedRound(delegates: Contracts.State.Wallet[]): void {
-        if (!delegates || !this.blocksInCurrentRound.length) {
+        if (!delegates || !this.roundState.getBlocksInCurrentRound().length) {
             // ! this.blocksInCurrentRound is impossible
             // ! otherwise this.blocksInCurrentRound!.length = 0 in applyRound will throw
             return;
         }
 
-        if (this.blocksInCurrentRound.length === 1 && this.blocksInCurrentRound[0].data.height === 1) {
+        if (
+            this.roundState.getBlocksInCurrentRound().length === 1 &&
+            this.roundState.getBlocksInCurrentRound()[0].data.height === 1
+        ) {
             // ? why skip missed round checks when first round has genesis block only?
             return;
         }
 
         for (const delegate of delegates) {
             // ! use .some() instead of .fitler()
-            const producedBlocks: Interfaces.IBlock[] = this.blocksInCurrentRound.filter(
-                (blockGenerator) => blockGenerator.data.generatorPublicKey === delegate.publicKey,
-            );
+            const producedBlocks: Interfaces.IBlock[] = this.roundState
+                .getBlocksInCurrentRound()
+                .filter((blockGenerator) => blockGenerator.data.generatorPublicKey === delegate.publicKey);
 
             if (producedBlocks.length === 0) {
                 const wallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(delegate.publicKey!);

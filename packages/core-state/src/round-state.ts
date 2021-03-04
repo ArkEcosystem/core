@@ -1,5 +1,5 @@
-import { Container } from "@packages/core-kernel";
-import { Interfaces } from "@packages/crypto";
+import { Container } from "@arkecosystem/core-kernel";
+import { Interfaces } from "@arkecosystem/crypto";
 import assert from "assert";
 
 @Container.injectable()
@@ -17,11 +17,15 @@ export class RoundState {
         return block!;
     }
 
-    public resetBlocksInCurrentRound(): void {
-        this.blocksInCurrentRound = [];
-    }
-
     public getBlocksInCurrentRound(): Interfaces.IBlock[] {
         return this.blocksInCurrentRound;
+    }
+
+    public setBlocksInCurrentRound(blocksInCurrentRound: Interfaces.IBlock[]): void {
+        this.blocksInCurrentRound = blocksInCurrentRound;
+    }
+
+    public resetBlocksInCurrentRound(): void {
+        this.blocksInCurrentRound = [];
     }
 }
