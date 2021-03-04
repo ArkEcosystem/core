@@ -40,19 +40,6 @@ export class DatabaseInterceptor {
         return blocks;
     }
 
-    public async getRecentBlockIds(): Promise<string[]> {
-        // ! why getLastBlockIds returns blocks and not ids?
-        let blocks: any[] = this.stateStore.getLastBlockIds().reverse().slice(0, 10);
-
-        if (blocks.length < 10) {
-            // ! blockRepository.findRecent returns objects containing single id property in reverse order
-            // ! where recent block id is first in array
-            blocks = await this.databaseService.findRecentBlocks(10);
-        }
-
-        return blocks.map((block) => block.id);
-    }
-
     /**
      * Get the blocks at the given heights.
      * The transactions for those blocks will not be loaded like in `getBlocks()`.
