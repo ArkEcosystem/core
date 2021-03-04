@@ -5,6 +5,7 @@ import Joi from "joi";
 import { BuildDelegateRankingAction, GetActiveDelegatesAction } from "./actions";
 import { BlockState } from "./block-state";
 import { DatabaseInteraction } from "./database-interactions";
+import { DatabaseInterceptor } from "./database-interceptor";
 import { DposPreviousRoundState, DposState } from "./dpos";
 import { StateBuilder } from "./state-builder";
 import { BlockStore } from "./stores/blocks";
@@ -92,6 +93,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
             .toAutoFactory(Container.Identifiers.TransactionValidator);
 
         this.app.bind(Container.Identifiers.DatabaseInteraction).to(DatabaseInteraction).inSingletonScope();
+        this.app.bind(Container.Identifiers.DatabaseInterceptor).to(DatabaseInterceptor).inSingletonScope();
         this.app.bind(Container.Identifiers.StateWalletSyncService).to(WalletSyncService).inSingletonScope();
 
         this.app.bind(Container.Identifiers.StateBuilder).to(StateBuilder);
