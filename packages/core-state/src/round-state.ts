@@ -61,53 +61,34 @@ export class RoundState {
             roundInfo = AppUtils.roundCalculator.calculateRound(this.stateStore.getLastBlock().data.height);
         }
 
-        const { round } = roundInfo;
-
-        if (this.forgingDelegates.length && this.forgingDelegates[0].getAttribute<number>("delegate.round") === round) {
+        if (
+            this.forgingDelegates.length &&
+            this.forgingDelegates[0].getAttribute<number>("delegate.round") === roundInfo.round
+        ) {
             return this.forgingDelegates;
         }
 
         // When called during applyRound we already know the delegates, so we don't have to query the database.
         if (!delegates) {
-            delegates = (await this.databaseService.getRound(round)).map(({ publicKey, balance }) => {
+            delegates = (await this.databaseService.getRound(roundInfo.round)).map(({ publicKey, balance }) => {
                 // ! find wallet by public key and clone it
                 const wallet = this.walletRepository.createWallet(Identities.Address.fromPublicKey(publicKey));
                 wallet.publicKey = publicKey;
-                wallet.setAttribute("delegate", {
+
+                const delegate = {
                     voteBalance: Utils.BigNumber.make(balance),
-                    username: this.walletRepository.findByPublicKey(publicKey).getAttribute("delegate.username", ""), // ! default username?
-                });
+                    username: this.walletRepository.findByPublicKey(publicKey).getAttribute("delegate.username"),
+                    round: roundInfo!.round,
+                };
+                AppUtils.assert.defined(delegate.username);
+
+                wallet.setAttribute("delegate", delegate);
+
                 return wallet;
             });
         }
 
-        for (const delegate of delegates) {
-            // ! throw if delegate round doesn't match instead of altering argument
-            delegate.setAttribute("delegate.round", round);
-        }
-
         return this.shuffleDelegates(roundInfo, delegates);
-    }
-
-    public shuffleDelegates(
-        roundInfo: Contracts.Shared.RoundInfo,
-        delegates: Contracts.State.Wallet[],
-    ): Contracts.State.Wallet[] {
-        const seedSource: string = roundInfo.round.toString();
-        let currentSeed: Buffer = Crypto.HashAlgorithms.sha256(seedSource);
-
-        delegates = delegates.map((delegate) => delegate.clone());
-        for (let i = 0, delCount = delegates.length; i < delCount; i++) {
-            for (let x = 0; x < 4 && i < delCount; i++, x++) {
-                const newIndex = currentSeed[x] % delCount;
-                const b = delegates[newIndex];
-                delegates[newIndex] = delegates[i];
-                delegates[i] = b;
-            }
-            currentSeed = Crypto.HashAlgorithms.sha256(currentSeed);
-        }
-
-        return delegates;
     }
 
     public async getBlocksForRound(roundInfo?: Contracts.Shared.RoundInfo): Promise<Interfaces.IBlock[]> {
@@ -270,6 +251,27 @@ export class RoundState {
                 });
             }
         }
+    }
+
+    private shuffleDelegates(
+        roundInfo: Contracts.Shared.RoundInfo,
+        delegates: Contracts.State.Wallet[],
+    ): Contracts.State.Wallet[] {
+        const seedSource: string = roundInfo.round.toString();
+        let currentSeed: Buffer = Crypto.HashAlgorithms.sha256(seedSource);
+
+        delegates = delegates.map((delegate) => delegate.clone());
+        for (let i = 0, delCount = delegates.length; i < delCount; i++) {
+            for (let x = 0; x < 4 && i < delCount; i++, x++) {
+                const newIndex = currentSeed[x] % delCount;
+                const b = delegates[newIndex];
+                delegates[newIndex] = delegates[i];
+                delegates[i] = b;
+            }
+            currentSeed = Crypto.HashAlgorithms.sha256(currentSeed);
+        }
+
+        return delegates;
     }
 
     private async setForgingDelegatesOfRound(

@@ -142,16 +142,21 @@ describe("RoundState", () => {
             const cloneDelegateWallet = {};
             newDelegateWallet.clone.mockReturnValueOnce(cloneDelegateWallet);
 
+            // @ts-ignore
+            const spyOnShuffleDelegates = jest.spyOn(roundState, "shuffleDelegates");
+
             await roundState.getActiveDelegates();
 
             expect(walletRepository.findByPublicKey).toBeCalledWith(delegatePublicKey);
             expect(walletRepository.createWallet).toBeCalledWith(Identities.Address.fromPublicKey(delegatePublicKey));
-            expect(oldDelegateWallet.getAttribute).toBeCalledWith("delegate.username", "");
+            expect(oldDelegateWallet.getAttribute).toBeCalledWith("delegate.username");
             expect(newDelegateWallet.setAttribute).toBeCalledWith("delegate", {
                 voteBalance: delegateVoteBalance,
                 username: delegateUsername,
+                round: 34510,
             });
             expect(newDelegateWallet.clone).toBeCalled();
+            expect(spyOnShuffleDelegates).toBeCalled();
         });
 
         it("should return cached forgingDelegates when round is the same", async () => {
