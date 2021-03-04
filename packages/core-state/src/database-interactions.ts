@@ -37,11 +37,10 @@ export class DatabaseInteraction {
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
 
-    private roundState!: RoundState;
+    @Container.inject(Container.Identifiers.RoundState)
+    private readonly roundState!: RoundState;
 
     public async initialize(): Promise<void> {
-        this.roundState = this.app.resolve<RoundState>(RoundState);
-
         try {
             this.events.dispatch(Enums.StateEvent.Starting);
 
