@@ -1,6 +1,7 @@
 import { Container } from "@packages/core-kernel";
 import { RoundState } from "@packages/core-state/src/round-state";
 import { Sandbox } from "@packages/core-test-framework";
+import { Blocks } from "@packages/crypto";
 
 let sandbox: Sandbox;
 let roundState: RoundState;
@@ -17,6 +18,7 @@ let logger;
 beforeEach(() => {
     databaseService = {
         getLastBlock: jest.fn(),
+        getBlocks: jest.fn(),
     };
     dposState = {
         buildDelegateRanking: jest.fn(),
@@ -68,27 +70,44 @@ beforeEach(() => {
 
 describe("RoundState", () => {
     describe("GetBlocksForRound", () => {
-        it("should return empty array if there are no blocks", async () => {
-            stateStore.getLastBlock.mockReturnValueOnce(undefined);
-            databaseService.getLastBlock.mockResolvedValueOnce(undefined);
+        it("should return array with genesis block only when round 1 is requested", async () => {
+            const lastBlock = { data: { height: 1 } };
+            stateStore.getGenesisBlock.mockReturnValueOnce(lastBlock);
 
-            const roundInfo = { roundHeight: 52, maxDelegates: 51 };
+            const roundInfo = { round: 1, roundHeight: 1, maxDelegates: 51 };
             const result = await roundState.getBlocksForRound(roundInfo as any);
 
-            expect(stateStore.getLastBlock).toBeCalled();
-            expect(databaseService.getLastBlock).toBeCalled();
-            expect(result).toEqual([]);
+            expect(stateStore.getGenesisBlock).toBeCalled();
+            expect(result).toEqual([lastBlock]);
         });
 
-        it("should return array with genesis block only when last block is genesis block", async () => {
+        it("should return array with genesis block only when last block is genesis blocks", async () => {
             const lastBlock = { data: { height: 1 } };
             stateStore.getLastBlock.mockReturnValueOnce(lastBlock);
+            stateStore.getGenesisBlock.mockReturnValueOnce(lastBlock);
 
-            const roundInfo = { roundHeight: 1, maxDelegates: 51 };
-            const result = await roundState.getBlocksForRound(roundInfo as any);
+            const result = await roundState.getBlocksForRound();
 
             expect(stateStore.getLastBlock).toBeCalled();
+            expect(stateStore.getGenesisBlock).toBeCalled();
             expect(result).toEqual([lastBlock]);
+        });
+
+        it("should return array of blocks by round", async () => {
+            // @ts-ignore
+            const spyOnFromData = jest.spyOn(Blocks.BlockFactory, "fromData").mockImplementation((block) => {
+                return block;
+            });
+
+            const blocks = Array(51).fill({ data: { height: 2 } });
+            databaseService.getBlocks.mockReturnValueOnce(blocks);
+
+            const roundInfo = { round: 2, roundHeight: 2, nextRound: 3, maxDelegates: 51 };
+            const result = await roundState.getBlocksForRound(roundInfo);
+
+            expect(databaseService.getBlocks).toBeCalledWith(2, 52);
+            expect(spyOnFromData).toBeCalledTimes(51);
+            expect(result).toEqual(blocks);
         });
     });
 });

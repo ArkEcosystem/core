@@ -108,36 +108,21 @@ export class RoundState {
     }
 
     public async getBlocksForRound(roundInfo?: Contracts.Shared.RoundInfo): Promise<Interfaces.IBlock[]> {
-        // ! it should check roundInfo before assuming that lastBlock is what's have to be returned
-
-        let lastBlock: Interfaces.IBlock = this.stateStore.getLastBlock();
-
-        if (!lastBlock) {
-            lastBlock = await this.databaseService.getLastBlock();
-        }
-
-        if (!lastBlock) {
-            return [];
-        } else if (lastBlock.data.height === 1) {
-            return [lastBlock];
-        }
-
         if (!roundInfo) {
-            roundInfo = AppUtils.roundCalculator.calculateRound(lastBlock.data.height);
+            roundInfo = AppUtils.roundCalculator.calculateRound(this.stateStore.getLastBlock().data.height);
         }
 
-        // ? number of blocks in round may not equal roundInfo.maxDelegates
-        // ? see round-calculator.ts handling milestone change
+        if (roundInfo.round === 1) {
+            return [this.stateStore.getGenesisBlock()];
+        }
+
+        // TODO: Look into store first
         const blocks = await this.databaseService.getBlocks(
             roundInfo.roundHeight,
             roundInfo.roundHeight + roundInfo.maxDelegates - 1,
         );
 
         return blocks.map((block: Interfaces.IBlockData) => {
-            if (block.height === 1) {
-                return this.stateStore.getGenesisBlock();
-            }
-
             return Blocks.BlockFactory.fromData(block, { deserializeTransactionsUnchecked: true })!;
         });
     }
