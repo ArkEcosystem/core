@@ -226,12 +226,11 @@ export class RoundState {
         }
 
         for (const delegate of delegates) {
-            // ! use .some() instead of .fitler()
-            const producedBlocks: Interfaces.IBlock[] = this.blocksInCurrentRound.filter(
+            const isBlockProduced = this.blocksInCurrentRound.some(
                 (blockGenerator) => blockGenerator.data.generatorPublicKey === delegate.publicKey,
             );
 
-            if (producedBlocks.length === 0) {
+            if (!isBlockProduced) {
                 const wallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(delegate.publicKey!);
 
                 this.logger.debug(

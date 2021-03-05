@@ -466,4 +466,56 @@ describe("RoundState", () => {
             expect(eventDispatcher.dispatch).toHaveBeenCalledTimes(51);
         });
     });
+
+    describe("detectMissedRound", () => {
+        let delegates: any[];
+        let blocksInCurrentRound: any[];
+
+        beforeEach(() => {
+            delegates = [];
+            for (let i = 0; i < 3; i++) {
+                delegates.push({
+                    publicKey: "public_key_" + i,
+                    getAttribute: jest.fn().mockReturnValue("username_" + 1),
+                });
+            }
+
+            blocksInCurrentRound = [];
+            for (let i = 0; i < 3; i++) {
+                blocksInCurrentRound.push({
+                    data: {
+                        generatorPublicKey: "public_key_" + i,
+                    },
+                });
+            }
+
+            walletRepository.findByPublicKey = jest.fn().mockImplementation((publicKey) => {
+                return delegates.find((delegate) => delegate.publicKey === publicKey);
+            });
+        });
+
+        it("should not detect missed round if all delegates forged blocks", () => {
+            // @ts-ignore
+            roundState.blocksInCurrentRound = blocksInCurrentRound;
+
+            // @ts-ignore
+            roundState.detectMissedRound(delegates);
+
+            expect(logger.debug).not.toHaveBeenCalled();
+            expect(eventDispatcher.dispatch).not.toHaveBeenCalled();
+        });
+
+        it("should detect missed round", () => {
+            blocksInCurrentRound[2].data.generatorPublicKey = "public_key_1";
+
+            // @ts-ignore
+            roundState.blocksInCurrentRound = blocksInCurrentRound;
+
+            // @ts-ignore
+            roundState.detectMissedRound(delegates);
+
+            expect(logger.debug).toHaveBeenCalledTimes(1);
+            expect(eventDispatcher.dispatch).toHaveBeenCalledWith(Enums.RoundEvent.Missed, { delegate: delegates[2] });
+        });
+    });
 });
