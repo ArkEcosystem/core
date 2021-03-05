@@ -244,14 +244,6 @@ export class RoundState {
         }
     }
 
-    private async initializeActiveDelegates(height: number): Promise<void> {
-        // ! may be set to undefined to early if error is raised
-        this.forgingDelegates = [];
-
-        const roundInfo: Contracts.Shared.RoundInfo = AppUtils.roundCalculator.calculateRound(height);
-        await this.setForgingDelegatesOfRound(roundInfo);
-    }
-
     private shuffleDelegates(
         roundInfo: Contracts.Shared.RoundInfo,
         delegates: Contracts.State.Wallet[],
@@ -273,6 +265,14 @@ export class RoundState {
         return delegates;
     }
 
+    private async initializeActiveDelegates(height: number): Promise<void> {
+        // ! may be set to undefined to early if error is raised
+        this.forgingDelegates = [];
+
+        const roundInfo: Contracts.Shared.RoundInfo = AppUtils.roundCalculator.calculateRound(height);
+        await this.setForgingDelegatesOfRound(roundInfo);
+    }
+
     private async setForgingDelegatesOfRound(
         roundInfo: Contracts.Shared.RoundInfo,
         delegates?: Contracts.State.Wallet[],
@@ -285,11 +285,8 @@ export class RoundState {
 
     private async calcPreviousActiveDelegates(
         roundInfo: Contracts.Shared.RoundInfo,
-        blocks?: Interfaces.IBlock[],
+        blocks: Interfaces.IBlock[],
     ): Promise<Contracts.State.Wallet[]> {
-        // ! make blocks required parameter forcing caller to specify blocks explicitly
-        blocks = blocks || (await this.getBlocksForRound(roundInfo));
-
         const prevRoundState = await this.getDposPreviousRoundState(blocks, roundInfo);
         for (const prevRoundDelegateWallet of prevRoundState.getAllDelegates()) {
             // ! name suggest that this is pure function
