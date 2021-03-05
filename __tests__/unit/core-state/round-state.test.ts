@@ -22,6 +22,8 @@ beforeEach(() => {
         getLastBlock: jest.fn(),
         getBlocks: jest.fn(),
         getRound: jest.fn(),
+        saveRound: jest.fn(),
+        deleteRound: jest.fn(),
     };
     dposState = {
         buildDelegateRanking: jest.fn(),
@@ -212,6 +214,113 @@ describe("RoundState", () => {
 
             // @ts-ignore
             expect(roundState.forgingDelegates).toEqual([]);
+        });
+    });
+
+    describe("applyBlock", () => {
+        it("should build delegates, save round, dispatch events when height is 1", async () => {
+            const forgingDelegate = { getAttribute: jest.fn() };
+            const forgingDelegateRound = 1;
+            forgingDelegate.getAttribute.mockReturnValueOnce(forgingDelegateRound);
+            // @ts-ignore
+            roundState.forgingDelegates = [forgingDelegate] as any;
+
+            // @ts-ignore
+            roundState.blocksInCurrentRound = [];
+
+            const delegateWallet = { publicKey: "delegate public key", getAttribute: jest.fn() };
+            const dposStateRoundDelegates = [delegateWallet];
+            dposState.getRoundDelegates.mockReturnValueOnce(dposStateRoundDelegates);
+            dposState.getRoundDelegates.mockReturnValueOnce(dposStateRoundDelegates);
+
+            const delegateWalletRound = 1;
+            delegateWallet.getAttribute.mockReturnValueOnce(delegateWalletRound);
+
+            walletRepository.findByPublicKey.mockReturnValueOnce(delegateWallet);
+
+            const delegateUsername = "test_delegate";
+            delegateWallet.getAttribute.mockReturnValueOnce(delegateUsername);
+
+            const height = 1;
+            // @ts-ignore
+            await roundState.applyRound(height);
+
+            expect(dposState.buildDelegateRanking).toBeCalled();
+            expect(dposState.setDelegatesRound).toBeCalledWith({
+                round: 1,
+                nextRound: 1,
+                roundHeight: 1,
+                maxDelegates: 51,
+            });
+            expect(databaseService.saveRound).toBeCalledWith(dposStateRoundDelegates);
+            expect(eventDispatcher.dispatch).toBeCalledWith("round.applied");
+        });
+
+        it("should build delegates, save round, dispatch events, and skip missing round checks when first round has genesis block only", async () => {
+            const forgingDelegate = { getAttribute: jest.fn() };
+            const forgingDelegateRound = 1;
+            forgingDelegate.getAttribute.mockReturnValueOnce(forgingDelegateRound);
+            // @ts-ignore
+            roundState.forgingDelegates = [forgingDelegate] as any;
+
+            // @ts-ignore
+            roundState.blocksInCurrentRound = [{ data: { height: 1 } }] as any;
+
+            const delegateWallet = { publicKey: "delegate public key", getAttribute: jest.fn() };
+            const dposStateRoundDelegates = [delegateWallet];
+            dposState.getRoundDelegates.mockReturnValueOnce(dposStateRoundDelegates);
+            dposState.getRoundDelegates.mockReturnValueOnce(dposStateRoundDelegates);
+
+            const delegateWalletRound = 2;
+            delegateWallet.getAttribute.mockReturnValueOnce(delegateWalletRound);
+
+            walletRepository.findByPublicKey.mockReturnValueOnce(delegateWallet);
+
+            const delegateUsername = "test_delegate";
+            delegateWallet.getAttribute.mockReturnValueOnce(delegateUsername);
+
+            const height = 51;
+            // @ts-ignore
+            await roundState.applyRound(height);
+
+            expect(dposState.buildDelegateRanking).toBeCalled();
+            expect(dposState.setDelegatesRound).toBeCalledWith({
+                round: 2,
+                nextRound: 2,
+                roundHeight: 52,
+                maxDelegates: 51,
+            });
+            expect(databaseService.saveRound).toBeCalledWith(dposStateRoundDelegates);
+            expect(eventDispatcher.dispatch).toBeCalledWith("round.applied");
+        });
+
+        it("should delete round and rethrow error when error was thrown", async () => {
+            dposState.buildDelegateRanking.mockImplementation(() => {
+                throw new Error("Fail");
+            });
+
+            await expect(roundState.applyRound(51)).rejects.toThrowError("Fail");
+
+            expect(databaseService.deleteRound).toBeCalledWith(2);
+        });
+
+        it("should do nothing when next height is same round", async () => {
+            await roundState.applyRound(50);
+            expect(logger.info).not.toBeCalled();
+        });
+
+        it("should warn when, and do nothing when round was already applied", async () => {
+            const forgingDelegate = { getAttribute: jest.fn() };
+            const forgingDelegateRound = 2;
+            forgingDelegate.getAttribute.mockReturnValueOnce(forgingDelegateRound);
+            // @ts-ignore
+            roundState.forgingDelegates = [forgingDelegate] as any;
+
+            await roundState.applyRound(51);
+
+            expect(logger.warning).toBeCalledWith(
+                "Round 2 has already been applied. This should happen only if you are a forger.",
+            );
         });
     });
 });
