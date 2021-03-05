@@ -1,4 +1,4 @@
-import { Container } from "@packages/core-kernel";
+import { Container, Enums } from "@packages/core-kernel";
 import { RoundState } from "@packages/core-state/src/round-state";
 import { Sandbox } from "@packages/core-test-framework";
 import { Blocks, Identities, Utils } from "@packages/crypto";
@@ -360,6 +360,110 @@ describe("RoundState", () => {
             // @ts-ignore
             expect(roundState.forgingDelegates).toEqual(forgingDelegates);
             expect(databaseService.deleteRound).toBeCalledWith(2);
+        });
+    });
+
+    describe("detectMissedBlocks", () => {
+        const genesisBlocks = {
+            data: {
+                height: 1,
+            },
+        };
+        let delegates: any[];
+
+        beforeEach(() => {
+            delegates = [];
+
+            for (let i = 0; i < 51; i++) {
+                delegates.push({
+                    publicKey: "public_key_" + i,
+                    getAttribute: jest.fn().mockReturnValue("username_" + 1),
+                });
+            }
+
+            // @ts-ignore
+            roundState.forgingDelegates = delegates;
+        });
+
+        it("should not detect missed round when stateStore.lastBlock is genesis block", async () => {
+            const block = {
+                data: {
+                    height: 2,
+                },
+            };
+
+            stateStore.getLastBlock.mockReturnValue(genesisBlocks);
+
+            await roundState.detectMissedBlocks(block as any);
+
+            expect(logger.debug).not.toHaveBeenCalled();
+            expect(eventDispatcher.dispatch).not.toHaveBeenCalled();
+        });
+
+        it("should not detect missed block if slots are sequential", async () => {
+            const block1 = {
+                data: {
+                    height: 2,
+                    timestamp: 8,
+                },
+            };
+            stateStore.getLastBlock.mockReturnValue(block1);
+
+            const block2 = {
+                data: {
+                    height: 3,
+                    timestamp: 2 * 8,
+                },
+            };
+            await roundState.detectMissedBlocks(block2 as any);
+
+            expect(logger.debug).not.toHaveBeenCalled();
+            expect(eventDispatcher.dispatch).not.toHaveBeenCalled();
+        });
+
+        it("should detect missed block if slots are not sequential", async () => {
+            const block1 = {
+                data: {
+                    height: 2,
+                    timestamp: 8,
+                },
+            };
+            stateStore.getLastBlock.mockReturnValue(block1);
+
+            const block2 = {
+                data: {
+                    height: 3,
+                    timestamp: 3 * 8,
+                },
+            };
+            await roundState.detectMissedBlocks(block2 as any);
+
+            expect(logger.debug).toHaveBeenCalledTimes(1);
+            expect(eventDispatcher.dispatch).toHaveBeenCalledTimes(1);
+            expect(eventDispatcher.dispatch).toHaveBeenCalledWith(Enums.ForgerEvent.Missing, {
+                delegate: delegates[2],
+            });
+        });
+
+        it("should detect only one round if multiple rounds are missing", async () => {
+            const block1 = {
+                data: {
+                    height: 2,
+                    timestamp: 8,
+                },
+            };
+            stateStore.getLastBlock.mockReturnValue(block1);
+
+            const block2 = {
+                data: {
+                    height: 3,
+                    timestamp: 102 * 8,
+                },
+            };
+            await roundState.detectMissedBlocks(block2 as any);
+
+            expect(logger.debug).toHaveBeenCalledTimes(51);
+            expect(eventDispatcher.dispatch).toHaveBeenCalledTimes(51);
         });
     });
 });
