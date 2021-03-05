@@ -213,14 +213,6 @@ export class RoundState {
         }
     }
 
-    private async initializeActiveDelegates(height: number): Promise<void> {
-        // ! may be set to undefined to early if error is raised
-        this.forgingDelegates = [];
-
-        const roundInfo: Contracts.Shared.RoundInfo = AppUtils.roundCalculator.calculateRound(height);
-        await this.setForgingDelegatesOfRound(roundInfo);
-    }
-
     private detectMissedRound(delegates: Contracts.State.Wallet[]): void {
         if (!delegates || !this.blocksInCurrentRound.length) {
             // ! this.blocksInCurrentRound is impossible
@@ -251,6 +243,14 @@ export class RoundState {
                 });
             }
         }
+    }
+
+    private async initializeActiveDelegates(height: number): Promise<void> {
+        // ! may be set to undefined to early if error is raised
+        this.forgingDelegates = [];
+
+        const roundInfo: Contracts.Shared.RoundInfo = AppUtils.roundCalculator.calculateRound(height);
+        await this.setForgingDelegatesOfRound(roundInfo);
     }
 
     private shuffleDelegates(
