@@ -323,4 +323,43 @@ describe("RoundState", () => {
             );
         });
     });
+
+    describe("revertRound", () => {
+        it("should revert, and delete round when reverting to previous round", async () => {
+            const lastBlock = Blocks.BlockFactory.fromData(block1760000);
+            // @ts-ignore
+            jest.spyOn(roundState, "getBlocksForRound").mockResolvedValue([lastBlock.data]);
+
+            const prevRoundState = { getAllDelegates: jest.fn(), getRoundDelegates: jest.fn(), revert: jest.fn() };
+            getDposPreviousRoundState.mockReturnValueOnce(prevRoundState).mockReturnValueOnce(prevRoundState);
+
+            const prevRoundDelegateWallet = { getAttribute: jest.fn() };
+            const prevRoundDposStateAllDelegates = [prevRoundDelegateWallet];
+            prevRoundState.getAllDelegates.mockReturnValueOnce(prevRoundDposStateAllDelegates);
+
+            const prevRoundDelegateUsername = "test_delegate";
+            prevRoundDelegateWallet.getAttribute.mockReturnValueOnce(prevRoundDelegateUsername);
+
+            const delegateWallet = { setAttribute: jest.fn(), getAttribute: jest.fn() };
+            walletRepository.findByUsername.mockReturnValueOnce(delegateWallet);
+
+            const prevRoundDelegateRank = 1;
+            prevRoundDelegateWallet.getAttribute.mockReturnValueOnce(prevRoundDelegateRank);
+
+            const prevRoundDposStateRoundDelegates = [prevRoundDelegateWallet];
+            prevRoundState.getRoundDelegates.mockReturnValueOnce(prevRoundDposStateRoundDelegates);
+
+            const forgingDelegates = [delegateWallet];
+            triggerService.call.mockResolvedValue(forgingDelegates);
+
+            await roundState.revertRound(51);
+
+            expect(getDposPreviousRoundState).toBeCalled();
+            expect(walletRepository.findByUsername).toBeCalledWith(prevRoundDelegateUsername);
+            expect(delegateWallet.setAttribute).toBeCalledWith("delegate.rank", prevRoundDelegateRank);
+            // @ts-ignore
+            expect(roundState.forgingDelegates).toEqual(forgingDelegates);
+            expect(databaseService.deleteRound).toBeCalledWith(2);
+        });
+    });
 });
