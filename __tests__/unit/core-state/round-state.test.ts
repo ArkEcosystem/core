@@ -76,7 +76,7 @@ afterEach(() => {
 });
 
 describe("RoundState", () => {
-    describe("GetBlocksForRound", () => {
+    describe("getBlocksForRound", () => {
         it("should return array with genesis block only when round 1 is requested", async () => {
             const lastBlock = { data: { height: 1 } };
             stateStore.getGenesisBlock.mockReturnValueOnce(lastBlock);
@@ -120,7 +120,7 @@ describe("RoundState", () => {
         });
     });
 
-    describe("GetActiveDelegates", () => {
+    describe("getActiveDelegates", () => {
         it("should return shuffled round delegates", async () => {
             const lastBlock = Blocks.BlockFactory.fromData(block1760000);
             stateStore.getLastBlock.mockReturnValue(lastBlock);
@@ -172,6 +172,46 @@ describe("RoundState", () => {
             expect(forgingDelegate.getAttribute).toBeCalledWith("delegate.round");
             // @ts-ignore
             expect(result).toBe(roundState.forgingDelegates);
+        });
+    });
+
+    describe("setForgingDelegatesOfRound", () => {
+        it("should call getActiveDelegates and set forgingDelegatesOfRound", async () => {
+            const delegate = {
+                username: "dummy_delegate",
+            };
+            triggerService.call.mockResolvedValue([delegate]);
+
+            const roundInfo = { round: 2, roundHeight: 2, nextRound: 3, maxDelegates: 51 };
+            // @ts-ignore
+            await roundState.setForgingDelegatesOfRound(roundInfo, [delegate]);
+
+            expect(triggerService.call).toHaveBeenCalledWith("getActiveDelegates", {
+                delegates: [delegate],
+                roundInfo,
+            });
+
+            // @ts-ignore
+            expect(roundState.forgingDelegates).toEqual([delegate]);
+        });
+
+        it("should call getActiveDelegates and set forgingDelegatesOfRound to [] if undefined is returned", async () => {
+            const delegate = {
+                username: "dummy_delegate",
+            };
+            triggerService.call.mockResolvedValue(undefined);
+
+            const roundInfo = { round: 2, roundHeight: 2, nextRound: 3, maxDelegates: 51 };
+            // @ts-ignore
+            await roundState.setForgingDelegatesOfRound(roundInfo, [delegate]);
+
+            expect(triggerService.call).toHaveBeenCalledWith("getActiveDelegates", {
+                delegates: [delegate],
+                roundInfo,
+            });
+
+            // @ts-ignore
+            expect(roundState.forgingDelegates).toEqual([]);
         });
     });
 });
