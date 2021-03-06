@@ -156,38 +156,27 @@ export class RoundState {
             const roundInfo: Contracts.Shared.RoundInfo = AppUtils.roundCalculator.calculateRound(nextHeight);
             const { round } = roundInfo;
 
-            if (
-                nextHeight === 1 ||
-                this.forgingDelegates.length === 0 ||
-                this.forgingDelegates[0].getAttribute<number>("delegate.round") !== round
-            ) {
-                this.logger.info(`Starting Round ${roundInfo.round.toLocaleString()}`);
+            this.logger.info(`Starting Round ${roundInfo.round.toLocaleString()}`);
 
-                try {
-                    this.detectMissedRound(this.forgingDelegates);
+            try {
+                this.detectMissedRound(this.forgingDelegates);
 
-                    this.dposState.buildDelegateRanking();
-                    this.dposState.setDelegatesRound(roundInfo);
+                this.dposState.buildDelegateRanking();
+                this.dposState.setDelegatesRound(roundInfo);
 
-                    await this.setForgingDelegatesOfRound(roundInfo, this.dposState.getRoundDelegates().slice());
-                    await this.databaseService.saveRound(this.dposState.getRoundDelegates());
+                await this.setForgingDelegatesOfRound(roundInfo, this.dposState.getRoundDelegates().slice());
+                await this.databaseService.saveRound(this.dposState.getRoundDelegates());
 
-                    this.blocksInCurrentRound = [];
+                this.blocksInCurrentRound = [];
 
-                    this.events.dispatch(Enums.RoundEvent.Applied);
-                } catch (error) {
-                    // trying to leave database state has it was
-                    // ! this.saveRound may not have been called
-                    // ! try should be moved below await this.setForgingDelegatesOfRound
-                    await this.databaseService.deleteRound(round);
+                this.events.dispatch(Enums.RoundEvent.Applied);
+            } catch (error) {
+                // trying to leave database state has it was
+                // ! this.saveRound may not have been called
+                // ! try should be moved below await this.setForgingDelegatesOfRound
+                await this.databaseService.deleteRound(round);
 
-                    throw error;
-                }
-            } else {
-                // ! then applyRound should not be called at all
-                this.logger.warning(
-                    `Round ${round.toLocaleString()} has already been applied. This should happen only if you are a forger.`,
-                );
+                throw error;
             }
         }
     }
