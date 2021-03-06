@@ -213,11 +213,17 @@ export class RoundState {
             return [this.stateStore.getGenesisBlock()];
         }
 
-        // TODO: Look into store first
-        const blocks = await this.databaseService.getBlocks(
+        let blocks = this.stateStore.getLastBlocksByHeight(
             roundInfo.roundHeight,
             roundInfo.roundHeight + roundInfo.maxDelegates - 1,
         );
+
+        if (blocks.length !== roundInfo.maxDelegates) {
+            blocks = await this.databaseService.getBlocks(
+                roundInfo.roundHeight,
+                roundInfo.roundHeight + roundInfo.maxDelegates - 1,
+            );
+        }
 
         return blocks.map((block: Interfaces.IBlockData) => {
             return Blocks.BlockFactory.fromData(block, { deserializeTransactionsUnchecked: true })!;
