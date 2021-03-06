@@ -148,12 +148,8 @@ export class RoundState {
     }
 
     private async applyRound(height: number): Promise<void> {
-        // ! this doesn't make sense
-        // ! next condition should be modified to include height === 1
-        const nextHeight: number = height === 1 ? 1 : height + 1;
-
-        if (AppUtils.roundCalculator.isNewRound(nextHeight)) {
-            const roundInfo: Contracts.Shared.RoundInfo = AppUtils.roundCalculator.calculateRound(nextHeight);
+        if (height === 1 || AppUtils.roundCalculator.isNewRound(height + 1)) {
+            const roundInfo: Contracts.Shared.RoundInfo = AppUtils.roundCalculator.calculateRound(height + 1);
             const { round } = roundInfo;
 
             this.logger.info(`Starting Round ${roundInfo.round.toLocaleString()}`);
