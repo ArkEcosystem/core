@@ -164,9 +164,7 @@ export class RoundState {
                 this.logger.info(`Starting Round ${roundInfo.round.toLocaleString()}`);
 
                 try {
-                    if (nextHeight > 1) {
-                        this.detectMissedRound(this.forgingDelegates);
-                    }
+                    this.detectMissedRound(this.forgingDelegates);
 
                     this.dposState.buildDelegateRanking();
                     this.dposState.setDelegatesRound(roundInfo);
