@@ -92,26 +92,6 @@ export class RoundState {
         return this.shuffleDelegates(roundInfo, delegates);
     }
 
-    public async getBlocksForRound(roundInfo?: Contracts.Shared.RoundInfo): Promise<Interfaces.IBlock[]> {
-        if (!roundInfo) {
-            roundInfo = AppUtils.roundCalculator.calculateRound(this.stateStore.getLastBlock().data.height);
-        }
-
-        if (roundInfo.round === 1) {
-            return [this.stateStore.getGenesisBlock()];
-        }
-
-        // TODO: Look into store first
-        const blocks = await this.databaseService.getBlocks(
-            roundInfo.roundHeight,
-            roundInfo.roundHeight + roundInfo.maxDelegates - 1,
-        );
-
-        return blocks.map((block: Interfaces.IBlockData) => {
-            return Blocks.BlockFactory.fromData(block, { deserializeTransactionsUnchecked: true })!;
-        });
-    }
-
     public async restoreCurrentRound(height: number): Promise<void> {
         await this.initializeActiveDelegates(height);
         await this.applyRound(height);
@@ -221,6 +201,26 @@ export class RoundState {
                 });
             }
         }
+    }
+
+    private async getBlocksForRound(roundInfo?: Contracts.Shared.RoundInfo): Promise<Interfaces.IBlock[]> {
+        if (!roundInfo) {
+            roundInfo = AppUtils.roundCalculator.calculateRound(this.stateStore.getLastBlock().data.height);
+        }
+
+        if (roundInfo.round === 1) {
+            return [this.stateStore.getGenesisBlock()];
+        }
+
+        // TODO: Look into store first
+        const blocks = await this.databaseService.getBlocks(
+            roundInfo.roundHeight,
+            roundInfo.roundHeight + roundInfo.maxDelegates - 1,
+        );
+
+        return blocks.map((block: Interfaces.IBlockData) => {
+            return Blocks.BlockFactory.fromData(block, { deserializeTransactionsUnchecked: true })!;
+        });
     }
 
     private shuffleDelegates(
