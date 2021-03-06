@@ -166,10 +166,9 @@ export class RoundState {
 
     private async revertRound(height: number): Promise<void> {
         const roundInfo: Contracts.Shared.RoundInfo = AppUtils.roundCalculator.calculateRound(height);
-        const { round, nextRound, maxDelegates } = roundInfo;
+        const { round, nextRound } = roundInfo;
 
-        // ! height >= maxDelegates is always true
-        if (nextRound === round + 1 && height >= maxDelegates) {
+        if (nextRound === round + 1) {
             this.logger.info(`Back to previous round: ${round.toLocaleString()}`);
 
             this.blocksInCurrentRound = await this.getBlocksForRound(roundInfo);
@@ -179,7 +178,6 @@ export class RoundState {
                 await this.calcPreviousActiveDelegates(roundInfo, this.blocksInCurrentRound),
             );
 
-            // ! this will only delete one round
             await this.databaseService.deleteRound(nextRound);
         }
     }
