@@ -2,7 +2,6 @@ import { DatabaseService } from "@arkecosystem/core-database";
 import { Container, Contracts, Enums } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Blocks, Interfaces, Managers } from "@arkecosystem/crypto";
-import assert from "assert";
 
 import { RoundState } from "./round-state";
 
@@ -75,11 +74,8 @@ export class DatabaseInteraction {
     }
 
     public async revertBlock(block: Interfaces.IBlock): Promise<void> {
-        await this.roundState.revertRound(block.data.height);
+        await this.roundState.revertBlock(block);
         await this.blockState.revertBlock(block);
-
-        // ! blockState is already reverted if this check fails
-        assert(this.roundState.popBlock()!.data.id === block.data.id);
 
         for (let i = block.transactions.length - 1; i >= 0; i--) {
             this.events.dispatch(Enums.TransactionEvent.Reverted, block.transactions[i].data);

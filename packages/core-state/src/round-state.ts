@@ -37,17 +37,16 @@ export class RoundState {
     private blocksInCurrentRound: Interfaces.IBlock[] = [];
     private forgingDelegates: Contracts.State.Wallet[] = [];
 
-    public popBlock(): Interfaces.IBlock {
-        const block = this.blocksInCurrentRound.pop();
-        assert(block);
-
-        return block!;
-    }
-
     public async applyBlock(block: Interfaces.IBlock): Promise<void> {
         this.blocksInCurrentRound.push(block);
 
         await this.applyRound(block.data.height);
+    }
+
+    public async revertBlock(block: Interfaces.IBlock): Promise<void> {
+        assert(this.blocksInCurrentRound.pop()!.data.id === block.data.id);
+
+        await this.revertRound(block.data.height);
     }
 
     public async loadBlocksFromCurrentRound(): Promise<void> {
@@ -116,26 +115,6 @@ export class RoundState {
     public async restoreCurrentRound(height: number): Promise<void> {
         await this.initializeActiveDelegates(height);
         await this.applyRound(height);
-    }
-
-    public async revertRound(height: number): Promise<void> {
-        const roundInfo: Contracts.Shared.RoundInfo = AppUtils.roundCalculator.calculateRound(height);
-        const { round, nextRound, maxDelegates } = roundInfo;
-
-        // ! height >= maxDelegates is always true
-        if (nextRound === round + 1 && height >= maxDelegates) {
-            this.logger.info(`Back to previous round: ${round.toLocaleString()}`);
-
-            this.blocksInCurrentRound = await this.getBlocksForRound(roundInfo);
-
-            await this.setForgingDelegatesOfRound(
-                roundInfo,
-                await this.calcPreviousActiveDelegates(roundInfo, this.blocksInCurrentRound),
-            );
-
-            // ! this will only delete one round
-            await this.databaseService.deleteRound(nextRound);
-        }
     }
 
     public async detectMissedBlocks(block: Interfaces.IBlock): Promise<void> {
@@ -212,6 +191,26 @@ export class RoundState {
                     `Round ${round.toLocaleString()} has already been applied. This should happen only if you are a forger.`,
                 );
             }
+        }
+    }
+
+    private async revertRound(height: number): Promise<void> {
+        const roundInfo: Contracts.Shared.RoundInfo = AppUtils.roundCalculator.calculateRound(height);
+        const { round, nextRound, maxDelegates } = roundInfo;
+
+        // ! height >= maxDelegates is always true
+        if (nextRound === round + 1 && height >= maxDelegates) {
+            this.logger.info(`Back to previous round: ${round.toLocaleString()}`);
+
+            this.blocksInCurrentRound = await this.getBlocksForRound(roundInfo);
+
+            await this.setForgingDelegatesOfRound(
+                roundInfo,
+                await this.calcPreviousActiveDelegates(roundInfo, this.blocksInCurrentRound),
+            );
+
+            // ! this will only delete one round
+            await this.databaseService.deleteRound(nextRound);
         }
     }
 
