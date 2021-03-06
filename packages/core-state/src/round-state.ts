@@ -221,11 +221,6 @@ export class RoundState {
             return;
         }
 
-        if (this.blocksInCurrentRound.length === 1 && this.blocksInCurrentRound[0].data.height === 1) {
-            // ? why skip missed round checks when first round has genesis block only?
-            return;
-        }
-
         for (const delegate of delegates) {
             const isBlockProduced = this.blocksInCurrentRound.some(
                 (blockGenerator) => blockGenerator.data.generatorPublicKey === delegate.publicKey,
