@@ -44,10 +44,13 @@ export class RoundState {
     }
 
     public async revertBlock(block: Interfaces.IBlock): Promise<void> {
+        // TODO: Handle round change where blocksInCurrentRound is empty
         assert(this.blocksInCurrentRound.pop()!.data.id === block.data.id);
 
         await this.revertRound(block.data.height);
     }
+
+    // TODO: Handle revert with any block eg. revert top blocks
 
     public async loadBlocksFromCurrentRound(): Promise<void> {
         // ! this should not be public, this.blocksInCurrentRound is used by DatabaseService only
