@@ -3,9 +3,6 @@ import "jest-extended";
 import { DatabaseService } from "@packages/core-database";
 import { Container, Enums } from "@packages/core-kernel";
 import { DatabaseInteraction } from "@packages/core-state/src/database-interactions";
-import { Blocks, Identities, Utils } from "@packages/crypto";
-
-import block1760000 from "./__fixtures__/block1760000";
 
 const app = {
     get: jest.fn(),
@@ -97,6 +94,17 @@ const logger = {
     info: jest.fn(),
     debug: jest.fn(),
 };
+const roundState = {
+    pushBlock: jest.fn(),
+    popBlock: jest.fn(),
+    loadBlocksFromCurrentRound: jest.fn(),
+    getActiveDelegates: jest.fn(),
+    getBlocksForRound: jest.fn(),
+    restoreCurrentRound: jest.fn(),
+    applyRound: jest.fn(),
+    revertRound: jest.fn(),
+    detectMissedBlocks: jest.fn(),
+};
 
 const container = new Container.Container();
 container.bind(Container.Identifiers.Application).toConstantValue(app);
@@ -116,6 +124,7 @@ container.bind(Container.Identifiers.DposPreviousRoundStateProvider).toConstantV
 container.bind(Container.Identifiers.TriggerService).toConstantValue(triggers);
 container.bind(Container.Identifiers.EventDispatcherService).toConstantValue(events);
 container.bind(Container.Identifiers.LogService).toConstantValue(logger);
+container.bind(Container.Identifiers.RoundState).toConstantValue(roundState);
 
 beforeEach(() => {
     jest.resetAllMocks();
@@ -216,43 +225,6 @@ describe("DatabaseInteractions", () => {
     });
 });
 
-describe("DatabaseInteraction.restoreCurrentRound", () => {
-    it("should restore round to its initial state", async () => {
-        const databaseInteraction: DatabaseInteraction = container.resolve(DatabaseInteraction);
-
-        const lastBlock = Blocks.BlockFactory.fromData(block1760000);
-        stateStore.getLastBlock.mockReturnValueOnce(lastBlock);
-
-        const lastBlocksByHeight = [lastBlock.data];
-        stateStore.getLastBlocksByHeight.mockReturnValueOnce(lastBlocksByHeight);
-        blockRepository.findByHeightRangeWithTransactions.mockReturnValueOnce(lastBlocksByHeight);
-
-        const prevRoundState = { getAllDelegates: jest.fn(), getRoundDelegates: jest.fn(), revert: jest.fn() };
-        getDposPreviousRoundState.mockReturnValueOnce(prevRoundState);
-
-        const delegateWallet = { setAttribute: jest.fn(), getAttribute: jest.fn() };
-        walletRepository.findByUsername.mockReturnValueOnce(delegateWallet);
-
-        const dposStateRoundDelegates = [delegateWallet];
-        dposState.getRoundDelegates.mockReturnValueOnce(dposStateRoundDelegates);
-        dposState.getRoundDelegates.mockReturnValueOnce(dposStateRoundDelegates);
-
-        const forgingDelegates = [delegateWallet];
-        triggers.call.mockResolvedValue(forgingDelegates);
-
-        await databaseInteraction.restoreCurrentRound(1760000);
-
-        expect(getDposPreviousRoundState).not.toBeCalled(); // restoring current round should not need previous round state
-        // important: getActiveDelegates should be called with only roundInfo (restoreCurrentRound does *not* provide delegates to it)
-        expect(triggers.call).toHaveBeenLastCalledWith("getActiveDelegates", {
-            roundInfo: expect.anything(),
-            delegates: undefined,
-        });
-        // @ts-ignore
-        expect(databaseInteraction.forgingDelegates).toEqual(forgingDelegates);
-    });
-});
-
 describe("DatabaseInteraction.reset", () => {
     it("should reset database", async () => {
         const databaseInteraction: DatabaseInteraction = container.resolve(DatabaseInteraction);
@@ -272,390 +244,42 @@ describe("DatabaseInteraction.applyBlock", () => {
     it("should apply block, round, detect missing blocks, and fire events", async () => {
         const databaseInteraction: DatabaseInteraction = container.resolve(DatabaseInteraction);
 
-        const lastBlock = { data: { height: 53, timestamp: 0 } };
-        stateStore.getLastBlock.mockReturnValueOnce(lastBlock);
-
-        const delegateWallet = { publicKey: "delegate public key", getAttribute: jest.fn() };
-        const delegateUsername = "test_delegate";
-        delegateWallet.getAttribute.mockReturnValueOnce(delegateUsername);
-
         const handler = { emitEvents: jest.fn() };
         handlerRegistry.getActivatedHandlerForData.mockResolvedValueOnce(handler);
 
-        // still previous last block!
-        stateStore.getLastBlock.mockReturnValueOnce(lastBlock);
-
-        // @ts-ignore
-        databaseInteraction.blocksInCurrentRound = [];
-        // @ts-ignore
-        databaseInteraction.forgingDelegates = [delegateWallet] as any;
-
-        const transaction = {};
+        const transaction = { data: { id: "dummy_id" } };
         const block = { data: { height: 54, timestamp: 35 }, transactions: [transaction] };
         await databaseInteraction.applyBlock(block as any);
 
-        expect(stateStore.getLastBlock).toBeCalledTimes(1);
+        expect(roundState.detectMissedBlocks).toBeCalledWith(block);
+        expect(roundState.pushBlock).toBeCalledWith(block);
+        expect(roundState.applyRound).toBeCalledWith(block.data.height);
+
         expect(blockState.applyBlock).toBeCalledWith(block);
-        // @ts-ignore
-        expect(databaseInteraction.blocksInCurrentRound).toEqual([block]);
-        expect(events.dispatch).toBeCalledWith("forger.missing", { delegate: delegateWallet });
         expect(handler.emitEvents).toBeCalledWith(transaction, events);
-        expect(events.dispatch).toBeCalledWith("block.applied", block.data);
-    });
-
-    it("should apply block, not apply round, and not detect missed blocks when last block height is 1", async () => {
-        const databaseInteraction: DatabaseInteraction = container.resolve(DatabaseInteraction);
-
-        const lastBlock = { data: { height: 1 } };
-        stateStore.getLastBlock.mockReturnValueOnce(lastBlock);
-
-        const handler = { emitEvents: jest.fn() };
-        handlerRegistry.getActivatedHandlerForData.mockResolvedValueOnce(handler);
-
-        // still previous last block!
-        stateStore.getLastBlock.mockReturnValueOnce(lastBlock);
-
-        const transaction = {};
-        const block = { data: { height: 2, timestamp: 35 }, transactions: [transaction] };
-        await databaseInteraction.applyBlock(block as any);
-
-        expect(stateStore.getLastBlock).toBeCalledTimes(1);
-        expect(handler.emitEvents).toBeCalledWith(transaction, events);
-        expect(events.dispatch).toBeCalledWith("block.applied", block.data);
+        expect(events.dispatch).toBeCalledWith(Enums.TransactionEvent.Applied, transaction.data);
+        expect(events.dispatch).toBeCalledWith(Enums.BlockEvent.Applied, block.data);
     });
 });
 
-describe("DatabaseInteraction.applyRound", () => {
-    it("should build delegates, save round, dispatch events when round changes on next height", async () => {
-        const databaseInteraction: DatabaseInteraction = container.resolve(DatabaseInteraction);
-
-        const forgingDelegate = { getAttribute: jest.fn() };
-        const forgingDelegateRound = 1;
-        forgingDelegate.getAttribute.mockReturnValueOnce(forgingDelegateRound);
-        // @ts-ignore
-        databaseInteraction.forgingDelegates = [forgingDelegate] as any;
-
-        // @ts-ignore
-        databaseInteraction.blocksInCurrentRound = [{ data: { generatorPublicKey: "delegate public key" } }] as any;
-
-        const delegateWallet = { publicKey: "delegate public key", getAttribute: jest.fn() };
-        const dposStateRoundDelegates = [delegateWallet];
-        dposState.getRoundDelegates.mockReturnValueOnce(dposStateRoundDelegates);
-        dposState.getRoundDelegates.mockReturnValueOnce(dposStateRoundDelegates);
-
-        const delegateWalletRound = 2;
-        delegateWallet.getAttribute.mockReturnValueOnce(delegateWalletRound);
-
-        walletRepository.findByPublicKey.mockReturnValueOnce(delegateWallet);
-
-        const delegateUsername = "test_delegate";
-        delegateWallet.getAttribute.mockReturnValueOnce(delegateUsername);
-
-        const height = 51;
-        // @ts-ignore
-        await databaseInteraction.applyRound(height);
-
-        expect(dposState.buildDelegateRanking).toBeCalled();
-        expect(dposState.setDelegatesRound).toBeCalledWith({
-            round: 2,
-            nextRound: 2,
-            roundHeight: 52,
-            maxDelegates: 51,
-        });
-        expect(roundRepository.save).toBeCalledWith(dposStateRoundDelegates);
-        expect(events.dispatch).toBeCalledWith("round.applied");
-    });
-
-    it("should build delegates, save round, dispatch events when height is 1", async () => {
-        const databaseInteraction: DatabaseInteraction = container.resolve(DatabaseInteraction);
-
-        const forgingDelegate = { getAttribute: jest.fn() };
-        const forgingDelegateRound = 1;
-        forgingDelegate.getAttribute.mockReturnValueOnce(forgingDelegateRound);
-        // @ts-ignore
-        databaseInteraction.forgingDelegates = [forgingDelegate] as any;
-
-        // @ts-ignore
-        databaseInteraction.blocksInCurrentRound = [];
-
-        const delegateWallet = { publicKey: "delegate public key", getAttribute: jest.fn() };
-        const dposStateRoundDelegates = [delegateWallet];
-        dposState.getRoundDelegates.mockReturnValueOnce(dposStateRoundDelegates);
-        dposState.getRoundDelegates.mockReturnValueOnce(dposStateRoundDelegates);
-
-        const delegateWalletRound = 1;
-        delegateWallet.getAttribute.mockReturnValueOnce(delegateWalletRound);
-
-        walletRepository.findByPublicKey.mockReturnValueOnce(delegateWallet);
-
-        const delegateUsername = "test_delegate";
-        delegateWallet.getAttribute.mockReturnValueOnce(delegateUsername);
-
-        const height = 1;
-        // @ts-ignore
-        await databaseInteraction.applyRound(height);
-
-        expect(dposState.buildDelegateRanking).toBeCalled();
-        expect(dposState.setDelegatesRound).toBeCalledWith({
-            round: 1,
-            nextRound: 1,
-            roundHeight: 1,
-            maxDelegates: 51,
-        });
-        expect(roundRepository.save).toBeCalledWith(dposStateRoundDelegates);
-        expect(events.dispatch).toBeCalledWith("round.applied");
-    });
-
-    it("should build delegates, save round, dispatch events, and skip missing round checks when first round has genesis block only", async () => {
-        const databaseInteraction: DatabaseInteraction = container.resolve(DatabaseInteraction);
-
-        const forgingDelegate = { getAttribute: jest.fn() };
-        const forgingDelegateRound = 1;
-        forgingDelegate.getAttribute.mockReturnValueOnce(forgingDelegateRound);
-        // @ts-ignore
-        databaseInteraction.forgingDelegates = [forgingDelegate] as any;
-
-        // @ts-ignore
-        databaseInteraction.blocksInCurrentRound = [{ data: { height: 1 } }] as any;
-
-        const delegateWallet = { publicKey: "delegate public key", getAttribute: jest.fn() };
-        const dposStateRoundDelegates = [delegateWallet];
-        dposState.getRoundDelegates.mockReturnValueOnce(dposStateRoundDelegates);
-        dposState.getRoundDelegates.mockReturnValueOnce(dposStateRoundDelegates);
-
-        const delegateWalletRound = 2;
-        delegateWallet.getAttribute.mockReturnValueOnce(delegateWalletRound);
-
-        walletRepository.findByPublicKey.mockReturnValueOnce(delegateWallet);
-
-        const delegateUsername = "test_delegate";
-        delegateWallet.getAttribute.mockReturnValueOnce(delegateUsername);
-
-        const height = 51;
-        // @ts-ignore
-        await databaseInteraction.applyRound(height);
-
-        expect(dposState.buildDelegateRanking).toBeCalled();
-        expect(dposState.setDelegatesRound).toBeCalledWith({
-            round: 2,
-            nextRound: 2,
-            roundHeight: 52,
-            maxDelegates: 51,
-        });
-        expect(roundRepository.save).toBeCalledWith(dposStateRoundDelegates);
-        expect(events.dispatch).toBeCalledWith("round.applied");
-    });
-
-    it("should delete round and rethrow error when error was thrown", async () => {
-        const databaseInteraction: DatabaseInteraction = container.resolve(DatabaseInteraction);
-
-        dposState.buildDelegateRanking.mockImplementation(() => {
-            throw new Error("Fail");
-        });
-
-        const height = 51;
-        // @ts-ignore
-        const check = () => databaseInteraction.applyRound(height);
-
-        await expect(check()).rejects.toThrowError("Fail");
-        expect(roundRepository.deleteFrom).toBeCalledWith(2);
-    });
-
-    it("should do nothing when next height is same round", async () => {
-        const databaseInteraction: DatabaseInteraction = container.resolve(DatabaseInteraction);
-
-        const height = 50;
-        // @ts-ignore
-        await databaseInteraction.applyRound(height);
-        expect(logger.info).not.toBeCalled();
-    });
-
-    it("should warn when, and do nothing when round was already applied", async () => {
-        const databaseInteraction: DatabaseInteraction = container.resolve(DatabaseInteraction);
-
-        const forgingDelegate = { getAttribute: jest.fn() };
-        const forgingDelegateRound = 2;
-        forgingDelegate.getAttribute.mockReturnValueOnce(forgingDelegateRound);
-        // @ts-ignore
-        databaseInteraction.forgingDelegates = [forgingDelegate] as any;
-
-        const height = 51;
-        // @ts-ignore
-        await databaseInteraction.applyRound(height);
-
-        expect(logger.warning).toBeCalledWith(
-            "Round 2 has already been applied. This should happen only if you are a forger.",
-        );
-    });
-});
-
-describe("DatabaseInteraction.getActiveDelegates", () => {
-    it("should return shuffled round delegates", async () => {
-        const databaseInteraction: DatabaseInteraction = container.resolve(DatabaseInteraction);
-
-        const lastBlock = Blocks.BlockFactory.fromData(block1760000);
-
-        // @ts-ignore
-        blockRepository.findLatest.mockResolvedValueOnce(lastBlock.data);
-        // @ts-ignore
-        transactionRepository.findByBlockIds.mockResolvedValueOnce(lastBlock.transactions);
-
-        const delegatePublicKey = "03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37";
-        const delegateVoteBalance = Utils.BigNumber.make("100");
-        const roundDelegateModel = { publicKey: delegatePublicKey, balance: delegateVoteBalance };
-        roundRepository.getRound.mockResolvedValueOnce([roundDelegateModel]);
-
-        const newDelegateWallet = { setAttribute: jest.fn(), clone: jest.fn() };
-        walletRepository.createWallet.mockReturnValueOnce(newDelegateWallet);
-
-        const oldDelegateWallet = { getAttribute: jest.fn() };
-        walletRepository.findByPublicKey.mockReturnValueOnce(oldDelegateWallet);
-
-        const delegateUsername = "test_delegate";
-        oldDelegateWallet.getAttribute.mockReturnValueOnce(delegateUsername);
-
-        const cloneDelegateWallet = {};
-        newDelegateWallet.clone.mockReturnValueOnce(cloneDelegateWallet);
-
-        await databaseInteraction.getActiveDelegates();
-
-        expect(walletRepository.findByPublicKey).toBeCalledWith(delegatePublicKey);
-        expect(walletRepository.createWallet).toBeCalledWith(Identities.Address.fromPublicKey(delegatePublicKey));
-        expect(oldDelegateWallet.getAttribute).toBeCalledWith("delegate.username", "");
-        expect(newDelegateWallet.setAttribute).toBeCalledWith("delegate", {
-            voteBalance: delegateVoteBalance,
-            username: delegateUsername,
-        });
-        expect(newDelegateWallet.clone).toBeCalled();
-    });
-
-    it("should return cached forgingDelegates when round is the same", async () => {
-        const databaseInteraction: DatabaseInteraction = container.resolve(DatabaseInteraction);
-
-        const forgingDelegate = { getAttribute: jest.fn() };
-        const forgingDelegateRound = 2;
-        forgingDelegate.getAttribute.mockReturnValueOnce(forgingDelegateRound);
-        // @ts-ignore
-        databaseInteraction.forgingDelegates = [forgingDelegate] as any;
-
-        const roundInfo = { round: 2 };
-        const result = await databaseInteraction.getActiveDelegates(roundInfo as any);
-
-        expect(forgingDelegate.getAttribute).toBeCalledWith("delegate.round");
-        // @ts-ignore
-        expect(result).toBe(databaseInteraction.forgingDelegates);
-    });
-});
-
-describe("DatabaseInteraction.getBlocksForRound", () => {
-    it("should return empty array if there are no blocks", async () => {
-        const databaseInteraction: DatabaseInteraction = container.resolve(DatabaseInteraction);
-
-        stateStore.getLastBlock.mockReturnValueOnce(undefined);
-        blockRepository.findLatest.mockResolvedValueOnce(undefined);
-
-        const roundInfo = { roundHeight: 52, maxDelegates: 51 };
-        const result = await databaseInteraction.getBlocksForRound(roundInfo as any);
-
-        expect(stateStore.getLastBlock).toBeCalled();
-        expect(blockRepository.findLatest).toBeCalled();
-        expect(result).toEqual([]);
-    });
-
-    it("should return array with genesis block only when last block is genesis block", async () => {
-        const databaseInteraction: DatabaseInteraction = container.resolve(DatabaseInteraction);
-
-        const lastBlock = { data: { height: 1 } };
-        stateStore.getLastBlock.mockReturnValueOnce(lastBlock);
-
-        const roundInfo = { roundHeight: 1, maxDelegates: 51 };
-        const result = await databaseInteraction.getBlocksForRound(roundInfo as any);
-
-        expect(stateStore.getLastBlock).toBeCalled();
-        expect(result).toEqual([lastBlock]);
-    });
-});
-
-describe("DatabaseInteraction.loadBlocksFromCurrentRound", () => {
-    it("should initialize blocksInCurrentRound property", async () => {
-        const databaseInteraction: DatabaseInteraction = container.resolve(DatabaseInteraction);
-
-        const lastBlock = Blocks.BlockFactory.fromData(block1760000);
-        stateStore.getLastBlock.mockReturnValueOnce(lastBlock);
-        stateStore.getLastBlocksByHeight.mockReturnValueOnce([lastBlock.data]);
-        blockRepository.findByHeightRangeWithTransactions.mockReturnValueOnce([lastBlock.data]);
-
-        await databaseInteraction.loadBlocksFromCurrentRound();
-
-        expect(stateStore.getLastBlock).toBeCalled();
-    });
-});
-
-describe("DatabaseInteraction.revertBlock", () => {
-    it("should revert state, and fire events", async () => {
-        const databaseInteraction: DatabaseInteraction = container.resolve(DatabaseInteraction);
-
-        const transaction1 = { data: {} };
-        const transaction2 = { data: {} };
-        const block = {
-            data: { id: "123", height: 100 },
-            transactions: [transaction1, transaction2],
-        };
-        // @ts-ignore
-        databaseInteraction.blocksInCurrentRound = [block as any];
-
-        await databaseInteraction.revertBlock(block as any);
-
-        expect(blockState.revertBlock).toBeCalledWith(block);
-        expect(events.dispatch).toBeCalledWith("transaction.reverted", transaction1.data);
-        expect(events.dispatch).toBeCalledWith("transaction.reverted", transaction2.data);
-        expect(events.dispatch).toBeCalledWith("block.reverted", block.data);
-    });
-});
-
-describe("DatabaseInteraction.revertRound", () => {
-    it("should revert, and delete round when reverting to previous round", async () => {
-        const databaseInteraction: DatabaseInteraction = container.resolve(DatabaseInteraction);
-
-        const lastBlock = Blocks.BlockFactory.fromData(block1760000);
-        stateStore.getLastBlock.mockReturnValueOnce(lastBlock);
-        stateStore.getLastBlocksByHeight.mockReturnValueOnce([lastBlock.data]);
-        blockRepository.findByHeightRangeWithTransactions.mockReturnValueOnce([lastBlock.data]);
-
-        const prevRoundState = { getAllDelegates: jest.fn(), getRoundDelegates: jest.fn(), revert: jest.fn() };
-        getDposPreviousRoundState.mockReturnValueOnce(prevRoundState).mockReturnValueOnce(prevRoundState);
-
-        const prevRoundDelegateWallet = { getAttribute: jest.fn() };
-        const prevRoundDposStateAllDelegates = [prevRoundDelegateWallet];
-        prevRoundState.getAllDelegates.mockReturnValueOnce(prevRoundDposStateAllDelegates);
-
-        const prevRoundDelegateUsername = "test_delegate";
-        prevRoundDelegateWallet.getAttribute.mockReturnValueOnce(prevRoundDelegateUsername);
-
-        const delegateWallet = { setAttribute: jest.fn(), getAttribute: jest.fn() };
-        walletRepository.findByUsername.mockReturnValueOnce(delegateWallet);
-
-        const prevRoundDelegateRank = 1;
-        prevRoundDelegateWallet.getAttribute.mockReturnValueOnce(prevRoundDelegateRank);
-
-        const prevRoundDposStateRoundDelegates = [prevRoundDelegateWallet];
-        prevRoundState.getRoundDelegates.mockReturnValueOnce(prevRoundDposStateRoundDelegates);
-
-        const dposStateRoundDelegates = [delegateWallet];
-        dposState.getRoundDelegates.mockReturnValueOnce(dposStateRoundDelegates);
-        dposState.getRoundDelegates.mockReturnValueOnce(dposStateRoundDelegates);
-
-        const forgingDelegates = [delegateWallet];
-        triggers.call.mockResolvedValue(forgingDelegates);
-
-        // @ts-ignore
-        await databaseInteraction.revertRound(51);
-
-        expect(getDposPreviousRoundState).toBeCalled();
-        expect(walletRepository.findByUsername).toBeCalledWith(prevRoundDelegateUsername);
-        expect(delegateWallet.setAttribute).toBeCalledWith("delegate.rank", prevRoundDelegateRank);
-        // @ts-ignore
-        expect(databaseInteraction.forgingDelegates).toEqual(forgingDelegates);
-        expect(roundRepository.deleteFrom).toBeCalledWith(2);
-    });
-});
+// describe("DatabaseInteraction.revertBlock", () => {
+//     it("should revert state, and fire events", async () => {
+//         const databaseInteraction: DatabaseInteraction = container.resolve(DatabaseInteraction);
+//
+//         const transaction1 = { data: {} };
+//         const transaction2 = { data: {} };
+//         const block = {
+//             data: { id: "123", height: 100 },
+//             transactions: [transaction1, transaction2],
+//         };
+//         // @ts-ignore
+//         databaseInteraction.blocksInCurrentRound = [block as any];
+//
+//         await databaseInteraction.revertBlock(block as any);
+//
+//         expect(blockState.revertBlock).toBeCalledWith(block);
+//         expect(events.dispatch).toBeCalledWith("transaction.reverted", transaction1.data);
+//         expect(events.dispatch).toBeCalledWith("transaction.reverted", transaction2.data);
+//         expect(events.dispatch).toBeCalledWith("block.reverted", block.data);
+//     });
+// });
