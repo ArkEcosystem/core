@@ -262,24 +262,23 @@ describe("DatabaseInteraction.applyBlock", () => {
     });
 });
 
-// describe("DatabaseInteraction.revertBlock", () => {
-//     it("should revert state, and fire events", async () => {
-//         const databaseInteraction: DatabaseInteraction = container.resolve(DatabaseInteraction);
-//
-//         const transaction1 = { data: {} };
-//         const transaction2 = { data: {} };
-//         const block = {
-//             data: { id: "123", height: 100 },
-//             transactions: [transaction1, transaction2],
-//         };
-//         // @ts-ignore
-//         databaseInteraction.blocksInCurrentRound = [block as any];
-//
-//         await databaseInteraction.revertBlock(block as any);
-//
-//         expect(blockState.revertBlock).toBeCalledWith(block);
-//         expect(events.dispatch).toBeCalledWith("transaction.reverted", transaction1.data);
-//         expect(events.dispatch).toBeCalledWith("transaction.reverted", transaction2.data);
-//         expect(events.dispatch).toBeCalledWith("block.reverted", block.data);
-//     });
-// });
+describe("DatabaseInteraction.revertBlock", () => {
+    it("should revert state, and fire events", async () => {
+        const databaseInteraction: DatabaseInteraction = container.resolve(DatabaseInteraction);
+
+        const transaction1 = { data: {} };
+        const transaction2 = { data: {} };
+        const block = {
+            data: { id: "123", height: 100 },
+            transactions: [transaction1, transaction2],
+        };
+        roundState.popBlock = jest.fn().mockReturnValue(block);
+
+        await databaseInteraction.revertBlock(block as any);
+
+        expect(blockState.revertBlock).toBeCalledWith(block);
+        expect(events.dispatch).toBeCalledWith(Enums.TransactionEvent.Reverted, transaction1.data);
+        expect(events.dispatch).toBeCalledWith(Enums.TransactionEvent.Reverted, transaction2.data);
+        expect(events.dispatch).toBeCalledWith(Enums.BlockEvent.Reverted, block.data);
+    });
+});
