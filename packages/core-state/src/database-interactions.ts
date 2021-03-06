@@ -65,10 +65,7 @@ export class DatabaseInteraction {
         await this.roundState.detectMissedBlocks(block);
 
         await this.blockState.applyBlock(block);
-
-        this.roundState.pushBlock(block);
-
-        await this.roundState.applyRound(block.data.height);
+        await this.roundState.applyBlock(block);
 
         for (const transaction of block.transactions) {
             await this.emitTransactionEvents(transaction);
