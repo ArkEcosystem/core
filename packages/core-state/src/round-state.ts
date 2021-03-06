@@ -138,7 +138,7 @@ export class RoundState {
             this.logger.info(`Starting Round ${roundInfo.round.toLocaleString()}`);
 
             try {
-                this.detectMissedRound(this.forgingDelegates);
+                this.detectMissedRound();
 
                 this.dposState.buildDelegateRanking();
                 this.dposState.setDelegatesRound(roundInfo);
@@ -180,14 +180,8 @@ export class RoundState {
         }
     }
 
-    private detectMissedRound(delegates: Contracts.State.Wallet[]): void {
-        if (!delegates || !this.blocksInCurrentRound.length) {
-            // ! this.blocksInCurrentRound is impossible
-            // ! otherwise this.blocksInCurrentRound!.length = 0 in applyRound will throw
-            return;
-        }
-
-        for (const delegate of delegates) {
+    private detectMissedRound(): void {
+        for (const delegate of this.forgingDelegates) {
             const isBlockProduced = this.blocksInCurrentRound.some(
                 (blockGenerator) => blockGenerator.data.generatorPublicKey === delegate.publicKey,
             );
