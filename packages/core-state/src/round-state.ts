@@ -44,7 +44,11 @@ export class RoundState {
     }
 
     public async revertBlock(block: Interfaces.IBlock): Promise<void> {
-        // TODO: Handle round change where blocksInCurrentRound is empty
+        if (!this.blocksInCurrentRound.length) {
+            await this.getBlocksForRound();
+            await this.initializeActiveDelegates(this.stateStore.getLastBlock().data.height);
+        }
+
         assert(this.blocksInCurrentRound.pop()!.data.id === block.data.id);
 
         await this.revertRound(block.data.height);
