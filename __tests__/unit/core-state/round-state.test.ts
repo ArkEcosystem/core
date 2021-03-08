@@ -613,5 +613,90 @@ describe("RoundState", () => {
         });
 
         // TODO: Check genesisBlock if required
+
+        // TODO: Should throw error on error with DB connection
+    });
+
+    describe("revertBlock", () => {
+        it("should remove last block from blocksInCurrentRound when block is in the same round", async () => {
+            const block = {
+                data: {
+                    height: 52, // First block of round 2
+                },
+            } as any;
+
+            // @ts-ignore
+            roundState.blocksInCurrentRound = [block];
+
+            await roundState.revertBlock(block);
+
+            // @ts-ignore
+            expect(roundState.blocksInCurrentRound).toEqual([]);
+            expect(databaseService.deleteRound).not.toHaveBeenCalled();
+        });
+
+        it("should restore previous round, load previousRoundBlocks and delegates, remove last round from DB and remove last block from blocksInCurrentRound if block is last in round", async () => {
+            const blocksInPreviousRound: any[] = [];
+
+            for (let i = 1; i <= 51; i++) {
+                // @ts-ignore
+                blocksInPreviousRound.push({
+                    data: {
+                        height: i,
+                        id: "id_" + i,
+                        generatorPublicKey: "public_key_" + i,
+                    },
+                } as any);
+            }
+
+            const delegates: any[] = [];
+            for (let i = 1; i <= 51; i++) {
+                const delegete = {
+                    publicKey: "public_key_" + i,
+                    getAttribute: jest.fn().mockReturnValue("username_" + 1),
+                    balance: 1,
+                } as any;
+
+                delegete.clone = () => {
+                    return delegete;
+                };
+                delegates.push(delegete);
+            }
+
+            const spyOnGetActiveDelegates = jest.spyOn(roundState, "getActiveDelegates").mockResolvedValue(delegates);
+            // @ts-ignore
+            const spyOnFromData = jest.spyOn(Blocks.BlockFactory, "fromData").mockImplementation((block) => {
+                return block;
+            });
+
+            const block = blocksInPreviousRound[50];
+
+            stateStore.getLastBlocksByHeight.mockReturnValue(blocksInPreviousRound);
+            stateStore.getLastBlock.mockReturnValue(block);
+
+            getDposPreviousRoundState.mockReturnValue({
+                getAllDelegates: jest.fn().mockReturnValue(delegates),
+                getRoundDelegates: jest.fn().mockReturnValue(delegates),
+            });
+
+            triggerService.call.mockImplementation((name, args) => {
+                return roundState.getActiveDelegates(args.roundInfo, args.delegates);
+            });
+
+            // @ts-ignore
+            expect(roundState.blocksInCurrentRound).toEqual([]);
+
+            await roundState.revertBlock(block);
+
+            expect(spyOnGetActiveDelegates).toHaveBeenCalled();
+            expect(spyOnFromData).toHaveBeenCalledTimes(51);
+            expect(databaseService.deleteRound).toHaveBeenCalledWith(2);
+            // @ts-ignore
+            expect(roundState.blocksInCurrentRound.length).toEqual(50);
+        });
+
+        // TODO: Should throw error on error with DB connection
+
+        // TODO: Should throw error if last block is not the same
     });
 });

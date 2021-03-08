@@ -45,13 +45,22 @@ export class RoundState {
 
     public async revertBlock(block: Interfaces.IBlock): Promise<void> {
         if (!this.blocksInCurrentRound.length) {
-            await this.getBlocksForRound();
-            await this.initializeActiveDelegates(this.stateStore.getLastBlock().data.height);
+            this.blocksInCurrentRound = await this.getBlocksForRound();
         }
 
         assert(this.blocksInCurrentRound.pop()!.data.id === block.data.id);
 
         await this.revertRound(block.data.height);
+    }
+
+    public async restore(): Promise<void> {
+        const block = this.stateStore.getLastBlock();
+
+        await this.getBlocksForRound();
+        await this.initializeActiveDelegates(block.data.height);
+
+
+        // await this.applyRound(block.data.height);
     }
 
     // TODO: Handle revert with any block eg. revert top blocks
@@ -173,8 +182,6 @@ export class RoundState {
         if (nextRound === round + 1) {
             this.logger.info(`Back to previous round: ${round.toLocaleString()}`);
 
-            this.blocksInCurrentRound = await this.getBlocksForRound(roundInfo);
-
             await this.setForgingDelegatesOfRound(
                 roundInfo,
                 await this.calcPreviousActiveDelegates(roundInfo, this.blocksInCurrentRound),
@@ -209,9 +216,9 @@ export class RoundState {
             roundInfo = AppUtils.roundCalculator.calculateRound(this.stateStore.getLastBlock().data.height);
         }
 
-        if (roundInfo.round === 1) {
-            return [this.stateStore.getGenesisBlock()];
-        }
+        // if (roundInfo.round === 1) {
+        //     return [this.stateStore.getGenesisBlock()];
+        // }
 
         let blocks = this.stateStore.getLastBlocksByHeight(
             roundInfo.roundHeight,
@@ -274,13 +281,15 @@ export class RoundState {
         blocks: Interfaces.IBlock[],
     ): Promise<Contracts.State.Wallet[]> {
         const prevRoundState = await this.getDposPreviousRoundState(blocks, roundInfo);
-        for (const prevRoundDelegateWallet of prevRoundState.getAllDelegates()) {
-            // ! name suggest that this is pure function
-            // ! when in fact it is manipulating current wallet repository setting delegate ranks
-            const username = prevRoundDelegateWallet.getAttribute("delegate.username");
-            const delegateWallet = this.walletRepository.findByUsername(username);
-            delegateWallet.setAttribute("delegate.rank", prevRoundDelegateWallet.getAttribute("delegate.rank"));
-        }
+
+        // TODO: Move to Dpos
+        // for (const prevRoundDelegateWallet of prevRoundState.getAllDelegates()) {
+        //     // ! name suggest that this is pure function
+        //     // ! when in fact it is manipulating current wallet repository setting delegate ranks
+        //     const username = prevRoundDelegateWallet.getAttribute("delegate.username");
+        //     const delegateWallet = this.walletRepository.findByUsername(username);
+        //     delegateWallet.setAttribute("delegate.rank", prevRoundDelegateWallet.getAttribute("delegate.rank"));
+        // }
 
         // ! return readonly array instead of taking slice
         return prevRoundState.getRoundDelegates().slice();
