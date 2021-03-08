@@ -79,51 +79,58 @@ afterEach(() => {
 
 describe("RoundState", () => {
     describe("getBlocksForRound", () => {
-        it("should return array with genesis block only when round 1 is requested", async () => {
-            const lastBlock = { data: { height: 1 } };
-            stateStore.getGenesisBlock.mockReturnValueOnce(lastBlock);
+        let blocks: any[];
 
-            const roundInfo = { round: 1, roundHeight: 1, maxDelegates: 51 };
-            // @ts-ignore
-            const result = await roundState.getBlocksForRound(roundInfo as any);
+        beforeEach(() => {
+            blocks = [];
 
-            expect(stateStore.getGenesisBlock).toBeCalled();
-            expect(result).toEqual([lastBlock]);
+            for (let i = 1; i <= 3; i++) {
+                blocks.push({
+                    data: {
+                        height: i,
+                        id: "id_" + i,
+                        generatorPublicKey: "public_key_" + i,
+                    },
+                } as any);
+            }
         });
 
-        it("should return array with genesis block only when last block is genesis blocks", async () => {
-            const lastBlock = { data: { height: 1 } };
-            stateStore.getLastBlock.mockReturnValueOnce(lastBlock);
-            stateStore.getGenesisBlock.mockReturnValueOnce(lastBlock);
+        it("should return array of blocks when all requested blocks are in stateStore", async () => {
+            const lastBlock = blocks[2];
 
-            // @ts-ignore
-            const result = await roundState.getBlocksForRound();
+            stateStore.getLastBlock.mockReturnValue(lastBlock);
+            stateStore.getLastBlocksByHeight.mockReturnValue(blocks);
 
-            expect(stateStore.getLastBlock).toBeCalled();
-            expect(stateStore.getGenesisBlock).toBeCalled();
-            expect(result).toEqual([lastBlock]);
-        });
-
-        // TODO: Check with blocks from stateStore
-        it("should return array of blocks by round", async () => {
-            stateStore.getLastBlocksByHeight = jest.fn().mockReturnValue([]);
             // @ts-ignore
             const spyOnFromData = jest.spyOn(Blocks.BlockFactory, "fromData").mockImplementation((block) => {
                 return block;
             });
 
-            const blocks = Array(51).fill({ data: { height: 2 } });
-            databaseService.getBlocks.mockReturnValueOnce(blocks);
-
-            const roundInfo = { round: 2, roundHeight: 2, nextRound: 3, maxDelegates: 51 };
             // @ts-ignore
-            const result = await roundState.getBlocksForRound(roundInfo);
+            await expect(roundState.getBlocksForRound()).resolves.toEqual(blocks);
 
-            expect(databaseService.getBlocks).toBeCalledWith(2, 52);
-            expect(spyOnFromData).toBeCalledTimes(51);
-            expect(result).toEqual(blocks);
+            await expect(stateStore.getLastBlocksByHeight).toHaveBeenCalledWith(1, 3);
+            await expect(spyOnFromData).toHaveBeenCalledTimes(3);
+        });
 
-            spyOnFromData.mockClear();
+        it("should return array of blocks when only last block is in stateStore", async () => {
+            const lastBlock = blocks[2];
+
+            stateStore.getLastBlock.mockReturnValue(lastBlock);
+            stateStore.getLastBlocksByHeight.mockReturnValue([lastBlock]);
+            databaseService.getBlocks.mockResolvedValue(blocks.slice(0, 2));
+
+            // @ts-ignore
+            const spyOnFromData = jest.spyOn(Blocks.BlockFactory, "fromData").mockImplementation((block) => {
+                return block;
+            });
+
+            // @ts-ignore
+            await expect(roundState.getBlocksForRound()).resolves.toEqual(blocks);
+
+            await expect(stateStore.getLastBlocksByHeight).toHaveBeenCalledWith(1, 3);
+            await expect(databaseService.getBlocks).toHaveBeenCalledWith(1, 2);
+            await expect(spyOnFromData).toHaveBeenCalledTimes(3);
         });
     });
 
@@ -222,45 +229,45 @@ describe("RoundState", () => {
         });
     });
 
-    describe("revertRound", () => {
-        it("should revert, and delete round when reverting to previous round", async () => {
-            const lastBlock = Blocks.BlockFactory.fromData(block1760000);
-            // @ts-ignore
-            jest.spyOn(roundState, "getBlocksForRound").mockResolvedValue([lastBlock.data]);
-
-            const prevRoundState = { getAllDelegates: jest.fn(), getRoundDelegates: jest.fn(), revert: jest.fn() };
-            getDposPreviousRoundState.mockReturnValueOnce(prevRoundState).mockReturnValueOnce(prevRoundState);
-
-            const prevRoundDelegateWallet = { getAttribute: jest.fn() };
-            const prevRoundDposStateAllDelegates = [prevRoundDelegateWallet];
-            prevRoundState.getAllDelegates.mockReturnValueOnce(prevRoundDposStateAllDelegates);
-
-            const prevRoundDelegateUsername = "test_delegate";
-            prevRoundDelegateWallet.getAttribute.mockReturnValueOnce(prevRoundDelegateUsername);
-
-            const delegateWallet = { setAttribute: jest.fn(), getAttribute: jest.fn() };
-            walletRepository.findByUsername.mockReturnValueOnce(delegateWallet);
-
-            const prevRoundDelegateRank = 1;
-            prevRoundDelegateWallet.getAttribute.mockReturnValueOnce(prevRoundDelegateRank);
-
-            const prevRoundDposStateRoundDelegates = [prevRoundDelegateWallet];
-            prevRoundState.getRoundDelegates.mockReturnValueOnce(prevRoundDposStateRoundDelegates);
-
-            const forgingDelegates = [delegateWallet];
-            triggerService.call.mockResolvedValue(forgingDelegates);
-
-            // @ts-ignore
-            await roundState.revertRound(51);
-
-            expect(getDposPreviousRoundState).toBeCalled();
-            expect(walletRepository.findByUsername).toBeCalledWith(prevRoundDelegateUsername);
-            expect(delegateWallet.setAttribute).toBeCalledWith("delegate.rank", prevRoundDelegateRank);
-            // @ts-ignore
-            expect(roundState.forgingDelegates).toEqual(forgingDelegates);
-            expect(databaseService.deleteRound).toBeCalledWith(2);
-        });
-    });
+    // describe("revertRound", () => {
+    //     it("should revert, and delete round when reverting to previous round", async () => {
+    //         const lastBlock = Blocks.BlockFactory.fromData(block1760000);
+    //         // @ts-ignore
+    //         jest.spyOn(roundState, "getBlocksForRound").mockResolvedValue([lastBlock.data]);
+    //
+    //         const prevRoundState = { getAllDelegates: jest.fn(), getRoundDelegates: jest.fn(), revert: jest.fn() };
+    //         getDposPreviousRoundState.mockReturnValueOnce(prevRoundState).mockReturnValueOnce(prevRoundState);
+    //
+    //         const prevRoundDelegateWallet = { getAttribute: jest.fn() };
+    //         const prevRoundDposStateAllDelegates = [prevRoundDelegateWallet];
+    //         prevRoundState.getAllDelegates.mockReturnValueOnce(prevRoundDposStateAllDelegates);
+    //
+    //         const prevRoundDelegateUsername = "test_delegate";
+    //         prevRoundDelegateWallet.getAttribute.mockReturnValueOnce(prevRoundDelegateUsername);
+    //
+    //         const delegateWallet = { setAttribute: jest.fn(), getAttribute: jest.fn() };
+    //         walletRepository.findByUsername.mockReturnValueOnce(delegateWallet);
+    //
+    //         const prevRoundDelegateRank = 1;
+    //         prevRoundDelegateWallet.getAttribute.mockReturnValueOnce(prevRoundDelegateRank);
+    //
+    //         const prevRoundDposStateRoundDelegates = [prevRoundDelegateWallet];
+    //         prevRoundState.getRoundDelegates.mockReturnValueOnce(prevRoundDposStateRoundDelegates);
+    //
+    //         const forgingDelegates = [delegateWallet];
+    //         triggerService.call.mockResolvedValue(forgingDelegates);
+    //
+    //         // @ts-ignore
+    //         await roundState.revertRound(51);
+    //
+    //         expect(getDposPreviousRoundState).toBeCalled();
+    //         expect(walletRepository.findByUsername).toBeCalledWith(prevRoundDelegateUsername);
+    //         expect(delegateWallet.setAttribute).toBeCalledWith("delegate.rank", prevRoundDelegateRank);
+    //         // @ts-ignore
+    //         expect(roundState.forgingDelegates).toEqual(forgingDelegates);
+    //         expect(databaseService.deleteRound).toBeCalledWith(2);
+    //     });
+    // });
 
     describe("detectMissedBlocks", () => {
         const genesisBlocks = {
@@ -699,4 +706,34 @@ describe("RoundState", () => {
 
         // TODO: Should throw error if last block is not the same
     });
+
+    // describe("restore", () => {
+    //     it("should restore blocksInCurrentRound and forgingDelegates when last block in middle of round", async () => {
+    //         const blocks: any[] = [];
+    //
+    //         for (let i = 1; i <= 3; i++) {
+    //             // @ts-ignore
+    //             blocks.push({
+    //                 data: {
+    //                     height: i,
+    //                     id: "id_" + i,
+    //                     generatorPublicKey: "public_key_" + i,
+    //                 },
+    //             } as any);
+    //         }
+    //
+    //         const lastBlock = blocks[2];
+    //
+    //         stateStore.getLastBlock.mockReturnValue(lastBlock);
+    //         stateStore.getLastBlocksByHeight.mockReturnValue(blocks);
+    //
+    //         databaseService.getBlocks.mockResolvedValue(blocks.slice(0, 2));
+    //
+    //         await roundState.restore();
+    //     });
+    //
+    //     it("should restore blocksInCurrentRound and forgingDelegates when last block is lastBlock of round", () => {});
+    //
+    //     // TODO: Should throw error on error with DB connection
+    // });
 });
