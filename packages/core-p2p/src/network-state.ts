@@ -56,8 +56,8 @@ class QuorumDetails {
 
 // todo: review the implementation
 export class NetworkState implements Contracts.P2P.NetworkState {
-    public nodeHeight: number | undefined;
-    public lastBlockId: string | undefined;
+    private nodeHeight?: number;
+    private lastBlockId?: string;
     private quorumDetails: QuorumDetails;
 
     public constructor(public readonly status: NetworkStateStatus, lastBlock?: Interfaces.IBlock) {
@@ -101,7 +101,7 @@ export class NetworkState implements Contracts.P2P.NetworkState {
             return new NetworkState(NetworkStateStatus.BelowMinimumPeers, lastBlock);
         }
 
-        return await this.analyzeNetwork(lastBlock, peers, blockTimeLookup);
+        return this.analyzeNetwork(lastBlock, peers, blockTimeLookup);
     }
 
     public static parse(data: any): Contracts.P2P.NetworkState {
@@ -132,9 +132,12 @@ export class NetworkState implements Contracts.P2P.NetworkState {
         return networkState;
     }
 
-    public setLastBlock(lastBlock: Interfaces.IBlock): void {
-        this.nodeHeight = lastBlock.data.height;
-        this.lastBlockId = lastBlock.data.id;
+    public getNodeHeight(): number | undefined {
+        return this.nodeHeight;
+    }
+
+    public getLastBlockId(): string | undefined {
+        return this.lastBlockId;
     }
 
     public getQuorum(): number {
@@ -155,6 +158,11 @@ export class NetworkState implements Contracts.P2P.NetworkState {
         delete data.status;
 
         return JSON.stringify(data, undefined, 2);
+    }
+
+    private setLastBlock(lastBlock: Interfaces.IBlock): void {
+        this.nodeHeight = lastBlock.data.height;
+        this.lastBlockId = lastBlock.data.id;
     }
 
     private update(peer: Contracts.P2P.Peer, currentSlot: number): void {
