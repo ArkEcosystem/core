@@ -38,6 +38,10 @@ export class RoundState {
     private forgingDelegates: Contracts.State.Wallet[] = [];
 
     public async applyBlock(block: Interfaces.IBlock): Promise<void> {
+        if (!this.forgingDelegates.length) {
+            throw new Error("Round state is not initialized.");
+        }
+
         this.blocksInCurrentRound.push(block);
 
         await this.applyRound(block.data.height);
@@ -63,11 +67,6 @@ export class RoundState {
         await this.databaseService.deleteRound(roundInfo.round + 1);
 
         await this.applyRound(block.data.height);
-    }
-
-    public async loadBlocksFromCurrentRound(): Promise<void> {
-        // ! this should not be public, this.blocksInCurrentRound is used by DatabaseService only
-        this.blocksInCurrentRound = await this.getBlocksForRound();
     }
 
     public async restoreCurrentRound(height: number): Promise<void> {

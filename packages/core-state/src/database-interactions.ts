@@ -53,7 +53,6 @@ export class DatabaseInteraction {
             }
 
             await this.initializeLastBlock();
-            await this.roundState.loadBlocksFromCurrentRound();
         } catch (error) {
             this.logger.error(error.stack);
             this.app.terminate("Failed to initialize database service.", error);
@@ -82,10 +81,6 @@ export class DatabaseInteraction {
         }
 
         this.events.dispatch(Enums.BlockEvent.Reverted, block.data);
-    }
-
-    public async loadBlocksFromCurrentRound(): Promise<void> {
-        await this.roundState.loadBlocksFromCurrentRound();
     }
 
     public async restoreCurrentRound(): Promise<void> {
