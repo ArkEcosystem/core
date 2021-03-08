@@ -707,33 +707,105 @@ describe("RoundState", () => {
         // TODO: Should throw error if last block is not the same
     });
 
-    // describe("restore", () => {
-    //     it("should restore blocksInCurrentRound and forgingDelegates when last block in middle of round", async () => {
-    //         const blocks: any[] = [];
-    //
-    //         for (let i = 1; i <= 3; i++) {
-    //             // @ts-ignore
-    //             blocks.push({
-    //                 data: {
-    //                     height: i,
-    //                     id: "id_" + i,
-    //                     generatorPublicKey: "public_key_" + i,
-    //                 },
-    //             } as any);
-    //         }
-    //
-    //         const lastBlock = blocks[2];
-    //
-    //         stateStore.getLastBlock.mockReturnValue(lastBlock);
-    //         stateStore.getLastBlocksByHeight.mockReturnValue(blocks);
-    //
-    //         databaseService.getBlocks.mockResolvedValue(blocks.slice(0, 2));
-    //
-    //         await roundState.restore();
-    //     });
-    //
-    //     it("should restore blocksInCurrentRound and forgingDelegates when last block is lastBlock of round", () => {});
-    //
-    //     // TODO: Should throw error on error with DB connection
-    // });
+    describe("restore", () => {
+        it("should restore blocksInCurrentRound and forgingDelegates when last block in middle of round", async () => {
+            const delegates: any[] = [];
+            for (let i = 1; i <= 51; i++) {
+                delegates.push({
+                    publicKey: "public_key_" + i,
+                    getAttribute: jest.fn().mockReturnValue("username_" + 1),
+                    balance: 1,
+                });
+            }
+
+            const blocks: any[] = [];
+            for (let i = 1; i <= 3; i++) {
+                blocks.push({
+                    data: {
+                        height: i,
+                        id: "id_" + i,
+                        generatorPublicKey: "public_key_" + i,
+                    },
+                } as any);
+            }
+
+            const lastBlock = blocks[2];
+
+            stateStore.getLastBlock.mockReturnValue(lastBlock);
+            stateStore.getLastBlocksByHeight.mockReturnValue(blocks);
+            // @ts-ignore
+            const spyOnFromData = jest.spyOn(Blocks.BlockFactory, "fromData").mockImplementation((block) => {
+                return block;
+            });
+            triggerService.call.mockResolvedValue(delegates);
+
+            // @ts-ignore
+            expect(roundState.blocksInCurrentRound).toEqual([]);
+            // @ts-ignore
+            expect(roundState.forgingDelegates).toEqual([]);
+
+            await roundState.restore();
+
+            expect(spyOnFromData).toHaveBeenCalledTimes(3);
+            expect(databaseService.deleteRound).toHaveBeenCalledWith(2);
+
+            // @ts-ignore
+            expect(roundState.blocksInCurrentRound).toEqual(blocks);
+            // @ts-ignore
+            expect(roundState.forgingDelegates).toEqual(delegates);
+        });
+
+        it("should restore blocksInCurrentRound and forgingDelegates when last block is lastBlock of round", async () => {
+            const delegates: any[] = [];
+            for (let i = 1; i <= 51; i++) {
+                delegates.push({
+                    publicKey: "public_key_" + i,
+                    getAttribute: jest.fn().mockReturnValue("username_" + 1),
+                    balance: 1,
+                });
+            }
+
+            const blocks: any[] = [];
+            for (let i = 1; i <= 51; i++) {
+                blocks.push({
+                    data: {
+                        height: i,
+                        id: "id_" + i,
+                        generatorPublicKey: "public_key_" + i,
+                    },
+                } as any);
+            }
+
+            const lastBlock = blocks[50];
+
+            stateStore.getLastBlock.mockReturnValue(lastBlock);
+            stateStore.getLastBlocksByHeight.mockReturnValue(blocks);
+            // @ts-ignore
+            const spyOnFromData = jest.spyOn(Blocks.BlockFactory, "fromData").mockImplementation((block) => {
+                return block;
+            });
+            dposState.getRoundDelegates.mockReturnValue(delegates);
+            triggerService.call.mockResolvedValue(delegates);
+
+            // @ts-ignore
+            expect(roundState.blocksInCurrentRound).toEqual([]);
+            // @ts-ignore
+            expect(roundState.forgingDelegates).toEqual([]);
+
+            await roundState.restore();
+
+            expect(databaseService.deleteRound).toHaveBeenCalledWith(2);
+            expect(databaseService.saveRound).toHaveBeenCalledWith(delegates);
+            expect(spyOnFromData).toHaveBeenCalledTimes(51);
+
+            expect(eventDispatcher.dispatch).toHaveBeenCalledWith(Enums.RoundEvent.Applied);
+
+            // @ts-ignore
+            expect(roundState.blocksInCurrentRound).toEqual([]);
+            // @ts-ignore
+            expect(roundState.forgingDelegates).toEqual(delegates);
+        });
+
+        // TODO: Should throw error on error with DB connection
+    });
 });
