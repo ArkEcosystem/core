@@ -274,13 +274,13 @@ export class RoundState {
         const prevRoundState = await this.getDposPreviousRoundState(blocks, roundInfo);
 
         // TODO: Move to Dpos
-        // for (const prevRoundDelegateWallet of prevRoundState.getAllDelegates()) {
-        //     // ! name suggest that this is pure function
-        //     // ! when in fact it is manipulating current wallet repository setting delegate ranks
-        //     const username = prevRoundDelegateWallet.getAttribute("delegate.username");
-        //     const delegateWallet = this.walletRepository.findByUsername(username);
-        //     delegateWallet.setAttribute("delegate.rank", prevRoundDelegateWallet.getAttribute("delegate.rank"));
-        // }
+        for (const prevRoundDelegateWallet of prevRoundState.getAllDelegates()) {
+            // ! name suggest that this is pure function
+            // ! when in fact it is manipulating current wallet repository setting delegate ranks
+            const username = prevRoundDelegateWallet.getAttribute("delegate.username");
+            const delegateWallet = this.walletRepository.findByUsername(username);
+            delegateWallet.setAttribute("delegate.rank", prevRoundDelegateWallet.getAttribute("delegate.rank"));
+        }
 
         // ! return readonly array instead of taking slice
         return prevRoundState.getRoundDelegates().slice();

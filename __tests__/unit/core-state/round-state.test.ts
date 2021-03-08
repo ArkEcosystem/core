@@ -660,8 +660,8 @@ describe("RoundState", () => {
             for (let i = 1; i <= 51; i++) {
                 const delegete = {
                     publicKey: "public_key_" + i,
-                    getAttribute: jest.fn().mockReturnValue("username_" + 1),
                     balance: 1,
+                    getAttribute: jest.fn().mockReturnValue("username_" + 1),
                 } as any;
 
                 delegete.clone = () => {
@@ -670,7 +670,6 @@ describe("RoundState", () => {
                 delegates.push(delegete);
             }
 
-            const spyOnGetActiveDelegates = jest.spyOn(roundState, "getActiveDelegates").mockResolvedValue(delegates);
             // @ts-ignore
             const spyOnFromData = jest.spyOn(Blocks.BlockFactory, "fromData").mockImplementation((block) => {
                 return block;
@@ -686,16 +685,17 @@ describe("RoundState", () => {
                 getRoundDelegates: jest.fn().mockReturnValue(delegates),
             });
 
-            triggerService.call.mockImplementation((name, args) => {
-                return roundState.getActiveDelegates(args.roundInfo, args.delegates);
-            });
+            const spyOnCalcPreviousActiveDelegates = jest
+                // @ts-ignore
+                .spyOn(roundState, "calcPreviousActiveDelegates")
+                .mockReturnValue(delegates);
 
             // @ts-ignore
             expect(roundState.blocksInCurrentRound).toEqual([]);
 
             await roundState.revertBlock(block);
 
-            expect(spyOnGetActiveDelegates).toHaveBeenCalled();
+            expect(spyOnCalcPreviousActiveDelegates).toHaveBeenCalledTimes(1);
             expect(spyOnFromData).toHaveBeenCalledTimes(51);
             expect(databaseService.deleteRound).toHaveBeenCalledWith(2);
             // @ts-ignore
@@ -760,8 +760,8 @@ describe("RoundState", () => {
             for (let i = 1; i <= 51; i++) {
                 delegates.push({
                     publicKey: "public_key_" + i,
-                    getAttribute: jest.fn().mockReturnValue("username_" + 1),
                     balance: 1,
+                    getAttribute: jest.fn().mockReturnValue("username_" + 1),
                 });
             }
 
