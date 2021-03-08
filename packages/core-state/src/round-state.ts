@@ -141,13 +141,15 @@ export class RoundState {
 
             this.logger.info(`Starting Round ${roundInfo.round.toLocaleString()}`);
 
+            this.detectMissedRound();
+
+            this.dposState.buildDelegateRanking();
+            this.dposState.setDelegatesRound(roundInfo);
+
+            await this.setForgingDelegatesOfRound(roundInfo, this.dposState.getRoundDelegates().slice());
+
+            // TODO: Handle saveRound fail
             try {
-                this.detectMissedRound();
-
-                this.dposState.buildDelegateRanking();
-                this.dposState.setDelegatesRound(roundInfo);
-
-                await this.setForgingDelegatesOfRound(roundInfo, this.dposState.getRoundDelegates().slice());
                 await this.databaseService.saveRound(this.dposState.getRoundDelegates());
 
                 this.blocksInCurrentRound = [];
