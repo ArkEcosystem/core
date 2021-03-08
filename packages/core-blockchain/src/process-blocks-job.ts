@@ -200,8 +200,9 @@ export class ProcessBlocksJob implements Contracts.Kernel.QueueJob {
             }
         }
 
+        // TODO: Remove, because next rounds are deleted on restore
         await this.database.deleteRound(deleteRoundsAfter + 1);
-        await this.databaseInteraction.loadBlocksFromCurrentRound();
+        await this.databaseInteraction.restoreCurrentRound();
 
         this.blockchain.clearQueue();
         this.blockchain.resetLastDownloadedBlock();
