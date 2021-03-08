@@ -99,7 +99,7 @@ describe("Blockchain", () => {
 
         databaseInteractions.getTopBlocks = jest.fn();
         databaseInteractions.getLastBlock = jest.fn();
-        databaseInteractions.loadBlocksFromCurrentRound = jest.fn();
+        databaseInteractions.restoreCurrentRound = jest.fn();
         databaseInteractions.revertBlock = jest.fn();
         databaseInteractions.deleteRound = jest.fn();
         databaseInteractions.getActiveDelegates = jest.fn().mockReturnValue([]);
@@ -707,7 +707,7 @@ describe("Blockchain", () => {
                 await blockchain.removeTopBlocks(numberOfBlocks);
 
                 expect(blockRepository.deleteTopBlocks).toHaveBeenLastCalledWith(numberOfBlocks);
-                expect(databaseInteractions.loadBlocksFromCurrentRound).toHaveBeenCalled();
+                expect(databaseInteractions.restoreCurrentRound).toHaveBeenCalled();
             },
         );
     });
