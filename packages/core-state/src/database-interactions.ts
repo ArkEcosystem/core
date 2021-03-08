@@ -88,8 +88,8 @@ export class DatabaseInteraction {
         await this.roundState.loadBlocksFromCurrentRound();
     }
 
-    public async restoreCurrentRound(height: number): Promise<void> {
-        await this.roundState.restoreCurrentRound(height);
+    public async restoreCurrentRound(): Promise<void> {
+        await this.roundState.restore();
     }
 
     // TODO: Remove
