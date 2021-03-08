@@ -95,14 +95,10 @@ const logger = {
     debug: jest.fn(),
 };
 const roundState = {
-    pushBlock: jest.fn(),
-    popBlock: jest.fn(),
-    loadBlocksFromCurrentRound: jest.fn(),
+    applyBlock: jest.fn(),
+    revertBlock: jest.fn(),
     getActiveDelegates: jest.fn(),
-    getBlocksForRound: jest.fn(),
-    restoreCurrentRound: jest.fn(),
-    applyRound: jest.fn(),
-    revertRound: jest.fn(),
+    restore: jest.fn(),
     detectMissedBlocks: jest.fn(),
 };
 
@@ -252,10 +248,9 @@ describe("DatabaseInteraction.applyBlock", () => {
         await databaseInteraction.applyBlock(block as any);
 
         expect(roundState.detectMissedBlocks).toBeCalledWith(block);
-        expect(roundState.pushBlock).toBeCalledWith(block);
-        expect(roundState.applyRound).toBeCalledWith(block.data.height);
 
         expect(blockState.applyBlock).toBeCalledWith(block);
+        expect(roundState.applyBlock).toBeCalledWith(block);
         expect(handler.emitEvents).toBeCalledWith(transaction, events);
         expect(events.dispatch).toBeCalledWith(Enums.TransactionEvent.Applied, transaction.data);
         expect(events.dispatch).toBeCalledWith(Enums.BlockEvent.Applied, block.data);
@@ -272,11 +267,11 @@ describe("DatabaseInteraction.revertBlock", () => {
             data: { id: "123", height: 100 },
             transactions: [transaction1, transaction2],
         };
-        roundState.popBlock = jest.fn().mockReturnValue(block);
 
         await databaseInteraction.revertBlock(block as any);
 
         expect(blockState.revertBlock).toBeCalledWith(block);
+        expect(roundState.revertBlock).toBeCalledWith(block);
         expect(events.dispatch).toBeCalledWith(Enums.TransactionEvent.Reverted, transaction1.data);
         expect(events.dispatch).toBeCalledWith(Enums.TransactionEvent.Reverted, transaction2.data);
         expect(events.dispatch).toBeCalledWith(Enums.BlockEvent.Reverted, block.data);
