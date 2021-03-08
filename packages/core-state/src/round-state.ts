@@ -60,11 +60,10 @@ export class RoundState {
         this.blocksInCurrentRound = await this.getBlocksForRound();
         await this.setForgingDelegatesOfRound(roundInfo);
 
-        // TODO: maybe applyRound
-        // TODO: delete rounds above
-    }
+        await this.databaseService.deleteRound(roundInfo.round + 1);
 
-    // TODO: Handle revert with any block eg. revert top blocks
+        await this.applyRound(block.data.height);
+    }
 
     public async loadBlocksFromCurrentRound(): Promise<void> {
         // ! this should not be public, this.blocksInCurrentRound is used by DatabaseService only
@@ -147,7 +146,6 @@ export class RoundState {
     private async applyRound(height: number): Promise<void> {
         if (height === 1 || AppUtils.roundCalculator.isNewRound(height + 1)) {
             const roundInfo: Contracts.Shared.RoundInfo = AppUtils.roundCalculator.calculateRound(height + 1);
-            const { round } = roundInfo;
 
             this.logger.info(`Starting Round ${roundInfo.round.toLocaleString()}`);
 
@@ -158,21 +156,11 @@ export class RoundState {
 
             await this.setForgingDelegatesOfRound(roundInfo, this.dposState.getRoundDelegates().slice());
 
-            // TODO: Handle saveRound fail
-            try {
-                await this.databaseService.saveRound(this.dposState.getRoundDelegates());
+            await this.databaseService.saveRound(this.dposState.getRoundDelegates());
 
-                this.blocksInCurrentRound = [];
+            this.blocksInCurrentRound = [];
 
-                this.events.dispatch(Enums.RoundEvent.Applied);
-            } catch (error) {
-                // trying to leave database state has it was
-                // ! this.saveRound may not have been called
-                // ! try should be moved below await this.setForgingDelegatesOfRound
-                await this.databaseService.deleteRound(round);
-
-                throw error;
-            }
+            this.events.dispatch(Enums.RoundEvent.Applied);
         }
     }
 
