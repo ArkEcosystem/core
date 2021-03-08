@@ -170,6 +170,7 @@ export class RoundState {
         if (nextRound === round + 1) {
             this.logger.info(`Back to previous round: ${round.toLocaleString()}`);
 
+            // TODO: Check round 1 special case. Delegates are in genesis block
             await this.setForgingDelegatesOfRound(
                 roundInfo,
                 await this.calcPreviousActiveDelegates(roundInfo, this.blocksInCurrentRound),
