@@ -1,9 +1,9 @@
-import { Container, Enums, Utils } from "@arkecosystem/core-kernel";
-import { NetworkMonitor } from "@arkecosystem/core-p2p/src/network-monitor";
-import { NetworkState } from "@arkecosystem/core-p2p/src/network-state";
-import { Peer } from "@arkecosystem/core-p2p/src/peer";
-import { PeerVerificationResult } from "@arkecosystem/core-p2p/src/peer-verifier";
-import { Blocks } from "@arkecosystem/crypto";
+import { Container, Enums, Utils } from "@packages/core-kernel";
+import { NetworkMonitor } from "@packages/core-p2p/src/network-monitor";
+import { NetworkState } from "@packages/core-p2p/src/network-state";
+import { Peer } from "@packages/core-p2p/src/peer";
+import { PeerVerificationResult } from "@packages/core-p2p/src/peer-verifier";
+import { Blocks } from "@packages/crypto";
 import delay from "delay";
 import { cloneDeep } from "lodash";
 import path from "path";
@@ -934,6 +934,7 @@ describe("NetworkMonitor", () => {
     });
 
     describe("broadcastBlock", () => {
+        // @ts-ignore
         const block = {
             data: {
                 id: "17882607875259085966",
@@ -967,25 +968,6 @@ describe("NetworkMonitor", () => {
         afterEach(() => {
             repository.getPeers = jest.fn();
             blockchain.getBlockPing = jest.fn();
-        });
-
-        describe("when blockchain is not ready", () => {
-            it("should skip broadcasting", async () => {
-                // @ts-ignore
-                appGet[Container.Identifiers.BlockchainService] = undefined;
-
-                await networkMonitor.broadcastBlock(block);
-
-                expect(logger.info).toBeCalledTimes(1);
-                expect(logger.info).toBeCalledWith(
-                    `Skipping broadcast of block ${block.data.height.toLocaleString()} as blockchain is not ready`,
-                );
-                expect(repository.getPeers).toBeCalledTimes(0);
-                expect(communicator.postBlock).toBeCalledTimes(0);
-
-                // @ts-ignore
-                appGet[Container.Identifiers.BlockchainService] = blockchain;
-            });
         });
 
         it.each([[4], [5], [10], [50]])("should not broadcast to any peer when blockPing >= 4", async (count) => {

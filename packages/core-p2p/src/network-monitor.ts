@@ -52,7 +52,8 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
 
     private initializing = true;
 
-    public initialize() {
+    @Container.postConstruct()
+    public initialize(): void {
         this.config = this.configuration.all(); // >_<
     }
 
@@ -481,13 +482,6 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
 
     public async broadcastBlock(block: Interfaces.IBlock): Promise<void> {
         const blockchain = this.app.get<Contracts.Blockchain.Blockchain>(Container.Identifiers.BlockchainService);
-
-        if (!blockchain) {
-            this.logger.info(
-                `Skipping broadcast of block ${block.data.height.toLocaleString()} as blockchain is not ready`,
-            );
-            return;
-        }
 
         let blockPing = blockchain.getBlockPing();
         let peers: Contracts.P2P.Peer[] = this.repository.getPeers();

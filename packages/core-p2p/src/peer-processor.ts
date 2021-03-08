@@ -32,7 +32,8 @@ export class PeerProcessor implements Contracts.P2P.PeerProcessor {
     public server: any;
     public nextUpdateNetworkStatusScheduled: boolean = false;
 
-    public initialize() {
+    @Container.postConstruct()
+    public initialize(): void {
         this.events.listen(Enums.CryptoEvent.MilestoneChanged, this.app.resolve(DisconnectInvalidPeers));
     }
 
