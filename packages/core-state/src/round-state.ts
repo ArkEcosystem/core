@@ -61,6 +61,11 @@ export class RoundState {
         this.blocksInCurrentRound = await this.getBlocksForRound();
     }
 
+    public async restoreCurrentRound(height: number): Promise<void> {
+        await this.initializeActiveDelegates(height);
+        await this.applyRound(height);
+    }
+
     public async getActiveDelegates(
         roundInfo?: Contracts.Shared.RoundInfo,
         delegates?: Contracts.State.Wallet[],
@@ -97,11 +102,6 @@ export class RoundState {
         }
 
         return this.shuffleDelegates(roundInfo, delegates);
-    }
-
-    public async restoreCurrentRound(height: number): Promise<void> {
-        await this.initializeActiveDelegates(height);
-        await this.applyRound(height);
     }
 
     public async detectMissedBlocks(block: Interfaces.IBlock): Promise<void> {
