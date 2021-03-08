@@ -55,12 +55,13 @@ export class RoundState {
 
     public async restore(): Promise<void> {
         const block = this.stateStore.getLastBlock();
+        const roundInfo: Contracts.Shared.RoundInfo = AppUtils.roundCalculator.calculateRound(block.data.height);
 
-        await this.getBlocksForRound();
-        await this.initializeActiveDelegates(block.data.height);
+        this.blocksInCurrentRound = await this.getBlocksForRound();
+        await this.setForgingDelegatesOfRound(roundInfo);
 
-
-        // await this.applyRound(block.data.height);
+        // TODO: maybe applyRound
+        // TODO: delete rounds above
     }
 
     // TODO: Handle revert with any block eg. revert top blocks
@@ -211,26 +212,28 @@ export class RoundState {
         }
     }
 
-    private async getBlocksForRound(roundInfo?: Contracts.Shared.RoundInfo): Promise<Interfaces.IBlock[]> {
-        if (!roundInfo) {
-            roundInfo = AppUtils.roundCalculator.calculateRound(this.stateStore.getLastBlock().data.height);
-        }
+    private async getBlocksForRound(): Promise<Interfaces.IBlock[]> {
+        const lastBlock = this.stateStore.getLastBlock();
+        const roundInfo = AppUtils.roundCalculator.calculateRound(lastBlock.data.height);
 
-        // if (roundInfo.round === 1) {
-        //     return [this.stateStore.getGenesisBlock()];
-        // }
+        const maxBlocks = lastBlock.data.height - roundInfo.roundHeight + 1;
 
         let blocks = this.stateStore.getLastBlocksByHeight(
             roundInfo.roundHeight,
-            roundInfo.roundHeight + roundInfo.maxDelegates - 1,
+            roundInfo.roundHeight + maxBlocks - 1,
         );
 
-        if (blocks.length !== roundInfo.maxDelegates) {
-            blocks = await this.databaseService.getBlocks(
-                roundInfo.roundHeight,
-                roundInfo.roundHeight + roundInfo.maxDelegates - 1,
-            );
+        if (blocks.length !== maxBlocks) {
+            blocks = [
+                ...(await this.databaseService.getBlocks(
+                    roundInfo.roundHeight,
+                    roundInfo.roundHeight + maxBlocks - blocks.length - 1,
+                )),
+                ...blocks,
+            ];
         }
+
+        assert(blocks.length === maxBlocks);
 
         return blocks.map((block: Interfaces.IBlockData) => {
             return Blocks.BlockFactory.fromData(block, { deserializeTransactionsUnchecked: true })!;
