@@ -77,22 +77,45 @@ afterEach(() => {
     jest.restoreAllMocks();
 });
 
+const generateBlocks = (count: number): any[] => {
+    const blocks: any[] = [];
+
+    for (let i = 1; i <= count; i++) {
+        blocks.push({
+            data: {
+                height: i,
+                id: "id_" + i,
+                generatorPublicKey: "public_key_" + i,
+            },
+        } as any);
+    }
+
+    return blocks;
+};
+
+const generateDelegates = (count: number): any[] => {
+    const delegates: any[] = [];
+
+    for (let i = 1; i <= count; i++) {
+        const delegate: any = {
+            publicKey: "public_key_" + i,
+            getAttribute: jest.fn().mockReturnValue("username_" + 1),
+        };
+        delegate.clone = () => {
+            return delegate;
+        };
+        delegates.push(delegate);
+    }
+
+    return delegates;
+};
+
 describe("RoundState", () => {
     describe("getBlocksForRound", () => {
         let blocks: any[];
 
         beforeEach(() => {
-            blocks = [];
-
-            for (let i = 1; i <= 3; i++) {
-                blocks.push({
-                    data: {
-                        height: i,
-                        id: "id_" + i,
-                        generatorPublicKey: "public_key_" + i,
-                    },
-                } as any);
-            }
+            blocks = generateBlocks(3);
         });
 
         it("should return array of blocks when all requested blocks are in stateStore", async () => {
@@ -229,46 +252,6 @@ describe("RoundState", () => {
         });
     });
 
-    // describe("revertRound", () => {
-    //     it("should revert, and delete round when reverting to previous round", async () => {
-    //         const lastBlock = Blocks.BlockFactory.fromData(block1760000);
-    //         // @ts-ignore
-    //         jest.spyOn(roundState, "getBlocksForRound").mockResolvedValue([lastBlock.data]);
-    //
-    //         const prevRoundState = { getAllDelegates: jest.fn(), getRoundDelegates: jest.fn(), revert: jest.fn() };
-    //         getDposPreviousRoundState.mockReturnValueOnce(prevRoundState).mockReturnValueOnce(prevRoundState);
-    //
-    //         const prevRoundDelegateWallet = { getAttribute: jest.fn() };
-    //         const prevRoundDposStateAllDelegates = [prevRoundDelegateWallet];
-    //         prevRoundState.getAllDelegates.mockReturnValueOnce(prevRoundDposStateAllDelegates);
-    //
-    //         const prevRoundDelegateUsername = "test_delegate";
-    //         prevRoundDelegateWallet.getAttribute.mockReturnValueOnce(prevRoundDelegateUsername);
-    //
-    //         const delegateWallet = { setAttribute: jest.fn(), getAttribute: jest.fn() };
-    //         walletRepository.findByUsername.mockReturnValueOnce(delegateWallet);
-    //
-    //         const prevRoundDelegateRank = 1;
-    //         prevRoundDelegateWallet.getAttribute.mockReturnValueOnce(prevRoundDelegateRank);
-    //
-    //         const prevRoundDposStateRoundDelegates = [prevRoundDelegateWallet];
-    //         prevRoundState.getRoundDelegates.mockReturnValueOnce(prevRoundDposStateRoundDelegates);
-    //
-    //         const forgingDelegates = [delegateWallet];
-    //         triggerService.call.mockResolvedValue(forgingDelegates);
-    //
-    //         // @ts-ignore
-    //         await roundState.revertRound(51);
-    //
-    //         expect(getDposPreviousRoundState).toBeCalled();
-    //         expect(walletRepository.findByUsername).toBeCalledWith(prevRoundDelegateUsername);
-    //         expect(delegateWallet.setAttribute).toBeCalledWith("delegate.rank", prevRoundDelegateRank);
-    //         // @ts-ignore
-    //         expect(roundState.forgingDelegates).toEqual(forgingDelegates);
-    //         expect(databaseService.deleteRound).toBeCalledWith(2);
-    //     });
-    // });
-
     describe("detectMissedBlocks", () => {
         const genesisBlocks = {
             data: {
@@ -278,15 +261,7 @@ describe("RoundState", () => {
         let delegates: any[];
 
         beforeEach(() => {
-            delegates = [];
-
-            for (let i = 0; i < 51; i++) {
-                delegates.push({
-                    publicKey: "public_key_" + i,
-                    getAttribute: jest.fn().mockReturnValue("username_" + 1),
-                });
-            }
-
+            delegates = generateDelegates(51);
             // @ts-ignore
             roundState.forgingDelegates = delegates;
         });
@@ -378,25 +353,10 @@ describe("RoundState", () => {
         let blocksInCurrentRound: any[];
 
         beforeEach(() => {
-            delegates = [];
-            for (let i = 0; i < 3; i++) {
-                delegates.push({
-                    publicKey: "public_key_" + i,
-                    getAttribute: jest.fn().mockReturnValue("username_" + 1),
-                });
-            }
-
+            delegates = generateDelegates(3);
             // @ts-ignore
             roundState.forgingDelegates = delegates;
-
-            blocksInCurrentRound = [];
-            for (let i = 0; i < 3; i++) {
-                blocksInCurrentRound.push({
-                    data: {
-                        generatorPublicKey: "public_key_" + i,
-                    },
-                });
-            }
+            blocksInCurrentRound = generateBlocks(3);
 
             walletRepository.findByPublicKey = jest.fn().mockImplementation((publicKey) => {
                 return delegates.find((delegate) => delegate.publicKey === publicKey);
@@ -505,56 +465,18 @@ describe("RoundState", () => {
             expect(eventDispatcher.dispatch).toBeCalledWith("round.applied");
         });
 
-        // it("should delete round and rethrow error when error was thrown", async () => {
-        //     dposState.buildDelegateRanking.mockImplementation(() => {
-        //         throw new Error("Fail");
-        //     });
-        //
-        //     // @ts-ignore
-        //     await expect(roundState.applyRound(51)).rejects.toThrowError("Fail");
-        //
-        //     expect(databaseService.deleteRound).toBeCalledWith(2);
-        // });
-
         it("should do nothing when next height is same round", async () => {
             // @ts-ignore
             await roundState.applyRound(50);
             expect(logger.info).not.toBeCalled();
         });
-
-        // it("should warn when, and do nothing when round was already applied", async () => {
-        //     const forgingDelegate = { getAttribute: jest.fn() };
-        //     const forgingDelegateRound = 2;
-        //     forgingDelegate.getAttribute.mockReturnValueOnce(forgingDelegateRound);
-        //     // @ts-ignore
-        //     roundState.forgingDelegates = [forgingDelegate] as any;
-        //
-        //     // @ts-ignore
-        //     await roundState.applyRound(51);
-        //
-        //     expect(logger.warning).toBeCalledWith(
-        //         "Round 2 has already been applied. This should happen only if you are a forger.",
-        //     );
-        // });
     });
 
     describe("applyBlock", () => {
         let delegates: any[];
 
         beforeEach(() => {
-            delegates = [];
-            for (let i = 1; i <= 51; i++) {
-                const delegete = {
-                    publicKey: "public_key_" + i,
-                    getAttribute: jest.fn().mockReturnValue("username_" + 1),
-                } as any;
-
-                delegete.clone = () => {
-                    return delegete;
-                };
-                delegates.push(delegete);
-            }
-
+            delegates = generateDelegates(51);
             // @ts-ignore
             roundState.forgingDelegates = delegates;
         });
@@ -643,32 +565,8 @@ describe("RoundState", () => {
         });
 
         it("should restore previous round, load previousRoundBlocks and delegates, remove last round from DB and remove last block from blocksInCurrentRound if block is last in round", async () => {
-            const blocksInPreviousRound: any[] = [];
-
-            for (let i = 1; i <= 51; i++) {
-                // @ts-ignore
-                blocksInPreviousRound.push({
-                    data: {
-                        height: i,
-                        id: "id_" + i,
-                        generatorPublicKey: "public_key_" + i,
-                    },
-                } as any);
-            }
-
-            const delegates: any[] = [];
-            for (let i = 1; i <= 51; i++) {
-                const delegete = {
-                    publicKey: "public_key_" + i,
-                    balance: 1,
-                    getAttribute: jest.fn().mockReturnValue("username_" + 1),
-                } as any;
-
-                delegete.clone = () => {
-                    return delegete;
-                };
-                delegates.push(delegete);
-            }
+            const blocksInPreviousRound: any[] = generateBlocks(51);
+            const delegates: any[] = generateDelegates(51);
 
             // @ts-ignore
             const spyOnFromData = jest.spyOn(Blocks.BlockFactory, "fromData").mockImplementation((block) => {
@@ -709,25 +607,8 @@ describe("RoundState", () => {
 
     describe("restore", () => {
         it("should restore blocksInCurrentRound and forgingDelegates when last block in middle of round", async () => {
-            const delegates: any[] = [];
-            for (let i = 1; i <= 51; i++) {
-                delegates.push({
-                    publicKey: "public_key_" + i,
-                    getAttribute: jest.fn().mockReturnValue("username_" + 1),
-                    balance: 1,
-                });
-            }
-
-            const blocks: any[] = [];
-            for (let i = 1; i <= 3; i++) {
-                blocks.push({
-                    data: {
-                        height: i,
-                        id: "id_" + i,
-                        generatorPublicKey: "public_key_" + i,
-                    },
-                } as any);
-            }
+            const delegates: any[] = generateDelegates(51);
+            const blocks: any[] = generateBlocks(3);
 
             const lastBlock = blocks[2];
 
@@ -756,25 +637,8 @@ describe("RoundState", () => {
         });
 
         it("should restore blocksInCurrentRound and forgingDelegates when last block is lastBlock of round", async () => {
-            const delegates: any[] = [];
-            for (let i = 1; i <= 51; i++) {
-                delegates.push({
-                    publicKey: "public_key_" + i,
-                    balance: 1,
-                    getAttribute: jest.fn().mockReturnValue("username_" + 1),
-                });
-            }
-
-            const blocks: any[] = [];
-            for (let i = 1; i <= 51; i++) {
-                blocks.push({
-                    data: {
-                        height: i,
-                        id: "id_" + i,
-                        generatorPublicKey: "public_key_" + i,
-                    },
-                } as any);
-            }
+            const delegates: any[] = generateDelegates(51);
+            const blocks: any[] = generateBlocks(51);
 
             const lastBlock = blocks[50];
 
