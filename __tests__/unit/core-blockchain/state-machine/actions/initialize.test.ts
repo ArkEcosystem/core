@@ -200,7 +200,7 @@ describe("Initialize", () => {
 
                 expect(stateStore.setLastBlock).toHaveBeenCalledTimes(1);
                 expect(databaseService.deleteRound).toHaveBeenCalledTimes(1);
-                expect(databaseInteractions.restoreCurrentRound).toHaveBeenCalledTimes(0);
+                expect(databaseInteractions.restoreCurrentRound).toHaveBeenCalledTimes(1);
                 expect(transactionPool.readdTransactions).toHaveBeenCalledTimes(0);
                 expect(peerNetworkMonitor.boot).toHaveBeenCalledTimes(1);
                 expect(stateBuilder.run).toHaveBeenCalledTimes(1);
