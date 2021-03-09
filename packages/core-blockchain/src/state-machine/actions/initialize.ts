@@ -80,6 +80,7 @@ export class Initialize implements Action {
                 this.logger.notice("TEST SUITE DETECTED! SYNCING WALLETS AND STARTING IMMEDIATELY.");
 
                 await this.app.get<Contracts.State.StateBuilder>(Container.Identifiers.StateBuilder).run();
+                await this.databaseInteraction.restoreCurrentRound();
                 await this.networkMonitor.boot();
 
                 return this.blockchain.dispatch("STARTED");
