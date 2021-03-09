@@ -1,11 +1,12 @@
-import { Container, Utils as KernelUtils } from "@arkecosystem/core-kernel";
-import { NetworkStateStatus } from "@arkecosystem/core-p2p/src/enums";
-import { NetworkState } from "@arkecosystem/core-p2p/src/network-state";
-import { Peer } from "@arkecosystem/core-p2p/src/peer";
-import { PeerVerificationResult } from "@arkecosystem/core-p2p/src/peer-verifier";
-import { Blocks, Crypto, Utils } from "@arkecosystem/crypto";
+import { Container, Utils as KernelUtils } from "@packages/core-kernel";
+import { NetworkStateStatus } from "@packages/core-p2p/src/enums";
+import { NetworkState } from "@packages/core-p2p/src/network-state";
+import { Peer } from "@packages/core-p2p/src/peer";
+import { PeerVerificationResult } from "@packages/core-p2p/src/peer-verifier";
+import { Blocks, Crypto, Utils } from "@packages/crypto";
 
 describe("NetworkState", () => {
+    // @ts-ignore
     const lastBlock = {
         data: {
             id: "17882607875259085966",
@@ -149,6 +150,54 @@ describe("NetworkState", () => {
             for (const key of ["status", "nodeHeight", "lastBlockId"]) {
                 expect(data[key]).toEqual(parsed[key]);
             }
+        });
+    });
+
+    describe("getNodeHeight", () => {
+        it("should return node height", () => {
+            const data = {
+                status: NetworkStateStatus.Test,
+                nodeHeight: 31,
+                lastBlockId: "10024d739768a68b43a6e4124718129e1fe07b0461630b3f275b7640d298c3b7",
+                quorumDetails: {
+                    peersQuorum: 31,
+                    peersNoQuorum: 7,
+                    peersOverHeight: 0,
+                    peersOverHeightBlockHeaders: {},
+                    peersForked: 0,
+                    peersDifferentSlot: 0,
+                    peersForgingNotAllowed: 1,
+                },
+            };
+
+            const networkState = NetworkState.parse(data);
+
+            expect(networkState.getNodeHeight()).toBe(31);
+        });
+    });
+
+    describe("getLastBlockId", () => {
+        it("should return lats block id", () => {
+            const data = {
+                status: NetworkStateStatus.Test,
+                nodeHeight: 31,
+                lastBlockId: "10024d739768a68b43a6e4124718129e1fe07b0461630b3f275b7640d298c3b7",
+                quorumDetails: {
+                    peersQuorum: 31,
+                    peersNoQuorum: 7,
+                    peersOverHeight: 0,
+                    peersOverHeightBlockHeaders: {},
+                    peersForked: 0,
+                    peersDifferentSlot: 0,
+                    peersForgingNotAllowed: 1,
+                },
+            };
+
+            const networkState = NetworkState.parse(data);
+
+            expect(networkState.getLastBlockId()).toBe(
+                "10024d739768a68b43a6e4124718129e1fe07b0461630b3f275b7640d298c3b7",
+            );
         });
     });
 

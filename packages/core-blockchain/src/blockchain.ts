@@ -207,8 +207,6 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
     public async handleIncomingBlock(block: Interfaces.IBlockData, fromForger = false): Promise<void> {
         const blockTimeLookup = await Utils.forgingInfoCalculator.getBlockTimeLookup(this.app, block.height);
 
-        this.pushPingBlock(block, fromForger);
-
         const currentSlot: number = Crypto.Slots.getSlotNumber(blockTimeLookup);
         const receivedSlot: number = Crypto.Slots.getSlotNumber(blockTimeLookup, block.timestamp);
 
@@ -225,6 +223,8 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             this.logger.info(`Discarded block ${block.height.toLocaleString()} because it takes a future slot.`);
             return;
         }
+
+        this.pushPingBlock(block, fromForger);
 
         if (this.stateStore.isStarted()) {
             this.dispatch("NEWBLOCK");

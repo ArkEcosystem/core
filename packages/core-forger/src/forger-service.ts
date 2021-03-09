@@ -175,9 +175,9 @@ export class ForgerService {
 
             const networkState: Contracts.P2P.NetworkState = await this.client.getNetworkState();
 
-            if (networkState.nodeHeight !== this.round.lastBlock.height) {
+            if (networkState.getNodeHeight() !== this.round.lastBlock.height) {
                 this.logger.warning(
-                    `The NetworkState height (${networkState.nodeHeight!.toLocaleString()}) and round height (${this.round.lastBlock.height.toLocaleString()}) are out of sync. This indicates delayed blocks on the network.`,
+                    `The NetworkState height (${networkState.getNodeHeight()?.toLocaleString()}) and round height (${this.round.lastBlock.height.toLocaleString()}) are out of sync. This indicates delayed blocks on the network.`,
                 );
             }
 
@@ -234,19 +234,18 @@ export class ForgerService {
         round: Contracts.P2P.CurrentRound,
         networkState: Contracts.P2P.NetworkState,
     ): Promise<void> {
-        AppUtils.assert.defined<number>(networkState.nodeHeight);
-
-        Managers.configManager.setHeight(networkState.nodeHeight);
+        AppUtils.assert.defined<number>(networkState.getNodeHeight());
+        Managers.configManager.setHeight(networkState.getNodeHeight()!);
 
         const transactions: Interfaces.ITransactionData[] = await this.getTransactionsForForging();
 
         const block: Interfaces.IBlock | undefined = delegate.forge(transactions, {
             previousBlock: {
-                id: networkState.lastBlockId,
+                id: networkState.getLastBlockId(),
                 idHex: Managers.configManager.getMilestone().block.idFullSha256
-                    ? networkState.lastBlockId
-                    : Blocks.Block.toBytesHex(networkState.lastBlockId),
-                height: networkState.nodeHeight,
+                    ? networkState.getLastBlockId()
+                    : Blocks.Block.toBytesHex(networkState.getLastBlockId()),
+                height: networkState.getNodeHeight(),
             },
             timestamp: round.timestamp,
             reward: round.reward,
