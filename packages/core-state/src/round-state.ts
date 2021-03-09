@@ -57,6 +57,7 @@ export class RoundState {
         await this.revertRound(block.data.height);
     }
 
+    // TODO: Check if can restore from state
     public async restore(): Promise<void> {
         const block = this.stateStore.getLastBlock();
         const roundInfo = this.getRound(block.data.height);
