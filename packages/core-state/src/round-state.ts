@@ -59,7 +59,7 @@ export class RoundState {
 
     public async restore(): Promise<void> {
         const block = this.stateStore.getLastBlock();
-        const roundInfo: Contracts.Shared.RoundInfo = AppUtils.roundCalculator.calculateRound(block.data.height);
+        const roundInfo = this.getRound(block.data.height);
 
         this.blocksInCurrentRound = await this.getBlocksForRound();
         await this.setForgingDelegatesOfRound(roundInfo);
@@ -70,7 +70,7 @@ export class RoundState {
     }
 
     public async restoreCurrentRound(height: number): Promise<void> {
-        await this.initializeActiveDelegates(height);
+        await this.setForgingDelegatesOfRound(this.getRound());
         await this.applyRound(height);
     }
 
@@ -79,7 +79,7 @@ export class RoundState {
         delegates?: Contracts.State.Wallet[],
     ): Promise<Contracts.State.Wallet[]> {
         if (!roundInfo) {
-            roundInfo = AppUtils.roundCalculator.calculateRound(this.stateStore.getLastBlock().data.height);
+            roundInfo = this.getRound();
         }
 
         if (
@@ -144,7 +144,7 @@ export class RoundState {
 
     private async applyRound(height: number): Promise<void> {
         if (height === 1 || AppUtils.roundCalculator.isNewRound(height + 1)) {
-            const roundInfo: Contracts.Shared.RoundInfo = AppUtils.roundCalculator.calculateRound(height + 1);
+            const roundInfo = this.getRound(height + 1);
 
             this.logger.info(`Starting Round ${roundInfo.round.toLocaleString()}`);
 
@@ -164,7 +164,7 @@ export class RoundState {
     }
 
     private async revertRound(height: number): Promise<void> {
-        const roundInfo: Contracts.Shared.RoundInfo = AppUtils.roundCalculator.calculateRound(height);
+        const roundInfo = this.getRound(height);
         const { round, nextRound } = roundInfo;
 
         if (nextRound === round + 1) {
@@ -202,7 +202,7 @@ export class RoundState {
 
     private async getBlocksForRound(): Promise<Interfaces.IBlock[]> {
         const lastBlock = this.stateStore.getLastBlock();
-        const roundInfo = AppUtils.roundCalculator.calculateRound(lastBlock.data.height);
+        const roundInfo = this.getRound(lastBlock.data.height);
 
         const maxBlocks = lastBlock.data.height - roundInfo.roundHeight + 1;
 
@@ -249,12 +249,12 @@ export class RoundState {
         return delegates;
     }
 
-    private async initializeActiveDelegates(height: number): Promise<void> {
-        // ! may be set to undefined to early if error is raised
-        this.forgingDelegates = [];
+    private getRound(height?: number): Contracts.Shared.RoundInfo {
+        if (!height) {
+            height = this.stateStore.getLastBlock().data.height;
+        }
 
-        const roundInfo: Contracts.Shared.RoundInfo = AppUtils.roundCalculator.calculateRound(height);
-        await this.setForgingDelegatesOfRound(roundInfo);
+        return AppUtils.roundCalculator.calculateRound(height);
     }
 
     private async setForgingDelegatesOfRound(
