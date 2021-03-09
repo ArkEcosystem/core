@@ -499,15 +499,8 @@ describe("RoundState", () => {
         });
 
         it("should push block to blocksInCurrentRound, applyRound, check missing round, calculate delegates, and clear blocksInCurrentRound when block is last in round", async () => {
-            for (let i = 1; i < 51; i++) {
-                // @ts-ignore
-                roundState.blocksInCurrentRound.push({
-                    data: {
-                        height: i,
-                        generatorPublicKey: "public_key_" + i,
-                    },
-                } as any);
-            }
+            // @ts-ignore
+            roundState.blocksInCurrentRound = generateBlocks(50);
 
             const block = {
                 data: {
@@ -541,9 +534,48 @@ describe("RoundState", () => {
             expect(eventDispatcher.dispatch).not.toHaveBeenCalledWith(Enums.RoundEvent.Missed);
         });
 
-        // TODO: Check genesisBlock if required
+        // TODO: Check how we can restore
+        it("should throw error if databaseService.saveRound throws error", async () => {
+            // @ts-ignore
+            roundState.blocksInCurrentRound = generateBlocks(50);
 
-        // TODO: Should throw error on error with DB connection
+            const block = {
+                data: {
+                    height: 51, // Last block in round 1
+                    generatorPublicKey: "public_key_51",
+                },
+            };
+
+            dposState.getRoundDelegates.mockReturnValue(delegates);
+            triggerService.call.mockImplementation((name, args) => {
+                return roundState.getActiveDelegates(args.roundInfo, args.delegates);
+            });
+
+            // @ts-ignore
+            const spyOnShuffleDelegates = jest.spyOn(roundState, "shuffleDelegates");
+            // @ts-ignore
+            const spyOnDetectMissedRound = jest.spyOn(roundState, "detectMissedRound");
+
+            databaseService.saveRound.mockImplementation(async () => {
+                throw new Error("Cannot save round");
+            });
+
+            // @ts-ignore
+            expect(roundState.blocksInCurrentRound.length).toEqual(50);
+
+            await expect(roundState.applyBlock(block as any)).rejects.toThrow("Cannot save round");
+
+            // @ts-ignore
+            expect(roundState.blocksInCurrentRound.length).toEqual(51);
+            expect(databaseService.saveRound).toHaveBeenCalled();
+            expect(eventDispatcher.dispatch).not.toHaveBeenCalled();
+            expect(spyOnShuffleDelegates).toHaveBeenCalled();
+            expect(spyOnDetectMissedRound).toHaveBeenCalled();
+
+            expect(eventDispatcher.dispatch).not.toHaveBeenCalledWith(Enums.RoundEvent.Missed);
+        });
+
+        // TODO: Check genesisBlock if required
     });
 
     describe("revertBlock", () => {
@@ -600,9 +632,61 @@ describe("RoundState", () => {
             expect(roundState.blocksInCurrentRound.length).toEqual(50);
         });
 
-        // TODO: Should throw error on error with DB connection
+        it("should throw error if databaseService throws error", async () => {
+            const blocksInPreviousRound: any[] = generateBlocks(51);
+            const delegates: any[] = generateDelegates(51);
 
-        // TODO: Should throw error if last block is not the same
+            // @ts-ignore
+            const spyOnFromData = jest.spyOn(Blocks.BlockFactory, "fromData").mockImplementation((block) => {
+                return block;
+            });
+
+            const block = blocksInPreviousRound[50];
+
+            stateStore.getLastBlocksByHeight.mockReturnValue(blocksInPreviousRound);
+            stateStore.getLastBlock.mockReturnValue(block);
+
+            getDposPreviousRoundState.mockReturnValue({
+                getAllDelegates: jest.fn().mockReturnValue(delegates),
+                getRoundDelegates: jest.fn().mockReturnValue(delegates),
+            });
+
+            const spyOnCalcPreviousActiveDelegates = jest
+                // @ts-ignore
+                .spyOn(roundState, "calcPreviousActiveDelegates")
+                .mockReturnValue(delegates);
+
+            databaseService.deleteRound.mockImplementation(async () => {
+                throw new Error("Database error");
+            });
+
+            // @ts-ignore
+            expect(roundState.blocksInCurrentRound).toEqual([]);
+
+            await expect(roundState.revertBlock(block)).rejects.toThrow("Database error");
+
+            expect(spyOnCalcPreviousActiveDelegates).toHaveBeenCalledTimes(1);
+            expect(spyOnFromData).toHaveBeenCalledTimes(51);
+            expect(databaseService.deleteRound).toHaveBeenCalledWith(2);
+            // @ts-ignore
+            expect(roundState.blocksInCurrentRound.length).toEqual(50);
+        });
+
+        it("should throw error if last blocks is not equal to block", async () => {
+            const blocks = generateBlocks(2);
+
+            // @ts-ignore
+            roundState.blocksInCurrentRound = [blocks[0]];
+
+            await expect(roundState.revertBlock(blocks[1])).rejects.toThrow(
+                "Last block in blocksInCurrentRound doesn't match block with id id_2",
+            );
+
+            // @ts-ignore
+            expect(roundState.blocksInCurrentRound).toEqual([]);
+            expect(databaseService.deleteRound).not.toHaveBeenCalled();
+            expect(stateStore.getLastBlocksByHeight).not.toHaveBeenCalled();
+        });
     });
 
     describe("restore", () => {
@@ -670,6 +754,28 @@ describe("RoundState", () => {
             expect(roundState.forgingDelegates).toEqual(delegates);
         });
 
-        // TODO: Should throw error on error with DB connection
+        it("should throw if databaseService throws error", async () => {
+            const delegates: any[] = generateDelegates(51);
+            const blocks: any[] = generateBlocks(51);
+
+            const lastBlock = blocks[50];
+
+            stateStore.getLastBlock.mockReturnValue(lastBlock);
+            stateStore.getLastBlocksByHeight.mockReturnValue(blocks);
+            dposState.getRoundDelegates.mockReturnValue(delegates);
+            triggerService.call.mockResolvedValue(delegates);
+            // @ts-ignore
+            jest.spyOn(Blocks.BlockFactory, "fromData").mockImplementation((block) => {
+                return block;
+            });
+
+            databaseService.deleteRound.mockImplementation(() => {
+                throw new Error("Database error");
+            });
+
+            await expect(roundState.restore()).rejects.toThrow("Database error");
+
+            expect(databaseService.deleteRound).toHaveBeenCalledWith(2);
+        });
     });
 });

@@ -52,7 +52,10 @@ export class RoundState {
             this.blocksInCurrentRound = await this.getBlocksForRound();
         }
 
-        assert(this.blocksInCurrentRound.pop()!.data.id === block.data.id);
+        assert(
+            this.blocksInCurrentRound.pop()!.data.id === block.data.id,
+            `Last block in blocksInCurrentRound doesn't match block with id ${block.data.id}`,
+        );
 
         await this.revertRound(block.data.height);
     }
