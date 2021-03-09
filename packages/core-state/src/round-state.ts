@@ -73,11 +73,6 @@ export class RoundState {
         await this.applyRound(block.data.height);
     }
 
-    public async restoreCurrentRound(height: number): Promise<void> {
-        await this.setForgingDelegatesOfRound(this.getRound());
-        await this.applyRound(height);
-    }
-
     public async getActiveDelegates(
         roundInfo?: Contracts.Shared.RoundInfo,
         delegates?: Contracts.State.Wallet[],
