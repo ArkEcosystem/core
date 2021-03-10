@@ -134,9 +134,22 @@ describe("State Storage", () => {
     });
 
     describe("setNetworkStart", () => {
-        it("should set numberOfBlocksToRollback", () => {
+        it("should set networkStart", () => {
             stateStorage.setNetworkStart(true);
             expect(stateStorage.getNetworkStart()).toBeTrue();
+        });
+    });
+
+    describe("getRestoredDatabaseIntegrity", () => {
+        it("should return false by default", () => {
+            expect(stateStorage.getRestoredDatabaseIntegrity()).toBeFalse();
+        });
+    });
+
+    describe("setRestoredDatabaseIntegrity", () => {
+        it("should set restoredDatabaseIntegrity", () => {
+            stateStorage.setRestoredDatabaseIntegrity(true);
+            expect(stateStorage.getRestoredDatabaseIntegrity()).toBeTrue();
         });
     });
 
