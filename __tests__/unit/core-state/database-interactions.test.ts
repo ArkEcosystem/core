@@ -221,6 +221,16 @@ describe("DatabaseInteractions", () => {
     });
 });
 
+describe("DatabaseInteraction.restoreCurrentRound", () => {
+    it("should call roundState.restore", async () => {
+        const databaseInteraction: DatabaseInteraction = container.resolve(DatabaseInteraction);
+
+        await databaseInteraction.restoreCurrentRound();
+
+        expect(roundState.restore).toHaveBeenCalled();
+    });
+});
+
 describe("DatabaseInteraction.reset", () => {
     it("should reset database", async () => {
         const databaseInteraction: DatabaseInteraction = container.resolve(DatabaseInteraction);
