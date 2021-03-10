@@ -35,7 +35,7 @@ export class Initialize implements Action {
         try {
             const block: Interfaces.IBlock = this.stateStore.getLastBlock();
 
-            if (!this.databaseService.restoredDatabaseIntegrity) {
+            if (!this.stateStore.getRestoredDatabaseIntegrity()) {
                 this.logger.info("Verifying database integrity");
 
                 if (!(await this.databaseService.verifyBlockchain())) {
