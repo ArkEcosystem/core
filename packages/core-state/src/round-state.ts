@@ -38,10 +38,6 @@ export class RoundState {
     private forgingDelegates: Contracts.State.Wallet[] = [];
 
     public async applyBlock(block: Interfaces.IBlock): Promise<void> {
-        if (!this.forgingDelegates.length) {
-            throw new Error("Round state is not initialized.");
-        }
-
         this.blocksInCurrentRound.push(block);
 
         await this.applyRound(block.data.height);
@@ -169,7 +165,6 @@ export class RoundState {
         if (nextRound === round + 1) {
             this.logger.info(`Back to previous round: ${round.toLocaleString()}`);
 
-            // TODO: Check round 1 special case. Delegates are in genesis block
             await this.setForgingDelegatesOfRound(
                 roundInfo,
                 await this.calcPreviousActiveDelegates(roundInfo, this.blocksInCurrentRound),

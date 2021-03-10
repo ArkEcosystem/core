@@ -99,7 +99,11 @@ const generateDelegates = (count: number): any[] => {
     for (let i = 1; i <= count; i++) {
         const delegate: any = {
             publicKey: "public_key_" + i,
-            getAttribute: jest.fn().mockReturnValue("username_" + 1),
+            username: "username_" + i,
+            getAttribute: jest.fn().mockImplementation((key) => {
+                return key === "delegate.username" ? "username_" + i : i;
+            }),
+            setAttribute: jest.fn(),
         };
         delegate.clone = () => {
             return delegate;
@@ -776,6 +780,30 @@ describe("RoundState", () => {
             await expect(roundState.restore()).rejects.toThrow("Database error");
 
             expect(databaseService.deleteRound).toHaveBeenCalledWith(2);
+        });
+    });
+
+    describe("calcPreviousActiveDelegates", () => {
+        it("should return previous active delegates && set ranks", async () => {
+            const delegates = generateDelegates(51);
+            const blocks = generateBlocks(51);
+
+            getDposPreviousRoundState.mockReturnValue({
+                getAllDelegates: jest.fn().mockReturnValue(delegates),
+                getRoundDelegates: jest.fn().mockReturnValue(delegates),
+            });
+
+            walletRepository.findByUsername = jest.fn().mockImplementation((username) => {
+                return delegates.find((delegate) => delegate.username === username);
+            });
+
+            const roundInfo: any = { round: 1 };
+            // @ts-ignore
+            await expect(roundState.calcPreviousActiveDelegates(roundInfo, blocks)).resolves.toEqual(delegates);
+
+            expect(walletRepository.findByUsername).toHaveBeenCalledTimes(51);
+            expect(delegates[0].setAttribute).toHaveBeenCalledWith("delegate.rank", 1);
+            expect(delegates[0].setAttribute).toHaveBeenCalledTimes(1);
         });
     });
 });
