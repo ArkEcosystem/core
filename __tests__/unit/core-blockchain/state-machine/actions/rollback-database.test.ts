@@ -1,5 +1,5 @@
 import { Container } from "@arkecosystem/core-kernel";
-import { RollbackDatabase } from "../../../../../packages/core-blockchain/src/state-machine/actions/rollback-database";
+import { RollbackDatabase } from "@packages/core-blockchain/src/state-machine/actions/rollback-database";
 
 describe("RollbackDatabase", () => {
     const container = new Container.Container();
@@ -9,8 +9,10 @@ describe("RollbackDatabase", () => {
         dispatch: jest.fn(),
         removeTopBlocks: jest.fn(),
     };
+    const stateStore = {
+        setRestoredDatabaseIntegrity: jest.fn(),
+    };
     const databaseService = {
-        restoredDatabaseIntegrity: undefined,
         verifyBlockchain: jest.fn(),
         getLastBlock: jest.fn(),
     };
@@ -26,6 +28,7 @@ describe("RollbackDatabase", () => {
         container.unbindAll();
         container.bind(Container.Identifiers.Application).toConstantValue(application);
         container.bind(Container.Identifiers.LogService).toConstantValue(logger);
+        container.bind(Container.Identifiers.StateStore).toConstantValue(stateStore);
         container.bind(Container.Identifiers.DatabaseService).toConstantValue(databaseService);
         container.bind(Container.Identifiers.BlockchainService).toConstantValue(blockchain);
         container.bind(Container.Identifiers.PluginConfiguration).toConstantValue(configuration);
@@ -55,6 +58,7 @@ describe("RollbackDatabase", () => {
             await rollbackDatabase.handle();
 
             expect(databaseService.verifyBlockchain).toHaveBeenCalledTimes(5);
+            expect(stateStore.setRestoredDatabaseIntegrity).toHaveBeenCalledWith(true);
             expect(blockchain.dispatch).toHaveBeenCalledTimes(1);
             expect(blockchain.dispatch).toHaveBeenCalledWith("SUCCESS");
         });
@@ -81,6 +85,7 @@ describe("RollbackDatabase", () => {
             await rollbackDatabase.handle();
 
             expect(databaseService.verifyBlockchain).toHaveBeenCalledTimes(6);
+            expect(stateStore.setRestoredDatabaseIntegrity).not.toHaveBeenCalled();
             expect(blockchain.dispatch).toHaveBeenCalledTimes(1);
             expect(blockchain.dispatch).toHaveBeenCalledWith("FAILURE");
         });

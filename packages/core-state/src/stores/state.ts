@@ -28,6 +28,7 @@ export class StateStore implements Contracts.State.StateStore {
     private p2pUpdateCounter: number = 0;
     private numberOfBlocksToRollback: number = 0;
     private networkStart = false;
+    private restoredDatabaseIntegrity = false;
 
     // Stores the last n blocks in ascending height. The amount of last blocks
     // can be configured with the option `state.maxLastBlocks`.
@@ -122,6 +123,14 @@ export class StateStore implements Contracts.State.StateStore {
 
     public setNetworkStart(networkStart: boolean): void {
         this.networkStart = networkStart;
+    }
+
+    public getRestoredDatabaseIntegrity(): boolean {
+        return this.restoredDatabaseIntegrity;
+    }
+
+    public setRestoredDatabaseIntegrity(restoredDatabaseIntegrity: boolean): void {
+        this.restoredDatabaseIntegrity = restoredDatabaseIntegrity;
     }
 
     /**

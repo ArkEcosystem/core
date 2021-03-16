@@ -11,10 +11,10 @@ describe("Initialize", () => {
         getLastBlock: jest.fn(),
         setLastBlock: jest.fn(),
         getNetworkStart: jest.fn().mockReturnValue(false),
+        getRestoredDatabaseIntegrity: jest.fn().mockReturnValue(false),
     };
     const transactionPool = { readdTransactions: jest.fn() };
     const databaseService = {
-        restoredDatabaseIntegrity: undefined,
         verifyBlockchain: jest.fn(),
         deleteRound: jest.fn(),
     };
@@ -57,7 +57,7 @@ describe("Initialize", () => {
     });
 
     describe("handle", () => {
-        describe("when databaseService.restoredDatabaseIntegrity", () => {
+        describe("when stateStore.getRestoredDatabaseIntegrity", () => {
             it("should initialize state, database, transaction pool and peer network monitor", async () => {
                 const initialize = container.resolve<Initialize>(Initialize);
 
@@ -68,7 +68,7 @@ describe("Initialize", () => {
                     },
                 };
                 stateStore.getLastBlock = jest.fn().mockReturnValueOnce(lastBlock);
-                databaseService.restoredDatabaseIntegrity = true;
+                stateStore.getRestoredDatabaseIntegrity = jest.fn().mockReturnValue(true);
                 process.env.NODE_ENV = "";
                 await initialize.handle();
 
@@ -83,7 +83,7 @@ describe("Initialize", () => {
             });
         });
 
-        describe("when !databaseService.restoredDatabaseIntegrity", () => {
+        describe("when !stateStore.getRestoredDatabaseIntegrity", () => {
             it("should dispatch ROLLBACK when databaseService.verifyBlockchain() returns false", async () => {
                 const initialize = container.resolve<Initialize>(Initialize);
 
@@ -94,7 +94,6 @@ describe("Initialize", () => {
                     },
                 };
                 stateStore.getLastBlock = jest.fn().mockReturnValueOnce(lastBlock);
-                databaseService.restoredDatabaseIntegrity = false;
                 databaseService.verifyBlockchain = jest.fn().mockReturnValueOnce(false);
                 process.env.NODE_ENV = "";
                 await initialize.handle();
@@ -112,7 +111,6 @@ describe("Initialize", () => {
                     },
                 };
                 stateStore.getLastBlock = jest.fn().mockReturnValueOnce(lastBlock);
-                databaseService.restoredDatabaseIntegrity = false;
                 databaseService.verifyBlockchain = jest.fn().mockReturnValueOnce(true);
                 process.env.NODE_ENV = "";
                 await initialize.handle();
@@ -133,7 +131,7 @@ describe("Initialize", () => {
                     },
                 };
                 stateStore.getLastBlock = jest.fn().mockReturnValueOnce(lastBlock);
-                databaseService.restoredDatabaseIntegrity = true;
+                stateStore.getRestoredDatabaseIntegrity = jest.fn().mockReturnValue(true);
                 process.env.NODE_ENV = "";
                 await initialize.handle();
 
@@ -151,7 +149,7 @@ describe("Initialize", () => {
                     },
                 };
                 stateStore.getLastBlock = jest.fn().mockReturnValueOnce(lastBlock);
-                databaseService.restoredDatabaseIntegrity = true;
+                stateStore.getRestoredDatabaseIntegrity = jest.fn().mockReturnValue(true);
                 process.env.NODE_ENV = "";
                 await initialize.handle();
 
@@ -173,7 +171,7 @@ describe("Initialize", () => {
                 };
                 stateStore.getLastBlock = jest.fn().mockReturnValueOnce(lastBlock);
                 stateStore.getNetworkStart = jest.fn().mockReturnValue(true);
-                databaseService.restoredDatabaseIntegrity = true;
+                stateStore.getRestoredDatabaseIntegrity = jest.fn().mockReturnValue(true);
                 process.env.NODE_ENV = "";
                 await initialize.handle();
 
@@ -194,7 +192,7 @@ describe("Initialize", () => {
                 };
                 stateStore.getLastBlock = jest.fn().mockReturnValueOnce(lastBlock);
                 stateStore.getNetworkStart = jest.fn().mockReturnValue(false);
-                databaseService.restoredDatabaseIntegrity = true;
+                stateStore.getRestoredDatabaseIntegrity = jest.fn().mockReturnValue(true);
                 process.env.NODE_ENV = "test";
                 await initialize.handle();
 
@@ -216,7 +214,7 @@ describe("Initialize", () => {
                 stateStore.getLastBlock = jest.fn().mockImplementationOnce(() => {
                     throw new Error("oops");
                 });
-                databaseService.restoredDatabaseIntegrity = true;
+                stateStore.getRestoredDatabaseIntegrity = jest.fn().mockReturnValue(true);
                 process.env.NODE_ENV = "";
                 await initialize.handle();
 

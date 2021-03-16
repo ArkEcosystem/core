@@ -22,6 +22,9 @@ export class RollbackDatabase implements Action {
     @Container.inject(Container.Identifiers.DatabaseService)
     private readonly databaseService!: DatabaseService;
 
+    @Container.inject(Container.Identifiers.StateStore)
+    private readonly stateStore!: Contracts.State.StateStore;
+
     public async handle(): Promise<void> {
         this.logger.info("Trying to restore database integrity");
 
@@ -41,7 +44,7 @@ export class RollbackDatabase implements Action {
             return;
         }
 
-        this.databaseService.restoredDatabaseIntegrity = true;
+        this.stateStore.setRestoredDatabaseIntegrity(true);
 
         const lastBlock: Interfaces.IBlock = await this.databaseService.getLastBlock();
         this.logger.info(
