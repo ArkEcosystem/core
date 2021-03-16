@@ -1,14 +1,15 @@
-import { Container } from "@arkecosystem/core-kernel";
-import { BlocksController } from "@arkecosystem/core-p2p/src/socket-server/controllers/blocks";
-import { TooManyTransactionsError } from "@arkecosystem/core-p2p/src/socket-server/errors";
-import { Blocks, Identities, Interfaces, Managers, Networks, Transactions, Utils } from "@arkecosystem/crypto";
+import { Container } from "@packages/core-kernel";
+import { PluginConfiguration } from "@packages/core-kernel/src/providers";
+import { BlocksController } from "@packages/core-p2p/src/socket-server/controllers/blocks";
+import { TooManyTransactionsError } from "@packages/core-p2p/src/socket-server/errors";
+import { Sandbox } from "@packages/core-test-framework";
+import { Blocks, Identities, Interfaces, Managers, Networks, Transactions, Utils } from "@packages/crypto";
 
 Managers.configManager.getMilestone().aip11 = true; // for creating aip11 v2 transactions
 
 describe("BlocksController", () => {
+    let sandbox: Sandbox;
     let blocksController: BlocksController;
-
-    const container = new Container.Container();
 
     const logger = { warning: jest.fn(), debug: jest.fn(), info: jest.fn() };
     const peerRepository = { getPeers: jest.fn() };
@@ -20,52 +21,21 @@ describe("BlocksController", () => {
         getLastDownloadedBlock: jest.fn(),
         getLastHeight: jest.fn(),
     };
-    const createProcessor = jest.fn();
-    const appPlugins = [{ package: "@arkecosystem/core-api", options: {} }];
-    const coreApiServiceProvider = {
-        name: () => "core-api",
-        configDefaults: () => ({
-            server: { http: { port: 4003 } },
-        }),
-    };
-    const serviceProviders = { "@arkecosystem/core-api": coreApiServiceProvider };
-    const configRepository = { get: () => appPlugins }; // get("app.plugins")
-    const serviceProviderRepository = { get: (plugin) => serviceProviders[plugin] };
-    const appGet = {
-        [Container.Identifiers.BlockchainService]: blockchain,
-        [Container.Identifiers.TransactionPoolProcessorFactory]: createProcessor,
-        [Container.Identifiers.ConfigRepository]: configRepository,
-        [Container.Identifiers.ServiceProviderRepository]: serviceProviderRepository,
-    };
-    const config = { getOptional: jest.fn().mockReturnValue(["127.0.0.1"]) }; // remoteAccess
-    const app = {
-        get: (key) => appGet[key],
-        getTagged: () => config,
-        version: () => "3.0.9",
-        resolve: () => ({
-            from: () => ({
-                merge: () => ({
-                    all: () => ({
-                        server: { http: { port: "4003" } },
-                        options: {
-                            estimateTotalCount: true,
-                        },
-                    }),
-                }),
-            }),
-        }),
-    };
-
-    beforeAll(() => {
-        container.unbindAll();
-        container.bind(Container.Identifiers.LogService).toConstantValue(logger);
-        container.bind(Container.Identifiers.PeerRepository).toConstantValue(peerRepository);
-        container.bind(Container.Identifiers.DatabaseService).toConstantValue(database);
-        container.bind(Container.Identifiers.Application).toConstantValue(app);
-    });
 
     beforeEach(() => {
-        blocksController = container.resolve<BlocksController>(BlocksController);
+        sandbox = new Sandbox();
+
+        sandbox.app.bind(Container.Identifiers.LogService).toConstantValue(logger);
+        sandbox.app.bind(Container.Identifiers.PeerRepository).toConstantValue(peerRepository);
+        sandbox.app.bind(Container.Identifiers.DatabaseService).toConstantValue(database);
+        sandbox.app.bind(Container.Identifiers.BlockchainService).toConstantValue(blockchain);
+        sandbox.app.bind(Container.Identifiers.PluginConfiguration).to(PluginConfiguration).inSingletonScope();
+
+        sandbox.app
+            .get<PluginConfiguration>(Container.Identifiers.PluginConfiguration)
+            .set("remoteAccess", ["127.0.0.1"]);
+
+        blocksController = sandbox.app.resolve<BlocksController>(BlocksController);
     });
 
     describe("postBlock", () => {
@@ -211,7 +181,9 @@ describe("BlocksController", () => {
             it("should call handleIncomingBlock with the block and fromForger=true", async () => {
                 blockchain.handleIncomingBlock = jest.fn();
                 const ip = "187.55.33.22";
-                config.getOptional.mockReturnValueOnce([ip]);
+                sandbox.app
+                    .get<PluginConfiguration>(Container.Identifiers.PluginConfiguration)
+                    .set("remoteAccess", [ip]);
 
                 const blockSerialized = Blocks.Serializer.serializeWithTransactions({
                     ...block.data,
@@ -235,7 +207,9 @@ describe("BlocksController", () => {
                 blockchain.getLastDownloadedBlock = jest.fn().mockReturnValueOnce(Networks.testnet.genesisBlock);
                 blockchain.handleIncomingBlock = jest.fn();
                 const ip = "187.55.33.22";
-                config.getOptional.mockReturnValueOnce(["188.66.55.44"]);
+                sandbox.app
+                    .get<PluginConfiguration>(Container.Identifiers.PluginConfiguration)
+                    .set("remoteAccess", ["188.66.55.44"]);
 
                 const blockSerialized = Blocks.Serializer.serializeWithTransactions({
                     ...block.data,

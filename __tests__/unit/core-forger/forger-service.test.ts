@@ -1,9 +1,10 @@
 import "jest-extended";
 
-import { ForgeNewBlockAction, IsForgingAllowedAction } from "@arkecosystem/core-forger/src/actions";
-import { Contracts } from "@arkecosystem/core-kernel";
-import { Sandbox } from "@arkecosystem/core-test-framework";
-import { Interfaces } from "@arkecosystem/crypto";
+import { ForgeNewBlockAction, IsForgingAllowedAction } from "@packages/core-forger/src/actions";
+import { Contracts } from "@packages/core-kernel";
+import { Sandbox } from "@packages/core-test-framework";
+import { Interfaces } from "@packages/crypto";
+import { Slots } from "@packages/crypto/dist/crypto";
 import { HostNoResponseError, RelayCommunicationError } from "@packages/core-forger/src/errors";
 import { ForgerService } from "@packages/core-forger/src/forger-service";
 import { Container, Enums, Services, Utils } from "@packages/core-kernel";
@@ -14,7 +15,6 @@ import { Address } from "@packages/crypto/src/identities";
 import { BuilderFactory } from "@packages/crypto/src/transactions";
 
 import { calculateActiveDelegates } from "./__utils__/calculate-active-delegates";
-import { Slots } from "@arkecosystem/crypto/dist/crypto";
 
 let sandbox: Sandbox;
 const logger = {
@@ -101,11 +101,11 @@ describe("ForgerService", () => {
 
         mockNetworkState = {
             status: NetworkStateStatus.Default,
+            getNodeHeight: () => 10,
+            getLastBlockId: () => "11111111",
             getOverHeightBlockHeaders: () => [],
             getQuorum: () => 0.7,
             toJson: () => "test json",
-            nodeHeight: 10,
-            lastBlockId: "11111111",
         };
 
         const recipientAddress = Address.fromPassphrase("recipient's secret");
@@ -630,7 +630,9 @@ describe("ForgerService", () => {
                 mockNetworkState,
             );
 
-            const loggerWarningMessage = `The NetworkState height (${mockNetworkState.nodeHeight}) and round height (${round.data.lastBlock.height}) are out of sync. This indicates delayed blocks on the network.`;
+            const loggerWarningMessage = `The NetworkState height (${mockNetworkState.getNodeHeight()}) and round height (${
+                round.data.lastBlock.height
+            }) are out of sync. This indicates delayed blocks on the network.`;
             expect(logger.warning).toHaveBeenCalledWith(loggerWarningMessage);
 
             jest.useRealTimers();

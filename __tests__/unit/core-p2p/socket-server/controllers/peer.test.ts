@@ -1,16 +1,16 @@
-import { Container } from "@arkecosystem/core-kernel";
-import { MissingCommonBlockError } from "@arkecosystem/core-p2p/src/errors";
-import { Peer } from "@arkecosystem/core-p2p/src/peer";
-import { PeerController } from "@arkecosystem/core-p2p/src/socket-server/controllers/peer";
-import { getPeerConfig } from "@arkecosystem/core-p2p/src/socket-server/utils/get-peer-config";
-import { Crypto, Managers } from "@arkecosystem/crypto";
+import { Container } from "@packages/core-kernel";
+import { MissingCommonBlockError } from "@packages/core-p2p/src/errors";
+import { Peer } from "@packages/core-p2p/src/peer";
+import { PeerController } from "@packages/core-p2p/src/socket-server/controllers/peer";
+import { getPeerConfig } from "@packages/core-p2p/src/socket-server/utils/get-peer-config";
+import { Sandbox } from "@packages/core-test-framework";
+import { Crypto, Managers } from "@packages/crypto";
 
 Managers.configManager.getMilestone().aip11 = true; // for creating aip11 v2 transactions
 
 describe("PeerController", () => {
+    let sandbox: Sandbox;
     let peerController: PeerController;
-
-    const container = new Container.Container();
 
     const logger = { warning: jest.fn(), debug: jest.fn(), info: jest.fn() };
     const peerRepository = { getPeers: jest.fn() };
@@ -25,53 +25,19 @@ describe("PeerController", () => {
         pingBlock: jest.fn(),
         getLastDownloadedBlock: jest.fn(),
     };
-    const createProcessor = jest.fn();
-    const appPlugins = [{ package: "@arkecosystem/core-api", options: {} }];
-    const coreApiServiceProvider = {
-        name: () => "core-api",
-        configDefaults: () => ({
-            server: { http: { port: 4003 } },
-        }),
-    };
-    const serviceProviders = { "@arkecosystem/core-api": coreApiServiceProvider };
-    const configRepository = { get: () => appPlugins }; // get("app.plugins")
-    const serviceProviderRepository = { get: (plugin) => serviceProviders[plugin] };
-    const appGet = {
-        [Container.Identifiers.BlockchainService]: blockchain,
-        [Container.Identifiers.TransactionPoolProcessorFactory]: createProcessor,
-        [Container.Identifiers.ConfigRepository]: configRepository,
-        [Container.Identifiers.ServiceProviderRepository]: serviceProviderRepository,
-    };
-    const config = { getOptional: jest.fn().mockReturnValue(["127.0.0.1"]) }; // remoteAccess
-    const app = {
-        get: (key) => appGet[key],
-        getTagged: () => config,
-        version: () => "3.0.9",
-        resolve: () => ({
-            from: () => ({
-                merge: () => ({
-                    all: () => ({
-                        server: { http: { port: "4003" } },
-                        options: {
-                            estimateTotalCount: true,
-                        },
-                    }),
-                }),
-            }),
-        }),
-    };
-
-    beforeAll(() => {
-        container.unbindAll();
-        container.bind(Container.Identifiers.LogService).toConstantValue(logger);
-        container.bind(Container.Identifiers.PeerRepository).toConstantValue(peerRepository);
-        container.bind(Container.Identifiers.DatabaseService).toConstantValue(database);
-        container.bind(Container.Identifiers.DatabaseInteraction).toConstantValue(databaseInteractions);
-        container.bind(Container.Identifiers.Application).toConstantValue(app);
-    });
 
     beforeEach(() => {
-        peerController = container.resolve<PeerController>(PeerController);
+        sandbox = new Sandbox();
+
+        sandbox.app.bind(Container.Identifiers.LogService).toConstantValue(logger);
+        sandbox.app.bind(Container.Identifiers.PeerRepository).toConstantValue(peerRepository);
+        sandbox.app.bind(Container.Identifiers.DatabaseService).toConstantValue(database);
+        sandbox.app.bind(Container.Identifiers.DatabaseInteraction).toConstantValue(databaseInteractions);
+        sandbox.app.bind(Container.Identifiers.BlockchainService).toConstantValue(blockchain);
+
+        sandbox.app.version = jest.fn().mockReturnValue("3.0.9");
+
+        peerController = sandbox.app.resolve<PeerController>(PeerController);
     });
 
     describe("getPeers", () => {
@@ -149,6 +115,11 @@ describe("PeerController", () => {
     });
 
     describe("getStatus", () => {
+        beforeEach(() => {
+            // @ts-ignore
+            getPeerConfig = jest.fn().mockReturnValue({});
+        });
+
         it("should return the status based on last block", async () => {
             const header = { id: "984003423092345907" };
             const height = 1987;
@@ -168,6 +139,7 @@ describe("PeerController", () => {
 
             const status = await peerController.getStatus({}, {});
 
+            expect(getPeerConfig).toHaveBeenCalledTimes(1);
             expect(status).toEqual({
                 state: {
                     height,
@@ -175,7 +147,7 @@ describe("PeerController", () => {
                     currentSlot: slotInfo.slotNumber,
                     header,
                 },
-                config: getPeerConfig(app as any),
+                config: getPeerConfig({} as any),
             });
         });
     });
