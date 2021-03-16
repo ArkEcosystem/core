@@ -55,6 +55,10 @@ export interface StateStore {
 
     setNetworkStart(networkStart: boolean): void;
 
+    getRestoredDatabaseIntegrity(): boolean;
+
+    setRestoredDatabaseIntegrity(restoredDatabaseIntegrity: boolean): void;
+
     reset(blockchainMachine): void;
 
     /**

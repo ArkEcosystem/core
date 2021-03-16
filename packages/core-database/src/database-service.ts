@@ -32,9 +32,6 @@ export class DatabaseService {
     @Container.inject(Container.Identifiers.EventDispatcherService)
     private readonly events!: Contracts.Kernel.EventDispatcher;
 
-    // TODO: make private readonly
-    public restoredDatabaseIntegrity: boolean = false;
-
     public async initialize(): Promise<void> {
         try {
             if (process.env.CORE_RESET_DATABASE) {
