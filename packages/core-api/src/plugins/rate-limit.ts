@@ -1,14 +1,12 @@
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 import mm from "nanomatch";
-import { RateLimiterMemory, RLWrapperBlackAndWhite } from "rate-limiter-flexible";
+import { RateLimiterMemory, RLWrapperBlackAndWhite, RateLimiterRes } from "rate-limiter-flexible";
 
-interface RateLimitResult {
-    msBeforeNext: number;
-    remainingPoints: number;
-    consumedPoints: number;
-    isFirstInDuration: boolean;
-}
+type RateLimitPluginData = {
+    remaining: number;
+    reset: number;
+};
 
 const isListed = (ip: string, patterns: string[]): boolean => {
     if (!Array.isArray(patterns)) {
@@ -53,22 +51,45 @@ export = {
             type: "onPostAuth",
             async method(request, h) {
                 try {
-                    const result: RateLimitResult = await rateLimiter.consume(request.info.remoteAddress, 1);
+                    const rateLimitRes: RateLimiterRes = await rateLimiter.consume(request.info.remoteAddress, 1);
 
-                    request.headers["Retry-After"] = result.msBeforeNext / 1000;
-                    request.headers["X-RateLimit-Limit"] = options.points;
-                    request.headers["X-RateLimit-Remaining"] = result.remainingPoints;
-                    request.headers["X-RateLimit-Reset"] = new Date(Date.now() + result.msBeforeNext);
-                } catch (error) {
-                    if (error instanceof Error) {
-                        return Boom.internal(error.message);
+                    request.plugins["rate-limit"] = {
+                        remaining: rateLimitRes.remainingPoints,
+                        reset: Date.now() + rateLimitRes.msBeforeNext,
+                    } as RateLimitPluginData;
+                } catch (rateLimitRes) {
+                    if (rateLimitRes instanceof Error) {
+                        return Boom.internal(rateLimitRes.message);
                     }
 
-                    const tooManyRequests = Boom.tooManyRequests();
-                    /* istanbul ignore next */
-                    tooManyRequests.output.headers["Retry-After"] = `${Math.round(error.msBeforeNext / 1000) || 1}`;
+                    request.plugins["rate-limit"] = {
+                        remaining: rateLimitRes.remainingPoints,
+                        reset: Date.now() + rateLimitRes.msBeforeNext,
+                    } as RateLimitPluginData;
 
-                    return tooManyRequests;
+                    return Boom.tooManyRequests();
+                }
+
+                return h.continue;
+            },
+        });
+
+        server.ext({
+            type: "onPreResponse",
+            async method(request: Hapi.Request, h: Hapi.ResponseToolkit) {
+                if (request.plugins["rate-limit"]) {
+                    const data = request.plugins["rate-limit"] as RateLimitPluginData;
+
+                    if (request.response.isBoom) {
+                        request.response.output.headers["X-RateLimit-Limit"] = String(options.points);
+                        request.response.output.headers["X-RateLimit-Remaining"] = String(data.remaining);
+                        request.response.output.headers["X-RateLimit-Reset"] = new Date(data.reset).toUTCString();
+                        request.response.output.headers["Retry-After"] = Math.max(0, (data.reset - Date.now()) / 1000);
+                    } else {
+                        request.response.header("X-RateLimit-Limit", String(options.points));
+                        request.response.header("X-RateLimit-Remaining", String(data.remaining));
+                        request.response.header("X-RateLimit-Reset", new Date(data.reset).toUTCString());
+                    }
                 }
 
                 return h.continue;
