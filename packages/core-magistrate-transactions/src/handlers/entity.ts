@@ -73,7 +73,7 @@ export class EntityTransactionHandler extends IHandlers.TransactionHandler {
             throw new StaticFeeMismatchError(staticFee.toFixed());
         }
 
-        super.throwIfCannotBeApplied(transaction, wallet, walletManager);
+        await super.throwIfCannotBeApplied(transaction, wallet, walletManager);
 
         const walletEntities = wallet.getAttribute("entities", {});
         if (transaction.data.asset.action === Enums.EntityAction.Register) {
