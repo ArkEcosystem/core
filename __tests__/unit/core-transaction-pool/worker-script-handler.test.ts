@@ -1,8 +1,7 @@
-import { Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
-import { Generators } from "@arkecosystem/core-test-framework";
-import { Identities, Managers, Transactions } from "@arkecosystem/crypto";
-
-import { WorkerScriptHandler } from "../../../packages/core-transaction-pool/src/worker-script-handler";
+import { Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
+import { Generators } from "@packages/core-test-framework";
+import { WorkerScriptHandler } from "@packages/core-transaction-pool/src/worker-script-handler";
+import { Identities, Managers, Transactions } from "@packages/crypto";
 
 describe("WorkerScriptHandler.loadCryptoPackage", () => {
     it("should register crypto package transactions", () => {
@@ -47,6 +46,10 @@ describe("WorkerScriptHandler.getTransactionFromData", () => {
             .build();
         const result = await workerScriptHandler.getTransactionFromData(transaction.data);
 
-        expect(result).toEqual({ id: transaction.id, serialized: transaction.serialized.toString("hex") });
+        expect(result).toEqual({
+            id: transaction.id,
+            serialized: transaction.serialized.toString("hex"),
+            isVerified: true,
+        });
     });
 });
