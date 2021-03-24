@@ -1,10 +1,10 @@
 import "jest-extended";
 
-import { Container, Utils } from "@arkecosystem/core-kernel";
-import { Enums } from "@arkecosystem/core-magistrate-crypto";
-import { EntityBuilder } from "@arkecosystem/core-magistrate-crypto/src/builders";
-import { EntityAction, EntityType } from "@arkecosystem/core-magistrate-crypto/src/enums";
-import { EntityTransaction } from "@arkecosystem/core-magistrate-crypto/src/transactions";
+import { Container, Utils } from "@packages/core-kernel";
+import { Enums } from "@packages/core-magistrate-crypto";
+import { EntityBuilder } from "@packages/core-magistrate-crypto/dist/builders";
+import { EntityAction, EntityType } from "@packages/core-magistrate-crypto/dist/enums";
+import { EntityTransaction } from "@packages/core-magistrate-crypto/dist/transactions";
 import {
     EntityAlreadyRegisteredError,
     EntityAlreadyResignedError,
@@ -15,14 +15,12 @@ import {
     EntityWrongSubTypeError,
     EntityWrongTypeError,
     StaticFeeMismatchError,
-} from "@arkecosystem/core-magistrate-transactions/src/errors";
-import { EntityTransactionHandler } from "@arkecosystem/core-magistrate-transactions/src/handlers/entity";
-import { Utils as CryptoUtils } from "@arkecosystem/crypto";
-import { Managers, Transactions } from "@arkecosystem/crypto";
+} from "@packages/core-magistrate-transactions/dist/errors";
+import { EntityTransactionHandler } from "@packages/core-magistrate-transactions/dist/handlers/entity";
+import { Utils as CryptoUtils } from "@packages/crypto";
+import { Managers, Transactions } from "@packages/crypto";
 
-import { validRegisters } from "./__fixtures__/entity/register";
-import { validResigns } from "./__fixtures__/entity/resign";
-import { validUpdates } from "./__fixtures__/entity/update";
+import { validRegisters, validResigns, validUpdates } from "./__fixtures__/entity";
 import { walletRepository } from "./__mocks__/wallet-repository";
 
 // mocking the abstract TransactionHandler class
