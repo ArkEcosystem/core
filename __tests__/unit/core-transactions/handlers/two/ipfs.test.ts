@@ -40,6 +40,17 @@ const transactionHistoryService = {
     streamByCriteria: jest.fn(),
 };
 
+const poolQuery = {
+    getAll: jest.fn(),
+    whereKind: jest.fn(),
+    wherePredicate: jest.fn(),
+    has: jest.fn().mockReturnValue(false),
+};
+
+poolQuery.getAll.mockReturnValue(poolQuery);
+poolQuery.whereKind.mockReturnValue(poolQuery);
+poolQuery.wherePredicate.mockReturnValue(poolQuery);
+
 beforeEach(() => {
     transactionHistoryService.streamByCriteria.mockReset();
 
@@ -49,6 +60,9 @@ beforeEach(() => {
 
     app = initApp();
     app.bind(Identifiers.TransactionHistoryService).toConstantValue(transactionHistoryService);
+
+    app.unbind(Identifiers.TransactionPoolQuery);
+    app.bind(Identifiers.TransactionPoolQuery).toConstantValue(poolQuery);
 
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
 
@@ -177,6 +191,18 @@ describe("Ipfs", () => {
             });
 
             await expect(handler.bootstrap()).rejects.toThrow(Exceptions.Runtime.AssertionException);
+        });
+    });
+
+    describe("throwIfCannotEnterPool", () => {
+        it("should not throw", async () => {
+            await expect(handler.throwIfCannotEnterPool(ipfsTransaction)).toResolve();
+        });
+
+        it("should reject when transaction with same ipfs address is already in the pool", async () => {
+            poolQuery.has.mockReturnValue(true);
+
+            await expect(handler.throwIfCannotEnterPool(ipfsTransaction)).rejects.toBeInstanceOf(Contracts.TransactionPool.PoolError);
         });
     });
 
