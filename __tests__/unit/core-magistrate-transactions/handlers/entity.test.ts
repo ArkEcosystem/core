@@ -1,10 +1,11 @@
 import "jest-extended";
 
+import { PoolError } from "@packages/core-kernel/dist/contracts/transaction-pool";
 import { Container, Utils } from "@packages/core-kernel";
 import { Enums } from "@packages/core-magistrate-crypto";
-import { EntityBuilder } from "@packages/core-magistrate-crypto/dist/builders";
-import { EntityAction, EntityType } from "@packages/core-magistrate-crypto/dist/enums";
-import { EntityTransaction } from "@packages/core-magistrate-crypto/dist/transactions";
+import { EntityBuilder } from "@packages/core-magistrate-crypto/src/builders";
+import { EntityAction, EntityType } from "@packages/core-magistrate-crypto/src/enums";
+import { EntityTransaction } from "@packages/core-magistrate-crypto/src/transactions";
 import {
     EntityAlreadyRegisteredError,
     EntityAlreadyResignedError,
@@ -15,8 +16,8 @@ import {
     EntityWrongSubTypeError,
     EntityWrongTypeError,
     StaticFeeMismatchError,
-} from "@packages/core-magistrate-transactions/dist/errors";
-import { EntityTransactionHandler } from "@packages/core-magistrate-transactions/dist/handlers/entity";
+} from "@packages/core-magistrate-transactions/src/errors";
+import { EntityTransactionHandler } from "@packages/core-magistrate-transactions/src/handlers/entity";
 import { Utils as CryptoUtils } from "@packages/crypto";
 import { Managers, Transactions } from "@packages/crypto";
 
@@ -50,9 +51,21 @@ describe("Entity handler", () => {
         streamByCriteria: jest.fn(),
     };
 
+    const poolQuery = {
+        getAll: jest.fn(),
+        whereKind: jest.fn(),
+        wherePredicate: jest.fn(),
+        has: jest.fn().mockReturnValue(false),
+    };
+
+    poolQuery.getAll.mockReturnValue(poolQuery);
+    poolQuery.whereKind.mockReturnValue(poolQuery);
+    poolQuery.wherePredicate.mockReturnValue(poolQuery);
+
     beforeAll(() => {
         container.unbindAll();
         container.bind(Container.Identifiers.TransactionHistoryService).toConstantValue(transactionHistoryService);
+        container.bind(Container.Identifiers.TransactionPoolQuery).toConstantValue(poolQuery);
     });
 
     let wallet, walletAttributes;
@@ -159,6 +172,28 @@ describe("Entity handler", () => {
 
         it("should resolve", async () => {
             await expect(entityHandler.bootstrap()).toResolve();
+        });
+    });
+
+    describe("throwIfCannotEnterPool", () => {
+        let transaction: EntityTransaction;
+        let entityHandler: EntityTransactionHandler;
+
+        beforeEach(() => {
+            const builder = new EntityBuilder();
+            transaction = builder.asset(validRegisters[0]).sign("passphrase").build() as EntityTransaction;
+
+            entityHandler = container.resolve(EntityTransactionHandler);
+        });
+
+        it("should resolve", async () => {
+            await expect(entityHandler.throwIfCannotEnterPool(transaction)).toResolve();
+        });
+
+        it("should throw if transaction with same type and name is already in the pool", async () => {
+            poolQuery.has.mockReturnValue(true);
+
+            await expect(entityHandler.throwIfCannotEnterPool(transaction)).rejects.toBeInstanceOf(PoolError);
         });
     });
 
