@@ -94,6 +94,7 @@ export class MultiSignatureRegistrationTransactionHandler extends TransactionHan
 
     public async throwIfCannotEnterPool(transaction: Interfaces.ITransaction): Promise<void> {
         AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
+        AppUtils.assert.defined<Interfaces.IMultiSignatureAsset>(transaction.data.asset?.multiSignature);
 
         const hasSender: boolean = this.poolQuery
             .getAllBySender(transaction.data.senderPublicKey)
@@ -103,6 +104,25 @@ export class MultiSignatureRegistrationTransactionHandler extends TransactionHan
         if (hasSender) {
             throw new Contracts.TransactionPool.PoolError(
                 `Sender ${transaction.data.senderPublicKey} already has a transaction of type '${Enums.TransactionType.MultiSignature}' in the pool`,
+                "ERR_PENDING",
+            );
+        }
+
+        const address = Identities.Address.fromMultiSignatureAsset(transaction.data.asset.multiSignature);
+        const hasAddress: boolean = this.poolQuery
+            .getAll()
+            .whereKind(transaction)
+            .wherePredicate(
+                (t) =>
+                    Identities.Address.fromMultiSignatureAsset(
+                        t.data.asset!.multiSignature as Interfaces.IMultiSignatureAsset,
+                    ) === address,
+            )
+            .has();
+
+        if (hasAddress) {
+            throw new Contracts.TransactionPool.PoolError(
+                `MultiSignatureRegistration for address ${address} already in the pool`,
                 "ERR_PENDING",
             );
         }
