@@ -12,10 +12,10 @@ import { Mempool } from "@packages/core-transaction-pool/src/mempool";
 import {
     InsufficientBalanceError,
     InvalidMultiSignatureError,
+    LegacyMultiSignatureRegistrationError,
     MultiSignatureAlreadyRegisteredError,
     MultiSignatureKeyCountMismatchError,
     MultiSignatureMinimumKeysError,
-    LegacyMultiSignatureRegistrationError,
 } from "@packages/core-transactions/src/errors";
 import { TransactionHandler } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
@@ -359,7 +359,34 @@ describe("MultiSignatureRegistrationTransaction", () => {
             await app.get<Mempool>(Identifiers.TransactionPoolMempool).addTransaction(multiSignatureTransaction);
 
             await expect(handler.throwIfCannotEnterPool(multiSignatureTransaction)).rejects.toThrow(
-                Contracts.TransactionPool.PoolError,
+                new Contracts.TransactionPool.PoolError(
+                    "Sender 03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37 already has a transaction of type '4' in the pool",
+                    "ERR_PENDING",
+                ),
+            );
+        });
+
+        it("should throw if transaction with same address already in pool", async () => {
+            const anotherSenderWallet = buildSenderWallet(factoryBuilder, "random passphrase");
+
+            const multiSignatureTransactionWithSameAddress = BuilderFactory.multiSignature()
+                .multiSignatureAsset(multiSignatureAsset)
+                .senderPublicKey(anotherSenderWallet.publicKey!)
+                .nonce("1")
+                .recipientId(recipientWallet.publicKey!)
+                .multiSign(passphrases[0], 0)
+                .multiSign(passphrases[1], 1)
+                .multiSign(passphrases[2], 2)
+                .sign("random passphrase")
+                .build();
+
+            await app.get<Mempool>(Identifiers.TransactionPoolMempool).addTransaction(multiSignatureTransaction);
+
+            await expect(handler.throwIfCannotEnterPool(multiSignatureTransactionWithSameAddress)).rejects.toThrow(
+                new Contracts.TransactionPool.PoolError(
+                    "MultiSignatureRegistration for address ANexvVGYLYUbmTPHAtJ7sb1LxNZwEqKeSv already in the pool",
+                    "ERR_PENDING",
+                ),
             );
         });
     });
