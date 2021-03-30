@@ -486,7 +486,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
         let blockPing = blockchain.getBlockPing();
         let peers: Contracts.P2P.Peer[] = this.repository.getPeers();
 
-        if (blockPing && blockPing.block.id === block.data.id) {
+        if (blockPing && blockPing.block.id === block.data.id && !blockPing.fromForger) {
             // wait a bit before broadcasting if a bit early
             const diff = blockPing.last - blockPing.first;
             const maxHop = 4;
@@ -498,7 +498,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
                 blockPing = blockchain.getBlockPing()!;
 
                 // got aleady a new block, no broadcast
-                if (blockPing.block.id !== block.data.id) {
+                if (blockPing.block.height !== block.data.height) {
                     return;
                 }
 
