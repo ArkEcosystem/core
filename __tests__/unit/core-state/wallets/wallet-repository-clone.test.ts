@@ -1,3 +1,4 @@
+// @ts-nocheck
 import "jest-extended";
 
 import { Container, Contracts, Services } from "@packages/core-kernel";
@@ -7,11 +8,14 @@ import {
     usernamesIndexer,
     WalletRepository,
     WalletRepositoryClone,
+    Wallet,
 } from "@packages/core-state/src/wallets";
 import { walletFactory } from "@packages/core-state/src/wallets/wallet-factory";
 import { Sandbox } from "@packages/core-test-framework";
 
 let sandbox: Sandbox;
+let walletRepositoryBlockchain: WalletRepository;
+let walletRepositoryClone: WalletRepositoryClone;
 
 beforeEach(() => {
     sandbox = new Sandbox();
@@ -79,16 +83,39 @@ beforeEach(() => {
         .to(WalletRepositoryClone)
         .inSingletonScope()
         .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("state", "clone"));
+
+    walletRepositoryBlockchain = sandbox.app.getTagged<WalletRepositoryClone>(
+        Container.Identifiers.WalletRepository,
+        "state",
+        "blockchain",
+    );
+
+    walletRepositoryClone = sandbox.app.getTagged<WalletRepositoryClone>(
+        Container.Identifiers.WalletRepository,
+        "state",
+        "clone",
+    );
 });
 
 describe("Wallet Repository Clone", () => {
-    it("should run", () => {
-        const walletRepositoryClone = sandbox.app.getTagged<WalletRepositoryClone>(
-            Container.Identifiers.WalletRepository,
-            "state",
-            "clone",
-        );
+    describe("createWallet", () => {
+        it("should create wallet by address", () => {
+            const wallet = walletRepositoryClone.createWallet("address");
 
-        walletRepositoryClone.getIndexNames();
+            expect(wallet).toBeInstanceOf(Wallet);
+            expect(wallet.address).toEqual("address");
+        });
+    });
+
+    describe("getIndex", () => {
+        // TODO
+    });
+
+    describe("getIndexNames", () => {
+        it("should return index names", () => {
+            walletRepositoryClone.getIndexNames();
+
+            expect(walletRepositoryClone.getIndexNames()).toEqual(["addresses", "publicKeys", "usernames"]);
+        });
     });
 });
