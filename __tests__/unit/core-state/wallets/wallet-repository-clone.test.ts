@@ -118,4 +118,50 @@ describe("Wallet Repository Clone", () => {
             expect(walletRepositoryClone.getIndexNames()).toEqual(["addresses", "publicKeys", "usernames"]);
         });
     });
+
+    describe("findByAddress", () => {
+        it("should copy and index wallet from blockchain wallet repository if exist in blockchain wallet repository", () => {
+            const blockchainWallet = walletRepositoryBlockchain.findByAddress("address");
+            expect(walletRepositoryBlockchain.hasByAddress("address")).toBeTrue();
+
+            const wallet = walletRepositoryClone.findByAddress("address");
+
+            expect(wallet).toBeInstanceOf(Wallet);
+            expect(wallet.address).toEqual("address");
+            expect(walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Addresses).has("address")).toBeTrue();
+
+            expect(wallet).not.toBe(blockchainWallet);
+            expect(wallet).toEqual(blockchainWallet);
+        });
+
+        it("should create and index new wallet if does not exist in blockchain wallet repository", () => {
+            const wallet = walletRepositoryClone.findByAddress("address");
+
+            expect(wallet).toBeInstanceOf(Wallet);
+            expect(wallet.address).toEqual("address");
+            expect(walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Addresses).has("address")).toBeTrue();
+
+            expect(walletRepositoryBlockchain.hasByAddress("address")).toBeFalse();
+        });
+
+        it("should return existing wallet", () => {
+            const spyOnCreateWallet = jest.spyOn(walletRepositoryClone, "createWallet");
+
+            const wallet = walletRepositoryClone.findByAddress("address");
+
+            expect(wallet).toBeInstanceOf(Wallet);
+            expect(wallet.address).toEqual("address");
+            expect(walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Addresses).has("address")).toBeTrue();
+            expect(spyOnCreateWallet).toHaveBeenCalled();
+
+            spyOnCreateWallet.mockReset();
+
+            const existingWallet = walletRepositoryClone.findByAddress("address");
+
+            expect(wallet).toBe(existingWallet);
+            expect(spyOnCreateWallet).not.toHaveBeenCalled();
+
+            expect(walletRepositoryBlockchain.hasByAddress("address")).toBeFalse();
+        });
+    });
 });

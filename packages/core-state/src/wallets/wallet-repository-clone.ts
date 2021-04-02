@@ -19,9 +19,9 @@ export class WalletRepositoryClone extends WalletRepository {
         return super.createWallet(address);
     }
 
-    public getIndex(name: string): Contracts.State.WalletIndex {
-        throw new Exceptions.Logic.MethodNotImplemented("getIndex");
-    }
+    // public getIndex(name: string): Contracts.State.WalletIndex {
+    //     throw new Exceptions.Logic.MethodNotImplemented("getIndex");
+    // }
 
     public getIndexNames(): string[] {
         return super.getIndexNames();
@@ -40,7 +40,20 @@ export class WalletRepositoryClone extends WalletRepository {
     }
 
     public findByAddress(address: string): Contracts.State.Wallet {
-        throw new Exceptions.Logic.MethodNotImplemented("findByAddress");
+        if (super.hasByIndex(Contracts.State.WalletIndexes.Addresses, address)) {
+            return super.findByIndex(Contracts.State.WalletIndexes.Addresses, address);
+        }
+
+        let wallet;
+        if (this.blockchainWalletRepository.hasByAddress(address)) {
+            wallet = this.blockchainWalletRepository.findByAddress(address).clone();
+        } else {
+            wallet = this.createWallet(address);
+        }
+
+        super.index(wallet);
+
+        return wallet;
     }
 
     public findByPublicKey(publicKey: string): Contracts.State.Wallet {
@@ -75,9 +88,9 @@ export class WalletRepositoryClone extends WalletRepository {
         throw new Exceptions.Logic.MethodNotImplemented("hasByUsername");
     }
 
-    public hasByIndex(indexName: string, key: string): boolean {
-        throw new Exceptions.Logic.MethodNotImplemented("hasByIndex");
-    }
+    // public hasByIndex(indexName: string, key: string): boolean {
+    //     throw new Exceptions.Logic.MethodNotImplemented("hasByIndex");
+    // }
 
     public getNonce(publicKey: string): Utils.BigNumber {
         throw new Exceptions.Logic.MethodNotImplemented("getNonce");
