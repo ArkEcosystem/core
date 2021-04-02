@@ -1,5 +1,5 @@
 import { Container, Contracts, Exceptions } from "@arkecosystem/core-kernel";
-import { Utils } from "@packages/crypto";
+import { Identities, Utils } from "@packages/crypto";
 
 import { WalletRepository } from "./wallet-repository";
 
@@ -57,7 +57,13 @@ export class WalletRepositoryClone extends WalletRepository {
     }
 
     public findByPublicKey(publicKey: string): Contracts.State.Wallet {
-        throw new Exceptions.Logic.MethodNotImplemented("findByPublicKey");
+        if (!this.hasByIndex(Contracts.State.WalletIndexes.PublicKeys, publicKey)) {
+            const wallet = this.findByAddress(Identities.Address.fromPublicKey(publicKey));
+            wallet.publicKey = publicKey;
+            super.index(wallet);
+        }
+
+        return this.findByIndex(Contracts.State.WalletIndexes.PublicKeys, publicKey);
     }
 
     public findByUsername(username: string): Contracts.State.Wallet {
@@ -65,7 +71,12 @@ export class WalletRepositoryClone extends WalletRepository {
     }
 
     public findByIndex(index: string, key: string): Contracts.State.Wallet {
-        throw new Exceptions.Logic.MethodNotImplemented("findByIndex");
+        if (!this.hasByIndex(index, key)) {
+            const wallet = this.blockchainWalletRepository.findByIndex(index, key).clone();
+            super.index(wallet);
+        }
+
+        return this.getIndex(index).get(key)!;
     }
 
     public findByIndexes(indexes: string[], key: string): Contracts.State.Wallet {
@@ -77,28 +88,28 @@ export class WalletRepositoryClone extends WalletRepository {
     }
 
     public hasByAddress(address: string): boolean {
-        throw new Exceptions.Logic.MethodNotImplemented("hasByAddress");
+        return this.hasByIndex(Contracts.State.WalletIndexes.Addresses, address);
     }
 
     public hasByPublicKey(publicKey: string): boolean {
-        throw new Exceptions.Logic.MethodNotImplemented("hasByPublicKey");
+        return this.hasByIndex(Contracts.State.WalletIndexes.PublicKeys, publicKey);
     }
 
     public hasByUsername(username: string): boolean {
         throw new Exceptions.Logic.MethodNotImplemented("hasByUsername");
     }
 
-    // public hasByIndex(indexName: string, key: string): boolean {
-    //     throw new Exceptions.Logic.MethodNotImplemented("hasByIndex");
-    // }
+    public hasByIndex(indexName: string, key: string): boolean {
+        return this.getIndex(indexName).has(key) || this.blockchainWalletRepository.getIndex(indexName).has(key);
+    }
 
     public getNonce(publicKey: string): Utils.BigNumber {
         throw new Exceptions.Logic.MethodNotImplemented("getNonce");
     }
 
-    public index(wallets: Contracts.State.Wallet | Contracts.State.Wallet[]): void {
-        throw new Exceptions.Logic.MethodNotImplemented("index");
-    }
+    // public index(wallets: Contracts.State.Wallet | Contracts.State.Wallet[]): void {
+    //     throw new Exceptions.Logic.MethodNotImplemented("index");
+    // }
 
     public reset(): void {
         throw new Exceptions.Logic.MethodNotImplemented("reset");

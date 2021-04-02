@@ -6,9 +6,9 @@ import {
     addressesIndexer,
     publicKeysIndexer,
     usernamesIndexer,
+    Wallet,
     WalletRepository,
     WalletRepositoryClone,
-    Wallet,
 } from "@packages/core-state/src/wallets";
 import { walletFactory } from "@packages/core-state/src/wallets/wallet-factory";
 import { Sandbox } from "@packages/core-test-framework";
@@ -162,6 +162,167 @@ describe("Wallet Repository Clone", () => {
             expect(spyOnCreateWallet).not.toHaveBeenCalled();
 
             expect(walletRepositoryBlockchain.hasByAddress("address")).toBeFalse();
+        });
+    });
+
+    describe("findByPublicKey", () => {
+        const publicKey = "03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37";
+
+        it("should copy and index wallet from blockchain wallet repository if exist in blockchain wallet repository", () => {
+            const blockchainWallet = walletRepositoryBlockchain.findByPublicKey(publicKey);
+            expect(walletRepositoryBlockchain.hasByPublicKey(publicKey)).toBeTrue();
+
+            const wallet = walletRepositoryClone.findByPublicKey(publicKey);
+
+            expect(wallet).toBeInstanceOf(Wallet);
+            expect(wallet.publicKey).toEqual(publicKey);
+            expect(walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.PublicKeys).has(publicKey)).toBeTrue();
+            expect(
+                walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Addresses).has(wallet.address),
+            ).toBeTrue();
+
+            expect(wallet).not.toBe(blockchainWallet);
+            expect(wallet).toEqual(blockchainWallet);
+        });
+
+        it("should create and index new wallet if does not exist in blockchain wallet repository", () => {
+            const wallet = walletRepositoryClone.findByPublicKey(publicKey);
+
+            expect(wallet).toBeInstanceOf(Wallet);
+            expect(wallet.publicKey).toEqual(publicKey);
+            expect(walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.PublicKeys).has(publicKey)).toBeTrue();
+            expect(
+                walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Addresses).has(wallet.address),
+            ).toBeTrue();
+
+            expect(walletRepositoryBlockchain.hasByPublicKey(publicKey)).toBeFalse();
+            expect(walletRepositoryBlockchain.hasByAddress(wallet.address)).toBeFalse();
+        });
+
+        it("should return existing wallet", () => {
+            const spyOnCreateWallet = jest.spyOn(walletRepositoryClone, "createWallet");
+
+            const wallet = walletRepositoryClone.findByPublicKey(publicKey);
+
+            expect(wallet).toBeInstanceOf(Wallet);
+            expect(wallet.publicKey).toEqual(publicKey);
+            expect(walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.PublicKeys).has(publicKey)).toBeTrue();
+            expect(spyOnCreateWallet).toHaveBeenCalled();
+
+            spyOnCreateWallet.mockReset();
+
+            const existingWallet = walletRepositoryClone.findByPublicKey(publicKey);
+
+            expect(wallet).toBe(existingWallet);
+            expect(spyOnCreateWallet).not.toHaveBeenCalled();
+
+            expect(walletRepositoryBlockchain.hasByPublicKey(publicKey)).toBeFalse();
+        });
+    });
+
+    // TODO: Try with auto and without auto index
+    describe("findByIndex", () => {
+        const username = "genesis_1";
+
+        it("should copy and index wallet from blockchain wallet repository if exist in blockchain wallet repository", () => {
+            const blockchainWallet = walletRepositoryBlockchain.findByAddress("address");
+            blockchainWallet.setAttribute("delegate.username", username);
+            walletRepositoryBlockchain.index(blockchainWallet);
+
+            expect(walletRepositoryBlockchain.hasByIndex(Contracts.State.WalletIndexes.Usernames, username)).toBeTrue();
+
+            const wallet = walletRepositoryClone.findByIndex(Contracts.State.WalletIndexes.Usernames, username);
+
+            expect(wallet).toBeInstanceOf(Wallet);
+            expect(wallet.getAttribute("delegate.username")).toEqual(username);
+            expect(walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Usernames).has(username)).toBeTrue();
+            expect(
+                walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Addresses).has(wallet.address),
+            ).toBeTrue();
+
+            expect(wallet).not.toBe(blockchainWallet);
+            expect(wallet).toEqual(blockchainWallet);
+        });
+
+        it("should return existing wallet", () => {
+            const spyOnCreateWallet = jest.spyOn(walletRepositoryClone, "createWallet");
+
+            const wallet = walletRepositoryClone.findByAddress("address");
+            wallet.setAttribute("delegate.username", username);
+            walletRepositoryClone.index(wallet);
+
+            expect(wallet).toBeInstanceOf(Wallet);
+            expect(wallet.address).toEqual("address");
+            expect(wallet.getAttribute("delegate.username")).toEqual(username);
+            expect(walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Usernames).has(username)).toBeTrue();
+            expect(spyOnCreateWallet).toHaveBeenCalled();
+
+            spyOnCreateWallet.mockReset();
+
+            const existingWallet = walletRepositoryClone.findByIndex(Contracts.State.WalletIndexes.Usernames, username);
+
+            expect(wallet).toBe(existingWallet);
+            expect(spyOnCreateWallet).not.toHaveBeenCalled();
+
+            expect(
+                walletRepositoryBlockchain.hasByIndex(Contracts.State.WalletIndexes.Usernames, username),
+            ).toBeFalse();
+        });
+
+        it("should throw error if does not exist in blockchain wallet repository", () => {
+            expect(() => {
+                walletRepositoryClone.findByIndex(Contracts.State.WalletIndexes.Usernames, username);
+            }).toThrow("Wallet genesis_1 doesn't exist in index usernames");
+        });
+    });
+
+    describe("hasByAddress", () => {
+        it("should return true if wallet exist in blockchain wallet repository", () => {
+            walletRepositoryBlockchain.findByAddress("address");
+
+            expect(walletRepositoryBlockchain.hasByAddress("address")).toBeTrue();
+
+            expect(walletRepositoryClone.hasByAddress("address")).toBeTrue();
+        });
+
+        it("should return true if wallet exist in clone wallet repository", () => {
+            walletRepositoryClone.findByAddress("address");
+
+            expect(walletRepositoryBlockchain.hasByAddress("address")).toBeFalse();
+
+            expect(walletRepositoryClone.hasByAddress("address")).toBeTrue();
+        });
+
+        it("should return false if wallet does not exist in clone wallet repository", () => {
+            expect(walletRepositoryBlockchain.hasByAddress("address")).toBeFalse();
+
+            expect(walletRepositoryClone.hasByAddress("address")).toBeFalse();
+        });
+    });
+
+    describe("hasByPublicKey", () => {
+        const publicKey = "03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37";
+
+        it("should return true if wallet exist in blockchain wallet repository", () => {
+            walletRepositoryBlockchain.findByPublicKey(publicKey);
+
+            expect(walletRepositoryBlockchain.hasByPublicKey(publicKey)).toBeTrue();
+
+            expect(walletRepositoryClone.hasByPublicKey(publicKey)).toBeTrue();
+        });
+
+        it("should return true if wallet exist in clone wallet repository", () => {
+            walletRepositoryBlockchain.findByPublicKey(publicKey);
+
+            expect(walletRepositoryBlockchain.hasByPublicKey(publicKey)).toBeFalse();
+
+            expect(walletRepositoryClone.hasByPublicKey(publicKey)).toBeTrue();
+        });
+
+        it("should return false if wallet does not exist in clone wallet repository", () => {
+            expect(walletRepositoryBlockchain.hasByPublicKey(publicKey)).toBeFalse();
+
+            expect(walletRepositoryClone.hasByPublicKey(publicKey)).toBeFalse();
         });
     });
 });
