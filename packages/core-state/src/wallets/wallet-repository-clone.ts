@@ -46,7 +46,8 @@ export class WalletRepositoryClone extends WalletRepository {
 
         let wallet;
         if (this.blockchainWalletRepository.hasByAddress(address)) {
-            wallet = this.blockchainWalletRepository.findByAddress(address).clone();
+            const walletToClone = this.blockchainWalletRepository.findByAddress(address);
+            wallet = this.cloneWallet(this.blockchainWalletRepository, walletToClone);
         } else {
             wallet = this.createWallet(address);
         }
@@ -72,8 +73,8 @@ export class WalletRepositoryClone extends WalletRepository {
 
     public findByIndex(index: string, key: string): Contracts.State.Wallet {
         if (!super.hasByIndex(index, key)) {
-            const wallet = this.blockchainWalletRepository.findByIndex(index, key).clone();
-            super.index(wallet);
+            const walletToClone = this.blockchainWalletRepository.findByIndex(index, key);
+            this.cloneWallet(this.blockchainWalletRepository, walletToClone);
         }
 
         return this.getIndex(index).get(key)!;
@@ -123,10 +124,10 @@ export class WalletRepositoryClone extends WalletRepository {
         throw new Exceptions.Logic.MethodNotImplemented("reset");
     }
 
-    public cloneWallet(
-        origin: Contracts.State.WalletRepository,
-        wallet: Contracts.State.Wallet,
-    ): Contracts.State.Wallet {
-        throw new Exceptions.Logic.MethodNotImplemented("cloneWallet");
-    }
+    // public cloneWallet(
+    //     origin: Contracts.State.WalletRepository,
+    //     wallet: Contracts.State.Wallet,
+    // ): Contracts.State.Wallet {
+    //     throw new Exceptions.Logic.MethodNotImplemented("cloneWallet");
+    // }
 }
