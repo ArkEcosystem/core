@@ -7,6 +7,7 @@ import {
     addressesIndexer,
     publicKeysIndexer,
     usernamesIndexer,
+    ipfsIndexer,
     Wallet,
     WalletRepository,
     WalletRepositoryClone,
@@ -57,6 +58,13 @@ beforeEach(() => {
         name: Contracts.State.WalletIndexes.Usernames,
         indexer: usernamesIndexer,
         autoIndex: true,
+    });
+
+    // Using IPFS index to test autoIndex = false functionality
+    sandbox.app.bind(Container.Identifiers.WalletRepositoryIndexerIndex).toConstantValue({
+        name: Contracts.State.WalletIndexes.Ipfs,
+        indexer: ipfsIndexer,
+        autoIndex: false,
     });
 
     sandbox.app
@@ -116,7 +124,7 @@ describe("Wallet Repository Clone", () => {
         it("should return index names", () => {
             walletRepositoryClone.getIndexNames();
 
-            expect(walletRepositoryClone.getIndexNames()).toEqual(["addresses", "publicKeys", "usernames"]);
+            expect(walletRepositoryClone.getIndexNames()).toEqual(["addresses", "publicKeys", "usernames", "ipfs"]);
         });
     });
 
@@ -124,12 +132,14 @@ describe("Wallet Repository Clone", () => {
         it("should copy and index wallet from blockchain wallet repository if exist in blockchain wallet repository", () => {
             const blockchainWallet = walletRepositoryBlockchain.findByAddress("address");
             expect(walletRepositoryBlockchain.hasByAddress("address")).toBeTrue();
+            walletRepositoryBlockchain.getIndex(Contracts.State.WalletIndexes.Ipfs).set("key", blockchainWallet);
 
             const wallet = walletRepositoryClone.findByAddress("address");
 
             expect(wallet).toBeInstanceOf(Wallet);
             expect(wallet.address).toEqual("address");
             expect(walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Addresses).has("address")).toBeTrue();
+            expect(walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Ipfs).has("key")).toBeTrue();
 
             expect(wallet).not.toBe(blockchainWallet);
             expect(wallet).toEqual(blockchainWallet);
@@ -172,6 +182,7 @@ describe("Wallet Repository Clone", () => {
         it("should copy and index wallet from blockchain wallet repository if exist in blockchain wallet repository", () => {
             const blockchainWallet = walletRepositoryBlockchain.findByPublicKey(publicKey);
             expect(walletRepositoryBlockchain.hasByPublicKey(publicKey)).toBeTrue();
+            walletRepositoryBlockchain.getIndex(Contracts.State.WalletIndexes.Ipfs).set("key", blockchainWallet);
 
             const wallet = walletRepositoryClone.findByPublicKey(publicKey);
 
@@ -181,6 +192,7 @@ describe("Wallet Repository Clone", () => {
             expect(
                 walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Addresses).has(wallet.address),
             ).toBeTrue();
+            expect(walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Ipfs).has("key")).toBeTrue();
 
             expect(wallet).not.toBe(blockchainWallet);
             expect(wallet).toEqual(blockchainWallet);
@@ -221,7 +233,6 @@ describe("Wallet Repository Clone", () => {
         });
     });
 
-    // TODO: Try with auto and without auto index
     describe("findByIndex", () => {
         const username = "genesis_1";
 
@@ -229,6 +240,7 @@ describe("Wallet Repository Clone", () => {
             const blockchainWallet = walletRepositoryBlockchain.findByAddress("address");
             blockchainWallet.setAttribute("delegate.username", username);
             walletRepositoryBlockchain.index(blockchainWallet);
+            walletRepositoryBlockchain.getIndex(Contracts.State.WalletIndexes.Ipfs).set("key", blockchainWallet);
 
             expect(walletRepositoryBlockchain.hasByIndex(Contracts.State.WalletIndexes.Usernames, username)).toBeTrue();
 
@@ -240,6 +252,7 @@ describe("Wallet Repository Clone", () => {
             expect(
                 walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Addresses).has(wallet.address),
             ).toBeTrue();
+            expect(walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Ipfs).has("key")).toBeTrue();
 
             expect(wallet).not.toBe(blockchainWallet);
             expect(wallet).toEqual(blockchainWallet);
