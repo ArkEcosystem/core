@@ -57,13 +57,13 @@ export class WalletRepositoryClone extends WalletRepository {
     }
 
     public findByPublicKey(publicKey: string): Contracts.State.Wallet {
-        if (!this.hasByIndex(Contracts.State.WalletIndexes.PublicKeys, publicKey)) {
+        if (!super.hasByIndex(Contracts.State.WalletIndexes.PublicKeys, publicKey)) {
             const wallet = this.findByAddress(Identities.Address.fromPublicKey(publicKey));
             wallet.publicKey = publicKey;
             super.index(wallet);
         }
 
-        return this.findByIndex(Contracts.State.WalletIndexes.PublicKeys, publicKey);
+        return super.findByIndex(Contracts.State.WalletIndexes.PublicKeys, publicKey);
     }
 
     public findByUsername(username: string): Contracts.State.Wallet {
@@ -71,7 +71,7 @@ export class WalletRepositoryClone extends WalletRepository {
     }
 
     public findByIndex(index: string, key: string): Contracts.State.Wallet {
-        if (!this.hasByIndex(index, key)) {
+        if (!super.hasByIndex(index, key)) {
             const wallet = this.blockchainWalletRepository.findByIndex(index, key).clone();
             super.index(wallet);
         }
@@ -104,7 +104,15 @@ export class WalletRepositoryClone extends WalletRepository {
     }
 
     public getNonce(publicKey: string): Utils.BigNumber {
-        throw new Exceptions.Logic.MethodNotImplemented("getNonce");
+        if (this.getIndex(Contracts.State.WalletIndexes.PublicKeys).has(publicKey)) {
+            return this.findByPublicKey(publicKey).nonce;
+        }
+
+        if (this.blockchainWalletRepository.hasByPublicKey(publicKey)) {
+            return this.blockchainWalletRepository.findByPublicKey(publicKey).nonce;
+        }
+
+        return Utils.BigNumber.ZERO;
     }
 
     // public index(wallets: Contracts.State.Wallet | Contracts.State.Wallet[]): void {

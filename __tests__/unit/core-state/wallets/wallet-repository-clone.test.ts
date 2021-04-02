@@ -1,6 +1,7 @@
 // @ts-nocheck
 import "jest-extended";
 
+import { Utils } from "@arkecosystem/crypto";
 import { Container, Contracts, Services } from "@packages/core-kernel";
 import {
     addressesIndexer,
@@ -312,7 +313,7 @@ describe("Wallet Repository Clone", () => {
         });
 
         it("should return true if wallet exist in clone wallet repository", () => {
-            walletRepositoryBlockchain.findByPublicKey(publicKey);
+            walletRepositoryClone.findByPublicKey(publicKey);
 
             expect(walletRepositoryBlockchain.hasByPublicKey(publicKey)).toBeFalse();
 
@@ -323,6 +324,41 @@ describe("Wallet Repository Clone", () => {
             expect(walletRepositoryBlockchain.hasByPublicKey(publicKey)).toBeFalse();
 
             expect(walletRepositoryClone.hasByPublicKey(publicKey)).toBeFalse();
+        });
+    });
+
+    describe("getNonce", () => {
+        const publicKey = "03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37";
+
+        it("should return 0 if wallet does not exists", () => {
+            expect(walletRepositoryClone.getNonce(publicKey)).toEqual(Utils.BigNumber.ZERO);
+        });
+
+        it("should return nonce if wallet exists only in blockchain wallet repository", () => {
+            const wallet = walletRepositoryBlockchain.findByPublicKey(publicKey);
+            wallet.nonce = Utils.BigNumber.make("10");
+
+            expect(walletRepositoryClone.getNonce(publicKey)).toEqual(Utils.BigNumber.make("10"));
+
+            expect(
+                walletRepositoryBlockchain.getIndex(Contracts.State.WalletIndexes.PublicKeys).has(publicKey),
+            ).toBeTrue();
+            expect(walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.PublicKeys).has(publicKey)).toBeFalse();
+        });
+
+        it("should return nonce if wallet exists on copy wallet repository", () => {
+            const blockchainWallet = walletRepositoryBlockchain.findByPublicKey(publicKey);
+            blockchainWallet.nonce = Utils.BigNumber.make("10");
+
+            const wallet = walletRepositoryClone.findByPublicKey(publicKey);
+            wallet.nonce = Utils.BigNumber.make("20");
+
+            expect(walletRepositoryClone.getNonce(publicKey)).toEqual(Utils.BigNumber.make("20"));
+
+            expect(
+                walletRepositoryBlockchain.getIndex(Contracts.State.WalletIndexes.PublicKeys).has(publicKey),
+            ).toBeTrue();
+            expect(walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.PublicKeys).has(publicKey)).toBeTrue();
         });
     });
 });
