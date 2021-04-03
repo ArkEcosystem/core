@@ -181,6 +181,12 @@ export interface WalletRepository {
 
     index(wallet: Wallet): void;
 
+    valuesByIndex(index: string): ReadonlyArray<Wallet>;
+
+    setOnIndex(index: string, key: string, wallet: Wallet): void;
+
+    forgetOnIndex(index: string, key: string): void;
+
     hasByAddress(address: string): boolean;
 
     hasByPublicKey(publicKey: string): boolean;
