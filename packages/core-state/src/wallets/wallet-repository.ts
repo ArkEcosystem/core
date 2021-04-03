@@ -132,6 +132,18 @@ export class WalletRepository implements Contracts.State.WalletRepository {
         }
     }
 
+    public valuesByIndex(index: string): ReadonlyArray<Contracts.State.Wallet> {
+        return this.getIndex(index).values();
+    }
+
+    public setOnIndex(index: string, key: string, wallet: Contracts.State.Wallet): void {
+        this.getIndex(index).set(key, wallet);
+    }
+
+    public forgetOnIndex(index: string, key: string): void {
+        this.getIndex(index).forget(key);
+    }
+
     public reset(): void {
         for (const walletIndex of Object.values(this.indexes)) {
             walletIndex.clear();

@@ -276,4 +276,32 @@ describe("Wallet Repository", () => {
             "Wallet iDontExist doesn't exist in index usernames",
         );
     });
+
+    describe("valuesByIndex", () => {
+        it("should return values on index", () => {
+            const wallet = walletRepo.findByAddress("address");
+
+            expect(walletRepo.valuesByIndex("addresses")).toEqual([wallet]);
+        });
+    });
+
+    describe("setOnIndex", () => {
+        it("should set wallet on index", () => {
+            const wallet = walletRepo.findByAddress("address");
+            walletRepo.setOnIndex("addresses", "address2", wallet);
+
+            expect(walletRepo.valuesByIndex("addresses")).toEqual([wallet, wallet]);
+        });
+    });
+
+    describe("forgetOnIndex", () => {
+        it("should forget wallet on index", () => {
+            const wallet = walletRepo.findByAddress("address");
+            expect(walletRepo.valuesByIndex("addresses")).toEqual([wallet]);
+
+            walletRepo.forgetOnIndex("addresses", "address");
+
+            expect(walletRepo.valuesByIndex("addresses")).toEqual([]);
+        });
+    });
 });
