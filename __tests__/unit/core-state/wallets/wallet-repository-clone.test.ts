@@ -5,9 +5,9 @@ import { Utils } from "@arkecosystem/crypto";
 import { Container, Contracts, Services } from "@packages/core-kernel";
 import {
     addressesIndexer,
+    ipfsIndexer,
     publicKeysIndexer,
     usernamesIndexer,
-    ipfsIndexer,
     Wallet,
     WalletRepository,
     WalletRepositoryClone,
@@ -372,6 +372,44 @@ describe("Wallet Repository Clone", () => {
                 walletRepositoryBlockchain.getIndex(Contracts.State.WalletIndexes.PublicKeys).has(publicKey),
             ).toBeTrue();
             expect(walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.PublicKeys).has(publicKey)).toBeTrue();
+        });
+    });
+
+    describe("index", () => {
+        it("should index single wallet if there are no changes in indexes", () => {
+            const wallet = walletRepositoryClone.findByAddress("address");
+
+            walletRepositoryClone.index(wallet);
+        });
+
+        it("should index single wallet if wallet change results in set on index", () => {
+            const wallet = walletRepositoryClone.findByAddress("address");
+            wallet.setAttribute("delegate.username", "genesis_1");
+
+            expect(
+                walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Usernames).has("genesis_1"),
+            ).toBeFalse();
+
+            walletRepositoryClone.index(wallet);
+
+            expect(walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Usernames).has("genesis_1")).toBeTrue();
+        });
+
+        it("should index single wallet if wallet change results in forget on index", () => {
+            const wallet = walletRepositoryClone.findByAddress("address");
+            wallet.setAttribute("delegate.username", "genesis_1");
+            walletRepositoryClone.index(wallet);
+            expect(walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Usernames).has("genesis_1")).toBeTrue();
+
+            wallet.forgetAttribute("delegate");
+            walletRepositoryClone.index(wallet);
+
+            expect(
+                walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Usernames).has("genesis_1"),
+            ).toBeFalse();
+            expect(
+                walletRepositoryClone.forgetIndexes[Contracts.State.WalletIndexes.Usernames].has("genesis_1"),
+            ).toBeTrue();
         });
     });
 });

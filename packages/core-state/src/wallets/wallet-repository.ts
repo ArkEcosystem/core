@@ -8,7 +8,7 @@ import { WalletIndex } from "./wallet-index";
 @Container.injectable()
 export class WalletRepository implements Contracts.State.WalletRepository {
     @Container.multiInject(Container.Identifiers.WalletRepositoryIndexerIndex)
-    private readonly indexerIndexes!: Contracts.State.WalletIndexerIndex[];
+    protected readonly indexerIndexes!: Contracts.State.WalletIndexerIndex[];
 
     @Container.inject(Container.Identifiers.WalletFactory)
     private readonly createWalletFactory!: Contracts.State.WalletFactory;

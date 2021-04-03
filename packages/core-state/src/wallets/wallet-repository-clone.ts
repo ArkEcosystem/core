@@ -1,4 +1,6 @@
 import { Container, Contracts, Exceptions } from "@arkecosystem/core-kernel";
+import { WalletIndexAlreadyRegisteredError, WalletIndexNotFoundError } from "@packages/core-state/src/wallets/errors";
+import { WalletIndex } from "@packages/core-state/src/wallets/wallet-index";
 import { Identities, Utils } from "@packages/crypto";
 
 import { WalletRepository } from "./wallet-repository";
@@ -7,12 +9,20 @@ import { WalletRepository } from "./wallet-repository";
 export class WalletRepositoryClone extends WalletRepository {
     @Container.inject(Container.Identifiers.WalletRepository)
     @Container.tagged("state", "blockchain")
-    // @ts-ignore
     private readonly blockchainWalletRepository!: Contracts.State.WalletRepository;
+
+    private readonly forgetIndexes: Record<string, Contracts.State.WalletIndex> = {};
 
     @Container.postConstruct()
     public initialize(): void {
         super.initialize();
+
+        for (const { name, indexer, autoIndex } of this.indexerIndexes) {
+            if (this.forgetIndexes[name]) {
+                throw new WalletIndexAlreadyRegisteredError(name);
+            }
+            this.forgetIndexes[name] = new WalletIndex(indexer, autoIndex);
+        }
     }
 
     public createWallet(address: string): Contracts.State.Wallet {
@@ -116,9 +126,28 @@ export class WalletRepositoryClone extends WalletRepository {
         return Utils.BigNumber.ZERO;
     }
 
-    // public index(wallets: Contracts.State.Wallet | Contracts.State.Wallet[]): void {
-    //     throw new Exceptions.Logic.MethodNotImplemented("index");
-    // }
+    public index(wallets: Contracts.State.Wallet | Contracts.State.Wallet[]): void {
+        if (Array.isArray(wallets)) {
+            throw new Error("Not supported yet");
+        }
+
+        const indexKeys = {};
+        for (const indexName of this.getIndexNames()) {
+            indexKeys[indexName] = this.getIndex(indexName).walletKeys(wallets);
+        }
+
+        super.index(wallets);
+
+        for (const indexName of this.getIndexNames()) {
+            const walletKeys = this.getIndex(indexName).walletKeys(wallets);
+
+            for (const key of walletKeys) {
+                if (!indexKeys[indexName].includes(key)) {
+                    this.getForgetIndex(indexName).set(key, wallets);
+                }
+            }
+        }
+    }
 
     public reset(): void {
         throw new Exceptions.Logic.MethodNotImplemented("reset");
@@ -130,4 +159,11 @@ export class WalletRepositoryClone extends WalletRepository {
     // ): Contracts.State.Wallet {
     //     throw new Exceptions.Logic.MethodNotImplemented("cloneWallet");
     // }
+
+    public getForgetIndex(name: string): Contracts.State.WalletIndex {
+        if (!this.forgetIndexes[name]) {
+            throw new WalletIndexNotFoundError(name);
+        }
+        return this.forgetIndexes[name];
+    }
 }
