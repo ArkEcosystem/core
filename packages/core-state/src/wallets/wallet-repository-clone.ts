@@ -111,7 +111,10 @@ export class WalletRepositoryClone extends WalletRepository {
     }
 
     public hasByIndex(indexName: string, key: string): boolean {
-        return this.getIndex(indexName).has(key) || this.blockchainWalletRepository.getIndex(indexName).has(key);
+        return (
+            this.getIndex(indexName).has(key) ||
+            (this.blockchainWalletRepository.getIndex(indexName).has(key) && !this.getForgetIndex(indexName).has(key))
+        );
     }
 
     public getNonce(publicKey: string): Utils.BigNumber {
@@ -141,8 +144,8 @@ export class WalletRepositoryClone extends WalletRepository {
         for (const indexName of this.getIndexNames()) {
             const walletKeys = this.getIndex(indexName).walletKeys(wallets);
 
-            for (const key of walletKeys) {
-                if (!indexKeys[indexName].includes(key)) {
+            for (const key of indexKeys[indexName]) {
+                if (!walletKeys.includes(key)) {
                     this.getForgetIndex(indexName).set(key, wallets);
                 }
             }

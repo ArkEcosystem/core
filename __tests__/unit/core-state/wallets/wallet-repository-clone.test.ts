@@ -164,23 +164,6 @@ describe("Wallet Repository Clone", () => {
                 walletRepositoryClone.forgetIndexes[Contracts.State.WalletIndexes.Usernames].has("genesis_1"),
             ).toBeTrue();
         });
-
-        it("should throw error if index is forgotten", () => {
-            const wallet = walletRepositoryClone.findByAddress("address");
-            wallet.setAttribute("delegate.username", "genesis_1");
-            walletRepositoryClone.index(wallet);
-
-            expect(walletRepositoryClone.findByIndex(Contracts.State.WalletIndexes.Usernames, "genesis_1")).toEqual(
-                wallet,
-            );
-
-            wallet.forgetAttribute("delegate");
-            walletRepositoryClone.index(wallet);
-
-            expect(() => {
-                walletRepositoryClone.findByIndex(Contracts.State.WalletIndexes.Usernames, "genesis_1");
-            }).toThrow("Wallet genesis_1 doesn't exist in index usernames");
-        });
     });
 
     describe("findByAddress", () => {
@@ -392,6 +375,98 @@ describe("Wallet Repository Clone", () => {
             expect(walletRepositoryBlockchain.hasByPublicKey(publicKey)).toBeFalse();
 
             expect(walletRepositoryClone.hasByPublicKey(publicKey)).toBeFalse();
+        });
+    });
+
+    // TODO: Test with autoIndex
+    describe("hasByIndex", () => {
+        it("should return true if wallet exist in blockchain wallet repository", () => {
+            const wallet = walletRepositoryBlockchain.findByAddress("address");
+            wallet.setAttribute("delegate.username", "genesis_1");
+            walletRepositoryBlockchain.index(wallet);
+
+            expect(
+                walletRepositoryBlockchain.hasByIndex(Contracts.State.WalletIndexes.Usernames, "genesis_1"),
+            ).toBeTrue();
+
+            expect(walletRepositoryClone.hasByIndex(Contracts.State.WalletIndexes.Usernames, "genesis_1")).toBeTrue();
+        });
+
+        it("should return true if wallet exist in clone wallet repository", () => {
+            const wallet = walletRepositoryClone.findByAddress("address");
+            wallet.setAttribute("delegate.username", "genesis_1");
+            walletRepositoryClone.index(wallet);
+
+            expect(
+                walletRepositoryBlockchain.hasByIndex(Contracts.State.WalletIndexes.Usernames, "genesis_1"),
+            ).toBeFalse();
+            expect(walletRepositoryClone.hasByIndex(Contracts.State.WalletIndexes.Usernames, "genesis_1")).toBeTrue();
+        });
+
+        it("should return false if wallet does not exist in clone wallet repository", () => {
+            expect(walletRepositoryBlockchain.hasByAddress("address")).toBeFalse();
+
+            expect(walletRepositoryClone.hasByIndex(Contracts.State.WalletIndexes.Usernames, "genesis_1")).toBeFalse();
+        });
+
+        it("should return false if index is forgotten", () => {
+            const wallet = walletRepositoryClone.findByAddress("address");
+            wallet.setAttribute("delegate.username", "genesis_1");
+            walletRepositoryClone.index(wallet);
+
+            expect(walletRepositoryClone.hasByIndex(Contracts.State.WalletIndexes.Usernames, "genesis_1")).toBeTrue();
+
+            wallet.forgetAttribute("delegate");
+            walletRepositoryClone.index(wallet);
+
+            expect(walletRepositoryClone.hasByIndex(Contracts.State.WalletIndexes.Usernames, "genesis_1")).toBeFalse();
+        });
+
+        it("should return false if index is forgotten, but still exist on blockchain wallet repository", () => {
+            const blockchainWallet = walletRepositoryBlockchain.findByAddress("address");
+            blockchainWallet.setAttribute("delegate.username", "genesis_1");
+            walletRepositoryBlockchain.index(blockchainWallet);
+
+            const wallet = walletRepositoryClone.findByAddress("address");
+            expect(walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Usernames).has("genesis_1")).toBeTrue();
+            expect(wallet.hasAttribute("delegate.username")).toBeTrue();
+
+            expect(
+                walletRepositoryBlockchain.hasByIndex(Contracts.State.WalletIndexes.Usernames, "genesis_1"),
+            ).toBeTrue();
+            expect(walletRepositoryClone.hasByIndex(Contracts.State.WalletIndexes.Usernames, "genesis_1")).toBeTrue();
+
+            wallet.forgetAttribute("delegate");
+            walletRepositoryClone.index(wallet);
+
+            expect(
+                walletRepositoryBlockchain.hasByIndex(Contracts.State.WalletIndexes.Usernames, "genesis_1"),
+            ).toBeTrue();
+            expect(
+                walletRepositoryClone.forgetIndexes[Contracts.State.WalletIndexes.Usernames].has("genesis_1"),
+            ).toBeTrue();
+            expect(walletRepositoryClone.hasByIndex(Contracts.State.WalletIndexes.Usernames, "genesis_1")).toBeFalse();
+        });
+
+        it("should return false if index is forgotten and set again and still exist on blockchain wallet repository", () => {
+            const blockchainWallet = walletRepositoryBlockchain.findByAddress("address");
+            blockchainWallet.setAttribute("delegate.username", "genesis_1");
+            walletRepositoryBlockchain.index(blockchainWallet);
+
+            const wallet = walletRepositoryClone.findByAddress("address");
+
+            expect(walletRepositoryClone.hasByIndex(Contracts.State.WalletIndexes.Usernames, "genesis_1")).toBeTrue();
+
+            wallet.forgetAttribute("delegate");
+            walletRepositoryClone.index(wallet);
+
+            expect(walletRepositoryClone.hasByIndex(Contracts.State.WalletIndexes.Usernames, "genesis_1")).toBeFalse();
+
+            // Set same index again
+            wallet.setAttribute("delegate.username", "genesis_1");
+            walletRepositoryClone.index(wallet);
+
+            expect(walletRepositoryClone.hasByIndex(Contracts.State.WalletIndexes.Usernames, "genesis_1")).toBeTrue();
         });
     });
 
