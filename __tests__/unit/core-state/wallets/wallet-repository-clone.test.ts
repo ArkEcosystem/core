@@ -166,6 +166,36 @@ describe("Wallet Repository Clone", () => {
         });
     });
 
+    describe("forgetOnIndex", () => {
+        it("should clone wallet and set key on forget index if key exists only on blockchain wallet repository", () => {
+            const blockchainWallet = walletRepositoryBlockchain.findByAddress("address");
+            walletRepositoryBlockchain.getIndex(Contracts.State.WalletIndexes.Ipfs).set("key", blockchainWallet);
+
+            expect(walletRepositoryClone.hasByIndex(Contracts.State.WalletIndexes.Ipfs, "key")).toBeTrue();
+            expect(walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Addresses).has("address")).toBeFalse();
+
+            walletRepositoryClone.forgetOnIndex(Contracts.State.WalletIndexes.Ipfs, "key");
+
+            expect(walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Ipfs).has("key")).toBeFalse();
+            expect(walletRepositoryClone.forgetIndexes[Contracts.State.WalletIndexes.Ipfs].has("key")).toBeTrue();
+            expect(walletRepositoryClone.hasByIndex(Contracts.State.WalletIndexes.Ipfs, "key")).toBeFalse();
+            expect(walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Addresses).has("address")).toBeTrue();
+        });
+
+        it("should set key on forget index if key exists", () => {
+            const wallet = walletRepositoryClone.findByAddress("address");
+            walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Ipfs).set("key", wallet);
+
+            expect(walletRepositoryClone.hasByIndex(Contracts.State.WalletIndexes.Ipfs, "key")).toBeTrue();
+
+            walletRepositoryClone.forgetOnIndex(Contracts.State.WalletIndexes.Ipfs, "key");
+
+            expect(walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Ipfs).has("key")).toBeFalse();
+            expect(walletRepositoryClone.forgetIndexes[Contracts.State.WalletIndexes.Ipfs].has("key")).toBeTrue();
+            expect(walletRepositoryClone.hasByIndex(Contracts.State.WalletIndexes.Ipfs, "key")).toBeFalse();
+        });
+    });
+
     describe("findByAddress", () => {
         it("should copy and index wallet from blockchain wallet repository if exist in blockchain wallet repository", () => {
             const blockchainWallet = walletRepositoryBlockchain.findByAddress("address");

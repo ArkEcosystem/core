@@ -152,6 +152,16 @@ export class WalletRepositoryClone extends WalletRepository {
         }
     }
 
+    public forgetOnIndex(index: string, key: string): void {
+        if (this.getIndex(index).has(key) || this.blockchainWalletRepository.getIndex(index).has(key)) {
+            const wallet = this.findByIndex(index, key);
+
+            this.getIndex(index).forget(key);
+
+            this.getForgetIndex(index).set(key, wallet);
+        }
+    }
+
     public reset(): void {
         throw new Exceptions.Logic.MethodNotImplemented("reset");
     }
