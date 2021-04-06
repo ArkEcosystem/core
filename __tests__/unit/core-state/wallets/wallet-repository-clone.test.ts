@@ -408,6 +408,31 @@ describe("Wallet Repository Clone", () => {
         });
     });
 
+    describe("hasByUsername", () => {
+        it("should return true if wallet exist in blockchain wallet repository", () => {
+            const blockchainWallet = walletRepositoryBlockchain.findByAddress("address");
+            blockchainWallet.setAttribute("delegate.username", "genesis_1");
+            walletRepositoryBlockchain.index(blockchainWallet);
+
+            expect(walletRepositoryBlockchain.hasByUsername("genesis_1")).toBeTrue();
+            expect(walletRepositoryClone.hasByUsername("genesis_1")).toBeTrue();
+        });
+
+        it("should return true if wallet exist in clone wallet repository", () => {
+            const wallet = walletRepositoryClone.findByAddress("address");
+            wallet.setAttribute("delegate.username", "genesis_1");
+            walletRepositoryClone.index(wallet);
+
+            expect(walletRepositoryBlockchain.hasByUsername("genesis_1")).toBeFalse();
+            expect(walletRepositoryClone.hasByUsername("genesis_1")).toBeTrue();
+        });
+
+        it("should return false if wallet does not exist in clone wallet repository", () => {
+            expect(walletRepositoryBlockchain.hasByUsername("genesis_1")).toBeFalse();
+            expect(walletRepositoryClone.hasByUsername("genesis_1")).toBeFalse();
+        });
+    });
+
     // TODO: Test with autoIndex
     describe("hasByIndex", () => {
         it("should return true if wallet exist in blockchain wallet repository", () => {

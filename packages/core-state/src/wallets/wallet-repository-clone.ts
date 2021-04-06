@@ -107,7 +107,7 @@ export class WalletRepositoryClone extends WalletRepository {
     }
 
     public hasByUsername(username: string): boolean {
-        throw new Exceptions.Logic.MethodNotImplemented("hasByUsername");
+        return this.hasByIndex(Contracts.State.WalletIndexes.Usernames, username);
     }
 
     public hasByIndex(indexName: string, key: string): boolean {
