@@ -1,8 +1,8 @@
 import { Container, Contracts, Exceptions } from "@arkecosystem/core-kernel";
-import { WalletIndexNotFoundError } from "@packages/core-state/src/wallets/errors";
-import { WalletIndex } from "@packages/core-state/src/wallets/wallet-index";
-import { Identities, Utils } from "@packages/crypto";
+import { Identities, Utils } from "@arkecosystem/crypto";
 
+import { WalletIndexNotFoundError } from "./errors";
+import { WalletIndex } from "./wallet-index";
 import { WalletRepository } from "./wallet-repository";
 
 @Container.injectable()
