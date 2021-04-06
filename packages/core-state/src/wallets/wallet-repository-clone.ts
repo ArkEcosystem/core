@@ -48,7 +48,8 @@ export class WalletRepositoryClone extends WalletRepository {
     }
 
     public allByUsername(): ReadonlyArray<Contracts.State.Wallet> {
-        throw new Exceptions.Logic.MethodNotImplemented("allByUsername");
+        this.cloneAllByIndex(Contracts.State.WalletIndexes.Usernames);
+        return this.getIndex(Contracts.State.WalletIndexes.Usernames).values();
     }
 
     public findByAddress(address: string): Contracts.State.Wallet {

@@ -619,4 +619,49 @@ describe("Wallet Repository Clone", () => {
             expect(walletRepositoryClone.allByPublicKey().length).toEqual(2);
         });
     });
+
+    describe("allByUsername", () => {
+        it("should return all wallets from clone and blockchain wallet repository by username", () => {
+            expect(walletRepositoryClone.allByUsername().length).toEqual(0);
+
+            const wallet_1 = walletRepositoryClone.findByAddress("address_1");
+            wallet_1.setAttribute("delegate.username", "genesis_1");
+            walletRepositoryClone.index(wallet_1);
+            expect(walletRepositoryClone.allByUsername().length).toEqual(1);
+
+            const wallet_2 = walletRepositoryBlockchain.findByAddress("address_2");
+            wallet_2.setAttribute("delegate.username", "genesis_2");
+            walletRepositoryBlockchain.index(wallet_2);
+
+            expect(walletRepositoryClone.allByUsername().length).toEqual(2);
+        });
+
+        it("should skip wallets when key is removed from index", () => {
+            const wallet = walletRepositoryClone.findByAddress("address");
+            wallet.setAttribute("delegate.username", "genesis_1");
+            walletRepositoryClone.index(wallet);
+
+            expect(walletRepositoryClone.allByUsername().length).toEqual(1);
+
+            wallet.forgetAttribute("delegate");
+            walletRepositoryClone.index(wallet);
+
+            expect(walletRepositoryClone.allByUsername().length).toEqual(0);
+        });
+
+        it("should skip wallets when key is removed from index, but still exists on blockchain index", () => {
+            const blockchainWallet = walletRepositoryBlockchain.findByAddress("address");
+            blockchainWallet.setAttribute("delegate.username", "genesis_1");
+            walletRepositoryBlockchain.index(blockchainWallet);
+
+            expect(walletRepositoryClone.allByUsername().length).toEqual(1);
+
+            const wallet = walletRepositoryClone.findByAddress("address");
+            wallet.forgetAttribute("delegate");
+            walletRepositoryClone.index(wallet);
+
+            expect(walletRepositoryClone.allByUsername().length).toEqual(0);
+            expect(walletRepositoryBlockchain.allByUsername().length).toEqual(1);
+        });
+    });
 });
