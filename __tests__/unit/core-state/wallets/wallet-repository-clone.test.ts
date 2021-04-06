@@ -13,6 +13,7 @@ import {
     WalletRepository,
     WalletRepositoryClone,
 } from "@packages/core-state/src/wallets";
+import { WalletIndexAlreadyRegisteredError, WalletIndexNotFoundError } from "@packages/core-state/src/wallets/errors";
 import { walletFactory } from "@packages/core-state/src/wallets/wallet-factory";
 import { Sandbox } from "@packages/core-test-framework";
 
@@ -108,6 +109,14 @@ beforeEach(() => {
 });
 
 describe("Wallet Repository Clone", () => {
+    describe("initialize", () => {
+        it("should throw if wallet index is already registered", () => {
+            expect(() => {
+                walletRepositoryClone.initialize();
+            }).toThrowError(WalletIndexAlreadyRegisteredError);
+        });
+    });
+
     describe("createWallet", () => {
         it("should create wallet by address", () => {
             const wallet = walletRepositoryClone.createWallet("address");
@@ -190,6 +199,12 @@ describe("Wallet Repository Clone", () => {
             expect(walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Ipfs).has("key")).toBeFalse();
             expect(walletRepositoryClone.forgetIndexes[Contracts.State.WalletIndexes.Ipfs].has("key")).toBeTrue();
             expect(walletRepositoryClone.hasByIndex(Contracts.State.WalletIndexes.Ipfs, "key")).toBeFalse();
+        });
+
+        it("should skip setting key if does not exist", () => {
+            walletRepositoryClone.forgetOnIndex(Contracts.State.WalletIndexes.Ipfs, "key");
+
+            expect(walletRepositoryClone.forgetIndexes[Contracts.State.WalletIndexes.Ipfs].has("key")).toBeFalse();
         });
     });
 
@@ -686,6 +701,14 @@ describe("Wallet Repository Clone", () => {
             expect(walletRepositoryClone.forgetIndexes[Contracts.State.WalletIndexes.Usernames].values().length).toBe(
                 0,
             );
+        });
+    });
+
+    describe("getForgetIndex", () => {
+        it("should throw error if index is not found", () => {
+            expect(() => {
+                walletRepositoryClone.getForgetIndex("undefined");
+            }).toThrowError(WalletIndexNotFoundError);
         });
     });
 

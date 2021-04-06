@@ -1,5 +1,5 @@
 import { Container, Contracts, Exceptions } from "@arkecosystem/core-kernel";
-import { WalletIndexAlreadyRegisteredError, WalletIndexNotFoundError } from "@packages/core-state/src/wallets/errors";
+import { WalletIndexNotFoundError } from "@packages/core-state/src/wallets/errors";
 import { WalletIndex } from "@packages/core-state/src/wallets/wallet-index";
 import { Identities, Utils } from "@packages/crypto";
 
@@ -18,9 +18,6 @@ export class WalletRepositoryClone extends WalletRepository {
         super.initialize();
 
         for (const { name, indexer, autoIndex } of this.indexerIndexes) {
-            if (this.forgetIndexes[name]) {
-                throw new WalletIndexAlreadyRegisteredError(name);
-            }
             this.forgetIndexes[name] = new WalletIndex(indexer, autoIndex);
         }
     }
