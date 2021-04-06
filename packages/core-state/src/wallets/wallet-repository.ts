@@ -3,6 +3,7 @@ import { Identities, Utils } from "@arkecosystem/crypto";
 
 import { WalletIndexAlreadyRegisteredError, WalletIndexNotFoundError } from "./errors";
 import { WalletIndex } from "./wallet-index";
+import { Wallet } from "@packages/core-kernel/src/contracts/state";
 
 // todo: review the implementation
 @Container.injectable()
@@ -50,6 +51,10 @@ export class WalletRepository implements Contracts.State.WalletRepository {
 
     public allByUsername(): ReadonlyArray<Contracts.State.Wallet> {
         return this.getIndex(Contracts.State.WalletIndexes.Usernames).values();
+    }
+
+    public allByIndex(indexName: string): ReadonlyArray<Wallet> {
+        return this.getIndex(indexName).values();
     }
 
     public findByAddress(address: string): Contracts.State.Wallet {
