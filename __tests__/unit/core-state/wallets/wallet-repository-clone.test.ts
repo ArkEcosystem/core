@@ -1,6 +1,7 @@
 // @ts-nocheck
 import "jest-extended";
 
+import { MethodNotImplemented } from "@arkecosystem/core-kernel/dist/exceptions/logic";
 import { Utils } from "@arkecosystem/crypto";
 import { Container, Contracts, Services } from "@packages/core-kernel";
 import {
@@ -662,6 +663,45 @@ describe("Wallet Repository Clone", () => {
 
             expect(walletRepositoryClone.allByUsername().length).toEqual(0);
             expect(walletRepositoryBlockchain.allByUsername().length).toEqual(1);
+        });
+    });
+
+    describe("reset", () => {
+        it("should clear all indexes and forgetIndexes", () => {
+            const wallet = walletRepositoryClone.findByAddress("address");
+            wallet.setAttribute("delegate.username", "genesis_1");
+            walletRepositoryClone.index(wallet);
+
+            wallet.forgetAttribute("delegate");
+            walletRepositoryClone.index(wallet);
+
+            expect(walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Addresses).values().length).toBe(1);
+            expect(walletRepositoryClone.forgetIndexes[Contracts.State.WalletIndexes.Usernames].values().length).toBe(
+                1,
+            );
+
+            walletRepositoryClone.reset();
+
+            expect(walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Addresses).values().length).toBe(0);
+            expect(walletRepositoryClone.forgetIndexes[Contracts.State.WalletIndexes.Usernames].values().length).toBe(
+                0,
+            );
+        });
+    });
+
+    describe("findByIndexes", () => {
+        it("should throw MethodNotImplemented", () => {
+            expect(() => {
+                walletRepositoryClone.findByIndexes([], "key");
+            }).toThrowError(MethodNotImplemented);
+        });
+    });
+
+    describe("has", () => {
+        it("should throw MethodNotImplemented", () => {
+            expect(() => {
+                walletRepositoryClone.has("key");
+            }).toThrowError(MethodNotImplemented);
         });
     });
 });

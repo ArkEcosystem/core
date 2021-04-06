@@ -166,7 +166,10 @@ export class WalletRepositoryClone extends WalletRepository {
     }
 
     public reset(): void {
-        throw new Exceptions.Logic.MethodNotImplemented("reset");
+        super.reset();
+        for (const walletIndex of Object.values(this.forgetIndexes)) {
+            walletIndex.clear();
+        }
     }
 
     // public cloneWallet(
