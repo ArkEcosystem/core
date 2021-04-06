@@ -161,6 +161,8 @@ export interface WalletRepository {
 
     allByUsername(): ReadonlyArray<Wallet>;
 
+    allByIndex(indexName: string): ReadonlyArray<Wallet>;
+
     findByAddress(address: string): Wallet;
 
     has(key: string): boolean;
