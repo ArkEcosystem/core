@@ -35,18 +35,20 @@ export class WalletRepositoryClone extends WalletRepository {
     // }
 
     public allByAddress(): ReadonlyArray<Contracts.State.Wallet> {
-        this.cloneAllByIndex(Contracts.State.WalletIndexes.Addresses);
-        return this.getIndex(Contracts.State.WalletIndexes.Addresses).values();
+        return this.allByIndex(Contracts.State.WalletIndexes.Addresses);
     }
 
     public allByPublicKey(): ReadonlyArray<Contracts.State.Wallet> {
-        this.cloneAllByIndex(Contracts.State.WalletIndexes.PublicKeys);
-        return this.getIndex(Contracts.State.WalletIndexes.PublicKeys).values();
+        return this.allByIndex(Contracts.State.WalletIndexes.PublicKeys);
     }
 
     public allByUsername(): ReadonlyArray<Contracts.State.Wallet> {
-        this.cloneAllByIndex(Contracts.State.WalletIndexes.Usernames);
-        return this.getIndex(Contracts.State.WalletIndexes.Usernames).values();
+        return this.allByIndex(Contracts.State.WalletIndexes.Usernames);
+    }
+
+    public allByIndex(indexName: string): ReadonlyArray<Contracts.State.Wallet> {
+        this.cloneAllByIndex(indexName);
+        return this.getIndex(indexName).values();
     }
 
     public findByAddress(address: string): Contracts.State.Wallet {

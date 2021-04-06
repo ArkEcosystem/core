@@ -688,6 +688,22 @@ describe("Wallet Repository Clone", () => {
         });
     });
 
+    describe("allByIndex", () => {
+        it("should return all wallets from clone and blockchain wallet repository by address", () => {
+            expect(walletRepositoryClone.allByIndex(Contracts.State.WalletIndexes.Ipfs).length).toEqual(0);
+
+            const wallet1 = walletRepositoryClone.findByAddress("address_1");
+            walletRepositoryClone.setOnIndex(Contracts.State.WalletIndexes.Ipfs, "ipfs_1", wallet1);
+
+            expect(walletRepositoryClone.allByIndex(Contracts.State.WalletIndexes.Ipfs)).toEqual([wallet1]);
+
+            const wallet2 = walletRepositoryBlockchain.findByAddress("address_2");
+            walletRepositoryBlockchain.setOnIndex(Contracts.State.WalletIndexes.Ipfs, "ipfs_2", wallet2);
+
+            expect(walletRepositoryClone.allByIndex(Contracts.State.WalletIndexes.Ipfs)).toEqual([wallet1, wallet2]);
+        });
+    });
+
     describe("reset", () => {
         it("should clear all indexes and forgetIndexes", () => {
             const wallet = walletRepositoryClone.findByAddress("address");
