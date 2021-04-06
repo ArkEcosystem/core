@@ -170,6 +170,13 @@ describe("Wallet Repository Clone", () => {
                 walletRepositoryClone.forgetIndexes[Contracts.State.WalletIndexes.Usernames].has("genesis_1"),
             ).toBeTrue();
         });
+
+        it("should index wallet array", () => {
+            const wallet1 = walletRepositoryClone.findByAddress("address_1");
+            const wallet2 = walletRepositoryClone.findByAddress("address_2");
+
+            walletRepositoryClone.index([wallet1, wallet2]);
+        });
     });
 
     describe("forgetOnIndex", () => {

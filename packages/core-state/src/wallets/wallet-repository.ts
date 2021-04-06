@@ -168,7 +168,7 @@ export class WalletRepository implements Contracts.State.WalletRepository {
         return walletClone;
     }
 
-    private indexWallet(wallet: Contracts.State.Wallet): void {
+    protected indexWallet(wallet: Contracts.State.Wallet): void {
         for (const index of Object.values(this.indexes).filter((index) => index.autoIndex)) {
             index.forgetWallet(wallet);
             index.index(wallet);

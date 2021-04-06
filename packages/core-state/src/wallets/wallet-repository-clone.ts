@@ -129,29 +129,6 @@ export class WalletRepositoryClone extends WalletRepository {
         return Utils.BigNumber.ZERO;
     }
 
-    public index(wallets: Contracts.State.Wallet | Contracts.State.Wallet[]): void {
-        if (Array.isArray(wallets)) {
-            throw new Error("Not supported yet");
-        }
-
-        const indexKeys = {};
-        for (const indexName of this.getIndexNames()) {
-            indexKeys[indexName] = this.getIndex(indexName).walletKeys(wallets);
-        }
-
-        super.index(wallets);
-
-        for (const indexName of this.getIndexNames()) {
-            const walletKeys = this.getIndex(indexName).walletKeys(wallets);
-
-            for (const key of indexKeys[indexName]) {
-                if (!walletKeys.includes(key)) {
-                    this.getForgetIndex(indexName).set(key, wallets);
-                }
-            }
-        }
-    }
-
     public forgetOnIndex(index: string, key: string): void {
         if (this.getIndex(index).has(key) || this.blockchainWalletRepository.getIndex(index).has(key)) {
             const wallet = this.findByIndex(index, key);
@@ -175,6 +152,25 @@ export class WalletRepositoryClone extends WalletRepository {
     // ): Contracts.State.Wallet {
     //     throw new Exceptions.Logic.MethodNotImplemented("cloneWallet");
     // }
+
+    protected indexWallet(wallet: Contracts.State.Wallet): void {
+        const indexKeys = {};
+        for (const indexName of this.getIndexNames()) {
+            indexKeys[indexName] = this.getIndex(indexName).walletKeys(wallet);
+        }
+
+        super.indexWallet(wallet);
+
+        for (const indexName of this.getIndexNames()) {
+            const walletKeys = this.getIndex(indexName).walletKeys(wallet);
+
+            for (const key of indexKeys[indexName]) {
+                if (!walletKeys.includes(key)) {
+                    this.getForgetIndex(indexName).set(key, wallet);
+                }
+            }
+        }
+    }
 
     private getForgetIndex(name: string): Contracts.State.WalletIndex {
         if (!this.forgetIndexes[name]) {
