@@ -77,9 +77,9 @@ export class WalletRepositoryClone extends WalletRepository {
         return super.findByIndex(Contracts.State.WalletIndexes.PublicKeys, publicKey);
     }
 
-    public findByUsername(username: string): Contracts.State.Wallet {
-        throw new Exceptions.Logic.MethodNotImplemented("findByUsername");
-    }
+    // public findByUsername(username: string): Contracts.State.Wallet {
+    //     return this.findByIndex(Contracts.State.WalletIndexes.Usernames, username);
+    // }
 
     public findByIndex(index: string, key: string): Contracts.State.Wallet {
         if (!super.hasByIndex(index, key)) {

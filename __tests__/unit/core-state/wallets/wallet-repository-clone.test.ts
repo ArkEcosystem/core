@@ -301,6 +301,39 @@ describe("Wallet Repository Clone", () => {
         });
     });
 
+    describe("findByUsername", () => {
+        it("should copy and index wallet from blockchain wallet repository if exist in blockchain wallet repository", () => {
+            const blockchainWallet = walletRepositoryBlockchain.findByAddress("address");
+            blockchainWallet.setAttribute("delegate.username", "genesis_1");
+            walletRepositoryBlockchain.index(blockchainWallet);
+            expect(walletRepositoryBlockchain.hasByUsername("genesis_1")).toBeTrue();
+
+            const wallet = walletRepositoryClone.findByUsername("genesis_1");
+
+            expect(wallet).toBeInstanceOf(Wallet);
+            expect(wallet.getAttribute("delegate.username")).toEqual("genesis_1");
+            expect(walletRepositoryClone.hasByUsername("genesis_1")).toBeTrue();
+
+            expect(wallet).not.toBe(blockchainWallet);
+            expect(wallet).toEqual(blockchainWallet);
+        });
+
+        it("should return existing wallet", () => {
+            const wallet = walletRepositoryClone.findByAddress("address");
+            wallet.setAttribute("delegate.username", "genesis_1");
+            walletRepositoryClone.index(wallet);
+
+            const existingWallet = walletRepositoryClone.findByUsername("genesis_1");
+            expect(wallet).toBe(existingWallet);
+        });
+
+        it("should throw error if wallet does not exist in blockchain or copy wallet repository", () => {
+            expect(() => {
+                walletRepositoryBlockchain.findByUsername("genesis_1");
+            }).toThrowError("Wallet genesis_1 doesn't exist in index usernames");
+        });
+    });
+
     describe("findByIndex", () => {
         const username = "genesis_1";
 
