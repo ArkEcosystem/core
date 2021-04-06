@@ -3,18 +3,18 @@ import "jest-extended";
 import { Container, Utils } from "@arkecosystem/core-kernel";
 import { Enums } from "@arkecosystem/core-magistrate-crypto";
 import { EntityBuilder } from "@arkecosystem/core-magistrate-crypto/src/builders";
-import { EntityType, EntityAction } from "@arkecosystem/core-magistrate-crypto/src/enums";
+import { EntityAction, EntityType } from "@arkecosystem/core-magistrate-crypto/src/enums";
 import { EntityTransaction } from "@arkecosystem/core-magistrate-crypto/src/transactions";
 import {
     EntityAlreadyRegisteredError,
     EntityAlreadyResignedError,
+    EntityNameAlreadyRegisteredError,
+    EntityNameDoesNotMatchDelegateError,
     EntityNotRegisteredError,
+    EntitySenderIsNotDelegateError,
     EntityWrongSubTypeError,
     EntityWrongTypeError,
     StaticFeeMismatchError,
-    EntitySenderIsNotDelegateError,
-    EntityNameDoesNotMatchDelegateError,
-    EntityNameAlreadyRegisteredError,
 } from "@arkecosystem/core-magistrate-transactions/src/errors";
 import { EntityTransactionHandler } from "@arkecosystem/core-magistrate-transactions/src/handlers/entity";
 import { Utils as CryptoUtils } from "@arkecosystem/crypto";
@@ -61,22 +61,18 @@ describe("Entity handler", () => {
     beforeEach(() => {
         walletAttributes = {};
         wallet = {
-            getAttribute: jest
-                .fn()
-                .mockImplementation((attribute, defaultValue) => {
-                    const splitAttribute = attribute.split(".");
-                    return splitAttribute.length === 1
-                        ? walletAttributes[splitAttribute[0]] || defaultValue
-                        : (walletAttributes[splitAttribute[0]] || {})[splitAttribute[1]] || defaultValue;
-                }),
-            hasAttribute: jest
-                .fn()
-                .mockImplementation((attribute) => {
-                    const splitAttribute = attribute.split(".");
-                    return splitAttribute.length === 1
-                        ? !!walletAttributes[splitAttribute[0]]
-                        : !!walletAttributes[splitAttribute[0]] && !!walletAttributes[splitAttribute[0]][splitAttribute[1]];
-                }),
+            getAttribute: jest.fn().mockImplementation((attribute, defaultValue) => {
+                const splitAttribute = attribute.split(".");
+                return splitAttribute.length === 1
+                    ? walletAttributes[splitAttribute[0]] || defaultValue
+                    : (walletAttributes[splitAttribute[0]] || {})[splitAttribute[1]] || defaultValue;
+            }),
+            hasAttribute: jest.fn().mockImplementation((attribute) => {
+                const splitAttribute = attribute.split(".");
+                return splitAttribute.length === 1
+                    ? !!walletAttributes[splitAttribute[0]]
+                    : !!walletAttributes[splitAttribute[0]] && !!walletAttributes[splitAttribute[0]][splitAttribute[1]];
+            }),
             setAttribute: jest.fn().mockImplementation((attribute, value) => (walletAttributes[attribute] = value)),
             forgetAttribute: jest.fn().mockImplementation((attribute) => delete walletAttributes[attribute]),
         };
@@ -121,15 +117,14 @@ describe("Entity handler", () => {
     });
 
     describe("dynamicFee", () => {
-        const registerTx = (new EntityBuilder()).asset(validRegisters[0]).sign("passphrase").build();
-        const updateTx = (new EntityBuilder()).asset(validUpdates[0]).sign("passphrase").build();
-        const resignTx = (new EntityBuilder()).asset(validResigns[0]).sign("passphrase").build();
+        const registerTx = new EntityBuilder().asset(validRegisters[0]).sign("passphrase").build();
+        const updateTx = new EntityBuilder().asset(validUpdates[0]).sign("passphrase").build();
+        const resignTx = new EntityBuilder().asset(validResigns[0]).sign("passphrase").build();
         it.each([
             [registerTx, registerFee],
             [updateTx, updateAndResignFee],
             [resignTx, updateAndResignFee],
         ])("should return correct static fee", async (tx, fee) => {
-            
             entityHandler = container.resolve(EntityTransactionHandler);
             // @ts-ignore
             const result = await entityHandler.dynamicFee({ transaction: tx });
@@ -338,47 +333,55 @@ describe("Entity handler", () => {
                 );
             });
 
-            it.each([validRegisters])("should throw when entity name is already registered for same type", async (asset) => {
-                const builder = new EntityBuilder();
-                const transaction = builder.asset(asset).sign("passphrase").build();
+            it.each([validRegisters])(
+                "should throw when entity name is already registered for same type",
+                async (asset) => {
+                    const builder = new EntityBuilder();
+                    const transaction = builder.asset(asset).sign("passphrase").build();
 
-                const walletSameEntityName = {
-                    hasAttribute: () => true,
-                    getAttribute: () => ({
-                        "7950c6a0d096eeb4883237feec12b9f37f36ab9343ff3640904befc75ce32ec2": {
-                            type: asset.type,
-                            subType: (asset.subType + 1) % 255, // different subType but still in the range [0, 255]
-                            data: asset.data,
-                        }}),
-                }
-                //@ts-ignore
-                jest.spyOn(walletRepository, "getIndex").mockReturnValueOnce([walletSameEntityName]);
+                    const walletSameEntityName = {
+                        hasAttribute: () => true,
+                        getAttribute: () => ({
+                            "7950c6a0d096eeb4883237feec12b9f37f36ab9343ff3640904befc75ce32ec2": {
+                                type: asset.type,
+                                subType: (asset.subType + 1) % 255, // different subType but still in the range [0, 255]
+                                data: asset.data,
+                            },
+                        }),
+                    };
+                    //@ts-ignore
+                    jest.spyOn(walletRepository, "getIndex").mockReturnValueOnce([walletSameEntityName]);
 
-                entityHandler = container.resolve(EntityTransactionHandler);
-                await expect(entityHandler.throwIfCannotBeApplied(transaction, wallet)).rejects.toBeInstanceOf(
-                    EntityNameAlreadyRegisteredError,
-                );
-            });
+                    entityHandler = container.resolve(EntityTransactionHandler);
+                    await expect(entityHandler.throwIfCannotBeApplied(transaction, wallet)).rejects.toBeInstanceOf(
+                        EntityNameAlreadyRegisteredError,
+                    );
+                },
+            );
 
-            it.each([validRegisters])("should not throw when entity name is registered for a different type", async (asset) => {
-                const builder = new EntityBuilder();
-                const transaction = builder.asset(asset).sign("passphrase").build();
+            it.each([validRegisters])(
+                "should not throw when entity name is registered for a different type",
+                async (asset) => {
+                    const builder = new EntityBuilder();
+                    const transaction = builder.asset(asset).sign("passphrase").build();
 
-                const walletSameEntityName = {
-                    hasAttribute: () => true,
-                    getAttribute: () => ({
-                        "7950c6a0d096eeb4883237feec12b9f37f36ab9343ff3640904befc75ce32ec2": {
-                            type: (asset.type + 1) % 255, // different type but still in the range [0, 255]
-                            subType: asset.subType,
-                            data: asset.data,
-                        }}),
-                }
-                //@ts-ignore
-                jest.spyOn(walletRepository, "getIndex").mockReturnValueOnce([walletSameEntityName]);
+                    const walletSameEntityName = {
+                        hasAttribute: () => true,
+                        getAttribute: () => ({
+                            "7950c6a0d096eeb4883237feec12b9f37f36ab9343ff3640904befc75ce32ec2": {
+                                type: (asset.type + 1) % 255, // different type but still in the range [0, 255]
+                                subType: asset.subType,
+                                data: asset.data,
+                            },
+                        }),
+                    };
+                    //@ts-ignore
+                    jest.spyOn(walletRepository, "getIndex").mockReturnValueOnce([walletSameEntityName]);
 
-                entityHandler = container.resolve(EntityTransactionHandler);
-                await expect(entityHandler.throwIfCannotBeApplied(transaction, wallet)).toResolve();
-            });
+                    entityHandler = container.resolve(EntityTransactionHandler);
+                    await expect(entityHandler.throwIfCannotBeApplied(transaction, wallet)).toResolve();
+                },
+            );
 
             describe("Entity delegate", () => {
                 const entityId = "533384534cd561fc17f72be0bb57bf39961954ba0741f53c08e3f463ef19118c";
@@ -394,7 +397,7 @@ describe("Entity handler", () => {
                         asset.data = { ipfsData: "Qmbw6QmF6tuZpyV6WyEsTmExkEG3rW4khbttQidPfbpmNZ" };
                     }
 
-                    return (new EntityBuilder())
+                    return new EntityBuilder()
                         .asset(asset)
                         .fee(action === EntityAction.Register ? registerFee : updateAndResignFee)
                         .sign("passphrase")
@@ -404,9 +407,9 @@ describe("Entity handler", () => {
                 it("should throw when the sender wallet is not a delegate", async () => {
                     const transaction = createEntityDelegateTx("anyname");
 
-                    await expect(
-                        entityHandler.throwIfCannotBeApplied(transaction, wallet),
-                    ).rejects.toBeInstanceOf(EntitySenderIsNotDelegateError);
+                    await expect(entityHandler.throwIfCannotBeApplied(transaction, wallet)).rejects.toBeInstanceOf(
+                        EntitySenderIsNotDelegateError,
+                    );
                 });
 
                 it("should throw when the sender delegate name does not match the entity name", async () => {
@@ -415,9 +418,9 @@ describe("Entity handler", () => {
 
                     walletAttributes.delegate = { username: username + "s" };
 
-                    await expect(
-                        entityHandler.throwIfCannotBeApplied(transaction, wallet),
-                    ).rejects.toBeInstanceOf(EntityNameDoesNotMatchDelegateError);
+                    await expect(entityHandler.throwIfCannotBeApplied(transaction, wallet)).rejects.toBeInstanceOf(
+                        EntityNameDoesNotMatchDelegateError,
+                    );
                 });
 
                 it("should not throw on update or resign even when delegate does not match", async () => {
@@ -431,12 +434,8 @@ describe("Entity handler", () => {
                         [entityId]: { name: "somename", type, subType, data: {} },
                     };
 
-                    await expect(
-                        entityHandler.throwIfCannotBeApplied(transactionResign, wallet),
-                    ).toResolve();
-                    await expect(
-                        entityHandler.throwIfCannotBeApplied(transactionUpdate, wallet),
-                    ).toResolve();
+                    await expect(entityHandler.throwIfCannotBeApplied(transactionResign, wallet)).toResolve();
+                    await expect(entityHandler.throwIfCannotBeApplied(transactionUpdate, wallet)).toResolve();
                 });
 
                 it("should not throw otherwise", async () => {
@@ -445,11 +444,9 @@ describe("Entity handler", () => {
 
                     walletAttributes.delegate = { username };
 
-                    await expect(
-                        entityHandler.throwIfCannotBeApplied(transaction, wallet),
-                    ).toResolve();
+                    await expect(entityHandler.throwIfCannotBeApplied(transaction, wallet)).toResolve();
                 });
-            })
+            });
         });
     });
 
