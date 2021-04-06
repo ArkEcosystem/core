@@ -116,10 +116,6 @@ describe("Wallet Repository Clone", () => {
         });
     });
 
-    describe("getIndex", () => {
-        // TODO
-    });
-
     describe("getIndexNames", () => {
         it("should return index names", () => {
             walletRepositoryClone.getIndexNames();
@@ -590,6 +586,37 @@ describe("Wallet Repository Clone", () => {
                 walletRepositoryBlockchain.getIndex(Contracts.State.WalletIndexes.PublicKeys).has(publicKey),
             ).toBeTrue();
             expect(walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.PublicKeys).has(publicKey)).toBeTrue();
+        });
+    });
+
+    describe("allByAddress", () => {
+        it("should return all wallets from clone and blockchain wallet repository by address", () => {
+            expect(walletRepositoryClone.allByAddress().length).toEqual(0);
+
+            walletRepositoryClone.findByAddress("address_1");
+            expect(walletRepositoryClone.allByAddress().length).toEqual(1);
+
+            walletRepositoryBlockchain.findByAddress("address_2");
+            expect(walletRepositoryClone.allByAddress().length).toEqual(2);
+        });
+    });
+
+    describe("allByPublicKey", () => {
+        it("should return all wallets from clone and blockchain wallet repository by public key", () => {
+            expect(walletRepositoryClone.allByPublicKey().length).toEqual(0);
+
+            walletRepositoryClone.findByPublicKey("03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37");
+            expect(walletRepositoryClone.allByPublicKey().length).toEqual(1);
+
+            walletRepositoryBlockchain.findByPublicKey(
+                "02def27da9336e7fbf63131b8d7e5c9f45b296235db035f1f4242c507398f0f21d",
+            );
+            expect(walletRepositoryClone.allByPublicKey().length).toEqual(2);
+
+            walletRepositoryClone.findByAddress("address_1");
+            walletRepositoryBlockchain.findByAddress("address_2");
+
+            expect(walletRepositoryClone.allByPublicKey().length).toEqual(2);
         });
     });
 });

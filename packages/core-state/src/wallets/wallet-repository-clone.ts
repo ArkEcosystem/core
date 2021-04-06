@@ -33,16 +33,18 @@ export class WalletRepositoryClone extends WalletRepository {
     //     throw new Exceptions.Logic.MethodNotImplemented("getIndex");
     // }
 
-    public getIndexNames(): string[] {
-        return super.getIndexNames();
-    }
+    // public getIndexNames(): string[] {
+    //     return super.getIndexNames();
+    // }
 
     public allByAddress(): ReadonlyArray<Contracts.State.Wallet> {
-        throw new Exceptions.Logic.MethodNotImplemented("allByAddress");
+        this.cloneAllByIndex(Contracts.State.WalletIndexes.Addresses);
+        return this.getIndex(Contracts.State.WalletIndexes.Addresses).values();
     }
 
     public allByPublicKey(): ReadonlyArray<Contracts.State.Wallet> {
-        throw new Exceptions.Logic.MethodNotImplemented("allByPublicKey");
+        this.cloneAllByIndex(Contracts.State.WalletIndexes.PublicKeys);
+        return this.getIndex(Contracts.State.WalletIndexes.PublicKeys).values();
     }
 
     public allByUsername(): ReadonlyArray<Contracts.State.Wallet> {
@@ -173,10 +175,16 @@ export class WalletRepositoryClone extends WalletRepository {
     //     throw new Exceptions.Logic.MethodNotImplemented("cloneWallet");
     // }
 
-    public getForgetIndex(name: string): Contracts.State.WalletIndex {
+    private getForgetIndex(name: string): Contracts.State.WalletIndex {
         if (!this.forgetIndexes[name]) {
             throw new WalletIndexNotFoundError(name);
         }
         return this.forgetIndexes[name];
+    }
+
+    private cloneAllByIndex(indexName: string) {
+        for (const wallet of this.blockchainWalletRepository.getIndex(indexName).values()) {
+            this.findByAddress(wallet.address);
+        }
     }
 }
