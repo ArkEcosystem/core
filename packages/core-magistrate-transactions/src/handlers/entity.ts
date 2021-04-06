@@ -84,7 +84,7 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
                 throw new EntityAlreadyRegisteredError();
             }
 
-            for (const wallet of this.walletRepository.getIndex(MagistrateIndex.Entities).values()) {
+            for (const wallet of this.walletRepository.allByIndex(MagistrateIndex.Entities)) {
                 if (wallet.hasAttribute("entities")) {
                     const entityValues: IEntityWallet[] = Object.values(wallet.getAttribute("entities"));
 
