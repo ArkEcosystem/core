@@ -5,6 +5,7 @@ import { IpcSubprocess } from "../../utils/ipc-subprocess";
 export type SerializedTransaction = {
     id: string;
     serialized: string;
+    isVerified: boolean;
 };
 
 export interface WorkerScriptHandler {

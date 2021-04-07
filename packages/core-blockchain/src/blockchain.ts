@@ -382,7 +382,8 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
         this.logger.info(`Removing top ${Utils.pluralize("block", count, true)}`);
 
         await this.blockRepository.deleteTopBlocks(count);
-        await this.databaseInteraction.loadBlocksFromCurrentRound();
+        // TODO: Check if we need this
+        await this.databaseInteraction.restoreCurrentRound();
     }
 
     /**

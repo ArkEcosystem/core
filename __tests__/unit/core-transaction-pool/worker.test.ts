@@ -1,7 +1,6 @@
-import { Container } from "@arkecosystem/core-kernel";
-import { Identities, Managers, Transactions } from "@arkecosystem/crypto";
-
-import { Worker } from "../../../packages/core-transaction-pool/src/worker";
+import { Container } from "@packages/core-kernel";
+import { Worker } from "@packages/core-transaction-pool/src/worker";
+import { Identities, Managers, Transactions } from "@packages/crypto";
 
 const createWorkerSubprocess = jest.fn();
 
@@ -64,6 +63,7 @@ describe("Worker.getTransactionFromData", () => {
         ipcSubprocess.sendRequest.mockResolvedValueOnce({
             id: transaction.id,
             serialized: transaction.serialized.toString("hex"),
+            isVerified: true,
         });
 
         const result = await worker.getTransactionFromData(transaction.data);

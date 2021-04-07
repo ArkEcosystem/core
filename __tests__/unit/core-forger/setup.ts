@@ -34,7 +34,7 @@ export const setup = async (activeDelegates) => {
     }
 
     @Container.injectable()
-    class MockDatabaseInteraction {
+    class MockRoundState {
         public async getActiveDelegates(): Promise<Wallet[]> {
             return activeDelegates;
         }
@@ -58,7 +58,7 @@ export const setup = async (activeDelegates) => {
 
     sandbox.app.bind(Container.Identifiers.DatabaseService).to(MockDatabaseService);
 
-    sandbox.app.bind(Container.Identifiers.DatabaseInteraction).to(MockDatabaseInteraction);
+    sandbox.app.bind(Container.Identifiers.RoundState).to(MockRoundState);
 
     sandbox.app.bind(Container.Identifiers.BlockchainService).to(MockBlockchainService);
 
