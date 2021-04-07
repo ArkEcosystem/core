@@ -126,10 +126,19 @@ describe("Wallet Repository Clone", () => {
         });
     });
 
+    describe("getIndex", () => {
+        it("should return wallet repository index", () => {
+            walletRepositoryBlockchain.findByAddress("address_1");
+            const wallet = walletRepositoryClone.findByAddress("address_2");
+
+            const index = walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Addresses);
+
+            expect(index.values()).toEqual([wallet]);
+        });
+    });
+
     describe("getIndexNames", () => {
         it("should return index names", () => {
-            walletRepositoryClone.getIndexNames();
-
             expect(walletRepositoryClone.getIndexNames()).toEqual(["addresses", "publicKeys", "usernames", "ipfs"]);
         });
     });
