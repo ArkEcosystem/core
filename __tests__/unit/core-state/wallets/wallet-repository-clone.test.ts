@@ -1,7 +1,6 @@
 // @ts-nocheck
 import "jest-extended";
 
-import { MethodNotImplemented } from "@arkecosystem/core-kernel/dist/exceptions/logic";
 import { Utils } from "@arkecosystem/crypto";
 import { Container, Contracts, Services } from "@packages/core-kernel";
 import {
@@ -357,8 +356,33 @@ describe("Wallet Repository Clone", () => {
 
         it("should throw error if wallet does not exist in blockchain or copy wallet repository", () => {
             expect(() => {
-                walletRepositoryBlockchain.findByUsername("genesis_1");
+                walletRepositoryClone.findByUsername("genesis_1");
             }).toThrowError("Wallet genesis_1 doesn't exist in index usernames");
+        });
+    });
+
+    describe("findByIndexes", () => {
+        it("should copy and index wallet from blockchain wallet repository if key exist in blockchain wallet repository", () => {
+            const blockchainWallet = walletRepositoryBlockchain.findByAddress("address");
+
+            expect(walletRepositoryBlockchain.findByIndex(["addresses"], "address")).toBe(blockchainWallet);
+            expect(walletRepositoryClone.findByIndex(["addresses"], "address")).not.toBe(blockchainWallet);
+            expect(walletRepositoryClone.findByIndex(["addresses"], "address")).toEqual(blockchainWallet);
+
+            expect(walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Addresses).has("address")).toBeTrue();
+        });
+
+        it("should return wallet from wallet repository clone", () => {
+            const wallet = walletRepositoryClone.findByAddress("address");
+
+            expect(walletRepositoryClone.findByIndex(["addresses"], "address")).toBe(wallet);
+            expect(walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Addresses).has("address")).toBeTrue();
+        });
+
+        it("should throw error if wallet does not exist in blockchain or copy wallet repository", () => {
+            expect(() => {
+                walletRepositoryClone.findByIndex(["addresses"], "address");
+            }).toThrowError("Wallet address doesn't exist in index addresses");
         });
     });
 
@@ -762,14 +786,6 @@ describe("Wallet Repository Clone", () => {
             expect(() => {
                 walletRepositoryClone.getForgetIndex("undefined");
             }).toThrowError(WalletIndexNotFoundError);
-        });
-    });
-
-    describe("findByIndexes", () => {
-        it("should throw MethodNotImplemented", () => {
-            expect(() => {
-                walletRepositoryClone.findByIndexes([], "key");
-            }).toThrowError(MethodNotImplemented);
         });
     });
 });

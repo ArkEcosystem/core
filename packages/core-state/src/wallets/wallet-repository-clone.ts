@@ -1,4 +1,4 @@
-import { Container, Contracts, Exceptions } from "@arkecosystem/core-kernel";
+import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { Identities, Utils } from "@arkecosystem/crypto";
 
 import { WalletIndexNotFoundError } from "./errors";
@@ -78,10 +78,6 @@ export class WalletRepositoryClone extends WalletRepository {
         }
 
         return this.getIndex(index).get(key)!;
-    }
-
-    public findByIndexes(indexes: string[], key: string): Contracts.State.Wallet {
-        throw new Exceptions.Logic.MethodNotImplemented("findByIndexes");
     }
 
     public has(key: string): boolean {
