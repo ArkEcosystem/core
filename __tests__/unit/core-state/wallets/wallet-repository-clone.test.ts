@@ -1,4 +1,3 @@
-// @ts-nocheck
 import "jest-extended";
 
 import { Utils } from "@arkecosystem/crypto";
@@ -126,13 +125,11 @@ describe("Wallet Repository Clone", () => {
     });
 
     describe("getIndex", () => {
-        it("should return wallet repository index", () => {
+        it("should return wallet repository clone index", () => {
             walletRepositoryBlockchain.findByAddress("address_1");
             const wallet = walletRepositoryClone.findByAddress("address_2");
 
-            const index = walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Addresses);
-
-            expect(index.values()).toEqual([wallet]);
+            expect(walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Addresses).values()).toEqual([wallet]);
         });
     });
 
@@ -175,6 +172,7 @@ describe("Wallet Repository Clone", () => {
                 walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Usernames).has("genesis_1"),
             ).toBeFalse();
             expect(
+                // @ts-ignore
                 walletRepositoryClone.forgetIndexes[Contracts.State.WalletIndexes.Usernames].has("genesis_1"),
             ).toBeTrue();
         });
@@ -192,26 +190,23 @@ describe("Wallet Repository Clone", () => {
             const blockchainWallet = walletRepositoryBlockchain.findByAddress("address");
             walletRepositoryBlockchain.getIndex(Contracts.State.WalletIndexes.Ipfs).set("key", blockchainWallet);
 
-            expect(walletRepositoryClone.hasByIndex(Contracts.State.WalletIndexes.Ipfs, "key")).toBeTrue();
-            expect(walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Addresses).has("address")).toBeFalse();
-
             walletRepositoryClone.forgetOnIndex(Contracts.State.WalletIndexes.Ipfs, "key");
 
             expect(walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Ipfs).has("key")).toBeFalse();
+            // @ts-ignore
             expect(walletRepositoryClone.forgetIndexes[Contracts.State.WalletIndexes.Ipfs].has("key")).toBeTrue();
-            expect(walletRepositoryClone.hasByIndex(Contracts.State.WalletIndexes.Ipfs, "key")).toBeFalse();
             expect(walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Addresses).has("address")).toBeTrue();
         });
 
-        it("should set key on forget index if key exists", () => {
+        it("should set key on forget index if key exists on wallet repository clone", () => {
             const wallet = walletRepositoryClone.findByAddress("address");
             walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Ipfs).set("key", wallet);
-
             expect(walletRepositoryClone.hasByIndex(Contracts.State.WalletIndexes.Ipfs, "key")).toBeTrue();
 
             walletRepositoryClone.forgetOnIndex(Contracts.State.WalletIndexes.Ipfs, "key");
 
             expect(walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Ipfs).has("key")).toBeFalse();
+            // @ts-ignore
             expect(walletRepositoryClone.forgetIndexes[Contracts.State.WalletIndexes.Ipfs].has("key")).toBeTrue();
             expect(walletRepositoryClone.hasByIndex(Contracts.State.WalletIndexes.Ipfs, "key")).toBeFalse();
         });
@@ -219,6 +214,7 @@ describe("Wallet Repository Clone", () => {
         it("should skip setting key if does not exist", () => {
             walletRepositoryClone.forgetOnIndex(Contracts.State.WalletIndexes.Ipfs, "key");
 
+            // @ts-ignore
             expect(walletRepositoryClone.forgetIndexes[Contracts.State.WalletIndexes.Ipfs].has("key")).toBeFalse();
         });
     });
@@ -231,13 +227,10 @@ describe("Wallet Repository Clone", () => {
 
             const wallet = walletRepositoryClone.findByAddress("address");
 
-            expect(wallet).toBeInstanceOf(Wallet);
-            expect(wallet.address).toEqual("address");
-            expect(walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Addresses).has("address")).toBeTrue();
-            expect(walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Ipfs).has("key")).toBeTrue();
-
             expect(wallet).not.toBe(blockchainWallet);
             expect(wallet).toEqual(blockchainWallet);
+            expect(walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Addresses).has("address")).toBeTrue();
+            expect(walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Ipfs).has("key")).toBeTrue();
         });
 
         it("should create and index new wallet if does not exist in blockchain wallet repository", () => {
@@ -245,8 +238,7 @@ describe("Wallet Repository Clone", () => {
 
             expect(wallet).toBeInstanceOf(Wallet);
             expect(wallet.address).toEqual("address");
-            expect(walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Addresses).has("address")).toBeTrue();
-
+            expect(walletRepositoryClone.hasByAddress("address")).toBeTrue();
             expect(walletRepositoryBlockchain.hasByAddress("address")).toBeFalse();
         });
 
@@ -266,7 +258,6 @@ describe("Wallet Repository Clone", () => {
 
             expect(wallet).toBe(existingWallet);
             expect(spyOnCreateWallet).not.toHaveBeenCalled();
-
             expect(walletRepositoryBlockchain.hasByAddress("address")).toBeFalse();
         });
     });
@@ -318,12 +309,10 @@ describe("Wallet Repository Clone", () => {
             expect(spyOnCreateWallet).toHaveBeenCalled();
 
             spyOnCreateWallet.mockReset();
-
             const existingWallet = walletRepositoryClone.findByPublicKey(publicKey);
 
             expect(wallet).toBe(existingWallet);
             expect(spyOnCreateWallet).not.toHaveBeenCalled();
-
             expect(walletRepositoryBlockchain.hasByPublicKey(publicKey)).toBeFalse();
         });
     });
@@ -337,12 +326,10 @@ describe("Wallet Repository Clone", () => {
 
             const wallet = walletRepositoryClone.findByUsername("genesis_1");
 
-            expect(wallet).toBeInstanceOf(Wallet);
-            expect(wallet.getAttribute("delegate.username")).toEqual("genesis_1");
-            expect(walletRepositoryClone.hasByUsername("genesis_1")).toBeTrue();
-
             expect(wallet).not.toBe(blockchainWallet);
             expect(wallet).toEqual(blockchainWallet);
+            expect(wallet.getAttribute("delegate.username")).toEqual("genesis_1");
+            expect(walletRepositoryClone.hasByUsername("genesis_1")).toBeTrue();
         });
 
         it("should return existing wallet", () => {
@@ -365,23 +352,22 @@ describe("Wallet Repository Clone", () => {
         it("should copy and index wallet from blockchain wallet repository if key exist in blockchain wallet repository", () => {
             const blockchainWallet = walletRepositoryBlockchain.findByAddress("address");
 
-            expect(walletRepositoryBlockchain.findByIndex(["addresses"], "address")).toBe(blockchainWallet);
-            expect(walletRepositoryClone.findByIndex(["addresses"], "address")).not.toBe(blockchainWallet);
-            expect(walletRepositoryClone.findByIndex(["addresses"], "address")).toEqual(blockchainWallet);
-
+            expect(walletRepositoryBlockchain.findByIndexes(["addresses"], "address")).toBe(blockchainWallet);
+            expect(walletRepositoryClone.findByIndexes(["addresses"], "address")).not.toBe(blockchainWallet);
+            expect(walletRepositoryClone.findByIndexes(["addresses"], "address")).toEqual(blockchainWallet);
             expect(walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Addresses).has("address")).toBeTrue();
         });
 
         it("should return wallet from wallet repository clone", () => {
             const wallet = walletRepositoryClone.findByAddress("address");
 
-            expect(walletRepositoryClone.findByIndex(["addresses"], "address")).toBe(wallet);
+            expect(walletRepositoryClone.findByIndexes(["addresses"], "address")).toBe(wallet);
             expect(walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Addresses).has("address")).toBeTrue();
         });
 
         it("should throw error if wallet does not exist in blockchain or copy wallet repository", () => {
             expect(() => {
-                walletRepositoryClone.findByIndex(["addresses"], "address");
+                walletRepositoryClone.findByIndexes(["addresses"], "address");
             }).toThrowError("Wallet address doesn't exist in index addresses");
         });
     });
@@ -394,21 +380,18 @@ describe("Wallet Repository Clone", () => {
             blockchainWallet.setAttribute("delegate.username", username);
             walletRepositoryBlockchain.index(blockchainWallet);
             walletRepositoryBlockchain.getIndex(Contracts.State.WalletIndexes.Ipfs).set("key", blockchainWallet);
-
             expect(walletRepositoryBlockchain.hasByIndex(Contracts.State.WalletIndexes.Usernames, username)).toBeTrue();
 
             const wallet = walletRepositoryClone.findByIndex(Contracts.State.WalletIndexes.Usernames, username);
 
-            expect(wallet).toBeInstanceOf(Wallet);
+            expect(wallet).not.toBe(blockchainWallet);
+            expect(wallet).toEqual(blockchainWallet);
             expect(wallet.getAttribute("delegate.username")).toEqual(username);
             expect(walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Usernames).has(username)).toBeTrue();
             expect(
                 walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Addresses).has(wallet.address),
             ).toBeTrue();
             expect(walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Ipfs).has("key")).toBeTrue();
-
-            expect(wallet).not.toBe(blockchainWallet);
-            expect(wallet).toEqual(blockchainWallet);
         });
 
         it("should return existing wallet", () => {
@@ -425,12 +408,10 @@ describe("Wallet Repository Clone", () => {
             expect(spyOnCreateWallet).toHaveBeenCalled();
 
             spyOnCreateWallet.mockReset();
-
             const existingWallet = walletRepositoryClone.findByIndex(Contracts.State.WalletIndexes.Usernames, username);
 
             expect(wallet).toBe(existingWallet);
             expect(spyOnCreateWallet).not.toHaveBeenCalled();
-
             expect(
                 walletRepositoryBlockchain.hasByIndex(Contracts.State.WalletIndexes.Usernames, username),
             ).toBeFalse();
@@ -469,7 +450,6 @@ describe("Wallet Repository Clone", () => {
             walletRepositoryBlockchain.findByAddress("address");
 
             expect(walletRepositoryBlockchain.hasByAddress("address")).toBeTrue();
-
             expect(walletRepositoryClone.hasByAddress("address")).toBeTrue();
         });
 
@@ -477,13 +457,11 @@ describe("Wallet Repository Clone", () => {
             walletRepositoryClone.findByAddress("address");
 
             expect(walletRepositoryBlockchain.hasByAddress("address")).toBeFalse();
-
             expect(walletRepositoryClone.hasByAddress("address")).toBeTrue();
         });
 
         it("should return false if wallet does not exist in clone wallet repository", () => {
             expect(walletRepositoryBlockchain.hasByAddress("address")).toBeFalse();
-
             expect(walletRepositoryClone.hasByAddress("address")).toBeFalse();
         });
     });
@@ -495,7 +473,6 @@ describe("Wallet Repository Clone", () => {
             walletRepositoryBlockchain.findByPublicKey(publicKey);
 
             expect(walletRepositoryBlockchain.hasByPublicKey(publicKey)).toBeTrue();
-
             expect(walletRepositoryClone.hasByPublicKey(publicKey)).toBeTrue();
         });
 
@@ -503,13 +480,11 @@ describe("Wallet Repository Clone", () => {
             walletRepositoryClone.findByPublicKey(publicKey);
 
             expect(walletRepositoryBlockchain.hasByPublicKey(publicKey)).toBeFalse();
-
             expect(walletRepositoryClone.hasByPublicKey(publicKey)).toBeTrue();
         });
 
         it("should return false if wallet does not exist in clone wallet repository", () => {
             expect(walletRepositoryBlockchain.hasByPublicKey(publicKey)).toBeFalse();
-
             expect(walletRepositoryClone.hasByPublicKey(publicKey)).toBeFalse();
         });
     });
@@ -549,7 +524,6 @@ describe("Wallet Repository Clone", () => {
             expect(
                 walletRepositoryBlockchain.hasByIndex(Contracts.State.WalletIndexes.Usernames, "genesis_1"),
             ).toBeTrue();
-
             expect(walletRepositoryClone.hasByIndex(Contracts.State.WalletIndexes.Usernames, "genesis_1")).toBeTrue();
         });
 
@@ -566,7 +540,6 @@ describe("Wallet Repository Clone", () => {
 
         it("should return false if wallet does not exist in clone wallet repository", () => {
             expect(walletRepositoryBlockchain.hasByAddress("address")).toBeFalse();
-
             expect(walletRepositoryClone.hasByIndex(Contracts.State.WalletIndexes.Usernames, "genesis_1")).toBeFalse();
         });
 
@@ -604,6 +577,7 @@ describe("Wallet Repository Clone", () => {
                 walletRepositoryBlockchain.hasByIndex(Contracts.State.WalletIndexes.Usernames, "genesis_1"),
             ).toBeTrue();
             expect(
+                // @ts-ignore
                 walletRepositoryClone.forgetIndexes[Contracts.State.WalletIndexes.Usernames].has("genesis_1"),
             ).toBeTrue();
             expect(walletRepositoryClone.hasByIndex(Contracts.State.WalletIndexes.Usernames, "genesis_1")).toBeFalse();
@@ -643,7 +617,6 @@ describe("Wallet Repository Clone", () => {
             wallet.nonce = Utils.BigNumber.make("10");
 
             expect(walletRepositoryClone.getNonce(publicKey)).toEqual(Utils.BigNumber.make("10"));
-
             expect(
                 walletRepositoryBlockchain.getIndex(Contracts.State.WalletIndexes.PublicKeys).has(publicKey),
             ).toBeTrue();
@@ -658,7 +631,6 @@ describe("Wallet Repository Clone", () => {
             wallet.nonce = Utils.BigNumber.make("20");
 
             expect(walletRepositoryClone.getNonce(publicKey)).toEqual(Utils.BigNumber.make("20"));
-
             expect(
                 walletRepositoryBlockchain.getIndex(Contracts.State.WalletIndexes.PublicKeys).has(publicKey),
             ).toBeTrue();
@@ -768,6 +740,7 @@ describe("Wallet Repository Clone", () => {
             walletRepositoryClone.index(wallet);
 
             expect(walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Addresses).values().length).toBe(1);
+            // @ts-ignore
             expect(walletRepositoryClone.forgetIndexes[Contracts.State.WalletIndexes.Usernames].values().length).toBe(
                 1,
             );
@@ -775,6 +748,7 @@ describe("Wallet Repository Clone", () => {
             walletRepositoryClone.reset();
 
             expect(walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Addresses).values().length).toBe(0);
+            // @ts-ignore
             expect(walletRepositoryClone.forgetIndexes[Contracts.State.WalletIndexes.Usernames].values().length).toBe(
                 0,
             );
@@ -784,6 +758,7 @@ describe("Wallet Repository Clone", () => {
     describe("getForgetIndex", () => {
         it("should throw error if index is not found", () => {
             expect(() => {
+                // @ts-ignore
                 walletRepositoryClone.getForgetIndex("undefined");
             }).toThrowError(WalletIndexNotFoundError);
         });
