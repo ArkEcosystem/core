@@ -368,7 +368,7 @@ describe("Wallet Repository Clone", () => {
         it("should throw error if wallet does not exist in blockchain or copy wallet repository", () => {
             expect(() => {
                 walletRepositoryClone.findByIndexes(["addresses"], "address");
-            }).toThrowError("Wallet address doesn't exist in index addresses");
+            }).toThrowError("Wallet address doesn't exist in indexes addresses");
         });
     });
 
@@ -514,7 +514,6 @@ describe("Wallet Repository Clone", () => {
         });
     });
 
-    // TODO: Test with autoIndex
     describe("hasByIndex", () => {
         it("should return true if wallet exist in blockchain wallet repository", () => {
             const wallet = walletRepositoryBlockchain.findByAddress("address");
@@ -552,6 +551,18 @@ describe("Wallet Repository Clone", () => {
 
             wallet.forgetAttribute("delegate");
             walletRepositoryClone.index(wallet);
+
+            expect(walletRepositoryClone.hasByIndex(Contracts.State.WalletIndexes.Usernames, "genesis_1")).toBeFalse();
+        });
+
+        it("should return false if index is forgotten bu forgetOnIndex method", () => {
+            const wallet = walletRepositoryClone.findByAddress("address");
+            wallet.setAttribute("delegate.username", "genesis_1");
+            walletRepositoryClone.index(wallet);
+
+            expect(walletRepositoryClone.hasByIndex(Contracts.State.WalletIndexes.Usernames, "genesis_1")).toBeTrue();
+
+            walletRepositoryClone.forgetOnIndex(Contracts.State.WalletIndexes.Usernames, "genesis_1");
 
             expect(walletRepositoryClone.hasByIndex(Contracts.State.WalletIndexes.Usernames, "genesis_1")).toBeFalse();
         });
