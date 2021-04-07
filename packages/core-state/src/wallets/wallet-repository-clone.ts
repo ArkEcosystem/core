@@ -26,14 +26,6 @@ export class WalletRepositoryClone extends WalletRepository {
         return super.createWallet(address);
     }
 
-    // public getIndex(name: string): Contracts.State.WalletIndex {
-    //     throw new Exceptions.Logic.MethodNotImplemented("getIndex");
-    // }
-
-    // public getIndexNames(): string[] {
-    //     return super.getIndexNames();
-    // }
-
     public allByAddress(): ReadonlyArray<Contracts.State.Wallet> {
         return this.allByIndex(Contracts.State.WalletIndexes.Addresses);
     }
@@ -78,10 +70,6 @@ export class WalletRepositoryClone extends WalletRepository {
 
         return super.findByIndex(Contracts.State.WalletIndexes.PublicKeys, publicKey);
     }
-
-    // public findByUsername(username: string): Contracts.State.Wallet {
-    //     return this.findByIndex(Contracts.State.WalletIndexes.Usernames, username);
-    // }
 
     public findByIndex(index: string, key: string): Contracts.State.Wallet {
         if (!super.hasByIndex(index, key)) {
@@ -147,13 +135,6 @@ export class WalletRepositoryClone extends WalletRepository {
             walletIndex.clear();
         }
     }
-
-    // public cloneWallet(
-    //     origin: Contracts.State.WalletRepository,
-    //     wallet: Contracts.State.Wallet,
-    // ): Contracts.State.Wallet {
-    //     throw new Exceptions.Logic.MethodNotImplemented("cloneWallet");
-    // }
 
     protected indexWallet(wallet: Contracts.State.Wallet): void {
         const indexKeys = {};
