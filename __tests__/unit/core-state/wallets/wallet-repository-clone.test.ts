@@ -419,6 +419,27 @@ describe("Wallet Repository Clone", () => {
         });
     });
 
+    describe("has", () => {
+        it("should return true if key exist in blockchain wallet repository", () => {
+            walletRepositoryBlockchain.findByAddress("address");
+
+            expect(walletRepositoryBlockchain.has("address")).toBeTrue();
+            expect(walletRepositoryClone.has("address")).toBeTrue();
+        });
+
+        it("should return true if key exist in clone wallet repository", () => {
+            walletRepositoryClone.findByAddress("address");
+
+            expect(walletRepositoryBlockchain.has("address")).toBeFalse();
+            expect(walletRepositoryClone.has("address")).toBeTrue();
+        });
+
+        it("should return false if key does not exist in clone wallet repository", () => {
+            expect(walletRepositoryBlockchain.has("address")).toBeFalse();
+            expect(walletRepositoryClone.has("address")).toBeFalse();
+        });
+    });
+
     describe("hasByAddress", () => {
         it("should return true if wallet exist in blockchain wallet repository", () => {
             walletRepositoryBlockchain.findByAddress("address");
@@ -748,14 +769,6 @@ describe("Wallet Repository Clone", () => {
         it("should throw MethodNotImplemented", () => {
             expect(() => {
                 walletRepositoryClone.findByIndexes([], "key");
-            }).toThrowError(MethodNotImplemented);
-        });
-    });
-
-    describe("has", () => {
-        it("should throw MethodNotImplemented", () => {
-            expect(() => {
-                walletRepositoryClone.has("key");
             }).toThrowError(MethodNotImplemented);
         });
     });

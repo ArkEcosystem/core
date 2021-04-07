@@ -85,7 +85,13 @@ export class WalletRepositoryClone extends WalletRepository {
     }
 
     public has(key: string): boolean {
-        throw new Exceptions.Logic.MethodNotImplemented("has");
+        for (const indexName of this.getIndexNames()) {
+            if (this.hasByIndex(indexName, key)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public hasByAddress(address: string): boolean {
