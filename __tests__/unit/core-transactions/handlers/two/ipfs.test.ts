@@ -7,6 +7,7 @@ import { StateStore } from "@packages/core-state/src/stores/state";
 import { Generators } from "@packages/core-test-framework/src";
 import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
+import { Mempool } from "@packages/core-transaction-pool";
 import { InsufficientBalanceError, IpfsHashAlreadyExists } from "@packages/core-transactions/src/errors";
 import { TransactionHandler } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
@@ -40,17 +41,6 @@ const transactionHistoryService = {
     streamByCriteria: jest.fn(),
 };
 
-const poolQuery = {
-    getAll: jest.fn(),
-    whereKind: jest.fn(),
-    wherePredicate: jest.fn(),
-    has: jest.fn().mockReturnValue(false),
-};
-
-poolQuery.getAll.mockReturnValue(poolQuery);
-poolQuery.whereKind.mockReturnValue(poolQuery);
-poolQuery.wherePredicate.mockReturnValue(poolQuery);
-
 beforeEach(() => {
     transactionHistoryService.streamByCriteria.mockReset();
 
@@ -60,9 +50,6 @@ beforeEach(() => {
 
     app = initApp();
     app.bind(Identifiers.TransactionHistoryService).toConstantValue(transactionHistoryService);
-
-    app.unbind(Identifiers.TransactionPoolQuery);
-    app.bind(Identifiers.TransactionPoolQuery).toConstantValue(poolQuery);
 
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
 
@@ -209,8 +196,16 @@ describe("Ipfs", () => {
             await expect(handler.throwIfCannotEnterPool(ipfsTransaction)).toResolve();
         });
 
+        it("should reject if asset is not defined", async () => {
+            delete ipfsTransaction.data.asset;
+
+            await expect(handler.throwIfCannotEnterPool(ipfsTransaction)).rejects.toBeInstanceOf(
+                Exceptions.Runtime.AssertionException,
+            );
+        });
+
         it("should reject when transaction with same ipfs address is already in the pool", async () => {
-            poolQuery.has.mockReturnValue(true);
+            await app.get<Mempool>(Identifiers.TransactionPoolMempool).addTransaction(ipfsTransaction);
 
             await expect(handler.throwIfCannotEnterPool(ipfsTransaction)).rejects.toBeInstanceOf(
                 Contracts.TransactionPool.PoolError,
