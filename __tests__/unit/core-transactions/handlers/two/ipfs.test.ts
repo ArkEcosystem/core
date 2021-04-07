@@ -194,6 +194,16 @@ describe("Ipfs", () => {
         });
     });
 
+    describe("isActivated", () => {
+        it("should return true when aip11 === true", async () => {
+            await expect(handler.isActivated()).resolves.toBeTrue();
+
+            jest.spyOn(Managers.configManager, "getMilestone").mockReturnValue({});
+
+            await expect(handler.isActivated()).resolves.toBeFalse();
+        });
+    });
+
     describe("throwIfCannotEnterPool", () => {
         it("should not throw", async () => {
             await expect(handler.throwIfCannotEnterPool(ipfsTransaction)).toResolve();
@@ -202,7 +212,9 @@ describe("Ipfs", () => {
         it("should reject when transaction with same ipfs address is already in the pool", async () => {
             poolQuery.has.mockReturnValue(true);
 
-            await expect(handler.throwIfCannotEnterPool(ipfsTransaction)).rejects.toBeInstanceOf(Contracts.TransactionPool.PoolError);
+            await expect(handler.throwIfCannotEnterPool(ipfsTransaction)).rejects.toBeInstanceOf(
+                Contracts.TransactionPool.PoolError,
+            );
         });
     });
 
