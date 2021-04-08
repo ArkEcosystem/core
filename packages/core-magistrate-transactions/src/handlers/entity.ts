@@ -27,7 +27,7 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
     private readonly poolQuery!: Contracts.TransactionPool.Query;
 
     @Container.inject(Container.Identifiers.TransactionHistoryService)
-    protected readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
+    private readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
 
     public dependencies(): ReadonlyArray<Handlers.TransactionHandlerConstructor> {
         return [];
