@@ -1,7 +1,7 @@
 import "jest-extended";
 
-import { PoolError } from "@packages/core-kernel/dist/contracts/transaction-pool";
 import { Container, Utils } from "@packages/core-kernel";
+import { PoolError } from "@packages/core-kernel/dist/contracts/transaction-pool";
 import { Enums } from "@packages/core-magistrate-crypto";
 import { EntityBuilder } from "@packages/core-magistrate-crypto/src/builders";
 import { EntityAction, EntityType } from "@packages/core-magistrate-crypto/src/enums";
@@ -20,6 +20,7 @@ import {
 import { EntityTransactionHandler } from "@packages/core-magistrate-transactions/src/handlers/entity";
 import { Utils as CryptoUtils } from "@packages/crypto";
 import { Managers, Transactions } from "@packages/crypto";
+import { cloneDeep } from "lodash";
 
 import { validRegisters, validResigns, validUpdates } from "./__fixtures__/entity";
 import { walletRepository } from "./__mocks__/wallet-repository";
@@ -91,6 +92,10 @@ describe("Entity handler", () => {
         jest.spyOn(walletRepository, "findByPublicKey").mockReturnValue(wallet);
 
         entityHandler = container.resolve(EntityTransactionHandler);
+    });
+
+    afterEach(() => {
+        jest.clearAllMocks();
     });
 
     const registerFee = "5000000000";
@@ -188,12 +193,38 @@ describe("Entity handler", () => {
 
         it("should resolve", async () => {
             await expect(entityHandler.throwIfCannotEnterPool(transaction)).toResolve();
+            expect(poolQuery.getAll).toHaveBeenCalled();
+        });
+
+        it("should resolve if transaction action is update or resign", async () => {
+            transaction.data.asset!.action = Enums.EntityAction.Update;
+
+            await expect(entityHandler.throwIfCannotEnterPool(transaction)).toResolve();
+            expect(poolQuery.getAll).not.toHaveBeenCalled();
+
+            transaction.data.asset!.action = Enums.EntityAction.Resign;
+
+            await expect(entityHandler.throwIfCannotEnterPool(transaction)).toResolve();
+            expect(poolQuery.getAll).not.toHaveBeenCalled();
         });
 
         it("should throw if transaction with same type and name is already in the pool", async () => {
             poolQuery.has.mockReturnValue(true);
 
             await expect(entityHandler.throwIfCannotEnterPool(transaction)).rejects.toBeInstanceOf(PoolError);
+
+            expect(poolQuery.wherePredicate).toHaveBeenCalledTimes(2);
+
+            const transactionClone = cloneDeep(transaction);
+            const wherePredicateCallback1 = poolQuery.wherePredicate.mock.calls[0][0];
+            const wherePredicateCallback2 = poolQuery.wherePredicate.mock.calls[1][0];
+
+            expect(wherePredicateCallback1(transactionClone)).toBeTrue();
+            expect(wherePredicateCallback2(transactionClone)).toBeTrue();
+
+            delete transactionClone.data.asset;
+            expect(wherePredicateCallback1(transactionClone)).toBeFalse();
+            expect(wherePredicateCallback2(transactionClone)).toBeFalse();
         });
     });
 
