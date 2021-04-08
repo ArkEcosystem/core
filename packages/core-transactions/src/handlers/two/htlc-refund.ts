@@ -166,10 +166,11 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         AppUtils.assert.defined<string>(transaction.data.asset?.refund?.lockTransactionId);
 
         const lockId: string = transaction.data.asset.refund.lockTransactionId;
-        // @ts-ignore - Type 'Transaction' is not assignable to type 'ITransactionData'.
         const lockTransaction: Interfaces.ITransactionData = (await this.transactionRepository.findByIds([lockId]))[0];
 
+        AppUtils.assert.defined<string>(lockTransaction.id);
         AppUtils.assert.defined<string>(lockTransaction.senderPublicKey);
+        AppUtils.assert.defined<Interfaces.IHtlcLockAsset>(lockTransaction.asset?.lock);
 
         const lockWallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(
             lockTransaction.senderPublicKey,
@@ -180,25 +181,18 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         const lockedBalance: Utils.BigNumber = lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
         lockWallet.setAttribute("htlc.lockedBalance", lockedBalance.plus(lockTransaction.amount));
 
-        const locks: Interfaces.IHtlcLocks | undefined = lockWallet.getAttribute("htlc.locks", {});
+        const locks: Interfaces.IHtlcLocks = lockWallet.getAttribute("htlc.locks", {});
 
-        AppUtils.assert.defined<Interfaces.IHtlcLockAsset>(lockTransaction.asset?.lock);
-
-        /* istanbul ignore else */
-        if (locks) {
-            AppUtils.assert.defined<string>(lockTransaction.id);
-
-            locks[lockTransaction.id] = {
-                amount: lockTransaction.amount,
-                recipientId: lockTransaction.recipientId,
-                timestamp: lockTransaction.timestamp,
-                vendorField: lockTransaction.vendorField
-                    ? Buffer.from(lockTransaction.vendorField, "hex").toString("utf8")
-                    : undefined,
-                ...lockTransaction.asset.lock,
-            };
-            lockWallet.setAttribute("htlc.locks", locks);
-        }
+        locks[lockTransaction.id] = {
+            amount: lockTransaction.amount,
+            recipientId: lockTransaction.recipientId,
+            timestamp: lockTransaction.timestamp,
+            vendorField: lockTransaction.vendorField
+                ? Buffer.from(lockTransaction.vendorField, "hex").toString("utf8")
+                : undefined,
+            ...lockTransaction.asset.lock,
+        };
+        lockWallet.setAttribute("htlc.locks", locks);
 
         this.walletRepository.index(lockWallet);
     }
