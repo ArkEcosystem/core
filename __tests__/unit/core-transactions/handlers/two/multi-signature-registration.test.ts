@@ -355,6 +355,14 @@ describe("MultiSignatureRegistrationTransaction", () => {
             await expect(handler.throwIfCannotEnterPool(multiSignatureTransaction)).toResolve();
         });
 
+        it("should throw if transaction asset is undefined", async () => {
+            delete multiSignatureTransaction.data.asset;
+
+            await expect(handler.throwIfCannotEnterPool(multiSignatureTransaction)).rejects.toThrow(
+                Exceptions.Runtime.AssertionException,
+            );
+        });
+
         it("should throw if transaction by sender already in pool", async () => {
             await app.get<Mempool>(Identifiers.TransactionPoolMempool).addTransaction(multiSignatureTransaction);
 
