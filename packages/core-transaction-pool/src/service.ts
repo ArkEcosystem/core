@@ -171,35 +171,19 @@ export class Service implements Contracts.TransactionPool.Service {
                 }
             }
 
-            if (previouslyForgedSuccesses === 1) {
-                this.logger.info(`${previouslyForgedSuccesses} previously forged transaction re-added`);
-            }
-            if (previouslyForgedSuccesses > 1) {
+            if (previouslyForgedSuccesses >= 1) {
                 this.logger.info(`${previouslyForgedSuccesses} previously forged transactions re-added`);
             }
-            if (previouslyForgedFailures === 1) {
-                this.logger.warning(`${previouslyForgedFailures} previously forged transaction failed re-adding`);
-            }
-            if (previouslyForgedFailures > 1) {
+            if (previouslyForgedFailures >= 1) {
                 this.logger.warning(`${previouslyForgedFailures} previously forged transactions failed re-adding`);
             }
-
-            if (previouslyStoredSuccesses === 1) {
-                this.logger.info(`${previouslyStoredSuccesses} previously stored transaction re-added`);
-            }
-            if (previouslyStoredSuccesses > 1) {
+            if (previouslyStoredSuccesses >= 1) {
                 this.logger.info(`${previouslyStoredSuccesses} previously stored transactions re-added`);
             }
-            if (previouslyStoredExpirations === 1) {
-                this.logger.info(`${previouslyStoredExpirations} previously stored transaction expired`);
-            }
-            if (previouslyStoredExpirations > 1) {
+            if (previouslyStoredExpirations >= 1) {
                 this.logger.info(`${previouslyStoredExpirations} previously stored transactions expired`);
             }
-            if (previouslyStoredFailures === 1) {
-                this.logger.warning(`${previouslyStoredFailures} previously stored transaction failed re-adding`);
-            }
-            if (previouslyStoredFailures > 1) {
+            if (previouslyStoredFailures >= 1) {
                 this.logger.warning(`${previouslyStoredFailures} previously stored transactions failed re-adding`);
             }
         });
