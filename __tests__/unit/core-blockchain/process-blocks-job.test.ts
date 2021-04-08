@@ -1,9 +1,9 @@
 import { ProcessBlockAction } from "@packages/core-blockchain/src/actions";
-import { Container, Services } from "@packages/core-kernel";
-import { Crypto, Interfaces, Networks } from "@packages/crypto";
 import { ProcessBlocksJob } from "@packages/core-blockchain/src/process-blocks-job";
 import { BlockProcessorResult } from "@packages/core-blockchain/src/processor";
+import { Container, Services } from "@packages/core-kernel";
 import { Sandbox } from "@packages/core-test-framework";
+import { Crypto, Interfaces, Networks } from "@packages/crypto";
 
 import { Blocks } from "./__fixtures__";
 
@@ -200,7 +200,7 @@ describe("Blockchain", () => {
 
             blockchainService.clearQueue = jest.fn();
             blockchainService.resetLastDownloadedBlock = jest.fn();
-            databaseInteraction.loadBlocksFromCurrentRound = jest.fn();
+            databaseInteraction.restoreCurrentRound = jest.fn();
             databaseService.deleteRound = jest.fn();
 
             stateStore.setLastBlock = jest.fn();
@@ -210,7 +210,7 @@ describe("Blockchain", () => {
 
             expect(blockchainService.clearQueue).toBeCalledTimes(1);
             expect(blockchainService.resetLastDownloadedBlock).toBeCalledTimes(1);
-            expect(databaseInteraction.loadBlocksFromCurrentRound).toBeCalledTimes(1);
+            expect(databaseInteraction.restoreCurrentRound).toBeCalledTimes(1);
             expect(databaseService.deleteRound).toBeCalledTimes(1);
         });
 
@@ -229,7 +229,7 @@ describe("Blockchain", () => {
 
             blockchainService.clearQueue = jest.fn();
             blockchainService.resetLastDownloadedBlock = jest.fn();
-            databaseInteraction.loadBlocksFromCurrentRound = jest.fn();
+            databaseInteraction.restoreCurrentRound = jest.fn();
             databaseService.deleteRound = jest.fn();
 
             stateStore.setLastBlock = jest.fn();
@@ -239,7 +239,7 @@ describe("Blockchain", () => {
 
             expect(blockchainService.clearQueue).toBeCalledTimes(1);
             expect(blockchainService.resetLastDownloadedBlock).toBeCalledTimes(1);
-            expect(databaseInteraction.loadBlocksFromCurrentRound).toBeCalledTimes(1);
+            expect(databaseInteraction.restoreCurrentRound).toBeCalledTimes(1);
             expect(databaseService.deleteRound).toBeCalledTimes(1);
 
             expect(process.exit).toHaveBeenCalled();

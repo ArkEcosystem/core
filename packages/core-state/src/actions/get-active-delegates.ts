@@ -1,6 +1,6 @@
 import { Container, Contracts, Services, Types } from "@arkecosystem/core-kernel";
 
-import { DatabaseInteraction } from "../database-interactions";
+import { RoundState } from "../round-state";
 
 export class GetActiveDelegatesAction extends Services.Triggers.Action {
     private app: Contracts.Kernel.Application;
@@ -14,10 +14,6 @@ export class GetActiveDelegatesAction extends Services.Triggers.Action {
         const roundInfo: Contracts.Shared.RoundInfo = args.roundInfo;
         const delegates: Contracts.State.Wallet[] = args.delegates;
 
-        const databaseInteractions: DatabaseInteraction = this.app.get<DatabaseInteraction>(
-            Container.Identifiers.DatabaseInteraction,
-        );
-
-        return databaseInteractions.getActiveDelegates(roundInfo, delegates);
+        return this.app.get<RoundState>(Container.Identifiers.RoundState).getActiveDelegates(roundInfo, delegates);
     }
 }
