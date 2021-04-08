@@ -12,10 +12,10 @@ import { Mempool } from "@packages/core-transaction-pool/src/mempool";
 import {
     InsufficientBalanceError,
     InvalidMultiSignatureError,
+    LegacyMultiSignatureRegistrationError,
     MultiSignatureAlreadyRegisteredError,
     MultiSignatureKeyCountMismatchError,
     MultiSignatureMinimumKeysError,
-    LegacyMultiSignatureRegistrationError,
 } from "@packages/core-transactions/src/errors";
 import { TransactionHandler } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
@@ -382,18 +382,6 @@ describe("MultiSignatureRegistrationTransaction", () => {
             expect(senderWallet.hasAttribute("multiSignature")).toBeFalse();
             expect(recipientWallet.getAttribute("multiSignature")).toEqual(
                 multiSignatureTransaction.data.asset!.multiSignature,
-            );
-        });
-    });
-
-    describe("applyToSender", () => {
-        it("should throw if asset is undefined", async () => {
-            multiSignatureTransaction.data.asset = undefined;
-
-            handler.throwIfCannotBeApplied = jest.fn();
-
-            await expect(handler.applyToSender(multiSignatureTransaction)).rejects.toThrow(
-                Exceptions.Runtime.AssertionException,
             );
         });
     });
