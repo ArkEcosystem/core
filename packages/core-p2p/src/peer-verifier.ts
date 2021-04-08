@@ -1,5 +1,5 @@
 import { Container, Contracts, Services, Utils } from "@arkecosystem/core-kernel";
-import { DatabaseInteraction } from "@arkecosystem/core-state";
+import { DatabaseInterceptor } from "@arkecosystem/core-state";
 import { Blocks, Interfaces } from "@arkecosystem/crypto";
 import assert from "assert";
 import pluralize from "pluralize";
@@ -31,8 +31,8 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
 
-    @Container.inject(Container.Identifiers.DatabaseInteraction)
-    private databaseInteraction!: DatabaseInteraction;
+    @Container.inject(Container.Identifiers.DatabaseInterceptor)
+    private readonly databaseInterceptor!: DatabaseInterceptor;
 
     @Container.inject(Container.Identifiers.PeerCommunicator)
     private communicator!: Contracts.P2P.PeerCommunicator;
@@ -208,12 +208,12 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
             return false;
         }
 
-        const blocks = await this.databaseInteraction.getBlocksByHeight([claimedHeight]);
+        const blocks = await this.databaseInterceptor.getBlocksByHeight([claimedHeight]);
 
         assert.strictEqual(
             blocks.length,
             1,
-            `databaseInteraction.getBlocksByHeight([ ${claimedHeight} ]) returned ${blocks.length} results: ` +
+            `databaseInterceptor.getBlocksByHeight([ ${claimedHeight} ]) returned ${blocks.length} results: ` +
                 this.anyToString(blocks) +
                 ` (our chain is at height ${ourHeight})`,
         );
@@ -274,7 +274,7 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
         const nAry = 8;
 
         const probe = async (heightsToProbe: number[]): Promise<number | undefined> => {
-            const ourBlocks = await this.databaseInteraction.getBlocksByHeight(heightsToProbe);
+            const ourBlocks = await this.databaseInterceptor.getBlocksByHeight(heightsToProbe);
 
             assert.strictEqual(ourBlocks.length, heightsToProbe.length);
 
