@@ -170,7 +170,10 @@ export const initApp = (): Application => {
     return app;
 };
 
-export const buildSenderWallet = (factoryBuilder: FactoryBuilder): Wallets.Wallet => {
+export const buildSenderWallet = (
+    factoryBuilder: FactoryBuilder,
+    passphrase: string = passphrases[0],
+): Wallets.Wallet => {
     const wallet: Wallets.Wallet = factoryBuilder
         .get("Wallet")
         .withOptions({
