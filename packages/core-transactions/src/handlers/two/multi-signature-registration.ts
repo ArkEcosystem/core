@@ -110,13 +110,6 @@ export class MultiSignatureRegistrationTransactionHandler extends TransactionHan
 
     public async applyToSender(transaction: Interfaces.ITransaction): Promise<void> {
         await super.applyToSender(transaction);
-
-        // Create the multi sig wallet
-        AppUtils.assert.defined<Interfaces.IMultiSignatureAsset>(transaction.data.asset?.multiSignature);
-
-        this.walletRepository
-            .findByPublicKey(Identities.PublicKey.fromMultiSignatureAsset(transaction.data.asset.multiSignature))
-            .setAttribute("multiSignature", transaction.data.asset.multiSignature);
     }
 
     public async revertForSender(transaction: Interfaces.ITransaction): Promise<void> {
