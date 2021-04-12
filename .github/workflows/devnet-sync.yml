@@ -1,10 +1,8 @@
 name: Devnet sync
 
 on:
-    pull_request:
-        types: [ready_for_review, synchronize, opened]
-#TODO    schedule:
-#TODO        - cron: '0 10 * * *'
+    schedule:
+        - cron: '0 10 * * *'
 
 jobs:
     devnet-sync:
