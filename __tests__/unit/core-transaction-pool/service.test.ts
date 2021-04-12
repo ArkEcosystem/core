@@ -1,7 +1,7 @@
 import { Container, Contracts, Enums } from "@arkecosystem/core-kernel";
 import { Identities, Managers, Transactions } from "@arkecosystem/crypto";
 
-import { Service } from "../../../packages/core-transaction-pool/src/service";
+import { Service } from "@packages/core-transaction-pool/src/service";
 
 const configuration = {
     getRequired: jest.fn(),

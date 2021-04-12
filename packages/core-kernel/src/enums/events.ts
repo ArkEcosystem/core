@@ -53,6 +53,11 @@ export enum DelegateEvent {
     Resigned = "delegate.resigned",
 }
 
+export enum VoteEvent {
+    Vote = "wallet.vote",
+    Unvote = "wallet.unvote",
+}
+
 /**
  * @export
  * @enum {number}
