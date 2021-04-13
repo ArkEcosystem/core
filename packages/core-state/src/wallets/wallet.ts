@@ -4,30 +4,12 @@ import { Utils } from "@arkecosystem/crypto";
 import { WalletEvent } from "./wallet-event";
 
 export class Wallet implements Contracts.State.Wallet {
-    /**
-     * @type {(string | undefined)}
-     * @memberof Wallet
-     */
-    public publicKey: string | undefined;
+    protected publicKey: string | undefined;
+    protected balance: Utils.BigNumber = Utils.BigNumber.ZERO;
+    protected nonce: Utils.BigNumber = Utils.BigNumber.ZERO;
 
-    /**
-     * @type {Utils.BigNumber}
-     * @memberof Wallet
-     */
-    public balance: Utils.BigNumber = Utils.BigNumber.ZERO;
-
-    /**
-     * @type {Utils.BigNumber}
-     * @memberof Wallet
-     */
-    public nonce: Utils.BigNumber = Utils.BigNumber.ZERO;
-
-    /**
-     * @param {string} address
-     * @memberof Wallet
-     */
     public constructor(
-        public readonly address: string,
+        protected readonly address: string,
         protected readonly attributes: Services.Attributes.AttributeMap,
         protected readonly events?: Contracts.Kernel.EventDispatcher,
     ) {}

@@ -24,7 +24,6 @@ describe("Models - Wallet", () => {
     it("returns the address", () => {
         const address = "Abcde";
         const wallet = new Wallet(address, attributeMap);
-        expect(wallet.address).toBe(address);
         expect(wallet.getAddress()).toBe(address);
     });
 
@@ -309,7 +308,7 @@ describe("Original", () => {
         wallet.setAttribute("delegate.username", "dummy");
         const clone = wallet.clone();
 
-        expect(clone.address).toEqual("Abcde");
+        expect(clone.getAddress()).toEqual("Abcde");
         expect(clone.getAttribute("delegate.username")).toEqual("dummy");
     });
 });
