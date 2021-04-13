@@ -1,10 +1,11 @@
 import "jest-extended";
 
-import { Container, Utils } from "@arkecosystem/core-kernel";
-import { Enums } from "@arkecosystem/core-magistrate-crypto";
-import { EntityBuilder } from "@arkecosystem/core-magistrate-crypto/src/builders";
-import { EntityAction, EntityType } from "@arkecosystem/core-magistrate-crypto/src/enums";
-import { EntityTransaction } from "@arkecosystem/core-magistrate-crypto/src/transactions";
+import { Container, Utils } from "@packages/core-kernel";
+import { PoolError } from "@packages/core-kernel/dist/contracts/transaction-pool";
+import { Enums } from "@packages/core-magistrate-crypto";
+import { EntityBuilder } from "@packages/core-magistrate-crypto/src/builders";
+import { EntityAction, EntityType } from "@packages/core-magistrate-crypto/src/enums";
+import { EntityTransaction } from "@packages/core-magistrate-crypto/src/transactions";
 import {
     EntityAlreadyRegisteredError,
     EntityAlreadyResignedError,
@@ -15,14 +16,13 @@ import {
     EntityWrongSubTypeError,
     EntityWrongTypeError,
     StaticFeeMismatchError,
-} from "@arkecosystem/core-magistrate-transactions/src/errors";
-import { EntityTransactionHandler } from "@arkecosystem/core-magistrate-transactions/src/handlers/entity";
-import { Utils as CryptoUtils } from "@arkecosystem/crypto";
-import { Managers, Transactions } from "@arkecosystem/crypto";
+} from "@packages/core-magistrate-transactions/src/errors";
+import { EntityTransactionHandler } from "@packages/core-magistrate-transactions/src/handlers/entity";
+import { Utils as CryptoUtils } from "@packages/crypto";
+import { Managers, Transactions } from "@packages/crypto";
+import { cloneDeep } from "lodash";
 
-import { validRegisters } from "./__fixtures__/entity/register";
-import { validResigns } from "./__fixtures__/entity/resign";
-import { validUpdates } from "./__fixtures__/entity/update";
+import { validRegisters, validResigns, validUpdates } from "./__fixtures__/entity";
 import { walletRepository } from "./__mocks__/wallet-repository";
 
 // mocking the abstract TransactionHandler class
@@ -52,9 +52,21 @@ describe("Entity handler", () => {
         streamByCriteria: jest.fn(),
     };
 
+    const poolQuery = {
+        getAll: jest.fn(),
+        whereKind: jest.fn(),
+        wherePredicate: jest.fn(),
+        has: jest.fn().mockReturnValue(false),
+    };
+
+    poolQuery.getAll.mockReturnValue(poolQuery);
+    poolQuery.whereKind.mockReturnValue(poolQuery);
+    poolQuery.wherePredicate.mockReturnValue(poolQuery);
+
     beforeAll(() => {
         container.unbindAll();
         container.bind(Container.Identifiers.TransactionHistoryService).toConstantValue(transactionHistoryService);
+        container.bind(Container.Identifiers.TransactionPoolQuery).toConstantValue(poolQuery);
     });
 
     let wallet, walletAttributes;
@@ -80,6 +92,10 @@ describe("Entity handler", () => {
         jest.spyOn(walletRepository, "findByPublicKey").mockReturnValue(wallet);
 
         entityHandler = container.resolve(EntityTransactionHandler);
+    });
+
+    afterEach(() => {
+        jest.clearAllMocks();
     });
 
     const registerFee = "5000000000";
@@ -161,6 +177,54 @@ describe("Entity handler", () => {
 
         it("should resolve", async () => {
             await expect(entityHandler.bootstrap()).toResolve();
+        });
+    });
+
+    describe("throwIfCannotEnterPool", () => {
+        let transaction: EntityTransaction;
+        let entityHandler: EntityTransactionHandler;
+
+        beforeEach(() => {
+            const builder = new EntityBuilder();
+            transaction = builder.asset(validRegisters[0]).sign("passphrase").build() as EntityTransaction;
+
+            entityHandler = container.resolve(EntityTransactionHandler);
+        });
+
+        it("should resolve", async () => {
+            await expect(entityHandler.throwIfCannotEnterPool(transaction)).toResolve();
+            expect(poolQuery.getAll).toHaveBeenCalled();
+        });
+
+        it("should resolve if transaction action is update or resign", async () => {
+            transaction.data.asset!.action = Enums.EntityAction.Update;
+
+            await expect(entityHandler.throwIfCannotEnterPool(transaction)).toResolve();
+            expect(poolQuery.getAll).not.toHaveBeenCalled();
+
+            transaction.data.asset!.action = Enums.EntityAction.Resign;
+
+            await expect(entityHandler.throwIfCannotEnterPool(transaction)).toResolve();
+            expect(poolQuery.getAll).not.toHaveBeenCalled();
+        });
+
+        it("should throw if transaction with same type and name is already in the pool", async () => {
+            poolQuery.has.mockReturnValue(true);
+
+            await expect(entityHandler.throwIfCannotEnterPool(transaction)).rejects.toBeInstanceOf(PoolError);
+
+            expect(poolQuery.wherePredicate).toHaveBeenCalledTimes(2);
+
+            const transactionClone = cloneDeep(transaction);
+            const wherePredicateCallback1 = poolQuery.wherePredicate.mock.calls[0][0];
+            const wherePredicateCallback2 = poolQuery.wherePredicate.mock.calls[1][0];
+
+            expect(wherePredicateCallback1(transactionClone)).toBeTrue();
+            expect(wherePredicateCallback2(transactionClone)).toBeTrue();
+
+            delete transactionClone.data.asset;
+            expect(wherePredicateCallback1(transactionClone)).toBeFalse();
+            expect(wherePredicateCallback2(transactionClone)).toBeFalse();
         });
     });
 
@@ -351,6 +415,18 @@ describe("Entity handler", () => {
                     };
                     //@ts-ignore
                     jest.spyOn(walletRepository, "allByIndex").mockReturnValueOnce([walletSameEntityName]);
+                    const walletSameEntityName = {
+                        hasAttribute: () => true,
+                        getAttribute: () => ({
+                            "7950c6a0d096eeb4883237feec12b9f37f36ab9343ff3640904befc75ce32ec2": {
+                                type: asset.type,
+                                subType: (asset.subType + 1) % 255, // different subType but still in the range [0, 255]
+                                data: asset.data,
+                            },
+                        }),
+                    };
+                    //@ts-ignore
+                    jest.spyOn(walletRepository, "getIndex").mockReturnValueOnce([walletSameEntityName]);
 
                     entityHandler = container.resolve(EntityTransactionHandler);
                     await expect(entityHandler.throwIfCannotBeApplied(transaction, wallet)).rejects.toBeInstanceOf(
@@ -377,6 +453,18 @@ describe("Entity handler", () => {
                     };
                     //@ts-ignore
                     jest.spyOn(walletRepository, "allByIndex").mockReturnValueOnce([walletSameEntityName]);
+                    const walletSameEntityName = {
+                        hasAttribute: () => true,
+                        getAttribute: () => ({
+                            "7950c6a0d096eeb4883237feec12b9f37f36ab9343ff3640904befc75ce32ec2": {
+                                type: (asset.type + 1) % 255, // different type but still in the range [0, 255]
+                                subType: asset.subType,
+                                data: asset.data,
+                            },
+                        }),
+                    };
+                    //@ts-ignore
+                    jest.spyOn(walletRepository, "getIndex").mockReturnValueOnce([walletSameEntityName]);
 
                     entityHandler = container.resolve(EntityTransactionHandler);
                     await expect(entityHandler.throwIfCannotBeApplied(transaction, wallet)).toResolve();

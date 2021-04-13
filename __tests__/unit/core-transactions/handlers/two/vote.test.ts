@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { Application, Contracts, Exceptions } from "@packages/core-kernel";
+import { Application, Contracts, Exceptions, Enums as AppEnums } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Wallets } from "@packages/core-state";
 import { StateStore } from "@packages/core-state/src/stores/state";
@@ -245,11 +245,20 @@ describe("VoteTransaction", () => {
 
             handler.emitEvents(voteTransaction, emitter);
 
-            expect(spy).toHaveBeenCalledWith("wallet.vote", expect.anything());
+            expect(spy).toHaveBeenCalledWith(AppEnums.VoteEvent.Vote, expect.anything());
+            expect(spy).not.toHaveBeenCalledWith(AppEnums.VoteEvent.Unvote, expect.anything());
 
+            spy.mockClear();
             handler.emitEvents(unvoteTransaction, emitter);
 
-            expect(spy).toHaveBeenCalledWith("wallet.unvote", expect.anything());
+            expect(spy).not.toHaveBeenCalledWith(AppEnums.VoteEvent.Vote, expect.anything());
+            expect(spy).toHaveBeenCalledWith(AppEnums.VoteEvent.Unvote, expect.anything());
+
+            spy.mockClear();
+            handler.emitEvents(voteUnvoteTransaction, emitter);
+
+            expect(spy).toHaveBeenCalledWith(AppEnums.VoteEvent.Vote, expect.anything());
+            expect(spy).toHaveBeenCalledWith(AppEnums.VoteEvent.Unvote, expect.anything());
         });
 
         it("should throw if asset.votes is undefined", async () => {
