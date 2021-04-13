@@ -930,6 +930,10 @@ jobs:
 
         steps:
             - uses: actions/checkout@v1
+            - name: Set up Python 2.7
+              uses: actions/setup-python@v2
+              with:
+                  python-version: '2.7'
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -979,6 +983,10 @@ jobs:
 
         steps:
             - uses: actions/checkout@v1
+            - name: Set up Python 2.7
+              uses: actions/setup-python@v2
+              with:
+                  python-version: '2.7'
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -1028,6 +1036,10 @@ jobs:
 
         steps:
             - uses: actions/checkout@v1
+            - name: Set up Python 2.7
+              uses: actions/setup-python@v2
+              with:
+                  python-version: '2.7'
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -1078,6 +1090,10 @@ jobs:
 
         steps:
             - uses: actions/checkout@v1
+            - name: Set up Python 2.7
+              uses: actions/setup-python@v2
+              with:
+                  python-version: '2.7'
             - name: Cache node modules
               uses: actions/cache@v1
               with:
