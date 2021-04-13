@@ -415,18 +415,6 @@ describe("Entity handler", () => {
                     };
                     //@ts-ignore
                     jest.spyOn(walletRepository, "allByIndex").mockReturnValueOnce([walletSameEntityName]);
-                    const walletSameEntityName = {
-                        hasAttribute: () => true,
-                        getAttribute: () => ({
-                            "7950c6a0d096eeb4883237feec12b9f37f36ab9343ff3640904befc75ce32ec2": {
-                                type: asset.type,
-                                subType: (asset.subType + 1) % 255, // different subType but still in the range [0, 255]
-                                data: asset.data,
-                            },
-                        }),
-                    };
-                    //@ts-ignore
-                    jest.spyOn(walletRepository, "getIndex").mockReturnValueOnce([walletSameEntityName]);
 
                     entityHandler = container.resolve(EntityTransactionHandler);
                     await expect(entityHandler.throwIfCannotBeApplied(transaction, wallet)).rejects.toBeInstanceOf(
@@ -451,20 +439,9 @@ describe("Entity handler", () => {
                             },
                         }),
                     };
+
                     //@ts-ignore
                     jest.spyOn(walletRepository, "allByIndex").mockReturnValueOnce([walletSameEntityName]);
-                    const walletSameEntityName = {
-                        hasAttribute: () => true,
-                        getAttribute: () => ({
-                            "7950c6a0d096eeb4883237feec12b9f37f36ab9343ff3640904befc75ce32ec2": {
-                                type: (asset.type + 1) % 255, // different type but still in the range [0, 255]
-                                subType: asset.subType,
-                                data: asset.data,
-                            },
-                        }),
-                    };
-                    //@ts-ignore
-                    jest.spyOn(walletRepository, "getIndex").mockReturnValueOnce([walletSameEntityName]);
 
                     entityHandler = container.resolve(EntityTransactionHandler);
                     await expect(entityHandler.throwIfCannotBeApplied(transaction, wallet)).toResolve();
