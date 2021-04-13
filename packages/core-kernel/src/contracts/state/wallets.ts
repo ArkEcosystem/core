@@ -34,30 +34,6 @@ export enum WalletIndexes {
 }
 
 export interface Wallet {
-    /**
-     * @type {string}
-     * @memberof Wallet
-     */
-    address: string;
-
-    /**
-     * @type {(string | undefined)}
-     * @memberof Wallet
-     */
-    publicKey: string | undefined;
-
-    /**
-     * @type {Utils.BigNumber}
-     * @memberof Wallet
-     */
-    balance: Utils.BigNumber;
-
-    /**
-     * @type {Utils.BigNumber}
-     * @memberof Wallet
-     */
-    nonce: Utils.BigNumber;
-
     getAddress(): string;
 
     getPublicKey(): string | undefined;
