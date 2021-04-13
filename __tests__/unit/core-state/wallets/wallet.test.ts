@@ -3,7 +3,7 @@ import "jest-extended";
 import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { Utils } from "@arkecosystem/crypto";
 import { Services } from "@packages/core-kernel";
-import { Wallet } from "@packages/core-state/src/wallets";
+import { Wallet, WalletEvent } from "@packages/core-state/src/wallets";
 import { getWalletAttributeSet } from "@packages/core-test-framework/src/internal/wallet-attributes";
 
 import { Setup, setUp } from "../setup";
@@ -187,16 +187,108 @@ describe("Original", () => {
         jest.resetAllMocks();
     });
 
-    it("should emit on property set", async () => {
-        wallet.balance = Utils.BigNumber.make("100");
+    it("should emit on setPublicKey", async () => {
+        wallet.setPublicKey("dummyPublicKey");
 
         expect(setup.spies.dispatchSyncSpy).toHaveBeenCalledTimes(1);
+        expect(setup.spies.dispatchSyncSpy).toHaveBeenCalledWith(WalletEvent.PropertySet, {
+            publicKey: "dummyPublicKey",
+            key: "publicKey",
+            previousValue: undefined,
+            value: "dummyPublicKey",
+            wallet,
+        });
+    });
+
+    it("should emit on setBalance", async () => {
+        wallet.setBalance(Utils.BigNumber.ONE);
+
+        expect(setup.spies.dispatchSyncSpy).toHaveBeenCalledTimes(1);
+        expect(setup.spies.dispatchSyncSpy).toHaveBeenCalledWith(WalletEvent.PropertySet, {
+            publicKey: undefined,
+            key: "balance",
+            previousValue: Utils.BigNumber.ZERO,
+            value: Utils.BigNumber.ONE,
+            wallet,
+        });
+    });
+
+    it("should emit on increaseBalance", async () => {
+        wallet.increaseBalance(Utils.BigNumber.ONE);
+
+        expect(setup.spies.dispatchSyncSpy).toHaveBeenCalledTimes(1);
+        expect(setup.spies.dispatchSyncSpy).toHaveBeenCalledWith(WalletEvent.PropertySet, {
+            publicKey: undefined,
+            key: "balance",
+            previousValue: Utils.BigNumber.ZERO,
+            value: Utils.BigNumber.ONE,
+            wallet,
+        });
+    });
+
+    it("should emit on decreaseBalance", async () => {
+        wallet.decreaseBalance(Utils.BigNumber.ONE);
+
+        expect(setup.spies.dispatchSyncSpy).toHaveBeenCalledTimes(1);
+        expect(setup.spies.dispatchSyncSpy).toHaveBeenCalledWith(WalletEvent.PropertySet, {
+            publicKey: undefined,
+            key: "balance",
+            previousValue: Utils.BigNumber.ZERO,
+            value: Utils.BigNumber.make("-1"),
+            wallet,
+        });
+    });
+
+    it("should emit on setNonce", async () => {
+        wallet.setNonce(Utils.BigNumber.ONE);
+
+        expect(setup.spies.dispatchSyncSpy).toHaveBeenCalledTimes(1);
+        expect(setup.spies.dispatchSyncSpy).toHaveBeenCalledWith(WalletEvent.PropertySet, {
+            publicKey: undefined,
+            key: "nonce",
+            previousValue: Utils.BigNumber.ZERO,
+            value: Utils.BigNumber.ONE,
+            wallet,
+        });
+    });
+
+    it("should emit on increaseNonce", async () => {
+        wallet.increaseNonce();
+
+        expect(setup.spies.dispatchSyncSpy).toHaveBeenCalledTimes(1);
+        expect(setup.spies.dispatchSyncSpy).toHaveBeenCalledWith(WalletEvent.PropertySet, {
+            publicKey: undefined,
+            key: "nonce",
+            previousValue: Utils.BigNumber.ZERO,
+            value: Utils.BigNumber.ONE,
+            wallet,
+        });
+    });
+
+    it("should emit on decreaseNonce", async () => {
+        wallet.decreaseNonce();
+
+        expect(setup.spies.dispatchSyncSpy).toHaveBeenCalledTimes(1);
+        expect(setup.spies.dispatchSyncSpy).toHaveBeenCalledWith(WalletEvent.PropertySet, {
+            publicKey: undefined,
+            key: "nonce",
+            previousValue: Utils.BigNumber.ZERO,
+            value: Utils.BigNumber.make("-1"),
+            wallet,
+        });
     });
 
     it("should emit on setAttribute", async () => {
         wallet.setAttribute("delegate.username", "dummy");
 
         expect(setup.spies.dispatchSyncSpy).toHaveBeenCalledTimes(1);
+        expect(setup.spies.dispatchSyncSpy).toHaveBeenCalledWith(WalletEvent.PropertySet, {
+            publicKey: undefined,
+            key: "delegate.username",
+            previousValue: undefined,
+            value: "dummy",
+            wallet,
+        });
     });
 
     it("should emit on forgetAttribute", async () => {
@@ -204,6 +296,13 @@ describe("Original", () => {
         wallet.forgetAttribute("delegate.username");
 
         expect(setup.spies.dispatchSyncSpy).toHaveBeenCalledTimes(2);
+        expect(setup.spies.dispatchSyncSpy).toHaveBeenCalledWith(WalletEvent.PropertySet, {
+            publicKey: undefined,
+            key: "delegate.username",
+            previousValue: "dummy",
+            value: undefined,
+            wallet,
+        });
     });
 
     it("should clone", async () => {

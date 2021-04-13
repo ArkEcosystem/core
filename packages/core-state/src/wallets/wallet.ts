@@ -30,26 +30,7 @@ export class Wallet implements Contracts.State.Wallet {
         public readonly address: string,
         protected readonly attributes: Services.Attributes.AttributeMap,
         protected readonly events?: Contracts.Kernel.EventDispatcher,
-    ) {
-        const proxy = new Proxy<Wallet>(this, {
-            set: (_, key, value): boolean => {
-                const previousValue = this[key];
-                this[key] = value;
-
-                this.events?.dispatchSync(WalletEvent.PropertySet, {
-                    publicKey: undefined,
-                    key,
-                    value,
-                    previousValue,
-                    wallet: this,
-                });
-
-                return true;
-            },
-        });
-
-        return proxy;
-    }
+    ) {}
 
     public getAddress(): string {
         return this.address;
@@ -60,7 +41,17 @@ export class Wallet implements Contracts.State.Wallet {
     }
 
     public setPublicKey(publicKey: string): void {
+        const previousValue = this.publicKey;
+
         this.publicKey = publicKey;
+
+        this.events?.dispatchSync(WalletEvent.PropertySet, {
+            publicKey: this.publicKey,
+            key: "publicKey",
+            value: publicKey,
+            previousValue,
+            wallet: this,
+        });
     }
 
     public getBalance(): Utils.BigNumber {
@@ -68,7 +59,17 @@ export class Wallet implements Contracts.State.Wallet {
     }
 
     public setBalance(balance: Utils.BigNumber): void {
+        const previousValue = this.balance;
+
         this.balance = balance;
+
+        this.events?.dispatchSync(WalletEvent.PropertySet, {
+            publicKey: this.publicKey,
+            key: "balance",
+            value: balance,
+            previousValue,
+            wallet: this,
+        });
     }
 
     public getNonce(): Utils.BigNumber {
@@ -76,27 +77,37 @@ export class Wallet implements Contracts.State.Wallet {
     }
 
     public setNonce(nonce: Utils.BigNumber): void {
+        const previousValue = this.nonce;
+
         this.nonce = nonce;
+
+        this.events?.dispatchSync(WalletEvent.PropertySet, {
+            publicKey: this.publicKey,
+            key: "nonce",
+            value: nonce,
+            previousValue,
+            wallet: this,
+        });
     }
 
     public increaseBalance(balance: Utils.BigNumber): Contracts.State.Wallet {
-        this.balance = this.balance.plus(balance);
+        this.setBalance(this.balance.plus(balance));
 
         return this;
     }
 
     public decreaseBalance(balance: Utils.BigNumber): Contracts.State.Wallet {
-        this.balance = this.balance.minus(balance);
+        this.setBalance(this.balance.minus(balance));
 
         return this;
     }
 
     public increaseNonce(): void {
-        this.nonce = this.nonce.plus(Utils.BigNumber.ONE);
+        this.setNonce(this.nonce.plus(Utils.BigNumber.ONE));
     }
 
     public decreaseNonce(): void {
-        this.nonce = this.nonce.minus(Utils.BigNumber.ONE);
+        this.setNonce(this.nonce.minus(Utils.BigNumber.ONE));
     }
 
     /**
