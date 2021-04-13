@@ -1,5 +1,6 @@
 import { Contracts, Services } from "@arkecosystem/core-kernel";
 import { Utils } from "@arkecosystem/crypto";
+
 import { WalletEvent } from "./wallet-event";
 
 export class Wallet implements Contracts.State.Wallet {
@@ -48,6 +49,54 @@ export class Wallet implements Contracts.State.Wallet {
         });
 
         return proxy;
+    }
+
+    public getAddress(): string {
+        return this.address;
+    }
+
+    public getPublicKey(): string | undefined {
+        return this.publicKey;
+    }
+
+    public setPublicKey(publicKey: string): void {
+        this.publicKey = publicKey;
+    }
+
+    public getBalance(): Utils.BigNumber {
+        return this.balance;
+    }
+
+    public setBalance(balance: Utils.BigNumber): void {
+        this.balance = balance;
+    }
+
+    public getNonce(): Utils.BigNumber {
+        return this.nonce;
+    }
+
+    public setNonce(nonce: Utils.BigNumber): void {
+        this.nonce = nonce;
+    }
+
+    public increaseBalance(balance: Utils.BigNumber): Contracts.State.Wallet {
+        this.balance = this.balance.plus(balance);
+
+        return this;
+    }
+
+    public decreaseBalance(balance: Utils.BigNumber): Contracts.State.Wallet {
+        this.balance = this.balance.minus(balance);
+
+        return this;
+    }
+
+    public increaseNonce(): void {
+        this.nonce = this.nonce.plus(Utils.BigNumber.ONE);
+    }
+
+    public decreaseNonce(): void {
+        this.nonce = this.nonce.minus(Utils.BigNumber.ONE);
     }
 
     /**
