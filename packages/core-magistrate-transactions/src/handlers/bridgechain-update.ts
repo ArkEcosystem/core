@@ -178,7 +178,7 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
         // Here we have to "replay" all bridgechain registration and update transactions for this bridgechain id
         // (except the current one being reverted) to rebuild previous wallet state.
         const sender: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.data.senderPublicKey);
-        AppUtils.assert.defined<string>(sender.publicKey);
+        AppUtils.assert.defined<string>(sender.getPublicKey());
 
         const businessAttributes: IBusinessWalletAttributes = sender.getAttribute<IBusinessWalletAttributes>(
             "business",
@@ -187,13 +187,13 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
 
         const bridgechainTransactions = await this.transactionHistoryService.findManyByCriteria([
             {
-                senderPublicKey: sender.publicKey,
+                senderPublicKey: sender.getPublicKey()!,
                 typeGroup: Enums.MagistrateTransactionGroup,
                 type: Enums.MagistrateTransactionType.BridgechainRegistration,
                 asset: { bridgechainRegistration: { genesisHash: bridgechainId } },
             },
             {
-                senderPublicKey: sender.publicKey,
+                senderPublicKey: sender.getPublicKey()!,
                 typeGroup: Enums.MagistrateTransactionGroup,
                 type: Enums.MagistrateTransactionType.BridgechainUpdate,
                 asset: { bridgechainUpdateAsset: { bridgechainId: bridgechainId } },
