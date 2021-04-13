@@ -1,12 +1,12 @@
 import "jest-extended";
 
+import { Container, Contracts } from "@arkecosystem/core-kernel";
+import { Utils } from "@arkecosystem/crypto";
 import { Services } from "@packages/core-kernel";
 import { Wallet } from "@packages/core-state/src/wallets";
 import { getWalletAttributeSet } from "@packages/core-test-framework/src/internal/wallet-attributes";
 
-import { setUp, Setup } from "../setup";
-import { Container, Contracts } from "@arkecosystem/core-kernel";
-import { Utils } from "@arkecosystem/crypto";
+import { Setup, setUp } from "../setup";
 
 let setup: Setup;
 
@@ -25,6 +25,77 @@ describe("Models - Wallet", () => {
         const address = "Abcde";
         const wallet = new Wallet(address, attributeMap);
         expect(wallet.address).toBe(address);
+        expect(wallet.getAddress()).toBe(address);
+    });
+
+    it("should set and get publicKey", () => {
+        const address = "Abcde";
+        const wallet = new Wallet(address, attributeMap);
+
+        expect(wallet.getPublicKey()).toBeUndefined();
+
+        wallet.setPublicKey("publicKey");
+        expect(wallet.getPublicKey()).toEqual("publicKey");
+    });
+
+    it("should set and get balance", () => {
+        const address = "Abcde";
+        const wallet = new Wallet(address, attributeMap);
+
+        expect(wallet.getBalance()).toEqual(Utils.BigNumber.ZERO);
+
+        wallet.setBalance(Utils.BigNumber.ONE);
+        expect(wallet.getBalance()).toEqual(Utils.BigNumber.ONE);
+    });
+
+    it("should set and get nonce", () => {
+        const address = "Abcde";
+        const wallet = new Wallet(address, attributeMap);
+
+        expect(wallet.getNonce()).toEqual(Utils.BigNumber.ZERO);
+
+        wallet.setNonce(Utils.BigNumber.ONE);
+        expect(wallet.getNonce()).toEqual(Utils.BigNumber.ONE);
+    });
+
+    it("should increase balance", () => {
+        const address = "Abcde";
+        const wallet = new Wallet(address, attributeMap);
+
+        expect(wallet.getBalance()).toEqual(Utils.BigNumber.ZERO);
+
+        expect(wallet.increaseBalance(Utils.BigNumber.ONE)).toBe(wallet);
+        expect(wallet.getBalance()).toEqual(Utils.BigNumber.ONE);
+    });
+
+    it("should decrease balance", () => {
+        const address = "Abcde";
+        const wallet = new Wallet(address, attributeMap);
+
+        expect(wallet.getBalance()).toEqual(Utils.BigNumber.ZERO);
+
+        expect(wallet.decreaseBalance(Utils.BigNumber.ONE)).toBe(wallet);
+        expect(wallet.getBalance()).toEqual(Utils.BigNumber.make("-1"));
+    });
+
+    it("should increase nonce", () => {
+        const address = "Abcde";
+        const wallet = new Wallet(address, attributeMap);
+
+        expect(wallet.getNonce()).toEqual(Utils.BigNumber.ZERO);
+
+        wallet.increaseNonce();
+        expect(wallet.getNonce()).toEqual(Utils.BigNumber.ONE);
+    });
+
+    it("should decrease nonce", () => {
+        const address = "Abcde";
+        const wallet = new Wallet(address, attributeMap);
+
+        expect(wallet.getNonce()).toEqual(Utils.BigNumber.ZERO);
+
+        wallet.decreaseNonce();
+        expect(wallet.getNonce()).toEqual(Utils.BigNumber.make("-1"));
     });
 
     it("should get, set and forget custom attributes", () => {
