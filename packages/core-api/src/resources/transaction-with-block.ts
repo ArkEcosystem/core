@@ -21,7 +21,7 @@ export class TransactionWithBlockResource implements Resource {
 
         AppUtils.assert.defined<string>(transactionData.senderPublicKey);
 
-        const sender: string = this.walletRepository.findByPublicKey(transactionData.senderPublicKey).address;
+        const sender: string = this.walletRepository.findByPublicKey(transactionData.senderPublicKey).getAddress();
         const recipient: string = transactionData.recipientId ?? sender;
         const signSignature: string | undefined = transactionData.signSignature ?? transactionData.secondSignature;
         const confirmations: number = this.stateStore.getLastHeight() - blockData.height + 1;

@@ -54,9 +54,9 @@ export class LockSearchService {
 
         AppUtils.assert.defined<Interfaces.IHtlcLock>(lockAttribute);
         AppUtils.assert.defined<string>(lockAttribute.recipientId);
-        AppUtils.assert.defined<string>(wallet.publicKey);
+        AppUtils.assert.defined<string>(wallet.getPublicKey());
 
-        const senderPublicKey = wallet.publicKey;
+        const senderPublicKey = wallet.getPublicKey()!;
         const lastBlock = this.stateStore.getLastBlock();
         const isExpired = AppUtils.expirationCalculator.calculateLockExpirationStatus(
             lastBlock,
