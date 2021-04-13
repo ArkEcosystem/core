@@ -19,8 +19,8 @@ export class WalletRepositoryClone extends WalletRepository {
 
     public index(wallets: Contracts.State.Wallet | Contracts.State.Wallet[]): void {
         for (const wallet of Array.isArray(wallets) ? wallets : [wallets]) {
-            if (this.blockchainWalletRepository.hasByAddress(wallet.address)) {
-                if (this.blockchainWalletRepository.findByAddress(wallet.address) === wallet) {
+            if (this.blockchainWalletRepository.hasByAddress(wallet.getAddress())) {
+                if (this.blockchainWalletRepository.findByAddress(wallet.getAddress()) === wallet) {
                     throw new Error("Can't index state=blockchain wallet");
                 }
             }

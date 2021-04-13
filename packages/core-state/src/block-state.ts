@@ -203,7 +203,7 @@ export class BlockState implements Contracts.State.BlockState {
 
         const balanceIncrease = blockData.reward.plus(blockData.totalFee);
         this.increaseWalletDelegateVoteBalance(forgerWallet, balanceIncrease);
-        forgerWallet.balance = forgerWallet.balance.plus(balanceIncrease);
+        forgerWallet.increaseBalance(balanceIncrease);
     }
 
     private revertBlockFromForger(forgerWallet: Contracts.State.Wallet, blockData: Interfaces.IBlockData) {
@@ -215,7 +215,7 @@ export class BlockState implements Contracts.State.BlockState {
 
         const balanceDecrease = blockData.reward.plus(blockData.totalFee);
         this.decreaseWalletDelegateVoteBalance(forgerWallet, balanceDecrease);
-        forgerWallet.balance = forgerWallet.balance.minus(balanceDecrease);
+        forgerWallet.decreaseBalance(balanceDecrease);
     }
 
     /**
@@ -245,7 +245,7 @@ export class BlockState implements Contracts.State.BlockState {
 
             const senderDelegatedAmount = sender
                 .getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)
-                .plus(sender.balance)
+                .plus(sender.getBalance())
                 // balance already includes reverted fee when updateVoteBalances is called
                 .minus(revert ? transaction.fee : Utils.BigNumber.ZERO);
 
@@ -393,7 +393,7 @@ export class BlockState implements Contracts.State.BlockState {
 
         const forgerAddress = Identities.Address.fromPublicKey(forgerPublicKey);
         const forgerWallet = this.walletRepository.createWallet(forgerAddress);
-        forgerWallet.publicKey = forgerPublicKey;
+        forgerWallet.setPublicKey(forgerPublicKey);
         this.walletRepository.index(forgerWallet);
     }
 }
