@@ -58,6 +58,28 @@ export interface Wallet {
      */
     nonce: Utils.BigNumber;
 
+    getAddress(): string;
+
+    getPublicKey(): string | undefined;
+
+    setPublicKey(publicKey: string): void;
+
+    getBalance(): Utils.BigNumber;
+
+    setBalance(balance: Utils.BigNumber): void;
+
+    getNonce(): Utils.BigNumber;
+
+    setNonce(nonce: Utils.BigNumber): void;
+
+    increaseBalance(balance: Utils.BigNumber): Wallet;
+
+    decreaseBalance(balance: Utils.BigNumber): Wallet;
+
+    increaseNonce(): void;
+
+    decreaseNonce(): void;
+
     /**
      * @returns {Record<string, any>}
      * @memberof Wallet
