@@ -48,7 +48,7 @@ export class UnexpectedNonceError extends TransactionError {
         const action: string = reversal ? "revert" : "apply";
         super(
             `Cannot ${action} a transaction with nonce ${txNonce.toFixed()}: the ` +
-                `sender ${sender.publicKey} has nonce ${sender.nonce.toFixed()}.`,
+                `sender ${sender.getNonce()} has nonce ${sender.getNonce().toFixed()}.`,
         );
     }
 }

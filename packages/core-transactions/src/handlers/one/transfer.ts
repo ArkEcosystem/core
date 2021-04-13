@@ -55,7 +55,7 @@ export class TransferTransactionHandler extends TransactionHandler {
 
         const recipient: Contracts.State.Wallet = this.walletRepository.findByAddress(transaction.data.recipientId);
 
-        recipient.balance = recipient.balance.plus(transaction.data.amount);
+        recipient.increaseBalance(transaction.data.amount);
     }
 
     public async revertForRecipient(transaction: Interfaces.ITransaction): Promise<void> {
@@ -63,6 +63,6 @@ export class TransferTransactionHandler extends TransactionHandler {
 
         const recipient: Contracts.State.Wallet = this.walletRepository.findByAddress(transaction.data.recipientId);
 
-        recipient.balance = recipient.balance.minus(transaction.data.amount);
+        recipient.decreaseBalance(transaction.data.amount);
     }
 }

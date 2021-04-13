@@ -29,7 +29,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         for (const { senderPublicKey, refundedBalance } of balances) {
             // sender is from the original lock
             const refundWallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(senderPublicKey);
-            refundWallet.balance = refundWallet.balance.plus(refundedBalance);
+            refundWallet.increaseBalance(Utils.BigNumber.make(refundedBalance));
         }
     }
 
@@ -118,7 +118,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
 
         AppUtils.assert.defined<AppUtils.BigNumber>(data.nonce);
 
-        sender.nonce = data.nonce;
+        sender.setNonce(data.nonce);
 
         AppUtils.assert.defined<string>(data.asset?.refund?.lockTransactionId);
 
@@ -131,10 +131,10 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         assert(lockWallet && lockWallet.getAttribute("htlc.locks", {})[lockId]);
 
         const locks: Interfaces.IHtlcLocks = lockWallet.getAttribute("htlc.locks", {});
-        const newBalance: Utils.BigNumber = lockWallet.balance.plus(locks[lockId].amount).minus(data.fee);
+        const newBalance: Utils.BigNumber = lockWallet.getBalance().plus(locks[lockId].amount).minus(data.fee);
         assert(!newBalance.isNegative());
 
-        lockWallet.balance = newBalance;
+        lockWallet.setBalance(newBalance);
         const lockedBalance: Utils.BigNumber = lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
 
         const newLockedBalance: Utils.BigNumber = lockedBalance.minus(locks[lockId].amount);
@@ -161,7 +161,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
 
         this.verifyTransactionNonceRevert(sender, transaction);
 
-        sender.nonce = sender.nonce.minus(1);
+        sender.decreaseNonce();
 
         AppUtils.assert.defined<string>(transaction.data.asset?.refund?.lockTransactionId);
 
@@ -176,7 +176,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
             lockTransaction.senderPublicKey,
         );
 
-        lockWallet.balance = lockWallet.balance.minus(lockTransaction.amount).plus(transaction.data.fee);
+        lockWallet.decreaseBalance(lockTransaction.amount.plus(transaction.data.fee));
 
         const lockedBalance: Utils.BigNumber = lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
         lockWallet.setAttribute("htlc.lockedBalance", lockedBalance.plus(lockTransaction.amount));
