@@ -20,6 +20,11 @@ jobs:
               with:
                   fetch-depth: 2
 
+            - name: Set up Python 2.7
+              uses: actions/setup-python@v2
+              with:
+                  python-version: '2.7'
+
             - run: git checkout HEAD^2
               if: ${{ github.event_name == 'pull_request' }}
 
