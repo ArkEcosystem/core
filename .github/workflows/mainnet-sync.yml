@@ -1,11 +1,11 @@
-name: Devnet sync
+name: Mainnet sync
 
 on:
     schedule:
         - cron: '0 10 * * *'
 
 jobs:
-    devnet-sync:
+    mainnet-sync:
         runs-on: ubuntu-latest
 
         steps:
@@ -17,4 +17,4 @@ jobs:
                 password: ${{ secrets.SYNC_PASSWORD }}
                 port: ${{ secrets.SYNC_PORT }}
                 script_stop: true
-                script: bash devnet-sync-result.sh
+                script: bash mainnet-sync-result.sh
