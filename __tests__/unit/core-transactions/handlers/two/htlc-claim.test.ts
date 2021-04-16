@@ -141,7 +141,7 @@ describe("Htlc claim", () => {
                     secretHash: htlcSecretHashHex,
                     expiration: expiration,
                 })
-                .recipientId(claimWallet.address)
+                .recipientId(claimWallet.getAddress())
                 .amount(amount.toString())
                 .nonce("1")
                 .sign(lockPassphrase)
@@ -184,7 +184,7 @@ describe("Htlc claim", () => {
                     lockTransactionId: htlcLockTransaction.id!,
                 })
                 .nonce("1")
-                .senderPublicKey(multiSignatureWallet.publicKey!)
+                .senderPublicKey(multiSignatureWallet.getPublicKey()!)
                 .multiSign(passphrases[0], 0)
                 .multiSign(passphrases[1], 1)
                 .multiSign(passphrases[2], 2)
@@ -303,7 +303,7 @@ describe("Htlc claim", () => {
                         secretHash: htlcSecretHashHex,
                         expiration: expiration,
                     })
-                    .recipientId(claimWallet.address)
+                    .recipientId(claimWallet.getAddress())
                     .amount(amount.toString())
                     .nonce("1")
                     .vendorField("dummy")
@@ -429,7 +429,7 @@ describe("Htlc claim", () => {
             it("should apply htlc claim transaction", async () => {
                 await expect(handler.throwIfCannotBeApplied(htlcClaimTransaction, claimWallet)).toResolve();
 
-                const balanceBefore = claimWallet.balance;
+                const balanceBefore = claimWallet.getBalance();
 
                 expect(lockWallet.getAttribute("htlc.locks")).toBeDefined();
                 expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(htlcLockTransaction.data.amount);
@@ -437,7 +437,7 @@ describe("Htlc claim", () => {
                 await handler.apply(htlcClaimTransaction);
 
                 expect(lockWallet.hasAttribute("htlc")).toBe(false);
-                expect(claimWallet.balance).toEqual(
+                expect(claimWallet.getBalance()).toEqual(
                     balanceBefore.plus(htlcLockTransaction.data.amount).minus(htlcClaimTransaction.data.fee),
                 );
             });
@@ -472,7 +472,7 @@ describe("Htlc claim", () => {
 
                 await expect(handler.throwIfCannotBeApplied(htlcClaimTransaction, dummyWallet)).toResolve();
 
-                const balanceBefore = claimWallet.balance;
+                const balanceBefore = claimWallet.getBalance();
 
                 expect(lockWallet.getAttribute("htlc.locks")).not.toBeEmpty();
                 expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(htlcLockTransaction.data.amount);
@@ -480,7 +480,7 @@ describe("Htlc claim", () => {
                 await handler.apply(htlcClaimTransaction);
 
                 expect(lockWallet.hasAttribute("htlc")).toBe(false);
-                expect(claimWallet.balance).toEqual(
+                expect(claimWallet.getBalance()).toEqual(
                     balanceBefore.plus(htlcLockTransaction.data.amount).minus(htlcClaimTransaction.data.fee),
                 );
             });
@@ -518,12 +518,12 @@ describe("Htlc claim", () => {
 
                 Mocks.TransactionRepository.setTransactions([Mapper.mapTransactionToModel(htlcLockTransaction)]);
 
-                const balanceBefore = claimWallet.balance;
+                const balanceBefore = claimWallet.getBalance();
 
                 await handler.apply(htlcClaimTransaction);
 
                 expect(lockWallet.hasAttribute("htlc")).toBe(false);
-                expect(claimWallet.balance).toEqual(
+                expect(claimWallet.getBalance()).toEqual(
                     balanceBefore.plus(htlcLockTransaction.data.amount).minus(htlcClaimTransaction.data.fee),
                 );
 
@@ -543,7 +543,7 @@ describe("Htlc claim", () => {
                 });
 
                 expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(htlcLockTransaction.data.amount);
-                expect(claimWallet.balance).toEqual(balanceBefore);
+                expect(claimWallet.getBalance()).toEqual(balanceBefore);
             });
 
             it("should be ok if lockWallet contains another locks", async () => {
@@ -567,11 +567,11 @@ describe("Htlc claim", () => {
 
                 walletRepository.index(lockWallet);
 
-                const balanceBefore = claimWallet.balance;
+                const balanceBefore = claimWallet.getBalance();
                 await handler.apply(htlcClaimTransaction);
 
                 expect(lockWallet.hasAttribute("htlc.locks")).toBeTrue();
-                expect(claimWallet.balance).toEqual(
+                expect(claimWallet.getBalance()).toEqual(
                     balanceBefore.plus(htlcLockTransaction.data.amount).minus(htlcClaimTransaction.data.fee),
                 );
 
@@ -590,8 +590,10 @@ describe("Htlc claim", () => {
                     ...htlcLockTransaction.data.asset!.lock,
                 });
 
-                expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(htlcLockTransaction.data.amount.plus(amount));
-                expect(claimWallet.balance).toEqual(balanceBefore);
+                expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(
+                    htlcLockTransaction.data.amount.plus(amount),
+                );
+                expect(claimWallet.getBalance()).toEqual(balanceBefore);
             });
 
             it("should be ok if lock transaction has vendorField", async () => {
@@ -601,12 +603,12 @@ describe("Htlc claim", () => {
 
                 Mocks.TransactionRepository.setTransactions([Mapper.mapTransactionToModel(htlcLockTransaction)]);
 
-                const balanceBefore = claimWallet.balance;
+                const balanceBefore = claimWallet.getBalance();
 
                 await handler.apply(htlcClaimTransaction);
 
                 expect(lockWallet.hasAttribute("htlc")).toBe(false);
-                expect(claimWallet.balance).toEqual(
+                expect(claimWallet.getBalance()).toEqual(
                     balanceBefore.plus(htlcLockTransaction.data.amount).minus(htlcClaimTransaction.data.fee),
                 );
 
@@ -620,7 +622,7 @@ describe("Htlc claim", () => {
                 expect(foundLockWallet).toBeDefined();
 
                 expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(htlcLockTransaction.data.amount);
-                expect(claimWallet.balance).toEqual(balanceBefore);
+                expect(claimWallet.getBalance()).toEqual(balanceBefore);
             });
         });
 
@@ -638,7 +640,7 @@ describe("Htlc claim", () => {
                 await expect(handler.apply(htlcClaimTransaction)).toResolve();
 
                 htlcClaimTransaction.data.asset = undefined;
-                claimWallet.nonce = Utils.BigNumber.ONE;
+                claimWallet.setNonce(Utils.BigNumber.ONE);
 
                 await expect(handler.revertForSender(htlcClaimTransaction)).rejects.toThrow(
                     Exceptions.Runtime.AssertionException,

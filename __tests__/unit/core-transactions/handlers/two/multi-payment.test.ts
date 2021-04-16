@@ -113,7 +113,7 @@ describe("MultiPaymentTransaction", () => {
             .addPayment("AUsi9ZcFkcwG7WMpRE121TR4HaTjnAP7qD", "40")
             .addPayment("ARugw4i18i2pVnYZEMWKJj2mAnQQ97wuat", "50")
             .nonce("1")
-            .senderPublicKey(multiSignatureWallet.publicKey!)
+            .senderPublicKey(multiSignatureWallet.getPublicKey()!)
             .multiSign(passphrases[0], 0)
             .multiSign(passphrases[1], 1)
             .multiSign(passphrases[2], 2)
@@ -171,14 +171,14 @@ describe("MultiPaymentTransaction", () => {
         });
 
         it("should throw if wallet has insufficient funds", async () => {
-            senderWallet.balance = Utils.BigNumber.ZERO;
+            senderWallet.setBalance(Utils.BigNumber.ZERO);
             await expect(handler.throwIfCannotBeApplied(multiPaymentTransaction, senderWallet)).rejects.toThrow(
                 InsufficientBalanceError,
             );
         });
 
         it("should throw if wallet has insufficient funds send all payouts", async () => {
-            senderWallet.balance = Utils.BigNumber.make(150); // short by the fee
+            senderWallet.setBalance(Utils.BigNumber.make(150)); // short by the fee
             await expect(handler.throwIfCannotBeApplied(multiPaymentTransaction, senderWallet)).rejects.toThrow(
                 InsufficientBalanceError,
             );
@@ -187,7 +187,7 @@ describe("MultiPaymentTransaction", () => {
 
     describe("apply", () => {
         it("should be ok", async () => {
-            const senderBalance = senderWallet.balance;
+            const senderBalance = senderWallet.getBalance();
             const totalPaymentsAmount = multiPaymentTransaction.data.asset!.payments!.reduce(
                 (prev, curr) => prev.plus(curr.amount),
                 Utils.BigNumber.ZERO,
@@ -195,13 +195,13 @@ describe("MultiPaymentTransaction", () => {
 
             await handler.apply(multiPaymentTransaction);
 
-            expect(senderWallet.balance).toEqual(
+            expect(senderWallet.getBalance()).toEqual(
                 Utils.BigNumber.make(senderBalance).minus(totalPaymentsAmount).minus(multiPaymentTransaction.data.fee),
             );
 
             for (const { recipientId, amount } of multiPaymentTransaction.data.asset!.payments!) {
                 const paymentRecipientWallet = walletRepository.findByAddress(recipientId);
-                expect(paymentRecipientWallet.balance).toEqual(amount);
+                expect(paymentRecipientWallet.getBalance()).toEqual(amount);
             }
         });
     });
@@ -230,12 +230,12 @@ describe("MultiPaymentTransaction", () => {
 
     describe("revert", () => {
         it("should be ok", async () => {
-            const senderBalance = senderWallet.balance;
-            senderWallet.nonce = Utils.BigNumber.make(1);
+            const senderBalance = senderWallet.getBalance();
+            senderWallet.setNonce(Utils.BigNumber.make(1));
 
             for (const { recipientId, amount } of multiPaymentTransaction.data.asset!.payments!) {
                 const paymentRecipientWallet = walletRepository.findByAddress(recipientId);
-                paymentRecipientWallet.balance = amount;
+                paymentRecipientWallet.setBalance(amount);
             }
             const totalPaymentsAmount = multiPaymentTransaction.data.asset!.payments!.reduce(
                 (prev, curr) => prev.plus(curr.amount),
@@ -243,18 +243,18 @@ describe("MultiPaymentTransaction", () => {
             );
 
             await handler.revert(multiPaymentTransaction);
-            expect(senderWallet.balance).toEqual(
+            expect(senderWallet.getBalance()).toEqual(
                 Utils.BigNumber.make(senderBalance).plus(totalPaymentsAmount).plus(multiPaymentTransaction.data.fee),
             );
 
-            expect(senderWallet.nonce.isZero()).toBeTrue();
-            expect(recipientWallet.balance).toEqual(Utils.BigNumber.ZERO);
+            expect(senderWallet.getNonce().isZero()).toBeTrue();
+            expect(recipientWallet.getBalance()).toEqual(Utils.BigNumber.ZERO);
         });
     });
 
     describe("revertForSender", () => {
         it("should throw if asset is undefined", async () => {
-            senderWallet.nonce = Utils.BigNumber.ONE;
+            senderWallet.setNonce(Utils.BigNumber.ONE);
 
             multiPaymentTransaction.data.asset = undefined;
 

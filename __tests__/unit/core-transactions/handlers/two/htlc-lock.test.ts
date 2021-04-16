@@ -108,7 +108,7 @@ describe("Htlc lock", () => {
                     secretHash: htlcSecretHashHex,
                     expiration: expiration,
                 })
-                .recipientId(recipientWallet.address)
+                .recipientId(recipientWallet.getAddress())
                 .amount("1")
                 .nonce("1")
                 .sign(passphrases[0])
@@ -119,7 +119,7 @@ describe("Htlc lock", () => {
                     secretHash: htlcSecretHashHex,
                     expiration: expiration,
                 })
-                .recipientId(recipientWallet.address)
+                .recipientId(recipientWallet.getAddress())
                 .amount("1")
                 .nonce("1")
                 .sign(passphrases[1])
@@ -131,8 +131,8 @@ describe("Htlc lock", () => {
                     secretHash: htlcSecretHashHex,
                     expiration: expiration,
                 })
-                .senderPublicKey(multiSignatureWallet.publicKey!)
-                .recipientId(recipientWallet.address)
+                .senderPublicKey(multiSignatureWallet.getPublicKey()!)
+                .recipientId(recipientWallet.getAddress())
                 .amount("1")
                 .nonce("1")
                 .multiSign(passphrases[0], 0)
@@ -155,7 +155,7 @@ describe("Htlc lock", () => {
 
                 const locks = senderWallet.getAttribute("htlc.locks");
                 expect(locks[htlcLockTransaction.id].amount).toEqual(Utils.BigNumber.make("1"));
-                expect(locks[htlcLockTransaction.id].recipientId).toEqual(recipientWallet.address);
+                expect(locks[htlcLockTransaction.id].recipientId).toEqual(recipientWallet.getAddress());
                 expect(locks[htlcLockTransaction.id].timetamp).toEqual(htlcLockTransaction.timestamp);
                 expect(locks[htlcLockTransaction.id].secretHash).toEqual(htlcSecretHashHex);
                 expect(locks[htlcLockTransaction.id].expiration).toEqual(expiration);
@@ -177,7 +177,7 @@ describe("Htlc lock", () => {
 
                 const locks = senderWallet.getAttribute("htlc.locks");
                 expect(locks[htlcLockTransaction.id].amount).toEqual(Utils.BigNumber.make("1"));
-                expect(locks[htlcLockTransaction.id].recipientId).toEqual(recipientWallet.address);
+                expect(locks[htlcLockTransaction.id].recipientId).toEqual(recipientWallet.getAddress());
                 expect(locks[htlcLockTransaction.id].timetamp).toEqual(htlcLockTransaction.timestamp);
                 expect(locks[htlcLockTransaction.id].secretHash).toEqual(htlcSecretHashHex);
                 expect(locks[htlcLockTransaction.id].expiration).toEqual(expiration);
@@ -189,7 +189,7 @@ describe("Htlc lock", () => {
                         secretHash: htlcSecretHashHex,
                         expiration: expiration,
                     })
-                    .recipientId(recipientWallet.address)
+                    .recipientId(recipientWallet.getAddress())
                     .amount("1")
                     .nonce("1")
                     .vendorField("64756d6d79")
@@ -210,7 +210,7 @@ describe("Htlc lock", () => {
 
                 const locks = senderWallet.getAttribute("htlc.locks");
                 expect(locks[htlcLockTransaction.id].amount).toEqual(Utils.BigNumber.make("1"));
-                expect(locks[htlcLockTransaction.id].recipientId).toEqual(recipientWallet.address);
+                expect(locks[htlcLockTransaction.id].recipientId).toEqual(recipientWallet.getAddress());
                 expect(locks[htlcLockTransaction.id].timetamp).toEqual(htlcLockTransaction.timestamp);
                 expect(locks[htlcLockTransaction.id].vendorField).toEqual("dummy");
                 expect(locks[htlcLockTransaction.id].secretHash).toEqual(htlcSecretHashHex);
@@ -244,7 +244,7 @@ describe("Htlc lock", () => {
             });
 
             it("should throw if wallet has insufficient funds", async () => {
-                senderWallet.balance = Utils.BigNumber.ZERO;
+                senderWallet.setBalance(Utils.BigNumber.ZERO);
 
                 await expect(handler.throwIfCannotBeApplied(htlcLockTransaction, senderWallet)).rejects.toThrow(
                     InsufficientBalanceError,
@@ -280,7 +280,7 @@ describe("Htlc lock", () => {
             it("should apply htlc lock transaction", async () => {
                 await expect(handler.throwIfCannotBeApplied(htlcLockTransaction, senderWallet)).toResolve();
 
-                const balanceBefore = senderWallet.balance;
+                const balanceBefore = senderWallet.getBalance();
 
                 expect(senderWallet.hasAttribute("htlc.locks")).toBeFalse();
 
@@ -288,7 +288,7 @@ describe("Htlc lock", () => {
 
                 expect(senderWallet.getAttribute("htlc.locks", {})[htlcLockTransaction.id!]).toBeDefined();
                 expect(senderWallet.getAttribute("htlc.lockedBalance")).toEqual(htlcLockTransaction.data.amount);
-                expect(senderWallet.balance).toEqual(
+                expect(senderWallet.getBalance()).toEqual(
                     balanceBefore.minus(htlcLockTransaction.data.fee).minus(htlcLockTransaction.data.amount),
                 );
             });
@@ -308,7 +308,7 @@ describe("Htlc lock", () => {
             it("should be ok", async () => {
                 await expect(handler.throwIfCannotBeApplied(htlcLockTransaction, senderWallet)).toResolve();
 
-                const balanceBefore = senderWallet.balance;
+                const balanceBefore = senderWallet.getBalance();
 
                 await handler.apply(htlcLockTransaction);
 
@@ -316,7 +316,7 @@ describe("Htlc lock", () => {
                 expect(senderWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(
                     htlcLockTransaction.data.amount,
                 );
-                expect(senderWallet.balance).toEqual(
+                expect(senderWallet.getBalance()).toEqual(
                     balanceBefore.minus(htlcLockTransaction.data.fee).minus(htlcLockTransaction.data.amount),
                 );
 
@@ -326,7 +326,7 @@ describe("Htlc lock", () => {
                 expect(senderWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(
                     Utils.BigNumber.ZERO,
                 );
-                expect(senderWallet.balance).toEqual(balanceBefore);
+                expect(senderWallet.getBalance()).toEqual(balanceBefore);
             });
         });
     });

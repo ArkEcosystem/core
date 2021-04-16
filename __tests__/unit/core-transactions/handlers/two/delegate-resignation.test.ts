@@ -125,7 +125,7 @@ describe("DelegateResignationTransaction", () => {
             })
             .make();
 
-        delegateWallet.balance = Utils.BigNumber.make(66 * 1e8);
+        delegateWallet.setBalance(Utils.BigNumber.make(66 * 1e8));
         delegateWallet.setAttribute("delegate", { username: "dummy" });
         walletRepository.index(delegateWallet);
 
@@ -231,7 +231,7 @@ describe("DelegateResignationTransaction", () => {
         });
 
         it("should throw if wallet has insufficient funds", async () => {
-            delegateWallet.balance = Utils.BigNumber.ZERO;
+            delegateWallet.setBalance(Utils.BigNumber.ZERO);
             await expect(
                 handler.throwIfCannotBeApplied(delegateResignationTransaction, delegateWallet),
             ).rejects.toThrow(InsufficientBalanceError);
@@ -318,7 +318,7 @@ describe("DelegateResignationTransaction", () => {
             expect(delegateWallet.getAttribute<boolean>("delegate.resigned")).toBeTrue();
 
             const voteTransaction = BuilderFactory.vote()
-                .votesAsset(["+" + delegateWallet.publicKey])
+                .votesAsset(["+" + delegateWallet.getPublicKey()])
                 .nonce("1")
                 .sign(passphrases[0])
                 .build();

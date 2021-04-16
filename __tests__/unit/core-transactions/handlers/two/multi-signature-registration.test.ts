@@ -86,7 +86,7 @@ describe("MultiSignatureRegistrationTransaction", () => {
             2,
         );
 
-        senderWallet.balance = Utils.BigNumber.make(100390000000);
+        senderWallet.setBalance(Utils.BigNumber.make(100390000000));
 
         multiSignatureAsset = {
             publicKeys: [
@@ -106,9 +106,9 @@ describe("MultiSignatureRegistrationTransaction", () => {
 
         multiSignatureTransaction = BuilderFactory.multiSignature()
             .multiSignatureAsset(multiSignatureAsset)
-            .senderPublicKey(senderWallet.publicKey!)
+            .senderPublicKey(senderWallet.getPublicKey()!)
             .nonce("1")
-            .recipientId(recipientWallet.publicKey!)
+            .recipientId(recipientWallet.getPublicKey()!)
             .multiSign(passphrases[0], 0)
             .multiSign(passphrases[1], 1)
             .multiSign(passphrases[2], 2)
@@ -126,7 +126,7 @@ describe("MultiSignatureRegistrationTransaction", () => {
             })
             .senderPublicKey(Identities.PublicKey.fromPassphrase(passphrases[1]))
             .nonce("1")
-            .recipientId(recipientWallet.publicKey!)
+            .recipientId(recipientWallet.getPublicKey()!)
             .multiSign(passphrases[1], 0)
             .multiSign(passphrases[0], 1)
             .multiSign(passphrases[2], 2)
@@ -279,7 +279,7 @@ describe("MultiSignatureRegistrationTransaction", () => {
             ];
 
             const participantWallet = walletRepository.findByPublicKey(participants[0]);
-            participantWallet.balance = Utils.BigNumber.make(1e8 * 100);
+            participantWallet.setBalance(Utils.BigNumber.make(1e8 * 100));
 
             multiSignatureTransaction = BuilderFactory.multiSignature()
                 .multiSignatureAsset({
@@ -288,7 +288,7 @@ describe("MultiSignatureRegistrationTransaction", () => {
                 })
                 .senderPublicKey(Identities.PublicKey.fromPassphrase(passphrases[0]))
                 .nonce("1")
-                .recipientId(recipientWallet.publicKey!)
+                .recipientId(recipientWallet.getPublicKey()!)
                 .multiSign(passphrases[0], 0)
                 .multiSign(passphrases[1], 1)
                 .multiSign(passphrases[2], 2)
@@ -307,14 +307,14 @@ describe("MultiSignatureRegistrationTransaction", () => {
 
             expect(multiSigWallet.hasMultiSignature()).toBeTrue();
 
-            multiSigWallet.balance = Utils.BigNumber.make(1e8 * 100);
+            multiSigWallet.setBalance(Utils.BigNumber.make(1e8 * 100));
 
             const transferBuilder = factoryBuilder
                 .get("Transfer")
                 .withOptions({
                     amount: 10000000,
-                    senderPublicKey: senderWallet.publicKey,
-                    recipientId: multiSigWallet.address,
+                    senderPublicKey: senderWallet.getPublicKey(),
+                    recipientId: multiSigWallet.getAddress(),
                 })
                 .make()
                 // @ts-ignore
@@ -342,7 +342,7 @@ describe("MultiSignatureRegistrationTransaction", () => {
 
         it("should throw if wallet has insufficient funds", async () => {
             senderWallet.forgetAttribute("multiSignature");
-            senderWallet.balance = Utils.BigNumber.ZERO;
+            senderWallet.setBalance(Utils.BigNumber.ZERO);
 
             await expect(handler.throwIfCannotBeApplied(multiSignatureTransaction, senderWallet)).rejects.toThrow(
                 InsufficientBalanceError,
@@ -379,9 +379,9 @@ describe("MultiSignatureRegistrationTransaction", () => {
 
             const multiSignatureTransactionWithSameAddress = BuilderFactory.multiSignature()
                 .multiSignatureAsset(multiSignatureAsset)
-                .senderPublicKey(anotherSenderWallet.publicKey!)
+                .senderPublicKey(anotherSenderWallet.getPublicKey()!)
                 .nonce("1")
-                .recipientId(recipientWallet.publicKey!)
+                .recipientId(recipientWallet.getPublicKey()!)
                 .multiSign(passphrases[0], 0)
                 .multiSign(passphrases[1], 1)
                 .multiSign(passphrases[2], 2)
@@ -406,13 +406,13 @@ describe("MultiSignatureRegistrationTransaction", () => {
             expect(senderWallet.hasAttribute("multiSignature")).toBeFalse();
             expect(recipientWallet.hasAttribute("multiSignature")).toBeFalse();
 
-            expect(senderWallet.balance).toEqual(Utils.BigNumber.make(100390000000));
-            expect(recipientWallet.balance).toEqual(Utils.BigNumber.ZERO);
+            expect(senderWallet.getBalance()).toEqual(Utils.BigNumber.make(100390000000));
+            expect(recipientWallet.getBalance()).toEqual(Utils.BigNumber.ZERO);
 
             await handler.apply(multiSignatureTransaction);
 
-            expect(senderWallet.balance).toEqual(Utils.BigNumber.make(98390000000));
-            expect(recipientWallet.balance).toEqual(Utils.BigNumber.ZERO);
+            expect(senderWallet.getBalance()).toEqual(Utils.BigNumber.make(98390000000));
+            expect(recipientWallet.getBalance()).toEqual(Utils.BigNumber.ZERO);
 
             expect(senderWallet.hasAttribute("multiSignature")).toBeFalse();
             expect(recipientWallet.getAttribute("multiSignature")).toEqual(
@@ -435,11 +435,11 @@ describe("MultiSignatureRegistrationTransaction", () => {
 
     describe("revert", () => {
         it("should be ok", async () => {
-            senderWallet.nonce = Utils.BigNumber.make(1);
+            senderWallet.setNonce(Utils.BigNumber.make(1));
 
             await handler.revert(multiSignatureTransaction);
 
-            expect(senderWallet.nonce.isZero()).toBeTrue();
+            expect(senderWallet.getNonce().isZero()).toBeTrue();
             expect(senderWallet.hasMultiSignature()).toBeFalse();
             expect(recipientWallet.hasMultiSignature()).toBeFalse();
         });
