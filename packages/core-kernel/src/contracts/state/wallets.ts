@@ -33,6 +33,14 @@ export enum WalletIndexes {
     BridgeChains = "bridgechains",
 }
 
+export interface WalletData {
+    address: string;
+    publicKey?: string;
+    balance: Utils.BigNumber;
+    nonce: Utils.BigNumber;
+    attributes: Record<string, any>;
+}
+
 export interface Wallet {
     getAddress(): string;
 
@@ -55,6 +63,8 @@ export interface Wallet {
     increaseNonce(): void;
 
     decreaseNonce(): void;
+
+    getData(): WalletData;
 
     /**
      * @returns {Record<string, any>}
