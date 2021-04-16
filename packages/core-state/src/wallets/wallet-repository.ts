@@ -8,7 +8,7 @@ import { WalletIndex } from "./wallet-index";
 @Container.injectable()
 export class WalletRepository implements Contracts.State.WalletRepository {
     @Container.multiInject(Container.Identifiers.WalletRepositoryIndexerIndex)
-    private readonly indexerIndexes!: Contracts.State.WalletIndexerIndex[];
+    protected readonly indexerIndexes!: Contracts.State.WalletIndexerIndex[];
 
     @Container.inject(Container.Identifiers.WalletFactory)
     private readonly createWalletFactory!: Contracts.State.WalletFactory;
@@ -50,6 +50,10 @@ export class WalletRepository implements Contracts.State.WalletRepository {
 
     public allByUsername(): ReadonlyArray<Contracts.State.Wallet> {
         return this.getIndex(Contracts.State.WalletIndexes.Usernames).values();
+    }
+
+    public allByIndex(indexName: string): ReadonlyArray<Contracts.State.Wallet> {
+        return this.getIndex(indexName).values();
     }
 
     public findByAddress(address: string): Contracts.State.Wallet {
@@ -132,6 +136,18 @@ export class WalletRepository implements Contracts.State.WalletRepository {
         }
     }
 
+    public valuesByIndex(index: string): ReadonlyArray<Contracts.State.Wallet> {
+        return this.getIndex(index).values();
+    }
+
+    public setOnIndex(index: string, key: string, wallet: Contracts.State.Wallet): void {
+        this.getIndex(index).set(key, wallet);
+    }
+
+    public forgetOnIndex(index: string, key: string): void {
+        this.getIndex(index).forget(key);
+    }
+
     public reset(): void {
         for (const walletIndex of Object.values(this.indexes)) {
             walletIndex.clear();
@@ -156,7 +172,7 @@ export class WalletRepository implements Contracts.State.WalletRepository {
         return walletClone;
     }
 
-    private indexWallet(wallet: Contracts.State.Wallet): void {
+    protected indexWallet(wallet: Contracts.State.Wallet): void {
         for (const index of Object.values(this.indexes).filter((index) => index.autoIndex)) {
             index.forgetWallet(wallet);
             index.index(wallet);

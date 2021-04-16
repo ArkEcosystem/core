@@ -159,6 +159,8 @@ export interface WalletRepository {
 
     allByUsername(): ReadonlyArray<Wallet>;
 
+    allByIndex(indexName: string): ReadonlyArray<Wallet>;
+
     findByAddress(address: string): Wallet;
 
     has(key: string): boolean;
@@ -178,6 +180,12 @@ export interface WalletRepository {
     getNonce(publicKey: string): Utils.BigNumber;
 
     index(wallet: Wallet): void;
+
+    valuesByIndex(index: string): ReadonlyArray<Wallet>;
+
+    setOnIndex(index: string, key: string, wallet: Wallet): void;
+
+    forgetOnIndex(index: string, key: string): void;
 
     hasByAddress(address: string): boolean;
 

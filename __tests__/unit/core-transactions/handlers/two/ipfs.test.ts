@@ -7,6 +7,7 @@ import { StateStore } from "@packages/core-state/src/stores/state";
 import { Generators } from "@packages/core-test-framework/src";
 import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
+import { Mempool } from "@packages/core-transaction-pool";
 import { InsufficientBalanceError, IpfsHashAlreadyExists } from "@packages/core-transactions/src/errors";
 import { TransactionHandler } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
@@ -177,6 +178,38 @@ describe("Ipfs", () => {
             });
 
             await expect(handler.bootstrap()).rejects.toThrow(Exceptions.Runtime.AssertionException);
+        });
+    });
+
+    describe("isActivated", () => {
+        it("should return true when aip11 === true", async () => {
+            await expect(handler.isActivated()).resolves.toBeTrue();
+
+            jest.spyOn(Managers.configManager, "getMilestone").mockReturnValue({});
+
+            await expect(handler.isActivated()).resolves.toBeFalse();
+        });
+    });
+
+    describe("throwIfCannotEnterPool", () => {
+        it("should not throw", async () => {
+            await expect(handler.throwIfCannotEnterPool(ipfsTransaction)).toResolve();
+        });
+
+        it("should reject if asset is not defined", async () => {
+            delete ipfsTransaction.data.asset;
+
+            await expect(handler.throwIfCannotEnterPool(ipfsTransaction)).rejects.toBeInstanceOf(
+                Exceptions.Runtime.AssertionException,
+            );
+        });
+
+        it("should reject when transaction with same ipfs address is already in the pool", async () => {
+            await app.get<Mempool>(Identifiers.TransactionPoolMempool).addTransaction(ipfsTransaction);
+
+            await expect(handler.throwIfCannotEnterPool(ipfsTransaction)).rejects.toBeInstanceOf(
+                Contracts.TransactionPool.PoolError,
+            );
         });
     });
 

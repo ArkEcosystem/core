@@ -414,7 +414,7 @@ describe("Entity handler", () => {
                         }),
                     };
                     //@ts-ignore
-                    jest.spyOn(walletRepository, "getIndex").mockReturnValueOnce([walletSameEntityName]);
+                    jest.spyOn(walletRepository, "allByIndex").mockReturnValueOnce([walletSameEntityName]);
 
                     entityHandler = container.resolve(EntityTransactionHandler);
                     await expect(entityHandler.throwIfCannotBeApplied(transaction, wallet)).rejects.toBeInstanceOf(
@@ -439,8 +439,9 @@ describe("Entity handler", () => {
                             },
                         }),
                     };
+
                     //@ts-ignore
-                    jest.spyOn(walletRepository, "getIndex").mockReturnValueOnce([walletSameEntityName]);
+                    jest.spyOn(walletRepository, "allByIndex").mockReturnValueOnce([walletSameEntityName]);
 
                     entityHandler = container.resolve(EntityTransactionHandler);
                     await expect(entityHandler.throwIfCannotBeApplied(transaction, wallet)).toResolve();
