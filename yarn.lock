@@ -14140,10 +14140,10 @@ rollup@^2.18.0:
   optionalDependencies:
     fsevents "~2.1.2"
 
-rotating-file-stream@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/rotating-file-stream/-/rotating-file-stream-2.0.0.tgz#68ffb5abcf5b46009dc26d70b7675b9913310f77"
-  integrity sha512-CICpV69VCUujsdLdD6bqig7A9NjQU+HXRlt4YOqArg7wZynmvVOFYuL7tFF7UQEE7rUxy8G4RrRgo0tX1RU5uw==
+rotating-file-stream@^2.1.5:
+  version "2.1.5"
+  resolved "https://registry.yarnpkg.com/rotating-file-stream/-/rotating-file-stream-2.1.5.tgz#6490d0a09e11dd4d441aa5d4d3676debed4a44e4"
+  integrity sha512-wnYazkT8oD5HXTj44WhB030aKo74OyICrPz/QKCUah59QD7Np4OhdoTC0WNZfhMx1ClsZp4lYMlAdof+DIkZ1Q==
 
 rsvp@^4.8.4:
   version "4.8.5"
