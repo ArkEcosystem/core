@@ -98,7 +98,9 @@ const generateDelegates = (count: number): any[] => {
 
     for (let i = 1; i <= count; i++) {
         const delegate: any = {
-            publicKey: "public_key_" + i,
+            getPublicKey: () => {
+                return "public_key_" + i;
+            },
             username: "username_" + i,
             getAttribute: jest.fn().mockImplementation((key) => {
                 return key === "delegate.username" ? "username_" + i : i;
@@ -171,7 +173,7 @@ describe("RoundState", () => {
             const roundDelegateModel = { publicKey: delegatePublicKey, balance: delegateVoteBalance };
             databaseService.getRound.mockResolvedValueOnce([roundDelegateModel]);
 
-            const newDelegateWallet = { setAttribute: jest.fn(), clone: jest.fn() };
+            const newDelegateWallet = { setAttribute: jest.fn(), clone: jest.fn(), setPublicKey: jest.fn() };
             walletRepository.createWallet.mockReturnValueOnce(newDelegateWallet);
 
             const oldDelegateWallet = { getAttribute: jest.fn() };
@@ -363,7 +365,7 @@ describe("RoundState", () => {
             blocksInCurrentRound = generateBlocks(3);
 
             walletRepository.findByPublicKey = jest.fn().mockImplementation((publicKey) => {
-                return delegates.find((delegate) => delegate.publicKey === publicKey);
+                return delegates.find((delegate) => delegate.getPublicKey() === publicKey);
             });
         });
 
@@ -394,7 +396,7 @@ describe("RoundState", () => {
 
     describe("applyRound", () => {
         it("should build delegates, save round, dispatch events when height is 1", async () => {
-            const forgingDelegate = { getAttribute: jest.fn() };
+            const forgingDelegate = { getAttribute: jest.fn(), getPublicKey: jest.fn() };
             const forgingDelegateRound = 1;
             forgingDelegate.getAttribute.mockReturnValueOnce(forgingDelegateRound);
             // @ts-ignore
@@ -403,7 +405,12 @@ describe("RoundState", () => {
             // @ts-ignore
             roundState.blocksInCurrentRound = [];
 
-            const delegateWallet = { publicKey: "delegate public key", getAttribute: jest.fn() };
+            const delegateWallet = {
+                getPublicKey: () => {
+                    return "delegate public key";
+                },
+                getAttribute: jest.fn(),
+            };
             const dposStateRoundDelegates = [delegateWallet];
             dposState.getRoundDelegates.mockReturnValueOnce(dposStateRoundDelegates);
             dposState.getRoundDelegates.mockReturnValueOnce(dposStateRoundDelegates);
@@ -432,7 +439,7 @@ describe("RoundState", () => {
         });
 
         it("should build delegates, save round, dispatch events, and skip missing round checks when first round has genesis block only", async () => {
-            const forgingDelegate = { getAttribute: jest.fn() };
+            const forgingDelegate = { getAttribute: jest.fn(), getPublicKey: jest.fn() };
             const forgingDelegateRound = 1;
             forgingDelegate.getAttribute.mockReturnValueOnce(forgingDelegateRound);
             // @ts-ignore
