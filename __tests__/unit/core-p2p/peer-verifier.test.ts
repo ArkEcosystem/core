@@ -127,7 +127,13 @@ describe("PeerVerifier", () => {
                     id: ids[ids.length - 1],
                     height: parseInt(ids[ids.length - 1].slice(0, 2)),
                 }));
-                trigger.call = jest.fn().mockReturnValue([{ publicKey: generatorPublicKey }]); // getActiveDelegates mock
+                trigger.call = jest.fn().mockReturnValue([
+                    {
+                        getPublicKey: () => {
+                            return generatorPublicKey;
+                        },
+                    },
+                ]); // getActiveDelegates mock
                 peerCommunicator.getPeerBlocks = jest.fn().mockImplementation((_, options) => {
                     const blocks = [];
                     for (let i = options.fromBlockHeight + 1; i <= options.fromBlockHeight + options.blockLimit; i++) {
@@ -192,7 +198,13 @@ describe("PeerVerifier", () => {
                 peerCommunicator.hasCommonBlocks = jest
                     .fn()
                     .mockImplementation((_, ids) => ({ id: ids[0], height: parseInt(ids[0].slice(0, 2)) }));
-                trigger.call = jest.fn().mockReturnValue([{ publicKey: generatorPublicKey }]); // getActiveDelegates mock
+                trigger.call = jest.fn().mockReturnValue([
+                    {
+                        getPublicKey: () => {
+                            return generatorPublicKey;
+                        },
+                    },
+                ]); // getActiveDelegates mock
                 peerCommunicator.getPeerBlocks = jest.fn().mockImplementation((_, options) => {
                     const blocks = [];
                     for (let i = options.fromBlockHeight + 1; i <= options.fromBlockHeight + options.blockLimit; i++) {
@@ -232,9 +244,7 @@ describe("PeerVerifier", () => {
                     .mockReturnValueOnce([
                         { data: { height: claimedState.height }, getHeader: () => claimedState.header },
                     ]);
-                databaseInterceptor.getBlocksByHeight = jest
-                    .fn()
-                    .mockReturnValueOnce([{ id: claimedState.header.id }]);
+                databaseInterceptor.getBlocksByHeight = jest.fn().mockReturnValueOnce([{ id: claimedState.header.id }]);
 
                 const result = await peerVerifier.checkState(claimedState, Date.now() + 2000);
 
@@ -291,10 +301,28 @@ describe("PeerVerifier", () => {
                             .mockReturnValueOnce({ round: 1, maxDelegates: 51 });
                         dposState.getRoundDelegates = jest
                             .fn()
-                            .mockReturnValueOnce([{ publicKey: generatorPublicKey }])
-                            .mockReturnValueOnce([{ publicKey: generatorPublicKey }]);
+                            .mockReturnValueOnce([
+                                {
+                                    getPublicKey: () => {
+                                        return generatorPublicKey;
+                                    },
+                                },
+                            ])
+                            .mockReturnValueOnce([
+                                {
+                                    getPublicKey: () => {
+                                        return generatorPublicKey;
+                                    },
+                                },
+                            ]);
                     } else {
-                        trigger.call = jest.fn().mockReturnValue([{ publicKey: generatorPublicKey }]); // getActiveDelegates mock
+                        trigger.call = jest.fn().mockReturnValue([
+                            {
+                                getPublicKey: () => {
+                                    return generatorPublicKey;
+                                },
+                            },
+                        ]); // getActiveDelegates mock
                     }
 
                     peerCommunicator.getPeerBlocks = jest.fn().mockImplementation((_, options) => {
@@ -489,7 +517,13 @@ describe("PeerVerifier", () => {
                         .mockImplementation((_, ids) => ({ id: ids[0], height: parseInt(ids[0].slice(0, 2)) }));
                     jest.spyOn(Blocks.BlockFactory, "fromData").mockImplementation(blockFromDataMock);
                     const generatorPublicKey = "03c5282b639d0e8f94cfac6c0ed242d1634d8a2c93cbd76c6ed2856a9f19cf6a13";
-                    trigger.call = jest.fn().mockReturnValue([{ publicKey: generatorPublicKey }]); // getActiveDelegates mock
+                    trigger.call = jest.fn().mockReturnValue([
+                        {
+                            getPublicKey: () => {
+                                return generatorPublicKey;
+                            },
+                        },
+                    ]); // getActiveDelegates mock
 
                     if (returnEmpty) {
                         peerCommunicator.getPeerBlocks = jest.fn().mockResolvedValueOnce([]);
@@ -525,7 +559,13 @@ describe("PeerVerifier", () => {
                     .fn()
                     .mockImplementation((_, ids) => ({ id: ids[0], height: parseInt(ids[0].slice(0, 2)) }));
 
-                trigger.call = jest.fn().mockReturnValue([{ publicKey: generatorPublicKey }]); // getActiveDelegates mock
+                trigger.call = jest.fn().mockReturnValue([
+                    {
+                        getPublicKey: () => {
+                            return generatorPublicKey;
+                        },
+                    },
+                ]); // getActiveDelegates mock
                 peerCommunicator.getPeerBlocks = jest.fn().mockImplementation((_, options) => {
                     const blocks = [];
                     for (let i = options.fromBlockHeight + 1; i <= options.fromBlockHeight + options.blockLimit; i++) {
@@ -564,7 +604,13 @@ describe("PeerVerifier", () => {
                     .fn()
                     .mockImplementation((_, ids) => ({ id: ids[0], height: parseInt(ids[0].slice(0, 2)) }));
 
-                trigger.call = jest.fn().mockReturnValue([{ publicKey: generatorPublicKey }]); // getActiveDelegates mock
+                trigger.call = jest.fn().mockReturnValue([
+                    {
+                        getPublicKey: () => {
+                            return generatorPublicKey;
+                        },
+                    },
+                ]); // getActiveDelegates mock
                 peerCommunicator.getPeerBlocks = jest.fn().mockImplementation((_, options) => {
                     const blocks = [];
                     for (let i = options.fromBlockHeight + 1; i <= options.fromBlockHeight + options.blockLimit; i++) {
@@ -602,7 +648,13 @@ describe("PeerVerifier", () => {
                     .fn()
                     .mockImplementation((_, ids) => ({ id: ids[0], height: parseInt(ids[0].slice(0, 2)) }));
 
-                trigger.call = jest.fn().mockReturnValue([{ publicKey: generatorPublicKey }]); // getActiveDelegates mock
+                trigger.call = jest.fn().mockReturnValue([
+                    {
+                        getPublicKey: () => {
+                            return generatorPublicKey;
+                        },
+                    },
+                ]); // getActiveDelegates mock
                 peerCommunicator.getPeerBlocks = jest.fn().mockImplementation((_, options) => {
                     const blocks = [];
                     for (let i = options.fromBlockHeight + 1; i <= options.fromBlockHeight + options.blockLimit; i++) {
@@ -681,9 +733,7 @@ describe("PeerVerifier", () => {
                     { data: { height: ourHeight }, getHeader: () => ourHeader },
                     { data: { height: claimedState.height }, getHeader: () => claimedState.header },
                 ]);
-                databaseInterceptor.getBlocksByHeight = jest
-                    .fn()
-                    .mockReturnValueOnce([{ id: claimedState.header.id }]);
+                databaseInterceptor.getBlocksByHeight = jest.fn().mockReturnValueOnce([{ id: claimedState.header.id }]);
 
                 const result = await peerVerifier.checkState(claimedState, Date.now() + 2000);
 
@@ -729,7 +779,13 @@ describe("PeerVerifier", () => {
                 peerCommunicator.hasCommonBlocks = jest
                     .fn()
                     .mockImplementation((_, ids) => ({ id: ids[0], height: parseInt(ids[0].slice(0, 2)) }));
-                trigger.call = jest.fn().mockReturnValue([{ publicKey: generatorPublicKey }]); // getActiveDelegates mock
+                trigger.call = jest.fn().mockReturnValue([
+                    {
+                        getPublicKey: () => {
+                            return generatorPublicKey;
+                        },
+                    },
+                ]); // getActiveDelegates mock
                 peerCommunicator.getPeerBlocks = jest.fn().mockImplementation((_, options) => {
                     const blocks = [];
                     for (let i = options.fromBlockHeight + 1; i <= options.fromBlockHeight + options.blockLimit; i++) {
