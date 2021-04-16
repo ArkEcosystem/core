@@ -78,7 +78,7 @@ export class IpfsTransactionHandler extends TransactionHandler {
 
         AppUtils.assert.defined<Interfaces.IHtlcLockAsset>(transaction.data.asset?.ipfs);
 
-        if (this.walletRepository.getIndex(Contracts.State.WalletIndexes.Ipfs).has(transaction.data.asset.ipfs)) {
+        if (this.walletRepository.hasByIndex(Contracts.State.WalletIndexes.Ipfs, transaction.data.asset.ipfs)) {
             throw new IpfsHashAlreadyExists();
         }
 
@@ -118,8 +118,6 @@ export class IpfsTransactionHandler extends TransactionHandler {
         if (!Object.keys(ipfsHashes).length) {
             sender.forgetAttribute("ipfs");
         }
-
-        this.walletRepository.getIndex(Contracts.State.WalletIndexes.Ipfs).forget(transaction.data.asset.ipfs);
 
         this.walletRepository.index(sender);
     }

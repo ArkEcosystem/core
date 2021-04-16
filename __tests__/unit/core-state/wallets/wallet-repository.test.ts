@@ -135,6 +135,7 @@ describe("Wallet Repository", () => {
         expect(walletRepo.hasByIndex("addresses", address)).toBeTrue();
         expect(walletRepo.hasByIndex("addresses", nonExistingAddress)).toBeFalse();
         expect(walletRepo.allByAddress()).toEqual([wallet]);
+        expect(walletRepo.allByIndex("addresses")).toEqual([wallet]);
     });
 
     /**
@@ -172,6 +173,7 @@ describe("Wallet Repository", () => {
         expect(walletRepo.hasByIndex("publicKeys", publicKey)).toBeTrue();
         expect(walletRepo.hasByIndex("publicKeys", nonExistingPublicKey)).toBeFalse();
         expect(walletRepo.allByPublicKey()).toEqual([wallet]);
+        expect(walletRepo.allByIndex("publicKeys")).toEqual([wallet]);
     });
 
     it("should create a wallet if one is not found during public key lookup", () => {
@@ -208,6 +210,7 @@ describe("Wallet Repository", () => {
         expect(walletRepo.hasByIndex("usernames", username)).toBeTrue();
         expect(walletRepo.hasByIndex("usernames", nonExistingUsername)).toBeFalse();
         expect(walletRepo.allByUsername()).toEqual([wallet]);
+        expect(walletRepo.allByIndex("usernames")).toEqual([wallet]);
     });
 
     it("should be able to index forgotten wallets", () => {
@@ -275,5 +278,33 @@ describe("Wallet Repository", () => {
         expect(() => walletRepo.findByIndex("usernames", "iDontExist")).toThrowError(
             "Wallet iDontExist doesn't exist in index usernames",
         );
+    });
+
+    describe("valuesByIndex", () => {
+        it("should return values on index", () => {
+            const wallet = walletRepo.findByAddress("address");
+
+            expect(walletRepo.valuesByIndex("addresses")).toEqual([wallet]);
+        });
+    });
+
+    describe("setOnIndex", () => {
+        it("should set wallet on index", () => {
+            const wallet = walletRepo.findByAddress("address");
+            walletRepo.setOnIndex("addresses", "address2", wallet);
+
+            expect(walletRepo.valuesByIndex("addresses")).toEqual([wallet, wallet]);
+        });
+    });
+
+    describe("forgetOnIndex", () => {
+        it("should forget wallet on index", () => {
+            const wallet = walletRepo.findByAddress("address");
+            expect(walletRepo.valuesByIndex("addresses")).toEqual([wallet]);
+
+            walletRepo.forgetOnIndex("addresses", "address");
+
+            expect(walletRepo.valuesByIndex("addresses")).toEqual([]);
+        });
     });
 });
