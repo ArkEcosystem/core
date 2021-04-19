@@ -39,5 +39,5 @@ describe("Info:CoreVersion", () => {
 
         await expect(result.currentVersion).toBe("3.0.0");
         await expect(result.latestVersion).toBeString();
-    });
+    }, 10000);
 });
