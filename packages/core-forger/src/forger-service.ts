@@ -153,18 +153,18 @@ export class ForgerService {
                 return this.checkLater(200);
             }
 
-            AppUtils.assert.defined<string>(this.round.currentForger.getPublicKey());
+            AppUtils.assert.defined<string>(this.round.currentForger.publicKey);
 
-            const delegate: Delegate | undefined = this.isActiveDelegate(this.round.currentForger.getPublicKey()!);
+            const delegate: Delegate | undefined = this.isActiveDelegate(this.round.currentForger.publicKey);
 
             if (!delegate) {
-                AppUtils.assert.defined<string>(this.round.nextForger.getPublicKey());
+                AppUtils.assert.defined<string>(this.round.nextForger.publicKey);
 
-                if (this.isActiveDelegate(this.round.nextForger.getPublicKey()!)) {
-                    const username = this.usernames[this.round.nextForger.getPublicKey()!];
+                if (this.isActiveDelegate(this.round.nextForger.publicKey)) {
+                    const username = this.usernames[this.round.nextForger.publicKey];
 
                     this.logger.info(
-                        `Next forging delegate ${username} (${this.round.nextForger.getPublicKey()!}) is active on this node.`,
+                        `Next forging delegate ${username} (${this.round.nextForger.publicKey}) is active on this node.`,
                     );
 
                     await this.client.syncWithNetwork();
@@ -177,9 +177,7 @@ export class ForgerService {
 
             if (networkState.getNodeHeight() !== this.round.lastBlock.height) {
                 this.logger.warning(
-                    `The NetworkState height (${networkState
-                        .getNodeHeight()
-                        ?.toLocaleString()}) and round height (${this.round.lastBlock.height.toLocaleString()}) are out of sync. This indicates delayed blocks on the network.`,
+                    `The NetworkState height (${networkState.getNodeHeight()?.toLocaleString()}) and round height (${this.round.lastBlock.height.toLocaleString()}) are out of sync. This indicates delayed blocks on the network.`,
                 );
             }
 
@@ -372,10 +370,10 @@ export class ForgerService {
         this.round = await this.client.getRound();
 
         this.usernames = this.round.delegates.reduce((acc, wallet) => {
-            AppUtils.assert.defined<string>(wallet.getPublicKey()!);
+            AppUtils.assert.defined<string>(wallet.publicKey);
 
             return Object.assign(acc, {
-                [wallet.getPublicKey()!]: wallet.delegate.username,
+                [wallet.publicKey]: wallet.delegate.username,
             });
         }, {});
 
