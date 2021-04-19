@@ -92,6 +92,16 @@ export class Wallet implements Contracts.State.Wallet {
         this.setNonce(this.nonce.minus(Utils.BigNumber.ONE));
     }
 
+    public getData(): Contracts.State.WalletData {
+        return {
+            address: this.address,
+            publicKey: this.publicKey,
+            balance: this.balance,
+            nonce: this.nonce,
+            attributes: this.attributes,
+        };
+    }
+
     /**
      * @returns {Record<string, any>}
      * @memberof Wallet
