@@ -1,12 +1,12 @@
 import { Interfaces } from "@arkecosystem/crypto";
 
-import { Wallet, WalletDelegateAttributes } from "../state";
+import { WalletData, WalletDelegateAttributes } from "../state";
 
 export interface Response<T> {
     data: T;
 }
 
-export interface DelegateWallet extends Wallet {
+export interface DelegateWallet extends WalletData {
     delegate: WalletDelegateAttributes;
 }
 
