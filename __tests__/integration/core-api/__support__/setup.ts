@@ -103,8 +103,8 @@ export const calculateRanks = async () => {
             .comparedTo(a.getAttribute<Utils.BigNumber>("delegate.voteBalance")),
     );
 
-    AppUtils.sortBy(delegateWallets, (wallet) => wallet.publicKey).forEach((delegate, i) => {
-        const wallet = walletRepository.findByPublicKey(delegate.publicKey!);
+    AppUtils.sortBy(delegateWallets, (wallet) => wallet.getPublicKey()).forEach((delegate, i) => {
+        const wallet = walletRepository.findByPublicKey(delegate.getPublicKey()!);
         wallet.setAttribute("delegate.rank", i + 1);
 
         walletRepository.index(wallet);
