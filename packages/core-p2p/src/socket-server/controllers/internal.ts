@@ -60,7 +60,7 @@ export class InternalController extends Controller {
         const delegates: Contracts.P2P.DelegateWallet[] = (
             await this.databaseInteraction.getActiveDelegates(roundInfo)
         ).map((wallet) => ({
-            ...wallet,
+            ...wallet.getData(),
             delegate: wallet.getAttribute("delegate"),
         }));
 
