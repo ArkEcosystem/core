@@ -77,7 +77,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
         this.app.bind(Container.Identifiers.DposState).to(DposState);
         this.app.bind(Container.Identifiers.BlockState).to(BlockState);
-        this.app.bind(Container.Identifiers.RoundState).to(RoundState);
+        this.app.bind(Container.Identifiers.RoundState).to(RoundState).inSingletonScope();
 
         this.app.bind(Container.Identifiers.StateBlockStore).toConstantValue(new BlockStore(1000));
         this.app.bind(Container.Identifiers.StateTransactionStore).toConstantValue(new TransactionStore(1000));
