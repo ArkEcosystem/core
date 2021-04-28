@@ -176,7 +176,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
             lockTransaction.senderPublicKey,
         );
 
-        lockWallet.decreaseBalance(lockTransaction.amount.plus(transaction.data.fee));
+        lockWallet.decreaseBalance(lockTransaction.amount.minus(transaction.data.fee));
 
         const lockedBalance: Utils.BigNumber = lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
         lockWallet.setAttribute("htlc.lockedBalance", lockedBalance.plus(lockTransaction.amount));
