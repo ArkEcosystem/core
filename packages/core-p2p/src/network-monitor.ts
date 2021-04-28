@@ -26,6 +26,9 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
     @Container.inject(Container.Identifiers.PeerRepository)
     private readonly repository!: Contracts.P2P.PeerRepository;
 
+    @Container.inject(Container.Identifiers.PeerChunkCache)
+    private readonly chunkCache!: Contracts.P2P.ChunkCache;
+
     @Container.inject(Container.Identifiers.EventDispatcherService)
     private readonly events!: Contracts.Kernel.EventDispatcher;
 
@@ -35,18 +38,6 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
     public config: any;
     public nextUpdateNetworkStatusScheduled: boolean | undefined;
     private coldStart: boolean = false;
-
-    /**
-     * If downloading some chunk fails but nevertheless we manage to download higher chunks,
-     * then they are stored here for later retrieval.
-     */
-    private downloadedChunksCache: { [key: string]: Interfaces.IBlockData[] } = {};
-
-    /**
-     * Maximum number of entries to keep in `downloadedChunksCache`.
-     * At 400 blocks per chunk, 100 chunks would amount to 40k blocks.
-     */
-    private downloadedChunksCacheMax: number = 100;
 
     private downloadChunkSize: number = defaultDownloadChunkSize;
 
@@ -373,12 +364,12 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
 
             //@ts-ignore
             downloadJobs.push(async () => {
-                if (this.downloadedChunksCache[height] !== undefined) {
-                    downloadResults[i] = this.downloadedChunksCache[height];
+                if (this.chunkCache.has(blocksRange)) {
+                    downloadResults[i] = this.chunkCache.get(blocksRange);
                     // Remove it from the cache so that it does not get served many times
                     // from the cache. In case of network reorganization or downloading
                     // flawed chunks we want to re-download from another peer.
-                    delete this.downloadedChunksCache[height];
+                    this.chunkCache.remove(blocksRange);
                     return;
                 }
 
@@ -464,12 +455,12 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
         }
         // Save any downloaded chunks that are higher than a failed chunk for later reuse.
         for (i++; i < chunksToDownload; i++) {
-            if (
-                downloadResults[i] !== undefined &&
-                Object.keys(this.downloadedChunksCache).length <= this.downloadedChunksCacheMax
-            ) {
-                this.downloadedChunksCache[fromBlockHeight + this.downloadChunkSize * i] = downloadResults[i];
-            }
+            const height: number = fromBlockHeight + this.downloadChunkSize * i;
+            const blocksRange: string = `[${(height + 1).toLocaleString()}, ${(
+                height + this.downloadChunkSize
+            ).toLocaleString()}]`;
+
+            this.chunkCache.set(blocksRange, downloadResults[i]);
         }
 
         // if we did not manage to download any block, reduce chunk size for next time
