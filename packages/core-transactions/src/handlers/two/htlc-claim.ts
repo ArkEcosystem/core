@@ -188,7 +188,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         const recipientWallet: Contracts.State.Wallet = this.walletRepository.findByAddress(
             lockTransaction.recipientId,
         );
-        recipientWallet.decreaseBalance(lockTransaction.amount.plus(data.fee));
+        recipientWallet.decreaseBalance(lockTransaction.amount.minus(data.fee));
 
         AppUtils.assert.defined<string>(lockTransaction.senderPublicKey);
 
