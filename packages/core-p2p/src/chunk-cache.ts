@@ -1,5 +1,5 @@
-import { Container, Contracts } from "@packages/core-kernel";
-import { Interfaces } from "@packages/crypto";
+import { Container, Contracts } from "@arkecosystem/core-kernel";
+import { Interfaces } from "@arkecosystem/crypto";
 
 interface ChunkData {
     key: string;
