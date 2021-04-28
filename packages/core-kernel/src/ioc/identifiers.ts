@@ -92,6 +92,7 @@ export const Identifiers = {
     // P2P - @todo: better names that won't clash
     PeerCommunicator: Symbol.for("Peer<Communicator>"),
     PeerConnector: Symbol.for("Peer<Connector>"),
+    PeerChunkCache: Symbol.for("Peer<ChunkCache>"),
     PeerNetworkMonitor: Symbol.for("Peer<NetworkMonitor>"),
     PeerProcessor: Symbol.for("Peer<Processor>"),
     PeerRepository: Symbol.for("Peer<Repository>"),

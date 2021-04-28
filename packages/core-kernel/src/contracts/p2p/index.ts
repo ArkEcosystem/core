@@ -1,3 +1,5 @@
+export * from "./chunk-cache";
+export * from "./nes-client";
 export * from "./network-monitor";
 export * from "./network-state";
 export * from "./peer-connector";
