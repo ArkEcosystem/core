@@ -28,6 +28,9 @@ const databaseInteractions = {
     loadBlocksFromCurrentRound: jest.fn(),
     revertBlock: jest.fn(),
     deleteRound: jest.fn(),
+};
+
+const roundState = {
     getActiveDelegates: jest.fn().mockReturnValue([]),
 };
 
@@ -39,6 +42,7 @@ beforeEach(() => {
     sandbox.app.bind(Container.Identifiers.LogService).toConstantValue(logger);
     sandbox.app.bind(Container.Identifiers.DatabaseService).toConstantValue(database);
     sandbox.app.bind(Container.Identifiers.DatabaseInteraction).toConstantValue(databaseInteractions);
+    sandbox.app.bind(Container.Identifiers.RoundState).toConstantValue(roundState);
 
     sandbox.app.bind(Container.Identifiers.TriggerService).to(Services.Triggers.Triggers).inSingletonScope();
     sandbox.app
@@ -67,7 +71,7 @@ describe("UnchainedHandler", () => {
                     },
                 };
                 blockchain.getLastBlock = jest.fn().mockReturnValueOnce(lastBlock);
-                databaseInteractions.getActiveDelegates = jest
+                roundState.getActiveDelegates = jest
                     .fn()
                     .mockResolvedValueOnce(
                         [
@@ -96,7 +100,7 @@ describe("UnchainedHandler", () => {
                     },
                 };
                 blockchain.getLastBlock = jest.fn().mockReturnValueOnce(lastBlock);
-                databaseInteractions.getActiveDelegates = jest
+                roundState.getActiveDelegates = jest
                     .fn()
                     .mockResolvedValueOnce(
                         [

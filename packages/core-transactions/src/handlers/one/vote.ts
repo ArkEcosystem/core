@@ -1,4 +1,4 @@
-import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Utils, Enums as AppEnums } from "@arkecosystem/core-kernel";
 import { Enums, Interfaces, Transactions } from "@arkecosystem/crypto";
 
 import {
@@ -82,12 +82,12 @@ export class VoteTransactionHandler extends TransactionHandler {
     public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.EventDispatcher): void {
         Utils.assert.defined<string[]>(transaction.data.asset?.votes);
 
-        const vote: string = transaction.data.asset.votes[0];
-
-        emitter.dispatch(vote.startsWith("+") ? "wallet.vote" : "wallet.unvote", {
-            delegate: vote,
-            transaction: transaction.data,
-        });
+        for (const vote of transaction.data.asset!.votes) {
+            emitter.dispatch(vote.startsWith("+") ? AppEnums.VoteEvent.Vote : AppEnums.VoteEvent.Unvote, {
+                delegate: vote,
+                transaction: transaction.data,
+            });
+        }
     }
 
     public async throwIfCannotEnterPool(transaction: Interfaces.ITransaction): Promise<void> {

@@ -23,8 +23,11 @@ import { MagistrateIndex } from "../wallet-indexes";
 
 @Container.injectable()
 export class EntityTransactionHandler extends Handlers.TransactionHandler {
+    @Container.inject(Container.Identifiers.TransactionPoolQuery)
+    private readonly poolQuery!: Contracts.TransactionPool.Query;
+
     @Container.inject(Container.Identifiers.TransactionHistoryService)
-    protected readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
+    private readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
 
     public dependencies(): ReadonlyArray<Handlers.TransactionHandlerConstructor> {
         return [];
@@ -61,6 +64,29 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
         }
     }
 
+    public async throwIfCannotEnterPool(transaction: Interfaces.ITransaction): Promise<void> {
+        KernelUtils.assert.defined<object>(transaction.data.asset);
+
+        if (transaction.data.asset.action === Enums.EntityAction.Register) {
+            KernelUtils.assert.defined<object>(transaction.data.asset.data.name);
+            const name = transaction.data.asset.data.name;
+
+            const hasName: boolean = this.poolQuery
+                .getAll()
+                .whereKind(transaction)
+                .wherePredicate((t) => t.data.asset?.type === transaction.data.asset!.type)
+                .wherePredicate((t) => t.data.asset?.data.name.toLowerCase() === name.toLowerCase())
+                .has();
+
+            if (hasName) {
+                throw new Contracts.TransactionPool.PoolError(
+                    `Entity registration for "${name}" already in the pool`,
+                    "ERR_PENDING",
+                );
+            }
+        }
+    }
+
     public async throwIfCannotBeApplied(
         transaction: CryptoInterfaces.ITransaction,
         wallet: Contracts.State.Wallet,
@@ -84,7 +110,7 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
                 throw new EntityAlreadyRegisteredError();
             }
 
-            for (const wallet of this.walletRepository.getIndex(MagistrateIndex.Entities).values()) {
+            for (const wallet of this.walletRepository.allByIndex(MagistrateIndex.Entities)) {
                 if (wallet.hasAttribute("entities")) {
                     const entityValues: IEntityWallet[] = Object.values(wallet.getAttribute("entities"));
 

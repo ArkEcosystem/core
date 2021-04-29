@@ -94,6 +94,7 @@ export class MultiSignatureRegistrationTransactionHandler extends TransactionHan
 
     public async throwIfCannotEnterPool(transaction: Interfaces.ITransaction): Promise<void> {
         AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
+        AppUtils.assert.defined<Interfaces.IMultiSignatureAsset>(transaction.data.asset?.multiSignature);
 
         const hasSender: boolean = this.poolQuery
             .getAllBySender(transaction.data.senderPublicKey)
@@ -106,17 +107,29 @@ export class MultiSignatureRegistrationTransactionHandler extends TransactionHan
                 "ERR_PENDING",
             );
         }
+
+        const address = Identities.Address.fromMultiSignatureAsset(transaction.data.asset.multiSignature);
+        const hasAddress: boolean = this.poolQuery
+            .getAll()
+            .whereKind(transaction)
+            .wherePredicate(
+                (t) =>
+                    Identities.Address.fromMultiSignatureAsset(
+                        t.data.asset!.multiSignature as Interfaces.IMultiSignatureAsset,
+                    ) === address,
+            )
+            .has();
+
+        if (hasAddress) {
+            throw new Contracts.TransactionPool.PoolError(
+                `MultiSignatureRegistration for address ${address} already in the pool`,
+                "ERR_PENDING",
+            );
+        }
     }
 
     public async applyToSender(transaction: Interfaces.ITransaction): Promise<void> {
         await super.applyToSender(transaction);
-
-        // Create the multi sig wallet
-        AppUtils.assert.defined<Interfaces.IMultiSignatureAsset>(transaction.data.asset?.multiSignature);
-
-        this.walletRepository
-            .findByPublicKey(Identities.PublicKey.fromMultiSignatureAsset(transaction.data.asset.multiSignature))
-            .setAttribute("multiSignature", transaction.data.asset.multiSignature);
     }
 
     public async revertForSender(transaction: Interfaces.ITransaction): Promise<void> {

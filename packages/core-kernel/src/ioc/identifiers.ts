@@ -72,6 +72,7 @@ export const Identifiers = {
     BlockProcessor: Symbol.for("Block<Processor>"),
     // State - @todo: better names that won't clash
     BlockState: Symbol.for("State<Block>"),
+    RoundState: Symbol.for("State<Round>"),
     StateBlockStore: Symbol.for("State<BlockStore>"),
     StateStore: Symbol.for("State<StateStore>"),
     StateBuilder: Symbol.for("State<StateBuilder>"),
@@ -82,6 +83,7 @@ export const Identifiers = {
     WalletRepositoryIndexerIndex: Symbol.for("IndexerIndex<Repository<Wallet>>"),
     TransactionValidator: Symbol.for("State<TransactionValidator>"),
     TransactionValidatorFactory: Symbol.for("State<TransactionValidatorFactory>"),
+    DatabaseInterceptor: Symbol.for("State<DatabaseInterceptor>"),
 
     // Derived states
     DposState: Symbol.for("State<DposState>"),

@@ -79,6 +79,10 @@ describe("NetworkMonitor", () => {
         jest.resetAllMocks();
     });
 
+    afterEach(() => {
+        jest.restoreAllMocks();
+    });
+
     describe.each([[true], [false]])("boot", (dnsAndNtpFail) => {
         beforeEach(() => {
             if (dnsAndNtpFail) {
@@ -228,7 +232,7 @@ describe("NetworkMonitor", () => {
             });
 
             it("should not do anything", async () => {
-                const spyDiscoverPeers = jest.spyOn(networkMonitor, "discoverPeers");
+                const spyDiscoverPeers = jest.spyOn(networkMonitor, "discoverPeers")
 
                 await networkMonitor.updateNetworkStatus();
 
@@ -239,20 +243,24 @@ describe("NetworkMonitor", () => {
 
         describe("when in 'network start' mode", () => {
             beforeEach(() => {
+                delete process.env.NODE_ENV;
                 config.networkStart = true;
             });
             afterEach(() => {
                 config.networkStart = undefined;
             });
 
-            it("should set coldStart to true and not discover peers", async () => {
-                const spyDiscoverPeers = jest.spyOn(networkMonitor, "discoverPeers");
+            it("should set coldStart to true and discover peers", async () => {
+                const spyDiscoverPeers = jest.spyOn(networkMonitor, "discoverPeers").mockResolvedValue(false);
+                // @ts-ignore
+                const spyHasMinimumPeers = jest.spyOn(networkMonitor, "hasMinimumPeers").mockReturnValue(true);
                 expect(networkMonitor.isColdStart()).toBeFalse();
 
                 await networkMonitor.updateNetworkStatus();
 
                 expect(networkMonitor.isColdStart()).toBeTrue();
-                expect(spyDiscoverPeers).toBeCalledTimes(0);
+                expect(spyDiscoverPeers).toBeCalledTimes(1);
+                expect(spyHasMinimumPeers).toBeCalledTimes(1);
             });
         });
 

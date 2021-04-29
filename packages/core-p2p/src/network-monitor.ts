@@ -90,7 +90,6 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
         if (this.config.networkStart) {
             this.coldStart = true;
             this.logger.warning("Entering cold start because the relay is in genesis-start mode.");
-            return;
         }
 
         if (this.config.disableDiscovery) {
