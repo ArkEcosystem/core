@@ -1,4 +1,5 @@
 import { Container, Enums, Utils } from "@packages/core-kernel";
+import { ChunkCache } from "@packages/core-p2p/src/chunk-cache";
 import { NetworkMonitor } from "@packages/core-p2p/src/network-monitor";
 import { NetworkState } from "@packages/core-p2p/src/network-state";
 import { Peer } from "@packages/core-p2p/src/peer";
@@ -16,6 +17,7 @@ describe("NetworkMonitor", () => {
     const container = new Container.Container();
 
     const logger = { warning: jest.fn(), debug: jest.fn(), error: jest.fn(), info: jest.fn() };
+    // const chunkCache = { has: jest.fn(), get: jest.fn(), set: jest.fn(), remove: jest.fn() };
     const config = {
         dns: ["1.1.1.1"],
         ntp: ["time.google.com"],
@@ -64,6 +66,7 @@ describe("NetworkMonitor", () => {
     beforeAll(() => {
         container.unbindAll();
         container.bind(Container.Identifiers.LogService).toConstantValue(logger);
+        container.bind(Container.Identifiers.PeerChunkCache).to(ChunkCache).inSingletonScope();
         container.bind(Container.Identifiers.PeerNetworkMonitor).to(NetworkMonitor);
         container.bind(Container.Identifiers.EventDispatcherService).toConstantValue(emitter);
         container.bind(Container.Identifiers.PeerCommunicator).toConstantValue(communicator);
@@ -232,7 +235,7 @@ describe("NetworkMonitor", () => {
             });
 
             it("should not do anything", async () => {
-                const spyDiscoverPeers = jest.spyOn(networkMonitor, "discoverPeers")
+                const spyDiscoverPeers = jest.spyOn(networkMonitor, "discoverPeers");
 
                 await networkMonitor.updateNetworkStatus();
 
@@ -877,6 +880,9 @@ describe("NetworkMonitor", () => {
         });
 
         it("should reduce download block chunk size after receiving no block", async () => {
+            const chunkCache = container.get<ChunkCache>(Container.Identifiers.PeerChunkCache);
+            chunkCache.has = jest.fn().mockReturnValue(false);
+
             communicator.getPeerBlocks = jest.fn().mockReturnValue([]);
 
             const numPeers = maxParallelDownloads;
