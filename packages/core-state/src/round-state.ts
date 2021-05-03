@@ -49,11 +49,12 @@ export class RoundState {
         }
 
         assert(
-            this.blocksInCurrentRound.pop()!.data.id === block.data.id,
+            this.blocksInCurrentRound[this.blocksInCurrentRound.length - 1]!.data.id === block.data.id,
             `Last block in blocksInCurrentRound doesn't match block with id ${block.data.id}`,
         );
 
         await this.revertRound(block.data.height);
+        this.blocksInCurrentRound.pop();
     }
 
     // TODO: Check if can restore from state

@@ -680,7 +680,7 @@ describe("RoundState", () => {
             expect(spyOnFromData).toHaveBeenCalledTimes(51);
             expect(databaseService.deleteRound).toHaveBeenCalledWith(2);
             // @ts-ignore
-            expect(roundState.blocksInCurrentRound.length).toEqual(50);
+            expect(roundState.blocksInCurrentRound.length).toEqual(51);
         });
 
         it("should throw error if last blocks is not equal to block", async () => {
@@ -694,7 +694,7 @@ describe("RoundState", () => {
             );
 
             // @ts-ignore
-            expect(roundState.blocksInCurrentRound).toEqual([]);
+            expect(roundState.blocksInCurrentRound).toEqual([blocks[0]]);
             expect(databaseService.deleteRound).not.toHaveBeenCalled();
             expect(stateStore.getLastBlocksByHeight).not.toHaveBeenCalled();
         });
