@@ -17,7 +17,6 @@ describe("NetworkMonitor", () => {
     const container = new Container.Container();
 
     const logger = { warning: jest.fn(), debug: jest.fn(), error: jest.fn(), info: jest.fn() };
-    // const chunkCache = { has: jest.fn(), get: jest.fn(), set: jest.fn(), remove: jest.fn() };
     const config = {
         dns: ["1.1.1.1"],
         ntp: ["time.google.com"],
