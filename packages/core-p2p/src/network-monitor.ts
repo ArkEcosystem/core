@@ -455,12 +455,14 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
         }
         // Save any downloaded chunks that are higher than a failed chunk for later reuse.
         for (i++; i < chunksToDownload; i++) {
-            const height: number = fromBlockHeight + this.downloadChunkSize * i;
-            const blocksRange: string = `[${(height + 1).toLocaleString()}, ${(
-                height + this.downloadChunkSize
-            ).toLocaleString()}]`;
+            if (downloadResults[i]) {
+                const height: number = fromBlockHeight + this.downloadChunkSize * i;
+                const blocksRange: string = `[${(height + 1).toLocaleString()}, ${(
+                    height + this.downloadChunkSize
+                ).toLocaleString()}]`;
 
-            this.chunkCache.set(blocksRange, downloadResults[i]);
+                this.chunkCache.set(blocksRange, downloadResults[i]);
+            }
         }
 
         // if we did not manage to download any block, reduce chunk size for next time
