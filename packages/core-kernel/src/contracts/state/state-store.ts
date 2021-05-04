@@ -4,6 +4,7 @@ export interface BlockPing {
     count: number;
     first: number;
     last: number;
+    fromForger: boolean;
     block: Interfaces.IBlockData;
 }
 

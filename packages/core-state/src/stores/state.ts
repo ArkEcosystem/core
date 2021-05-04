@@ -364,6 +364,7 @@ export class StateStore implements Contracts.State.StateStore {
             count: fromForger ? 0 : 1,
             first: new Date().getTime(),
             last: new Date().getTime(),
+            fromForger: fromForger,
             block,
         };
     }
