@@ -18,7 +18,7 @@ const transformPlugins = (plugins: PluginConfig[]): Contracts.P2P.PeerPlugins =>
         }
 
         result[name] = {
-            enabled: true, // default to true because "enabled" flag is in different place based on which plugin
+            enabled: typeof pluginConfig.options.enabled === "boolean" ? pluginConfig.options.enabled : true, // default to true because "enabled" flag is in different place based on which plugin
             port,
         };
 
