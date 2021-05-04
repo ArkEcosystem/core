@@ -394,7 +394,7 @@ describe("DelegateRegistrationTransaction", () => {
         });
 
         it("should throw if wallet has insufficient funds", async () => {
-            senderWallet.balance = Utils.BigNumber.ZERO;
+            senderWallet.setBalance(Utils.BigNumber.ZERO);
 
             await expect(handler.throwIfCannotBeApplied(delegateRegistrationTransaction, senderWallet)).rejects.toThrow(
                 InsufficientBalanceError,
@@ -402,7 +402,7 @@ describe("DelegateRegistrationTransaction", () => {
         });
 
         it("should throw if wallet nonce is invalid", async () => {
-            senderWallet.nonce = Utils.BigNumber.ONE;
+            senderWallet.setNonce(Utils.BigNumber.ONE);
 
             await expect(handler.throwIfCannotBeApplied(delegateRegistrationTransaction, senderWallet)).rejects.toThrow(
                 UnexpectedNonceError,
@@ -432,7 +432,7 @@ describe("DelegateRegistrationTransaction", () => {
                 })
                 .make();
 
-            anotherWallet.balance = Utils.BigNumber.make(7527654310);
+            anotherWallet.setBalance(Utils.BigNumber.make(7527654310));
 
             walletRepository.index(anotherWallet);
 
@@ -479,7 +479,7 @@ describe("DelegateRegistrationTransaction", () => {
 
     describe("apply and revert", () => {
         it("should resolve", async () => {
-            const walletBalance = senderWallet.balance;
+            const walletBalance = senderWallet.getBalance();
 
             jest.spyOn(TransactionHandler.prototype, "applyToSender");
 
@@ -487,8 +487,8 @@ describe("DelegateRegistrationTransaction", () => {
 
             expect(TransactionHandler.prototype.applyToSender).toHaveBeenCalledTimes(1);
 
-            expect(senderWallet.balance).toEqual(walletBalance.minus(delegateRegistrationTransaction.data.fee));
-            expect(senderWallet.nonce).toEqual(Utils.BigNumber.ONE);
+            expect(senderWallet.getBalance()).toEqual(walletBalance.minus(delegateRegistrationTransaction.data.fee));
+            expect(senderWallet.getNonce()).toEqual(Utils.BigNumber.ONE);
             expect(senderWallet.getAttribute("delegate.username")).toBe("dummy");
             expect(walletRepository.getIndex(Contracts.State.WalletIndexes.Usernames).has("dummy")).toBeTrue();
             expect(walletRepository.getIndex(Contracts.State.WalletIndexes.Usernames).get("dummy")).toBe(senderWallet);
@@ -499,8 +499,8 @@ describe("DelegateRegistrationTransaction", () => {
 
             expect(TransactionHandler.prototype.revertForSender).toHaveBeenCalledTimes(1);
 
-            expect(senderWallet.balance).toEqual(walletBalance);
-            expect(senderWallet.nonce).toEqual(Utils.BigNumber.ZERO);
+            expect(senderWallet.getBalance()).toEqual(walletBalance);
+            expect(senderWallet.getNonce()).toEqual(Utils.BigNumber.ZERO);
             expect(senderWallet.hasAttribute("delegate.username")).toBeFalse();
             expect(walletRepository.getIndex(Contracts.State.WalletIndexes.Usernames).has("dummy")).toBeFalse();
         });

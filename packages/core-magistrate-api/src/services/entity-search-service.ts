@@ -39,12 +39,12 @@ export class EntitySearchService {
         const entityAttribute = entitiesAttribute[entityId];
 
         AppUtils.assert.defined<IEntityWallet>(entityAttribute);
-        AppUtils.assert.defined<string>(wallet.publicKey);
+        AppUtils.assert.defined<string>(wallet.getPublicKey());
 
         return {
             id: entityId,
-            address: wallet.address,
-            publicKey: wallet.publicKey,
+            address: wallet.getAddress(),
+            publicKey: wallet.getPublicKey()!,
             isResigned: !!entityAttribute.resigned,
             type: entityAttribute.type,
             subType: entityAttribute.subType,

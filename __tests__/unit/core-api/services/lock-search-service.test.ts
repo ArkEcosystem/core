@@ -46,7 +46,7 @@ describe("LockSearchService", () => {
     describe("getLock", () => {
         it("should return lock by wallet", () => {
             const walletWithLock = new Wallets.Wallet("ANBkoGqWeTSiaEVgVzSKZd3jS7UWzv9PSo", attributeMap);
-            walletWithLock.publicKey = "03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37";
+            walletWithLock.setPublicKey("03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37");
 
             walletWithLock.setAttribute("htlc", {
                 locks: Locks.walletLockAttributes,
@@ -78,7 +78,7 @@ describe("LockSearchService", () => {
     describe("getLocksPage", () => {
         beforeEach(() => {
             const walletWithLock = new Wallets.Wallet("ANBkoGqWeTSiaEVgVzSKZd3jS7UWzv9PSo", attributeMap);
-            walletWithLock.publicKey = "03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37";
+            walletWithLock.setPublicKey("03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37");
 
             walletWithLock.setAttribute("htlc", {
                 locks: Locks.walletLockAttributes,
@@ -130,7 +130,7 @@ describe("LockSearchService", () => {
     describe("getWalletLocksPage", () => {
         beforeEach(() => {
             const walletWithLock = new Wallets.Wallet("ANBkoGqWeTSiaEVgVzSKZd3jS7UWzv9PSo", attributeMap);
-            walletWithLock.publicKey = "03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37";
+            walletWithLock.setPublicKey("03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37");
 
             walletWithLock.setAttribute("htlc", {
                 locks: Locks.walletLockAttributes,

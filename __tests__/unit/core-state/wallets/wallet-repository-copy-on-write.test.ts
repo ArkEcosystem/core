@@ -31,7 +31,7 @@ beforeEach(() => {
 describe("Wallet Repository Copy On Write", () => {
     it("should create a wallet", () => {
         const wallet = walletRepoCopyOnWrite.createWallet("abcd");
-        expect(wallet.address).toEqual("abcd");
+        expect(wallet.getAddress()).toEqual("abcd");
         expect(wallet).toBeInstanceOf(Wallet);
     });
 
@@ -50,7 +50,7 @@ describe("Wallet Repository Copy On Write", () => {
         const spyFindByAddress = jest.spyOn(walletRepo, "findByAddress");
         const clonedWallet = walletRepoCopyOnWrite.findByAddress("notexisting");
         expect(spyFindByAddress).toHaveBeenCalledWith("notexisting");
-        const originalWallet = walletRepo.findByAddress(clonedWallet.address);
+        const originalWallet = walletRepo.findByAddress(clonedWallet.getAddress());
         expect(originalWallet).not.toBe(clonedWallet);
     });
 
@@ -82,11 +82,11 @@ describe("Wallet Repository Copy On Write", () => {
         const address = "ATtEq2tqNumWgR9q9zF6FjGp34Mp5JpKGp";
         const wallet = walletRepoCopyOnWrite.createWallet(address);
         const publicKey = "03720586a26d8d49ec27059bd4572c49ba474029c3627715380f4df83fb431aece";
-        wallet.publicKey = publicKey;
+        wallet.setPublicKey(publicKey);
 
         expect(walletRepoCopyOnWrite.findByAddress(address)).not.toEqual(wallet);
         walletRepoCopyOnWrite.getIndex("publicKeys").set(publicKey, wallet);
-        expect(walletRepoCopyOnWrite.findByPublicKey(publicKey).publicKey).toBeDefined();
+        expect(walletRepoCopyOnWrite.findByPublicKey(publicKey).getPublicKey()).toBeDefined();
         expect(walletRepoCopyOnWrite.findByPublicKey(publicKey)).toEqual(wallet);
 
         /**
@@ -94,7 +94,7 @@ describe("Wallet Repository Copy On Write", () => {
          * TempWalletRepository calls index inside findByPublicKey (unlike WalletRepository).
          * This has the effect that these are now defined without needing to index
          */
-        expect(walletRepoCopyOnWrite.findByAddress(address).publicKey).toBeDefined();
+        expect(walletRepoCopyOnWrite.findByAddress(address).getPublicKey()).toBeDefined();
         expect(walletRepoCopyOnWrite.findByAddress(address)).toEqual(wallet);
     });
 
@@ -155,8 +155,8 @@ describe("Wallet Repository Copy On Write", () => {
 
             walletRepoCopyOnWrite.index(wallet);
 
-            expect(walletRepo.findByAddress(wallet.address)).not.toBe(
-                walletRepoCopyOnWrite.findByAddress(wallet.address),
+            expect(walletRepo.findByAddress(wallet.getAddress())).not.toBe(
+                walletRepoCopyOnWrite.findByAddress(wallet.getAddress()),
             );
         });
     });
@@ -166,25 +166,25 @@ describe("Wallet Repository Copy On Write", () => {
             const wallet = walletRepo.createWallet("abcdef");
             walletRepo.index(wallet);
 
-            const tempWallet = walletRepoCopyOnWrite.findByAddress(wallet.address);
-            tempWallet.balance = Utils.BigNumber.ONE;
+            const tempWallet = walletRepoCopyOnWrite.findByAddress(wallet.getAddress());
+            tempWallet.setBalance(Utils.BigNumber.ONE);
 
-            expect(wallet.balance).not.toEqual(tempWallet.balance);
+            expect(wallet.getBalance()).not.toEqual(tempWallet.getBalance());
         });
     });
 
     describe("findByPublicKey", () => {
         it("should return a copy", () => {
             const wallet = walletRepo.createWallet("ATtEq2tqNumWgR9q9zF6FjGp34Mp5JpKGp");
-            wallet.publicKey = "03720586a26d8d49ec27059bd4572c49ba474029c3627715380f4df83fb431aece";
-            wallet.balance = Utils.BigNumber.SATOSHI;
+            wallet.setPublicKey("03720586a26d8d49ec27059bd4572c49ba474029c3627715380f4df83fb431aece");
+            wallet.setBalance(Utils.BigNumber.SATOSHI);
             walletRepo.index(wallet);
 
-            const tempWallet = walletRepoCopyOnWrite.findByPublicKey(wallet.publicKey);
-            tempWallet.balance = Utils.BigNumber.ZERO;
+            const tempWallet = walletRepoCopyOnWrite.findByPublicKey(wallet.getPublicKey()!);
+            tempWallet.setBalance(Utils.BigNumber.ZERO);
 
-            expect(wallet.balance).toEqual(Utils.BigNumber.SATOSHI);
-            expect(tempWallet.balance).toEqual(Utils.BigNumber.ZERO);
+            expect(wallet.getBalance()).toEqual(Utils.BigNumber.SATOSHI);
+            expect(tempWallet.getBalance()).toEqual(Utils.BigNumber.ZERO);
         });
     });
 
@@ -195,9 +195,9 @@ describe("Wallet Repository Copy On Write", () => {
             walletRepo.index(wallet);
 
             const tempWallet = walletRepoCopyOnWrite.findByUsername(wallet.getAttribute("delegate.username"));
-            tempWallet.balance = Utils.BigNumber.ONE;
+            tempWallet.setBalance(Utils.BigNumber.ONE);
 
-            expect(wallet.balance).not.toEqual(tempWallet.balance);
+            expect(wallet.getBalance()).not.toEqual(tempWallet.getBalance());
         });
     });
 
@@ -206,17 +206,17 @@ describe("Wallet Repository Copy On Write", () => {
             const wallet = walletRepo.createWallet("abcdef");
             walletRepo.index(wallet);
 
-            expect(walletRepoCopyOnWrite.hasByAddress(wallet.address)).toBeTrue();
+            expect(walletRepoCopyOnWrite.hasByAddress(wallet.getAddress())).toBeTrue();
         });
     });
 
     describe("hasByPublicKey", () => {
         it("should be ok", () => {
             const wallet = walletRepo.createWallet("ATtEq2tqNumWgR9q9zF6FjGp34Mp5JpKGp");
-            wallet.publicKey = "03720586a26d8d49ec27059bd4572c49ba474029c3627715380f4df83fb431aece";
+            wallet.setPublicKey("03720586a26d8d49ec27059bd4572c49ba474029c3627715380f4df83fb431aece");
             walletRepo.index(wallet);
 
-            expect(walletRepoCopyOnWrite.hasByPublicKey(wallet.publicKey)).toBeTrue();
+            expect(walletRepoCopyOnWrite.hasByPublicKey(wallet.getPublicKey()!)).toBeTrue();
         });
     });
 
@@ -248,7 +248,7 @@ describe("Wallet Repository Copy On Write", () => {
             const clone = walletRepoCopyOnWrite.findByIndex(Contracts.State.WalletIndexes.Usernames, "test");
 
             expect(clone).not.toBe(wallet);
-            expect(clone.address).toEqual(wallet.address);
+            expect(clone.getAddress()).toEqual(wallet.getAddress());
             expect(clone.getAttribute("delegate.username")).toEqual(wallet.getAttribute("delegate.username"));
         });
     });

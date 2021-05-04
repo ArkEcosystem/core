@@ -89,14 +89,14 @@ describe("TransferTransaction", () => {
         );
 
         transferTransaction = BuilderFactory.transfer()
-            .recipientId(recipientWallet.address)
+            .recipientId(recipientWallet.getAddress())
             .amount("10000000")
             .sign(passphrases[0])
             .nonce("1")
             .build();
 
         secondSignatureTransferTransaction = BuilderFactory.transfer()
-            .recipientId(recipientWallet.address)
+            .recipientId(recipientWallet.getAddress())
             .amount("1")
             .nonce("1")
             .sign(passphrases[1])
@@ -104,8 +104,8 @@ describe("TransferTransaction", () => {
             .build();
 
         multiSignatureTransferTransaction = BuilderFactory.transfer()
-            .senderPublicKey(multiSignatureWallet.publicKey!)
-            .recipientId(recipientWallet.address)
+            .senderPublicKey(multiSignatureWallet.getPublicKey()!)
+            .recipientId(recipientWallet.getAddress())
             .amount("1")
             .nonce("1")
             .multiSign(passphrases[0], 0)
@@ -156,7 +156,7 @@ describe("TransferTransaction", () => {
         });
 
         it("should throw if wallet has insufficient funds for vote", async () => {
-            senderWallet.balance = Utils.BigNumber.ZERO;
+            senderWallet.setBalance(Utils.BigNumber.ZERO);
             await expect(handler.throwIfCannotBeApplied(transferTransaction, senderWallet)).rejects.toThrow(
                 InsufficientBalanceError,
             );
@@ -171,11 +171,11 @@ describe("TransferTransaction", () => {
                 })
                 .make();
 
-            coldWallet.balance = Utils.BigNumber.ZERO;
+            coldWallet.setBalance(Utils.BigNumber.ZERO);
 
             transferTransaction = BuilderFactory.transfer()
                 .amount("10000000")
-                .recipientId(recipientWallet.address)
+                .recipientId(recipientWallet.getAddress())
                 .nonce("1")
                 .sign(passphrases[3])
                 .build();
@@ -194,11 +194,11 @@ describe("TransferTransaction", () => {
                 })
                 .make();
 
-            coldWallet.balance = Utils.BigNumber.ZERO;
+            coldWallet.setBalance(Utils.BigNumber.ZERO);
 
             transferTransaction = BuilderFactory.transfer()
                 .amount("10000000")
-                .recipientId(coldWallet.address)
+                .recipientId(coldWallet.getAddress())
                 .nonce("1")
                 .sign(passphrases[0])
                 .build();
@@ -223,18 +223,18 @@ describe("TransferTransaction", () => {
 
     describe("apply", () => {
         it("should be ok", async () => {
-            const senderBalance = senderWallet.balance;
-            const recipientBalance = recipientWallet.balance;
+            const senderBalance = senderWallet.getBalance();
+            const recipientBalance = recipientWallet.getBalance();
 
             await handler.apply(transferTransaction);
 
-            expect(senderWallet.balance).toEqual(
+            expect(senderWallet.getBalance()).toEqual(
                 Utils.BigNumber.make(senderBalance)
                     .minus(transferTransaction.data.amount)
                     .minus(transferTransaction.data.fee),
             );
 
-            expect(recipientWallet.balance).toEqual(
+            expect(recipientWallet.getBalance()).toEqual(
                 Utils.BigNumber.make(recipientBalance).plus(transferTransaction.data.amount),
             );
         });
@@ -242,26 +242,26 @@ describe("TransferTransaction", () => {
 
     describe("revert", () => {
         it("should be ok", async () => {
-            const senderBalance = senderWallet.balance;
-            const recipientBalance = recipientWallet.balance;
+            const senderBalance = senderWallet.getBalance();
+            const recipientBalance = recipientWallet.getBalance();
 
             await handler.apply(transferTransaction);
 
-            expect(senderWallet.balance).toEqual(
+            expect(senderWallet.getBalance()).toEqual(
                 Utils.BigNumber.make(senderBalance)
                     .minus(transferTransaction.data.amount)
                     .minus(transferTransaction.data.fee),
             );
 
-            expect(recipientWallet.balance).toEqual(
+            expect(recipientWallet.getBalance()).toEqual(
                 Utils.BigNumber.make(recipientBalance).plus(transferTransaction.data.amount),
             );
 
             await handler.revert(transferTransaction);
 
-            expect(senderWallet.balance).toEqual(Utils.BigNumber.make(senderBalance));
+            expect(senderWallet.getBalance()).toEqual(Utils.BigNumber.make(senderBalance));
 
-            expect(recipientWallet.balance).toEqual(recipientBalance);
+            expect(recipientWallet.getBalance()).toEqual(recipientBalance);
         });
     });
 });

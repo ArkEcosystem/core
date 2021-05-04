@@ -38,7 +38,7 @@ export class WalletsTableService implements Contracts.Database.WalletsTableServi
                     const batchWallets = wallets.slice(i, i + batchSize);
 
                     const params = batchWallets
-                        .map((w) => [w.address, w.publicKey, w.balance.toFixed(), w.nonce.toFixed(), w.getAttributes()])
+                        .map((w) => [w.getAddress(), w.getPublicKey(), w.getBalance().toFixed(), w.getNonce().toFixed(), w.getAttributes()])
                         .flat();
 
                     const values = batchWallets

@@ -236,14 +236,18 @@ export class BlockProcessor {
                     block.data.generatorPublicKey
                 }) is allowed to forge block ${block.data.height.toLocaleString()}`,
             );
-        } /* istanbul ignore next */ else if (forgingDelegate.publicKey !== block.data.generatorPublicKey) {
-            AppUtils.assert.defined<string>(forgingDelegate.publicKey);
+        } /* istanbul ignore next */ else if (forgingDelegate.getPublicKey() !== block.data.generatorPublicKey) {
+            AppUtils.assert.defined<string>(forgingDelegate.getPublicKey());
 
-            const forgingWallet: Contracts.State.Wallet = walletRepository.findByPublicKey(forgingDelegate.publicKey);
+            const forgingWallet: Contracts.State.Wallet = walletRepository.findByPublicKey(
+                forgingDelegate.getPublicKey()!,
+            );
             const forgingUsername: string = forgingWallet.getAttribute("delegate.username");
 
             this.logger.warning(
-                `Delegate ${generatorUsername} (${block.data.generatorPublicKey}) not allowed to forge, should be ${forgingUsername} (${forgingDelegate.publicKey})`,
+                `Delegate ${generatorUsername} (${
+                    block.data.generatorPublicKey
+                }) not allowed to forge, should be ${forgingUsername} (${forgingDelegate.getPublicKey()})`,
             );
 
             return false;

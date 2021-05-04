@@ -1,7 +1,6 @@
-import { Container } from "@arkecosystem/core-kernel";
-import { Enums, Utils } from "@arkecosystem/crypto";
-
-import { TransactionFilter } from "../../../packages/core-database/src/transaction-filter";
+import { TransactionFilter } from "@packages/core-database/src/transaction-filter";
+import { Container } from "@packages/core-kernel";
+import { Enums, Utils } from "@packages/crypto";
 
 const walletRepository = {
     findByAddress: jest.fn(),
@@ -27,8 +26,16 @@ describe("TransactionFilter.getExpression", () => {
     describe("TransactionCriteria.address", () => {
         it("should compare senderPublicKey, recipientId, multipayment recipientId, delegate registration sender", async () => {
             walletRepository.findByAddress
-                .mockReturnValueOnce({ publicKey: "456" })
-                .mockReturnValueOnce({ publicKey: "456" });
+                .mockReturnValueOnce({
+                    getPublicKey: () => {
+                        return "456";
+                    },
+                })
+                .mockReturnValueOnce({
+                    getPublicKey: () => {
+                        return "456";
+                    },
+                });
 
             const transactionFilter = container.resolve(TransactionFilter);
             const expression = await transactionFilter.getExpression({ address: "123" });
@@ -84,7 +91,9 @@ describe("TransactionFilter.getExpression", () => {
     describe("TransactionCriteria.senderId", () => {
         it("should compare senderPublicKey using equal expression", async () => {
             walletRepository.findByAddress.mockReturnValueOnce({
-                publicKey: "456",
+                getPublicKey: () => {
+                    return "456";
+                },
             });
 
             const transactionFilter = container.resolve(TransactionFilter);
@@ -106,7 +115,9 @@ describe("TransactionFilter.getExpression", () => {
     describe("TransactionCriteria.recipientId", () => {
         it("should compare using equal expression and include multipayment and include delegate registration transaction", async () => {
             walletRepository.findByAddress.mockReturnValueOnce({
-                publicKey: "456",
+                getPublicKey: () => {
+                    return "456";
+                },
             });
 
             const transactionFilter = container.resolve(TransactionFilter);

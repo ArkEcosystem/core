@@ -47,7 +47,7 @@ describe("DelegateSearchService", () => {
     describe("getDelegate", () => {
         it("should return delegate by wallet address", () => {
             const delegate = new Wallets.Wallet("ANBkoGqWeTSiaEVgVzSKZd3jS7UWzv9PSo", attributeMap);
-            delegate.publicKey = "03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37";
+            delegate.setPublicKey("03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37");
 
             delegate.setAttribute("delegate", {
                 username: "delegate_username",
@@ -67,7 +67,7 @@ describe("DelegateSearchService", () => {
 
         it("should return delegate by wallet address with produced blocks", () => {
             const delegate = new Wallets.Wallet("ANBkoGqWeTSiaEVgVzSKZd3jS7UWzv9PSo", attributeMap);
-            delegate.publicKey = "03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37";
+            delegate.setPublicKey("03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37");
 
             delegate.setAttribute("delegate", {
                 username: "delegate_username",
@@ -92,7 +92,7 @@ describe("DelegateSearchService", () => {
 
         it("should return undefined if walled is not delegate", () => {
             const delegate = new Wallets.Wallet("ANBkoGqWeTSiaEVgVzSKZd3jS7UWzv9PSo", attributeMap);
-            delegate.publicKey = "03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37";
+            delegate.setPublicKey("03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37");
 
             walletRepository.findByAddress = jest.fn().mockReturnValue(delegate);
 
@@ -103,7 +103,7 @@ describe("DelegateSearchService", () => {
     describe("getDelegatesPage", () => {
         it("should return results with delegate", () => {
             const delegate = new Wallets.Wallet("ANBkoGqWeTSiaEVgVzSKZd3jS7UWzv9PSo", attributeMap);
-            delegate.publicKey = "03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37";
+            delegate.setPublicKey("03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37");
 
             delegate.setAttribute("delegate", {
                 username: "delegate_username",
@@ -134,7 +134,7 @@ describe("DelegateSearchService", () => {
 
         it("should return empty array if all tested criterias are false", () => {
             const delegate = new Wallets.Wallet("ANBkoGqWeTSiaEVgVzSKZd3jS7UWzv9PSo", attributeMap);
-            delegate.publicKey = "03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37";
+            delegate.setPublicKey("03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37");
 
             delegate.setAttribute("delegate", {
                 username: "delegate_username",

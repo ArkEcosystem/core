@@ -33,30 +33,38 @@ export enum WalletIndexes {
     BridgeChains = "bridgechains",
 }
 
-export interface Wallet {
-    /**
-     * @type {string}
-     * @memberof Wallet
-     */
+export interface WalletData {
     address: string;
-
-    /**
-     * @type {(string | undefined)}
-     * @memberof Wallet
-     */
-    publicKey: string | undefined;
-
-    /**
-     * @type {Utils.BigNumber}
-     * @memberof Wallet
-     */
+    publicKey?: string;
     balance: Utils.BigNumber;
-
-    /**
-     * @type {Utils.BigNumber}
-     * @memberof Wallet
-     */
     nonce: Utils.BigNumber;
+    attributes: Record<string, any>;
+}
+
+export interface Wallet {
+    getAddress(): string;
+
+    getPublicKey(): string | undefined;
+
+    setPublicKey(publicKey: string): void;
+
+    getBalance(): Utils.BigNumber;
+
+    setBalance(balance: Utils.BigNumber): void;
+
+    getNonce(): Utils.BigNumber;
+
+    setNonce(nonce: Utils.BigNumber): void;
+
+    increaseBalance(balance: Utils.BigNumber): Wallet;
+
+    decreaseBalance(balance: Utils.BigNumber): Wallet;
+
+    increaseNonce(): void;
+
+    decreaseNonce(): void;
+
+    getData(): WalletData;
 
     /**
      * @returns {Record<string, any>}

@@ -33,7 +33,7 @@ export class WalletRepositoryCopyOnWrite extends WalletRepository {
 
     public allByUsername(): ReadonlyArray<Contracts.State.Wallet> {
         for (const wallet of this.blockchainWalletRepository.allByUsername()) {
-            if (!super.hasByAddress(wallet.address)) {
+            if (!super.hasByAddress(wallet.getAddress())) {
                 this.cloneWallet(this.blockchainWalletRepository, wallet);
             }
         }

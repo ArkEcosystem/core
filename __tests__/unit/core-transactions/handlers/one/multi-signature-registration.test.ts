@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { Application, Contracts, Services, Exceptions } from "@packages/core-kernel";
+import { Application, Contracts, Exceptions, Services } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Wallets } from "@packages/core-state";
 import { StateStore } from "@packages/core-state/src/stores/state";
@@ -97,7 +97,7 @@ describe("MultiSignatureRegistrationTransaction", () => {
             1,
         );
 
-        senderWallet.balance = Utils.BigNumber.make(100390000000);
+        senderWallet.setBalance(Utils.BigNumber.make(100390000000));
 
         multiSignatureAsset = {
             publicKeys: [
@@ -120,7 +120,7 @@ describe("MultiSignatureRegistrationTransaction", () => {
             .multiSignatureAsset(multiSignatureAsset)
             .senderPublicKey(Identities.PublicKey.fromPassphrase(passphrases[0]))
             .nonce("1")
-            .recipientId(recipientWallet.publicKey!)
+            .recipientId(recipientWallet.getPublicKey()!)
             .multiSign(passphrases[0], 0) // ! implicitly sets version to 2
             .multiSign(passphrases[1], 1)
             .multiSign(passphrases[2], 2)
@@ -257,7 +257,7 @@ describe("MultiSignatureRegistrationTransaction", () => {
 
     describe("revertForSender", () => {
         it("should be ok", async () => {
-            senderWallet.nonce = Utils.BigNumber.ONE;
+            senderWallet.setNonce(Utils.BigNumber.ONE);
 
             await expect(handler.revertForSender(multiSignatureTransaction)).toResolve();
         });

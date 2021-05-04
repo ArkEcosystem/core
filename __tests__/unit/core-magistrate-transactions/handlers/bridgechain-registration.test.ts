@@ -286,7 +286,7 @@ describe("BusinessRegistration", () => {
         });
 
         it("should throw if wallet has insufficient balance", async () => {
-            senderWallet.balance = Utils.BigNumber.ZERO;
+            senderWallet.setBalance(Utils.BigNumber.ZERO);
             await expect(
                 handler.throwIfCannotBeApplied(bridgechainRegistrationTransaction, senderWallet),
             ).rejects.toThrowError(InsufficientBalanceError);
@@ -301,7 +301,7 @@ describe("BusinessRegistration", () => {
 
     describe("apply", () => {
         it("should be ok", async () => {
-            const senderBalance = senderWallet.balance;
+            const senderBalance = senderWallet.getBalance();
 
             await handler.apply(bridgechainRegistrationTransaction);
 
@@ -310,7 +310,7 @@ describe("BusinessRegistration", () => {
                     .bridgechainAsset,
             ).toEqual(bridgechainRegistrationAsset);
 
-            expect(senderWallet.balance).toEqual(
+            expect(senderWallet.getBalance()).toEqual(
                 Utils.BigNumber.make(senderBalance)
                     .minus(bridgechainRegistrationTransaction.data.amount)
                     .minus(bridgechainRegistrationTransaction.data.fee),
@@ -324,7 +324,7 @@ describe("BusinessRegistration", () => {
         });
 
         it("should be ok without custom wallet repository", async () => {
-            const senderBalance = senderWallet.balance;
+            const senderBalance = senderWallet.getBalance();
 
             await handler.apply(bridgechainRegistrationTransaction);
 
@@ -333,7 +333,7 @@ describe("BusinessRegistration", () => {
                     .bridgechainAsset,
             ).toEqual(bridgechainRegistrationAsset);
 
-            expect(senderWallet.balance).toEqual(
+            expect(senderWallet.getBalance()).toEqual(
                 Utils.BigNumber.make(senderBalance)
                     .minus(bridgechainRegistrationTransaction.data.amount)
                     .minus(bridgechainRegistrationTransaction.data.fee),
@@ -349,7 +349,7 @@ describe("BusinessRegistration", () => {
 
     describe("revert", () => {
         it("should be ok", async () => {
-            const senderBalance = senderWallet.balance;
+            const senderBalance = senderWallet.getBalance();
 
             await handler.apply(bridgechainRegistrationTransaction);
 
@@ -364,11 +364,11 @@ describe("BusinessRegistration", () => {
                 senderWallet.hasAttribute("business.bridgechains")[bridgechainRegistrationAsset.genesisHash],
             ).toBeUndefined();
 
-            expect(senderWallet.balance).toEqual(Utils.BigNumber.make(senderBalance));
+            expect(senderWallet.getBalance()).toEqual(Utils.BigNumber.make(senderBalance));
         });
 
         it("should be ok without custom wallet repository", async () => {
-            const senderBalance = senderWallet.balance;
+            const senderBalance = senderWallet.getBalance();
 
             await handler.apply(bridgechainRegistrationTransaction);
 
@@ -383,7 +383,7 @@ describe("BusinessRegistration", () => {
                 senderWallet.hasAttribute("business.bridgechains")[bridgechainRegistrationAsset.genesisHash],
             ).toBeUndefined();
 
-            expect(senderWallet.balance).toEqual(Utils.BigNumber.make(senderBalance));
+            expect(senderWallet.getBalance()).toEqual(Utils.BigNumber.make(senderBalance));
         });
     });
 });

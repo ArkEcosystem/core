@@ -1,7 +1,7 @@
 import "jest-extended";
 
-import ByteBuffer from "bytebuffer";
-
+import { TransactionTypeGroup } from "@arkecosystem/crypto/dist/enums";
+import { TransactionSchema } from "@arkecosystem/crypto/dist/transactions/types/schemas";
 import { Application, Contracts } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Wallets } from "@packages/core-state";
@@ -26,6 +26,7 @@ import { Crypto, Enums, Identities, Interfaces, Managers, Transactions, Utils } 
 import { IMultiSignatureAsset } from "@packages/crypto/src/interfaces";
 import { configManager } from "@packages/crypto/src/managers";
 import { BuilderFactory } from "@packages/crypto/src/transactions";
+import ByteBuffer from "bytebuffer";
 
 import {
     buildMultiSignatureWallet,
@@ -34,8 +35,6 @@ import {
     buildSenderWallet,
     initApp,
 } from "../__support__/app";
-import { TransactionTypeGroup } from "@arkecosystem/crypto/dist/enums";
-import { TransactionSchema } from "@arkecosystem/crypto/dist/transactions/types/schemas";
 
 let app: Application;
 let senderWallet: Wallets.Wallet;
@@ -148,14 +147,14 @@ describe("General Tests", () => {
         );
 
         transferTransaction = BuilderFactory.transfer()
-            .recipientId(recipientWallet.address)
+            .recipientId(recipientWallet.getAddress())
             .amount("10000000")
             .nonce("1")
             .sign(passphrases[0])
             .build();
 
         transactionWithSecondSignature = BuilderFactory.transfer()
-            .recipientId(recipientWallet.address)
+            .recipientId(recipientWallet.getAddress())
             .amount("10000000")
             .nonce("1")
             .sign(passphrases[0])
@@ -163,8 +162,8 @@ describe("General Tests", () => {
             .build();
 
         multiSignatureTransferTransaction = BuilderFactory.transfer()
-            .senderPublicKey(multiSignatureWallet.publicKey!)
-            .recipientId(recipientWallet.address)
+            .senderPublicKey(multiSignatureWallet.getPublicKey()!)
+            .recipientId(recipientWallet.getAddress())
             .amount("1")
             .nonce("1")
             .multiSign(passphrases[0], 0)
@@ -205,9 +204,7 @@ describe("General Tests", () => {
             // @ts-ignore
             Managers.configManager.config.network.name = "devnet";
 
-            await expect(
-                handler.throwIfCannotBeApplied(transactionWithSecondSignature, senderWallet),
-            ).toResolve();
+            await expect(handler.throwIfCannotBeApplied(transactionWithSecondSignature, senderWallet)).toResolve();
 
             // @ts-ignore
             Managers.configManager.config.network.name = "testnet";
@@ -232,7 +229,7 @@ describe("General Tests", () => {
         });
 
         it("should throw if nonce is invalid", async () => {
-            senderWallet.nonce = Utils.BigNumber.make(1);
+            senderWallet.setNonce(Utils.BigNumber.make(1));
             await expect(handler.throwIfCannotBeApplied(transferTransaction, senderWallet)).rejects.toThrowError(
                 UnexpectedNonceError,
             );
@@ -317,7 +314,7 @@ describe("General Tests", () => {
 
         it("should throw if wallet has not enough balance", async () => {
             // 1 arktoshi short
-            senderWallet.balance = transferTransaction.data.amount.plus(transferTransaction.data.fee).minus(1);
+            senderWallet.setBalance(transferTransaction.data.amount.plus(transferTransaction.data.fee).minus(1));
             await expect(handler.throwIfCannotBeApplied(transferTransaction, senderWallet)).rejects.toThrow(
                 InsufficientBalanceError,
             );
@@ -325,7 +322,7 @@ describe("General Tests", () => {
 
         it("should be true even with publicKey case mismatch", async () => {
             transferTransaction.data.senderPublicKey = transferTransaction.data.senderPublicKey!.toUpperCase();
-            senderWallet.publicKey = senderWallet.publicKey!.toLowerCase();
+            senderWallet.setPublicKey(senderWallet.getPublicKey()!.toLowerCase());
 
             const instance: Interfaces.ITransaction = Transactions.TransactionFactory.fromData(
                 transferTransaction.data,
@@ -349,7 +346,7 @@ describe("General Tests", () => {
 
             transferTransaction = BuilderFactory.transfer()
                 .amount("10000000")
-                .recipientId(recipientWallet.address)
+                .recipientId(recipientWallet.getAddress())
                 .sign("secret")
                 .nonce("0")
                 .build();
@@ -410,11 +407,11 @@ describe("General Tests", () => {
             transactionData.senderPublicKey = transactionData.senderPublicKey?.toUpperCase();
             const instance = Transactions.TransactionFactory.fromData(transactionData);
 
-            const senderBalance = senderWallet.balance;
+            const senderBalance = senderWallet.getBalance();
 
             await handler.apply(instance);
 
-            expect(senderWallet.balance).toEqual(
+            expect(senderWallet.getBalance()).toEqual(
                 Utils.BigNumber.make(senderBalance).minus(instance.data.amount).minus(instance.data.fee),
             );
         });
@@ -429,7 +426,7 @@ describe("General Tests", () => {
             configManager.getMilestone().aip11 = false;
 
             transferTransaction = BuilderFactory.transfer()
-                .recipientId(recipientWallet.address)
+                .recipientId(recipientWallet.getAddress())
                 .amount("10000000")
                 .nonce("1")
                 .sign(passphrases[0])
@@ -439,13 +436,13 @@ describe("General Tests", () => {
         });
 
         it("should throw with negative balance", async () => {
-            senderWallet.balance = Utils.BigNumber.ZERO;
+            senderWallet.setBalance(Utils.BigNumber.ZERO);
             await expect(handler.apply(transferTransaction)).rejects.toThrow(InsufficientBalanceError);
         });
 
         it("should throw with negative balance if environment is not test", async () => {
             process.env.CORE_ENV === "unitest";
-            senderWallet.balance = Utils.BigNumber.ZERO;
+            senderWallet.setBalance(Utils.BigNumber.ZERO);
             await expect(handler.apply(transferTransaction)).rejects.toThrow(InsufficientBalanceError);
         });
     });
@@ -466,30 +463,30 @@ describe("General Tests", () => {
         it("should throw if nonce is undefined", async () => {
             await expect(handler.apply(transferTransaction)).toResolve();
             transferTransaction.data.nonce = undefined;
-            await expect(handler.revert(transferTransaction)).rejects.toThrow(UnexpectedNonceError)
+            await expect(handler.revert(transferTransaction)).rejects.toThrow(UnexpectedNonceError);
         });
 
         it("should throw if nonce is invalid", async () => {
             await expect(handler.apply(transferTransaction)).toResolve();
-            senderWallet.nonce = Utils.BigNumber.make(100);
+            senderWallet.setNonce(Utils.BigNumber.make(100));
             await expect(handler.revert(transferTransaction)).rejects.toThrow(UnexpectedNonceError);
         });
 
         it("should not fail due to case mismatch", async () => {
-            senderWallet.nonce = Utils.BigNumber.make(1);
+            senderWallet.setNonce(Utils.BigNumber.make(1));
 
             const transactionData: Interfaces.ITransactionData = transferTransaction.data;
             transactionData.senderPublicKey = transactionData.senderPublicKey?.toUpperCase();
             const instance = Transactions.TransactionFactory.fromData(transactionData);
 
-            const senderBalance = senderWallet.balance;
+            const senderBalance = senderWallet.getBalance();
 
             await handler.revert(instance);
-            expect(senderWallet.balance).toEqual(
+            expect(senderWallet.getBalance()).toEqual(
                 Utils.BigNumber.make(senderBalance).plus(instance.data.amount).plus(instance.data.fee),
             );
 
-            expect(senderWallet.nonce.isZero()).toBeTrue();
+            expect(senderWallet.getNonce().isZero()).toBeTrue();
         });
     });
 

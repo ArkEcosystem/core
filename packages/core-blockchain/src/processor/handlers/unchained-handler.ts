@@ -89,7 +89,7 @@ export class UnchainedHandler implements BlockHandler {
                     roundInfo,
                 })) as Contracts.State.Wallet[];
 
-                if (delegates.some((delegate) => delegate.publicKey === block.data.generatorPublicKey)) {
+                if (delegates.some((delegate) => delegate.getPublicKey() === block.data.generatorPublicKey)) {
                     return BlockProcessorResult.Rollback;
                 }
 

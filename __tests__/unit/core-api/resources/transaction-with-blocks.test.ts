@@ -134,7 +134,7 @@ beforeEach(() => {
     mockWalletRepository = {
         findByPublicKey: () => {
             return {
-                address: "D8791H5uhZcg1tJmpryVUFanvLth52AmrJ",
+                getAddress: jest.fn().mockReturnValue("D8791H5uhZcg1tJmpryVUFanvLth52AmrJ"),
             };
         },
     };
