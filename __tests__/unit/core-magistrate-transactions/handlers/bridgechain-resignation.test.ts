@@ -26,7 +26,7 @@ import { Mempool } from "@packages/core-transaction-pool";
 import { InsufficientBalanceError } from "@packages/core-transactions/dist/errors";
 import { TransactionHandler } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
-import {Crypto, Interfaces, Managers, Transactions, Utils} from "@packages/crypto";
+import { Crypto, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
 import { configManager } from "@packages/crypto/src/managers";
 import _ from "lodash";
 
@@ -234,7 +234,7 @@ describe("BusinessRegistration", () => {
         });
 
         it("should throw if wallet has insufficient balance", async () => {
-            senderWallet.balance = Utils.BigNumber.ZERO;
+            senderWallet.setBalance(Utils.BigNumber.ZERO);
             await expect(
                 handler.throwIfCannotBeApplied(bridgechainResignationTransaction, senderWallet),
             ).rejects.toThrowError(InsufficientBalanceError);
@@ -259,7 +259,7 @@ describe("BusinessRegistration", () => {
 
     describe("apply", () => {
         it("should be ok", async () => {
-            const senderBalance = senderWallet.balance;
+            const senderBalance = senderWallet.getBalance();
 
             await handler.apply(bridgechainResignationTransaction);
 
@@ -267,7 +267,7 @@ describe("BusinessRegistration", () => {
                 senderWallet.getAttribute("business.bridgechains")[bridgechainRegistrationAsset.genesisHash].resigned,
             ).toBeTrue();
 
-            expect(senderWallet.balance).toEqual(
+            expect(senderWallet.getBalance()).toEqual(
                 Utils.BigNumber.make(senderBalance)
                     .minus(bridgechainResignationTransaction.data.amount)
                     .minus(bridgechainResignationTransaction.data.fee),
@@ -283,7 +283,7 @@ describe("BusinessRegistration", () => {
 
     describe("revert", () => {
         it("should be ok", async () => {
-            const senderBalance = senderWallet.balance;
+            const senderBalance = senderWallet.getBalance();
 
             await handler.apply(bridgechainResignationTransaction);
 
@@ -297,7 +297,7 @@ describe("BusinessRegistration", () => {
                 senderWallet.getAttribute("business.bridgechains")[bridgechainRegistrationAsset.genesisHash].resigned,
             ).toBeFalse();
 
-            expect(senderWallet.balance).toEqual(Utils.BigNumber.make(senderBalance));
+            expect(senderWallet.getBalance()).toEqual(Utils.BigNumber.make(senderBalance));
         });
 
         it("should throw if transaction asset is missing", async () => {

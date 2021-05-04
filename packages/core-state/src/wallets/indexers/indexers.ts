@@ -1,14 +1,14 @@
 import { Contracts } from "@arkecosystem/core-kernel";
 
 export const addressesIndexer = (index: Contracts.State.WalletIndex, wallet: Contracts.State.Wallet) => {
-    if (wallet.address) {
-        index.set(wallet.address, wallet);
+    if (wallet.getAddress()) {
+        index.set(wallet.getAddress(), wallet);
     }
 };
 
 export const publicKeysIndexer = (index: Contracts.State.WalletIndex, wallet: Contracts.State.Wallet) => {
-    if (wallet.publicKey) {
-        index.set(wallet.publicKey, wallet);
+    if (wallet.getPublicKey()) {
+        index.set(wallet.getPublicKey()!, wallet);
     }
 };
 

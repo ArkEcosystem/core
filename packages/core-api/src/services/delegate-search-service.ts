@@ -35,7 +35,7 @@ export class DelegateSearchService {
     }
 
     private getDelegateResourceFromWallet(wallet: Contracts.State.Wallet): DelegateResource {
-        AppUtils.assert.defined<string>(wallet.publicKey);
+        AppUtils.assert.defined<string>(wallet.getPublicKey());
 
         const delegateAttribute = wallet.getAttribute("delegate");
 
@@ -51,8 +51,8 @@ export class DelegateSearchService {
 
         return {
             username: delegateAttribute.username,
-            address: wallet.address,
-            publicKey: wallet.publicKey,
+            address: wallet.getAddress(),
+            publicKey: wallet.getPublicKey()!,
             votes: delegateAttribute.voteBalance,
             rank: delegateAttribute.rank,
             isResigned: !!delegateAttribute.resigned,

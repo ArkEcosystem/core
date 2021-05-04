@@ -349,6 +349,14 @@ describe("TransactionFactory", () => {
         });
     });
 
+    describe("withVendorField", () => {
+        it("should return transaction factory", async () => {
+            const entity = transactionFactory.htlcLock(htlcLockAsset).withVendorField("Test VendorField");
+
+            expect(entity).toBeInstanceOf(TransactionFactory);
+        });
+    });
+
     describe("create", () => {
         it("should return transactions - with default parameters", async () => {
             const entity = transactionFactory.transfer().withVersion(2).create();

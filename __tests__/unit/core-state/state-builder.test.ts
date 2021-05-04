@@ -63,10 +63,10 @@ describe("StateBuilder", () => {
 
         // sender wallet balance should always be enough for default transactions (unless it is overridden)
         const wallet = walletRepo.findByPublicKey(senderKey);
-        wallet.balance = Utils.BigNumber.make(100000);
+        wallet.setBalance(Utils.BigNumber.make(100000));
     });
 
-    it("should call block repository to get intial block rewards", async () => {
+    it("should call block repository to get initial block rewards", async () => {
         await stateBuilder.run();
 
         expect(getBlockRewardsSpy).toHaveBeenCalled();
@@ -86,34 +86,35 @@ describe("StateBuilder", () => {
 
     it("should apply block rewards to generator wallet", async () => {
         const wallet = walletRepo.findByPublicKey(generatorKey);
-        wallet.balance = Utils.BigNumber.ZERO;
+        wallet.setBalance(Utils.BigNumber.ZERO);
         walletRepo.index(wallet);
-        const expectedBalance = wallet.balance.plus(getBlockRewardsDefault.rewards);
+        const expectedBalance = wallet.getBalance().plus(getBlockRewardsDefault.rewards);
 
         await stateBuilder.run();
 
-        expect(wallet.balance).toEqual(expectedBalance);
+        expect(wallet.getBalance()).toEqual(expectedBalance);
     });
 
     it("should apply the transaction data to the sender", async () => {
         const wallet = walletRepo.findByPublicKey(senderKey);
-        wallet.balance = Utils.BigNumber.make(80000);
+        wallet.setBalance(Utils.BigNumber.make(80000));
         walletRepo.index(wallet);
 
-        const expectedBalance = wallet.balance
+        const expectedBalance = wallet
+            .getBalance()
             .minus(getSentTransactionDefault.amount)
             .minus(getSentTransactionDefault.fee);
 
         await stateBuilder.run();
 
-        expect(wallet.nonce).toEqual(getSentTransactionDefault.nonce);
-        expect(wallet.balance).toEqual(expectedBalance);
+        expect(wallet.getNonce()).toEqual(getSentTransactionDefault.nonce);
+        expect(wallet.getBalance()).toEqual(expectedBalance);
     });
 
     it("should fail if any wallet balance is negative and not whitelisted", async () => {
         const wallet = walletRepo.findByPublicKey(senderKey);
-        wallet.balance = Utils.BigNumber.make(-80000);
-        wallet.publicKey = senderKey;
+        wallet.setBalance(Utils.BigNumber.make(-80000));
+        wallet.setPublicKey(senderKey);
 
         walletRepo.index(wallet);
 
@@ -131,8 +132,8 @@ describe("StateBuilder", () => {
             .reduce((acc, curr) => [...acc, curr.senderPublicKey], []);
 
         const wallet = walletRepo.findByPublicKey(genesisPublicKeys[0]);
-        wallet.balance = Utils.BigNumber.make(-80000);
-        wallet.publicKey = genesisPublicKeys[0];
+        wallet.setBalance(Utils.BigNumber.make(-80000));
+        wallet.setPublicKey(genesisPublicKeys[0]);
 
         walletRepo.index(wallet);
 
@@ -144,15 +145,15 @@ describe("StateBuilder", () => {
 
     it("should not fail if the publicKey is whitelisted", async () => {
         const wallet = walletRepo.findByPublicKey(senderKey);
-        wallet.nonce = getSentTransactionDefault.nonce;
+        wallet.setNonce(getSentTransactionDefault.nonce);
         const allowedWalletNegativeBalance = Utils.BigNumber.make(5555);
-        wallet.balance = allowedWalletNegativeBalance;
-        wallet.publicKey = senderKey;
+        wallet.setBalance(allowedWalletNegativeBalance);
+        wallet.setPublicKey(senderKey);
         walletRepo.index(wallet);
 
         const balance: Record<string, Record<string, string>> = {
             [senderKey]: {
-                [wallet.nonce.toString()]: allowedWalletNegativeBalance.toString(),
+                [wallet.getNonce().toString()]: allowedWalletNegativeBalance.toString(),
             },
         };
 
@@ -168,14 +169,14 @@ describe("StateBuilder", () => {
 
     it("should fail if the whitelisted key doesn't have the allowed negative balance", async () => {
         const wallet = walletRepo.findByPublicKey(senderKey);
-        wallet.nonce = getSentTransactionDefault.nonce;
-        wallet.balance = Utils.BigNumber.make(-90000);
-        wallet.publicKey = senderKey;
+        wallet.setNonce(getSentTransactionDefault.nonce);
+        wallet.setBalance(Utils.BigNumber.make(-90000));
+        wallet.setPublicKey(senderKey);
         walletRepo.index(wallet);
 
         const balance: Record<string, Record<string, string>> = {
             [senderKey]: {
-                [wallet.nonce.toString()]: Utils.BigNumber.make(-80000).toString(),
+                [wallet.getNonce().toString()]: Utils.BigNumber.make(-80000).toString(),
             },
         };
 
@@ -193,14 +194,14 @@ describe("StateBuilder", () => {
 
     it("should not fail if the whitelisted key has the allowed negative balance", async () => {
         const wallet = walletRepo.findByPublicKey(senderKey);
-        wallet.nonce = getSentTransactionDefault.nonce;
-        wallet.balance = Utils.BigNumber.make(-90000);
-        wallet.publicKey = senderKey;
+        wallet.setNonce(getSentTransactionDefault.nonce);
+        wallet.setBalance(Utils.BigNumber.make(-90000));
+        wallet.setPublicKey(senderKey);
         walletRepo.index(wallet);
 
         const balance: Record<string, Record<string, string>> = {
             [senderKey]: {
-                [wallet.nonce.toString()]: Utils.BigNumber.make(-90000).toString(),
+                [wallet.getNonce().toString()]: Utils.BigNumber.make(-90000).toString(),
             },
         };
 
@@ -216,7 +217,7 @@ describe("StateBuilder", () => {
 
     it("should not fail if delegates vote balance isn't below 0", async () => {
         const wallet = walletRepo.findByPublicKey(senderKey);
-        wallet.balance = Utils.BigNumber.ZERO;
+        wallet.setBalance(Utils.BigNumber.ZERO);
         walletRepo.index(wallet);
         wallet.setAttribute("delegate.voteBalance", Utils.BigNumber.make(100));
 
@@ -230,14 +231,15 @@ describe("StateBuilder", () => {
 
     it("should fail if the wallet has no public key", async () => {
         const wallet = walletRepo.findByPublicKey(senderKey);
-        wallet.nonce = getSentTransactionDefault.nonce;
-        wallet.balance = Utils.BigNumber.make(-90000);
-        wallet.publicKey = null;
+        wallet.setNonce(getSentTransactionDefault.nonce);
+        wallet.setBalance(Utils.BigNumber.make(-90000));
+        // @ts-ignore
+        wallet.publicKey = undefined;
         walletRepo.index(wallet);
 
         const balance: Record<string, Record<string, string>> = {
             [senderKey]: {
-                [wallet.nonce.toString()]: Utils.BigNumber.make(-90000).toString(),
+                [wallet.getNonce().toString()]: Utils.BigNumber.make(-90000).toString(),
             },
         };
 
@@ -261,7 +263,7 @@ describe("StateBuilder", () => {
 
     it("should exit app if any vote balance is negative", async () => {
         const wallet = walletRepo.findByPublicKey(senderKey);
-        wallet.balance = Utils.BigNumber.ZERO;
+        wallet.setBalance(Utils.BigNumber.ZERO);
         walletRepo.index(wallet);
         wallet.setAttribute("delegate.voteBalance", Utils.BigNumber.make(-100));
 

@@ -151,13 +151,15 @@ let mockBlockchainService;
 
 beforeEach(() => {
     mockWallet = {
-        address: "ANRNMPjQjJGVsVbyeqwShcxKTidYJ2S1Hm",
-        publicKey: "021770413ad01c60b94e1d3ed44c00e0145fe7897e40f5f6265e220f4e65cf427f",
-
+        getAddress: () => {
+            return "ANRNMPjQjJGVsVbyeqwShcxKTidYJ2S1Hm";
+        },
+        getPublicKey: () => {
+            return "021770413ad01c60b94e1d3ed44c00e0145fe7897e40f5f6265e220f4e65cf427f";
+        },
         hasAttribute: () => {
             return true;
         },
-
         getAttribute: () => {
             return "genesis_13";
         },

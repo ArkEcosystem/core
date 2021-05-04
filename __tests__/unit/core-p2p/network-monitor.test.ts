@@ -1,4 +1,5 @@
 import { Container, Enums, Utils } from "@packages/core-kernel";
+import { ChunkCache } from "@packages/core-p2p/src/chunk-cache";
 import { NetworkMonitor } from "@packages/core-p2p/src/network-monitor";
 import { NetworkState } from "@packages/core-p2p/src/network-state";
 import { Peer } from "@packages/core-p2p/src/peer";
@@ -64,6 +65,7 @@ describe("NetworkMonitor", () => {
     beforeAll(() => {
         container.unbindAll();
         container.bind(Container.Identifiers.LogService).toConstantValue(logger);
+        container.bind(Container.Identifiers.PeerChunkCache).to(ChunkCache).inSingletonScope();
         container.bind(Container.Identifiers.PeerNetworkMonitor).to(NetworkMonitor);
         container.bind(Container.Identifiers.EventDispatcherService).toConstantValue(emitter);
         container.bind(Container.Identifiers.PeerCommunicator).toConstantValue(communicator);
@@ -232,7 +234,7 @@ describe("NetworkMonitor", () => {
             });
 
             it("should not do anything", async () => {
-                const spyDiscoverPeers = jest.spyOn(networkMonitor, "discoverPeers")
+                const spyDiscoverPeers = jest.spyOn(networkMonitor, "discoverPeers");
 
                 await networkMonitor.updateNetworkStatus();
 
@@ -877,6 +879,9 @@ describe("NetworkMonitor", () => {
         });
 
         it("should reduce download block chunk size after receiving no block", async () => {
+            const chunkCache = container.get<ChunkCache>(Container.Identifiers.PeerChunkCache);
+            chunkCache.has = jest.fn().mockReturnValue(false);
+
             communicator.getPeerBlocks = jest.fn().mockReturnValue([]);
 
             const numPeers = maxParallelDownloads;

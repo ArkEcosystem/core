@@ -14,7 +14,7 @@ export const registerWalletFactory = (factory: FactoryBuilder): void => {
             Identities.Address.fromPassphrase(passphrase),
             new Services.Attributes.AttributeMap(getWalletAttributeSet()),
         );
-        wallet.publicKey = Identities.PublicKey.fromPassphrase(passphrase);
+        wallet.setPublicKey(Identities.PublicKey.fromPassphrase(passphrase));
 
         return wallet;
     });

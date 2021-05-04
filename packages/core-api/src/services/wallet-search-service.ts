@@ -58,10 +58,10 @@ export class WalletSearchService {
 
     private getWalletResourceFromWallet(wallet: Contracts.State.Wallet): WalletResource {
         return {
-            address: wallet.address,
-            publicKey: wallet.publicKey,
-            balance: wallet.balance,
-            nonce: wallet.nonce,
+            address: wallet.getAddress(),
+            publicKey: wallet.getPublicKey(),
+            balance: wallet.getBalance(),
+            nonce: wallet.getNonce(),
             attributes: wallet.getAttributes(),
         };
     }

@@ -33,7 +33,7 @@ describe("API 2.0 - Locks", () => {
 
         for (let i = 1; i < 7; i++) {
             const wallet = walletRepository.findByAddress(Identities.Address.fromPassphrase(`${i}`));
-            wallet.publicKey = Identities.PublicKey.fromPassphrase(`${i}`);
+            wallet.setPublicKey(Identities.PublicKey.fromPassphrase(`${i}`));
 
             const transactions = Managers.configManager.get("genesisBlock").transactions.slice(i * 10, i * 10 + i + 1);
 
@@ -44,7 +44,7 @@ describe("API 2.0 - Locks", () => {
 
                 locks[transaction.id] = {
                     amount: Utils.BigNumber.make(10 * (j + 1)),
-                    recipientId: wallet.address,
+                    recipientId: wallet.getAddress(),
                     secretHash: transaction.id,
                     expiration: {
                         type: j % 2 === 0 ? 1 : 2,

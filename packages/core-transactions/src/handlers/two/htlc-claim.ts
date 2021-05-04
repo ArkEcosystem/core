@@ -27,7 +27,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         const balances = await this.transactionRepository.getClaimedHtlcLockBalances();
         for (const { recipientId, claimedBalance } of balances) {
             const claimWallet: Contracts.State.Wallet = this.walletRepository.findByAddress(recipientId);
-            claimWallet.balance = claimWallet.balance.plus(claimedBalance);
+            claimWallet.increaseBalance(Utils.BigNumber.make(claimedBalance));
         }
     }
 
@@ -124,7 +124,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
 
         AppUtils.assert.defined<AppUtils.BigNumber>(data.nonce);
 
-        sender.nonce = data.nonce;
+        sender.setNonce(data.nonce);
 
         AppUtils.assert.defined<string>(data.asset?.claim?.lockTransactionId);
 
@@ -144,9 +144,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
 
         const recipientWallet: Contracts.State.Wallet = this.walletRepository.findByAddress(recipientId);
 
-        const newBalance: Utils.BigNumber = recipientWallet.balance.plus(locks[lockId].amount).minus(data.fee);
-
-        recipientWallet.balance = newBalance;
+        recipientWallet.increaseBalance(locks[lockId].amount.minus(data.fee));
         const lockedBalance: Utils.BigNumber = lockWallet.getAttribute("htlc.lockedBalance");
         const newLockedBalance: Utils.BigNumber = lockedBalance.minus(locks[lockId].amount);
 
@@ -176,7 +174,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
 
         this.verifyTransactionNonceRevert(sender, transaction);
 
-        sender.nonce = sender.nonce.minus(1);
+        sender.decreaseNonce();
 
         AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
         AppUtils.assert.defined<string>(data.asset?.claim?.lockTransactionId);
@@ -190,7 +188,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         const recipientWallet: Contracts.State.Wallet = this.walletRepository.findByAddress(
             lockTransaction.recipientId,
         );
-        recipientWallet.balance = recipientWallet.balance.minus(lockTransaction.amount).plus(data.fee);
+        recipientWallet.decreaseBalance(lockTransaction.amount.minus(data.fee));
 
         AppUtils.assert.defined<string>(lockTransaction.senderPublicKey);
 

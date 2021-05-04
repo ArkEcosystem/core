@@ -21,10 +21,10 @@ describe("RoundFactory", () => {
 
         entity.forEach((delegate) => {
             expect(delegate).toBeInstanceOf(Wallets.Wallet);
-            expect(delegate.address).toBeString();
-            expect(delegate.publicKey).toBeString();
-            expect(delegate.balance).toBeInstanceOf(Utils.BigNumber);
-            expect(delegate.nonce).toBeInstanceOf(Utils.BigNumber);
+            expect(delegate.getAddress()).toBeString();
+            expect(delegate.getPublicKey()).toBeString();
+            expect(delegate.getBalance()).toBeInstanceOf(Utils.BigNumber);
+            expect(delegate.getNonce()).toBeInstanceOf(Utils.BigNumber);
             expect(delegate.isDelegate()).toBeTrue();
         });
     });

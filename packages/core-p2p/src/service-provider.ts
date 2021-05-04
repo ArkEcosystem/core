@@ -2,6 +2,7 @@ import { Container, Providers, Services, Types, Utils } from "@arkecosystem/core
 import Joi from "joi";
 
 import { ValidateAndAcceptPeerAction } from "./actions";
+import { ChunkCache } from "./chunk-cache";
 import { EventListener } from "./event-listener";
 import { NetworkMonitor } from "./network-monitor";
 import { Peer } from "./peer";
@@ -99,6 +100,8 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.app.bind(Container.Identifiers.PeerCommunicator).to(PeerCommunicator).inSingletonScope();
 
         this.app.bind(Container.Identifiers.PeerProcessor).to(PeerProcessor).inSingletonScope();
+
+        this.app.bind(Container.Identifiers.PeerChunkCache).to(ChunkCache).inSingletonScope();
 
         this.app.bind(Container.Identifiers.PeerNetworkMonitor).to(NetworkMonitor).inSingletonScope();
 

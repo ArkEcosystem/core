@@ -32,6 +32,7 @@ export class TransactionFactory {
     private version: number | undefined;
     private senderPublicKey: string | undefined;
     private expiration: number | undefined;
+    private vendorField: string | undefined;
 
     protected constructor(app?: Contracts.Kernel.Application) {
         // @ts-ignore - this is only needed because of the "getNonce"
@@ -288,6 +289,12 @@ export class TransactionFactory {
         return this;
     }
 
+    public withVendorField(vendorField: string): TransactionFactory {
+        this.vendorField = vendorField;
+
+        return this;
+    }
+
     public withPassphrase(passphrase: string): TransactionFactory {
         this.passphrase = passphrase;
 
@@ -413,6 +420,10 @@ export class TransactionFactory {
 
             if (this.expiration) {
                 this.builder.expiration(this.expiration);
+            }
+
+            if (this.vendorField) {
+                this.builder.vendorField(this.vendorField);
             }
 
             this.builder.senderPublicKey(this.senderPublicKey);

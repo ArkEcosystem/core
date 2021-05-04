@@ -34,8 +34,8 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
             const sender: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.senderPublicKey);
             for (const payment of transaction.asset.payments) {
                 const recipient: Contracts.State.Wallet = this.walletRepository.findByAddress(payment.recipientId);
-                recipient.balance = recipient.balance.plus(payment.amount);
-                sender.balance = sender.balance.minus(payment.amount);
+                recipient.increaseBalance(payment.amount);
+                sender.decreaseBalance(payment.amount);
             }
         }
     }
@@ -53,7 +53,7 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
         const payments: Interfaces.IMultiPaymentItem[] = transaction.data.asset.payments;
         const totalPaymentsAmount = payments.reduce((a, p) => a.plus(p.amount), Utils.BigNumber.ZERO);
 
-        if (wallet.balance.minus(totalPaymentsAmount).minus(transaction.data.fee).isNegative()) {
+        if (wallet.getBalance().minus(totalPaymentsAmount).minus(transaction.data.fee).isNegative()) {
             throw new InsufficientBalanceError();
         }
 
@@ -74,7 +74,7 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
 
         const sender: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
-        sender.balance = sender.balance.minus(totalPaymentsAmount);
+        sender.decreaseBalance(totalPaymentsAmount);
     }
 
     public async revertForSender(transaction: Interfaces.ITransaction): Promise<void> {
@@ -91,7 +91,7 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
 
         const sender: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
-        sender.balance = sender.balance.plus(totalPaymentsAmount);
+        sender.increaseBalance(totalPaymentsAmount);
     }
 
     public async applyToRecipient(transaction: Interfaces.ITransaction): Promise<void> {
@@ -100,7 +100,7 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
         for (const payment of transaction.data.asset.payments) {
             const recipient: Contracts.State.Wallet = this.walletRepository.findByAddress(payment.recipientId);
 
-            recipient.balance = recipient.balance.plus(payment.amount);
+            recipient.increaseBalance(payment.amount);
         }
     }
 
@@ -110,7 +110,7 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
         for (const payment of transaction.data.asset.payments) {
             const recipient: Contracts.State.Wallet = this.walletRepository.findByAddress(payment.recipientId);
 
-            recipient.balance = recipient.balance.minus(payment.amount);
+            recipient.decreaseBalance(payment.amount);
         }
     }
 }
