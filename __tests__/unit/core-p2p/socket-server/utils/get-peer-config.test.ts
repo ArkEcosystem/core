@@ -113,8 +113,8 @@ beforeEach(() => {
                 port: 4004,
             },
         },
-    }
-})
+    };
+});
 
 describe("getPeerConfig", () => {
     it("should omit a plugin if it is storing the [port] at the root of the options", () => {
@@ -124,7 +124,7 @@ describe("getPeerConfig", () => {
 
         delete result.plugins["@arkecosystem/core-api"];
 
-        expect(getPeerConfig(app as any)).toEqual(result);
+        expect(getPeerConfig(app)).toEqual(result);
     });
 
     it("should omit a plugin if it is storing the [port] in the [options] key", () => {
@@ -134,7 +134,7 @@ describe("getPeerConfig", () => {
 
         delete result.plugins["@arkecosystem/core-api"];
 
-        expect(getPeerConfig(app as any)).toEqual(result);
+        expect(getPeerConfig(app)).toEqual(result);
     });
 
     it("should omit a plugin if it is storing the [port] in the [server] object", () => {
@@ -144,11 +144,11 @@ describe("getPeerConfig", () => {
 
         delete result.plugins["@arkecosystem/core-api"];
 
-        expect(getPeerConfig(app as any)).toEqual(result);
+        expect(getPeerConfig(app)).toEqual(result);
     });
 
     it("should accept a plugin if it is storing the [port] in the [server.http] object", () => {
-        expect(getPeerConfig(app as any)).toEqual(result);
+        expect(getPeerConfig(app)).toEqual(result);
     });
 
     it("should accept a plugin if it is storing the [port] in the [server.https] object", () => {
@@ -156,7 +156,15 @@ describe("getPeerConfig", () => {
         mergedConfiguration.server.https = mergedConfiguration.server.http;
         delete mergedConfiguration.server.http;
 
-        expect(getPeerConfig(app as any)).toEqual(result);
+        expect(getPeerConfig(app)).toEqual(result);
+    });
+
+    it("should return plugins enabled value if enabled property is listed in configuration", () => {
+        mergedConfiguration.enabled = false;
+
+        result.plugins["@arkecosystem/core-api"].enabled = false;
+
+        expect(getPeerConfig(app)).toEqual(result);
     });
 
     it("should return own config from config manager without configuration", () => {
@@ -166,6 +174,6 @@ describe("getPeerConfig", () => {
 
         delete result.plugins["@arkecosystem/core-api"];
 
-        expect(getPeerConfig(app as any)).toEqual(result);
+        expect(getPeerConfig(app)).toEqual(result);
     });
 });
