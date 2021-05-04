@@ -11,7 +11,7 @@ export const getExpectedVoteBalances = (
             const publicKey = wallet.getAttribute("vote");
             const voteBalance = wallet
                 .getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)
-                .plus(wallet.balance)
+                .plus(wallet.getBalance())
                 .plus(expectedVoteBalances[publicKey] ?? Utils.BigNumber.ZERO);
 
             if (voteBalance.isZero()) {
@@ -34,8 +34,8 @@ export const getActualVoteBalances = (
         if (wallet.hasAttribute("delegate.voteBalance")) {
             const voteBalance = wallet.getAttribute("delegate.voteBalance");
             if (!voteBalance.isZero()) {
-                AppUtils.assert.defined<string>(wallet.publicKey);
-                actualVoteBalances[wallet.publicKey] = voteBalance;
+                AppUtils.assert.defined<string>(wallet.getPublicKey());
+                actualVoteBalances[wallet.getPublicKey()!] = voteBalance;
             }
         }
     }

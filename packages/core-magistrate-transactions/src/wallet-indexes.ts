@@ -8,8 +8,8 @@ export enum MagistrateIndex {
 
 export const businessIndexer = (index: Contracts.State.WalletIndex, wallet: Contracts.State.Wallet): void => {
     if (wallet.hasAttribute("business")) {
-        Utils.assert.defined<string>(wallet.publicKey);
-        index.set(wallet.publicKey, wallet);
+        Utils.assert.defined<string>(wallet.getPublicKey());
+        index.set(wallet.getPublicKey()!, wallet);
     }
 };
 

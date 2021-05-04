@@ -120,7 +120,7 @@ describe("Wallet Repository Clone", () => {
             const wallet = walletRepositoryClone.createWallet("address");
 
             expect(wallet).toBeInstanceOf(Wallet);
-            expect(wallet.address).toEqual("address");
+            expect(wallet.getAddress()).toEqual("address");
         });
     });
 
@@ -237,7 +237,7 @@ describe("Wallet Repository Clone", () => {
             const wallet = walletRepositoryClone.findByAddress("address");
 
             expect(wallet).toBeInstanceOf(Wallet);
-            expect(wallet.address).toEqual("address");
+            expect(wallet.getAddress()).toEqual("address");
             expect(walletRepositoryClone.hasByAddress("address")).toBeTrue();
             expect(walletRepositoryBlockchain.hasByAddress("address")).toBeFalse();
         });
@@ -248,7 +248,7 @@ describe("Wallet Repository Clone", () => {
             const wallet = walletRepositoryClone.findByAddress("address");
 
             expect(wallet).toBeInstanceOf(Wallet);
-            expect(wallet.address).toEqual("address");
+            expect(wallet.getAddress()).toEqual("address");
             expect(walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Addresses).has("address")).toBeTrue();
             expect(spyOnCreateWallet).toHaveBeenCalled();
 
@@ -273,10 +273,10 @@ describe("Wallet Repository Clone", () => {
             const wallet = walletRepositoryClone.findByPublicKey(publicKey);
 
             expect(wallet).toBeInstanceOf(Wallet);
-            expect(wallet.publicKey).toEqual(publicKey);
+            expect(wallet.getPublicKey()).toEqual(publicKey);
             expect(walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.PublicKeys).has(publicKey)).toBeTrue();
             expect(
-                walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Addresses).has(wallet.address),
+                walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Addresses).has(wallet.getAddress()),
             ).toBeTrue();
             expect(walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Ipfs).has("key")).toBeTrue();
 
@@ -288,14 +288,14 @@ describe("Wallet Repository Clone", () => {
             const wallet = walletRepositoryClone.findByPublicKey(publicKey);
 
             expect(wallet).toBeInstanceOf(Wallet);
-            expect(wallet.publicKey).toEqual(publicKey);
+            expect(wallet.getPublicKey()).toEqual(publicKey);
             expect(walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.PublicKeys).has(publicKey)).toBeTrue();
             expect(
-                walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Addresses).has(wallet.address),
+                walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Addresses).has(wallet.getAddress()),
             ).toBeTrue();
 
             expect(walletRepositoryBlockchain.hasByPublicKey(publicKey)).toBeFalse();
-            expect(walletRepositoryBlockchain.hasByAddress(wallet.address)).toBeFalse();
+            expect(walletRepositoryBlockchain.hasByAddress(wallet.getAddress())).toBeFalse();
         });
 
         it("should return existing wallet", () => {
@@ -304,7 +304,7 @@ describe("Wallet Repository Clone", () => {
             const wallet = walletRepositoryClone.findByPublicKey(publicKey);
 
             expect(wallet).toBeInstanceOf(Wallet);
-            expect(wallet.publicKey).toEqual(publicKey);
+            expect(wallet.getPublicKey()).toEqual(publicKey);
             expect(walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.PublicKeys).has(publicKey)).toBeTrue();
             expect(spyOnCreateWallet).toHaveBeenCalled();
 
@@ -389,7 +389,7 @@ describe("Wallet Repository Clone", () => {
             expect(wallet.getAttribute("delegate.username")).toEqual(username);
             expect(walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Usernames).has(username)).toBeTrue();
             expect(
-                walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Addresses).has(wallet.address),
+                walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Addresses).has(wallet.getAddress()),
             ).toBeTrue();
             expect(walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Ipfs).has("key")).toBeTrue();
         });
@@ -402,7 +402,7 @@ describe("Wallet Repository Clone", () => {
             walletRepositoryClone.index(wallet);
 
             expect(wallet).toBeInstanceOf(Wallet);
-            expect(wallet.address).toEqual("address");
+            expect(wallet.getAddress()).toEqual("address");
             expect(wallet.getAttribute("delegate.username")).toEqual(username);
             expect(walletRepositoryClone.getIndex(Contracts.State.WalletIndexes.Usernames).has(username)).toBeTrue();
             expect(spyOnCreateWallet).toHaveBeenCalled();
@@ -625,7 +625,7 @@ describe("Wallet Repository Clone", () => {
 
         it("should return nonce if wallet exists only in blockchain wallet repository", () => {
             const wallet = walletRepositoryBlockchain.findByPublicKey(publicKey);
-            wallet.nonce = Utils.BigNumber.make("10");
+            wallet.setNonce(Utils.BigNumber.make("10"));
 
             expect(walletRepositoryClone.getNonce(publicKey)).toEqual(Utils.BigNumber.make("10"));
             expect(
@@ -636,10 +636,10 @@ describe("Wallet Repository Clone", () => {
 
         it("should return nonce if wallet exists on copy wallet repository", () => {
             const blockchainWallet = walletRepositoryBlockchain.findByPublicKey(publicKey);
-            blockchainWallet.nonce = Utils.BigNumber.make("10");
+            blockchainWallet.setNonce(Utils.BigNumber.make("10"));
 
             const wallet = walletRepositoryClone.findByPublicKey(publicKey);
-            wallet.nonce = Utils.BigNumber.make("20");
+            wallet.setNonce(Utils.BigNumber.make("20"));
 
             expect(walletRepositoryClone.getNonce(publicKey)).toEqual(Utils.BigNumber.make("20"));
             expect(

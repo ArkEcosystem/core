@@ -165,7 +165,7 @@ describe("SecondSignatureRegistrationTransaction", () => {
         });
 
         it("should throw if wallet has insufficient funds", async () => {
-            senderWallet.balance = Utils.BigNumber.ZERO;
+            senderWallet.setBalance(Utils.BigNumber.ZERO);
 
             await expect(handler.throwIfCannotBeApplied(secondSignatureTransaction, senderWallet)).rejects.toThrow(
                 InsufficientBalanceError,

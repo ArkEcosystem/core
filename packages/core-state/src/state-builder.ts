@@ -63,7 +63,9 @@ export class StateBuilder {
             this.dposState.buildDelegateRanking();
 
             this.logger.info(
-                `Number of registered delegates: ${Object.keys(this.walletRepository.allByUsername()).length.toLocaleString()}`,
+                `Number of registered delegates: ${Object.keys(
+                    this.walletRepository.allByUsername(),
+                ).length.toLocaleString()}`,
             );
 
             this.verifyWalletsConsistency();
@@ -79,7 +81,7 @@ export class StateBuilder {
 
         for (const block of blocks) {
             const wallet = this.walletRepository.findByPublicKey(block.generatorPublicKey);
-            wallet.balance = wallet.balance.plus(block.rewards);
+            wallet.increaseBalance(Utils.BigNumber.make(block.rewards));
         }
     }
 
@@ -88,8 +90,8 @@ export class StateBuilder {
 
         for (const transaction of transactions) {
             const wallet = this.walletRepository.findByPublicKey(transaction.senderPublicKey);
-            wallet.nonce = Utils.BigNumber.make(transaction.nonce);
-            wallet.balance = wallet.balance.minus(transaction.amount).minus(transaction.fee);
+            wallet.setNonce(Utils.BigNumber.make(transaction.nonce));
+            wallet.decreaseBalance(Utils.BigNumber.make(transaction.amount).plus(transaction.fee));
         }
     }
 
@@ -103,8 +105,8 @@ export class StateBuilder {
 
         for (const wallet of this.walletRepository.allByAddress()) {
             if (
-                wallet.balance.isLessThan(0) &&
-                (wallet.publicKey === undefined || !genesisPublicKeys[wallet.publicKey])
+                wallet.getBalance().isLessThan(0) &&
+                (wallet.getPublicKey() === undefined || !genesisPublicKeys[wallet.getPublicKey()!])
             ) {
                 // Senders of whitelisted transactions that result in a negative balance,
                 // also need to be special treated during bootstrap. Therefore, specific
@@ -117,21 +119,21 @@ export class StateBuilder {
                     {},
                 );
 
-                const whitelistedNegativeBalances: Record<string, string> | undefined = wallet.publicKey
-                    ? negativeBalanceExceptions[wallet.publicKey]
+                const whitelistedNegativeBalances: Record<string, string> | undefined = wallet.getPublicKey()
+                    ? negativeBalanceExceptions[wallet.getPublicKey()!]
                     : undefined;
 
                 if (!whitelistedNegativeBalances) {
-                    logNegativeBalance(wallet, "balance", wallet.balance);
+                    logNegativeBalance(wallet, "balance", wallet.getBalance());
                     throw new Error("Non-genesis wallet with negative balance.");
                 }
 
-                const allowedNegativeBalance = wallet.balance.isEqualTo(
-                    whitelistedNegativeBalances[wallet.nonce.toString()],
-                );
+                const allowedNegativeBalance = wallet
+                    .getBalance()
+                    .isEqualTo(whitelistedNegativeBalances[wallet.getNonce().toString()]);
 
                 if (!allowedNegativeBalance) {
-                    logNegativeBalance(wallet, "balance", wallet.balance);
+                    logNegativeBalance(wallet, "balance", wallet.getBalance());
                     throw new Error("Non-genesis wallet with negative balance.");
                 }
             }

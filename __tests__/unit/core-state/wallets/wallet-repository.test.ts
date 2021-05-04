@@ -63,7 +63,7 @@ describe("Wallet Repository", () => {
 
     it("should create a wallet", () => {
         const wallet = walletRepo.createWallet("abcd");
-        expect(wallet.address).toEqual("abcd");
+        expect(wallet.getAddress()).toEqual("abcd");
         expect(wallet).toBeInstanceOf(Wallet);
     });
 
@@ -92,19 +92,19 @@ describe("Wallet Repository", () => {
         const address = "ATtEq2tqNumWgR9q9zF6FjGp34Mp5JpKGp";
         const wallet = walletRepo.createWallet(address);
         const publicKey = "03720586a26d8d49ec27059bd4572c49ba474029c3627715380f4df83fb431aece";
-        wallet.publicKey = publicKey;
+        wallet.setPublicKey(publicKey);
 
         expect(walletRepo.findByAddress(address)).not.toEqual(wallet);
         walletRepo.getIndex("publicKeys").set(publicKey, wallet);
-        expect(walletRepo.findByPublicKey(publicKey).publicKey).toBeDefined();
+        expect(walletRepo.findByPublicKey(publicKey).getPublicKey()).toBeDefined();
         expect(walletRepo.findByPublicKey(publicKey)).toEqual(wallet);
 
-        expect(walletRepo.findByAddress(address).publicKey).toBeUndefined();
+        expect(walletRepo.findByAddress(address).getPublicKey()).toBeUndefined();
         expect(walletRepo.findByAddress(address)).not.toEqual(wallet);
 
         walletRepo.index(wallet);
 
-        expect(walletRepo.findByAddress(address).publicKey).toBe(publicKey);
+        expect(walletRepo.findByAddress(address).getPublicKey()).toBe(publicKey);
         expect(walletRepo.findByAddress(address)).toEqual(wallet);
     });
 
@@ -224,6 +224,7 @@ describe("Wallet Repository", () => {
     it("should do nothing if forgotten wallet does not exist", () => {
         const wallet1 = walletRepo.createWallet("wallet1");
         walletRepo.index(wallet1);
+        // @ts-ignore
         wallet1.publicKey = undefined;
         expect(walletRepo.has("wallet2")).toBeFalse();
     });
@@ -259,11 +260,11 @@ describe("Wallet Repository", () => {
 
     it("should get the nonce of a wallet", () => {
         const wallet1 = walletRepo.createWallet("wallet1");
-        wallet1.nonce = Utils.BigNumber.make(100);
-        wallet1.publicKey = "02511f16ffb7b7e9afc12f04f317a11d9644e4be9eb5a5f64673946ad0f6336f34";
+        wallet1.setNonce(Utils.BigNumber.make(100));
+        wallet1.setPublicKey("02511f16ffb7b7e9afc12f04f317a11d9644e4be9eb5a5f64673946ad0f6336f34");
         walletRepo.index(wallet1);
 
-        expect(walletRepo.getNonce(wallet1.publicKey)).toEqual(Utils.BigNumber.make(100));
+        expect(walletRepo.getNonce(wallet1.getPublicKey()!)).toEqual(Utils.BigNumber.make(100));
     });
 
     it("should return 0 nonce if there is no wallet", () => {

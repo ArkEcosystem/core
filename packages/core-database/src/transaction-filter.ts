@@ -120,8 +120,8 @@ export class TransactionFilter implements Contracts.Database.TransactionFilter {
     ): Promise<Contracts.Search.Expression<Transaction>> {
         const senderWallet = this.walletRepository.findByAddress(criteria);
 
-        if (senderWallet && senderWallet.publicKey) {
-            return { op: "equal", property: "senderPublicKey", value: senderWallet.publicKey };
+        if (senderWallet && senderWallet.getPublicKey()) {
+            return { op: "equal", property: "senderPublicKey", value: senderWallet.getPublicKey() };
         } else {
             return { op: "false" };
         }
@@ -146,13 +146,13 @@ export class TransactionFilter implements Contracts.Database.TransactionFilter {
         };
 
         const recipientWallet = this.walletRepository.findByAddress(criteria);
-        if (recipientWallet && recipientWallet.publicKey) {
+        if (recipientWallet && recipientWallet.getPublicKey()) {
             const delegateRegistrationExpression: Contracts.Search.AndExpression<Transaction> = {
                 op: "and",
                 expressions: [
                     { op: "equal", property: "typeGroup", value: Enums.TransactionTypeGroup.Core },
                     { op: "equal", property: "type", value: Enums.TransactionType.DelegateRegistration },
-                    { op: "equal", property: "senderPublicKey", value: recipientWallet.publicKey },
+                    { op: "equal", property: "senderPublicKey", value: recipientWallet.getPublicKey() },
                 ],
             };
 

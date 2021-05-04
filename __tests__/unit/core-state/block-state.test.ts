@@ -186,9 +186,9 @@ describe("BlockState", () => {
 
             const voteWeight = Utils.BigNumber.make(5678);
 
-            votingWallet.balance = voteWeight;
+            votingWallet.setBalance(voteWeight);
 
-            votingWallet.setAttribute("vote", forgingWallet.publicKey);
+            votingWallet.setAttribute("vote", forgingWallet.getPublicKey());
 
             blockState.increaseWalletDelegateVoteBalance(votingWallet, voteWeight);
 
@@ -218,9 +218,9 @@ describe("BlockState", () => {
 
             const voteWeight = Utils.BigNumber.make(5678);
 
-            votingWallet.balance = voteWeight;
+            votingWallet.setBalance(voteWeight);
 
-            votingWallet.setAttribute("vote", forgingWallet.publicKey);
+            votingWallet.setAttribute("vote", forgingWallet.getPublicKey());
 
             blockState.decreaseWalletDelegateVoteBalance(votingWallet, voteWeight);
 
@@ -237,7 +237,7 @@ describe("BlockState", () => {
             const testTransaction = blocks[0].transactions[0];
 
             const sender = walletRepo.findByPublicKey(testTransaction.data.senderPublicKey);
-            sender.balance = sendersBalance;
+            sender.setBalance(sendersBalance);
 
             const votedForDelegate: Contracts.State.Wallet = walletRepo.findByPublicKey(voteAddress);
             const delegateBalanceBefore = Utils.BigNumber.make(4918);
@@ -271,7 +271,7 @@ describe("BlockState", () => {
     });
 
     it("should apply the block data to the forger", async () => {
-        const balanceBefore = forgingWallet.balance;
+        const balanceBefore = forgingWallet.getBalance();
 
         const reward = Utils.BigNumber.make(50);
         const totalFee = Utils.BigNumber.make(50);
@@ -294,11 +294,11 @@ describe("BlockState", () => {
         expect(delegateAfter.forgedRewards).toEqual(reward);
         expect(delegateAfter.lastBlock).toEqual(blocks[0].data);
 
-        expect(forgingWallet.balance).toEqual(balanceBefore.plus(balanceIncrease));
+        expect(forgingWallet.getBalance()).toEqual(balanceBefore.plus(balanceIncrease));
     });
 
     it("should revert the block data for the forger", async () => {
-        const balanceBefore = forgingWallet.balance;
+        const balanceBefore = forgingWallet.getBalance();
 
         const reward = Utils.BigNumber.make(52);
         const totalFee = Utils.BigNumber.make(49);
@@ -308,7 +308,7 @@ describe("BlockState", () => {
 
         await blockState.applyBlock(blocks[0]);
 
-        expect(forgingWallet.balance).toEqual(balanceBefore.plus(balanceIncrease));
+        expect(forgingWallet.getBalance()).toEqual(balanceBefore.plus(balanceIncrease));
 
         await blockState.revertBlock(blocks[0]);
 
@@ -324,7 +324,7 @@ describe("BlockState", () => {
         expect(delegate.forgedRewards).toEqual(Utils.BigNumber.ZERO);
         expect(delegate.lastBlock).toEqual(undefined);
 
-        expect(forgingWallet.balance).toEqual(balanceBefore);
+        expect(forgingWallet.getBalance()).toEqual(balanceBefore);
     });
 
     it("should update sender's and recipient's delegate's vote balance when applying transaction", async () => {
@@ -334,18 +334,22 @@ describe("BlockState", () => {
         const senderDelegateBefore = sendersDelegate.getAttribute("delegate.voteBalance");
 
         const amount: Utils.BigNumber = Utils.BigNumber.make(2345);
-        sendingWallet.balance = amount;
+        sendingWallet.setBalance(amount);
 
         const recipientsDelegateBefore: Utils.BigNumber = recipientsDelegate.getAttribute("delegate.voteBalance");
 
-        sendingWallet.setAttribute("vote", sendersDelegate.publicKey);
-        recipientWallet.setAttribute("vote", recipientsDelegate.publicKey);
+        sendingWallet.setAttribute("vote", sendersDelegate.getPublicKey());
+        recipientWallet.setAttribute("vote", recipientsDelegate.getPublicKey());
 
         walletRepo.index([sendersDelegate, recipientsDelegate, sendingWallet, recipientWallet]);
 
         const transferTransaction = factory
             .get("Transfer")
-            .withOptions({ amount, senderPublicKey: sendingWallet.publicKey, recipientId: recipientWallet.address })
+            .withOptions({
+                amount,
+                senderPublicKey: sendingWallet.getPublicKey(),
+                recipientId: recipientWallet.getAddress(),
+            })
             .make();
 
         // @ts-ignore
@@ -372,18 +376,22 @@ describe("BlockState", () => {
             .make();
 
         const amount: Utils.BigNumber = Utils.BigNumber.make(2345);
-        sendingWallet.balance = amount;
+        sendingWallet.setBalance(amount);
 
         const recipientDelegateBefore = recipientsDelegate.getAttribute("delegate.voteBalance");
 
-        sendingWallet.setAttribute("vote", sendersDelegate.publicKey);
-        recipientWallet.setAttribute("vote", recipientsDelegate.publicKey);
+        sendingWallet.setAttribute("vote", sendersDelegate.getPublicKey());
+        recipientWallet.setAttribute("vote", recipientsDelegate.getPublicKey());
 
         walletRepo.index([sendersDelegate, recipientsDelegate, sendingWallet, recipientWallet]);
 
         const transferTransaction = factory
             .get("Transfer")
-            .withOptions({ amount, senderPublicKey: sendingWallet.publicKey, recipientId: recipientWallet.address })
+            .withOptions({
+                amount,
+                senderPublicKey: sendingWallet.getPublicKey(),
+                recipientId: recipientWallet.getAddress(),
+            })
             .make();
 
         // @ts-ignore
@@ -416,7 +424,11 @@ describe("BlockState", () => {
 
             multiPaymentTransaction = factory
                 .get("MultiPayment")
-                .withOptions({ amount, senderPublicKey: sendingWallet.publicKey, recipientId: recipientWallet.address })
+                .withOptions({
+                    amount,
+                    senderPublicKey: sendingWallet.getPublicKey(),
+                    recipientId: recipientWallet.getAddress(),
+                })
                 .make();
 
             // @ts-ignore
@@ -438,8 +450,8 @@ describe("BlockState", () => {
             // @ts-ignore
             multiPaymentTransaction.type = multiPaymentTransaction.data.type;
 
-            sendingWallet.setAttribute("vote", sendersDelegate.publicKey);
-            recipientWallet.setAttribute("vote", recipientsDelegate.publicKey);
+            sendingWallet.setAttribute("vote", sendersDelegate.getPublicKey());
+            recipientWallet.setAttribute("vote", recipientsDelegate.getPublicKey());
             walletRepo.index([sendersDelegate, recipientsDelegate, sendingWallet, recipientWallet]);
         });
 
@@ -515,7 +527,11 @@ describe("BlockState", () => {
 
         const delegateReg = factory
             .get("DelegateRegistration")
-            .withOptions({ username: "dummy", senderPublicKey: sender.publicKey, recipientId: recipientWallet.address })
+            .withOptions({
+                username: "dummy",
+                senderPublicKey: sender.getPublicKey(),
+                recipientId: recipientWallet.getAddress(),
+            })
             .make()
             // @ts-ignore
             .sign("delegatePassphrase")
@@ -537,7 +553,11 @@ describe("BlockState", () => {
 
         const delegateRes = factory
             .get("DelegateResignation")
-            .withOptions({ username: "dummy", senderPublicKey: sender.publicKey, recipientId: recipientWallet.address })
+            .withOptions({
+                username: "dummy",
+                senderPublicKey: sender.getPublicKey(),
+                recipientId: recipientWallet.getAddress(),
+            })
             .make()
             // @ts-ignore
             .sign("delegatePassphrase")
@@ -545,12 +565,12 @@ describe("BlockState", () => {
 
         const ipfs = factory
             .get("Ipfs")
-            .withOptions({ senderPublicKey: sender.publicKey, recipientId: recipientWallet.address })
+            .withOptions({ senderPublicKey: sender.getPublicKey(), recipientId: recipientWallet.getAddress() })
             .make();
 
         const htlcLock = factory
             .get("HtlcLock")
-            .withOptions({ senderPublicKey: sender.publicKey, recipientId: recipientWallet.address })
+            .withOptions({ senderPublicKey: sender.getPublicKey(), recipientId: recipientWallet.getAddress() })
             .make();
 
         const htlcRefund = factory
@@ -696,8 +716,8 @@ describe("BlockState", () => {
                 const recipientsDelegate = walletRepo.findByPublicKey(
                     "034151a3ec46b5670a682b0a63394f863587d1bc97483b1b6c70eb58e7f0aed192",
                 );
-                sender.setAttribute("vote", forgingWallet.publicKey);
-                recipientWallet.setAttribute("vote", recipientsDelegate.publicKey);
+                sender.setAttribute("vote", forgingWallet.getPublicKey());
+                recipientWallet.setAttribute("vote", recipientsDelegate.getPublicKey());
 
                 await blockState.applyTransaction(htlcClaimTransaction);
 
@@ -713,7 +733,7 @@ describe("BlockState", () => {
             });
 
             it("should update vote balances for lock transactions", async () => {
-                sender.setAttribute("vote", forgingWallet.publicKey);
+                sender.setAttribute("vote", forgingWallet.getPublicKey());
                 const forgingWalletBefore = Utils.BigNumber.ZERO;
                 forgingWallet.setAttribute("delegate.voteBalance", forgingWalletBefore);
 

@@ -19,18 +19,16 @@ export const buildDelegateAndVoteWallets = (numberDelegates: number, walletRepo:
     for (let i = 0; i < numberDelegates; i++) {
         const delegateKey = delegateKeys[i];
         const delegate = walletRepo.createWallet(Identities.Address.fromPublicKey(delegateKey));
-        delegate.publicKey = delegateKey;
+        delegate.setPublicKey(delegateKey);
         delegate.setAttribute("delegate.username", `delegate${i}`);
         delegate.setAttribute("delegate.voteBalance", CryptoUtils.BigNumber.ZERO);
 
-        const voter = walletRepo.createWallet(
-            Identities.Address.fromPublicKey(delegateKeys[numberDelegates - 1 - i]),
-        );
+        const voter = walletRepo.createWallet(Identities.Address.fromPublicKey(delegateKeys[numberDelegates - 1 - i]));
         const totalBalance = CryptoUtils.BigNumber.make(i + 1)
             .times(1000)
             .times(SATOSHI);
-        voter.balance = totalBalance.div(2);
-        voter.publicKey = `v${delegateKey}`;
+        voter.setBalance(totalBalance.div(2));
+        voter.setPublicKey(`v${delegateKey}`);
         voter.setAttribute("vote", delegateKey);
         // TODO: is this correct?
         // that buildVoteBalances should only be triggered if there is a htlc lockedBalance?

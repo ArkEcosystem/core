@@ -24,7 +24,7 @@ import {
     BridgechainRegistrationTransactionHandler,
     BridgechainUpdateTransactionHandler,
     BusinessRegistrationTransactionHandler,
-    EntityTransactionHandler
+    EntityTransactionHandler,
 } from "@packages/core-magistrate-transactions/src/handlers";
 import { Wallets } from "@packages/core-state";
 import { StateStore } from "@packages/core-state/src/stores/state";
@@ -126,7 +126,7 @@ describe("BusinessRegistration", () => {
             .build();
 
         senderWallet.setAttribute("business.businessAsset", businessRegistrationAsset);
-        senderWallet.nonce = Utils.BigNumber.make("1");
+        senderWallet.setNonce(Utils.BigNumber.make("1"));
 
         const businessAttributes = senderWallet.getAttribute("business");
 
@@ -305,7 +305,7 @@ describe("BusinessRegistration", () => {
 
     describe("apply", () => {
         it("should be ok", async () => {
-            const senderBalance = senderWallet.balance;
+            const senderBalance = senderWallet.getBalance();
 
             await handler.apply(bridgechainUpdateTransaction);
 
@@ -320,7 +320,7 @@ describe("BusinessRegistration", () => {
                 ...bridgechainUpdateAssetClone,
             });
 
-            expect(senderWallet.balance).toEqual(
+            expect(senderWallet.getBalance()).toEqual(
                 Utils.BigNumber.make(senderBalance)
                     .minus(bridgechainUpdateTransaction.data.amount)
                     .minus(bridgechainUpdateTransaction.data.fee),
@@ -343,7 +343,7 @@ describe("BusinessRegistration", () => {
 
     describe("revert", () => {
         it("should be ok", async () => {
-            const senderBalance = senderWallet.balance;
+            const senderBalance = senderWallet.getBalance();
 
             const bridgechainUpdateAssetClone = Object.assign({}, bridgechainUpdateAsset);
             delete bridgechainUpdateAssetClone.bridgechainId;
@@ -352,7 +352,7 @@ describe("BusinessRegistration", () => {
                 ...bridgechainRegistrationAsset,
                 ...bridgechainUpdateAssetClone,
             };
-            senderWallet.nonce = Utils.BigNumber.make("2");
+            senderWallet.setNonce(Utils.BigNumber.make("2"));
 
             const secondBridgechainUpdateAsset: IBridgechainUpdateAsset = {
                 bridgechainId: bridgechainRegistrationAsset.genesisHash,
@@ -404,7 +404,7 @@ describe("BusinessRegistration", () => {
                 ...bridgechainUpdateAssetClone,
             });
 
-            expect(senderWallet.balance).toEqual(senderBalance);
+            expect(senderWallet.getBalance()).toEqual(senderBalance);
         });
     });
 });

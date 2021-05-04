@@ -80,14 +80,14 @@ describe("DelegateSearchService.getDelegate", () => {
         const wallet1 = walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase("secret1"));
         wallet1.setAttribute("delegate", delegateAttribute1);
         walletRepository.index(wallet1);
-        const delegateResource1 = delegateSearchService.getDelegate(wallet1.address);
+        const delegateResource1 = delegateSearchService.getDelegate(wallet1.getAddress())!;
 
-        expect(delegateResource1.address).toBe(wallet1.address);
+        expect(delegateResource1.address).toBe(wallet1.getAddress());
     });
 
     it("should not get non-delegate wallet by address", () => {
         const wallet1 = walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase("secret1"));
-        const delegateResource1 = delegateSearchService.getDelegate(wallet1.address);
+        const delegateResource1 = delegateSearchService.getDelegate(wallet1.getAddress());
 
         expect(delegateResource1).toBe(undefined);
     });

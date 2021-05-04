@@ -35,7 +35,7 @@ beforeAll(() => {
 
             walletLocks[transaction.id] = {
                 amount: Utils.BigNumber.make(n * 10),
-                recipientId: wallet.address,
+                recipientId: wallet.getAddress(),
                 secretHash: transaction.id,
                 expiration:
                     j % 2 === 0

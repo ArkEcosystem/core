@@ -14,7 +14,7 @@ export const registerRoundFactory = (factory: FactoryBuilder): void => {
 
         return publicKeys.map((publicKey: string, i: number) => {
             const wallet = new Wallets.Wallet(Identities.Address.fromPublicKey(publicKey), knownAttributes);
-            wallet.publicKey = publicKey;
+            wallet.setPublicKey(publicKey);
 
             wallet.setAttribute("delegate", {
                 username: `genesis_${i + 1}`,

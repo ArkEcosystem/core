@@ -1,4 +1,4 @@
-import { Container, Contracts } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Transactions } from "@arkecosystem/crypto";
 
 import { One } from "../index";
@@ -13,7 +13,7 @@ export class TransferTransactionHandler extends One.TransferTransactionHandler {
         const transactions = await this.transactionRepository.findReceivedTransactions();
         for (const transaction of transactions) {
             const wallet: Contracts.State.Wallet = this.walletRepository.findByAddress(transaction.recipientId);
-            wallet.balance = wallet.balance.plus(transaction.amount);
+            wallet.increaseBalance(Utils.BigNumber.make(transaction.amount));
         }
     }
 }

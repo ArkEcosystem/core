@@ -17,6 +17,10 @@ class DelegateWalletMock {
         this.voteBalance = voteBalance;
     }
 
+    public getPublicKey(): string {
+        return this.publicKey;
+    }
+
     public getAttribute(key: string) {
         switch (key) {
             case "delegate.round":

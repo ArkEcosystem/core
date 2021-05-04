@@ -11,7 +11,7 @@ export const calculateActiveDelegates = () => {
             new Services.Attributes.AttributeMap(new Services.Attributes.AttributeSet()),
         );
 
-        wallet.publicKey = Identities.PublicKey.fromPassphrase(address);
+        wallet.setPublicKey(Identities.PublicKey.fromPassphrase(address));
         // @ts-ignore
         wallet.delegate = { username: `Username: ${address}` };
         // @ts-ignore
