@@ -81,14 +81,14 @@ export const tearDown = async (): Promise<void> => {
             delete walletAttributes.delegate;
         }
         return {
-            publicKey: wallet.publicKey,
-            balance: wallet.balance,
-            nonce: wallet.nonce,
+            publicKey: wallet.getPublicKey(),
+            balance: wallet.getBalance(),
+            nonce: wallet.getNonce(),
             attributes: walletAttributes,
         };
     };
     const sortWallets = (a: Contracts.State.Wallet, b: Contracts.State.Wallet) =>
-        a.publicKey!.localeCompare(b.publicKey!);
+        a.getPublicKey()!.localeCompare(b.getPublicKey()!);
 
     const allByPublicKey = walletRepository
         .allByPublicKey()

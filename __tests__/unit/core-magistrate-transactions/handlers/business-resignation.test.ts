@@ -13,7 +13,7 @@ import { MagistrateApplicationEvents } from "@packages/core-magistrate-transacti
 import {
     BusinessRegistrationTransactionHandler,
     BusinessResignationTransactionHandler,
-    EntityTransactionHandler
+    EntityTransactionHandler,
 } from "@packages/core-magistrate-transactions/src/handlers";
 import { MagistrateIndex } from "@packages/core-magistrate-transactions/src/wallet-indexes";
 import { Wallets } from "@packages/core-state";
@@ -177,7 +177,7 @@ describe("BusinessRegistration", () => {
         });
 
         it("should throw if wallet has insufficient balance", async () => {
-            senderWallet.balance = Utils.BigNumber.ZERO;
+            senderWallet.setBalance(Utils.BigNumber.ZERO);
             await expect(
                 handler.throwIfCannotBeApplied(businessResignationTransaction, senderWallet),
             ).rejects.toThrowError(InsufficientBalanceError);
@@ -200,9 +200,9 @@ describe("BusinessRegistration", () => {
 
     describe("apply", () => {
         it("should be ok", async () => {
-            const senderBalance = senderWallet.balance;
+            const senderBalance = senderWallet.getBalance();
 
-            expect(walletRepository.findByIndex(MagistrateIndex.Businesses, senderWallet.publicKey!)).toEqual(
+            expect(walletRepository.findByIndex(MagistrateIndex.Businesses, senderWallet.getPublicKey()!)).toEqual(
                 senderWallet,
             );
 
@@ -211,13 +211,13 @@ describe("BusinessRegistration", () => {
             expect(senderWallet.hasAttribute("business")).toBeTrue();
             expect(senderWallet.getAttribute("business.resigned")).toBeTrue();
 
-            expect(senderWallet.balance).toEqual(
+            expect(senderWallet.getBalance()).toEqual(
                 Utils.BigNumber.make(senderBalance)
                     .minus(businessResignationTransaction.data.amount)
                     .minus(businessResignationTransaction.data.fee),
             );
 
-            expect(walletRepository.findByIndex(MagistrateIndex.Businesses, senderWallet.publicKey!)).toEqual(
+            expect(walletRepository.findByIndex(MagistrateIndex.Businesses, senderWallet.getPublicKey()!)).toEqual(
                 senderWallet,
             );
         });
@@ -225,7 +225,7 @@ describe("BusinessRegistration", () => {
 
     describe("revert", () => {
         it("should be ok", async () => {
-            const senderBalance = senderWallet.balance;
+            const senderBalance = senderWallet.getBalance();
 
             await handler.apply(businessResignationTransaction);
 
@@ -234,7 +234,7 @@ describe("BusinessRegistration", () => {
             await handler.revert(businessResignationTransaction);
 
             expect(senderWallet.hasAttribute("business.resigned")).toBeFalse();
-            expect(senderWallet.balance).toEqual(Utils.BigNumber.make(senderBalance));
+            expect(senderWallet.getBalance()).toEqual(Utils.BigNumber.make(senderBalance));
         });
     });
 });

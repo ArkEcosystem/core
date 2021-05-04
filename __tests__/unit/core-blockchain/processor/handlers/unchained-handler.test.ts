@@ -71,15 +71,17 @@ describe("UnchainedHandler", () => {
                     },
                 };
                 blockchain.getLastBlock = jest.fn().mockReturnValueOnce(lastBlock);
-                roundState.getActiveDelegates = jest
-                    .fn()
-                    .mockResolvedValueOnce(
-                        [
-                            block.data.generatorPublicKey,
-                            "02aea83a44f1d6b073e5bcffb4176bbe3c51dcd0e96a793a88f3a6135600224adf",
-                            "03a3c6fd74a23fbe1e02f08d9c626ebb255b48de7ba8c283ee27c9303be81a2933",
-                        ].map((publicKey) => ({ publicKey })),
-                    );
+                roundState.getActiveDelegates = jest.fn().mockResolvedValueOnce(
+                    [
+                        block.data.generatorPublicKey,
+                        "02aea83a44f1d6b073e5bcffb4176bbe3c51dcd0e96a793a88f3a6135600224adf",
+                        "03a3c6fd74a23fbe1e02f08d9c626ebb255b48de7ba8c283ee27c9303be81a2933",
+                    ].map((publicKey) => ({
+                        getPublicKey: () => {
+                            return publicKey;
+                        },
+                    })),
+                );
 
                 const result = await unchainedHandler.execute(block as Interfaces.IBlock);
 
@@ -100,14 +102,16 @@ describe("UnchainedHandler", () => {
                     },
                 };
                 blockchain.getLastBlock = jest.fn().mockReturnValueOnce(lastBlock);
-                roundState.getActiveDelegates = jest
-                    .fn()
-                    .mockResolvedValueOnce(
-                        [
-                            "02aea83a44f1d6b073e5bcffb4176bbe3c51dcd0e96a793a88f3a6135600224adf",
-                            "03a3c6fd74a23fbe1e02f08d9c626ebb255b48de7ba8c283ee27c9303be81a2933",
-                        ].map((publicKey) => ({ publicKey })),
-                    );
+                roundState.getActiveDelegates = jest.fn().mockResolvedValueOnce(
+                    [
+                        "02aea83a44f1d6b073e5bcffb4176bbe3c51dcd0e96a793a88f3a6135600224adf",
+                        "03a3c6fd74a23fbe1e02f08d9c626ebb255b48de7ba8c283ee27c9303be81a2933",
+                    ].map((publicKey) => ({
+                        getPublicKey: () => {
+                            return publicKey;
+                        },
+                    })),
+                );
 
                 const result = await unchainedHandler.execute(block as Interfaces.IBlock);
 

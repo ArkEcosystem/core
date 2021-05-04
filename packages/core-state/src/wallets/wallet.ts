@@ -1,53 +1,105 @@
 import { Contracts, Services } from "@arkecosystem/core-kernel";
 import { Utils } from "@arkecosystem/crypto";
+
 import { WalletEvent } from "./wallet-event";
 
 export class Wallet implements Contracts.State.Wallet {
-    /**
-     * @type {(string | undefined)}
-     * @memberof Wallet
-     */
-    public publicKey: string | undefined;
+    protected publicKey: string | undefined;
+    protected balance: Utils.BigNumber = Utils.BigNumber.ZERO;
+    protected nonce: Utils.BigNumber = Utils.BigNumber.ZERO;
 
-    /**
-     * @type {Utils.BigNumber}
-     * @memberof Wallet
-     */
-    public balance: Utils.BigNumber = Utils.BigNumber.ZERO;
-
-    /**
-     * @type {Utils.BigNumber}
-     * @memberof Wallet
-     */
-    public nonce: Utils.BigNumber = Utils.BigNumber.ZERO;
-
-    /**
-     * @param {string} address
-     * @memberof Wallet
-     */
     public constructor(
-        public readonly address: string,
+        protected readonly address: string,
         protected readonly attributes: Services.Attributes.AttributeMap,
         protected readonly events?: Contracts.Kernel.EventDispatcher,
-    ) {
-        const proxy = new Proxy<Wallet>(this, {
-            set: (_, key, value): boolean => {
-                const previousValue = this[key];
-                this[key] = value;
+    ) {}
 
-                this.events?.dispatchSync(WalletEvent.PropertySet, {
-                    publicKey: undefined,
-                    key,
-                    value,
-                    previousValue,
-                    wallet: this,
-                });
+    public getAddress(): string {
+        return this.address;
+    }
 
-                return true;
-            },
+    public getPublicKey(): string | undefined {
+        return this.publicKey;
+    }
+
+    public setPublicKey(publicKey: string): void {
+        const previousValue = this.publicKey;
+
+        this.publicKey = publicKey;
+
+        this.events?.dispatchSync(WalletEvent.PropertySet, {
+            publicKey: this.publicKey,
+            key: "publicKey",
+            value: publicKey,
+            previousValue,
+            wallet: this,
         });
+    }
 
-        return proxy;
+    public getBalance(): Utils.BigNumber {
+        return this.balance;
+    }
+
+    public setBalance(balance: Utils.BigNumber): void {
+        const previousValue = this.balance;
+
+        this.balance = balance;
+
+        this.events?.dispatchSync(WalletEvent.PropertySet, {
+            publicKey: this.publicKey,
+            key: "balance",
+            value: balance,
+            previousValue,
+            wallet: this,
+        });
+    }
+
+    public getNonce(): Utils.BigNumber {
+        return this.nonce;
+    }
+
+    public setNonce(nonce: Utils.BigNumber): void {
+        const previousValue = this.nonce;
+
+        this.nonce = nonce;
+
+        this.events?.dispatchSync(WalletEvent.PropertySet, {
+            publicKey: this.publicKey,
+            key: "nonce",
+            value: nonce,
+            previousValue,
+            wallet: this,
+        });
+    }
+
+    public increaseBalance(balance: Utils.BigNumber): Contracts.State.Wallet {
+        this.setBalance(this.balance.plus(balance));
+
+        return this;
+    }
+
+    public decreaseBalance(balance: Utils.BigNumber): Contracts.State.Wallet {
+        this.setBalance(this.balance.minus(balance));
+
+        return this;
+    }
+
+    public increaseNonce(): void {
+        this.setNonce(this.nonce.plus(Utils.BigNumber.ONE));
+    }
+
+    public decreaseNonce(): void {
+        this.setNonce(this.nonce.minus(Utils.BigNumber.ONE));
+    }
+
+    public getData(): Contracts.State.WalletData {
+        return {
+            address: this.address,
+            publicKey: this.publicKey,
+            balance: this.balance,
+            nonce: this.nonce,
+            attributes: this.attributes,
+        };
     }
 
     /**

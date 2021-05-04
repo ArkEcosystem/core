@@ -217,8 +217,8 @@ export const setUp = async (setUpOptions = setUpDefaults, skipBoot = false): Pro
             return dispatchSpy(data);
         }
 
-        public dispatchSync(data) {
-            return dispatchSyncSpy(data);
+        public dispatchSync(...data) {
+            return dispatchSyncSpy(...data);
         }
     }
 

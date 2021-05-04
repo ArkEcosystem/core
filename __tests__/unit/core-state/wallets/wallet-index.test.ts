@@ -17,7 +17,7 @@ beforeAll(async () => {
 beforeEach(() => {
     wallet = factory.make<Wallets.Wallet>();
     walletIndex = new WalletIndex((index, wallet) => {
-        index.set(wallet.address, wallet);
+        index.set(wallet.getAddress(), wallet);
     }, true);
 });
 
@@ -26,36 +26,36 @@ describe("WalletIndex", () => {
         walletIndex.index(wallet);
         const entries = walletIndex.entries();
         expect(entries.length).toEqual(1);
-        expect(entries[0][0]).toEqual(entries[0][1].address);
-        expect(entries[0][0]).toEqual(wallet.address);
+        expect(entries[0][0]).toEqual(entries[0][1].getAddress());
+        expect(entries[0][0]).toEqual(wallet.getAddress());
     });
 
     it("should return keys", () => {
         walletIndex.index(wallet);
-        expect(walletIndex.keys()).toContain(wallet.address);
+        expect(walletIndex.keys()).toContain(wallet.getAddress());
     });
 
     it("should return walletKeys", () => {
         expect(walletIndex.walletKeys(wallet)).toEqual([]);
 
         walletIndex.index(wallet);
-        expect(walletIndex.walletKeys(wallet)).toEqual([wallet.address]);
+        expect(walletIndex.walletKeys(wallet)).toEqual([wallet.getAddress()]);
     });
 
     describe("set", () => {
         it("should set and get addresses", () => {
-            expect(walletIndex.has(wallet.address)).toBeFalse();
+            expect(walletIndex.has(wallet.getAddress())).toBeFalse();
 
             walletIndex.index(wallet);
-            walletIndex.set(wallet.address, wallet);
+            walletIndex.set(wallet.getAddress(), wallet);
 
-            expect(walletIndex.get(wallet.address)).toBe(wallet);
-            expect(walletIndex.has(wallet.address)).toBeTrue();
+            expect(walletIndex.get(wallet.getAddress())).toBe(wallet);
+            expect(walletIndex.has(wallet.getAddress())).toBeTrue();
 
             expect(walletIndex.values()).toContain(wallet);
 
             walletIndex.clear();
-            expect(walletIndex.has(wallet.address)).toBeFalse();
+            expect(walletIndex.has(wallet.getAddress())).toBeFalse();
         });
 
         it("should override key with new wallet", () => {
@@ -73,27 +73,27 @@ describe("WalletIndex", () => {
 
     describe("forget", () => {
         it("should index and forget wallets", () => {
-            expect(walletIndex.has(wallet.address)).toBeFalse();
+            expect(walletIndex.has(wallet.getAddress())).toBeFalse();
 
             walletIndex.index(wallet);
-            expect(walletIndex.has(wallet.address)).toBeTrue();
+            expect(walletIndex.has(wallet.getAddress())).toBeTrue();
 
-            walletIndex.forget(wallet.address);
-            expect(walletIndex.has(wallet.address)).toBeFalse();
+            walletIndex.forget(wallet.getAddress());
+            expect(walletIndex.has(wallet.getAddress())).toBeFalse();
         });
 
         it("should not throw if key is not indexed", () => {
-            walletIndex.forget(wallet.address);
+            walletIndex.forget(wallet.getAddress());
         });
     });
 
     describe("forgetWallet", () => {
         it("should forget wallet", () => {
             walletIndex.index(wallet);
-            expect(walletIndex.get(wallet.address)).toBe(wallet);
+            expect(walletIndex.get(wallet.getAddress())).toBe(wallet);
 
             walletIndex.forgetWallet(wallet);
-            expect(walletIndex.get(wallet.address)).toBeUndefined();
+            expect(walletIndex.get(wallet.getAddress())).toBeUndefined();
         });
 
         it("should not throw if wallet is not indexed", () => {

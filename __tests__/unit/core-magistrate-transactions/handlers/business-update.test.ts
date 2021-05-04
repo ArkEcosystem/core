@@ -177,7 +177,7 @@ describe("BusinessRegistration", () => {
         });
 
         it("should throw if wallet has insufficient balance", async () => {
-            senderWallet.balance = Utils.BigNumber.ZERO;
+            senderWallet.setBalance(Utils.BigNumber.ZERO);
             await expect(handler.throwIfCannotBeApplied(businessUpdateTransaction, senderWallet)).rejects.toThrowError(
                 InsufficientBalanceError,
             );
@@ -200,13 +200,13 @@ describe("BusinessRegistration", () => {
 
     describe("apply", () => {
         it("should be ok", async () => {
-            const senderBalance = senderWallet.balance;
+            const senderBalance = senderWallet.getBalance();
 
             await handler.apply(businessUpdateTransaction);
 
             expect(senderWallet.getAttribute("business.businessAsset")).toEqual(businessUpdateAsset);
 
-            expect(senderWallet.balance).toEqual(
+            expect(senderWallet.getBalance()).toEqual(
                 Utils.BigNumber.make(senderBalance)
                     .minus(businessUpdateTransaction.data.amount)
                     .minus(businessUpdateTransaction.data.fee),
@@ -221,7 +221,7 @@ describe("BusinessRegistration", () => {
     });
     describe("revert", () => {
         it("should be ok", async () => {
-            const senderBalance = senderWallet.balance;
+            const senderBalance = senderWallet.getBalance();
 
             await handler.apply(businessUpdateTransaction);
 
@@ -238,7 +238,7 @@ describe("BusinessRegistration", () => {
             await handler.revert(businessUpdateTransaction);
 
             expect(senderWallet.getAttribute("business.businessAsset")).toEqual(businessRegistrationAsset);
-            expect(senderWallet.balance).toEqual(Utils.BigNumber.make(senderBalance));
+            expect(senderWallet.getBalance()).toEqual(Utils.BigNumber.make(senderBalance));
         });
 
         it("should be ok with second update transaction", async () => {
@@ -247,7 +247,7 @@ describe("BusinessRegistration", () => {
                 ...businessUpdateAsset,
             });
 
-            const senderBalance = senderWallet.balance;
+            const senderBalance = senderWallet.getBalance();
 
             const businessRegistrationTransaction = new BusinessRegistrationBuilder()
                 .businessRegistrationAsset(businessRegistrationAsset)
@@ -288,7 +288,7 @@ describe("BusinessRegistration", () => {
                 ...businessRegistrationAsset,
                 ...businessUpdateAsset,
             });
-            expect(senderWallet.balance).toEqual(Utils.BigNumber.make(senderBalance));
+            expect(senderWallet.getBalance()).toEqual(Utils.BigNumber.make(senderBalance));
         });
     });
 });

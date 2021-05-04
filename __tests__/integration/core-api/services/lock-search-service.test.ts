@@ -1,6 +1,6 @@
-import { LockSearchService, Identifiers as ApiIdentifiers } from "@arkecosystem/core-api/src";
+import { Identifiers as ApiIdentifiers, LockSearchService } from "@arkecosystem/core-api/src";
 import { Container, Contracts } from "@arkecosystem/core-kernel";
-import { Identities, Utils, Enums } from "@arkecosystem/crypto";
+import { Enums, Identities, Utils } from "@arkecosystem/crypto";
 
 import { setUp } from "./__support__/setup";
 
@@ -127,7 +127,7 @@ describe("LockSearchService.getWalletLocksPage", () => {
         const locksPage = lockSearchService.getWalletLocksPage(
             { offset: 0, limit: 100 },
             [{ property: "amount", direction: "asc" }],
-            wallet1.address,
+            wallet1.getAddress(),
         );
 
         expect(locksPage.totalCount).toBe(2);
@@ -144,7 +144,7 @@ describe("LockSearchService.getWalletLocksPage", () => {
         const locksPage = lockSearchService.getWalletLocksPage(
             { offset: 0, limit: 100 },
             [{ property: "amount", direction: "asc" }],
-            wallet1.address,
+            wallet1.getAddress(),
             { amount: "1000" },
         );
 
@@ -165,7 +165,7 @@ describe("LockSearchService.getWalletLocksPage", () => {
         const locksPage = lockSearchService.getWalletLocksPage(
             { offset: 0, limit: 100 },
             [{ property: "amount", direction: "asc" }],
-            wallet1.address,
+            wallet1.getAddress(),
         );
 
         expect(locksPage.totalCount).toBe(1);

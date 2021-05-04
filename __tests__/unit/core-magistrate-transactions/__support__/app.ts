@@ -201,8 +201,8 @@ export const buildSenderWallet = (app: Application): Contracts.State.Wallet => {
         Identities.Address.fromPassphrase(passphrases[0]),
     );
 
-    wallet.publicKey = Identities.PublicKey.fromPassphrase(passphrases[0]);
-    wallet.balance = Utils.BigNumber.make(7527654310);
+    wallet.setPublicKey(Identities.PublicKey.fromPassphrase(passphrases[0]));
+    wallet.setBalance(Utils.BigNumber.make(7527654310));
 
     return wallet;
 };
@@ -225,7 +225,7 @@ export const buildSecondSignatureWallet = (factoryBuilder: FactoryBuilder): Wall
         })
         .make();
 
-    wallet.balance = Utils.BigNumber.make(7527654310);
+    wallet.setBalance(Utils.BigNumber.make(7527654310));
     wallet.setAttribute("secondPublicKey", "038082dad560a22ea003022015e3136b21ef1ffd9f2fd50049026cbe8e2258ca17");
 
     return wallet;
@@ -242,8 +242,8 @@ export const buildMultiSignatureWallet = (): Wallets.Wallet => {
     };
 
     const wallet = new Wallets.Wallet(Identities.Address.fromMultiSignatureAsset(multiSignatureAsset), knownAttributes);
-    wallet.publicKey = Identities.PublicKey.fromMultiSignatureAsset(multiSignatureAsset);
-    wallet.balance = Utils.BigNumber.make(100390000000);
+    wallet.setPublicKey(Identities.PublicKey.fromMultiSignatureAsset(multiSignatureAsset));
+    wallet.setBalance(Utils.BigNumber.make(100390000000));
     wallet.setAttribute("multiSignature", multiSignatureAsset);
 
     return wallet;

@@ -49,8 +49,8 @@ export class BlockWithTransactionsResource implements Resource {
                 username: generator.hasAttribute("delegate.username")
                     ? generator.getAttribute("delegate.username")
                     : undefined,
-                address: generator.address,
-                publicKey: generator.publicKey,
+                address: generator.getAddress(),
+                publicKey: generator.getPublicKey(),
             },
             signature: blockData.blockSignature,
             confirmations: lastBlock ? lastBlock.data.height - blockData.height : 0,

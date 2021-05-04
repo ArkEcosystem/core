@@ -102,18 +102,28 @@ describe("InternalController", () => {
 
         it("should return the info of the current round", async () => {
             blockchain.getLastBlock = jest.fn().mockReturnValueOnce(block);
+
             const delegates = [
                 {
-                    publicKey: "026c598170201caf0357f202ff14f365a3b09322071e347873869f58d776bfc565",
+                    getData: () => {
+                        return {
+                            publicKey: "026c598170201caf0357f202ff14f365a3b09322071e347873869f58d776bfc565",
+                            delegate: "delegate1",
+                        };
+                    },
                     getAttribute: () => "delegate1",
-                    delegate: "delegate1",
                 },
                 {
-                    publicKey: "026c740930201caf0357f202ff14f365a3b09322071e347873869f58d776bfc565",
+                    getData: () => {
+                        return {
+                            publicKey: "026c740930201caf0357f202ff14f365a3b09322071e347873869f58d776bfc565",
+                            delegate: "delegate2",
+                        };
+                    },
                     getAttribute: () => "delegate2",
-                    delegate: "delegate2",
                 },
             ];
+
             databaseInteractions.getActiveDelegates = jest.fn().mockReturnValueOnce(delegates);
             const forgingInfo = {
                 blockTimestamp: 97456,
@@ -127,13 +137,17 @@ describe("InternalController", () => {
 
             const currentRound = await internalController.getCurrentRound({}, {});
 
+            const delegatesData = delegates.map((delegate) => {
+                return delegate.getData();
+            });
+
             expect(currentRound).toEqual({
                 current: roundInfo.round,
                 reward: 0,
                 timestamp: forgingInfo.blockTimestamp,
-                delegates,
-                currentForger: delegates[forgingInfo.currentForger],
-                nextForger: delegates[forgingInfo.nextForger],
+                delegates: delegatesData,
+                currentForger: delegatesData[forgingInfo.currentForger],
+                nextForger: delegatesData[forgingInfo.nextForger],
                 lastBlock: block.data,
                 canForge: forgingInfo.canForge,
             });

@@ -124,7 +124,7 @@ describe("Htlc refund", () => {
                     secretHash: htlcSecretHashHex,
                     expiration: expiration,
                 })
-                .recipientId(recipientWallet.address)
+                .recipientId(recipientWallet.getAddress())
                 .amount(amount.toString())
                 .nonce("1")
                 // .vendorField("dummy")
@@ -165,7 +165,7 @@ describe("Htlc refund", () => {
                     lockTransactionId: htlcLockTransaction.id!,
                 })
                 .nonce("1")
-                .senderPublicKey(multiSignatureWallet.publicKey!)
+                .senderPublicKey(multiSignatureWallet.getPublicKey()!)
                 .multiSign(passphrases[0], 0)
                 .multiSign(passphrases[1], 1)
                 .multiSign(passphrases[2], 2)
@@ -269,7 +269,7 @@ describe("Htlc refund", () => {
                         secretHash: htlcSecretHashHex,
                         expiration: expiration,
                     })
-                    .recipientId(recipientWallet.address)
+                    .recipientId(recipientWallet.getAddress())
                     .amount(amount.toString())
                     .nonce("1")
                     .sign(lockPassphrase)
@@ -375,7 +375,7 @@ describe("Htlc refund", () => {
             it("should apply htlc refund transaction", async () => {
                 await expect(handler.throwIfCannotBeApplied(htlcRefundTransaction, lockWallet)).toResolve();
 
-                const balanceBefore = lockWallet.balance;
+                const balanceBefore = lockWallet.getBalance();
 
                 // @ts-ignore
                 expect(lockWallet.getAttribute("htlc.locks")[htlcLockTransaction.id]).toBeDefined();
@@ -384,7 +384,7 @@ describe("Htlc refund", () => {
                 await handler.apply(htlcRefundTransaction);
 
                 expect(lockWallet.hasAttribute("htlc")).toBe(false);
-                expect(lockWallet.balance).toEqual(
+                expect(lockWallet.getBalance()).toEqual(
                     balanceBefore.plus(htlcLockTransaction.data.amount).minus(htlcRefundTransaction.data.fee),
                 );
             });
@@ -392,7 +392,7 @@ describe("Htlc refund", () => {
             it("should apply htlc refund transaction if lockWallet contains another locks", async () => {
                 await expect(handler.throwIfCannotBeApplied(htlcRefundTransaction, lockWallet)).toResolve();
 
-                const balanceBefore = lockWallet.balance;
+                const balanceBefore = lockWallet.getBalance();
 
                 lockWallet.setAttribute("htlc.lockedBalance", Utils.BigNumber.make(amount).plus(amount));
                 lockWallet.setAttribute("htlc.locks", {
@@ -411,13 +411,15 @@ describe("Htlc refund", () => {
                 walletRepository.index(lockWallet);
                 // @ts-ignore
                 expect(lockWallet.getAttribute("htlc.locks")[htlcLockTransaction.id]).toBeDefined();
-                expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(htlcLockTransaction.data.amount.plus(amount));
+                expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(
+                    htlcLockTransaction.data.amount.plus(amount),
+                );
 
                 await handler.apply(htlcRefundTransaction);
 
                 expect(lockWallet.hasAttribute("htlc.locks")).toBeTrue();
                 expect(lockWallet.getAttribute("htlc.locks")).toContainKey("dummy_id");
-                expect(lockWallet.balance).toEqual(
+                expect(lockWallet.getBalance()).toEqual(
                     balanceBefore.plus(htlcLockTransaction.data.amount).minus(htlcRefundTransaction.data.fee),
                 );
             });
@@ -451,7 +453,7 @@ describe("Htlc refund", () => {
 
                 await expect(handler.throwIfCannotBeApplied(htlcRefundTransaction, dummyWallet)).toResolve();
 
-                const balanceBefore = lockWallet.balance;
+                const balanceBefore = lockWallet.getBalance();
 
                 // @ts-ignore
                 expect(lockWallet.getAttribute("htlc.locks")[htlcLockTransaction.id]).toBeDefined();
@@ -460,7 +462,7 @@ describe("Htlc refund", () => {
                 await handler.apply(htlcRefundTransaction);
 
                 expect(lockWallet.hasAttribute("htlc")).toBe(false);
-                expect(lockWallet.balance).toEqual(
+                expect(lockWallet.getBalance()).toEqual(
                     balanceBefore.plus(htlcLockTransaction.data.amount).minus(htlcRefundTransaction.data.fee),
                 );
             });
@@ -492,13 +494,13 @@ describe("Htlc refund", () => {
                 await expect(handler.throwIfCannotBeApplied(htlcRefundTransaction, lockWallet)).toResolve();
 
                 Mocks.TransactionRepository.setTransactions([Mapper.mapTransactionToModel(htlcLockTransaction)]);
-                const balanceBefore = lockWallet.balance;
+                const balanceBefore = lockWallet.getBalance();
 
                 await handler.apply(htlcRefundTransaction);
 
                 // @ts-ignore
                 expect(lockWallet.hasAttribute("htlc")).toBe(false);
-                expect(lockWallet.balance).toEqual(
+                expect(lockWallet.getBalance()).toEqual(
                     balanceBefore.plus(htlcLockTransaction.data.amount).minus(htlcRefundTransaction.data.fee),
                 );
 
@@ -516,7 +518,7 @@ describe("Htlc refund", () => {
                 });
 
                 expect(foundLockWallet.getAttribute("htlc.lockedBalance")).toEqual(htlcLockTransaction.data.amount);
-                expect(foundLockWallet.balance).toEqual(balanceBefore);
+                expect(foundLockWallet.getBalance()).toEqual(balanceBefore);
             });
 
             it("should be ok if lcok transaction has vendor field", async () => {
@@ -525,13 +527,13 @@ describe("Htlc refund", () => {
                 await expect(handler.throwIfCannotBeApplied(htlcRefundTransaction, lockWallet)).toResolve();
 
                 Mocks.TransactionRepository.setTransactions([Mapper.mapTransactionToModel(htlcLockTransaction)]);
-                const balanceBefore = lockWallet.balance;
+                const balanceBefore = lockWallet.getBalance();
 
                 await handler.apply(htlcRefundTransaction);
 
                 // @ts-ignore
                 expect(lockWallet.hasAttribute("htlc")).toBe(false);
-                expect(lockWallet.balance).toEqual(
+                expect(lockWallet.getBalance()).toEqual(
                     balanceBefore.plus(htlcLockTransaction.data.amount).minus(htlcRefundTransaction.data.fee),
                 );
 
@@ -544,7 +546,7 @@ describe("Htlc refund", () => {
                 expect(foundLockWallet).toBeDefined();
 
                 expect(foundLockWallet.getAttribute("htlc.lockedBalance")).toEqual(htlcLockTransaction.data.amount);
-                expect(foundLockWallet.balance).toEqual(balanceBefore);
+                expect(foundLockWallet.getBalance()).toEqual(balanceBefore);
             });
 
             it("should throw if asset is undefined", async () => {

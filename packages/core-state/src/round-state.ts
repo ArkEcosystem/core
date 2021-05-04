@@ -90,7 +90,7 @@ export class RoundState {
             delegates = (await this.databaseService.getRound(roundInfo.round)).map(({ publicKey, balance }) => {
                 // ! find wallet by public key and clone it
                 const wallet = this.walletRepository.createWallet(Identities.Address.fromPublicKey(publicKey));
-                wallet.publicKey = publicKey;
+                wallet.setPublicKey(publicKey);
 
                 const delegate = {
                     voteBalance: Utils.BigNumber.make(balance),
@@ -129,7 +129,9 @@ export class RoundState {
             const delegate: Contracts.State.Wallet = this.forgingDelegates[missedSlot % this.forgingDelegates.length];
 
             this.logger.debug(
-                `Delegate ${delegate.getAttribute("delegate.username")} (${delegate.publicKey}) just missed a block.`,
+                `Delegate ${delegate.getAttribute(
+                    "delegate.username",
+                )} (${delegate.getPublicKey()}) just missed a block.`,
             );
 
             this.events.dispatch(Enums.ForgerEvent.Missing, {
@@ -178,14 +180,16 @@ export class RoundState {
     private detectMissedRound(): void {
         for (const delegate of this.forgingDelegates) {
             const isBlockProduced = this.blocksInCurrentRound.some(
-                (blockGenerator) => blockGenerator.data.generatorPublicKey === delegate.publicKey,
+                (blockGenerator) => blockGenerator.data.generatorPublicKey === delegate.getPublicKey(),
             );
 
             if (!isBlockProduced) {
-                const wallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(delegate.publicKey!);
+                const wallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(delegate.getPublicKey()!);
 
                 this.logger.debug(
-                    `Delegate ${wallet.getAttribute("delegate.username")} (${wallet.publicKey}) just missed a round.`,
+                    `Delegate ${wallet.getAttribute(
+                        "delegate.username",
+                    )} (${wallet.getPublicKey()}) just missed a round.`,
                 );
 
                 this.events.dispatch(Enums.RoundEvent.Missed, {

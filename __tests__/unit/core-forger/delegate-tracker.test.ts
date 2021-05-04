@@ -60,7 +60,7 @@ describe("DelegateTracker", () => {
 
             expect(loggerDebug).toHaveBeenCalledWith(
                 `Next Forgers: ${JSON.stringify(
-                    activeDelegates.slice(2, 7).map((delegate: Wallet) => delegate.publicKey),
+                    activeDelegates.slice(2, 7).map((delegate: Wallet) => delegate.getPublicKey()),
                 )}`,
             );
 

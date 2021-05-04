@@ -119,16 +119,16 @@ export class BusinessUpdateTransactionHandler extends MagistrateTransactionHandl
         // Here we have to "replay" all business registration and update transactions
         // (except the current one being reverted) to rebuild previous wallet state.
         const sender: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.data.senderPublicKey);
-        AppUtils.assert.defined<string>(sender.publicKey);
+        AppUtils.assert.defined<string>(sender.getPublicKey());
 
         const businessTransactions = await this.transactionHistoryService.findManyByCriteria([
             {
-                senderPublicKey: sender.publicKey,
+                senderPublicKey: sender.getPublicKey()!,
                 typeGroup: Enums.MagistrateTransactionGroup,
                 type: Enums.MagistrateTransactionType.BusinessRegistration,
             },
             {
-                senderPublicKey: sender.publicKey,
+                senderPublicKey: sender.getPublicKey()!,
                 typeGroup: Enums.MagistrateTransactionGroup,
                 type: Enums.MagistrateTransactionType.BusinessUpdate,
             },

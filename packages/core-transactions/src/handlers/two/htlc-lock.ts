@@ -44,8 +44,8 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
             const recipientWallet: Contracts.State.Wallet = this.walletRepository.findByAddress(
                 transaction.recipientId,
             );
-            walletsToIndex[wallet.address] = wallet;
-            walletsToIndex[recipientWallet.address] = recipientWallet;
+            walletsToIndex[wallet.getAddress()] = wallet;
+            walletsToIndex[recipientWallet.getAddress()] = recipientWallet;
 
             wallet.setAttribute("htlc.locks", locks);
             wallet.setAttribute("htlc.lockedBalance", lockedBalance);

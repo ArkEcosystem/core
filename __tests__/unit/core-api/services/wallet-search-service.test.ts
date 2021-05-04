@@ -34,10 +34,18 @@ beforeEach(() => {
 });
 
 const wallet = {
-    address: "APTzMNCTPsDj6VcL8egi2weXJFgHGmCZGp",
-    publicKey: "028fe98e42e159f2450a52371dfb23ae69a39fc5fee6545690b7f51bfcee933357",
-    balance: Utils.BigNumber.make("5972178214140"),
-    nonce: Utils.BigNumber.make("1"),
+    getAddress: () => {
+        return "APTzMNCTPsDj6VcL8egi2weXJFgHGmCZGp";
+    },
+    getPublicKey: () => {
+        return "028fe98e42e159f2450a52371dfb23ae69a39fc5fee6545690b7f51bfcee933357";
+    },
+    getBalance: () => {
+        return Utils.BigNumber.make("5972178214140");
+    },
+    getNonce: () => {
+        return Utils.BigNumber.make("1");
+    },
     getAttributes: () => ({
         delegate: {
             username: "binance_staking",
@@ -70,10 +78,10 @@ const wallet = {
 };
 
 const walletResource = {
-    address: wallet.address,
-    publicKey: wallet.publicKey,
-    balance: wallet.balance,
-    nonce: wallet.nonce,
+    address: wallet.getAddress(),
+    publicKey: wallet.getPublicKey(),
+    balance: wallet.getBalance(),
+    nonce: wallet.getNonce(),
     attributes: wallet.getAttributes(),
 };
 
@@ -83,10 +91,10 @@ describe("WalletSearchService", () => {
             walletRepository.hasByAddress.mockReturnValueOnce(true);
             walletRepository.findByAddress.mockReturnValueOnce(wallet as any);
 
-            const result = walletSearchService.getWallet(wallet.address);
+            const result = walletSearchService.getWallet(wallet.getAddress());
 
-            expect(walletRepository.hasByAddress).toBeCalledWith(wallet.address);
-            expect(walletRepository.findByAddress).toBeCalledWith(wallet.address);
+            expect(walletRepository.hasByAddress).toBeCalledWith(wallet.getAddress());
+            expect(walletRepository.findByAddress).toBeCalledWith(wallet.getAddress());
             expect(result).toEqual(walletResource);
         });
 
@@ -95,10 +103,10 @@ describe("WalletSearchService", () => {
             walletRepository.hasByPublicKey.mockReturnValueOnce(true);
             walletRepository.findByPublicKey.mockReturnValueOnce(wallet as any);
 
-            const result = walletSearchService.getWallet(wallet.publicKey);
+            const result = walletSearchService.getWallet(wallet.getPublicKey());
 
-            expect(walletRepository.hasByPublicKey).toBeCalledWith(wallet.publicKey);
-            expect(walletRepository.findByPublicKey).toBeCalledWith(wallet.publicKey);
+            expect(walletRepository.hasByPublicKey).toBeCalledWith(wallet.getPublicKey());
+            expect(walletRepository.findByPublicKey).toBeCalledWith(wallet.getPublicKey());
             expect(result).toEqual(walletResource);
         });
 

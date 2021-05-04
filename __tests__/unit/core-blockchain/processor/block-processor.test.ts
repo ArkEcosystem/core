@@ -307,7 +307,9 @@ describe("BlockProcessor", () => {
                 .mockReturnValueOnce(generatorWallet)
                 .mockReturnValueOnce(generatorWallet);
             const notBlockGenerator = {
-                publicKey: "02ff171adaef486b7db9fc160b28433d20cf43163d56fd28fee72145f0d5219a4b",
+                getPublicKey: () => {
+                    return "02ff171adaef486b7db9fc160b28433d20cf43163d56fd28fee72145f0d5219a4b";
+                },
             };
 
             const activeDelegatesWithoutGenerator = [];

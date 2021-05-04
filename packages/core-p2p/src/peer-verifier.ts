@@ -418,8 +418,8 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
 
         const delegatesByPublicKey: Record<string, Contracts.State.Wallet> = {};
         for (const delegate of delegates) {
-            Utils.assert.defined<string>(delegate.publicKey);
-            delegatesByPublicKey[delegate.publicKey] = delegate;
+            Utils.assert.defined<string>(delegate.getPublicKey());
+            delegatesByPublicKey[delegate.getPublicKey()!] = delegate;
         }
         return delegatesByPublicKey;
     }
