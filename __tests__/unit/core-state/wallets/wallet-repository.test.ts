@@ -281,11 +281,11 @@ describe("Wallet Repository", () => {
         );
     });
 
-    describe("valuesByIndex", () => {
+    describe("allByIndex", () => {
         it("should return values on index", () => {
             const wallet = walletRepo.findByAddress("address");
 
-            expect(walletRepo.valuesByIndex("addresses")).toEqual([wallet]);
+            expect(walletRepo.allByIndex("addresses")).toEqual([wallet]);
         });
     });
 
@@ -294,18 +294,18 @@ describe("Wallet Repository", () => {
             const wallet = walletRepo.findByAddress("address");
             walletRepo.setOnIndex("addresses", "address2", wallet);
 
-            expect(walletRepo.valuesByIndex("addresses")).toEqual([wallet, wallet]);
+            expect(walletRepo.allByIndex("addresses")).toEqual([wallet, wallet]);
         });
     });
 
     describe("forgetOnIndex", () => {
         it("should forget wallet on index", () => {
             const wallet = walletRepo.findByAddress("address");
-            expect(walletRepo.valuesByIndex("addresses")).toEqual([wallet]);
+            expect(walletRepo.allByIndex("addresses")).toEqual([wallet]);
 
             walletRepo.forgetOnIndex("addresses", "address");
 
-            expect(walletRepo.valuesByIndex("addresses")).toEqual([]);
+            expect(walletRepo.allByIndex("addresses")).toEqual([]);
         });
     });
 });
