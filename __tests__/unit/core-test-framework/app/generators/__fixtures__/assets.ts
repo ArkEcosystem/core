@@ -4,7 +4,7 @@ export const sandboxOptions: SandboxOptions = {
     core: {
         peers: {},
         delegates: {},
-        environment: {},
+        environment: { TEST: "test" },
         app: {},
     },
     crypto: {
