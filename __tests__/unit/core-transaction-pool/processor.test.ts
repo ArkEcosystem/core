@@ -1,8 +1,7 @@
-import { Container, Contracts } from "@arkecosystem/core-kernel";
-import { Identities, Managers, Transactions } from "@arkecosystem/crypto";
-
-import { TransactionFeeToLowError } from "../../../packages/core-transaction-pool/src/errors";
-import { Processor } from "../../../packages/core-transaction-pool/src/processor";
+import { Container, Contracts } from "@packages/core-kernel";
+import { TransactionFeeToLowError } from "@packages/core-transaction-pool/src/errors";
+import { Processor } from "@packages/core-transaction-pool/src/processor";
+import { Identities, Managers, Transactions } from "@packages/crypto";
 
 Managers.configManager.getMilestone().aip11 = true;
 const transaction1 = Transactions.BuilderFactory.transfer()
@@ -26,8 +25,8 @@ const spyBroadcastTransactions = jest.fn();
 const transactionBroadcaster = {
     broadcastTransactions: () => {
         spyBroadcastTransactions(); // some weird issue with jest, can't use directly jest.fn() mocking promise so using this trick
-        return Promise.resolve()
-    }
+        return Promise.resolve();
+    },
 };
 const workerPool = { isTypeGroupSupported: jest.fn(), getTransactionFromData: jest.fn() };
 const logger = { error: jest.fn() };
