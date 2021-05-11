@@ -19,6 +19,8 @@ const transaction2 = Transactions.BuilderFactory.transfer()
     .sign("sender's secret")
     .build();
 
+transaction2.data.typeGroup = undefined;
+
 const pool = { addTransaction: jest.fn() };
 const dynamicFeeMatcher = { throwIfCannotBroadcast: jest.fn() };
 const spyBroadcastTransactions = jest.fn();
