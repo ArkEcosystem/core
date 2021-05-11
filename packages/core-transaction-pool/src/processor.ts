@@ -1,6 +1,6 @@
-import ByteBuffer from "bytebuffer";
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Interfaces, Transactions, Enums } from "@arkecosystem/crypto";
+import { Enums, Interfaces, Transactions } from "@arkecosystem/crypto";
+import ByteBuffer from "bytebuffer";
 
 import { InvalidTransactionDataError } from "./errors";
 
@@ -22,12 +22,14 @@ export class Processor implements Contracts.TransactionPool.Processor {
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
 
-    public async process(data: Interfaces.ITransactionData[] | Buffer[]): Promise<{
-        accept: string[],
-        broadcast: string[],
-        invalid: string[],
-        excess: string[],
-        errors?: { [id: string]: Contracts.TransactionPool.ProcessorError },
+    public async process(
+        data: Interfaces.ITransactionData[] | Buffer[],
+    ): Promise<{
+        accept: string[];
+        broadcast: string[];
+        invalid: string[];
+        excess: string[];
+        errors?: { [id: string]: Contracts.TransactionPool.ProcessorError };
     }> {
         const accept: string[] = [];
         const broadcast: string[] = [];
@@ -42,9 +44,10 @@ export class Processor implements Contracts.TransactionPool.Processor {
                 const transactionData = data[i];
 
                 try {
-                    const transaction = transactionData instanceof Buffer
-                        ? await this.getTransactionFromBuffer(transactionData)
-                        : await this.getTransactionFromData(transactionData as Interfaces.ITransactionData);
+                    const transaction =
+                        transactionData instanceof Buffer
+                            ? await this.getTransactionFromBuffer(transactionData)
+                            : await this.getTransactionFromData(transactionData);
                     await this.pool.addTransaction(transaction);
                     accept.push(transactionData instanceof Buffer ? `${i}` : transactionData.id ?? `${i}`);
 
@@ -72,9 +75,9 @@ export class Processor implements Contracts.TransactionPool.Processor {
             }
         } finally {
             if (this.transactionBroadcaster && broadcastableTransactions.length !== 0) {
-                this.transactionBroadcaster.broadcastTransactions(broadcastableTransactions).catch(
-                    (error) => this.logger.error(error.stack)
-                );
+                this.transactionBroadcaster
+                    .broadcastTransactions(broadcastableTransactions)
+                    .catch((error) => this.logger.error(error.stack));
                 for (const transaction of broadcastableTransactions) {
                     AppUtils.assert.defined<string>(transaction.id);
                     broadcast.push(transaction.id);
@@ -91,9 +94,7 @@ export class Processor implements Contracts.TransactionPool.Processor {
         };
     }
 
-    private async getTransactionFromBuffer(
-        transactionData: Buffer,
-    ): Promise<Interfaces.ITransaction> {
+    private async getTransactionFromBuffer(transactionData: Buffer): Promise<Interfaces.ITransaction> {
         try {
             const transactionCommon = {} as Interfaces.ITransactionData;
             const txByteBuffer = ByteBuffer.wrap(transactionData);
