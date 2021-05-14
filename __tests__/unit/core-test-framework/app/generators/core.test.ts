@@ -1,5 +1,4 @@
 import "jest-extended";
-import _ from "lodash";
 
 import { CoreConfigPaths } from "@packages/core-test-framework/src";
 import { CoreGenerator } from "@packages/core-test-framework/src/app/generators/core";
@@ -35,8 +34,12 @@ describe("CoreGenerator", () => {
         expect(result.app).toBeString();
         expect(result.delegates).toBeString();
         expect(result.peers).toBeString();
-    });
 
+        expect(fsExtra.readFileSync(result.env).toString()).toEqual("TEST=test\n");
+        expect(fsExtra.readJSONSync(result.app)).toEqual({});
+        expect(fsExtra.readJSONSync(result.delegates)).toEqual({});
+        expect(fsExtra.readJSONSync(result.peers)).toEqual({});
+    });
 
     it("should throw error if destination already exist", async () => {
         jest.spyOn(fsExtra, "existsSync").mockImplementation((path: PathLike): boolean => {

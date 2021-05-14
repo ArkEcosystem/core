@@ -21,8 +21,8 @@ export class Action implements Actions.Action {
 
         return {
             total: 100,
-            used: cpuLoad.currentload,
-            available: 100 - cpuLoad.currentload,
+            used: cpuLoad.currentLoad,
+            available: 100 - cpuLoad.currentLoad,
         };
     }
 
@@ -31,8 +31,8 @@ export class Action implements Actions.Action {
 
         return {
             total: this.convert(mem.total),
-            used: this.convert(mem.used),
-            available: this.convert(mem.free),
+            used: this.convert(mem.active),
+            available: this.convert(mem.available),
         };
     }
 
