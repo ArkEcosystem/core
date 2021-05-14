@@ -1,3 +1,4 @@
+import { Types } from "@arkecosystem/core-kernel";
 import { copyFileSync, ensureDirSync, existsSync, writeFileSync, writeJSONSync } from "fs-extra";
 import { resolve } from "path";
 import { dirSync } from "tmp";
@@ -87,7 +88,7 @@ export class CoreGenerator extends Generator {
         const filePath: string = resolve(this.destination, ".env");
 
         if (this.options.core.environment) {
-            writeFileSync(filePath, this.options.core.environment);
+            writeFileSync(filePath, this.generateEnvironment(this.options.core.environment));
         } else {
             copyFileSync(require.resolve("@arkecosystem/core/bin/config/testnet/.env"), filePath);
         }
@@ -105,5 +106,19 @@ export class CoreGenerator extends Generator {
         } else {
             copyFileSync(require.resolve("@arkecosystem/core/bin/config/testnet/app.json"), filePath);
         }
+    }
+
+    /**
+     * @private
+     * @memberof CoreGenerator
+     */
+    private generateEnvironment(environment: Types.JsonObject): string {
+        let result = "";
+
+        for (const [key, value] of Object.entries(environment)) {
+            result += `${key}=${value}\n`;
+        }
+
+        return result;
     }
 }
