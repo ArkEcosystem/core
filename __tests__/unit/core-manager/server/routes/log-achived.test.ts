@@ -70,7 +70,7 @@ afterAll(() => {
 });
 
 describe("LogArchived", () => {
-    it("should be ok", async () => {
+    it("should be ok for .gz", async () => {
         await server.initialize("serverName", {});
 
         await server.register({
@@ -82,7 +82,25 @@ describe("LogArchived", () => {
         const injectOptions = {
             method: "GET",
             url: "/log/archived/2020-12-14_17-38-00.log.gz",
-            // headers: { Accept: "*/*" }, // TODO: Response fails with Accept header
+        };
+
+        const response = await server.inject(injectOptions);
+
+        expect(response.result).toEqual("file_content");
+    });
+
+    it("should be ok for .zip", async () => {
+        await server.initialize("serverName", {});
+
+        await server.register({
+            plugin: Handlers,
+        });
+
+        await server.boot();
+
+        const injectOptions = {
+            method: "GET",
+            url: "/log/archived/2020-12-14_17-38-00.zip",
         };
 
         const response = await server.inject(injectOptions);
