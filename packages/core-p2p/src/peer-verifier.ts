@@ -359,7 +359,7 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
     private async verifyPeerBlocks(startHeight: number, claimedHeight: number, deadline: number): Promise<boolean> {
         const roundInfo = Utils.roundCalculator.calculateRound(startHeight);
         const { maxDelegates, roundHeight } = roundInfo;
-        const lastBlockHeightInRound = roundHeight + maxDelegates;
+        const lastBlockHeightInRound = roundHeight + maxDelegates - 1;
 
         // Verify a few blocks that are not too far up from the last common block. Within the
         // same round as the last common block or in the next round if the last common block is
