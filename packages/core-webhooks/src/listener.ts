@@ -49,9 +49,13 @@ export class Listener {
 
         const webhooks: Webhook[] = this.getWebhooks(name, data);
 
+        const promises: Promise<void>[] = [];
+
         for (const webhook of webhooks) {
-            await this.broadcast(webhook, data);
+            promises.push(this.broadcast(webhook, data));
         }
+
+        await Promise.all(promises);
     }
 
     /**
