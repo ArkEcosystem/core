@@ -1,6 +1,6 @@
 import { Application, Container, Contracts, Providers } from "@arkecosystem/core-kernel";
 import { pathExistsSync } from "fs-extra";
-import { basename, extname, join } from "path";
+import { basename, join } from "path";
 import getPublicIp from "public-ip";
 
 import { Actions } from "../contracts";
@@ -43,7 +43,7 @@ export class Action implements Actions.Action {
 
         const files = await this.filesystem.files(logsPath);
 
-        return files.filter((fileName) => extname(fileName) === ".gz");
+        return files.filter((fileName) => basename(fileName)[0] !== ".");
     }
 
     private async getServerUrl(): Promise<string> {
