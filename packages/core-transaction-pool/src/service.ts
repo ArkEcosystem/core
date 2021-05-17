@@ -154,6 +154,10 @@ export class Service implements Contracts.TransactionPool.Service {
             const expiredHeight: number = lastHeight - maxTransactionAge;
 
             for (const { height, id, serialized } of this.storage.getAllTransactions()) {
+                if (previouslyForgedTransactions.find((t) => t.id === id)) {
+                    continue;
+                }
+
                 if (height > expiredHeight) {
                     try {
                         const previouslyStoredTransaction = Transactions.TransactionFactory.fromBytes(serialized);

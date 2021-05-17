@@ -92,14 +92,13 @@ export class SenderMempool implements Contracts.TransactionPool.SenderMempool {
         try {
             this.concurrency++;
 
-            return await this.lock.runExclusive(async () => {
-                const index: number = this.transactions.findIndex((t) => t.id === id);
-                if (index === -1) {
-                    return this.transactions.splice(0, this.transactions.length);
-                } else {
-                    return this.transactions.splice(0, index + 1);
-                }
-            });
+            const index: number = this.transactions.findIndex((t) => t.id === id);
+
+            if (index !== -1) {
+                return this.transactions.splice(0, index + 1);
+            } else {
+                return []; // TODO: implement this.reboot();
+            }
         } finally {
             this.concurrency--;
         }
