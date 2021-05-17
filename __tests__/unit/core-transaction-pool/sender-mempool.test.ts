@@ -207,7 +207,7 @@ describe("SenderMempool.removeForgedTransaction", () => {
         expect(remainingTransactions).toStrictEqual([transaction3]);
     });
 
-    it("should return all added transactions when accepting unknown transaction", async () => {
+    it("should return no transactions when accepting unknown transaction", async () => {
         configuration.getRequired.mockReturnValueOnce(10); // maxTransactionsPerSender
 
         const senderMempool = container.resolve(SenderMempool);
@@ -217,7 +217,7 @@ describe("SenderMempool.removeForgedTransaction", () => {
         const removedTransactions = await senderMempool.removeForgedTransaction(transaction3.id);
         const remainingTransactions = senderMempool.getFromEarliest();
 
-        expect(removedTransactions).toStrictEqual([transaction1, transaction2]);
-        expect(remainingTransactions).toStrictEqual([]);
+        expect(removedTransactions).toStrictEqual([]);
+        expect(remainingTransactions).toStrictEqual([transaction1, transaction2]);
     });
 });
