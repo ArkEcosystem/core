@@ -12,6 +12,14 @@ export const buildDelegateAndVoteWallets = (numberDelegates: number, walletRepo:
         "03858d4d3b77c7c227f6fe3e18b5807aa476828cb712663dcd79df87e439cc07c5",
     ];
 
+    const voterKeys: string[] = [
+        "03858d4d3b77c7c227f6fe3e18b5807aa476828cb712663dcd79df87e439cc07c6",
+        "03858d4d3b77c7c227f6fe3e18b5807aa476828cb712663dcd79df87e439cc07c7",
+        "03858d4d3b77c7c227f6fe3e18b5807aa476828cb712663dcd79df87e439cc0710",
+        "03858d4d3b77c7c227f6fe3e18b5807aa476828cb712663dcd79df87e439cc6f34",
+        "03858d4d3b77c7c227f6fe3e18b5807aa476828cb712663dcd79df87e439cc6f35",
+    ];
+
     if (numberDelegates > delegateKeys.length) {
         throw new Error(`Number of Test Delegates (${numberDelegates}) should not exceed ${delegateKeys.length}`);
     }
@@ -23,7 +31,10 @@ export const buildDelegateAndVoteWallets = (numberDelegates: number, walletRepo:
         delegate.setAttribute("delegate.username", `delegate${i}`);
         delegate.setAttribute("delegate.voteBalance", CryptoUtils.BigNumber.ZERO);
 
-        const voter = walletRepo.createWallet(Identities.Address.fromPublicKey(delegateKeys[numberDelegates - 1 - i]));
+        // @ts-ignore
+        delegate.events = undefined;
+
+        const voter = walletRepo.createWallet(Identities.Address.fromPublicKey(voterKeys[i]));
         const totalBalance = CryptoUtils.BigNumber.make(i + 1)
             .times(1000)
             .times(SATOSHI);
@@ -33,6 +44,9 @@ export const buildDelegateAndVoteWallets = (numberDelegates: number, walletRepo:
         // TODO: is this correct?
         // that buildVoteBalances should only be triggered if there is a htlc lockedBalance?
         voter.setAttribute("htlc.lockedBalance", totalBalance.div(2));
+
+        // @ts-ignore
+        voter.events = undefined;
 
         walletRepo.index([delegate, voter]);
         delegates.push(delegate as Wallet);
