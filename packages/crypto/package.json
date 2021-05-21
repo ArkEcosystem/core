@@ -31,7 +31,7 @@
         "prepublishOnly": "yarn build:rollup"
     },
     "dependencies": {
-        "@arkecosystem/crypto-identities": "^1.1.1",
+        "@arkecosystem/crypto-identities": "^1.2.0",
         "@arkecosystem/crypto-networks": "^1.0.0",
         "@arkecosystem/utils": "^1.3.0",
         "ajv": "^6.10.2",
