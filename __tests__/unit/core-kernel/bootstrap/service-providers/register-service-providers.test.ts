@@ -128,7 +128,7 @@ describe("RegisterServiceProviders", () => {
         await app.resolve<RegisterServiceProviders>(RegisterServiceProviders).bootstrap();
 
         expect(spyNotice).toHaveBeenCalledWith(
-            'The "stub" package is required but missing. Please, make sure to install this library to take advantage of deps-required.',
+            'The "deps-required" package is required but missing. Please, make sure to install this library to take advantage of stub.',
         );
     });
 
@@ -159,7 +159,7 @@ describe("RegisterServiceProviders", () => {
         await app.resolve<RegisterServiceProviders>(RegisterServiceProviders).bootstrap();
 
         expect(spyNotice).toHaveBeenCalledWith(
-            'The "stub" package is required but missing. Please, make sure to install this library to take advantage of deps-required.',
+            'The "deps-required" package is required but missing. Please, make sure to install this library to take advantage of stub.',
         );
         expect(spyTerminate).toHaveBeenCalled();
     });
@@ -174,7 +174,7 @@ describe("RegisterServiceProviders", () => {
         await app.resolve<RegisterServiceProviders>(RegisterServiceProviders).bootstrap();
 
         expect(spyWarning).toHaveBeenCalledWith(
-            'The "stub" package is missing. Please, make sure to install this library to take advantage of deps-optional.',
+            'The "deps-optional" package is missing. Please, make sure to install this library to take advantage of stub.',
         );
         expect(serviceProviderRepository.failed("stub")).toBeTrue();
     });
