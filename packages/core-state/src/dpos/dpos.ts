@@ -7,7 +7,6 @@ export class DposState implements Contracts.State.DposState {
     private logger!: Contracts.Kernel.Logger;
 
     @Container.inject(Container.Identifiers.WalletRepository)
-    @Container.tagged("state", "blockchain") // TODO: see todo in block-state
     private walletRepository!: Contracts.State.WalletRepository;
 
     private roundInfo: Contracts.Shared.RoundInfo | null = null;
