@@ -79,7 +79,7 @@ export class OptionalDependencyCannotBeFound extends RuntimeException {
      */
     public constructor(serviceProvider: string, dependency: string) {
         super(
-            `The "${serviceProvider}" package is missing. Please, make sure to install this library to take advantage of ${dependency}.`,
+            `The "${dependency}" package is missing. Please, make sure to install this library to take advantage of ${serviceProvider}.`,
         );
     }
 }
@@ -97,7 +97,7 @@ export class RequiredDependencyCannotBeFound extends RuntimeException {
      */
     public constructor(serviceProvider: string, dependency: string) {
         super(
-            `The "${serviceProvider}" package is required but missing. Please, make sure to install this library to take advantage of ${dependency}.`,
+            `The "${dependency}" package is required but missing. Please, make sure to install this library to take advantage of ${serviceProvider}.`,
         );
     }
 }
