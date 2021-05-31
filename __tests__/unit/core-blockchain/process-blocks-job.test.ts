@@ -201,7 +201,6 @@ describe("Blockchain", () => {
             blockchainService.clearQueue = jest.fn();
             blockchainService.resetLastDownloadedBlock = jest.fn();
             databaseInteraction.restoreCurrentRound = jest.fn();
-            databaseService.deleteRound = jest.fn();
 
             stateStore.setLastBlock = jest.fn();
 
@@ -211,7 +210,6 @@ describe("Blockchain", () => {
             expect(blockchainService.clearQueue).toBeCalledTimes(1);
             expect(blockchainService.resetLastDownloadedBlock).toBeCalledTimes(1);
             expect(databaseInteraction.restoreCurrentRound).toBeCalledTimes(1);
-            expect(databaseService.deleteRound).toBeCalledTimes(1);
         });
 
         it("should stop app when revertBlockHandler return Corrupted", async () => {
@@ -230,7 +228,6 @@ describe("Blockchain", () => {
             blockchainService.clearQueue = jest.fn();
             blockchainService.resetLastDownloadedBlock = jest.fn();
             databaseInteraction.restoreCurrentRound = jest.fn();
-            databaseService.deleteRound = jest.fn();
 
             stateStore.setLastBlock = jest.fn();
 
@@ -240,7 +237,6 @@ describe("Blockchain", () => {
             expect(blockchainService.clearQueue).toBeCalledTimes(1);
             expect(blockchainService.resetLastDownloadedBlock).toBeCalledTimes(1);
             expect(databaseInteraction.restoreCurrentRound).toBeCalledTimes(1);
-            expect(databaseService.deleteRound).toBeCalledTimes(1);
 
             expect(process.exit).toHaveBeenCalled();
         });
