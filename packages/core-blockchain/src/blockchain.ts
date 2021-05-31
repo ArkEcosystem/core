@@ -173,15 +173,6 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
         this.setWakeUp();
     }
 
-    // TODO: Check if required
-    /**
-     * Update network status.
-     * @return {void}
-     */
-    public async updateNetworkStatus(): Promise<void> {
-        await this.networkMonitor.updateNetworkStatus();
-    }
-
     /**
      * Clear and stop the queue.
      * @return {void}
