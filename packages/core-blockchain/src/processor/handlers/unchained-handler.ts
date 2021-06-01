@@ -6,7 +6,6 @@ import { BlockHandler } from "../contracts";
 
 enum UnchainedBlockStatus {
     NotReadyToAcceptNewHeight,
-    ExceededNotReadyToAcceptNewHeightMaxAttempts,
     AlreadyInBlockchain,
     EqualToLastBlock,
     GeneratorMismatch,
@@ -14,50 +13,10 @@ enum UnchainedBlockStatus {
     InvalidTimestamp,
 }
 
-class BlockNotReadyCounter {
-    public static maxAttempts = 5;
-
-    private id = "";
-    private attempts = 0;
-
-    public increment(block: Interfaces.IBlock): boolean {
-        const { id } = block.data;
-        let attemptsLeft = false;
-
-        if (this.id !== id) {
-            this.reset();
-
-            Utils.assert.defined<string>(id);
-
-            this.id = id;
-        }
-
-        this.attempts += 1;
-
-        attemptsLeft = this.attempts <= BlockNotReadyCounter.maxAttempts;
-
-        if (!attemptsLeft) {
-            this.reset();
-        }
-
-        return attemptsLeft;
-    }
-
-    public reset() {
-        this.attempts = 0;
-        this.id = "";
-    }
-}
-
 @Container.injectable()
 export class UnchainedHandler implements BlockHandler {
-    public static notReadyCounter = new BlockNotReadyCounter();
-
     @Container.inject(Container.Identifiers.BlockchainService)
     protected readonly blockchain!: Contracts.Blockchain.Blockchain;
-
-    @Container.inject(Container.Identifiers.StateStore)
-    private readonly stateStore!: Contracts.State.StateStore;
 
     @Container.inject(Container.Identifiers.TriggerService)
     private readonly triggers!: Services.Triggers.Triggers;
@@ -96,11 +55,6 @@ export class UnchainedHandler implements BlockHandler {
                 return BlockProcessorResult.Rejected;
             }
 
-            case UnchainedBlockStatus.ExceededNotReadyToAcceptNewHeightMaxAttempts: {
-                this.stateStore.setNumberOfBlocksToRollback(5000); // TODO: find a better heuristic based on peer information
-                return BlockProcessorResult.Rollback;
-            }
-
             case UnchainedBlockStatus.GeneratorMismatch:
             case UnchainedBlockStatus.InvalidTimestamp: {
                 return BlockProcessorResult.Rejected;
@@ -136,19 +90,7 @@ export class UnchainedHandler implements BlockHandler {
                 );
             }
 
-            // If we consecutively fail to accept the same block, our chain is likely forked. In this
-            // case `increment` returns false.
-            if (UnchainedHandler.notReadyCounter.increment(block)) {
-                return UnchainedBlockStatus.NotReadyToAcceptNewHeight;
-            }
-
-            this.logger.debug(
-                `Blockchain is still not ready to accept block at height ${block.data.height.toLocaleString()} after ${
-                    BlockNotReadyCounter.maxAttempts
-                } tries. Going to rollback. :warning:`,
-            );
-
-            return UnchainedBlockStatus.ExceededNotReadyToAcceptNewHeightMaxAttempts;
+            return UnchainedBlockStatus.NotReadyToAcceptNewHeight;
         } else if (block.data.height < lastBlock.data.height) {
             this.logger.debug(`Block ${block.data.height.toLocaleString()} disregarded because already in blockchain`);
 
