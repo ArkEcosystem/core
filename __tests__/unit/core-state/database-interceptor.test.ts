@@ -44,6 +44,7 @@ const stateStore = {
     getGenesisBlock: jest.fn(),
     setLastBlock: jest.fn(),
     getLastBlock: jest.fn(),
+    getLastBlocks: jest.fn(),
     getLastBlocksByHeight: jest.fn(),
     getCommonBlocks: jest.fn(),
     getLastBlockIds: jest.fn(),
@@ -101,7 +102,7 @@ container.bind(Container.Identifiers.DatabaseConnection).toConstantValue(connect
 container.bind(Container.Identifiers.DatabaseBlockRepository).toConstantValue(blockRepository);
 container.bind(Container.Identifiers.DatabaseTransactionRepository).toConstantValue(transactionRepository);
 container.bind(Container.Identifiers.DatabaseRoundRepository).toConstantValue(roundRepository);
-container.bind(Container.Identifiers.DatabaseService).to(DatabaseService);
+container.bind(Container.Identifiers.DatabaseService).to(DatabaseService).inSingletonScope();
 container.bind(Container.Identifiers.StateStore).toConstantValue(stateStore);
 container.bind(Container.Identifiers.StateBlockStore).toConstantValue(stateBlockStore);
 container.bind(Container.Identifiers.StateTransactionStore).toConstantValue(stateTransactionStore);
@@ -116,6 +117,31 @@ container.bind(Container.Identifiers.LogService).toConstantValue(logger);
 
 beforeEach(() => {
     jest.resetAllMocks();
+});
+
+describe("DatabaseInterceptor.getBlock", () => {
+    it("should return block from state store", async () => {
+        const databaseInterceptor: DatabaseInterceptor = container.resolve(DatabaseInterceptor);
+
+        const block = { data: { id: "block_id", height: 100, transactions: [] } };
+
+        stateStore.getLastBlocks.mockReturnValueOnce([block]);
+
+        await expect(databaseInterceptor.getBlock("block_id")).resolves.toEqual(block);
+    });
+
+    it("should return block from database", async () => {
+        const databaseInterceptor: DatabaseInterceptor = container.resolve(DatabaseInterceptor);
+        const databaseService = container.get<DatabaseService>(Container.Identifiers.DatabaseService);
+
+        const block = { data: { id: "block_id", height: 100, transactions: [] } };
+
+        stateStore.getLastBlocks.mockReturnValueOnce([]);
+        // @ts-ignore
+        jest.spyOn(databaseService, "getBlock").mockResolvedValueOnce(block);
+
+        await expect(databaseInterceptor.getBlock("block_id")).resolves.toEqual(block);
+    });
 });
 
 describe("DatabaseInterceptor.getCommonBlocks", () => {
