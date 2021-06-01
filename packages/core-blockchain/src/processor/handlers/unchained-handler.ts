@@ -55,6 +55,7 @@ export class UnchainedHandler implements BlockHandler {
                 return BlockProcessorResult.Rejected;
             }
 
+            case UnchainedBlockStatus.NotReadyToAcceptNewHeight:
             case UnchainedBlockStatus.GeneratorMismatch:
             case UnchainedBlockStatus.InvalidTimestamp: {
                 return BlockProcessorResult.Rejected;
@@ -74,21 +75,6 @@ export class UnchainedHandler implements BlockHandler {
             this.logger.debug(
                 `Blockchain not ready to accept new block at height ${block.data.height.toLocaleString()}. Last block: ${lastBlock.data.height.toLocaleString()}`,
             );
-
-            // TODO: We've already cleared the queue. Move to clear queue
-            // Also remove all remaining queued blocks. Since blocks are downloaded in batches,
-            // it is very likely that all blocks will be disregarded at this point anyway.
-            // NOTE: This isn't really elegant, but still better than spamming the log with
-            //       useless `not ready to accept` messages.
-            if (this.blockchain.getQueue().size() > 0) {
-                this.logger.debug(
-                    `Discarded ${Utils.pluralize(
-                        "chunk",
-                        this.blockchain.getQueue().size(),
-                        true,
-                    )} of downloaded blocks.`,
-                );
-            }
 
             return UnchainedBlockStatus.NotReadyToAcceptNewHeight;
         } else if (block.data.height < lastBlock.data.height) {
