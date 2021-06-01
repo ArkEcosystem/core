@@ -1,5 +1,5 @@
-import { DatabaseInterceptor } from "@arkecosystem/core-state";
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
+import { DatabaseInterceptor } from "@arkecosystem/core-state";
 import { Interfaces } from "@arkecosystem/crypto";
 
 import { BlockProcessorResult } from "../block-processor";
@@ -28,7 +28,7 @@ export class ExceptionHandler implements BlockHandler {
         // Ensure the block has not been forged yet, as an exceptional block bypasses all other checks.
         const forgedBlock: Interfaces.IBlock | undefined = await this.databaseInterceptor.getBlock(id);
 
-        if (forgedBlock) {
+        if (forgedBlock || block.data.height !== this.blockchain.getLastBlock().data.height + 1) {
             this.blockchain.resetLastDownloadedBlock();
 
             return BlockProcessorResult.Rejected;
