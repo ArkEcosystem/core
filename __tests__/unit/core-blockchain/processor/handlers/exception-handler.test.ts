@@ -8,7 +8,7 @@ describe("ExceptionHandler", () => {
     const container = new Container.Container();
 
     const logger = { warning: jest.fn(), debug: jest.fn(), info: jest.fn() };
-    const blockchain = { resetLastDownloadedBlock: jest.fn() };
+    const blockchain = { resetLastDownloadedBlock: jest.fn(), getLastBlock: jest.fn() };
     const databaseInterceptor = { getBlock: jest.fn() };
     const application = { resolve: jest.fn() };
 
@@ -38,13 +38,29 @@ describe("ExceptionHandler", () => {
             expect(blockchain.resetLastDownloadedBlock).toBeCalledTimes(1);
         });
 
-        it("should call AcceptHandler if block is not forged yet", async () => {
+        it("should return Rejected and resetLastDownloadedBlock if block height it not sequential", async () => {
+            const exceptionHandler = container.resolve<ExceptionHandler>(ExceptionHandler);
+
+            const notSequentialLastBlock = { data: { id: "122", height: 3333 } };
+            blockchain.getLastBlock.mockReturnValueOnce(notSequentialLastBlock);
+
+            const result = await exceptionHandler.execute(block as Interfaces.IBlock);
+
+            expect(result).toBe(BlockProcessorResult.Rejected);
+
+            expect(blockchain.resetLastDownloadedBlock).toBeCalledTimes(1);
+        });
+
+        it("should call AcceptHandler if block is not forged yet and height is sequential", async () => {
             const exceptionHandler = container.resolve<ExceptionHandler>(ExceptionHandler);
 
             const mockAcceptHandler = {
                 execute: () => BlockProcessorResult.Accepted,
             };
             application.resolve = jest.fn().mockReturnValue(mockAcceptHandler);
+
+            const lastBlock = { data: { id: "122", height: 4444 } };
+            blockchain.getLastBlock.mockReturnValueOnce(lastBlock);
 
             const result = await exceptionHandler.execute(block as Interfaces.IBlock);
 
