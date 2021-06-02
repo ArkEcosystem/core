@@ -369,7 +369,7 @@ describe("State Storage", () => {
 
     describe("get/setLastStoredBlockHeight", () => {
         it("should return undefined if last stored block is not set", () => {
-            expect(stateStorage.getLastStoredBlockHeight()).toBeUndefined();
+            expect(stateStorage.getLastStoredBlockHeight()).toBe(1);
         });
 
         it("should set and get last downloaded block", () => {
