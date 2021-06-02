@@ -28,6 +28,10 @@ export interface StateStore {
 
     setLastDownloadedBlock(block: Interfaces.IBlockData): void;
 
+    getLastStoredBlockHeight(): number | undefined;
+
+    setLastStoredBlockHeight(height: number): void;
+
     getBlockPing(): BlockPing | undefined;
 
     isStarted(): boolean;
