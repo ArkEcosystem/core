@@ -368,6 +368,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
         await __removeBlocks(nblocks);
 
         await this.blockRepository.deleteBlocks(removedBlocks.reverse());
+        this.stateStore.setLastStoredBlockHeight(lastBlock.data.height - nblocks);
 
         await this.transactionPool.readdTransactions(removedTransactions.reverse());
     }
@@ -384,6 +385,9 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
         await this.blockRepository.deleteTopBlocks(count);
         // TODO: Check if we need this
         await this.databaseInteraction.restoreCurrentRound();
+
+        const lastStoredBlock = await this.database.getLastBlock();
+        this.stateStore.setLastStoredBlockHeight(lastStoredBlock.data.height);
     }
 
     /**
