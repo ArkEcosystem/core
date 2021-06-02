@@ -28,7 +28,7 @@ export interface StateStore {
 
     setLastDownloadedBlock(block: Interfaces.IBlockData): void;
 
-    getLastStoredBlockHeight(): number | undefined;
+    getLastStoredBlockHeight(): number;
 
     setLastStoredBlockHeight(height: number): void;
 
