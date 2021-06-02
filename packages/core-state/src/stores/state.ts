@@ -20,7 +20,7 @@ export class StateStore implements Contracts.State.StateStore {
     private blockchain: any = {};
     private genesisBlock?: Interfaces.IBlock;
     private lastDownloadedBlock?: Interfaces.IBlockData;
-    private lastStoredBlockHeight?: number;
+    private lastStoredBlockHeight: number = 1;
     private blockPing?: Contracts.State.BlockPing;
     private started = false;
     private forkedBlock?: Interfaces.IBlock;
@@ -70,7 +70,7 @@ export class StateStore implements Contracts.State.StateStore {
         this.lastDownloadedBlock = block;
     }
 
-    public getLastStoredBlockHeight(): number | undefined {
+    public getLastStoredBlockHeight(): number {
         return this.lastStoredBlockHeight;
     }
 
