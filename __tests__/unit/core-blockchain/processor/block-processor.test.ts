@@ -53,6 +53,7 @@ describe("BlockProcessor", () => {
         getActiveDelegates: jest.fn().mockReturnValue([]),
     };
     const stateStore = {
+        getLastBlock: jest.fn(),
         getLastBlocks: jest.fn(),
         getLastStoredBlockHeight: jest.fn(),
     };
@@ -376,6 +377,8 @@ describe("BlockProcessor", () => {
             getAttribute: jest.fn().mockReturnValue("generatorusername"),
         };
         walletRepository.findByPublicKey = jest.fn().mockReturnValueOnce(generatorWallet);
+        stateStore.getLastBlock.mockReturnValueOnce(baseBlock);
+        stateStore.getLastStoredBlockHeight.mockReturnValueOnce(baseBlock.data.height);
         stateStore.getLastBlocks.mockReturnValueOnce([]);
 
         const blockProcessor = sandbox.app.resolve<BlockProcessor>(BlockProcessor);
@@ -410,8 +413,11 @@ describe("BlockProcessor", () => {
             getAttribute: jest.fn().mockReturnValue("generatorusername"),
         };
         walletRepository.findByPublicKey = jest.fn().mockReturnValueOnce(generatorWallet);
-        stateStore.getLastBlocks.mockReturnValueOnce([{ data: { height: 2 }, transactions: [transactionData, transactionData2] }]);
-        stateStore.getLastStoredBlockHeight.mockReturnValueOnce(1);
+        stateStore.getLastBlock.mockReturnValueOnce({ data: { height: 2 } });
+        stateStore.getLastBlocks.mockReturnValueOnce([
+            { data: { height: 2 }, transactions: [transactionData, transactionData2] },
+        ]);
+        stateStore.getLastStoredBlockHeight.mockReturnValue(1);
 
         const blockProcessor = sandbox.app.resolve<BlockProcessor>(BlockProcessor);
 
