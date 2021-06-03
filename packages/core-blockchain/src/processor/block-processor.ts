@@ -131,20 +131,23 @@ export class BlockProcessor {
 
                 return tx.id;
             });
-            const transactionIdsSet = new Set<string>(transactionIds);
 
             const forgedIds: string[] = await this.transactionRepository.getForgedTransactionsIds(transactionIds);
 
-            for (const stateBlock of this.stateStore
-                .getLastBlocks()
-                .filter((block) => block.data.height > this.stateStore.getLastStoredBlockHeight())) {
-                stateBlock.transactions.forEach((tx) => {
-                    AppUtils.assert.defined<string>(tx.id);
+            if (this.stateStore.getLastBlock().data.height !== this.stateStore.getLastStoredBlockHeight()) {
+                const transactionIdsSet = new Set<string>(transactionIds);
 
-                    if (transactionIdsSet.has(tx.id)) {
-                        forgedIds.push(tx.id);
-                    }
-                });
+                for (const stateBlock of this.stateStore
+                    .getLastBlocks()
+                    .filter((block) => block.data.height > this.stateStore.getLastStoredBlockHeight())) {
+                    stateBlock.transactions.forEach((tx) => {
+                        AppUtils.assert.defined<string>(tx.id);
+
+                        if (transactionIdsSet.has(tx.id)) {
+                            forgedIds.push(tx.id);
+                        }
+                    });
+                }
             }
 
             /* istanbul ignore else */
