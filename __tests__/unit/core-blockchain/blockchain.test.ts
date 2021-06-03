@@ -87,6 +87,7 @@ describe("Blockchain", () => {
         stateStore.setNumberOfBlocksToRollback = jest.fn();
         stateStore.getNetworkStart = jest.fn().mockReturnValue(false);
         stateStore.setNetworkStart = jest.fn();
+        stateStore.setLastStoredBlockHeight = jest.fn();
         stateStore.getLastBlock = jest.fn();
         stateStore.setLastBlock = jest.fn();
         stateStore.setForkedBlock = jest.fn();
@@ -670,6 +671,8 @@ describe("Blockchain", () => {
             expect(databaseInteractions.revertBlock).toHaveBeenCalledTimes(2);
             expect(stateStore.setLastBlock).toHaveBeenCalledTimes(2);
             expect(blockRepository.deleteBlocks).toHaveBeenCalledTimes(1);
+            expect(stateStore.setLastStoredBlockHeight).toHaveBeenCalledTimes(1);
+            expect(stateStore.setLastStoredBlockHeight).toHaveBeenCalledWith(1);
         });
 
         it("should default to removing until genesis block when asked to remove more", async () => {
@@ -695,6 +698,8 @@ describe("Blockchain", () => {
             expect(databaseInteractions.revertBlock).toHaveBeenCalledTimes(1);
             expect(stateStore.setLastBlock).toHaveBeenCalledTimes(1);
             expect(blockRepository.deleteBlocks).toHaveBeenCalledTimes(1);
+            expect(stateStore.setLastStoredBlockHeight).toHaveBeenCalledTimes(1);
+            expect(stateStore.setLastStoredBlockHeight).toHaveBeenCalledWith(1);
         });
     });
 
@@ -702,12 +707,18 @@ describe("Blockchain", () => {
         it.each([[1], [5], [1329]])(
             "should call deleteTopBlocks with blockRepository and call loadBlocksFromCurrentRound",
             async (numberOfBlocks) => {
+                databaseService.getLastBlock = jest.fn().mockReturnValueOnce(blockHeight1);
+
                 const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
 
                 await blockchain.removeTopBlocks(numberOfBlocks);
 
                 expect(blockRepository.deleteTopBlocks).toHaveBeenLastCalledWith(numberOfBlocks);
                 expect(databaseInteractions.restoreCurrentRound).toHaveBeenCalled();
+
+                expect(databaseService.getLastBlock).toHaveBeenCalledTimes(1);
+                expect(stateStore.setLastStoredBlockHeight).toHaveBeenCalledTimes(1);
+                expect(stateStore.setLastStoredBlockHeight).toHaveBeenCalledWith(1);
             },
         );
     });

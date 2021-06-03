@@ -84,11 +84,14 @@ describe("Blockchain", () => {
             stateStore.isStarted = jest.fn().mockReturnValue(true);
 
             databaseBlockRepository.saveBlocks = jest.fn();
+            stateStore.setLastStoredBlockHeight = jest.fn();
 
             processBlocksJob.setBlocks([currentBlock]);
             await processBlocksJob.handle();
 
             expect(databaseBlockRepository.saveBlocks).toHaveBeenCalledTimes(1);
+            expect(stateStore.setLastStoredBlockHeight).toHaveBeenCalledTimes(1);
+            expect(stateStore.setLastStoredBlockHeight).toHaveBeenCalledWith(currentBlock.height);
         });
 
         it("should process a valid block already known", async () => {
@@ -154,6 +157,7 @@ describe("Blockchain", () => {
             databaseInteraction.loadBlocksFromCurrentRound = jest.fn();
             blockchainService.resetLastDownloadedBlock = jest.fn();
             databaseBlockRepository.saveBlocks = jest.fn();
+            stateStore.setLastStoredBlockHeight = jest.fn();
 
             processBlocksJob.setBlocks([lastBlock, currentBlock]);
             await processBlocksJob.handle();
@@ -162,6 +166,8 @@ describe("Blockchain", () => {
             expect(databaseBlockRepository.saveBlocks).toBeCalledTimes(1);
             expect(blockchainService.clearQueue).toBeCalledTimes(1);
             expect(blockchainService.resetLastDownloadedBlock).toBeCalledTimes(1);
+            expect(stateStore.setLastStoredBlockHeight).toBeCalledTimes(1);
+            expect(stateStore.setLastStoredBlockHeight).toHaveBeenCalledWith(lastBlock.height);
         });
 
         it("should not process the remaining blocks if one is not accepted (BlockProcessorResult.Corrupted)", async () => {
@@ -202,6 +208,7 @@ describe("Blockchain", () => {
             blockchainService.resetLastDownloadedBlock = jest.fn();
             databaseInteraction.restoreCurrentRound = jest.fn();
             databaseService.deleteRound = jest.fn();
+            stateStore.setLastStoredBlockHeight = jest.fn();
 
             stateStore.setLastBlock = jest.fn();
 
@@ -212,6 +219,7 @@ describe("Blockchain", () => {
             expect(blockchainService.resetLastDownloadedBlock).toBeCalledTimes(1);
             expect(databaseInteraction.restoreCurrentRound).toBeCalledTimes(1);
             expect(databaseService.deleteRound).toBeCalledTimes(1);
+            expect(stateStore.setLastStoredBlockHeight).not.toBeCalled();
         });
 
         it("should stop app when revertBlockHandler return Corrupted", async () => {
@@ -231,6 +239,7 @@ describe("Blockchain", () => {
             blockchainService.resetLastDownloadedBlock = jest.fn();
             databaseInteraction.restoreCurrentRound = jest.fn();
             databaseService.deleteRound = jest.fn();
+            stateStore.setLastStoredBlockHeight = jest.fn();
 
             stateStore.setLastBlock = jest.fn();
 
@@ -241,6 +250,7 @@ describe("Blockchain", () => {
             expect(blockchainService.resetLastDownloadedBlock).toBeCalledTimes(1);
             expect(databaseInteraction.restoreCurrentRound).toBeCalledTimes(1);
             expect(databaseService.deleteRound).toBeCalledTimes(1);
+            expect(stateStore.setLastStoredBlockHeight).not.toHaveBeenCalled();
 
             expect(process.exit).toHaveBeenCalled();
         });
@@ -276,11 +286,14 @@ describe("Blockchain", () => {
 
             databaseBlockRepository.saveBlocks = jest.fn();
             peerNetworkMonitor.broadcastBlock = jest.fn();
+            stateStore.setLastStoredBlockHeight = jest.fn();
 
             processBlocksJob.setBlocks([block]);
             await processBlocksJob.handle();
 
             expect(databaseBlockRepository.saveBlocks).toBeCalledTimes(1);
+            expect(stateStore.setLastStoredBlockHeight).toBeCalledTimes(1);
+            expect(stateStore.setLastStoredBlockHeight).toBeCalledWith(block.height);
 
             expect(peerNetworkMonitor.broadcastBlock).toBeCalledTimes(1);
         });
@@ -315,12 +328,15 @@ describe("Blockchain", () => {
             blockProcessor.process = jest.fn().mockReturnValue(BlockProcessorResult.Accepted);
 
             databaseBlockRepository.saveBlocks = jest.fn();
+            stateStore.setLastStoredBlockHeight = jest.fn();
             peerNetworkMonitor.broadcastBlock = jest.fn();
 
             processBlocksJob.setBlocks([block]);
             await processBlocksJob.handle();
 
             expect(databaseBlockRepository.saveBlocks).toBeCalledTimes(1);
+            expect(stateStore.setLastStoredBlockHeight).toBeCalledTimes(1);
+            expect(stateStore.setLastStoredBlockHeight).toBeCalledWith(block.height);
 
             expect(peerNetworkMonitor.broadcastBlock).toBeCalledTimes(0);
         });
