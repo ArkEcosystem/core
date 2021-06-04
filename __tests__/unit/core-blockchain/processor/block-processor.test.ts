@@ -53,6 +53,8 @@ describe("BlockProcessor", () => {
         getActiveDelegates: jest.fn().mockReturnValue([]),
     };
 
+    const databaseInterceptor = {};
+
     beforeAll(() => {
         sandbox.app.bind(Container.Identifiers.LogService).toConstantValue(logService);
         sandbox.app.bind(Container.Identifiers.BlockchainService).toConstantValue(blockchain);
@@ -60,6 +62,7 @@ describe("BlockProcessor", () => {
         sandbox.app.bind(Container.Identifiers.WalletRepository).toConstantValue(walletRepository);
         sandbox.app.bind(Container.Identifiers.DatabaseService).toConstantValue(databaseService);
         sandbox.app.bind(Container.Identifiers.DatabaseInteraction).toConstantValue(databaseInteractions);
+        sandbox.app.bind(Container.Identifiers.DatabaseInterceptor).toConstantValue(databaseInterceptor);
         sandbox.app.bind(Container.Identifiers.RoundState).toConstantValue(roundState);
         sandbox.app.bind(Container.Identifiers.TransactionHandlerRegistry).toConstantValue(transactionHandlerRegistry);
         sandbox.app.bind(Container.Identifiers.StateStore).toConstantValue({});
