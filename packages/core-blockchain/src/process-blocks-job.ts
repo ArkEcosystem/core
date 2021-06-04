@@ -145,6 +145,7 @@ export class ProcessBlocksJob implements Contracts.Kernel.QueueJob {
         if (acceptedBlocks.length > 0) {
             try {
                 await this.blockRepository.saveBlocks(acceptedBlocks);
+                this.stateStore.setLastStoredBlockHeight(acceptedBlocks[acceptedBlocks.length - 1].data.height);
             } catch (error) {
                 this.logger.error(
                     `Could not save ${Utils.pluralize("block", acceptedBlocks.length, true)}) to database : ${

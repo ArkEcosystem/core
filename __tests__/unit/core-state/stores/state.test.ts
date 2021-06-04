@@ -355,6 +355,29 @@ describe("State Storage", () => {
         });
     });
 
+    describe("get/setLastDownloadedBlock", () => {
+        it("should return undefined if last downloaded block is not set", () => {
+            expect(stateStorage.getLastDownloadedBlock()).toBeUndefined();
+        });
+
+        it("should set and get last downloaded block", () => {
+            const blockData = blocks[0].data;
+            stateStorage.setLastDownloadedBlock(blockData);
+            expect(stateStorage.getLastDownloadedBlock()).toBe(blockData);
+        });
+    });
+
+    describe("get/setLastStoredBlockHeight", () => {
+        it("should return undefined if last stored block is not set", () => {
+            expect(stateStorage.getLastStoredBlockHeight()).toBe(1);
+        });
+
+        it("should set and get last downloaded block", () => {
+            stateStorage.setLastStoredBlockHeight(10);
+            expect(stateStorage.getLastStoredBlockHeight()).toBe(10);
+        });
+    });
+
     describe("getCommonBlocks", () => {
         it("should get common blocks", () => {
             for (let i = 0; i < 100; i++) {
