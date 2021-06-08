@@ -61,8 +61,6 @@ export class Initialize implements Action {
             /** *******************************
              *  state machine data init      *
              ******************************* */
-            this.stateStore.setLastBlock(block);
-
             // Delete all rounds from the future due to shutdown before processBlocks finished writing the blocks.
             const roundInfo = AppUtils.roundCalculator.calculateRound(block.data.height);
             await this.databaseService.deleteRound(roundInfo.round + 1);

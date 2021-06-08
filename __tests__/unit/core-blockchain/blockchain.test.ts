@@ -714,11 +714,6 @@ describe("Blockchain", () => {
                 await blockchain.removeTopBlocks(numberOfBlocks);
 
                 expect(blockRepository.deleteTopBlocks).toHaveBeenLastCalledWith(numberOfBlocks);
-                expect(databaseInteractions.restoreCurrentRound).toHaveBeenCalled();
-
-                expect(databaseService.getLastBlock).toHaveBeenCalledTimes(1);
-                expect(stateStore.setLastStoredBlockHeight).toHaveBeenCalledTimes(1);
-                expect(stateStore.setLastStoredBlockHeight).toHaveBeenCalledWith(1);
             },
         );
     });
