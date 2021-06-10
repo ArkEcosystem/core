@@ -152,11 +152,11 @@ describe("Logger", () => {
             },
         });
 
-        writableMock.emit("close");
+        writableMock.destroy(new Error("Test error"));
 
         await sleep(100);
 
-        expect(message).toMatch("File stream closed due to an error: Error: premature close");
+        expect(message).toMatch("File stream closed due to an error: Error: Test error");
     });
 
     it("should rotate the log 3 times", async () => {
