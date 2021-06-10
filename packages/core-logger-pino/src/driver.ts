@@ -24,6 +24,9 @@ export class PinoLogger implements Contracts.Kernel.Logger {
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Contracts.Kernel.Application;
 
+    @Container.inject(Container.Identifiers.ConfigFlags)
+    private readonly configFlags!: { processType: string };
+
     /**
      * @private
      * @type {Record<string, Chalk>}
@@ -262,7 +265,7 @@ export class PinoLogger implements Contracts.Kernel.Logger {
         return createStream(
             (time: number | Date, index?: number): string => {
                 if (!time) {
-                    return `${this.app.namespace()}-current.log`;
+                    return `${this.app.namespace()}-${this.configFlags.processType}-current.log`;
                 }
 
                 if (typeof time === "number") {
@@ -276,7 +279,7 @@ export class PinoLogger implements Contracts.Kernel.Logger {
                     filename += `.${index}`;
                 }
 
-                return `${this.app.namespace()}-${filename}.log.gz`;
+                return `${this.app.namespace()}-${this.configFlags.processType}-${filename}.log.gz`;
             },
             {
                 path: this.app.logPath(),
