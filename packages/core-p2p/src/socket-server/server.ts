@@ -92,9 +92,9 @@ export class Server {
     public async boot(): Promise<void> {
         try {
             await this.server.start();
-            this.logger.info(`${this.name} P2P server started at ${this.server.info.uri}`);
+            this.logger.info(`${this.name} started at ${this.server.info.uri}`);
         } catch {
-            await this.app.terminate(`Failed to start ${this.name} Server!`);
+            await this.app.terminate(`Failed to start ${this.name}!`);
         }
     }
 
@@ -105,9 +105,9 @@ export class Server {
     public async dispose(): Promise<void> {
         try {
             await this.server.stop();
-            this.logger.info(`${this.name} P2P peer server stopped at ${this.server.info.uri}`);
+            this.logger.info(`${this.name} stopped at ${this.server.info.uri}`);
         } catch {
-            await this.app.terminate(`Failed to stop ${this.name} Server!`);
+            await this.app.terminate(`Failed to stop ${this.name}!`);
         }
     }
 
