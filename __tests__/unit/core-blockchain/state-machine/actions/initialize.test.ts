@@ -72,7 +72,6 @@ describe("Initialize", () => {
                 process.env.NODE_ENV = "";
                 await initialize.handle();
 
-                expect(stateStore.setLastBlock).toHaveBeenCalledTimes(1);
                 expect(databaseService.deleteRound).toHaveBeenCalledTimes(1);
                 expect(databaseInteractions.restoreCurrentRound).toHaveBeenCalledTimes(1);
                 expect(transactionPool.readdTransactions).toHaveBeenCalledTimes(1);
@@ -196,7 +195,6 @@ describe("Initialize", () => {
                 process.env.NODE_ENV = "test";
                 await initialize.handle();
 
-                expect(stateStore.setLastBlock).toHaveBeenCalledTimes(1);
                 expect(databaseService.deleteRound).toHaveBeenCalledTimes(1);
                 expect(databaseInteractions.restoreCurrentRound).toHaveBeenCalledTimes(1);
                 expect(transactionPool.readdTransactions).toHaveBeenCalledTimes(0);
