@@ -107,8 +107,9 @@ export class PinoLogger implements Contracts.Kernel.Logger {
                 // @ts-ignore - Object literal may only specify known properties, and 'colorize' does not exist in type 'PrettyOptions'.
                 this.createPrettyTransport(options.levels.console, { colorize: true }),
                 process.stdout,
+                /* istanbul ignore next */
                 (err) => {
-                    console.log("Stdout stream closed due to an error:", err);
+                    console.error("Stdout stream closed due to an error:", err);
                 },
             );
         }
@@ -121,7 +122,7 @@ export class PinoLogger implements Contracts.Kernel.Logger {
                 this.createPrettyTransport(options.levels.file, { colorize: false }),
                 this.fileStream,
                 (err) => {
-                    console.log("File stream closed due to an error:", err);
+                    console.error("File stream closed due to an error:", err);
                 },
             );
         }
