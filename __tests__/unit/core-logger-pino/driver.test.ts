@@ -16,6 +16,7 @@ let app: Application;
 
 beforeEach(async () => {
     app = new Application(new Container());
+    app.bind(Identifiers.ConfigFlags).toConstantValue("core");
     app.bind(Identifiers.ApplicationNamespace).toConstantValue("ark-unitnet");
     app.bind("path.log").toConstantValue(dirSync().name);
 
