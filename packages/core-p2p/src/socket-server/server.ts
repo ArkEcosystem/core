@@ -3,15 +3,15 @@ import { Server as HapiServer, ServerInjectOptions, ServerInjectResponse, Server
 
 import { plugin as hapiNesPlugin } from "../hapi-nes";
 import { AcceptPeerPlugin } from "./plugins/accept-peer";
-import { IsAppReadyPlugin } from "./plugins/is-app-ready";
-import { ValidatePlugin } from "./plugins/validate";
 import { CodecPlugin } from "./plugins/codec";
+import { IsAppReadyPlugin } from "./plugins/is-app-ready";
+import { RateLimitPlugin } from "./plugins/rate-limit";
+import { ValidatePlugin } from "./plugins/validate";
 import { WhitelistForgerPlugin } from "./plugins/whitelist-forger";
 import { BlocksRoute } from "./routes/blocks";
 import { InternalRoute } from "./routes/internal";
 import { PeerRoute } from "./routes/peer";
 import { TransactionsRoute } from "./routes/transactions";
-import { RateLimitPlugin } from "./plugins/rate-limit";
 
 // todo: review the implementation
 @Container.injectable()
@@ -64,7 +64,7 @@ export class Server {
             plugin: hapiNesPlugin,
             options: {
                 maxPayload: 20971520, // 20 MB TODO to adjust
-            }
+            },
         });
 
         this.app.resolve(InternalRoute).register(this.server);
