@@ -128,10 +128,9 @@ describe("Logger", () => {
         expect(message).toMatch(/non_silent_message/);
     });
 
-    // TODO: Re-enable tests
-    // this passes locally but fails on pipelines
-    it.skip("should rotate the log 3 times", async () => {
+    it("should rotate the log 3 times", async () => {
         const app = new Application(new Container());
+        app.bind(Identifiers.ConfigFlags).toConstantValue("core");
         app.bind(Identifiers.ApplicationNamespace).toConstantValue("ark-unitnet");
         app.useLogPath(dirSync().name);
 
@@ -148,7 +147,7 @@ describe("Logger", () => {
         for (let i = 0; i < 3; i++) {
             logger.info(`Test ${i + 1}`);
 
-            await sleep(1000);
+            await sleep(800);
         }
 
         const files = readdirSync(app.logPath());
