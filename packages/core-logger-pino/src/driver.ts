@@ -1,5 +1,6 @@
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import chalk, { Chalk } from "chalk";
+import * as console from "console";
 import pino, { PrettyOptions } from "pino";
 import PinoPretty from "pino-pretty";
 import pump from "pump";
@@ -23,6 +24,9 @@ export class PinoLogger implements Contracts.Kernel.Logger {
      */
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Contracts.Kernel.Application;
+
+    @Container.inject(Container.Identifiers.ConfigFlags)
+    private readonly configFlags!: { processType: string };
 
     /**
      * @private
@@ -103,6 +107,10 @@ export class PinoLogger implements Contracts.Kernel.Logger {
                 // @ts-ignore - Object literal may only specify known properties, and 'colorize' does not exist in type 'PrettyOptions'.
                 this.createPrettyTransport(options.levels.console, { colorize: true }),
                 process.stdout,
+                /* istanbul ignore next */
+                (err) => {
+                    console.error("Stdout stream closed due to an error:", err);
+                },
             );
         }
 
@@ -113,6 +121,9 @@ export class PinoLogger implements Contracts.Kernel.Logger {
                 // @ts-ignore - Object literal may only specify known properties, and 'colorize' does not exist in type 'PrettyOptions'.
                 this.createPrettyTransport(options.levels.file, { colorize: false }),
                 this.fileStream,
+                (err) => {
+                    console.error("File stream closed due to an error:", err);
+                },
             );
         }
 
@@ -262,7 +273,7 @@ export class PinoLogger implements Contracts.Kernel.Logger {
         return createStream(
             (time: number | Date, index?: number): string => {
                 if (!time) {
-                    return `${this.app.namespace()}-current.log`;
+                    return `${this.app.namespace()}-${this.configFlags.processType}-current.log`;
                 }
 
                 if (typeof time === "number") {
@@ -276,7 +287,7 @@ export class PinoLogger implements Contracts.Kernel.Logger {
                     filename += `.${index}`;
                 }
 
-                return `${this.app.namespace()}-${filename}.log.gz`;
+                return `${this.app.namespace()}-${this.configFlags.processType}-${filename}.log.gz`;
             },
             {
                 path: this.app.logPath(),
