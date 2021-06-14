@@ -7,6 +7,7 @@ import { Container, Identifiers, injectable, interfaces } from "@packages/core-k
 import { ServiceProvider, ServiceProviderRepository } from "@packages/core-kernel/src/providers";
 import { ConfigRepository } from "@packages/core-kernel/src/services/config";
 import { MemoryEventDispatcher } from "@packages/core-kernel/src/services/events/drivers/memory";
+import delay from "delay";
 import { resolve } from "path";
 import { dirSync } from "tmp";
 
@@ -28,6 +29,10 @@ class StubServiceProvider extends ServiceProvider {
 let app: Application;
 let container: interfaces.Container;
 let logger: Record<string, Function>;
+
+beforeAll(() => {
+    process.setMaxListeners(40);
+});
 
 beforeEach(() => {
     container = new Container();
@@ -501,5 +506,56 @@ describe("Application", () => {
 
     it("should resolve a value from the IoC container", () => {
         expect(app.resolve(StubClass)).toBeInstanceOf(StubClass);
+    });
+
+    describe("should terminate app on shutdown signal", () => {
+        let app: Application;
+
+        beforeEach(() => {
+            const container = new Container();
+
+            Application.prototype.terminate = async () => {};
+            app = new Application(container);
+
+            logger = {
+                error: jest.fn(),
+                notice: jest.fn(),
+                debug: jest.fn(),
+            };
+
+            app.bind(Identifiers.LogService).toConstantValue(logger);
+
+            app.bind(Identifiers.EventDispatcherService).toConstantValue(
+                app.resolve<MemoryEventDispatcher>(MemoryEventDispatcher),
+            );
+        });
+
+        it("when code is emitted", async () => {
+            const spyOnTerminate = jest.spyOn(app, "terminate").mockImplementation(async () => {});
+            // @ts-ignore
+            const spyOnProcessExit = jest.spyOn(process, "exit").mockImplementation(() => {});
+
+            // @ts-ignore
+            process.emit("SIGINT", 1);
+
+            await delay(200);
+
+            expect(spyOnTerminate).toHaveBeenCalledTimes(1);
+            expect(spyOnProcessExit).toHaveBeenCalled();
+        });
+
+        it("when code is undefined", async () => {
+            const spyOnTerminate = jest.spyOn(app, "terminate").mockImplementation(async () => {});
+            // @ts-ignore
+            const spyOnProcessExit = jest.spyOn(process, "exit").mockImplementation(() => {});
+
+            // @ts-ignore
+            process.emit("SIGINT");
+
+            await delay(200);
+
+            expect(spyOnTerminate).toHaveBeenCalledTimes(1);
+            expect(spyOnProcessExit).toHaveBeenCalled();
+        });
     });
 });
