@@ -5,10 +5,10 @@ import * as Bootstrappers from "./bootstrap";
 import { Bootstrapper } from "./bootstrap/interfaces";
 import * as Contracts from "./contracts";
 import { KernelEvent } from "./enums";
+import { ShutdownSignal } from "./enums/shutdown-signals";
 import { DirectoryCannotBeFound } from "./exceptions/filesystem";
 import { Identifiers } from "./ioc";
 import { ServiceProvider, ServiceProviderRepository } from "./providers";
-// import { ShutdownSignal } from "./enums/process";
 import { ConfigRepository } from "./services/config";
 import { ServiceProvider as EventServiceProvider } from "./services/events/service-provider";
 import { JsonObject, KeyValuePair } from "./types";
@@ -35,8 +35,7 @@ export class Application implements Contracts.Kernel.Application {
      * @memberof Contracts.Kernel.Application
      */
     public constructor(public readonly container: Contracts.Kernel.Container.Container) {
-        // todo: enable this after solving the event emitter limit issues
-        // this.listenToShutdownSignals();
+        this.listenToShutdownSignals();
 
         this.bind<Contracts.Kernel.Application>(Identifiers.Application).toConstantValue(this);
 
@@ -505,17 +504,17 @@ export class Application implements Contracts.Kernel.Application {
         this.rebind<string>(`path.${type}`).toConstantValue(path);
     }
 
-    // /**
-    //  * @private
-    //  * @memberof Application
-    //  */
-    // private listenToShutdownSignals(): void {
-    //     for (const signal in ShutdownSignal) {
-    //         process.on(signal as any, async code => {
-    //             await this.terminate(signal);
+    /**
+     * @private
+     * @memberof Application
+     */
+    private listenToShutdownSignals(): void {
+        for (const signal in ShutdownSignal) {
+            process.on(signal as any, async (code) => {
+                await this.terminate(signal);
 
-    //             process.exit(code || 1);
-    //         });
-    //     }
-    // }
+                process.exit(code || 1);
+            });
+        }
+    }
 }
