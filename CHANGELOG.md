@@ -55,7 +55,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 -   Count estimation ([118be7ba], [@rainydio])
 -   Implement `process.list` action ([f31109fc], [@sebastijankuzner])
 -   Implement `process.stop` action ([7db01265], [@sebastijankuzner])
--   Implement `process.start` action  ([c8fdde97], [@sebastijankuzner])
+-   Implement `process.start` action ([c8fdde97], [@sebastijankuzner])
 -   Implement `process.restart` action ([3559f71e], [@sebastijankuzner])
 -   Implement `info.databaseSize` action ([f28ba8db], [@sebastijankuzner])
 -   Implement `info.diskSpace` action ([67cd2c67], [@sebastijankuzner])
@@ -93,7 +93,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 -   Add command to clear transaction pool ([6d6b6d33], [@supaiku])
 -   Implement Address.fromWIF method ([193417e1], [@supaiku])
 -   Filter locks by expiration status ([a0096ffe], [@supaiku])
--   Ensure unique genesisHash per bridgechain  ([bdb7f946], [@supaiku])
+-   Ensure unique genesisHash per bridgechain ([bdb7f946], [@supaiku])
 -   Add `isExpired` property to locks response ([2f734e4f], [@supaiku])
 -   Include business asset in wallet transformer ([7cf1b107], [@supaiku])
 -   Add additional fields to bridgechains search sc… ([34b7e34e], [@supaiku])
@@ -148,6 +148,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Changed
 
+-   Improve wallet sorting performance ([6fec5b2e], [@rainydio])
 -   Fire wallet events ([2c43f6c6], [@rainydio])
 -   Allow array query parameter in all schemas ([a13bf618], [@air1one])
 -   Force typeorm version 0.2.25 ([e8000a63], [@air1one])
@@ -332,7 +333,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 -   Adapt to new container ([eceab20f], [@faustbrian])
 -   Merge core-utils ([56850c56], [@faustbrian])
 -   Adapt to new container ([67b10ddc], [@faustbrian])
--   Deprecate core-error-tracker* packages ([0c03165d], [@faustbrian])
+-   Deprecate core-error-tracker\* packages ([0c03165d], [@faustbrian])
 -   Implement RFC 5424 log levels ([c6137288], [@faustbrian])
 -   Deprecate core-logger-signale and core-logger-winston ([ab8cc65a], [@faustbrian])
 -   Guarantee package order in config through arrays ([dc4bc4ed], [@faustbrian])
@@ -365,7 +366,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 -   Fix delegate search order ([f21af370], [@rainydio])
 -   Limit parameter (rollback #3940) ([39894a40], [@rainydio])
 -   Fix order in delegates/{id}/blocks ([50492b45], [@rainydio])
--   Fix transactions/${id} confirmations and timestamp fields ([a7b46a90], [@rainydio])
+-   Fix transactions/\${id} confirmations and timestamp fields ([a7b46a90], [@rainydio])
 -   Manually apply b0296e765700d0dc7c0356770bd3941da1609660 ([abfe43f8], [@air1one])
 -   Limit max retries form infinity to 1 ([184f5007], [@sebastijankuzner])
 -   Disconnect all sockets on peer disconnect ([95d6b2c2], [@sebastijankuzner])
@@ -484,6 +485,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 [@sleepdefic1t]: https://github.com/sleepdefic1t
 [@supaiku]: https://github.com/supaiku
 [@vasild]: https://github.com/vasild
+[6fec5b2e]: https://github.com/ArkEcosystem/core/commit/6fec5b2e
 [00f4964b]: https://github.com/ARKEcosystem/core/commit/00f4964b
 [01e47446]: https://github.com/ARKEcosystem/core/commit/01e47446
 [027c6dec]: https://github.com/ARKEcosystem/core/commit/027c6dec
