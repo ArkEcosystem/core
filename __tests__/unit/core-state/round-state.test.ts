@@ -623,6 +623,7 @@ describe("RoundState", () => {
 
             getDposPreviousRoundState.mockReturnValue({
                 getAllDelegates: jest.fn().mockReturnValue(delegates),
+                getActiveDelegates: jest.fn().mockReturnValue(delegates),
                 getRoundDelegates: jest.fn().mockReturnValue(delegates),
             });
 
@@ -659,6 +660,7 @@ describe("RoundState", () => {
 
             getDposPreviousRoundState.mockReturnValue({
                 getAllDelegates: jest.fn().mockReturnValue(delegates),
+                getActiveDelegates: jest.fn().mockReturnValue(delegates),
                 getRoundDelegates: jest.fn().mockReturnValue(delegates),
             });
 
@@ -797,6 +799,7 @@ describe("RoundState", () => {
 
             getDposPreviousRoundState.mockReturnValue({
                 getAllDelegates: jest.fn().mockReturnValue(delegates),
+                getActiveDelegates: jest.fn().mockReturnValue(delegates),
                 getRoundDelegates: jest.fn().mockReturnValue(delegates),
             });
 
