@@ -15,6 +15,7 @@ export interface DposState {
 
 export interface DposPreviousRoundState {
     getAllDelegates(): readonly Wallet[];
+    getActiveDelegates(): readonly Wallet[];
     getRoundDelegates(): readonly Wallet[];
 }
 
