@@ -273,7 +273,7 @@ export class RoundState {
         const prevRoundState = await this.getDposPreviousRoundState(blocks, roundInfo);
 
         // TODO: Move to Dpos
-        for (const prevRoundDelegateWallet of prevRoundState.getAllDelegates()) {
+        for (const prevRoundDelegateWallet of prevRoundState.getActiveDelegates()) {
             // ! name suggest that this is pure function
             // ! when in fact it is manipulating current wallet repository setting delegate ranks
             const username = prevRoundDelegateWallet.getAttribute("delegate.username");
