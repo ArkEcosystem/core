@@ -36,7 +36,8 @@ export class Command extends Commands.Command {
     public configure(): void {
         this.definition
             .setFlag("token", "The name of the token.", Joi.string().default("ark"))
-            .setFlag("network", "The name of the network.", Joi.string().valid(...Object.keys(Networks)));
+            .setFlag("network", "The name of the network.", Joi.string().valid(...Object.keys(Networks)))
+            .setArgument("package", "The name of the package.", Joi.string().required());
     }
 
     /**
