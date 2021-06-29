@@ -269,50 +269,51 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
             .get<Contracts.State.StateStore>(Container.Identifiers.StateStore)
             .getLastBlock();
 
-        const allPeers: Contracts.P2P.Peer[] = this.repository.getPeers();
+        const verificationResults: Contracts.P2P.PeerVerificationResult[] = this.repository
+            .getPeers()
+            .filter((peer) => peer.verificationResult)
+            .map((peer) => peer.verificationResult!);
 
-        if (!allPeers.length) {
-            this.logger.info("No peers available.");
+        if (verificationResults.length === 0) {
+            this.logger.info("No verified peers available.");
 
             return { forked: false };
         }
 
-        const forkedPeers: Contracts.P2P.Peer[] = allPeers.filter((peer: Contracts.P2P.Peer) => peer.isForked());
-        const majorityOnOurChain: boolean = forkedPeers.length / allPeers.length < 0.5;
+        const forkedVerificationResults: Contracts.P2P.PeerVerificationResult[] = verificationResults.filter(
+            (verificationResult: Contracts.P2P.PeerVerificationResult) => verificationResult.forked,
+        );
 
-        if (majorityOnOurChain) {
-            this.logger.info("The majority of peers is not forked. No need to rollback.");
-            return { forked: false };
+        const forkHeights: number[] = forkedVerificationResults
+            .map((verificationResult: Contracts.P2P.PeerVerificationResult) => verificationResult.highestCommonHeight)
+            .sort()
+            .reverse();
+
+        for (const forkHeight of forkHeights) {
+            const oursPeerCount = verificationResults.filter((vr) => vr.highestCommonHeight > forkHeight).length + 1;
+            const theirsCount = forkedVerificationResults.filter((vr) => vr.highestCommonHeight === forkHeight).length;
+            const blocksToRollback = lastBlock.data.height - forkHeight;
+
+            if (theirsCount > oursPeerCount) {
+                if (blocksToRollback > 5000) {
+                    this.logger.info(
+                        `Rolling back 5000/${blocksToRollback} blocks to fork at height ${forkHeight} (${oursPeerCount} vs ${theirsCount}).`,
+                    );
+
+                    return { forked: true, blocksToRollback: 5000 };
+                } else {
+                    this.logger.info(
+                        `Rolling back ${blocksToRollback} blocks to fork at height ${forkHeight} (${oursPeerCount} vs ${theirsCount}).`,
+                    );
+
+                    return { forked: true, blocksToRollback };
+                }
+            } else {
+                this.logger.debug(`Ignoring fork at height ${forkHeight} (${oursPeerCount} vs ${theirsCount}).`);
+            }
         }
 
-        const verifiedPeers = allPeers.filter(
-            (peer: Contracts.P2P.Peer) => peer.verificationResult?.highestCommonHeight !== undefined,
-        );
-        const groupedByCommonHeight = Utils.groupBy(
-            verifiedPeers,
-            (peer: Contracts.P2P.Peer) => peer.verificationResult!.highestCommonHeight,
-        );
-
-        const groupedByLength = Utils.groupBy(Object.values(groupedByCommonHeight), (peer) => peer.length);
-
-        // Sort by longest
-        // @ts-ignore
-        const longest = Object.keys(groupedByLength).sort((a, b) => b - a)[0];
-        const longestGroups = groupedByLength[longest];
-
-        // Sort by highest common height DESC
-        longestGroups.sort(
-            (a, b) => b[0].verificationResult.highestCommonHeight - a[0].verificationResult.highestCommonHeight,
-        );
-        const peersMostCommonHeight = longestGroups[0];
-
-        const { highestCommonHeight } = peersMostCommonHeight[0].verificationResult;
-        this.logger.info(
-            `Rolling back to most common height ${highestCommonHeight.toLocaleString()}. Own height: ${lastBlock.data.height.toLocaleString()}`,
-        );
-
-        // Now rollback blocks equal to the distance to the most common height.
-        return { forked: true, blocksToRollback: Math.min(lastBlock.data.height - highestCommonHeight, 5000) };
+        return { forked: false };
     }
 
     public async downloadBlocksFromHeight(
