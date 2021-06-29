@@ -467,7 +467,6 @@ export class Client {
     }
 
     private _onMessage(message) {
-        this._resetMaxPayload();
         this._beat();
 
         let update;
@@ -505,6 +504,8 @@ export class Client {
             this._lastPinged = Date.now();
             return this._send({ type: "ping" }, false).catch(ignore); // Ignore errors
         }
+
+        this._resetMaxPayload();
 
         // Lookup request (message must include an id from this point)
 
