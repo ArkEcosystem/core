@@ -286,12 +286,13 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
 
         const forkHeights: number[] = forkedVerificationResults
             .map((verificationResult: Contracts.P2P.PeerVerificationResult) => verificationResult.highestCommonHeight)
+            .filter((forkHeight, i, arr) => arr.indexOf(forkHeight) === i) // unique
             .sort()
             .reverse();
 
         for (const forkHeight of forkHeights) {
-            const oursPeerCount = verificationResults.filter((vr) => vr.highestCommonHeight > forkHeight).length + 1;
             const theirsCount = forkedVerificationResults.filter((vr) => vr.highestCommonHeight === forkHeight).length;
+            const oursPeerCount = verificationResults.filter((vr) => vr.highestCommonHeight > forkHeight).length + 1;
             const blocksToRollback = lastBlock.data.height - forkHeight;
 
             if (theirsCount > oursPeerCount) {
