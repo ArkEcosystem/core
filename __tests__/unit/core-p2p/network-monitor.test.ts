@@ -568,95 +568,112 @@ describe("NetworkMonitor", () => {
     });
 
     describe("checkNetworkHealth", () => {
-        describe("when we have 0 peer", () => {
-            beforeEach(() => {
-                repository.getPeers = jest.fn().mockReturnValue([]);
-            });
-            afterEach(() => {
-                repository.getPeers = jest.fn();
-            });
+        it("should not rollback when there are no verified peers", async () => {
+            const peers = [
+                new Peer("180.177.54.4", 4000), // 100
+                new Peer("180.177.54.4", 4000), // 100
+                new Peer("180.177.54.4", 4000), // 100
+                new Peer("180.177.54.4", 4000), // 103
+                new Peer("180.177.54.4", 4000), // 103
+                new Peer("180.177.54.4", 4000), // 105
+                new Peer("180.177.54.4", 4000), // 105
+                new Peer("180.177.54.4", 4000), // 105
+                new Peer("180.177.54.4", 4000), // 105
+            ];
 
-            it("should return {forked: false}", async () => {
+            try {
+                repository.getPeers.mockReturnValue(peers);
+
                 const networkStatus = await networkMonitor.checkNetworkHealth();
-
                 expect(networkStatus).toEqual({ forked: false });
-            });
+            } finally {
+                repository.getPeers.mockReset();
+            }
         });
 
-        describe("when majority of our peers is on our chain", () => {
+        it("should rollback ignoring peers how are at common height", async () => {
+            //     105 (4 peers)
+            //    /
+            // 100 (3 peers) ... 103 (2 peers and us)
+
+            const lastBlock = { data: { height: 103 } };
+
             const peers = [
-                new Peer("180.177.54.4", 4000),
-                new Peer("181.177.54.4", 4000),
-                new Peer("182.177.54.4", 4000),
-                new Peer("183.177.54.4", 4000),
-                new Peer("184.177.54.4", 4000),
-                new Peer("185.177.54.4", 4000),
-                new Peer("186.177.54.4", 4000),
-                new Peer("187.177.54.4", 4000),
-                new Peer("188.177.54.4", 4000),
-                new Peer("189.177.54.4", 4000),
+                new Peer("180.177.54.4", 4000), // 100
+                new Peer("180.177.54.4", 4000), // 100
+                new Peer("180.177.54.4", 4000), // 100
+                new Peer("180.177.54.4", 4000), // 103
+                new Peer("180.177.54.4", 4000), // 103
+                new Peer("180.177.54.4", 4000), // 105
+                new Peer("180.177.54.4", 4000), // 105
+                new Peer("180.177.54.4", 4000), // 105
+                new Peer("180.177.54.4", 4000), // 105
             ];
-            // 4 peers are forked out of 10
-            peers[0].verificationResult = new PeerVerificationResult(3, 4, 2);
-            peers[1].verificationResult = new PeerVerificationResult(3, 4, 2);
-            peers[2].verificationResult = new PeerVerificationResult(3, 4, 2);
-            peers[3].verificationResult = new PeerVerificationResult(3, 4, 2);
 
-            peers[4].verificationResult = new PeerVerificationResult(3, 4, 3);
-            peers[5].verificationResult = new PeerVerificationResult(3, 4, 3);
-            peers[6].verificationResult = new PeerVerificationResult(3, 4, 3);
-            peers[7].verificationResult = new PeerVerificationResult(3, 4, 3);
-            peers[8].verificationResult = new PeerVerificationResult(3, 4, 3);
-            peers[9].verificationResult = new PeerVerificationResult(3, 4, 3);
+            peers[0].verificationResult = new PeerVerificationResult(103, 100, 100);
+            peers[1].verificationResult = new PeerVerificationResult(103, 100, 100);
+            peers[2].verificationResult = new PeerVerificationResult(103, 100, 100);
+            peers[3].verificationResult = new PeerVerificationResult(103, 103, 103);
+            peers[4].verificationResult = new PeerVerificationResult(103, 103, 103);
 
-            beforeEach(() => {
-                repository.getPeers = jest.fn().mockReturnValue(peers);
-            });
-            afterEach(() => {
-                repository.getPeers = jest.fn();
-            });
-            it("should return {forked: false}", async () => {
+            peers[5].verificationResult = new PeerVerificationResult(103, 105, 100);
+            peers[6].verificationResult = new PeerVerificationResult(103, 105, 100);
+            peers[7].verificationResult = new PeerVerificationResult(103, 105, 100);
+            peers[8].verificationResult = new PeerVerificationResult(103, 105, 100);
+
+            try {
+                repository.getPeers.mockReturnValue(peers);
+                stateStore.getLastBlock.mockReturnValue(lastBlock);
+
                 const networkStatus = await networkMonitor.checkNetworkHealth();
-
-                expect(networkStatus).toEqual({ forked: false });
-            });
+                expect(networkStatus).toEqual({ forked: true, blocksToRollback: 3 });
+            } finally {
+                repository.getPeers.mockReset();
+                stateStore.getLastBlock.mockReset();
+            }
         });
 
-        describe("when majority of our peers is on another chain", () => {
+        it("should not rollback although most peers are forked", async () => {
+            //    47 (1 peer)    47 (3 peers)   47 (3 peers)
+            //   /              /              /
+            // 12 ........... 31 ........... 35 ... 43 (3 peers and us)
+
+            const lastBlock = { data: { height: 103 } };
+
             const peers = [
                 new Peer("180.177.54.4", 4000),
-                new Peer("181.177.54.4", 4000),
-                new Peer("182.177.54.4", 4000),
-                new Peer("183.177.54.4", 4000),
-                new Peer("184.177.54.4", 4000),
-                new Peer("185.177.54.4", 4000),
-                new Peer("186.177.54.4", 4000),
-                new Peer("187.177.54.4", 4000),
-                new Peer("188.177.54.4", 4000),
-                new Peer("189.177.54.4", 4000),
+                new Peer("180.177.54.4", 4000),
+                new Peer("180.177.54.4", 4000),
+                new Peer("180.177.54.4", 4000),
+                new Peer("180.177.54.4", 4000),
+                new Peer("180.177.54.4", 4000),
+                new Peer("180.177.54.4", 4000),
+                new Peer("180.177.54.4", 4000),
+                new Peer("180.177.54.4", 4000),
+                new Peer("180.177.54.4", 4000),
             ];
-            // 7 peers are forked out of 10
-            peers[0].verificationResult = new PeerVerificationResult(43, 47, 31);
+
+            peers[0].verificationResult = new PeerVerificationResult(43, 47, 12);
             peers[1].verificationResult = new PeerVerificationResult(43, 47, 31);
             peers[2].verificationResult = new PeerVerificationResult(43, 47, 31);
-            peers[3].verificationResult = new PeerVerificationResult(43, 47, 35);
+            peers[3].verificationResult = new PeerVerificationResult(43, 47, 31);
             peers[4].verificationResult = new PeerVerificationResult(43, 47, 35);
             peers[5].verificationResult = new PeerVerificationResult(43, 47, 35);
-            peers[6].verificationResult = new PeerVerificationResult(43, 47, 12);
+            peers[6].verificationResult = new PeerVerificationResult(43, 47, 35);
+            peers[7].verificationResult = new PeerVerificationResult(43, 47, 43);
+            peers[8].verificationResult = new PeerVerificationResult(43, 47, 43);
+            peers[9].verificationResult = new PeerVerificationResult(43, 47, 43);
 
-            beforeEach(() => {
-                stateStore.getLastBlock = jest.fn().mockReturnValueOnce({ data: { height: 43 } });
-                repository.getPeers = jest.fn().mockReturnValue(peers);
-            });
-            afterEach(() => {
-                repository.getPeers = jest.fn();
-            });
+            try {
+                repository.getPeers.mockReturnValue(peers);
+                stateStore.getLastBlock.mockReturnValue(lastBlock);
 
-            it("should return {forked: true, blocksToRollback:<current height - highestCommonHeight>}", async () => {
                 const networkStatus = await networkMonitor.checkNetworkHealth();
-
-                expect(networkStatus).toEqual({ forked: true, blocksToRollback: 43 - 35 });
-            });
+                expect(networkStatus).toEqual({ forked: false });
+            } finally {
+                repository.getPeers.mockReset();
+                stateStore.getLastBlock.mockReset();
+            }
         });
     });
 
