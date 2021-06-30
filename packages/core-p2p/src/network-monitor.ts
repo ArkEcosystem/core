@@ -293,9 +293,10 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
         for (const forkHeight of forkHeights) {
             const forkPeerCount = forkVerificationResults.filter((vr) => vr.highestCommonHeight === forkHeight).length;
             const ourPeerCount = verificationResults.filter((vr) => vr.highestCommonHeight > forkHeight).length + 1;
-            const blocksToRollback = lastBlock.data.height - forkHeight;
 
             if (forkPeerCount > ourPeerCount) {
+                const blocksToRollback = lastBlock.data.height - forkHeight;
+
                 if (blocksToRollback > 5000) {
                     this.logger.info(
                         `Rolling back 5000/${blocksToRollback} blocks to fork at height ${forkHeight} (${ourPeerCount} vs ${forkPeerCount}).`,
