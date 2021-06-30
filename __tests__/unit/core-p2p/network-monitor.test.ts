@@ -570,15 +570,15 @@ describe("NetworkMonitor", () => {
     describe("checkNetworkHealth", () => {
         it("should not rollback when there are no verified peers", async () => {
             const peers = [
-                new Peer("180.177.54.4", 4000), // 100
-                new Peer("180.177.54.4", 4000), // 100
-                new Peer("180.177.54.4", 4000), // 100
-                new Peer("180.177.54.4", 4000), // 103
-                new Peer("180.177.54.4", 4000), // 103
-                new Peer("180.177.54.4", 4000), // 105
-                new Peer("180.177.54.4", 4000), // 105
-                new Peer("180.177.54.4", 4000), // 105
-                new Peer("180.177.54.4", 4000), // 105
+                new Peer("180.177.54.4", 4000),
+                new Peer("180.177.54.4", 4000),
+                new Peer("180.177.54.4", 4000),
+                new Peer("180.177.54.4", 4000),
+                new Peer("180.177.54.4", 4000),
+                new Peer("180.177.54.4", 4000),
+                new Peer("180.177.54.4", 4000),
+                new Peer("180.177.54.4", 4000),
+                new Peer("180.177.54.4", 4000),
             ];
 
             try {
@@ -599,27 +599,28 @@ describe("NetworkMonitor", () => {
             const lastBlock = { data: { height: 103 } };
 
             const peers = [
-                new Peer("180.177.54.4", 4000), // 100
-                new Peer("180.177.54.4", 4000), // 100
-                new Peer("180.177.54.4", 4000), // 100
-                new Peer("180.177.54.4", 4000), // 103
-                new Peer("180.177.54.4", 4000), // 103
-                new Peer("180.177.54.4", 4000), // 105
-                new Peer("180.177.54.4", 4000), // 105
-                new Peer("180.177.54.4", 4000), // 105
-                new Peer("180.177.54.4", 4000), // 105
+                new Peer("180.177.54.4", 4000),
+                new Peer("180.177.54.4", 4000),
+                new Peer("180.177.54.4", 4000),
+                new Peer("180.177.54.4", 4000),
+                new Peer("180.177.54.4", 4000),
+                new Peer("180.177.54.4", 4000),
+                new Peer("180.177.54.4", 4000),
+                new Peer("180.177.54.4", 4000),
+                new Peer("180.177.54.4", 4000),
             ];
 
             peers[0].verificationResult = new PeerVerificationResult(103, 100, 100);
             peers[1].verificationResult = new PeerVerificationResult(103, 100, 100);
             peers[2].verificationResult = new PeerVerificationResult(103, 100, 100);
-            peers[3].verificationResult = new PeerVerificationResult(103, 103, 103);
-            peers[4].verificationResult = new PeerVerificationResult(103, 103, 103);
 
+            peers[3].verificationResult = new PeerVerificationResult(103, 105, 100);
+            peers[4].verificationResult = new PeerVerificationResult(103, 105, 100);
             peers[5].verificationResult = new PeerVerificationResult(103, 105, 100);
             peers[6].verificationResult = new PeerVerificationResult(103, 105, 100);
-            peers[7].verificationResult = new PeerVerificationResult(103, 105, 100);
-            peers[8].verificationResult = new PeerVerificationResult(103, 105, 100);
+
+            peers[7].verificationResult = new PeerVerificationResult(103, 103, 103);
+            peers[8].verificationResult = new PeerVerificationResult(103, 103, 103);
 
             try {
                 repository.getPeers.mockReturnValue(peers);
@@ -654,12 +655,15 @@ describe("NetworkMonitor", () => {
             ];
 
             peers[0].verificationResult = new PeerVerificationResult(43, 47, 12);
+
             peers[1].verificationResult = new PeerVerificationResult(43, 47, 31);
             peers[2].verificationResult = new PeerVerificationResult(43, 47, 31);
             peers[3].verificationResult = new PeerVerificationResult(43, 47, 31);
+
             peers[4].verificationResult = new PeerVerificationResult(43, 47, 35);
             peers[5].verificationResult = new PeerVerificationResult(43, 47, 35);
             peers[6].verificationResult = new PeerVerificationResult(43, 47, 35);
+
             peers[7].verificationResult = new PeerVerificationResult(43, 47, 43);
             peers[8].verificationResult = new PeerVerificationResult(43, 47, 43);
             peers[9].verificationResult = new PeerVerificationResult(43, 47, 43);
