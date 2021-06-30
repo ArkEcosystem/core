@@ -280,37 +280,37 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
             return { forked: false };
         }
 
-        const forkedVerificationResults: Contracts.P2P.PeerVerificationResult[] = verificationResults.filter(
+        const forkVerificationResults: Contracts.P2P.PeerVerificationResult[] = verificationResults.filter(
             (verificationResult: Contracts.P2P.PeerVerificationResult) => verificationResult.forked,
         );
 
-        const forkHeights: number[] = forkedVerificationResults
+        const forkHeights: number[] = forkVerificationResults
             .map((verificationResult: Contracts.P2P.PeerVerificationResult) => verificationResult.highestCommonHeight)
             .filter((forkHeight, i, arr) => arr.indexOf(forkHeight) === i) // unique
             .sort()
             .reverse();
 
         for (const forkHeight of forkHeights) {
-            const theirsCount = forkedVerificationResults.filter((vr) => vr.highestCommonHeight === forkHeight).length;
-            const oursPeerCount = verificationResults.filter((vr) => vr.highestCommonHeight > forkHeight).length + 1;
+            const forkPeerCount = forkVerificationResults.filter((vr) => vr.highestCommonHeight === forkHeight).length;
+            const ourPeerCount = verificationResults.filter((vr) => vr.highestCommonHeight > forkHeight).length + 1;
             const blocksToRollback = lastBlock.data.height - forkHeight;
 
-            if (theirsCount > oursPeerCount) {
+            if (forkPeerCount > ourPeerCount) {
                 if (blocksToRollback > 5000) {
                     this.logger.info(
-                        `Rolling back 5000/${blocksToRollback} blocks to fork at height ${forkHeight} (${oursPeerCount} vs ${theirsCount}).`,
+                        `Rolling back 5000/${blocksToRollback} blocks to fork at height ${forkHeight} (${ourPeerCount} vs ${forkPeerCount}).`,
                     );
 
                     return { forked: true, blocksToRollback: 5000 };
                 } else {
                     this.logger.info(
-                        `Rolling back ${blocksToRollback} blocks to fork at height ${forkHeight} (${oursPeerCount} vs ${theirsCount}).`,
+                        `Rolling back ${blocksToRollback} blocks to fork at height ${forkHeight} (${ourPeerCount} vs ${forkPeerCount}).`,
                     );
 
                     return { forked: true, blocksToRollback };
                 }
             } else {
-                this.logger.debug(`Ignoring fork at height ${forkHeight} (${oursPeerCount} vs ${theirsCount}).`);
+                this.logger.debug(`Ignoring fork at height ${forkHeight} (${ourPeerCount} vs ${forkPeerCount}).`);
             }
         }
 
