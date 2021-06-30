@@ -602,6 +602,13 @@ describe("NetworkMonitor", () => {
             peers[2].verificationResult = new PeerVerificationResult(3, 4, 2);
             peers[3].verificationResult = new PeerVerificationResult(3, 4, 2);
 
+            peers[4].verificationResult = new PeerVerificationResult(3, 4, 3);
+            peers[5].verificationResult = new PeerVerificationResult(3, 4, 3);
+            peers[6].verificationResult = new PeerVerificationResult(3, 4, 3);
+            peers[7].verificationResult = new PeerVerificationResult(3, 4, 3);
+            peers[8].verificationResult = new PeerVerificationResult(3, 4, 3);
+            peers[9].verificationResult = new PeerVerificationResult(3, 4, 3);
+
             beforeEach(() => {
                 repository.getPeers = jest.fn().mockReturnValue(peers);
             });
