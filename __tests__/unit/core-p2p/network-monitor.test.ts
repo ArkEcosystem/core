@@ -591,6 +591,49 @@ describe("NetworkMonitor", () => {
             }
         });
 
+        it("should rollback ignoring peers how are below common height", async () => {
+            //                      105 (4 peers)
+            //                     /
+            // 90 (3 peers) ... 100 ... 103 (2 peers and us)
+
+            const lastBlock = { data: { height: 103 } };
+
+            const peers = [
+                new Peer("180.177.54.4", 4000),
+                new Peer("180.177.54.4", 4000),
+                new Peer("180.177.54.4", 4000),
+                new Peer("180.177.54.4", 4000),
+                new Peer("180.177.54.4", 4000),
+                new Peer("180.177.54.4", 4000),
+                new Peer("180.177.54.4", 4000),
+                new Peer("180.177.54.4", 4000),
+                new Peer("180.177.54.4", 4000),
+            ];
+
+            peers[0].verificationResult = new PeerVerificationResult(103, 90, 90);
+            peers[1].verificationResult = new PeerVerificationResult(103, 90, 90);
+            peers[2].verificationResult = new PeerVerificationResult(103, 90, 90);
+
+            peers[3].verificationResult = new PeerVerificationResult(103, 105, 100);
+            peers[4].verificationResult = new PeerVerificationResult(103, 105, 100);
+            peers[5].verificationResult = new PeerVerificationResult(103, 105, 100);
+            peers[6].verificationResult = new PeerVerificationResult(103, 105, 100);
+
+            peers[7].verificationResult = new PeerVerificationResult(103, 103, 103);
+            peers[8].verificationResult = new PeerVerificationResult(103, 103, 103);
+
+            try {
+                repository.getPeers.mockReturnValue(peers);
+                stateStore.getLastBlock.mockReturnValue(lastBlock);
+
+                const networkStatus = await networkMonitor.checkNetworkHealth();
+                expect(networkStatus).toEqual({ forked: true, blocksToRollback: 3 });
+            } finally {
+                repository.getPeers.mockReset();
+                stateStore.getLastBlock.mockReset();
+            }
+        });
+
         it("should rollback ignoring peers how are at common height", async () => {
             //     105 (4 peers)
             //    /
