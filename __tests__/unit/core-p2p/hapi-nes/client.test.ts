@@ -60,6 +60,25 @@ describe("Client", () => {
         expect(client._settings.ws).toEqual({ maxPayload: 100 });
     });
 
+    it("does not reset maxPayload on socket after receiving ping message", async () => {
+        const server = await createServerWithPlugin({ heartbeat: { interval: 20, timeout: 10 } });
+        await server.start();
+
+        const client = new Client("http://localhost:" + server.info.port);
+        await client.connect({ reconnect: false });
+        client.onError = Hoek.ignore;
+
+        client.setMaxPayload(204800); // setting here after the initial "hello"
+
+        await Hoek.wait(30);
+
+        // @ts-ignore
+        expect(client._ws._receiver._maxPayload).toEqual(204800);
+
+        await client.disconnect();
+        await server.stop();
+    });
+
     describe("onError", () => {
         it("logs error to console by default", async () => {
             const server = await createServerWithPlugin();
