@@ -41,7 +41,9 @@ export class Client {
      */
     public register(hosts: RelayHost[]) {
         this.hosts = hosts.map((host: RelayHost) => {
-            const connection = new Nes.Client(`ws://${Utils.IpAddress.normalizeAddress(host.hostname)}:${host.port}`);
+            const url = `ws://${Utils.IpAddress.normalizeAddress(host.hostname)}:${host.port}`;
+            const options = { ws: { maxPayload: MAX_PAYLOAD_CLIENT } };
+            const connection = new Nes.Client(url, options);
             connection.connect().catch((e) => {}); // connect promise can fail when p2p is not ready, it's fine it will retry
 
             connection.onError = (e) => {
@@ -213,8 +215,6 @@ export class Client {
                 path: event,
                 payload: codec.request.serialize(payload),
             };
-
-            this.host.socket.setMaxPayload(MAX_PAYLOAD_CLIENT);
 
             const response: any = await this.host.socket.request(options);
 
