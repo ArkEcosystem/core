@@ -147,6 +147,31 @@ describe("NetworkMonitor", () => {
                 }
             });
 
+            it("should populate peers from URL config by calling validateAndAcceptPeer, when body is string", async () => {
+                appConfigPeers.sources = ["http://peers.someurl.com"];
+
+                const peers = [
+                    { ip: "187.177.54.44", port: 4000 },
+                    { ip: "188.177.54.44", port: 4000 },
+                    { ip: "189.177.54.44", port: 4000 },
+                    { ip: "190.177.54.44", port: 4000 },
+                    { ip: "191.177.54.44", port: 4000 },
+                ];
+                jest.spyOn(Utils.http, "get").mockResolvedValueOnce({
+                    data: JSON.stringify(peers),
+                } as Utils.HttpResponse);
+
+                await networkMonitor.boot();
+
+                expect(triggerService.call).toBeCalledTimes(peers.length); // for each peer validateAndAcceptPeer is called
+                for (const peer of peers) {
+                    expect(triggerService.call).toBeCalledWith("validateAndAcceptPeer", {
+                        peer: expect.objectContaining(peer),
+                        options: { seed: true, lessVerbose: true },
+                    });
+                }
+            });
+
             it("should handle as empty array if appConfigPeers.sources is undefined", async () => {
                 // @ts-ignore
                 appConfigPeers.sources = undefined;
