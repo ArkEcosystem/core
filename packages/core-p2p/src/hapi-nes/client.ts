@@ -463,7 +463,7 @@ export class Client {
     }
 
     private _resetMaxPayload() {
-        this.setMaxPayload(DEFAULT_MAX_PAYLOAD_CLIENT);
+        this.setMaxPayload(this._settings.ws.maxPayload);
     }
 
     private _onMessage(message) {
