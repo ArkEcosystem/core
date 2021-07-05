@@ -117,7 +117,7 @@ export class Command extends Commands.Command {
                 title: "Validating passphrase is BIP39 compliant.",
                 task: () => {
                     if (!validateMnemonic(flags.bip39) && !flags.skipValidation) {
-                        this.components.fatal(`Failed to verify the given passphrase as BIP39 compliant.`);
+                        throw new Error(`Failed to verify the given passphrase as BIP39 compliant.`);
                     }
                 },
             },

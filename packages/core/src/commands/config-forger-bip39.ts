@@ -1,7 +1,6 @@
 import { Commands, Container, Contracts } from "@arkecosystem/core-cli";
 import { Networks } from "@arkecosystem/crypto";
 import { validateMnemonic } from "bip39";
-import * as console from "console";
 import { writeJSONSync } from "fs-extra";
 import Joi from "joi";
 
@@ -78,10 +77,6 @@ export class Command extends Commands.Command {
             },
         ]);
 
-        if (!response.bip39) {
-            this.components.fatal("Failed to verify the given passphrase as BIP39 compliant.");
-        }
-
         if (response.confirm) {
             return this.performConfiguration({ ...this.getFlags(), ...response });
         }
@@ -98,11 +93,8 @@ export class Command extends Commands.Command {
             {
                 title: "Validating passphrase is BIP39 compliant.",
                 task: () => {
-                    console.log(this.getFlag("bip39"));
-                    console.log(this.getFlag("skipValidation"));
-
-                    if (!validateMnemonic(flags.bip39) && !flags.skipValidation) {
-                        this.components.fatal(`Failed to verify the given passphrase as BIP39 compliant.`);
+                    if (!flags.bip39 || (!validateMnemonic(flags.bip39) && !flags.skipValidation)) {
+                        throw new Error(`Failed to verify the given passphrase as BIP39 compliant.`);
                     }
                 },
             },
