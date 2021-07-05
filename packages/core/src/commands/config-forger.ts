@@ -45,7 +45,8 @@ export class Command extends Commands.Command {
                 "method",
                 "The configuration method to use (BIP38 or BIP39).",
                 Joi.string().valid(...["bip38", "bip39"]),
-            );
+            )
+            .setFlag("skipValidation", "Skip BIP39 mnemonic validation", Joi.boolean().default(false));
     }
 
     /**
