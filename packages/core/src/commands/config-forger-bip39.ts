@@ -1,8 +1,8 @@
 import { Commands, Container, Contracts } from "@arkecosystem/core-cli";
 import { Networks } from "@arkecosystem/crypto";
-import Joi from "joi";
 import { validateMnemonic } from "bip39";
 import { writeJSONSync } from "fs-extra";
+import Joi from "joi";
 
 /**
  * @export
@@ -45,7 +45,8 @@ export class Command extends Commands.Command {
         this.definition
             .setFlag("token", "The name of the token.", Joi.string().default("ark"))
             .setFlag("network", "The name of the network.", Joi.string().valid(...Object.keys(Networks)))
-            .setFlag("bip39", "A delegate plain text passphrase. Referred to as BIP39.", Joi.string());
+            .setFlag("bip39", "A delegate plain text passphrase. Referred to as BIP39.", Joi.string())
+            .setFlag("skipValidation", "Skip BIP39 mnemonic validation", Joi.boolean().default(false));
     }
 
     /**
@@ -65,7 +66,9 @@ export class Command extends Commands.Command {
                 name: "bip39",
                 message: "Please enter your delegate plain text passphrase. Referred to as BIP39.",
                 validate: /* istanbul ignore next */ (value) =>
-                    !validateMnemonic(value) ? `Failed to verify the given passphrase as BIP39 compliant.` : true,
+                    !validateMnemonic(value) && !this.getFlag("skipValidation")
+                        ? `Failed to verify the given passphrase as BIP39 compliant.`
+                        : true,
             },
             {
                 type: "confirm",
@@ -73,10 +76,6 @@ export class Command extends Commands.Command {
                 message: "Can you confirm?",
             },
         ]);
-
-        if (!response.bip39 || !validateMnemonic(response.bip39 as string)) {
-            this.components.fatal("Failed to verify the given passphrase as BIP39 compliant.");
-        }
 
         if (response.confirm) {
             return this.performConfiguration({ ...this.getFlags(), ...response });
@@ -94,8 +93,8 @@ export class Command extends Commands.Command {
             {
                 title: "Validating passphrase is BIP39 compliant.",
                 task: () => {
-                    if (!validateMnemonic(flags.bip39)) {
-                        this.components.fatal(`Failed to verify the given passphrase as BIP39 compliant.`);
+                    if (!flags.bip39 || (!validateMnemonic(flags.bip39) && !flags.skipValidation)) {
+                        throw new Error(`Failed to verify the given passphrase as BIP39 compliant.`);
                     }
                 },
             },

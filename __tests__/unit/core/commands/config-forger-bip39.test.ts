@@ -54,8 +54,18 @@ describe("BIP39Command", () => {
         expect(require(`${process.env.CORE_PATH_CONFIG}/delegates.json`)).toEqual({ secrets: [bip39] });
     });
 
+    it("should configure from a prompt if it receives an invalid bip39 and skipValidation flag is set", async () => {
+        await cli.withFlags({ bip39 }).execute(Command);
+
+        prompts.inject(["random-string", true]);
+
+        await cli.withFlags({ skipValidation: true }).execute(Command);
+
+        expect(require(`${process.env.CORE_PATH_CONFIG}/delegates.json`)).toEqual({ secrets: ["random-string"] });
+    });
+
     it("should fail to configure from a prompt if it doesn't receive a bip39", async () => {
-        prompts.inject([null]);
+        prompts.inject([null, true]);
 
         await expect(cli.execute(Command)).rejects.toThrow("Failed to verify the given passphrase as BIP39 compliant.");
     });
