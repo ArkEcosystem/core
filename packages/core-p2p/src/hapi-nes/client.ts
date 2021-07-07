@@ -467,7 +467,6 @@ export class Client {
     }
 
     private _onMessage(message) {
-        this._resetMaxPayload();
         this._beat();
 
         let update;
@@ -508,6 +507,8 @@ export class Client {
         }
 
         // Lookup request (message must include an id from this point)
+
+        this._resetMaxPayload();
 
         const request = this._requests[update.id];
         if (!request) {
