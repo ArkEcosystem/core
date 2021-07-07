@@ -506,10 +506,9 @@ export class Client {
             return this._send({ type: "ping" }, false).catch(ignore); // Ignore errors
         }
 
-        // Lookup request (message must include an id from this point)
-
         this._resetMaxPayload();
 
+        // Lookup request (message must include an id from this point)
         const request = this._requests[update.id];
         if (!request) {
             return this.onError(NesError("Received response for unknown request", errorTypes.PROTOCOL));
