@@ -621,7 +621,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
             // URL...
             this.logger.debug(`GET ${url}`);
             const { data } = await Utils.http.get(url);
-            return data;
+            return typeof data === "object" ? data : JSON.parse(data);
         }
 
         return [];
