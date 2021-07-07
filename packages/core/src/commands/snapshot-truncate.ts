@@ -35,8 +35,7 @@ export class Command extends Commands.Command {
     public configure(): void {
         this.definition
             .setFlag("token", "The name of the token.", Joi.string().default("ark"))
-            .setFlag("network", "The name of the network.", Joi.string().valid(...Object.keys(Networks)))
-            .setFlag("skipCompression", "Skip gzip compression.", Joi.boolean());
+            .setFlag("network", "The name of the network.", Joi.string().valid(...Object.keys(Networks)));
     }
 
     /**
