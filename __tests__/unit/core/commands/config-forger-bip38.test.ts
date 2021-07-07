@@ -52,8 +52,25 @@ describe("BIP38Command", () => {
             secrets: [],
         });
 
-        jest.spyOn(cli.app.get(Container.Identifiers.Prompt), "render")
-            .mockReturnValueOnce({
+        jest.spyOn(cli.app.get(Container.Identifiers.Prompt), "render").mockReturnValueOnce({
+            // @ts-ignore
+            bip39: "random-string",
+            password,
+            passwordConfirmation: password,
+        });
+
+        await expect(cli.execute(Command)).rejects.toThrow("Failed to verify the given passphrase as BIP39 compliant.");
+    });
+
+    it("should configure from a prompt if it receives an invalid bip39 amd skipValidation flag is set", async () => {
+        await cli.withFlags({ bip39, password, skipValidation: true }).execute(Command);
+
+        expect(require(`${process.env.CORE_PATH_CONFIG}/delegates.json`)).toEqual({
+            bip38: "6PYTQC4c3Te5FCbnU5Z59uZCav121nypLmxanYn21ZoNTdc81eB9wTqeTe",
+            secrets: [],
+        });
+
+        jest.spyOn(cli.app.get(Container.Identifiers.Prompt), "render").mockReturnValueOnce({
             // @ts-ignore
             bip39: "random-string",
             password,

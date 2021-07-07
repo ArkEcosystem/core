@@ -463,7 +463,7 @@ export class Client {
     }
 
     private _resetMaxPayload() {
-        this.setMaxPayload(DEFAULT_MAX_PAYLOAD_CLIENT);
+        this.setMaxPayload(this._settings.ws.maxPayload);
     }
 
     private _onMessage(message) {
@@ -485,9 +485,10 @@ export class Client {
         let error: any = null;
         if (update.statusCode && update.statusCode >= 400) {
             /* istanbul ignore next */
-            update.payload = update.payload instanceof Buffer ?
-                (update.payload as Buffer).slice(0, 512).toString() // slicing to reduce possible intensive toString() call
-                : "Error";
+            update.payload =
+                update.payload instanceof Buffer
+                    ? (update.payload as Buffer).slice(0, 512).toString() // slicing to reduce possible intensive toString() call
+                    : "Error";
             error = NesError(update.payload, errorTypes.SERVER);
             error.statusCode = update.statusCode;
             error.data = update.payload;
@@ -498,7 +499,7 @@ export class Client {
         // Ping
 
         if (update.type === "ping") {
-            if (this._lastPinged && (Date.now() < this._lastPinged + 1000)) {
+            if (this._lastPinged && Date.now() < this._lastPinged + 1000) {
                 this._lastPinged = Date.now();
                 return this.onError(NesError("Ping exceeded limit", errorTypes.PROTOCOL));
             }
