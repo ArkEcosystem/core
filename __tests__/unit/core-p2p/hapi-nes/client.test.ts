@@ -48,16 +48,22 @@ const createServerWithPlugin = async (pluginOptions = {}, serverOptions = {}, wi
 };
 
 describe("Client", () => {
-    it("defaults options.ws.maxPayload to 102400 (node)", () => {
+    it("defaults options.ws.maxPayload to 102400 (node) && perMessageDeflate to false", () => {
         const client = new Client("http://localhost");
         // @ts-ignore
-        expect(client._settings.ws).toEqual({ maxPayload: 102400 });
+        expect(client._settings.ws).toEqual({ maxPayload: 102400, perMessageDeflate: false });
     });
 
     it("allows setting options.ws.maxPayload (node)", () => {
         const client = new Client("http://localhost", { ws: { maxPayload: 100 } });
         // @ts-ignore
-        expect(client._settings.ws).toEqual({ maxPayload: 100 });
+        expect(client._settings.ws).toEqual({ maxPayload: 100, perMessageDeflate: false });
+    });
+
+    it("prevents setting options.ws.perMessageDeflate (node)", () => {
+        const client = new Client("http://localhost", { ws: { perMessageDeflate: true } });
+        // @ts-ignore
+        expect(client._settings.ws).toEqual({ maxPayload: 102400, perMessageDeflate: false });
     });
 
     describe("onError", () => {
@@ -632,7 +638,7 @@ describe("Client", () => {
     describe("request()", () => {
         it("defaults to POST", async () => {
             const server = await createServerWithPlugin({ headers: "*" });
-            
+
             server.route({
                 method: "POST",
                 path: "/",
@@ -778,7 +784,7 @@ describe("Client", () => {
         describe("_onMessage", () => {
             it("ignores invalid incoming message", async () => {
                 const server = await createServerWithPlugin({}, {}, true);
-                
+
                 server.route({
                     method: "POST",
                     path: "/",
@@ -1010,7 +1016,7 @@ describe("Client", () => {
         describe("ping / pong", () => {
             it.each([["ping"], ["pong"]])("terminates when receiving a ws.%s", async (method) => {
                 const server = await createServerWithPlugin({}, {}, true);
-                
+
                 server.route({
                     method: "POST",
                     path: "/",
