@@ -93,12 +93,13 @@ export class Client {
 
         options.ws = options.ws || {};
 
-        if (options.ws.maxPayload === undefined) {
-            options.ws.maxPayload = DEFAULT_MAX_PAYLOAD_CLIENT;
+        options.ws = {
+            maxPayload: DEFAULT_MAX_PAYLOAD_CLIENT,
+            ...options.ws,
+            perMessageDeflate: false
         }
 
         // Configuration
-
         this._url = url;
         this._settings = options;
         this._heartbeatTimeout = false; // Server heartbeat configuration
