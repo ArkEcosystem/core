@@ -22,7 +22,6 @@
     "dependencies": {
         "@arkecosystem/core-database": "^3.0.0-next.30",
         "@arkecosystem/core-kernel": "^3.0.0-next.30",
-        "@arkecosystem/core-magistrate-crypto": "^3.0.0-next.30",
         "@arkecosystem/crypto": "^3.0.0-next.30",
         "bytebuffer": "^5.0.1",
         "fs-extra": "^8.1.0",
@@ -32,8 +31,7 @@
         "pg-query-stream": "^3.0.4",
         "pluralize": "^8.0.0",
         "typeorm": "0.2.25",
-        "xcase": "^2.0.1",
-        "zlib": "^1.0.5"
+        "xcase": "^2.0.1"
     },
     "devDependencies": {
         "@types/fs-extra": "^8.0.1"
