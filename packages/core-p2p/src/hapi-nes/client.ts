@@ -93,12 +93,13 @@ export class Client {
 
         options.ws = options.ws || {};
 
-        if (options.ws.maxPayload === undefined) {
-            options.ws.maxPayload = DEFAULT_MAX_PAYLOAD_CLIENT;
+        options.ws = {
+            maxPayload: DEFAULT_MAX_PAYLOAD_CLIENT,
+            ...options.ws,
+            perMessageDeflate: false
         }
 
         // Configuration
-
         this._url = url;
         this._settings = options;
         this._heartbeatTimeout = false; // Server heartbeat configuration
@@ -463,11 +464,10 @@ export class Client {
     }
 
     private _resetMaxPayload() {
-        this.setMaxPayload(DEFAULT_MAX_PAYLOAD_CLIENT);
+        this.setMaxPayload(this._settings.ws.maxPayload);
     }
 
     private _onMessage(message) {
-        this._resetMaxPayload();
         this._beat();
 
         let update;
@@ -485,9 +485,10 @@ export class Client {
         let error: any = null;
         if (update.statusCode && update.statusCode >= 400) {
             /* istanbul ignore next */
-            update.payload = update.payload instanceof Buffer ?
-                (update.payload as Buffer).slice(0, 512).toString() // slicing to reduce possible intensive toString() call
-                : "Error";
+            update.payload =
+                update.payload instanceof Buffer
+                    ? (update.payload as Buffer).slice(0, 512).toString() // slicing to reduce possible intensive toString() call
+                    : "Error";
             error = NesError(update.payload, errorTypes.SERVER);
             error.statusCode = update.statusCode;
             error.data = update.payload;
@@ -498,7 +499,7 @@ export class Client {
         // Ping
 
         if (update.type === "ping") {
-            if (this._lastPinged && (Date.now() < this._lastPinged + 1000)) {
+            if (this._lastPinged && Date.now() < this._lastPinged + 1000) {
                 this._lastPinged = Date.now();
                 return this.onError(NesError("Ping exceeded limit", errorTypes.PROTOCOL));
             }
@@ -506,8 +507,9 @@ export class Client {
             return this._send({ type: "ping" }, false).catch(ignore); // Ignore errors
         }
 
-        // Lookup request (message must include an id from this point)
+        this._resetMaxPayload();
 
+        // Lookup request (message must include an id from this point)
         const request = this._requests[update.id];
         if (!request) {
             return this.onError(NesError("Received response for unknown request", errorTypes.PROTOCOL));

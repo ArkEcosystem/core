@@ -52,6 +52,13 @@ describe("BlockProcessor", () => {
     const roundState = {
         getActiveDelegates: jest.fn().mockReturnValue([]),
     };
+    const stateStore = {
+        getLastBlock: jest.fn(),
+        getLastBlocks: jest.fn(),
+        getLastStoredBlockHeight: jest.fn(),
+    };
+
+    const databaseInterceptor = {};
 
     beforeAll(() => {
         sandbox.app.bind(Container.Identifiers.LogService).toConstantValue(logService);
@@ -60,9 +67,10 @@ describe("BlockProcessor", () => {
         sandbox.app.bind(Container.Identifiers.WalletRepository).toConstantValue(walletRepository);
         sandbox.app.bind(Container.Identifiers.DatabaseService).toConstantValue(databaseService);
         sandbox.app.bind(Container.Identifiers.DatabaseInteraction).toConstantValue(databaseInteractions);
+        sandbox.app.bind(Container.Identifiers.DatabaseInterceptor).toConstantValue(databaseInterceptor);
         sandbox.app.bind(Container.Identifiers.RoundState).toConstantValue(roundState);
         sandbox.app.bind(Container.Identifiers.TransactionHandlerRegistry).toConstantValue(transactionHandlerRegistry);
-        sandbox.app.bind(Container.Identifiers.StateStore).toConstantValue({});
+        sandbox.app.bind(Container.Identifiers.StateStore).toConstantValue(stateStore);
         sandbox.app.bind(Container.Identifiers.TransactionPoolService).toConstantValue({});
 
         sandbox.app.bind(Container.Identifiers.TriggerService).to(Services.Triggers.Triggers).inSingletonScope();
@@ -353,7 +361,7 @@ describe("BlockProcessor", () => {
         });
     });
 
-    it("should execute AlreadyForgedHandler when block has already forged transactions", async () => {
+    it("should execute AlreadyForgedHandler when block has already forged transactions in database", async () => {
         const transactionData = {
             id: "34821dfa9cbe59aad663b972326ff19265d788c4d4142747606aa29b19d6b1dab",
             version: 2,
@@ -372,6 +380,47 @@ describe("BlockProcessor", () => {
             getAttribute: jest.fn().mockReturnValue("generatorusername"),
         };
         walletRepository.findByPublicKey = jest.fn().mockReturnValueOnce(generatorWallet);
+        stateStore.getLastBlock.mockReturnValueOnce(baseBlock);
+        stateStore.getLastStoredBlockHeight.mockReturnValueOnce(baseBlock.data.height);
+        stateStore.getLastBlocks.mockReturnValueOnce([]);
+
+        const blockProcessor = sandbox.app.resolve<BlockProcessor>(BlockProcessor);
+
+        await blockProcessor.process(block);
+
+        expect(AlreadyForgedHandler.prototype.execute).toBeCalledTimes(1);
+    });
+
+    it("should execute AlreadyForgedHandler when block has already forged transactions in stateStore", async () => {
+        const transactionData = {
+            id: "34821dfa9cbe59aad663b972326ff19265d788c4d4142747606aa29b19d6b1dab",
+            version: 2,
+            senderPublicKey: "038082dad560a22ea003022015e3136b21ef1ffd9f2fd50049026cbe8e2258ca17",
+            nonce: Utils.BigNumber.make(2),
+        } as Interfaces.ITransactionData;
+        const transactionData2 = {
+            id: "34821dfa9cbe59aad663b972326ff19265d788c4d4142747606aa29b19d6b1dac",
+            version: 2,
+            senderPublicKey: "038082dad560a22ea003022015e3136b21ef1ffd9f2fd50049026cbe8e2258ca17",
+            nonce: Utils.BigNumber.make(3),
+        } as Interfaces.ITransactionData;
+        const block = {
+            ...chainedBlock,
+            transactions: [{ data: transactionData, id: transactionData.id } as Interfaces.ITransaction],
+        };
+        roundState.getActiveDelegates = jest.fn().mockReturnValueOnce([]);
+        blockchain.getLastBlock = jest.fn().mockReturnValueOnce(baseBlock);
+        transactionRepository.getForgedTransactionsIds = jest.fn().mockReturnValueOnce([]);
+        walletRepository.getNonce = jest.fn().mockReturnValueOnce(Utils.BigNumber.ONE);
+        const generatorWallet = {
+            getAttribute: jest.fn().mockReturnValue("generatorusername"),
+        };
+        walletRepository.findByPublicKey = jest.fn().mockReturnValueOnce(generatorWallet);
+        stateStore.getLastBlock.mockReturnValueOnce({ data: { height: 2 } });
+        stateStore.getLastBlocks.mockReturnValueOnce([
+            { data: { height: 2 }, transactions: [transactionData, transactionData2] },
+        ]);
+        stateStore.getLastStoredBlockHeight.mockReturnValue(1);
 
         const blockProcessor = sandbox.app.resolve<BlockProcessor>(BlockProcessor);
 

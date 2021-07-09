@@ -1,7 +1,6 @@
 import "jest-extended";
 
-import { Providers } from "@arkecosystem/core-kernel";
-import { Application, Container, Services } from "@packages/core-kernel/src";
+import { Application, Container, Providers, Services } from "@packages/core-kernel";
 import { ServiceProvider } from "@packages/core-logger-pino/src";
 import { defaults } from "@packages/core-logger-pino/src/defaults";
 import { AnySchema } from "joi";
@@ -11,6 +10,8 @@ let app: Application;
 
 beforeEach(() => {
     app = new Application(new Container.Container());
+
+    app.bind(Container.Identifiers.ConfigFlags).toConstantValue("core");
 });
 
 describe("ServiceProvider", () => {
