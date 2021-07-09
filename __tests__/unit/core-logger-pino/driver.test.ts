@@ -165,6 +165,9 @@ describe("Logger", () => {
         app.bind(Identifiers.ApplicationNamespace).toConstantValue("ark-unitnet");
         app.useLogPath(dirSync().name);
 
+        const ms = new Date().getMilliseconds();
+        await sleep(1000 - ms + 400);
+
         const logger = await app.resolve(PinoLogger).make({
             levels: {
                 console: process.env.CORE_LOG_LEVEL || "emergency",
