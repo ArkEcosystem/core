@@ -41,6 +41,9 @@ export class BlockProcessor {
     @Container.tagged("state", "blockchain")
     private readonly walletRepository!: Contracts.State.WalletRepository;
 
+    @Container.inject(Container.Identifiers.StateStore)
+    private readonly stateStore!: Contracts.State.StateStore;
+
     @Container.inject(Container.Identifiers.TriggerService)
     private readonly triggers!: Services.Triggers.Triggers;
 
@@ -123,13 +126,29 @@ export class BlockProcessor {
 
     private async checkBlockContainsForgedTransactions(block: Interfaces.IBlock): Promise<boolean> {
         if (block.transactions.length > 0) {
-            const forgedIds: string[] = await this.transactionRepository.getForgedTransactionsIds(
-                block.transactions.map((tx) => {
-                    AppUtils.assert.defined<string>(tx.id);
+            const transactionIds = block.transactions.map((tx) => {
+                AppUtils.assert.defined<string>(tx.id);
 
-                    return tx.id;
-                }),
-            );
+                return tx.id;
+            });
+
+            const forgedIds: string[] = await this.transactionRepository.getForgedTransactionsIds(transactionIds);
+
+            if (this.stateStore.getLastBlock().data.height !== this.stateStore.getLastStoredBlockHeight()) {
+                const transactionIdsSet = new Set<string>(transactionIds);
+
+                for (const stateBlock of this.stateStore
+                    .getLastBlocks()
+                    .filter((block) => block.data.height > this.stateStore.getLastStoredBlockHeight())) {
+                    stateBlock.transactions.forEach((tx) => {
+                        AppUtils.assert.defined<string>(tx.id);
+
+                        if (transactionIdsSet.has(tx.id)) {
+                            forgedIds.push(tx.id);
+                        }
+                    });
+                }
+            }
 
             /* istanbul ignore else */
             if (forgedIds.length > 0) {

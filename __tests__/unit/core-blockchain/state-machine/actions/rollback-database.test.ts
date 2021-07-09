@@ -11,6 +11,8 @@ describe("RollbackDatabase", () => {
     };
     const stateStore = {
         setRestoredDatabaseIntegrity: jest.fn(),
+        setLastBlock: jest.fn(),
+        setLastStoredBlockHeight: jest.fn(),
     };
     const databaseService = {
         verifyBlockchain: jest.fn(),
@@ -48,17 +50,28 @@ describe("RollbackDatabase", () => {
                     height: 5556,
                 },
             };
-            databaseService.getLastBlock = jest.fn().mockReturnValueOnce(lastBlock);
+            const lastBlockAfterRollback = {
+                data: {
+                    id: "122",
+                    height: 5536,
+                },
+            };
+            databaseService.getLastBlock = jest
+                .fn()
+                .mockReturnValueOnce(lastBlock)
+                .mockReturnValueOnce(lastBlockAfterRollback);
             databaseService.verifyBlockchain = jest
                 .fn()
                 .mockReturnValueOnce(false)
                 .mockReturnValueOnce(false)
                 .mockReturnValueOnce(false)
-                .mockReturnValue(true); // returns false 3 times then true
+                .mockReturnValueOnce(true); // returns false 3 times then true
             await rollbackDatabase.handle();
 
-            expect(databaseService.verifyBlockchain).toHaveBeenCalledTimes(5);
+            expect(databaseService.verifyBlockchain).toHaveBeenCalledTimes(4);
             expect(stateStore.setRestoredDatabaseIntegrity).toHaveBeenCalledWith(true);
+            expect(stateStore.setLastBlock).toHaveBeenCalledWith(lastBlockAfterRollback);
+            expect(stateStore.setLastStoredBlockHeight).toHaveBeenCalledWith(lastBlockAfterRollback.data.height);
             expect(blockchain.dispatch).toHaveBeenCalledTimes(1);
             expect(blockchain.dispatch).toHaveBeenCalledWith("SUCCESS");
         });
@@ -73,19 +86,34 @@ describe("RollbackDatabase", () => {
                 },
             };
             databaseService.getLastBlock = jest.fn().mockReturnValueOnce(lastBlock);
-            databaseService.verifyBlockchain = jest
-                .fn()
-                .mockReturnValueOnce(false)
-                .mockReturnValueOnce(false)
-                .mockReturnValueOnce(false)
-                .mockReturnValueOnce(false)
-                .mockReturnValueOnce(false)
-                .mockReturnValueOnce(false)
-                .mockReturnValue(true); // returns false 6 times then true
+            databaseService.verifyBlockchain = jest.fn().mockReturnValue(false);
             await rollbackDatabase.handle();
 
-            expect(databaseService.verifyBlockchain).toHaveBeenCalledTimes(6);
+            expect(databaseService.verifyBlockchain).toHaveBeenCalledTimes(4);
             expect(stateStore.setRestoredDatabaseIntegrity).not.toHaveBeenCalled();
+            expect(stateStore.setLastBlock).not.toHaveBeenCalled();
+            expect(stateStore.setLastStoredBlockHeight).not.toHaveBeenCalled();
+            expect(blockchain.dispatch).toHaveBeenCalledTimes(1);
+            expect(blockchain.dispatch).toHaveBeenCalledWith("FAILURE");
+        });
+
+        it("should dispatch FAILURE when !databaseService.verifyBlockchain() after rollback to genesisBlock", async () => {
+            const rollbackDatabase = container.resolve<RollbackDatabase>(RollbackDatabase);
+
+            const lastBlock = {
+                data: {
+                    id: "123",
+                    height: 3,
+                },
+            };
+            databaseService.getLastBlock = jest.fn().mockReturnValueOnce(lastBlock);
+            databaseService.verifyBlockchain = jest.fn().mockReturnValue(false);
+            await rollbackDatabase.handle();
+
+            expect(databaseService.verifyBlockchain).toHaveBeenCalledTimes(1);
+            expect(stateStore.setRestoredDatabaseIntegrity).not.toHaveBeenCalled();
+            expect(stateStore.setLastBlock).not.toHaveBeenCalled();
+            expect(stateStore.setLastStoredBlockHeight).not.toHaveBeenCalled();
             expect(blockchain.dispatch).toHaveBeenCalledTimes(1);
             expect(blockchain.dispatch).toHaveBeenCalledWith("FAILURE");
         });

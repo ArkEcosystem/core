@@ -4286,6 +4286,11 @@
   dependencies:
     "@types/node" "*"
 
+"@types/functional-red-black-tree@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@types/functional-red-black-tree/-/functional-red-black-tree-1.0.0.tgz#3d4b3eae7323f1fe4e7fa7bbd97a359c3187172d"
+  integrity sha512-Zne5g06/Ywy55xUqcJLls7zVkme+tkRK4UPaW28eMWE6rYzeqirlKbCZqc0CF2Yb1bMl8Od2FVZOB2tDe/gTpg==
+
 "@types/glob@*", "@types/glob@^7.1.1":
   version "7.1.1"
   resolved "https://registry.yarnpkg.com/@types/glob/-/glob-7.1.1.tgz#aa59a1c6e3fbc421e07ccd31a944c30eba521575"

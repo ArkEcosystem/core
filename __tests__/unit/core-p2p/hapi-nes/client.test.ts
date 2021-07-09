@@ -28,7 +28,10 @@ const createServerWithPlugin = async (pluginOptions = {}, serverOptions = {}, wi
                     if (request.response.source) {
                         request.response.source = Buffer.from(request.response.source);
                     } else {
-                        const errorMessage = request.response.output?.payload?.message ?? request.response.output?.payload?.error ?? "Error";
+                        const errorMessage =
+                            request.response.output?.payload?.message ??
+                            request.response.output?.payload?.error ??
+                            "Error";
                         request.response.output.payload = Buffer.from(errorMessage, "utf-8");
                     }
                 } catch (e) {
@@ -48,16 +51,41 @@ const createServerWithPlugin = async (pluginOptions = {}, serverOptions = {}, wi
 };
 
 describe("Client", () => {
-    it("defaults options.ws.maxPayload to 102400 (node)", () => {
+    it("defaults options.ws.maxPayload to 102400 (node) && perMessageDeflate to false", () => {
         const client = new Client("http://localhost");
         // @ts-ignore
-        expect(client._settings.ws).toEqual({ maxPayload: 102400 });
+        expect(client._settings.ws).toEqual({ maxPayload: 102400, perMessageDeflate: false });
     });
 
     it("allows setting options.ws.maxPayload (node)", () => {
         const client = new Client("http://localhost", { ws: { maxPayload: 100 } });
         // @ts-ignore
-        expect(client._settings.ws).toEqual({ maxPayload: 100 });
+        expect(client._settings.ws).toEqual({ maxPayload: 100, perMessageDeflate: false });
+    });
+
+    it("prevents setting options.ws.perMessageDeflate (node)", () => {
+        const client = new Client("http://localhost", { ws: { perMessageDeflate: true } });
+        // @ts-ignore
+        expect(client._settings.ws).toEqual({ maxPayload: 102400, perMessageDeflate: false });
+    });
+
+    it("does not reset maxPayload on socket after receiving ping message", async () => {
+        const server = await createServerWithPlugin({ heartbeat: { interval: 20, timeout: 10 } });
+        await server.start();
+
+        const client = new Client("http://localhost:" + server.info.port);
+        await client.connect({ reconnect: false });
+        client.onError = Hoek.ignore;
+
+        client.setMaxPayload(204800); // setting here after the initial "hello"
+
+        await Hoek.wait(30);
+
+        // @ts-ignore
+        expect(client._ws._receiver._maxPayload).toEqual(204800);
+
+        await client.disconnect();
+        await server.stop();
     });
 
     describe("onError", () => {
@@ -632,7 +660,7 @@ describe("Client", () => {
     describe("request()", () => {
         it("defaults to POST", async () => {
             const server = await createServerWithPlugin({ headers: "*" });
-            
+
             server.route({
                 method: "POST",
                 path: "/",
@@ -778,7 +806,7 @@ describe("Client", () => {
         describe("_onMessage", () => {
             it("ignores invalid incoming message", async () => {
                 const server = await createServerWithPlugin({}, {}, true);
-                
+
                 server.route({
                     method: "POST",
                     path: "/",
@@ -821,17 +849,17 @@ describe("Client", () => {
                         request.server.plugins.nes._listener._sockets._forEach((socket) => {
                             socket._ws.send(
                                 stringifyNesMessage({
-                                    "id":100,
-                                    "type":"request",
-                                    "statusCode":200,
-                                    "payload":Buffer.from("hello"),
+                                    id: 100,
+                                    type: "request",
+                                    statusCode: 200,
+                                    payload: Buffer.from("hello"),
                                     path: "/",
                                     version: "1",
                                     socket: "socketid",
                                     heartbeat: {
-                                        interval : 10000,
+                                        interval: 10000,
                                         timeout: 5000,
-                                    }
+                                    },
                                 }),
                             );
                         });
@@ -870,17 +898,17 @@ describe("Client", () => {
                         request.server.plugins.nes._listener._sockets._forEach((socket) => {
                             socket._ws.send(
                                 stringifyNesMessage({
-                                    "id":2,
-                                    "type":"undefined",
-                                    "statusCode":200,
-                                    "payload":Buffer.from("hello"),
+                                    id: 2,
+                                    type: "undefined",
+                                    statusCode: 200,
+                                    payload: Buffer.from("hello"),
                                     path: "/",
                                     version: "1",
                                     socket: "socketid",
                                     heartbeat: {
-                                        interval : 10000,
+                                        interval: 10000,
                                         timeout: 5000,
-                                    }
+                                    },
                                 }),
                             );
                         });
@@ -1010,7 +1038,7 @@ describe("Client", () => {
         describe("ping / pong", () => {
             it.each([["ping"], ["pong"]])("terminates when receiving a ws.%s", async (method) => {
                 const server = await createServerWithPlugin({}, {}, true);
-                
+
                 server.route({
                     method: "POST",
                     path: "/",
@@ -1038,6 +1066,6 @@ describe("Client", () => {
                 await client.disconnect();
                 await server.stop();
             });
-        })
+        });
     });
 });
