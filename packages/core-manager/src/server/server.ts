@@ -1,7 +1,7 @@
 import { Container, Contracts, Types } from "@arkecosystem/core-kernel";
 import { Server as HapiServer, ServerInjectOptions, ServerInjectResponse, ServerRoute } from "@hapi/hapi";
 import { readFileSync } from "fs";
-import { cloneDeep } from "lodash";
+import cloneDeep from "lodash.clonedeep";
 
 import { Plugins } from "../contracts";
 import { Identifiers } from "../ioc";

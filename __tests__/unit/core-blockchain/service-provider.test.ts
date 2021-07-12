@@ -65,24 +65,6 @@ describe("ServiceProvider", () => {
         });
     });
 
-    describe("bootWhen", () => {
-        it("should return false when process.env.CORE_SKIP_BLOCKCHAIN", async () => {
-            process.env.CORE_SKIP_BLOCKCHAIN = "true";
-
-            const bootWhenResult = await serviceProvider.bootWhen();
-
-            expect(bootWhenResult).toBeFalse();
-        });
-
-        it("should return true when !process.env.CORE_SKIP_BLOCKCHAIN", async () => {
-            delete process.env.CORE_SKIP_BLOCKCHAIN;
-
-            const bootWhenResult = await serviceProvider.bootWhen();
-
-            expect(bootWhenResult).toBeTrue();
-        });
-    });
-
     describe("required", () => {
         it("should return true", async () => {
             const required = await serviceProvider.required();
