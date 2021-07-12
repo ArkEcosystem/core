@@ -115,7 +115,6 @@ describe("Blockchain", () => {
         eventDispatcherService.dispatch = jest.fn();
 
         peerNetworkMonitor.cleansePeers = jest.fn();
-        peerNetworkMonitor.updateNetworkStatus = jest.fn();
         peerNetworkMonitor.broadcastBlock = jest.fn();
         peerNetworkMonitor.checkNetworkHealth = jest.fn();
 
@@ -306,16 +305,6 @@ describe("Blockchain", () => {
 
             expect(stateStore.clearWakeUpTimeout).toBeCalledTimes(1);
             expect(spySetWakeUp).toBeCalledTimes(1);
-        });
-    });
-
-    describe("updateNetworkStatus", () => {
-        it("should call updateNetworkStatus on peerNetworkMonitor", () => {
-            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
-
-            blockchain.updateNetworkStatus();
-
-            expect(peerNetworkMonitor.updateNetworkStatus).toBeCalledTimes(1);
         });
     });
 
