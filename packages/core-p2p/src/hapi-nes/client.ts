@@ -93,12 +93,13 @@ export class Client {
 
         options.ws = options.ws || {};
 
-        if (options.ws.maxPayload === undefined) {
-            options.ws.maxPayload = DEFAULT_MAX_PAYLOAD_CLIENT;
+        options.ws = {
+            maxPayload: DEFAULT_MAX_PAYLOAD_CLIENT,
+            ...options.ws,
+            perMessageDeflate: false
         }
 
         // Configuration
-
         this._url = url;
         this._settings = options;
         this._heartbeatTimeout = false; // Server heartbeat configuration
@@ -467,7 +468,6 @@ export class Client {
     }
 
     private _onMessage(message) {
-        this._resetMaxPayload();
         this._beat();
 
         let update;
@@ -507,8 +507,9 @@ export class Client {
             return this._send({ type: "ping" }, false).catch(ignore); // Ignore errors
         }
 
-        // Lookup request (message must include an id from this point)
+        this._resetMaxPayload();
 
+        // Lookup request (message must include an id from this point)
         const request = this._requests[update.id];
         if (!request) {
             return this.onError(NesError("Received response for unknown request", errorTypes.PROTOCOL));

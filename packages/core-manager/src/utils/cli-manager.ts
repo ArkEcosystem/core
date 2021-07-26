@@ -1,7 +1,7 @@
 import * as Cli from "@arkecosystem/core-cli";
 import { Container } from "@arkecosystem/core-kernel";
 import { Identifiers } from "../ioc";
-import { resolve } from "path";
+import { dirname, join } from "path";
 
 @Container.injectable()
 export class CliManager {
@@ -28,6 +28,6 @@ export class CliManager {
 
     private discoverCommands(): Cli.Contracts.CommandList {
         const discoverer = this.cli.resolve(Cli.Commands.DiscoverCommands);
-        return discoverer.within(resolve("./dist/commands"));
+        return discoverer.within(join(dirname(require.resolve("@arkecosystem/core")), "commands"));
     }
 }

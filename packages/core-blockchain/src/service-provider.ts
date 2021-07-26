@@ -23,11 +23,6 @@ export class ServiceProvider extends Providers.ServiceProvider {
         await this.app.get<Contracts.Blockchain.Blockchain>(Container.Identifiers.BlockchainService).dispose();
     }
 
-    public async bootWhen(): Promise<boolean> {
-        // todo: remove this; the code shouldn't know that a test suite exists
-        return !process.env.CORE_SKIP_BLOCKCHAIN;
-    }
-
     public async required(): Promise<boolean> {
         return true;
     }

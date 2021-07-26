@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/crypto",
-    "version": "3.0.0-next.30",
+    "version": "3.0.0-next.31",
     "description": "Crypto utilities for the ARK Blockchain",
     "license": "MIT",
     "contributors": [
@@ -49,8 +49,7 @@
         "fast-memoize": "^2.5.1",
         "ipaddr.js": "^2.0.0",
         "lodash.get": "^4.4.2",
-        "lodash.set": "^4.3.2",
-        "wif": "^2.0.6"
+        "lodash.set": "^4.3.2"
     },
     "devDependencies": {
         "@rollup/plugin-babel": "^5.0.4",
