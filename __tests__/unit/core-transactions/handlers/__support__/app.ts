@@ -32,6 +32,7 @@ import { TransactionHandlerProvider } from "@packages/core-transactions/src/hand
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
 import { Identities, Utils } from "@packages/crypto";
 import { IMultiSignatureAsset } from "@packages/crypto/src/interfaces";
+import { TransactionHandlerConstructorsBinding } from "@packages/core-transactions/src/service-provider";
 
 const logger = {
     notice: jest.fn(),
@@ -142,6 +143,7 @@ export const initApp = (): Application => {
     app.bind(Identifiers.TransactionHandler).to(Two.HtlcClaimTransactionHandler);
     app.bind(Identifiers.TransactionHandler).to(Two.HtlcRefundTransactionHandler);
 
+    app.bind(Identifiers.TransactionHandlerConstructors).toDynamicValue(TransactionHandlerConstructorsBinding);
     app.bind(Identifiers.TransactionHandlerProvider).to(TransactionHandlerProvider).inSingletonScope();
     app.bind(Identifiers.TransactionHandlerRegistry).to(TransactionHandlerRegistry).inSingletonScope();
 

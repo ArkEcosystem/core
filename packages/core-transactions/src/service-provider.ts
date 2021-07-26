@@ -4,6 +4,27 @@ import { One, Two, TransactionHandlerConstructor } from "./handlers";
 import { TransactionHandlerProvider } from "./handlers/handler-provider";
 import { TransactionHandlerRegistry } from "./handlers/handler-registry";
 
+export const TransactionHandlerConstructorsBinding = (context: Container.interfaces.Context) => {
+    type BindingDictionary = Container.interfaces.Lookup<Container.interfaces.Binding<unknown>>;
+    const handlerConstructors: TransactionHandlerConstructor[] = [];
+    let container: Container.interfaces.Container | null = context.container;
+
+    do {
+        const bindingDictionary = container["_bindingDictionary"] as BindingDictionary;
+        const handlerBindings = bindingDictionary.getMap().get(Container.Identifiers.TransactionHandler) ?? [];
+
+        for (const handlerBinding of handlerBindings) {
+            if (handlerBinding.implementationType) {
+                handlerConstructors.push(handlerBinding.implementationType as TransactionHandlerConstructor);
+            }
+        }
+
+        container = container.parent;
+    } while (container);
+
+    return handlerConstructors;
+};
+
 export class ServiceProvider extends Providers.ServiceProvider {
     /**
      * @returns {Promise<void>}
@@ -42,26 +63,9 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.app.bind(Container.Identifiers.TransactionHandler).to(Two.HtlcClaimTransactionHandler);
         this.app.bind(Container.Identifiers.TransactionHandler).to(Two.HtlcRefundTransactionHandler);
 
-        this.app.bind(Container.Identifiers.TransactionHandlerConstructors).toDynamicValue((ctx) => {
-            type BindingDictionary = Container.interfaces.Lookup<Container.interfaces.Binding<unknown>>;
-            const handlerConstructors: TransactionHandlerConstructor[] = [];
-            let container: Container.interfaces.Container | null = ctx.container;
-
-            do {
-                const bindingDictionary = container["_bindingDictionary"] as BindingDictionary;
-                const handlerBindings = bindingDictionary.getMap().get(Container.Identifiers.TransactionHandler) ?? [];
-
-                for (const handlerBinding of handlerBindings) {
-                    if (handlerBinding.implementationType) {
-                        handlerConstructors.push(handlerBinding.implementationType as TransactionHandlerConstructor);
-                    }
-                }
-
-                container = container.parent;
-            } while (container);
-
-            return handlerConstructors;
-        });
+        this.app
+            .bind(Container.Identifiers.TransactionHandlerConstructors)
+            .toDynamicValue(TransactionHandlerConstructorsBinding);
 
         this.app.bind(Container.Identifiers.TransactionHandlerRegistry).to(TransactionHandlerRegistry);
     }
