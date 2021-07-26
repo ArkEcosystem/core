@@ -24,6 +24,7 @@
     "dependencies": {
         "@arkecosystem/core-kernel": "^3.0.0-next.30",
         "@arkecosystem/core-p2p": "^3.0.0-next.30",
+        "@arkecosystem/core-transactions": "^3.0.0-next.30",
         "@arkecosystem/crypto": "^3.0.0-next.30",
         "@hapi/hapi": "^20.0.3",
         "joi": "^17.3.0",
