@@ -43,11 +43,11 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.app.bind(Container.Identifiers.TransactionHandler).to(Two.HtlcRefundTransactionHandler);
 
         this.app.bind(Container.Identifiers.TransactionHandlerConstructors).toDynamicValue((ctx) => {
+            type BindingDictionary = Container.interfaces.Lookup<Container.interfaces.Binding<unknown>>;
             const handlerConstructors: TransactionHandlerConstructor[] = [];
+            let container: Container.interfaces.Container | null = ctx.container;
 
-            for (let container = ctx.container; container.parent; container = container.parent) {
-                type BindingDictionary = Container.interfaces.Lookup<Container.interfaces.Binding<unknown>>;
-
+            do {
                 const bindingDictionary = container["_bindingDictionary"] as BindingDictionary;
                 const handlerBindings = bindingDictionary.getMap().get(Container.Identifiers.TransactionHandler) ?? [];
 
@@ -56,7 +56,9 @@ export class ServiceProvider extends Providers.ServiceProvider {
                         handlerConstructors.push(handlerBinding.implementationType as TransactionHandlerConstructor);
                     }
                 }
-            }
+
+                container = container.parent;
+            } while (container);
 
             return handlerConstructors;
         });
