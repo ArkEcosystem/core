@@ -1,3 +1,4 @@
+import { EventEmitter } from "events";
 import { performance } from "perf_hooks";
 
 import { EventDispatcher } from "../../../contracts/kernel/events";
@@ -10,7 +11,11 @@ import {
     QueueOnErrorFunction,
 } from "../../../contracts/kernel/queue";
 import { QueueEvent } from "../../../enums";
-import { Identifiers, inject, injectable } from "../../../ioc";
+import { decorate, Identifiers, inject, injectable } from "../../../ioc";
+
+try {
+    decorate(injectable(), EventEmitter);
+} catch {}
 
 /**
  * @export
@@ -18,7 +23,7 @@ import { Identifiers, inject, injectable } from "../../../ioc";
  * @implements {Queue}
  */
 @injectable()
-export class MemoryQueue implements Queue {
+export class MemoryQueue extends EventEmitter implements Queue {
     @inject(Identifiers.EventDispatcherService)
     private readonly events!: EventDispatcher;
 
@@ -234,6 +239,8 @@ export class MemoryQueue implements Queue {
                     data: data,
                 });
 
+                this.emit("jobDone", job, data);
+
                 if (this.onDataCallback) {
                     this.onDataCallback(job, data);
                 }
@@ -246,6 +253,8 @@ export class MemoryQueue implements Queue {
 
                 this.logger.warning(`Queue error occurs when handling job: ${job}`);
 
+                this.emit("jobError", job, error);
+
                 if (this.onErrorCallback) {
                     this.onErrorCallback(job, error);
                 }
@@ -256,8 +265,11 @@ export class MemoryQueue implements Queue {
 
         this.resolveOnProcessed();
 
-        if (!this.jobs.length && this.onDrainCallback) {
-            this.onDrainCallback();
+        if (!this.jobs.length) {
+            this.emit("drain");
+            if (this.onDrainCallback) {
+                this.onDrainCallback();
+            }
         }
     }
 }

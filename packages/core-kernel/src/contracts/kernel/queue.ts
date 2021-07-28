@@ -1,3 +1,5 @@
+import { EventEmitter } from "events";
+
 /**
  * @interface QueueJob
  */
@@ -15,7 +17,7 @@ export type QueueOnDataFunction = (job: QueueJob, data: any) => void;
  * @export
  * @interface Queue
  */
-export interface Queue {
+export interface Queue extends EventEmitter {
     /**
      * Create a new instance of the queue.
      *

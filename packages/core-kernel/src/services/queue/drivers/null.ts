@@ -1,3 +1,5 @@
+import { EventEmitter } from "events";
+
 import {
     Queue,
     QueueJob,
@@ -5,15 +7,18 @@ import {
     QueueOnDrainFunction,
     QueueOnErrorFunction,
 } from "../../../contracts/kernel/queue";
-import { injectable } from "../../../ioc";
+import { decorate, injectable } from "../../../ioc";
 
+try {
+    decorate(injectable(), EventEmitter);
+} catch {}
 /**
  * @export
  * @class MemoryQueue
  * @implements {Queue}
  */
 @injectable()
-export class NullQueue implements Queue {
+export class NullQueue extends EventEmitter implements Queue {
     /**
      * Create a new instance of the queue.
      *
