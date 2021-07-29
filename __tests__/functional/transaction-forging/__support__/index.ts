@@ -3,6 +3,9 @@ import "jest-extended";
 import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { Managers } from "@arkecosystem/crypto";
 import delay from "delay";
+import { EventEmitter } from "events";
+
+EventEmitter.prototype.constructor = Object.prototype.constructor;
 
 jest.setTimeout(1200000);
 
