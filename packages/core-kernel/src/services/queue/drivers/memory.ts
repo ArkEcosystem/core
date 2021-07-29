@@ -39,6 +39,11 @@ export class MemoryQueue extends EventEmitter implements Queue {
 
     private onProcessedCallbacks: (() => void)[] = [];
 
+    public constructor() {
+        super();
+        this.setMaxListeners(0);
+    }
+
     /**
      * Create a new instance of the queue.
      *
