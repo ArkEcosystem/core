@@ -1,12 +1,6 @@
 import { EventEmitter } from "events";
 
-import {
-    Queue,
-    QueueJob,
-    QueueOnDataFunction,
-    QueueOnDrainFunction,
-    QueueOnErrorFunction,
-} from "../../../contracts/kernel/queue";
+import { Queue, QueueJob } from "../../../contracts/kernel/queue";
 import { decorateInjectable, injectable } from "../../../ioc";
 
 decorateInjectable(EventEmitter);
@@ -131,10 +125,4 @@ export class NullQueue extends EventEmitter implements Queue {
     public isRunning(): boolean {
         return false;
     }
-
-    public onData(callback: QueueOnDataFunction): void {}
-
-    public onError(callback: QueueOnErrorFunction): void {}
-
-    public onDrain(callback: QueueOnDrainFunction): void {}
 }
