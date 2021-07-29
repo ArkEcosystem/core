@@ -11,11 +11,9 @@ import {
     QueueOnErrorFunction,
 } from "../../../contracts/kernel/queue";
 import { QueueEvent } from "../../../enums";
-import { decorate, Identifiers, inject, injectable } from "../../../ioc";
+import { decorateInjectable, Identifiers, inject, injectable } from "../../../ioc";
 
-try {
-    decorate(injectable(), EventEmitter);
-} catch {}
+decorateInjectable(EventEmitter);
 
 /**
  * @export

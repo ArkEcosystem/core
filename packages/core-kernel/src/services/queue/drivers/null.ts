@@ -7,11 +7,10 @@ import {
     QueueOnDrainFunction,
     QueueOnErrorFunction,
 } from "../../../contracts/kernel/queue";
-import { decorate, injectable } from "../../../ioc";
+import { decorateInjectable, injectable } from "../../../ioc";
 
-try {
-    decorate(injectable(), EventEmitter);
-} catch {}
+decorateInjectable(EventEmitter);
+
 /**
  * @export
  * @class MemoryQueue
