@@ -11,6 +11,9 @@ import { GetActiveDelegatesAction } from "@packages/core-state/src/actions";
 import { Sandbox } from "@packages/core-test-framework";
 import { Crypto, Interfaces, Managers, Networks, Utils } from "@packages/crypto";
 import delay from "delay";
+import { EventEmitter } from "events";
+
+EventEmitter.prototype.constructor = Object.prototype.constructor;
 
 describe("Blockchain", () => {
     let sandbox: Sandbox;
