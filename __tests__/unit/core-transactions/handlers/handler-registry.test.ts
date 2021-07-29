@@ -10,6 +10,7 @@ import {
 import { One, TransactionHandler, TransactionHandlerConstructor, Two } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerProvider } from "@packages/core-transactions/src/handlers/handler-provider";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
+import { ServiceProvider } from "@packages/core-transactions/src/service-provider";
 import { Crypto, Enums, Identities, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
 import { TransactionSchema } from "@packages/crypto/src/transactions/types/schemas";
 import ByteBuffer from "bytebuffer";
@@ -145,6 +146,9 @@ beforeEach(() => {
 
     app.bind(Identifiers.TransactionHandlerProvider).to(TransactionHandlerProvider).inSingletonScope();
     app.bind(Identifiers.TransactionHandlerRegistry).to(TransactionHandlerRegistry).inSingletonScope();
+    app.bind(Identifiers.TransactionHandlerConstructors).toDynamicValue(
+        ServiceProvider.getTransactionHandlerConstructorsBinding(),
+    );
 
     Managers.configManager.getMilestone().aip11 = false;
 });

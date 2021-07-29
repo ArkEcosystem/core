@@ -23,6 +23,7 @@ import { One, Two } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerProvider } from "@packages/core-transactions/src/handlers/handler-provider";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
 import { Identities, Utils } from "@packages/crypto";
+import { ServiceProvider } from "@packages/core-transactions/src/service-provider";
 
 export type PaginatedResponse = {
     totalCount: number;
@@ -102,6 +103,9 @@ export const initApp = (): Application => {
 
     app.bind(Identifiers.TransactionHandlerProvider).to(TransactionHandlerProvider).inSingletonScope();
     app.bind(Identifiers.TransactionHandlerRegistry).to(TransactionHandlerRegistry).inSingletonScope();
+    app.bind(Identifiers.TransactionHandlerConstructors).toDynamicValue(
+        ServiceProvider.getTransactionHandlerConstructorsBinding(),
+    );
 
     app.bind(Identifiers.TransactionHandler).to(BusinessRegistrationTransactionHandler);
     app.bind(Identifiers.TransactionHandler).to(BridgechainRegistrationTransactionHandler);
