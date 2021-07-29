@@ -307,4 +307,4 @@ export abstract class TransactionHandler {
     public abstract async revertForRecipient(transaction: Interfaces.ITransaction): Promise<void>;
 }
 
-export type TransactionHandlerConstructor = typeof TransactionHandler;
+export type TransactionHandlerConstructor = new () => TransactionHandler;

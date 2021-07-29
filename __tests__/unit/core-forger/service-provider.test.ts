@@ -22,6 +22,7 @@ describe("ServiceProvider", () => {
         app.bind(Container.Identifiers.EventDispatcherService).toConstantValue({ listen: jest.fn() });
         app.bind(Container.Identifiers.BlockchainService).toConstantValue({});
         app.bind(Container.Identifiers.WalletRepository).toConstantValue({});
+        app.bind(Container.Identifiers.TransactionHandlerProvider).toConstantValue({});
         app.bind(Container.Identifiers.TriggerService).toConstantValue(triggerService);
         app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
         app.bind(Container.Identifiers.ProcessActionsService).to(Pm2ProcessActionsService).inSingletonScope();
