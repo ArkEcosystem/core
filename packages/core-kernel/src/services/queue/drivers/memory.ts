@@ -1,16 +1,13 @@
+import { EventEmitter } from "events";
 import { performance } from "perf_hooks";
 
 import { EventDispatcher } from "../../../contracts/kernel/events";
 import { Logger } from "../../../contracts/kernel/log";
-import {
-    Queue,
-    QueueJob,
-    QueueOnDataFunction,
-    QueueOnDrainFunction,
-    QueueOnErrorFunction,
-} from "../../../contracts/kernel/queue";
+import { Queue, QueueJob } from "../../../contracts/kernel/queue";
 import { QueueEvent } from "../../../enums";
-import { Identifiers, inject, injectable } from "../../../ioc";
+import { decorateInjectable, Identifiers, inject, injectable } from "../../../ioc";
+
+decorateInjectable(EventEmitter);
 
 /**
  * @export
@@ -18,7 +15,7 @@ import { Identifiers, inject, injectable } from "../../../ioc";
  * @implements {Queue}
  */
 @injectable()
-export class MemoryQueue implements Queue {
+export class MemoryQueue extends EventEmitter implements Queue {
     @inject(Identifiers.EventDispatcherService)
     private readonly events!: EventDispatcher;
 
@@ -40,11 +37,12 @@ export class MemoryQueue implements Queue {
     private running: boolean = false;
     private started: boolean = false;
 
-    private onDataCallback: QueueOnDataFunction | undefined = undefined;
-    private onErrorCallback: QueueOnErrorFunction | undefined = undefined;
-    private onDrainCallback: QueueOnDrainFunction | undefined = undefined;
+    private onProcessedCallbacks: (() => void)[] = [];
 
-    private onProcessedCallbacks: QueueOnDrainFunction[] = [];
+    public constructor() {
+        super();
+        this.setMaxListeners(0);
+    }
 
     /**
      * Create a new instance of the queue.
@@ -175,18 +173,6 @@ export class MemoryQueue implements Queue {
         return this.running;
     }
 
-    public onData(callback: QueueOnDataFunction): void {
-        this.onDataCallback = callback;
-    }
-
-    public onError(callback: QueueOnErrorFunction): void {
-        this.onErrorCallback = callback;
-    }
-
-    public onDrain(callback: QueueOnDrainFunction): void {
-        this.onDrainCallback = callback;
-    }
-
     private waitUntilProcessed(): Promise<void> {
         return new Promise((resolve) => {
             if (this.running) {
@@ -234,9 +220,7 @@ export class MemoryQueue implements Queue {
                     data: data,
                 });
 
-                if (this.onDataCallback) {
-                    this.onDataCallback(job, data);
-                }
+                this.emit("jobDone", job, data);
             } catch (error) {
                 await this.events.dispatch(QueueEvent.Failed, {
                     driver: "memory",
@@ -246,9 +230,7 @@ export class MemoryQueue implements Queue {
 
                 this.logger.warning(`Queue error occurs when handling job: ${job}`);
 
-                if (this.onErrorCallback) {
-                    this.onErrorCallback(job, error);
-                }
+                this.emit("jobError", job, error);
             }
         }
 
@@ -256,8 +238,8 @@ export class MemoryQueue implements Queue {
 
         this.resolveOnProcessed();
 
-        if (!this.jobs.length && this.onDrainCallback) {
-            this.onDrainCallback();
+        if (!this.jobs.length) {
+            this.emit("drain");
         }
     }
 }

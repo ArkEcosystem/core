@@ -5,6 +5,9 @@ import { Container, Identifiers } from "@packages/core-kernel/src/ioc";
 import { ServiceProvider } from "@packages/core-kernel/src/services/queue";
 import { MemoryQueue } from "@packages/core-kernel/src/services/queue/drivers/memory";
 import { QueueFactory } from "@packages/core-kernel/src/types";
+import { EventEmitter } from "events";
+
+EventEmitter.prototype.constructor = Object.prototype.constructor;
 
 let app: Application;
 
