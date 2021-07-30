@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-manager",
-    "version": "3.0.0-next.31",
+    "version": "3.0.0-next.32",
     "description": "Manager for ARK Core",
     "license": "MIT",
     "contributors": [
@@ -21,9 +21,9 @@
         "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
-        "@arkecosystem/core-cli": "^3.0.0-next.31",
-        "@arkecosystem/core-kernel": "^3.0.0-next.31",
-        "@arkecosystem/crypto": "^3.0.0-next.31",
+        "@arkecosystem/core-cli": "^3.0.0-next.32",
+        "@arkecosystem/core-kernel": "^3.0.0-next.32",
+        "@arkecosystem/crypto": "^3.0.0-next.32",
         "@hapi/basic": "^6.0.0",
         "@hapi/hapi": "^20.0.3",
         "@hapist/json-rpc": "^0.2.0",
