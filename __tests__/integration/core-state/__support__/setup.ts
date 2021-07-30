@@ -1,6 +1,9 @@
-import { Application, Utils as AppUtils, Container } from "@arkecosystem/core-kernel";
-import { Managers } from "@arkecosystem/crypto";
+import { Application, Container, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Sandbox } from "@arkecosystem/core-test-framework";
+import { Managers } from "@arkecosystem/crypto";
+import { EventEmitter } from "events";
+
+EventEmitter.prototype.constructor = Object.prototype.constructor;
 
 const sandbox: Sandbox = new Sandbox();
 
