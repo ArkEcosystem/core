@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { BusinessUpdateTransaction } from "@arkecosystem/core-magistrate-crypto/dist/transactions";
+import { BusinessUpdateTransaction } from "@arkecosystem/core-magistrate-crypto/src/transactions";
 import { BusinessUpdateBuilder } from "@packages/core-magistrate-crypto/src/builders";
 import { IBusinessUpdateAsset } from "@packages/core-magistrate-crypto/src/interfaces";
 import { Managers, Transactions } from "@packages/crypto";

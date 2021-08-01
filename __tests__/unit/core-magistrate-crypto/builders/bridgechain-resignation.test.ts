@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { BridgechainResignationTransaction } from "@arkecosystem/core-magistrate-crypto/dist/transactions";
+import { BridgechainResignationTransaction } from "@arkecosystem/core-magistrate-crypto/src/transactions";
 import { BridgechainResignationBuilder } from "@packages/core-magistrate-crypto/src/builders";
 import { IBridgechainResignationAsset } from "@packages/core-magistrate-crypto/src/interfaces";
 import { Managers, Transactions } from "@packages/crypto";

@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { BridgechainUpdateTransaction } from "@arkecosystem/core-magistrate-crypto/dist/transactions";
+import { BridgechainUpdateTransaction } from "@arkecosystem/core-magistrate-crypto/src/transactions";
 import { BridgechainUpdateBuilder } from "@packages/core-magistrate-crypto/src/builders";
 import { IBridgechainUpdateAsset } from "@packages/core-magistrate-crypto/src/interfaces";
 import { Managers, Transactions } from "@packages/crypto";

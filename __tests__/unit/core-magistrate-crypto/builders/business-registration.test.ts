@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { BusinessRegistrationTransaction } from "@arkecosystem/core-magistrate-crypto/dist/transactions";
+import { BusinessRegistrationTransaction } from "@arkecosystem/core-magistrate-crypto/src/transactions";
 import { BusinessRegistrationBuilder } from "@packages/core-magistrate-crypto/src/builders";
 import { IBusinessRegistrationAsset } from "@packages/core-magistrate-crypto/src/interfaces";
 import { Managers, Transactions } from "@packages/crypto";
