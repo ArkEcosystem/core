@@ -1,7 +1,7 @@
 import "jest-extended";
 
-import { EntityAction, EntityType } from "@arkecosystem/core-magistrate-crypto/dist/enums";
-import { EntityTransaction } from "@arkecosystem/core-magistrate-crypto/dist/transactions";
+import { EntityAction, EntityType } from "@packages/core-magistrate-crypto/src/enums";
+import { EntityTransaction } from "@packages/core-magistrate-crypto/src/transactions";
 import { EntityBuilder } from "@packages/core-magistrate-crypto/src/builders";
 import { IEntityAsset } from "@packages/core-magistrate-crypto/src/interfaces";
 import { Managers, Transactions } from "@packages/crypto";

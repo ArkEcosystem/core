@@ -1,8 +1,8 @@
 import "jest-extended";
 
-import { BridgechainRegistrationTransaction } from "@arkecosystem/core-magistrate-crypto/dist/transactions";
 import { BridgechainRegistrationBuilder } from "@packages/core-magistrate-crypto/src/builders";
 import { IBridgechainRegistrationAsset } from "@packages/core-magistrate-crypto/src/interfaces";
+import { BridgechainRegistrationTransaction } from "@packages/core-magistrate-crypto/src/transactions";
 import { Managers, Transactions } from "@packages/crypto";
 
 let builder: BridgechainRegistrationBuilder;
