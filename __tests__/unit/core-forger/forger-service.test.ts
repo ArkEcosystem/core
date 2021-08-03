@@ -17,12 +17,14 @@ import { BuilderFactory } from "@packages/crypto/src/transactions";
 import { calculateActiveDelegates } from "./__utils__/calculate-active-delegates";
 
 let sandbox: Sandbox;
+
 const logger = {
     error: jest.fn(),
     debug: jest.fn(),
     info: jest.fn(),
     warning: jest.fn(),
 };
+
 const client = {
     register: jest.fn(),
     dispose: jest.fn(),
@@ -35,9 +37,15 @@ const client = {
     selectHost: jest.fn(),
 };
 
+const handlerProvider = {
+    isRegistrationRequired: jest.fn(),
+    registerHandlers: jest.fn(),
+};
+
 beforeEach(() => {
     sandbox = new Sandbox();
     sandbox.app.bind(Container.Identifiers.LogService).toConstantValue(logger);
+    sandbox.app.bind(Container.Identifiers.TransactionHandlerProvider).toConstantValue(handlerProvider);
 
     sandbox.app.bind(Container.Identifiers.TriggerService).to(Services.Triggers.Triggers).inSingletonScope();
 
@@ -176,7 +184,9 @@ describe("ForgerService", () => {
     });
 
     describe("Boot", () => {
-        it("should set delegates and log active delegates info message", async () => {
+        it("should register handlers, set delegates, and log active delegates info message", async () => {
+            handlerProvider.isRegistrationRequired.mockReturnValue(true);
+
             forgerService.register({ hosts: [mockHost] });
             client.getRound.mockReturnValueOnce({ delegates });
 
@@ -190,6 +200,7 @@ describe("ForgerService", () => {
                 true,
             )}: ${delegates.map((wallet) => `${wallet.delegate.username} (${wallet.publicKey})`).join(", ")}`;
 
+            expect(handlerProvider.registerHandlers).toBeCalled();
             expect(logger.info).toHaveBeenCalledWith(expectedInfoMessage);
         });
 

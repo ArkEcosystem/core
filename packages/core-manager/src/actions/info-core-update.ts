@@ -12,7 +12,7 @@ export class Action implements Actions.Action {
     public name = "info.coreUpdate";
 
     public async execute(params: object): Promise<any> {
-        await this.cliManager.runCommand("update");
+        await this.cliManager.runCommand("update", "--force");
         return {};
     }
 }

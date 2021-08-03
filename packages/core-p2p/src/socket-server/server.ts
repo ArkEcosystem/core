@@ -3,6 +3,7 @@ import { Server as HapiServer, ServerInjectOptions, ServerInjectResponse, Server
 
 import { plugin as hapiNesPlugin } from "../hapi-nes";
 import { AcceptPeerPlugin } from "./plugins/accept-peer";
+import { AwaitBlockPlugin } from "./plugins/await-block";
 import { CodecPlugin } from "./plugins/codec";
 import { IsAppReadyPlugin } from "./plugins/is-app-ready";
 import { RateLimitPlugin } from "./plugins/rate-limit";
@@ -75,6 +76,7 @@ export class Server {
         // onPreAuth
         this.app.resolve(WhitelistForgerPlugin).register(this.server);
         this.app.resolve(RateLimitPlugin).register(this.server);
+        this.app.resolve(AwaitBlockPlugin).register(this.server);
 
         // onPostAuth
         this.app.resolve(CodecPlugin).register(this.server);

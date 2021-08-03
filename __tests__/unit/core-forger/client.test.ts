@@ -39,13 +39,21 @@ describe("Client", () => {
     describe("register", () => {
         it("should register hosts", async () => {
             client.register(hosts);
-            expect(Nes.Client).toHaveBeenCalledWith(`ws://${host.hostname}:${host.port}`);
+
+            const expectedUrl = `ws://${host.hostname}:${host.port}`;
+            const expectedOptions = { ws: { maxPayload: 20971520 } };
+
+            expect(Nes.Client).toHaveBeenCalledWith(expectedUrl, expectedOptions);
             expect(client.hosts).toEqual([{ ...host, socket: expect.anything() }]);
         });
 
         it("should register IPv6 hosts", async () => {
             client.register(hostsIPv6);
-            expect(Nes.Client).toHaveBeenCalledWith(`ws://[${hostIPv6.hostname}]:${hostIPv6.port}`);
+
+            const expectedUrl = `ws://[${hostIPv6.hostname}]:${hostIPv6.port}`;
+            const expectedOptions = { ws: { maxPayload: 20971520 } };
+
+            expect(Nes.Client).toHaveBeenCalledWith(expectedUrl, expectedOptions);
             expect(client.hosts).toEqual([{ ...hostIPv6, socket: expect.anything() }]);
         });
 
@@ -88,7 +96,7 @@ describe("Client", () => {
             await expect(client.broadcastBlock(forgedBlockWithTransactions)).toResolve();
 
             expect(logger.error).toHaveBeenCalledWith(
-                `Broadcast block failed: Request to ${host.hostname}:${host.port}<p2p.blocks.postBlock> failed, because of 'this.host.socket.setMaxPayload is not a function'.`,
+                `Broadcast block failed: Request to ${host.hostname}:${host.port}<p2p.blocks.postBlock> failed, because of 'this.host.socket.request is not a function'.`,
             );
         });
 

@@ -100,27 +100,3 @@ describe("NullQueue.isRunning", () => {
         expect(result).toBe(false);
     });
 });
-
-describe("NullQueue.onData", () => {
-    it("should accept function", async () => {
-        const driver = new NullQueue();
-        const onData = jest.fn();
-        driver.onData(onData);
-    });
-});
-
-describe("NullQueue.onError", () => {
-    it("should accept function", async () => {
-        const driver = new NullQueue();
-        const onError = jest.fn();
-        driver.onError(onError);
-    });
-});
-
-describe("NullQueue.onDrain", () => {
-    it("should accept function", async () => {
-        const driver = new NullQueue();
-        const onDrain = jest.fn();
-        driver.onDrain(onDrain);
-    });
-});

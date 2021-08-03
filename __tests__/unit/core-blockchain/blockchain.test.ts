@@ -11,6 +11,9 @@ import { GetActiveDelegatesAction } from "@packages/core-state/src/actions";
 import { Sandbox } from "@packages/core-test-framework";
 import { Crypto, Interfaces, Managers, Networks, Utils } from "@packages/crypto";
 import delay from "delay";
+import { EventEmitter } from "events";
+
+EventEmitter.prototype.constructor = Object.prototype.constructor;
 
 describe("Blockchain", () => {
     let sandbox: Sandbox;
@@ -80,7 +83,7 @@ describe("Blockchain", () => {
         stateStore.clearWakeUpTimeout = jest.fn();
         stateStore.wakeUpTimeout = undefined;
         stateStore.blockPing = undefined;
-        stateStore.getGenesisBlock = jest.fn().mockReturnValue(Networks.testnet.genesisBlock);
+        stateStore.getGenesisBlock = jest.fn().mockReturnValue({ data: Networks.testnet.genesisBlock });
         stateStore.getLastDownloadedBlock = jest.fn();
         stateStore.setLastDownloadedBlock = jest.fn();
         stateStore.getNumberOfBlocksToRollback = jest.fn().mockReturnValue(0);
@@ -115,7 +118,6 @@ describe("Blockchain", () => {
         eventDispatcherService.dispatch = jest.fn();
 
         peerNetworkMonitor.cleansePeers = jest.fn();
-        peerNetworkMonitor.updateNetworkStatus = jest.fn();
         peerNetworkMonitor.broadcastBlock = jest.fn();
         peerNetworkMonitor.checkNetworkHealth = jest.fn();
 
@@ -306,16 +308,6 @@ describe("Blockchain", () => {
 
             expect(stateStore.clearWakeUpTimeout).toBeCalledTimes(1);
             expect(spySetWakeUp).toBeCalledTimes(1);
-        });
-    });
-
-    describe("updateNetworkStatus", () => {
-        it("should call updateNetworkStatus on peerNetworkMonitor", () => {
-            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
-
-            blockchain.updateNetworkStatus();
-
-            expect(peerNetworkMonitor.updateNetworkStatus).toBeCalledTimes(1);
         });
     });
 
@@ -661,10 +653,13 @@ describe("Blockchain", () => {
                 .mockReturnValueOnce(blocksToRemove[2]) // called in __removeBlocks
                 .mockReturnValueOnce(blocksToRemove[2]) // called in revertLastBlock
                 .mockReturnValueOnce(blocksToRemove[1]) // called in __removeBlocks
-                .mockReturnValueOnce(blocksToRemove[1]); // called in revertLastBlock
+                .mockReturnValueOnce(blocksToRemove[1]) // called in revertLastBlock
+                .mockReturnValueOnce(blockHeight1); // called in validation process
             databaseService.getBlocks = jest
                 .fn()
                 .mockReturnValueOnce(blocksToRemove.map((b) => ({ ...b.data, transactions: b.transactions })));
+
+            databaseService.getLastBlock = jest.fn().mockReturnValueOnce(blockHeight1);
 
             await blockchain.removeBlocks(2);
 
@@ -686,20 +681,66 @@ describe("Blockchain", () => {
                 .mockReturnValueOnce(blockHeight2) // called in removeBlocks
                 .mockReturnValueOnce(blockHeight2) // called in __removeBlocks
                 .mockReturnValueOnce(blockHeight2) // called in revertLastBlock
-                .mockReturnValue(genesisBlock);
+                .mockReturnValue({ data: genesisBlock });
             databaseService.getBlocks = jest
                 .fn()
-                .mockReturnValueOnce([{ ...blockHeight2.data, transactions: blockHeight2.transactions }, genesisBlock]);
+                .mockReturnValueOnce([genesisBlock, { ...blockHeight2.data, transactions: blockHeight2.transactions }]);
+            databaseService.getLastBlock = jest.fn().mockReturnValue({ data: genesisBlock });
 
             await blockchain.removeBlocks(blockHeight2.data.height + 10);
 
-            stateStore.getLastBlock = jest.fn();
-
             expect(databaseInteractions.revertBlock).toHaveBeenCalledTimes(1);
             expect(stateStore.setLastBlock).toHaveBeenCalledTimes(1);
+            expect(stateStore.setLastBlock).toHaveBeenCalledWith({ data: genesisBlock });
             expect(blockRepository.deleteBlocks).toHaveBeenCalledTimes(1);
             expect(stateStore.setLastStoredBlockHeight).toHaveBeenCalledTimes(1);
             expect(stateStore.setLastStoredBlockHeight).toHaveBeenCalledWith(1);
+        });
+
+        it("should throw if last database block is not the same as last state block", async () => {
+            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
+            await blockchain.initialize();
+
+            // @ts-ignore
+            const spyOnProcessExit = jest.spyOn(process, "exit").mockImplementation(() => {});
+            const blocksToRemove = [blockHeight1, blockHeight2, blockHeight3];
+            stateStore.getLastBlock = jest
+                .fn()
+                .mockReturnValueOnce(blocksToRemove[2]) // called in clearAndStopQueue
+                .mockReturnValueOnce(blocksToRemove[2]) // called in removeBlocks
+                .mockReturnValueOnce(blocksToRemove[2]) // called in __removeBlocks
+                .mockReturnValueOnce(blocksToRemove[2]) // called in revertLastBlock
+                .mockReturnValueOnce(blocksToRemove[1]) // called in __removeBlocks
+                .mockReturnValueOnce(blocksToRemove[1]) // called in revertLastBlock
+                .mockReturnValue(blockHeight1); // called in validation process
+            databaseService.getBlocks = jest
+                .fn()
+                .mockReturnValueOnce(blocksToRemove.map((b) => ({ ...b.data, transactions: b.transactions })));
+
+            databaseService.getLastBlock = jest.fn().mockReturnValueOnce(blockHeight3);
+
+            await blockchain.removeBlocks(2);
+
+            expect(logService.error).toHaveBeenCalledTimes(1);
+            expect(logService.error.mock.calls[0][0]).toContain(
+                `Last stored block (${blockHeight3.data.id}) is not the same as last block from state store (${blockHeight1.data.id})`,
+            );
+            expect(logService.warning).toHaveBeenCalledTimes(1);
+            expect(spyOnProcessExit).toHaveBeenCalledTimes(1);
+        });
+
+        it("should log error and exit process, when error is thrown", async () => {
+            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
+            await blockchain.initialize();
+
+            // @ts-ignore
+            const spyOnProcessExit = jest.spyOn(process, "exit").mockImplementation(() => {});
+
+            await blockchain.removeBlocks(0);
+
+            expect(logService.error).toHaveBeenCalledTimes(1);
+            expect(logService.warning).toHaveBeenCalledTimes(1);
+            expect(spyOnProcessExit).toHaveBeenCalledTimes(1);
         });
     });
 

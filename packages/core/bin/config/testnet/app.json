@@ -82,6 +82,12 @@
                 "package": "@arkecosystem/core-logger-pino"
             },
             {
+                "package": "@arkecosystem/core-transactions"
+            },
+            {
+                "package": "@arkecosystem/core-magistrate-transactions"
+            },
+            {
                 "package": "@arkecosystem/core-forger"
             }
         ]

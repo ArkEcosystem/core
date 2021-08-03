@@ -34,11 +34,6 @@ export interface Blockchain {
      * Reset the wakeup timeout.
      */
     resetWakeUp(): void;
-    /**
-     * Update network status.
-     * @return {void}
-     */
-    updateNetworkStatus(): Promise<void>;
 
     /**
      * Clear and stop the queue.
