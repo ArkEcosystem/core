@@ -1,4 +1,3 @@
-import envPaths from "env-paths";
 import { existsSync, lstatSync, readdirSync, readJSONSync } from "fs-extra";
 import { join } from "path";
 
@@ -19,17 +18,12 @@ export class DiscoverPlugins {
     /**
      * @returns {Promise<string>}
      * @memberof DiscoverPlugins
-     * @param token
-     * @param network
+     * @param path
      */
-    public async discover(token: string = "", network: string = ""): Promise<Plugin[]> {
+    public async discover(path: string): Promise<Plugin[]> {
         const plugins: Plugin[] = [];
 
-        const path = join(envPaths(token, { suffix: "core" }).data, network, "plugins");
-
         await this.discoverPackages(plugins, path);
-
-        console.log(plugins);
 
         return plugins;
     }
