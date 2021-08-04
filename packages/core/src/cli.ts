@@ -1,5 +1,8 @@
 import { ApplicationFactory, Commands, Container, Contracts, InputParser, Plugins } from "@arkecosystem/core-cli";
-import { resolve } from "path";
+import { Networks } from "@arkecosystem/crypto";
+import envPaths from "env-paths";
+import { readdirSync, readJSONSync } from "fs-extra";
+import { join, resolve } from "path";
 import { PackageJson } from "type-fest";
 
 /**
@@ -45,11 +48,15 @@ export class CommandLineInterface {
         // Check for updates
         this.app.get<Contracts.Updater>(Container.Identifiers.Updater).check();
 
-        // Discover commands and commands from plugins
-        const commands: Contracts.CommandList = this.discoverCommands(dirname);
-
         // Figure out what command we should run and offer help if necessary
         const { args, flags } = InputParser.parseArgv(this.argv);
+
+        this.setDefaultFlags(flags);
+        this.setFlagsFromConfiguration(flags);
+        this.setFlagsFromDiscoveredNetwork(flags);
+
+        // Discover commands and commands from plugins
+        const commands: Contracts.CommandList = await this.discoverCommands(dirname, flags);
 
         let commandSignature: string | undefined = args[0];
 
@@ -90,22 +97,67 @@ export class CommandLineInterface {
         await commandInstance.run();
     }
 
+    private setDefaultFlags(flags: any): void {
+        if (!flags.token) {
+            flags.token = "ark";
+        }
+    }
+
+    private setFlagsFromConfiguration(flags: any): void {
+        if (flags.network) {
+            return;
+        }
+
+        try {
+            const config = readJSONSync(join(process.env.CORE_PATH_CONFIG!, "config.json"));
+
+            if (config.token && config.network) {
+                flags.token = config.token;
+                flags.network = config.network;
+            }
+        } catch {}
+    }
+
+    private setFlagsFromDiscoveredNetwork(flags: any): void {
+        if (flags.network) {
+            return;
+        }
+
+        try {
+            const path = envPaths(flags.token, {
+                suffix: "core",
+            }).config;
+
+            const folders: string[] = readdirSync(path).filter((folder) => this.isValidNetwork(folder));
+
+            if (folders.length === 1) {
+                flags.network = folders[0];
+            }
+        } catch {}
+    }
+
+    private isValidNetwork(network: string): boolean {
+        return Object.keys(Networks).includes(network);
+    }
+
     /**
      * @private
      * @returns {Contracts.CommandList}
      * @memberof CommandLineInterface
      */
-    private discoverCommands(dirname: string): Contracts.CommandList {
+    private async discoverCommands(dirname: string, flags: any): Promise<Contracts.CommandList> {
         const discoverer = this.app.resolve(Commands.DiscoverCommands);
         const commands: Contracts.CommandList = discoverer.within(resolve(dirname, "./commands"));
 
-        const commandsFromPlugins = discoverer.from(
-            this.app.get<Contracts.Config>(Container.Identifiers.Config).get("plugins"),
-        );
+        if (flags.token && flags.network) {
+            const pluginDiscoverer = this.app.resolve(Commands.DiscoverPlugins);
+            const pluginPaths = (await pluginDiscoverer.discover(flags.token, flags.network)).map((plugin) => plugin.path);
 
-        for (const [key, value] of Object.entries(commandsFromPlugins)) {
-            /* istanbul ignore next */
-            commands[key] = value;
+            const commandsFromPlugins = discoverer.from(pluginPaths);
+
+            for (const [key, value] of Object.entries(commandsFromPlugins)) {
+                commands[key] = value;
+            }
         }
 
         this.app.bind(Container.Identifiers.Commands).toConstantValue(commands);
