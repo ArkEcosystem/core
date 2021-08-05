@@ -1,40 +1,23 @@
-import { createWriteStream, ensureDirSync, ensureFileSync, moveSync, removeSync } from "fs-extra";
+import { createWriteStream, ensureFileSync, moveSync, removeSync } from "fs-extra";
 import got from "got";
 import stream from "stream";
 import { extract } from "tar";
 import { promisify } from "util";
 
-import { Source } from "./contracts";
+import { AbstractSource } from "./abstract-source";
 
 /**
  * @export
  * @class NPM
  * @implements {Source}
  */
-export class NPM implements Source {
-    /**
-     * @private
-     * @type {string}
-     * @memberof NPM
-     */
-    private readonly dataPath: string;
-
-    /**
-     * @private
-     * @type {(string | undefined)}
-     * @memberof NPM
-     */
-    private readonly tempPath: string | undefined;
-
+export class NPM extends AbstractSource {
     /**
      * @param {{ data: string; temp?: string }} { data, temp }
      * @memberof NPM
      */
     public constructor({ data, temp }: { data: string; temp?: string }) {
-        this.dataPath = data;
-        this.tempPath = temp;
-
-        ensureDirSync(this.dataPath);
+        super({ data, temp });
     }
 
     /**

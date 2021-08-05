@@ -1,31 +1,22 @@
 import { existsSync } from "fs";
-import { ensureDirSync, removeSync } from "fs-extra";
+import { removeSync } from "fs-extra";
 import { parse } from "path";
 import { extract } from "tar";
 
-import { Source } from "./contracts";
+import { AbstractSource } from "./abstract-source";
 
 /**
  * @export
  * @class File
  * @implements {Source}
  */
-export class File implements Source {
-    /**
-     * @private
-     * @type {string}
-     * @memberof File
-     */
-    private readonly dataPath: string;
-
+export class File extends AbstractSource {
     /**
      * @param {{ data: string; temp?: string }} { data }
      * @memberof File
      */
     public constructor({ data }: { data: string; temp?: string }) {
-        this.dataPath = data;
-
-        ensureDirSync(this.dataPath);
+        super({ data });
     }
 
     /**

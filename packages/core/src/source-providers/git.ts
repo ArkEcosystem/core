@@ -1,30 +1,21 @@
 import { Utils } from "@arkecosystem/core-kernel";
 import execa from "execa";
-import { ensureDirSync, removeSync } from "fs-extra";
+import { removeSync } from "fs-extra";
 
-import { Source } from "./contracts";
+import { AbstractSource } from "./abstract-source";
 
 /**
  * @export
  * @class Git
  * @implements {Source}
  */
-export class Git implements Source {
-    /**
-     * @private
-     * @type {string}
-     * @memberof Git
-     */
-    private readonly dataPath: string;
-
+export class Git extends AbstractSource {
     /**
      * @param {{ data: string; temp?: string }} { data }
      * @memberof Git
      */
     public constructor({ data }: { data: string; temp?: string }) {
-        this.dataPath = data;
-
-        ensureDirSync(this.dataPath);
+        super({ data });
     }
 
     /**
