@@ -50,6 +50,8 @@ export class NPM extends AbstractSource {
         await this.extractPackage(name, tarballPath);
 
         removeSync(tarballPath);
+
+        await this.installDependencies(this.getTargetPath(value));
     }
 
     /**

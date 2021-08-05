@@ -1,5 +1,6 @@
 import { Source } from "./contracts";
 import { ensureDirSync } from "fs-extra";
+import execa from "execa";
 
 export abstract class AbstractSource implements Source {
     protected readonly dataPath: string;
@@ -12,9 +13,13 @@ export abstract class AbstractSource implements Source {
         ensureDirSync(this.dataPath);
     }
 
-    abstract async exists(value: string): Promise<boolean>;
+    protected async installDependencies(path: string): Promise<void> {
+        execa.sync(`yarn`, ["install"], { cwd: path });
+    }
 
-    abstract async install(value: string): Promise<void>;
+    public abstract async exists(value: string): Promise<boolean>;
 
-    abstract async update(value: string): Promise<void>;
+    public abstract async install(value: string): Promise<void>;
+
+    public abstract async update(value: string): Promise<void>;
 }
