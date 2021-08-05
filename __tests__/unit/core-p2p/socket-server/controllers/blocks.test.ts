@@ -3,7 +3,7 @@ import { PluginConfiguration } from "@packages/core-kernel/src/providers";
 import { BlocksController } from "@packages/core-p2p/src/socket-server/controllers/blocks";
 import { TooManyTransactionsError } from "@packages/core-p2p/src/socket-server/errors";
 import { Sandbox } from "@packages/core-test-framework";
-import { Blocks, Identities, Interfaces, Managers, Networks, Transactions, Utils } from "@packages/crypto";
+import { Blocks, Identities, Managers, Networks, Transactions, Utils } from "@packages/crypto";
 
 Managers.configManager.getMilestone().aip11 = true; // for creating aip11 v2 transactions
 
@@ -79,65 +79,6 @@ describe("BlocksController", () => {
                 await expect(
                     blocksController.postBlock({ payload: { block: blockSerialized } }, {}),
                 ).rejects.toBeInstanceOf(TooManyTransactionsError);
-            });
-
-            it("should throw TooManyTransactionsError when transactions.length is too much", async () => {
-                blockchain.getLastDownloadedBlock = jest.fn().mockReturnValueOnce(Networks.testnet.genesisBlock);
-                const blockTooManyTxs = deepClone(block);
-
-                const transactions: Interfaces.ITransaction[] = [];
-                for (let i = 0; i < 2; i++) {
-                    transactions.push(
-                        Transactions.BuilderFactory.transfer()
-                            .version(2)
-                            .amount("100")
-                            .recipientId(Identities.Address.fromPassphrase(`recipient secret ${i}`))
-                            .fee("100")
-                            .nonce(`${i + 1}`)
-                            .sign(`sender secret ${i}`)
-                            .build(),
-                    );
-                }
-                blockTooManyTxs.transactions = transactions;
-                blockTooManyTxs.data.numberOfTransactions = 2;
-
-                const blockSerialized = Blocks.Serializer.serializeWithTransactions({
-                    ...blockTooManyTxs.data,
-                    transactions: transactions.map((tx) => tx.data),
-                });
-
-                // this is a trick to make the first numberOfTransactions check pass
-                // but then transactions.length fail
-                // probably some unreachable code though...
-                const milestone = Managers.configManager.getMilestone();
-                const spyGetMilestone = jest.spyOn(Managers.configManager, "getMilestone");
-                for (let i = 0; i < 87; i++) {
-                    // yeah 87 times :wtf: before the one we are interested to mock kicks in
-                    spyGetMilestone.mockReturnValueOnce({
-                        ...milestone,
-                        block: {
-                            maxTransactions: 150,
-                        },
-                    });
-                }
-                spyGetMilestone.mockReturnValueOnce({
-                    ...milestone,
-                    block: {
-                        maxTransactions: 1,
-                    },
-                });
-
-                await expect(
-                    blocksController.postBlock(
-                        {
-                            payload: { block: blockSerialized },
-                            info: { remoteAddress: "187.55.33.22" },
-                        },
-                        {},
-                    ),
-                ).rejects.toBeInstanceOf(TooManyTransactionsError);
-
-                spyGetMilestone.mockRestore();
             });
         });
 
