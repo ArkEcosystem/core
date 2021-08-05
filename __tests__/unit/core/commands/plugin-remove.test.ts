@@ -13,12 +13,12 @@ beforeEach(() => {
 
 describe("PluginRemoveCommand", () => {
     it("should throw when package name is not provided", async () => {
-        jest.spyOn(cli.app, "getCorePath").mockResolvedValueOnce(null);
+        jest.spyOn(cli.app, "getCorePath").mockReturnValueOnce(null);
         await expect(cli.execute(Command)).rejects.toThrow(`"package" is required`);
     });
 
     it("should throw when the plugin doesn't exist", async () => {
-        jest.spyOn(cli.app, "getCorePath").mockResolvedValueOnce(null);
+        jest.spyOn(cli.app, "getCorePath").mockReturnValueOnce(null);
         await expect(cli.withArgs([packageName]).execute(Command)).rejects.toThrow(
             `The package [${packageName}] does not exist.`,
         );
