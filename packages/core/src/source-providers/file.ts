@@ -42,7 +42,7 @@ export class File extends AbstractSource {
             cwd: this.dataPath,
         });
 
-        removeSync(value);
+        await this.installDependencies(this.getTargetPath(value));
     }
 
     /**
