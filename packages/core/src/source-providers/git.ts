@@ -42,7 +42,9 @@ export class Git extends AbstractSource {
 
         removeSync(dest);
 
-        execa.sync(`git clone ${value} ${dest}`);
+        execa.sync(`git`, ["clone", value, dest])
+
+        await this.installDependencies(dest);
     }
 
     /**
