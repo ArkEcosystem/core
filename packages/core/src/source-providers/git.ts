@@ -1,6 +1,7 @@
 import { Utils } from "@arkecosystem/core-kernel";
 import execa from "execa";
 import { removeSync } from "fs-extra";
+import { join } from "path";
 
 import { AbstractSource } from "./abstract-source";
 
@@ -53,7 +54,12 @@ export class Git extends AbstractSource {
      * @memberof Git
      */
     public async update(value: string): Promise<void> {
-        execa.sync(`cd ${this.getTargetPath(value)} && git reset --hard && git pull`);
+        const dest = join(this.dataPath, value)
+
+        execa.sync(`git`, ["reset", "--hard"], { cwd: dest });
+        execa.sync(`git`, ["pull"], { cwd: dest });
+
+        await this.installDependencies(dest);
     }
 
     /**
