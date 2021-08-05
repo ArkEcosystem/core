@@ -65,8 +65,8 @@ export class Command extends Commands.Command {
     private async install(pkg: string): Promise<void> {
         for (const Instance of [File, Git, NPM]) {
             const source: Source = new Instance({
-                data: this.app.getCorePath("data"),
-                temp: this.app.getCorePath("temp"),
+                data: process.env.CORE_PLUGINS_PATH || this.app.getCorePath("data", "plugins"),
+                temp: this.app.getCorePath("temp", "plugins"),
             });
 
             if (await source.exists(pkg)) {

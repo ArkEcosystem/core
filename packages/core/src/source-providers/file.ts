@@ -23,7 +23,7 @@ export class File implements Source {
      * @memberof File
      */
     public constructor({ data }: { data: string; temp?: string }) {
-        this.dataPath = `${data}/plugins`;
+        this.dataPath = data;
 
         ensureDirSync(this.dataPath);
     }

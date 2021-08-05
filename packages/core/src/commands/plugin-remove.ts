@@ -2,6 +2,7 @@ import { Commands, Container } from "@arkecosystem/core-cli";
 import { Networks } from "@arkecosystem/crypto";
 import Joi from "joi";
 import { existsSync, removeSync } from "fs-extra";
+import { join } from "path";
 
 /**
  * @export
@@ -48,7 +49,11 @@ export class Command extends Commands.Command {
     public async execute(): Promise<void> {
         const pkg: string = this.getArgument("package");
 
-        const directory: string = this.app.getCorePath("data", `plugins/${pkg}`);
+        let directory: string = this.app.getCorePath("data", `plugins/${pkg}`);
+
+        if (process.env.CORE_PLUGINS_PATH) {
+            directory = join(process.env.CORE_PLUGINS_PATH, pkg);
+        }
 
         if (!existsSync(directory)) {
             throw new Error(`The package [${pkg}] does not exist.`);

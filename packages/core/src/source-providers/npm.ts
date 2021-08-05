@@ -31,7 +31,7 @@ export class NPM implements Source {
      * @memberof NPM
      */
     public constructor({ data, temp }: { data: string; temp?: string }) {
-        this.dataPath = `${data}/plugins`;
+        this.dataPath = data;
         this.tempPath = temp;
 
         ensureDirSync(this.dataPath);
@@ -60,7 +60,7 @@ export class NPM implements Source {
     public async install(value: string): Promise<void> {
         const { name, tarball }: { name: string; tarball: string } = await this.getPackage(value);
 
-        const tarballPath: string = `${this.tempPath}/plugins/${name}.tgz`;
+        const tarballPath: string = `${this.tempPath}/${name}.tgz`;
 
         await this.downloadPackage(tarball, tarballPath);
 

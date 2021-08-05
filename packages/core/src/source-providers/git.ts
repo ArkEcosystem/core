@@ -22,7 +22,7 @@ export class Git implements Source {
      * @memberof Git
      */
     public constructor({ data }: { data: string; temp?: string }) {
-        this.dataPath = `${data}/plugins`;
+        this.dataPath = data;
 
         ensureDirSync(this.dataPath);
     }
