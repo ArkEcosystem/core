@@ -39,7 +39,7 @@ describe("Git", () => {
             await source.install(repository);
 
             // Assert
-            const targetPath: string = `${dataPath}/plugins/${parseGitUrl(repository).repo}`;
+            const targetPath: string = `${dataPath}/${parseGitUrl(repository).repo}`;
             expect(removeSync).toHaveBeenCalledWith(targetPath);
             expect(clone).toHaveBeenCalledWith(`git clone ${repository} ${targetPath}`);
 
@@ -61,7 +61,7 @@ describe("Git", () => {
 
             // Assert
             expect(pull).toHaveBeenCalledWith(
-                `cd ${dataPath}/plugins/${parseGitUrl(repository).repo} && git reset --hard && git pull`,
+                `cd ${dataPath}/${parseGitUrl(repository).repo} && git reset --hard && git pull`,
             );
 
             // Reset

@@ -90,13 +90,13 @@ describe("NPM", () => {
             await source.update(packageName);
 
             // Assert
-            const pathPlugin: string = `${dataPath}/plugins/${packageName}`;
+            const pathPlugin: string = `${dataPath}/${packageName}`;
             expect(removeSync).toHaveBeenCalledWith(pathPlugin);
-            expect(ensureFileSync).toHaveBeenCalledWith(`${tempPath}/plugins/${packageName}.tgz`);
+            expect(ensureFileSync).toHaveBeenCalledWith(`${tempPath}/${packageName}.tgz`);
             expect(removeSync).toHaveBeenCalledWith(pathPlugin);
-            expect(moveSync).toHaveBeenCalledWith(`${dataPath}/plugins/package`, pathPlugin);
+            expect(moveSync).toHaveBeenCalledWith(`${dataPath}/package`, pathPlugin);
             expect(removeSync).toHaveBeenCalledWith(pathPlugin);
-            expect(removeSync).toHaveBeenLastCalledWith(`${tempPath}/plugins/${packageName}.tgz`);
+            expect(removeSync).toHaveBeenLastCalledWith(`${tempPath}/${packageName}.tgz`);
 
             // Reset
             removeSync.mockReset();

@@ -47,8 +47,8 @@ describe("File", () => {
             await source.install(fileName);
 
             // Assert
-            expect(removeSync).toHaveBeenCalledWith(`${dataPath}/plugins/utils`);
-            expect(fs.existsSync(`${dataPath}/plugins`)).toBeTrue();
+            expect(removeSync).toHaveBeenCalledWith(`${dataPath}/utils`);
+            expect(fs.existsSync(`${dataPath}`)).toBeTrue();
             expect(removeSync).toHaveBeenLastCalledWith(fileName);
 
             // Reset
@@ -77,8 +77,8 @@ describe("File", () => {
             await source.update(fileName);
 
             // Assert
-            expect(removeSync).toHaveBeenCalledWith(`${dataPath}/plugins/utils`);
-            expect(fs.existsSync(`${dataPath}/plugins`)).toBeTrue();
+            expect(removeSync).toHaveBeenCalledWith(`${dataPath}/utils`);
+            expect(fs.existsSync(`${dataPath}`)).toBeTrue();
             expect(removeSync).toHaveBeenLastCalledWith(fileName);
 
             // Reset
