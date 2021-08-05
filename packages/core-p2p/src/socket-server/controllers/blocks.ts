@@ -59,13 +59,6 @@ export class BlocksController extends Controller {
             }
         }
 
-        if (
-            block.transactions &&
-            block.transactions.length > Managers.configManager.getMilestone().block.maxTransactions
-        ) {
-            throw new TooManyTransactionsError(block);
-        }
-
         this.logger.info(
             `Received new block at height ${block.height.toLocaleString()} with ${Utils.pluralize(
                 "transaction",
