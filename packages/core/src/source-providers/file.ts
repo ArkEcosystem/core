@@ -11,12 +11,8 @@ import { AbstractSource } from "./abstract-source";
  * @implements {Source}
  */
 export class File extends AbstractSource {
-    /**
-     * @param {{ data: string; temp?: string }} { data }
-     * @memberof File
-     */
-    public constructor({ data }: { data: string; temp?: string }) {
-        super({ data });
+    public constructor(paths: { data: string; temp: string }) {
+        super(paths);
     }
 
     /**

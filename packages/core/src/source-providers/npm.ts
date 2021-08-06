@@ -12,12 +12,8 @@ import { AbstractSource } from "./abstract-source";
  * @implements {Source}
  */
 export class NPM extends AbstractSource {
-    /**
-     * @param {{ data: string; temp?: string }} { data, temp }
-     * @memberof NPM
-     */
-    public constructor({ data, temp }: { data: string; temp?: string }) {
-        super({ data, temp });
+    public constructor(paths: { data: string; temp: string }) {
+        super(paths);
     }
 
     /**

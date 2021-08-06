@@ -4,9 +4,9 @@ import execa from "execa";
 
 export abstract class AbstractSource implements Source {
     protected readonly dataPath: string;
-    protected readonly tempPath?: string;
+    protected readonly tempPath: string;
 
-    protected constructor({ data, temp }: { data: string; temp?: string }) {
+    protected constructor({ data, temp }: { data: string; temp: string }) {
         this.dataPath = data;
         this.tempPath = temp;
 
