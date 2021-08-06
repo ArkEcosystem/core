@@ -33,26 +33,18 @@ export class Git extends AbstractSource {
      * @returns {Promise<void>}
      * @memberof Git
      */
-    public async install(value: string): Promise<void> {
-        // TODO: Clean download path
-        const downloadPath: string = join(this.tempPath, "package");
-
-        execa.sync(`git`, ["clone", value, downloadPath])
-
-        await this.installInternal(downloadPath);
-    }
-
-    /**
-     * @param {string} value
-     * @returns {Promise<void>}
-     * @memberof Git
-     */
     public async update(value: string): Promise<void> {
-        const dest = join(this.dataPath, value)
+        const dest = join(this.dataPath, value);
 
         execa.sync(`git`, ["reset", "--hard"], { cwd: dest });
         execa.sync(`git`, ["pull"], { cwd: dest });
 
         await this.installDependencies(dest);
+    }
+
+    protected async preparePackage(value: string): Promise<void> {
+        const downloadPath: string = join(this.tempPath, "package");
+
+        execa.sync(`git`, ["clone", value, downloadPath]);
     }
 }

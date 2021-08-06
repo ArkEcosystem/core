@@ -3,7 +3,6 @@ import got from "got";
 import stream from "stream";
 import { extract } from "tar";
 import { promisify } from "util";
-import { join } from "path";
 
 import { AbstractSource } from "./abstract-source";
 
@@ -37,7 +36,11 @@ export class NPM extends AbstractSource {
      * @returns {Promise<void>}
      * @memberof NPM
      */
-    public async install(value: string): Promise<void> {
+    public async update(value: string): Promise<void> {
+        await this.install(value);
+    }
+
+    protected async preparePackage(value: string): Promise<void> {
         const { name, tarball }: { name: string; tarball: string } = await this.getPackage(value);
 
         const tarballPath: string = `${this.tempPath}/${name}.tgz`;
@@ -45,17 +48,6 @@ export class NPM extends AbstractSource {
         await this.downloadPackage(tarball, tarballPath);
 
         await this.extractPackage(name, tarballPath);
-
-        await this.installInternal(join(this.tempPath, "package"));
-    }
-
-    /**
-     * @param {string} value
-     * @returns {Promise<void>}
-     * @memberof NPM
-     */
-    public async update(value: string): Promise<void> {
-        await this.install(value);
     }
 
     /**

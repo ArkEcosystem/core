@@ -15,20 +15,21 @@ export abstract class AbstractSource implements Source {
         ensureDirSync(this.dataPath);
     }
 
-    protected async installInternal(extractedPath: string): Promise<void> {
-        try {
-            const packageName = this.getPackageName(extractedPath);
+    public async install(value: string): Promise<void> {
+        const packagePath = join(this.tempPath, "package");
 
-            this.throwIfAlreadyInstalled(packageName);
+        removeSync(packagePath);
 
-            moveSync(extractedPath, this.getDestPath(packageName));
+        await this.preparePackage(value);
 
-            execa.sync(`yarn`, ["install"], { cwd: this.getDestPath(packageName) });
-        } catch (err) {
-            throw err;
-        } finally {
-            removeSync(extractedPath);
-        }
+        const packageName = this.getPackageName(packagePath);
+        this.throwIfAlreadyInstalled(packageName);
+
+        moveSync(packagePath, this.getDestPath(packageName));
+
+        execa.sync(`yarn`, ["install"], { cwd: this.getDestPath(packageName) });
+
+        removeSync(packagePath);
     }
 
     // TODO: Remove
@@ -56,7 +57,7 @@ export abstract class AbstractSource implements Source {
 
     public abstract async exists(value: string): Promise<boolean>;
 
-    public abstract async install(value: string): Promise<void>;
-
     public abstract async update(value: string): Promise<void>;
+
+    protected abstract async preparePackage(value: string): Promise<void>;
 }

@@ -29,27 +29,19 @@ export class File extends AbstractSource {
      * @returns {Promise<void>}
      * @memberof File
      */
-    public async install(value: string): Promise<void> {
-        await this.extract(value);
-
-        await this.installInternal(join(this.tempPath, "package"));
-    }
-
-    /**
-     * @param {string} value
-     * @returns {Promise<void>}
-     * @memberof File
-     */
     public async update(value: string): Promise<void> {
         await this.install(value);
     }
 
-    private async extract(value: string): Promise<void> {
-        await extract({
-            gzip: true,
-            file: value,
-            cwd: this.tempPath,
-        }, ["package"]);
+    protected async preparePackage(value: string): Promise<void> {
+        await extract(
+            {
+                gzip: true,
+                file: value,
+                cwd: this.tempPath,
+            },
+            ["package"],
+        );
 
         if (!existsSync(join(this.tempPath, "package"))) {
             throw new MissingPackageFolder();
