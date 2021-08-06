@@ -37,7 +37,7 @@ export abstract class AbstractSource implements Source {
     }
 
     protected getOriginPath(): string {
-        return join(this.tempPath, "package")
+        return join(this.tempPath, "package");
     }
 
     protected getDestPath(packageName: string): string {
@@ -46,9 +46,9 @@ export abstract class AbstractSource implements Source {
 
     protected getPackageName(path: string): string {
         try {
-            return readJSONSync(join(path, "package.json")).name
+            return readJSONSync(join(path, "package.json")).name;
         } catch {
-            throw new InvalidPackageJson()
+            throw new InvalidPackageJson();
         }
     }
 

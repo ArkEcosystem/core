@@ -16,7 +16,6 @@ export class SourceError extends Error {
     }
 }
 
-
 export class InvalidPackageJson extends SourceError {
     public constructor() {
         super(`Missing or invalid package.json in extracted package.`);
