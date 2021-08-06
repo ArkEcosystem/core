@@ -96,5 +96,7 @@ export class NPM extends AbstractSource {
             file,
             cwd: this.tempPath,
         });
+
+        removeSync(file);
     }
 }
