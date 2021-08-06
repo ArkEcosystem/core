@@ -16,20 +16,20 @@ export abstract class AbstractSource implements Source {
     }
 
     public async install(value: string): Promise<void> {
-        const packagePath = join(this.tempPath, "package");
+        const origin = this.getOriginPath();
 
-        removeSync(packagePath);
+        removeSync(origin);
 
         await this.preparePackage(value);
 
-        const packageName = this.getPackageName(packagePath);
+        const packageName = this.getPackageName(origin);
         this.throwIfAlreadyInstalled(packageName);
 
-        moveSync(packagePath, this.getDestPath(packageName));
+        moveSync(origin, this.getDestPath(packageName));
 
         execa.sync(`yarn`, ["install"], { cwd: this.getDestPath(packageName) });
 
-        removeSync(packagePath);
+        removeSync(origin);
     }
 
     // TODO: Remove
@@ -37,9 +37,17 @@ export abstract class AbstractSource implements Source {
         execa.sync(`yarn`, ["install"], { cwd: path });
     }
 
-    private getPackageName(extractedPath: string): string {
+    protected getOriginPath(): string {
+        return join(this.tempPath, "package")
+    }
+
+    protected getDestPath(packageName: string): string {
+        return join(this.dataPath, packageName);
+    }
+
+    protected getPackageName(path: string): string {
         try {
-            return readJSONSync(join(extractedPath, "package.json")).name
+            return readJSONSync(join(path, "package.json")).name
         } catch {
             throw new InvalidPackageJson()
         }
@@ -49,10 +57,6 @@ export abstract class AbstractSource implements Source {
         if(existsSync(this.getDestPath(packageName))) {
             throw new AlreadyInstalled(packageName);
         }
-    }
-
-    private getDestPath(packageName: string): string {
-        return join(this.dataPath, packageName);
     }
 
     public abstract async exists(value: string): Promise<boolean>;

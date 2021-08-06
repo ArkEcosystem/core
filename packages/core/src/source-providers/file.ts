@@ -1,5 +1,4 @@
 import { existsSync } from "fs-extra";
-import { join } from "path";
 import { extract } from "tar";
 
 import { AbstractSource } from "./abstract-source";
@@ -43,7 +42,7 @@ export class File extends AbstractSource {
             ["package"],
         );
 
-        if (!existsSync(join(this.tempPath, "package"))) {
+        if (!existsSync(this.getOriginPath())) {
             throw new MissingPackageFolder();
         }
     }

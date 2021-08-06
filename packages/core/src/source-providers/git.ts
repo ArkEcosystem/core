@@ -43,8 +43,6 @@ export class Git extends AbstractSource {
     }
 
     protected async preparePackage(value: string): Promise<void> {
-        const downloadPath: string = join(this.tempPath, "package");
-
-        execa.sync(`git`, ["clone", value, downloadPath]);
+        execa.sync(`git`, ["clone", value, this.getOriginPath()]);
     }
 }
