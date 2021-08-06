@@ -1,6 +1,5 @@
 import { Utils } from "@arkecosystem/core-kernel";
 import execa from "execa";
-import { removeSync } from "fs-extra";
 import { join } from "path";
 
 import { AbstractSource } from "./abstract-source";
@@ -35,13 +34,12 @@ export class Git extends AbstractSource {
      * @memberof Git
      */
     public async install(value: string): Promise<void> {
-        const dest: string = this.getTargetPath(value);
+        // TODO: Clean download path
+        const downloadPath: string = join(this.tempPath, "package");
 
-        removeSync(dest);
+        execa.sync(`git`, ["clone", value, downloadPath])
 
-        execa.sync(`git`, ["clone", value, dest])
-
-        await this.installDependencies(dest);
+        await this.installInternal(downloadPath);
     }
 
     /**
@@ -56,33 +54,5 @@ export class Git extends AbstractSource {
         execa.sync(`git`, ["pull"], { cwd: dest });
 
         await this.installDependencies(dest);
-    }
-
-    /**
-     * @private
-     * @param {string} value
-     * @returns {string}
-     * @memberof Git
-     */
-    private getName(value: string): string {
-        const url:
-            | {
-                  repo: string;
-              }
-            | undefined = Utils.parseGitUrl(value);
-
-        Utils.assert.defined<{ repo: string }>(url);
-
-        return url.repo;
-    }
-
-    /**
-     * @private
-     * @param {string} value
-     * @returns {string}
-     * @memberof Git
-     */
-    private getTargetPath(value: string): string {
-        return `${this.dataPath}/${this.getName(value)}`;
     }
 }

@@ -1,8 +1,9 @@
-import { createWriteStream, ensureFileSync, moveSync, removeSync } from "fs-extra";
+import { createWriteStream, ensureFileSync, removeSync } from "fs-extra";
 import got from "got";
 import stream from "stream";
 import { extract } from "tar";
 import { promisify } from "util";
+import { join } from "path";
 
 import { AbstractSource } from "./abstract-source";
 
@@ -45,9 +46,7 @@ export class NPM extends AbstractSource {
 
         await this.extractPackage(name, tarballPath);
 
-        removeSync(tarballPath);
-
-        await this.installDependencies(this.getTargetPath(value));
+        await this.installInternal(join(this.tempPath, "package"));
     }
 
     /**
@@ -100,26 +99,10 @@ export class NPM extends AbstractSource {
      * @memberof NPM
      */
     private async extractPackage(name: string, file: string): Promise<void> {
-        removeSync(this.getTargetPath(name));
-
         await extract({
             gzip: true,
             file,
-            cwd: this.dataPath,
+            cwd: this.tempPath,
         });
-
-        moveSync(`${this.dataPath}/package`, this.getTargetPath(name));
-
-        removeSync(file);
-    }
-
-    /**
-     * @private
-     * @param {string} value
-     * @returns {string}
-     * @memberof NPM
-     */
-    private getTargetPath(value: string): string {
-        return `${this.dataPath}/${value}`;
     }
 }

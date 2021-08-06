@@ -1,9 +1,9 @@
-import { existsSync } from "fs";
-import { removeSync } from "fs-extra";
-import { parse } from "path";
+import { existsSync } from "fs-extra";
+import { join } from "path";
 import { extract } from "tar";
 
 import { AbstractSource } from "./abstract-source";
+import { MissingPackageFolder } from "./errors";
 
 /**
  * @export
@@ -30,15 +30,9 @@ export class File extends AbstractSource {
      * @memberof File
      */
     public async install(value: string): Promise<void> {
-        removeSync(this.getTargetPath(value));
+        await this.extract(value);
 
-        await extract({
-            gzip: true,
-            file: value,
-            cwd: this.dataPath,
-        });
-
-        await this.installDependencies(this.getTargetPath(value));
+        await this.installInternal(join(this.tempPath, "package"));
     }
 
     /**
@@ -50,13 +44,15 @@ export class File extends AbstractSource {
         await this.install(value);
     }
 
-    /**
-     * @private
-     * @param {string} value
-     * @returns {string}
-     * @memberof File
-     */
-    private getTargetPath(value: string): string {
-        return `${this.dataPath}/${parse(value).name.replace(":", "/")}`;
+    private async extract(value: string): Promise<void> {
+        await extract({
+            gzip: true,
+            file: value,
+            cwd: this.tempPath,
+        }, ["package"]);
+
+        if (!existsSync(join(this.tempPath, "package"))) {
+            throw new MissingPackageFolder();
+        }
     }
 }
