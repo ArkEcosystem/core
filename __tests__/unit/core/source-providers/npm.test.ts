@@ -3,8 +3,9 @@ import "jest-extended";
 import { NPM } from "@packages/core/src/source-providers";
 import fs from "fs-extra";
 import nock from "nock";
-import { resolve } from "path";
+import { join, resolve } from "path";
 import { dirSync, setGracefulCleanup } from "tmp";
+import execa from "execa";
 
 let dataPath: string;
 let tempPath: string;
@@ -84,6 +85,7 @@ describe("NPM", () => {
             const removeSync = jest.spyOn(fs, "removeSync");
             const ensureFileSync = jest.spyOn(fs, "ensureFileSync");
             const moveSync = jest.spyOn(fs, "moveSync");
+            const spyOnExeca = jest.spyOn(execa, "sync").mockImplementation();
 
             // Act
             const packageName: string = "@arkecosystem/utils";
@@ -94,9 +96,10 @@ describe("NPM", () => {
             expect(removeSync).toHaveBeenCalledWith(pathPlugin);
             expect(ensureFileSync).toHaveBeenCalledWith(`${tempPath}/${packageName}.tgz`);
             expect(removeSync).toHaveBeenCalledWith(pathPlugin);
-            expect(moveSync).toHaveBeenCalledWith(`${dataPath}/package`, pathPlugin);
+            expect(moveSync).toHaveBeenCalledWith(`${tempPath}/package`, pathPlugin);
             expect(removeSync).toHaveBeenCalledWith(pathPlugin);
-            expect(removeSync).toHaveBeenLastCalledWith(`${tempPath}/${packageName}.tgz`);
+            expect(removeSync).toHaveBeenCalledWith(`${tempPath}/${packageName}.tgz`);
+            expect(spyOnExeca).toHaveBeenCalledWith(`yarn`, ["install", "--production"], { cwd: join(dataPath, packageName) });
 
             // Reset
             removeSync.mockReset();
