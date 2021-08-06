@@ -53,7 +53,9 @@ describe("Git", () => {
             expect(removeSync).toHaveBeenCalledWith(targetPath);
             expect(removeSync).toHaveBeenCalledWith(join(tempPath, "package"));
             expect(spyOnExeca).toHaveBeenCalledWith(`git`, ["clone", repository, join(tempPath, "package")]);
-            expect(spyOnExeca).toHaveBeenCalledWith(`yarn`, ["install", "--production"], { cwd: join(dataPath, packageName) });
+            expect(spyOnExeca).toHaveBeenCalledWith(`yarn`, ["install", "--production"], {
+                cwd: join(dataPath, packageName),
+            });
         });
     });
 

@@ -18,7 +18,7 @@ beforeEach(() => {
 
 afterEach(() => {
     jest.clearAllMocks();
-})
+});
 
 afterAll(() => setGracefulCleanup());
 
@@ -36,7 +36,7 @@ describe("File", () => {
     describe("#install", () => {
         it("should successfully install the plugin", async () => {
             // Arrange
-            const fileName: string = join(__dirname, "utils-0.9.1.tgz")
+            const fileName: string = join(__dirname, "utils-0.9.1.tgz");
 
             const removeSync = jest.spyOn(fs, "removeSync").mockImplementation();
             const spyOnExeca = jest.spyOn(execa, "sync").mockImplementation();
@@ -48,30 +48,32 @@ describe("File", () => {
             const packageName: string = "@arkecosystem/utils";
             expect(removeSync).toHaveBeenCalledWith(join(dataPath, packageName));
             expect(removeSync).toHaveBeenLastCalledWith(join(tempPath, "package"));
-            expect(spyOnExeca).toHaveBeenCalledWith(`yarn`, ["install", "--production"], { cwd: join(dataPath, packageName) });
+            expect(spyOnExeca).toHaveBeenCalledWith(`yarn`, ["install", "--production"], {
+                cwd: join(dataPath, packageName),
+            });
         });
 
-        it ("should throw error if .tgz doesn't contains package folder", async () => {
+        it("should throw error if .tgz doesn't contains package folder", async () => {
             // Arrange
-            const fileName: string = join(__dirname, "invalid-utils-0.9.1.tgz")
+            const fileName: string = join(__dirname, "invalid-utils-0.9.1.tgz");
 
             // Act
-            await expect(source.install(fileName)).rejects.toThrowError(Errors.MissingPackageFolder)
-        })
+            await expect(source.install(fileName)).rejects.toThrowError(Errors.MissingPackageFolder);
+        });
 
-        it ("should throw error if .tgz doesn't contains package.json", async () => {
+        it("should throw error if .tgz doesn't contains package.json", async () => {
             // Arrange
-            const fileName: string = join(__dirname, "missing-utils-0.9.1.tgz")
+            const fileName: string = join(__dirname, "missing-utils-0.9.1.tgz");
 
             // Act
-            await expect(source.install(fileName)).rejects.toThrowError(Errors.InvalidPackageJson)
-        })
+            await expect(source.install(fileName)).rejects.toThrowError(Errors.InvalidPackageJson);
+        });
     });
 
     describe("#update", () => {
         it("should successfully update the plugin", async () => {
             // Arrange
-            const fileName: string = join(__dirname, "utils-0.9.1.tgz")
+            const fileName: string = join(__dirname, "utils-0.9.1.tgz");
 
             const removeSync = jest.spyOn(fs, "removeSync").mockImplementation();
             const spyOnExeca = jest.spyOn(execa, "sync").mockImplementation();
@@ -83,7 +85,9 @@ describe("File", () => {
             const packageName: string = "@arkecosystem/utils";
             expect(removeSync).toHaveBeenCalledWith(join(dataPath, packageName));
             expect(removeSync).toHaveBeenLastCalledWith(join(tempPath, "package"));
-            expect(spyOnExeca).toHaveBeenCalledWith(`yarn`, ["install", "--production"], { cwd: join(dataPath, packageName) });
+            expect(spyOnExeca).toHaveBeenCalledWith(`yarn`, ["install", "--production"], {
+                cwd: join(dataPath, packageName),
+            });
         });
     });
 });
