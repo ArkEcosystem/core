@@ -1,6 +1,6 @@
 import { Source } from "./contracts";
-import { InvalidPackageJson, AlreadyInstalled } from "./errors";
-import { ensureDirSync, readJSONSync, existsSync, moveSync, removeSync } from "fs-extra";
+import { InvalidPackageJson } from "./errors";
+import { ensureDirSync, readJSONSync, moveSync, removeSync } from "fs-extra";
 import execa from "execa";
 import { join } from "path";
 
@@ -23,7 +23,7 @@ export abstract class AbstractSource implements Source {
         await this.preparePackage(value);
 
         const packageName = this.getPackageName(origin);
-        this.throwIfAlreadyInstalled(packageName);
+        this.removeInstalledPackage(packageName);
 
         moveSync(origin, this.getDestPath(packageName));
 
@@ -53,10 +53,8 @@ export abstract class AbstractSource implements Source {
         }
     }
 
-    private throwIfAlreadyInstalled(packageName: string): void {
-        if(existsSync(this.getDestPath(packageName))) {
-            throw new AlreadyInstalled(packageName);
-        }
+    protected removeInstalledPackage(packageName: string): void {
+        removeSync(this.getDestPath(packageName));
     }
 
     public abstract async exists(value: string): Promise<boolean>;

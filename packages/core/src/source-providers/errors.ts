@@ -28,9 +28,3 @@ export class MissingPackageFolder extends SourceError {
         super(`Compressed file doesn't contain required package folder`);
     }
 }
-
-export class AlreadyInstalled extends SourceError {
-    public constructor(packageName: string) {
-        super(`Package ${packageName} is already installed.`);
-    }
-}
