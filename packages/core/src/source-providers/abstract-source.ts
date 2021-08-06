@@ -27,14 +27,13 @@ export abstract class AbstractSource implements Source {
 
         moveSync(origin, this.getDestPath(packageName));
 
-        execa.sync(`yarn`, ["install"], { cwd: this.getDestPath(packageName) });
+        await this.installDependencies(packageName);
 
         removeSync(origin);
     }
 
-    // TODO: Remove
-    protected async installDependencies(path: string): Promise<void> {
-        execa.sync(`yarn`, ["install"], { cwd: path });
+    protected async installDependencies(packageName: string): Promise<void> {
+        execa.sync(`yarn`, ["install"], { cwd: this.getDestPath(packageName) });
     }
 
     protected getOriginPath(): string {
