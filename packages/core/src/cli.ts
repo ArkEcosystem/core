@@ -7,9 +7,6 @@ import {
     Plugins,
     Services,
 } from "@arkecosystem/core-cli";
-import { Networks } from "@arkecosystem/crypto";
-import envPaths from "env-paths";
-import { readdirSync } from "fs-extra";
 import { join, resolve } from "path";
 import { PackageJson } from "type-fest";
 
@@ -102,7 +99,7 @@ export class CommandLineInterface {
         await commandInstance.run();
     }
 
-    private async parseNetworkAndToken(flags: any): Promise<{ token: string; network?: string }> {
+    private async detectNetworkAndToken(flags: any): Promise<{ token: string; network?: string }> {
         const tempFlags = {
             token: "ark",
             ...flags,
@@ -121,19 +118,7 @@ export class CommandLineInterface {
         }
 
         try {
-            const isValidNetwork = (network: string) => {
-                return Object.keys(Networks).includes(network);
-            };
-
-            const path = envPaths(tempFlags.token, {
-                suffix: "core",
-            }).config;
-
-            const folders: string[] = readdirSync(path).filter((folder) => isValidNetwork(folder));
-
-            if (folders.length === 1) {
-                tempFlags.network = folders[0];
-            }
+            tempFlags.network = await this.app.resolve(Commands.DiscoverNetwork).discover(tempFlags.token);
         } catch {}
 
         return tempFlags;
@@ -145,7 +130,7 @@ export class CommandLineInterface {
 
         const pluginsDiscoverer = this.app.resolve(Commands.DiscoverPlugins);
 
-        const tempFlags = await this.parseNetworkAndToken(flags);
+        const tempFlags = await this.detectNetworkAndToken(flags);
         const path = join(
             this.app
                 .get<Services.Environment>(Container.Identifiers.Environment)
