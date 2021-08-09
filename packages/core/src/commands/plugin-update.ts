@@ -52,7 +52,7 @@ export class Command extends Commands.Command {
         const pkg: string = this.getArgument("package");
 
         const paths = {
-            data: process.env.CORE_PLUGINS_PATH || this.app.getCorePath("data", "plugins"),
+            data: this.app.getCorePath("data", "plugins"),
             temp: this.app.getCorePath("temp", "plugins"),
         };
         const directory: string = join(paths.data, pkg);
