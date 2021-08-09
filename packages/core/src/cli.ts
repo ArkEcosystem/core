@@ -9,7 +9,7 @@ import {
 } from "@arkecosystem/core-cli";
 import { Networks } from "@arkecosystem/crypto";
 import envPaths from "env-paths";
-import { readdirSync, readJSONSync } from "fs-extra";
+import { readdirSync } from "fs-extra";
 import { join, resolve } from "path";
 import { PackageJson } from "type-fest";
 
@@ -102,7 +102,7 @@ export class CommandLineInterface {
         await commandInstance.run();
     }
 
-    private parseNetworkAndToken(flags: any) {
+    private async parseNetworkAndToken(flags: any): Promise<{ token: string; network?: string }> {
         const tempFlags = {
             token: "ark",
             ...flags,
@@ -112,17 +112,13 @@ export class CommandLineInterface {
             return tempFlags;
         }
 
-        try {
-            const config = readJSONSync(join(process.env.CORE_PATH_CONFIG!, "config.json"));
-
-            /* istanbul ignore else */
-            if (config.token && config.network) {
-                return {
-                    token: config.token,
-                    network: config.network,
-                };
-            }
-        } catch {}
+        const config = await this.app.resolve(Commands.DiscoverConfig).discover(tempFlags.token);
+        if (config) {
+            return {
+                token: config.token,
+                network: config.network,
+            };
+        }
 
         try {
             const isValidNetwork = (network: string) => {
@@ -149,11 +145,11 @@ export class CommandLineInterface {
 
         const pluginsDiscoverer = this.app.resolve(Commands.DiscoverPlugins);
 
-        const tempFlags = this.parseNetworkAndToken(flags);
+        const tempFlags = await this.parseNetworkAndToken(flags);
         const path = join(
             this.app
                 .get<Services.Environment>(Container.Identifiers.Environment)
-                .getPaths(tempFlags.token, tempFlags.network).data,
+                .getPaths(tempFlags.token, tempFlags.network!).data,
             "plugins",
         );
         const pluginPaths = (await pluginsDiscoverer.discover(path)).map((plugin) => plugin.path);
