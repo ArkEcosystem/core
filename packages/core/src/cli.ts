@@ -48,16 +48,13 @@ export class CommandLineInterface {
         // Check for updates
         this.app.get<Contracts.Updater>(Container.Identifiers.Updater).check();
 
-        // Figure out what command we should run and offer help if necessary
+        // Parse arguments and flags
         const { args, flags } = InputParser.parseArgv(this.argv);
-
-        this.setDefaultFlags(flags);
-        this.setFlagsFromConfiguration(flags);
-        this.setFlagsFromDiscoveredNetwork(flags);
 
         // Discover commands and commands from plugins
         const commands: Contracts.CommandList = await this.discoverCommands(dirname, flags);
 
+        // Figure out what command we should run and offer help if necessary
         let commandSignature: string | undefined = args[0];
 
         if (!commandSignature) {
@@ -97,47 +94,45 @@ export class CommandLineInterface {
         await commandInstance.run();
     }
 
-    private setDefaultFlags(flags: any): void {
-        if (!flags.token) {
-            flags.token = "ark";
-        }
-    }
+    private parseNetworkAndToken(flags: any) {
+        const tempFlags = {
+            token: "ark",
+            ...flags,
+        };
 
-    private setFlagsFromConfiguration(flags: any): void {
-        if (flags.network) {
-            return;
+        if (tempFlags.token && tempFlags.network) {
+            return tempFlags;
         }
 
         try {
             const config = readJSONSync(join(process.env.CORE_PATH_CONFIG!, "config.json"));
 
+            /* istanbul ignore else */
             if (config.token && config.network) {
-                flags.token = config.token;
-                flags.network = config.network;
+                return {
+                    token: config.token,
+                    network: config.network,
+                };
             }
         } catch {}
-    }
-
-    private setFlagsFromDiscoveredNetwork(flags: any): void {
-        if (flags.network) {
-            return;
-        }
 
         try {
-            const path = envPaths(flags.token, {
+            const isValidNetwork = (network: string) => {
+                return Object.keys(Networks).includes(network);
+            };
+
+            const path = envPaths(tempFlags.token, {
                 suffix: "core",
             }).config;
 
-            const folders: string[] = readdirSync(path).filter((folder) => this.isValidNetwork(folder));
+            const folders: string[] = readdirSync(path).filter((folder) => isValidNetwork(folder));
 
             if (folders.length === 1) {
-                flags.network = folders[0];
+                tempFlags.network = folders[0];
             }
         } catch {}
-    }
 
-    private isValidNetwork(network: string): boolean {
-        return Object.keys(Networks).includes(network);
+        return tempFlags;
     }
 
     /**
@@ -149,12 +144,14 @@ export class CommandLineInterface {
         const discoverer = this.app.resolve(Commands.DiscoverCommands);
         const commands: Contracts.CommandList = discoverer.within(resolve(dirname, "./commands"));
 
-        if (process.env.CORE_PLUGINS_PATH || (flags.token && flags.network)) {
+        const tempFlags = this.parseNetworkAndToken(flags);
+
+        if (process.env.CORE_PLUGINS_PATH || (tempFlags.token && tempFlags.network)) {
             const pluginDiscoverer = this.app.resolve(Commands.DiscoverPlugins);
 
             const path =
                 process.env.CORE_PLUGINS_PATH ||
-                join(envPaths(flags.token, { suffix: "core" }).data, flags.network, "plugins");
+                join(envPaths(tempFlags.token, { suffix: "core" }).data, tempFlags.network, "plugins");
 
             const pluginPaths = (await pluginDiscoverer.discover(path)).map((plugin) => plugin.path);
 
