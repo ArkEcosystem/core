@@ -135,11 +135,6 @@ export class CommandLineInterface {
         return tempFlags;
     }
 
-    /**
-     * @private
-     * @returns {Contracts.CommandList}
-     * @memberof CommandLineInterface
-     */
     private async discoverCommands(dirname: string, flags: any): Promise<Contracts.CommandList> {
         const discoverer = this.app.resolve(Commands.DiscoverCommands);
         const commands: Contracts.CommandList = discoverer.within(resolve(dirname, "./commands"));
