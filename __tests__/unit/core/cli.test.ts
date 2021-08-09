@@ -61,15 +61,6 @@ describe("CLI", () => {
     });
 
     describe("discover plugins", () => {
-        it("should not load CLI plugins if cannot detect plugins folder", async () => {
-            const spyOnDiscover = jest.spyOn(Commands.DiscoverPlugins.prototype, "discover").mockResolvedValueOnce([]);
-
-            const cli = new CommandLineInterface(["help"]);
-            await expect(cli.execute("./packages/core/dist")).toResolve();
-
-            expect(spyOnDiscover).not.toHaveBeenCalled();
-        });
-
         it("should load CLI plugins from folder using provided token and network", async () => {
             const spyOnDiscover = jest.spyOn(Commands.DiscoverPlugins.prototype, "discover").mockResolvedValueOnce([
                 // @ts-ignore
