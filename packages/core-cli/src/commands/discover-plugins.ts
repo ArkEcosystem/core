@@ -23,7 +23,9 @@ export class DiscoverPlugins {
     public async discover(path: string): Promise<Plugin[]> {
         const plugins: Plugin[] = [];
 
-        await this.discoverPackages(plugins, path);
+        if (existsSync(path)) {
+            await this.discoverPackages(plugins, path);
+        }
 
         return plugins;
     }
