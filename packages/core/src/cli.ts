@@ -1,4 +1,12 @@
-import { ApplicationFactory, Commands, Container, Contracts, InputParser, Plugins } from "@arkecosystem/core-cli";
+import {
+    ApplicationFactory,
+    Commands,
+    Container,
+    Contracts,
+    InputParser,
+    Plugins,
+    Services,
+} from "@arkecosystem/core-cli";
 import { Networks } from "@arkecosystem/crypto";
 import envPaths from "env-paths";
 import { readdirSync, readJSONSync } from "fs-extra";
@@ -136,25 +144,24 @@ export class CommandLineInterface {
     }
 
     private async discoverCommands(dirname: string, flags: any): Promise<Contracts.CommandList> {
-        const discoverer = this.app.resolve(Commands.DiscoverCommands);
-        const commands: Contracts.CommandList = discoverer.within(resolve(dirname, "./commands"));
+        const commandsDiscoverer = this.app.resolve(Commands.DiscoverCommands);
+        const commands: Contracts.CommandList = commandsDiscoverer.within(resolve(dirname, "./commands"));
+
+        const pluginsDiscoverer = this.app.resolve(Commands.DiscoverPlugins);
 
         const tempFlags = this.parseNetworkAndToken(flags);
+        const path = join(
+            this.app
+                .get<Services.Environment>(Container.Identifiers.Environment)
+                .getPaths(tempFlags.token, tempFlags.network).data,
+            "plugins",
+        );
+        const pluginPaths = (await pluginsDiscoverer.discover(path)).map((plugin) => plugin.path);
 
-        if (process.env.CORE_PLUGINS_PATH || (tempFlags.token && tempFlags.network)) {
-            const pluginDiscoverer = this.app.resolve(Commands.DiscoverPlugins);
+        const commandsFromPlugins = commandsDiscoverer.from(pluginPaths);
 
-            const path =
-                process.env.CORE_PLUGINS_PATH ||
-                join(envPaths(tempFlags.token, { suffix: "core" }).data, tempFlags.network, "plugins");
-
-            const pluginPaths = (await pluginDiscoverer.discover(path)).map((plugin) => plugin.path);
-
-            const commandsFromPlugins = discoverer.from(pluginPaths);
-
-            for (const [key, value] of Object.entries(commandsFromPlugins)) {
-                commands[key] = value;
-            }
+        for (const [key, value] of Object.entries(commandsFromPlugins)) {
+            commands[key] = value;
         }
 
         this.app.bind(Container.Identifiers.Commands).toConstantValue(commands);
