@@ -42,6 +42,14 @@ describe("DiscoverNetwork", () => {
         await expect(cmd.discover(configPath)).resolves.toBe("devnet");
     });
 
+    it("should throw if multiple networks are found && skipPrompts = false", async () => {
+        ensureDirSync(`${configPath}/mainnet`);
+        ensureDirSync(`${configPath}/devnet`);
+
+        await expect(cmd.discover(configPath, false)).rejects.toThrow(`Cannot determine network from directory [${configPath}]`);
+
+    });
+
     it("should throw if the network selection is not confirmed", async () => {
         ensureDirSync(`${configPath}/mainnet`);
         ensureDirSync(`${configPath}/devnet`);
