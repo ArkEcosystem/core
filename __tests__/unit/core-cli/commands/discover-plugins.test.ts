@@ -34,5 +34,11 @@ describe("DiscoverPlugins", () => {
                 },
             ]);
         });
+
+        it("should return empty array if path doesn't exist", async () => {
+            const plugins = await cmd.discover("invalid/path");
+
+            expect(plugins).toEqual([]);
+        })
     });
 });
