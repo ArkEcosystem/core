@@ -186,9 +186,9 @@ export abstract class Command {
         try {
             await this.detectConfig();
 
-            // if (this.requiresNetwork) {
-            await this.detectNetwork();
-            // }
+            if (this.requiresNetwork) {
+                await this.detectNetwork();
+            }
 
             // Check for configuration again after network was chosen
             await this.detectConfig();
