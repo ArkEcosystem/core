@@ -7,7 +7,7 @@ import envPaths from "env-paths";
 import { join } from "path";
 import fs from "fs-extra";
 
-afterEach(() => jest.resetAllMocks());
+afterEach(() => jest.clearAllMocks());
 
 describe("CLI", () => {
     it("should run successfully using valid commands", async () => {
@@ -68,19 +68,33 @@ describe("CLI", () => {
             await expect(cli.execute("./packages/core/dist")).toResolve();
 
             expect(spyOnDiscover).not.toHaveBeenCalled();
-        })
+        });
 
         it("should load CLI plugins from folder using provided token and network", async () => {
-            const spyOnDiscover = jest.spyOn(Commands.DiscoverPlugins.prototype, "discover").mockResolvedValueOnce([]);
+            const spyOnDiscover = jest.spyOn(Commands.DiscoverPlugins.prototype, "discover").mockResolvedValueOnce([
+                // @ts-ignore
+                {
+                    path: "test/path",
+                },
+            ]);
+
+            const spyOnFrom = jest
+                .spyOn(Commands.DiscoverCommands.prototype, "from")
+                // @ts-ignore
+                .mockReturnValueOnce({ plugin: {} });
 
             const token = "dummy";
             const network = "testnet";
 
-            const cli = new CommandLineInterface(["help" ,`--token=${token}`, `--network=${network}`]);
+            const cli = new CommandLineInterface(["help", `--token=${token}`, `--network=${network}`]);
             await expect(cli.execute("./packages/core/dist")).toResolve();
 
-            expect(spyOnDiscover).toHaveBeenCalledWith(join(envPaths(token, { suffix: "core" }).data, network, "plugins"));
-        })
+            expect(spyOnDiscover).toHaveBeenCalledWith(
+                join(envPaths(token, { suffix: "core" }).data, network, "plugins"),
+            );
+
+            expect(spyOnFrom).toHaveBeenCalled();
+        });
 
         it("should load CLI plugins from folder using CORE_PATH_CONFIG", async () => {
             const spyOnDiscover = jest.spyOn(Commands.DiscoverPlugins.prototype, "discover").mockResolvedValueOnce([]);
@@ -90,22 +104,28 @@ describe("CLI", () => {
             const cli = new CommandLineInterface(["help"]);
             await expect(cli.execute("./packages/core/dist")).toResolve();
 
-            expect(spyOnDiscover).toHaveBeenCalledWith(join(envPaths("dummyToken", { suffix: "core" }).data, "testnet", "plugins"));
+            expect(spyOnDiscover).toHaveBeenCalledWith(
+                join(envPaths("dummyToken", { suffix: "core" }).data, "testnet", "plugins"),
+            );
 
             delete process.env.CORE_PATH_CONFIG;
-        })
+        });
 
         it("should load CLI plugins from folder using detected network folder", async () => {
             const spyOnDiscover = jest.spyOn(Commands.DiscoverPlugins.prototype, "discover").mockResolvedValueOnce([]);
 
-            const original = fs.readdirSync
-            // @ts-ignore
-            jest.spyOn(fs, "readdirSync").mockImplementationOnce(original).mockImplementationOnce(() => ["testnet"]);
+            const original = fs.readdirSync;
+            jest.spyOn(fs, "readdirSync")
+                .mockImplementationOnce(original)
+                // @ts-ignore
+                .mockImplementationOnce(() => ["testnet"]);
 
             const cli = new CommandLineInterface(["help"]);
             await expect(cli.execute("./packages/core/dist")).toResolve();
 
-            expect(spyOnDiscover).toHaveBeenCalledWith(join(envPaths("ark", { suffix: "core" }).data, "testnet", "plugins"));
-        })
-    })
+            expect(spyOnDiscover).toHaveBeenCalledWith(
+                join(envPaths("ark", { suffix: "core" }).data, "testnet", "plugins"),
+            );
+        });
+    });
 });
