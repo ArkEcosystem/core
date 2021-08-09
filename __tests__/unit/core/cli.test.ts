@@ -5,7 +5,6 @@ import { Commands } from "@packages/core-cli";
 import prompts from "prompts";
 import envPaths from "env-paths";
 import { join } from "path";
-import fs from "fs-extra";
 
 afterEach(() => jest.clearAllMocks());
 
@@ -103,18 +102,18 @@ describe("CLI", () => {
         });
 
         it("should load CLI plugins from folder using detected network folder", async () => {
-            const spyOnDiscover = jest.spyOn(Commands.DiscoverPlugins.prototype, "discover").mockResolvedValueOnce([]);
-
-            const original = fs.readdirSync;
-            jest.spyOn(fs, "readdirSync")
-                .mockImplementationOnce(original)
-                // @ts-ignore
-                .mockImplementationOnce(() => ["testnet"]);
+            const spyOnDiscoverPlugins = jest
+                .spyOn(Commands.DiscoverPlugins.prototype, "discover")
+                .mockResolvedValueOnce([]);
+            const spyOnDiscoverNetwork = jest
+                .spyOn(Commands.DiscoverNetwork.prototype, "discover")
+                .mockResolvedValueOnce("testnet");
 
             const cli = new CommandLineInterface(["help"]);
             await expect(cli.execute("./packages/core/dist")).toResolve();
 
-            expect(spyOnDiscover).toHaveBeenCalledWith(
+            expect(spyOnDiscoverNetwork).toHaveBeenCalled();
+            expect(spyOnDiscoverPlugins).toHaveBeenCalledWith(
                 join(envPaths("ark", { suffix: "core" }).data, "testnet", "plugins"),
             );
         });
