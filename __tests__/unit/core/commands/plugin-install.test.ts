@@ -2,7 +2,6 @@ import "jest-extended";
 
 import { Console } from "@arkecosystem/core-test-framework";
 import { Command } from "@packages/core/src/commands/plugin-install";
-import { File } from "@packages/core/src/source-providers";
 import { setGracefulCleanup } from "tmp";
 
 let called = false;
@@ -67,29 +66,9 @@ describe("PluginInstallCommand", () => {
         await expect(cli.withArgs([packageName]).execute(Command)).rejects.toThrow("Fake Error");
     });
 
-    it("should call install on existing packages using default paths", async () => {
+    it("should call install on existing packages", async () => {
         packageExists = true;
         await expect(cli.withArgs([packageName]).execute(Command)).toResolve();
         expect(called).toEqual(true);
-
-        // @ts-ignore
-        expect(File.mock.calls[0][0].data).toContain("plugins");
-        // @ts-ignore
-        expect(File.mock.calls[0][0].temp).toContain("plugins");
-    });
-
-    it("should call install on existing packages using CORE_PLUGINS_PATH path", async () => {
-        process.env.CORE_PLUGINS_PATH="/custom/path"
-
-        packageExists = true;
-        await expect(cli.withArgs([packageName]).execute(Command)).toResolve();
-        expect(called).toEqual(true);
-
-        // @ts-ignore
-        expect(File.mock.calls[0][0].data).toEqual("/custom/path");
-        // @ts-ignore
-        expect(File.mock.calls[0][0].temp).toContain("plugins");
-
-        delete process.env.CORE_PLUGINS_PATH
     });
 });

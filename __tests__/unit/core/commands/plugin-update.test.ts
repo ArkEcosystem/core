@@ -2,7 +2,6 @@ import "jest-extended";
 
 import { Console } from "@packages/core-test-framework";
 import { Command } from "@packages/core/src/commands/plugin-update";
-import { Git, NPM } from "@packages/core/src/source-providers";
 import fs from "fs-extra";
 
 let npmUpdateCalled = false;
@@ -48,73 +47,21 @@ describe("PluginUpdateCommand", () => {
         );
     });
 
-    it("if the plugin is a git directory, it should be updated on default path", async () => {
+    it("if the plugin is a git directory, it should be updated", async () => {
         expect(gitUpdateCalled).toEqual(false);
 
-        const spyOnExistSync = jest.spyOn(fs, "existsSync").mockReturnValueOnce(true).mockReturnValueOnce(true);
+        jest.spyOn(fs, "existsSync").mockReturnValueOnce(true).mockReturnValueOnce(true);
 
         await expect(cli.withArgs([packageName]).execute(Command)).toResolve();
         expect(gitUpdateCalled).toEqual(true);
-
-        expect(spyOnExistSync.mock.calls[0][0]).toContain(`plugins/${packageName}`);
-        expect(spyOnExistSync.mock.calls[1][0]).toContain(`plugins/${packageName}/.git`);
-        // @ts-ignore
-        expect(Git.mock.calls[0][0].data).toContain("plugins");
-        // @ts-ignore
-        expect(Git.mock.calls[0][0].temp).toContain("plugins");
     });
 
-    it("if the plugin is a git directory, it should be updated on custom path", async () => {
-        process.env.CORE_PLUGINS_PATH = "/custom/path";
-
-        expect(gitUpdateCalled).toEqual(false);
-
-        const spyOnExistSync = jest.spyOn(fs, "existsSync").mockReturnValueOnce(true).mockReturnValueOnce(true);
-
-        await expect(cli.withArgs([packageName]).execute(Command)).toResolve();
-        expect(gitUpdateCalled).toEqual(true);
-
-        expect(spyOnExistSync.mock.calls[0][0]).toEqual(`/custom/path/${packageName}`);
-        expect(spyOnExistSync.mock.calls[1][0]).toEqual(`/custom/path/${packageName}/.git`);
-        // @ts-ignore
-        expect(Git.mock.calls[0][0].data).toEqual(`/custom/path`);
-        // @ts-ignore
-        expect(Git.mock.calls[0][0].temp).toContain("plugins");
-
-        delete process.env.CORE_PLUGINS_PATH;
-    });
 
     it("if the plugin is a NPM package, it should be updated on default path", async () => {
         expect(npmUpdateCalled).toEqual(false);
-        const spyOnExistSync = jest.spyOn(fs, "existsSync").mockReturnValueOnce(true).mockReturnValueOnce(false);
+        jest.spyOn(fs, "existsSync").mockReturnValueOnce(true).mockReturnValueOnce(false);
 
         await expect(cli.withArgs([packageName]).execute(Command)).toResolve();
         expect(npmUpdateCalled).toEqual(true);
-
-        expect(spyOnExistSync.mock.calls[0][0]).toContain("plugins");
-        expect(spyOnExistSync.mock.calls[1][0]).toContain("plugins");
-        // @ts-ignore
-        expect(NPM.mock.calls[0][0].data).toContain("plugins");
-        // @ts-ignore
-        expect(NPM.mock.calls[0][0].temp).toContain("plugins");
-    });
-
-    it("if the plugin is a NPM package, it should be updated on custom path", async () => {
-        process.env.CORE_PLUGINS_PATH = "/custom/path";
-
-        expect(npmUpdateCalled).toEqual(false);
-        const spyOnExistSync = jest.spyOn(fs, "existsSync").mockReturnValueOnce(true).mockReturnValueOnce(false);
-
-        await expect(cli.withArgs([packageName]).execute(Command)).toResolve();
-        expect(npmUpdateCalled).toEqual(true);
-
-        expect(spyOnExistSync.mock.calls[0][0]).toEqual(`/custom/path/${packageName}`);
-        expect(spyOnExistSync.mock.calls[1][0]).toEqual(`/custom/path/${packageName}/.git`);
-        // @ts-ignore
-        expect(NPM.mock.calls[0][0].data).toEqual(`/custom/path`);
-        // @ts-ignore
-        expect(NPM.mock.calls[0][0].temp).toContain("plugins");
-
-        delete process.env.CORE_PLUGINS_PATH;
     });
 });

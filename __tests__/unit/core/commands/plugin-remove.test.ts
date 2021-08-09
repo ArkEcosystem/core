@@ -28,27 +28,11 @@ describe("PluginRemoveCommand", () => {
         );
     });
 
-    it("remove plugin if exist on default path", async () => {
+    it("remove plugin if exist", async () => {
         jest.spyOn(fs, "existsSync").mockReturnValue(true);
         const removeSync = jest.spyOn(fs, "removeSync");
 
         await expect(cli.withArgs([packageName]).execute(Command)).toResolve();
         expect(removeSync).toHaveBeenCalled();
-
-        expect(removeSync.mock.calls[0][0]).toContain(`plugins/${packageName}`);
-    });
-
-    it("remove plugin if exist on custom path", async () => {
-        process.env.CORE_PLUGINS_PATH="/custom/path"
-
-        jest.spyOn(fs, "existsSync").mockReturnValue(true);
-        const removeSync = jest.spyOn(fs, "removeSync");
-
-        await expect(cli.withArgs([packageName]).execute(Command)).toResolve();
-        expect(removeSync).toHaveBeenCalled();
-
-        expect(removeSync.mock.calls[0][0]).toEqual(`/custom/path/${packageName}`);
-
-        delete process.env.CORE_PLUGINS_PATH
     });
 });
