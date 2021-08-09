@@ -149,9 +149,14 @@ export class CommandLineInterface {
         const discoverer = this.app.resolve(Commands.DiscoverCommands);
         const commands: Contracts.CommandList = discoverer.within(resolve(dirname, "./commands"));
 
-        if (flags.token && flags.network) {
+        if (process.env.CORE_PLUGINS_PATH || (flags.token && flags.network)) {
             const pluginDiscoverer = this.app.resolve(Commands.DiscoverPlugins);
-            const pluginPaths = (await pluginDiscoverer.discover(flags.token, flags.network)).map((plugin) => plugin.path);
+
+            const path =
+                process.env.CORE_PLUGINS_PATH ||
+                join(envPaths(flags.token, { suffix: "core" }).data, flags.network, "plugins");
+
+            const pluginPaths = (await pluginDiscoverer.discover(path)).map((plugin) => plugin.path);
 
             const commandsFromPlugins = discoverer.from(pluginPaths);
 
