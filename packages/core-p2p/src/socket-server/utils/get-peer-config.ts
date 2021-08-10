@@ -42,8 +42,8 @@ const getPluginsConfig = (plugins: PluginConfig[], app: Contracts.Kernel.Applica
 
         return {
             package: plugin.package,
-            options: serviceProvider.config().all()
-        }
+            options: serviceProvider.config().all(),
+        };
     });
 };
 
