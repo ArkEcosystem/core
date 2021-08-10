@@ -61,7 +61,7 @@ export class LoadServiceProviders implements Bootstrapper {
 
         assert.defined<PluginEntry[]>(plugins);
 
-        const installedPlugins = await this.discoverPlugins();
+        const installedPlugins = await this.discoverPlugins(this.app.dataPath("plugins"));
 
         for (const plugin of plugins) {
             const installedPlugin = installedPlugins.find((installedPlugin) => installedPlugin.name === plugin.package);
@@ -112,15 +112,7 @@ export class LoadServiceProviders implements Bootstrapper {
         return this.app.resolve(PluginConfiguration).discover(serviceProviderName, packageId).merge(options);
     }
 
-    private async discoverPlugins(): Promise<Plugin[]> {
-        const plugins: Plugin[] = [];
-
-        await this.discoverPluginsOnPath(plugins, this.app.dataPath("plugins"));
-
-        return plugins;
-    }
-
-    private async discoverPluginsOnPath(plugins: Plugin[], path: string): Promise<void> {
+    private async discoverPlugins(path: string, plugins: Plugin[] = []): Promise<Plugin[]> {
         const packageJsonPath = join(path, "package.json");
 
         if (existsSync(packageJsonPath)) {
@@ -132,7 +124,7 @@ export class LoadServiceProviders implements Bootstrapper {
                 version: packageJson.version,
             });
 
-            return;
+            return plugins;
         }
 
         const dirs = readdirSync(path)
@@ -140,7 +132,9 @@ export class LoadServiceProviders implements Bootstrapper {
             .filter((item: string) => lstatSync(item).isDirectory());
 
         for (const dir of dirs) {
-            await this.discoverPluginsOnPath(plugins, dir);
+            await this.discoverPlugins(dir, plugins);
         }
+
+        return plugins;
     }
 }
