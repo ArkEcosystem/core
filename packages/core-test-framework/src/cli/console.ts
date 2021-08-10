@@ -76,12 +76,12 @@ export class Console {
 
         const cmd = this.app.resolve<Commands.Command>(command);
 
-        cmd.register(
-            Utils.castFlagsToString(this.flags)
-                .split("--")
-                .filter(Boolean)
-                .map((flag: string) => `--${flag}`.trim()),
-        );
+        const castedFlags = Utils.castFlagsToString(this.flags)
+            .split("--")
+            .filter(Boolean)
+            .map((flag: string) => `--${flag}`.trim());
+
+        cmd.register(this.args ? this.args.concat(castedFlags) : castedFlags);
 
         await cmd.run();
 
