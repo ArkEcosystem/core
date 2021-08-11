@@ -6,7 +6,8 @@ import { JsonObject } from "../../types";
 import { assert } from "../../utils";
 import { Bootstrapper } from "../interfaces";
 import { join } from "path";
-import { existsSync, readdirSync, readJSONSync, lstatSync } from "fs-extra";
+import { readJSONSync } from "fs-extra";
+import glob from "glob";
 
 interface PluginEntry {
     package: string;
@@ -112,31 +113,21 @@ export class LoadServiceProviders implements Bootstrapper {
         return this.app.resolve(PluginConfiguration).discover(serviceProviderName, packageId).merge(options);
     }
 
-    private async discoverPlugins(path: string, plugins: Plugin[] = []): Promise<Plugin[]> {
-        if (!existsSync(path)) {
-            return [];
-        }
+    private async discoverPlugins(path: string): Promise<Plugin[]> {
+        const plugins: Plugin[] = [];
 
-        const packageJsonPath = join(path, "package.json");
+        const packagePaths = glob
+            .sync("{*/*/package.json,*/package.json}", { cwd: path })
+            .map((packagePath) => join(path, packagePath).slice(0, -"/package.json".length));
 
-        if (existsSync(packageJsonPath)) {
-            const packageJson = readJSONSync(packageJsonPath);
+        for (let packagePath of packagePaths) {
+            const packageJson = readJSONSync(join(packagePath, "package.json"));
 
             plugins.push({
-                path,
+                path: packagePath,
                 name: packageJson.name,
                 version: packageJson.version,
             });
-
-            return plugins;
-        }
-
-        const dirs = readdirSync(path)
-            .map((item: string) => `${path}/${item}`)
-            .filter((item: string) => lstatSync(item).isDirectory());
-
-        for (const dir of dirs) {
-            await this.discoverPlugins(dir, plugins);
         }
 
         return plugins;
