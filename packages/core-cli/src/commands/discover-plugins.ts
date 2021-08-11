@@ -1,5 +1,6 @@
-import { existsSync, lstatSync, readdirSync, readJSONSync } from "fs-extra";
+import { readJSONSync } from "fs-extra";
 import { join } from "path";
+import glob from "glob";
 
 import { injectable } from "../ioc";
 
@@ -23,34 +24,20 @@ export class DiscoverPlugins {
     public async discover(path: string): Promise<Plugin[]> {
         const plugins: Plugin[] = [];
 
-        if (existsSync(path)) {
-            await this.discoverPackages(plugins, path);
-        }
+        const packagePaths = glob
+            .sync("{*/*/package.json,*/package.json}", { cwd: path })
+            .map((packagePath) => join(path, packagePath).slice(0, -"/package.json".length));
 
-        return plugins;
-    }
-
-    private async discoverPackages(plugins: Plugin[], path: string): Promise<void> {
-        const packageJsonPath = join(path, "package.json");
-
-        if (existsSync(packageJsonPath)) {
-            const packageJson = readJSONSync(packageJsonPath);
+        for (let packagePath of packagePaths) {
+            const packageJson = readJSONSync(join(packagePath, "package.json"));
 
             plugins.push({
-                path,
+                path: packagePath,
                 name: packageJson.name,
                 version: packageJson.version,
             });
-
-            return;
         }
 
-        const dirs = readdirSync(path)
-            .map((item: string) => `${path}/${item}`)
-            .filter((item: string) => lstatSync(item).isDirectory());
-
-        for (const dir of dirs) {
-            await this.discoverPackages(plugins, dir);
-        }
+        return plugins;
     }
 }
