@@ -20,7 +20,7 @@ describe("CLI", () => {
         await expect(cli.execute()).toReject();
     });
 
-    it("should reject when using invalid commands", async () => {
+    it.skip("should reject when using invalid commands", async () => {
         // @ts-ignore
         const mockExit = jest.spyOn(process, "exit").mockImplementation(() => {});
         let message: string;
@@ -40,6 +40,7 @@ describe("CLI", () => {
         const cli = new CommandLineInterface(["--nope"]);
         await expect(cli.execute("./packages/core/dist")).toReject();
         expect(mockExit).toHaveBeenCalled();
+
     });
 
     it("should exit when a valid command appears with the help flag", async () => {
