@@ -12,10 +12,11 @@ import { injectable } from "../ioc";
 export class DiscoverNetwork {
     /**
      * @param {string} path
+     * @param skipPrompts
      * @returns {Promise<string>}
      * @memberof DiscoverNetwork
      */
-    public async discover(path: string): Promise<string> {
+    public async discover(path: string, usePrompts: boolean = true): Promise<string> {
         if (!existsSync(path)) {
             throw new Error(`The [${path}] directory does not exist.`);
         }
@@ -30,6 +31,10 @@ export class DiscoverNetwork {
 
         if (folders.length === 1) {
             return folders[0];
+        }
+
+        if (!usePrompts) {
+            throw new Error(`Cannot determine network from directory [${path}]`)
         }
 
         return this.discoverWithPrompt(folders);

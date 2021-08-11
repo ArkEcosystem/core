@@ -11,13 +11,13 @@ interface Config {
 
 /**
  * @export
- * @class DiscoverNetwork
+ * @class DiscoverConfig
  */
 @injectable()
 export class DiscoverConfig {
     /**
      * @returns {Promise<string>}
-     * @memberof DiscoverNetwork
+     * @memberof DiscoverConfig
      * @param token
      * @param network
      */
