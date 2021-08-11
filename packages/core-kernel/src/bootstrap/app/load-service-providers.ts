@@ -113,6 +113,10 @@ export class LoadServiceProviders implements Bootstrapper {
     }
 
     private async discoverPlugins(path: string, plugins: Plugin[] = []): Promise<Plugin[]> {
+        if (!existsSync(path)) {
+            return [];
+        }
+
         const packageJsonPath = join(path, "package.json");
 
         if (existsSync(packageJsonPath)) {
