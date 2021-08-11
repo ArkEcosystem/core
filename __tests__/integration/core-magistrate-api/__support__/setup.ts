@@ -2,7 +2,10 @@ import { Application, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Managers } from "@arkecosystem/crypto";
 import { ServiceProvider } from "@packages/core-magistrate-api/src";
 import { Sandbox } from "@packages/core-test-framework/src";
+import { EventEmitter } from "events";
 import { resolve } from "path";
+
+EventEmitter.prototype.constructor = Object.prototype.constructor;
 
 const sandbox: Sandbox = new Sandbox();
 

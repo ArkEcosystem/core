@@ -2,6 +2,7 @@ import { Commands, Container } from "@arkecosystem/core-cli";
 import { Networks } from "@arkecosystem/crypto";
 import Joi from "joi";
 import { existsSync } from "fs-extra";
+import { join } from "path";
 
 import { Git, NPM } from "../source-providers";
 
@@ -37,7 +38,8 @@ export class Command extends Commands.Command {
     public configure(): void {
         this.definition
             .setFlag("token", "The name of the token.", Joi.string().default("ark"))
-            .setFlag("network", "The name of the network.", Joi.string().valid(...Object.keys(Networks)));
+            .setFlag("network", "The name of the network.", Joi.string().valid(...Object.keys(Networks)))
+            .setArgument("package", "The name of the package.", Joi.string().required());
     }
 
     /**
@@ -48,16 +50,21 @@ export class Command extends Commands.Command {
      */
     public async execute(): Promise<void> {
         const pkg: string = this.getArgument("package");
-        const directory: string = this.app.getCorePath("data", `plugins/${pkg}`);
+
+        const paths = {
+            data: this.app.getCorePath("data", "plugins"),
+            temp: this.app.getCorePath("temp", "plugins"),
+        };
+        const directory: string = join(paths.data, pkg);
 
         if (!existsSync(directory)) {
-            this.components.fatal(`The package [${pkg}] does not exist.`);
+            throw new Error(`The package [${pkg}] does not exist.`);
         }
 
         if (existsSync(`${directory}/.git`)) {
-            return new Git(this.app.get(Container.Identifiers.ApplicationPaths)).update(pkg);
+            return new Git(paths).update(pkg);
         }
 
-        return new NPM(this.app.get(Container.Identifiers.ApplicationPaths)).update(pkg);
+        return new NPM(paths).update(pkg);
     }
 }

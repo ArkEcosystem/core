@@ -1,4 +1,4 @@
-import { Interfaces } from "@packages/crypto";
+import { Interfaces } from "@arkecosystem/crypto";
 
 export interface ChunkCache {
     has(key: string): boolean;

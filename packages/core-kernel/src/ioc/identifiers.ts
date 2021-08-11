@@ -123,6 +123,7 @@ export const Identifiers = {
     WalletAttributes: Symbol.for("Wallet<Attributes>"),
     // TransactionHandler
     TransactionHandler: Symbol.for("TransactionHandler"),
+    TransactionHandlerConstructors: Symbol.for("TransactionHandlerConstructors"),
     // Registries
     TransactionHandlerRegistry: Symbol.for("Registry<TransactionHandler>"),
     TransactionHandlerProvider: Symbol.for("Provider<TransactionHandler>"),

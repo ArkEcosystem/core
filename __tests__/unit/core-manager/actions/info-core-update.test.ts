@@ -33,6 +33,6 @@ describe("Info:CoreUpdate", () => {
         const result = await action.execute({});
 
         expect(result).toEqual({});
-        expect(mockCliManager.runCommand).toHaveBeenCalledWith("update");
+        expect(mockCliManager.runCommand).toHaveBeenCalledWith("update", "--force");
     });
 });

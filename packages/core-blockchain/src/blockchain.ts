@@ -69,11 +69,11 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
         this.queue = await this.app.get<Types.QueueFactory>(Container.Identifiers.QueueFactory)();
 
-        this.queue.onDrain(() => {
+        this.queue.on("drain", () => {
             this.dispatch("PROCESSFINISHED");
         });
 
-        this.queue.onError((job, error) => {
+        this.queue.on("jobError", (job, error) => {
             const blocks = (job as ProcessBlocksJob).getBlocks();
 
             this.logger.error(
@@ -171,15 +171,6 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
     public resetWakeUp(): void {
         this.stateStore.clearWakeUpTimeout();
         this.setWakeUp();
-    }
-
-    // TODO: Check if required
-    /**
-     * Update network status.
-     * @return {void}
-     */
-    public async updateNetworkStatus(): Promise<void> {
-        await this.networkMonitor.updateNetworkStatus();
     }
 
     /**
@@ -295,82 +286,99 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
      * @return {void}
      */
     public async removeBlocks(nblocks: number): Promise<void> {
-        this.clearAndStopQueue();
+        try {
+            this.clearAndStopQueue();
 
-        const lastBlock: Interfaces.IBlock = this.stateStore.getLastBlock();
-
-        // If the current chain height is H and we will be removing blocks [N, H],
-        // then blocksToRemove[] will contain blocks [N - 1, H - 1].
-        const blocksToRemove: Interfaces.IBlockData[] = await this.database.getBlocks(
-            lastBlock.data.height - nblocks,
-            lastBlock.data.height,
-        );
-
-        const removedBlocks: Interfaces.IBlockData[] = [];
-        const removedTransactions: Interfaces.ITransaction[] = [];
-
-        const revertLastBlock = async () => {
             const lastBlock: Interfaces.IBlock = this.stateStore.getLastBlock();
 
-            await this.databaseInteraction.revertBlock(lastBlock);
-            removedBlocks.push(lastBlock.data);
-            removedTransactions.push(...[...lastBlock.transactions].reverse());
-            blocksToRemove.pop();
+            // If the current chain height is H and we will be removing blocks [N, H],
+            // then blocksToRemove[] will contain blocks [N - 1, H - 1].
+            const blocksToRemove: Interfaces.IBlockData[] = await this.database.getBlocks(
+                lastBlock.data.height - nblocks,
+                lastBlock.data.height,
+            );
 
-            let newLastBlock: Interfaces.IBlock;
-            if (blocksToRemove[blocksToRemove.length - 1].height === 1) {
-                newLastBlock = this.stateStore.getGenesisBlock();
-            } else {
-                const tempNewLastBlockData: Interfaces.IBlockData = blocksToRemove[blocksToRemove.length - 1];
+            const removedBlocks: Interfaces.IBlockData[] = [];
+            const removedTransactions: Interfaces.ITransaction[] = [];
 
-                Utils.assert.defined<Interfaces.IBlockData>(tempNewLastBlockData);
+            const revertLastBlock = async () => {
+                const lastBlock: Interfaces.IBlock = this.stateStore.getLastBlock();
 
-                const tempNewLastBlock: Interfaces.IBlock | undefined = Blocks.BlockFactory.fromData(
-                    tempNewLastBlockData,
-                    {
-                        deserializeTransactionsUnchecked: true,
-                    },
+                await this.databaseInteraction.revertBlock(lastBlock);
+                removedBlocks.push(lastBlock.data);
+                removedTransactions.push(...[...lastBlock.transactions].reverse());
+                blocksToRemove.pop();
+
+                let newLastBlock: Interfaces.IBlock;
+                if (blocksToRemove[blocksToRemove.length - 1].height === 1) {
+                    newLastBlock = this.stateStore.getGenesisBlock();
+                } else {
+                    const tempNewLastBlockData: Interfaces.IBlockData = blocksToRemove[blocksToRemove.length - 1];
+
+                    Utils.assert.defined<Interfaces.IBlockData>(tempNewLastBlockData);
+
+                    const tempNewLastBlock: Interfaces.IBlock | undefined = Blocks.BlockFactory.fromData(
+                        tempNewLastBlockData,
+                        {
+                            deserializeTransactionsUnchecked: true,
+                        },
+                    );
+
+                    Utils.assert.defined<Interfaces.IBlockData>(tempNewLastBlock);
+
+                    newLastBlock = tempNewLastBlock;
+                }
+
+                this.stateStore.setLastBlock(newLastBlock);
+                this.stateStore.setLastDownloadedBlock(newLastBlock.data);
+            };
+
+            const __removeBlocks = async (numberOfBlocks) => {
+                if (numberOfBlocks < 1) {
+                    return;
+                }
+
+                const lastBlock: Interfaces.IBlock = this.stateStore.getLastBlock();
+
+                this.logger.info(`Undoing block ${lastBlock.data.height.toLocaleString()}`);
+
+                await revertLastBlock();
+                await __removeBlocks(numberOfBlocks - 1);
+            };
+
+            if (nblocks >= lastBlock.data.height) {
+                nblocks = lastBlock.data.height - 1;
+            }
+
+            const resetHeight: number = lastBlock.data.height - nblocks;
+            this.logger.info(
+                `Removing ${Utils.pluralize("block", nblocks, true)}. Reset to height ${resetHeight.toLocaleString()}`,
+            );
+
+            this.stateStore.setLastDownloadedBlock(lastBlock.data);
+
+            await __removeBlocks(nblocks);
+
+            await this.blockRepository.deleteBlocks(removedBlocks.reverse());
+            this.stateStore.setLastStoredBlockHeight(lastBlock.data.height - nblocks);
+
+            await this.transactionPool.readdTransactions(removedTransactions.reverse());
+
+            // Validate last block
+            const lastStoredBlock = await this.database.getLastBlock();
+
+            if (lastStoredBlock.data.id !== this.stateStore.getLastBlock().data.id) {
+                throw new Error(
+                    `Last stored block (${lastStoredBlock.data.id}) is not the same as last block from state store (${
+                        this.stateStore.getLastBlock().data.id
+                    })`,
                 );
-
-                Utils.assert.defined<Interfaces.IBlockData>(tempNewLastBlock);
-
-                newLastBlock = tempNewLastBlock;
             }
-
-            this.stateStore.setLastBlock(newLastBlock);
-            this.stateStore.setLastDownloadedBlock(newLastBlock.data);
-        };
-
-        const __removeBlocks = async (numberOfBlocks) => {
-            if (numberOfBlocks < 1) {
-                return;
-            }
-
-            const lastBlock: Interfaces.IBlock = this.stateStore.getLastBlock();
-
-            this.logger.info(`Undoing block ${lastBlock.data.height.toLocaleString()}`);
-
-            await revertLastBlock();
-            await __removeBlocks(numberOfBlocks - 1);
-        };
-
-        if (nblocks >= lastBlock.data.height) {
-            nblocks = lastBlock.data.height - 1;
+        } catch (err) {
+            this.logger.error(err.stack);
+            this.logger.warning("Shutting down app, because state might be corrupted");
+            process.exit(1);
         }
-
-        const resetHeight: number = lastBlock.data.height - nblocks;
-        this.logger.info(
-            `Removing ${Utils.pluralize("block", nblocks, true)}. Reset to height ${resetHeight.toLocaleString()}`,
-        );
-
-        this.stateStore.setLastDownloadedBlock(lastBlock.data);
-
-        await __removeBlocks(nblocks);
-
-        await this.blockRepository.deleteBlocks(removedBlocks.reverse());
-        this.stateStore.setLastStoredBlockHeight(lastBlock.data.height - nblocks);
-
-        await this.transactionPool.readdTransactions(removedTransactions.reverse());
     }
 
     /**
