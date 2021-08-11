@@ -40,7 +40,6 @@ describe("CLI", () => {
         const cli = new CommandLineInterface(["--nope"]);
         await expect(cli.execute("./packages/core/dist")).toReject();
         expect(mockExit).toHaveBeenCalled();
-
     });
 
     it("should exit when a valid command appears with the help flag", async () => {
