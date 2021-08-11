@@ -4,10 +4,13 @@ import Joi from "joi";
 import { Commands, Container } from "@packages/core-cli";
 import { Console } from "@packages/core-test-framework/src";
 
-const spyOnExecute = jest.fn();
+const spyOnGetFlag = jest.fn();
+const spyOnGetFlagToken = jest.fn();
+const spyOnGetFlagNetwork = jest.fn();
+const spyOnGetArgument = jest.fn();
 
 @Container.injectable()
-export class Command extends Commands.Command {
+class Command extends Commands.Command {
     /**
      * The console command signature.
      *
@@ -31,9 +34,9 @@ export class Command extends Commands.Command {
      * @memberof Command
      */
     public configure(): void {
-        this.definition.setFlag("test", "The test message.", Joi.string().default("test"));
+        this.definition.setFlag("flagName", "The test message.", Joi.string().default("flagValue"));
 
-        this.definition.setArgument("test_arg", "The test argument.", Joi.string().default("test"));
+        this.definition.setArgument("argumentName", "The test argument.", Joi.string().default("argumentValue"));
     }
 
     /**
@@ -43,8 +46,10 @@ export class Command extends Commands.Command {
      * @memberof Command
      */
     public async execute(): Promise<void> {
-        spyOnExecute(this.getFlag("test"));
-        // spyOnExecute(this.getArguments("test"));
+        spyOnGetFlag(this.getFlag("flagName"));
+        spyOnGetFlagToken(this.getFlag("token"));
+        spyOnGetFlagNetwork(this.getFlag("network"));
+        spyOnGetArgument(this.getArgument("argumentName"));
     }
 }
 
@@ -58,22 +63,30 @@ describe("Console", () => {
             const console = new Console();
 
             await expect(console.execute(Command)).toResolve();
-            expect(spyOnExecute).toHaveBeenCalledWith("test");
+            expect(spyOnGetFlag).toHaveBeenCalledWith("flagValue");
+            expect(spyOnGetFlagToken).toHaveBeenCalledWith("ark");
+            expect(spyOnGetFlagNetwork).toHaveBeenCalledWith("testnet");
+            expect(spyOnGetArgument).toHaveBeenCalledWith("argumentValue");
         });
 
         it("should execute with flags", async () => {
             const console = new Console();
 
-            await expect(console.withFlags({ test: "flag_test" }).execute(Command)).toResolve();
-            expect(spyOnExecute).toHaveBeenCalledWith("flag_test");
+            await expect(console.withFlags({ flagName: "flag_test" }).execute(Command)).toResolve();
+            expect(spyOnGetFlag).toHaveBeenCalledWith("flag_test");
+            expect(spyOnGetFlagToken).toHaveBeenCalledWith("ark");
+            expect(spyOnGetFlagNetwork).toHaveBeenCalledWith("testnet");
+            expect(spyOnGetArgument).toHaveBeenCalledWith("argumentValue");
         });
 
-        // TODO: Add support for arguments in console class
         it("should execute with arguments", async () => {
             const console = new Console();
 
-            await expect(console.withArgs(["-test_arg test123"]).execute(Command)).toResolve();
-            expect(spyOnExecute).toHaveBeenCalledWith("test");
+            await expect(console.withArgs(["test_arg"]).execute(Command)).toResolve();
+            expect(spyOnGetFlag).toHaveBeenCalledWith("flagValue");
+            expect(spyOnGetFlagToken).toHaveBeenCalledWith("ark");
+            expect(spyOnGetFlagNetwork).toHaveBeenCalledWith("testnet");
+            expect(spyOnGetArgument).toHaveBeenCalledWith("test_arg");
         });
     });
 
@@ -82,7 +95,7 @@ describe("Console", () => {
             const console = new Console(false);
 
             await expect(console.execute(Command)).toReject();
-            expect(spyOnExecute).not.toHaveBeenCalled();
+            expect(spyOnGetFlag).not.toHaveBeenCalled();
         });
 
         it("should execute with flags", async () => {
@@ -90,23 +103,28 @@ describe("Console", () => {
 
             await expect(
                 console
-                    .withFlags({ test: "flag_test", token: "dummy_token", network: "dummy_network" })
+                    .withFlags({ flagName: "flag_test", token: "dummy_token", network: "dummy_network" })
                     .execute(Command),
             ).toResolve();
-            expect(spyOnExecute).toHaveBeenCalledWith("flag_test");
+            expect(spyOnGetFlag).toHaveBeenCalledWith("flag_test");
+            expect(spyOnGetFlagToken).toHaveBeenCalledWith("dummy_token");
+            expect(spyOnGetFlagNetwork).toHaveBeenCalledWith("dummy_network");
+            expect(spyOnGetArgument).toHaveBeenCalledWith("argumentValue");
         });
 
-        // TODO: Add support for arguments in console class
         it("should execute with arguments", async () => {
             const console = new Console(false);
 
             await expect(
                 console
                     .withFlags({ token: "dummy_token", network: "dummy_network" })
-                    .withArgs(["-test_arg test123"])
+                    .withArgs(["test_arg"])
                     .execute(Command),
             ).toResolve();
-            expect(spyOnExecute).toHaveBeenCalledWith("test");
+            expect(spyOnGetFlag).toHaveBeenCalledWith("flagValue");
+            expect(spyOnGetFlagToken).toHaveBeenCalledWith("dummy_token");
+            expect(spyOnGetFlagNetwork).toHaveBeenCalledWith("dummy_network");
+            expect(spyOnGetArgument).toHaveBeenCalledWith("test_arg");
         });
     });
 });

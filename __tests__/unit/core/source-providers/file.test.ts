@@ -1,16 +1,23 @@
 import "jest-extended";
 
-import { File } from "@packages/core/src/source-providers";
+import { File, Errors } from "@packages/core/src/source-providers";
 import fs from "fs-extra";
-import tar from "tar";
 import { dirSync, fileSync, setGracefulCleanup } from "tmp";
+import { join } from "path";
+import execa from "execa";
 
 let dataPath: string;
+let tempPath: string;
 let source: File;
 beforeEach(() => {
     dataPath = dirSync().name;
+    tempPath = dirSync().name;
 
-    source = new File({ data: dataPath });
+    source = new File({ data: dataPath, temp: tempPath });
+});
+
+afterEach(() => {
+    jest.clearAllMocks();
 });
 
 afterAll(() => setGracefulCleanup());
@@ -29,60 +36,58 @@ describe("File", () => {
     describe("#install", () => {
         it("should successfully install the plugin", async () => {
             // Arrange
-            const fileName: string = `${dirSync().name}/utils.tgz`;
-
-            fs.ensureFileSync(fileName);
-
-            await tar.create(
-                {
-                    gzip: true,
-                    file: fileName,
-                },
-                [fileSync().name, fileSync().name, fileSync().name],
-            );
+            const fileName: string = join(__dirname, "utils-0.9.1.tgz");
 
             const removeSync = jest.spyOn(fs, "removeSync").mockImplementation();
+            const spyOnExeca = jest.spyOn(execa, "sync").mockImplementation();
 
             // Act
             await source.install(fileName);
 
             // Assert
-            expect(removeSync).toHaveBeenCalledWith(`${dataPath}/plugins/utils`);
-            expect(fs.existsSync(`${dataPath}/plugins`)).toBeTrue();
-            expect(removeSync).toHaveBeenLastCalledWith(fileName);
+            const packageName: string = "@arkecosystem/utils";
+            expect(removeSync).toHaveBeenCalledWith(join(dataPath, packageName));
+            expect(removeSync).toHaveBeenLastCalledWith(join(tempPath, "package"));
+            expect(spyOnExeca).toHaveBeenCalledWith(`yarn`, ["install", "--production"], {
+                cwd: join(dataPath, packageName),
+            });
+        });
 
-            // Reset
-            removeSync.mockReset();
+        it("should throw error if .tgz doesn't contains package folder", async () => {
+            // Arrange
+            const fileName: string = join(__dirname, "invalid-utils-0.9.1.tgz");
+
+            // Act
+            await expect(source.install(fileName)).rejects.toThrowError(Errors.MissingPackageFolder);
+        });
+
+        it("should throw error if .tgz doesn't contains package.json", async () => {
+            // Arrange
+            const fileName: string = join(__dirname, "missing-utils-0.9.1.tgz");
+
+            // Act
+            await expect(source.install(fileName)).rejects.toThrowError(Errors.InvalidPackageJson);
         });
     });
 
     describe("#update", () => {
-        it("should successfully install the plugin", async () => {
+        it("should successfully update the plugin", async () => {
             // Arrange
-            const fileName: string = `${dirSync().name}/utils.tgz`;
-
-            fs.ensureFileSync(fileName);
-
-            await tar.create(
-                {
-                    gzip: true,
-                    file: fileName,
-                },
-                [fileSync().name, fileSync().name, fileSync().name],
-            );
+            const fileName: string = join(__dirname, "utils-0.9.1.tgz");
 
             const removeSync = jest.spyOn(fs, "removeSync").mockImplementation();
+            const spyOnExeca = jest.spyOn(execa, "sync").mockImplementation();
 
             // Act
             await source.update(fileName);
 
             // Assert
-            expect(removeSync).toHaveBeenCalledWith(`${dataPath}/plugins/utils`);
-            expect(fs.existsSync(`${dataPath}/plugins`)).toBeTrue();
-            expect(removeSync).toHaveBeenLastCalledWith(fileName);
-
-            // Reset
-            removeSync.mockReset();
+            const packageName: string = "@arkecosystem/utils";
+            expect(removeSync).toHaveBeenCalledWith(join(dataPath, packageName));
+            expect(removeSync).toHaveBeenLastCalledWith(join(tempPath, "package"));
+            expect(spyOnExeca).toHaveBeenCalledWith(`yarn`, ["install", "--production"], {
+                cwd: join(dataPath, packageName),
+            });
         });
     });
 });

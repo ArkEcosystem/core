@@ -6,6 +6,7 @@ import { setGracefulCleanup } from "tmp";
 
 let called = false;
 let packageExists = true;
+const packageName = "dummyPackageName";
 const install = () => (called = true);
 const exists = async () => packageExists;
 
@@ -43,10 +44,17 @@ afterEach(() => {
 });
 
 describe("PluginInstallCommand", () => {
+    it("should throw an error when package name is not provided", async () => {
+        packageExists = false;
+        const errorMessage = `"package" is required`;
+        await expect(cli.execute(Command)).rejects.toThrow(errorMessage);
+        expect(called).toEqual(false);
+    });
+
     it("should throw an error when package doesn't exist", async () => {
         packageExists = false;
-        const errorMessage = `The given package [${undefined}] is neither a git nor a npm package.`;
-        await expect(cli.execute(Command)).rejects.toThrow(errorMessage);
+        const errorMessage = `The given package [${packageName}] is neither a git nor a npm package.`;
+        await expect(cli.withArgs([packageName]).execute(Command)).rejects.toThrow(errorMessage);
         expect(called).toEqual(false);
     });
 
@@ -55,12 +63,12 @@ describe("PluginInstallCommand", () => {
             throw Error("Fake Error");
         });
 
-        await expect(cli.execute(Command)).rejects.toThrow("Fake Error");
+        await expect(cli.withArgs([packageName]).execute(Command)).rejects.toThrow("Fake Error");
     });
 
     it("should call install on existing packages", async () => {
         packageExists = true;
-        await expect(cli.execute(Command)).toResolve();
+        await expect(cli.withArgs([packageName]).execute(Command)).toResolve();
         expect(called).toEqual(true);
     });
 });
