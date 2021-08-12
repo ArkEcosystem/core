@@ -65,7 +65,8 @@ export class CommandLineInterface {
         if (!commandSignature) {
             await commands.help.execute();
 
-            process.exit(2);
+            process.exitCode = 2;
+            return;
         }
 
         let commandInstance: Commands.Command = commands[commandSignature];
@@ -85,13 +86,14 @@ export class CommandLineInterface {
         if (!commandInstance) {
             await commands.help.execute();
 
-            process.exit(2);
+            process.exitCode = 2;
+            return;
         }
 
         if (commandInstance && flags.help) {
             commandInstance.showHelp();
 
-            process.exit(0);
+            return;
         }
 
         commandInstance.register(this.argv);
