@@ -23,12 +23,14 @@ beforeEach(() => {
 
     configRepository = app.get<ConfigRepository>(Identifiers.ConfigRepository);
     serviceProviderRepository = app.get<ServiceProviderRepository>(Identifiers.ServiceProviderRepository);
+
+    jest.spyOn(app, "dataPath").mockReturnValue(resolve(__dirname, "../../__stubs__"));
 });
 
 describe("LoadServiceProviders", () => {
     it("should bootstrap with defaults", async () => {
         configRepository.merge({
-            app: { plugins: [{ package: resolve(__dirname, "../../__stubs__/stub-plugin-with-defaults") }] },
+            app: { plugins: [{ package: "stub-plugin-with-defaults" }] },
         });
 
         serviceProviderRepository.set("stub", new StubServiceProvider());
@@ -38,11 +40,32 @@ describe("LoadServiceProviders", () => {
 
     it("should bootstrap without defaults", async () => {
         configRepository.merge({
-            app: { plugins: [{ package: resolve(__dirname, "../../__stubs__/stub-plugin") }] },
+            app: { plugins: [{ package: "stub-plugin" }] },
         });
 
         serviceProviderRepository.set("stub", new StubServiceProvider());
 
         await app.resolve<LoadServiceProviders>(LoadServiceProviders).bootstrap();
     });
+
+    it("should throw if package doesn't exist", async () => {
+        configRepository.merge({
+            app: { plugins: [{ package: "non-existing-plugin" }] },
+        });
+
+        await expect(app.resolve<LoadServiceProviders>(LoadServiceProviders).bootstrap()).rejects.toThrowError(
+            "Cannot find module 'non-existing-plugin'",
+        );
+    });
+
+    it("should bootstrap if plugins path doesn't exist", async () => {
+        jest.spyOn(app, "dataPath").mockReturnValue("/invalid/path");
+
+
+        configRepository.merge({
+            app: { plugins: [] },
+        });
+
+        await app.resolve<LoadServiceProviders>(LoadServiceProviders).bootstrap();
+    })
 });

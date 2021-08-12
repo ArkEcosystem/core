@@ -47,12 +47,13 @@ export class PluginConfiguration {
      * Get the configuration for the given package.
      *
      * @param {string} name
+     * @param packageId
      * @returns {this}
      * @memberof PluginConfiguration
      */
-    public discover(name: string): this {
+    public discover(name: string, packageId: string): this {
         try {
-            this.items = require(`${name}/dist/defaults.js`).defaults;
+            this.items = require(`${packageId}/dist/defaults.js`).defaults;
         } catch {
             // Failed to discover the defaults configuration file. This can be intentional.
         }

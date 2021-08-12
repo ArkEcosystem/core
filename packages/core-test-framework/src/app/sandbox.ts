@@ -201,7 +201,7 @@ export class Sandbox {
     public registerServiceProvider({ name, path, klass }: { name: string; path: string; klass: Types.Class }): this {
         const serviceProvider: Providers.ServiceProvider = this.app.resolve<any>(klass);
         serviceProvider.setManifest(this.app.resolve(Providers.PluginManifest).discover(path));
-        serviceProvider.setConfig(this.app.resolve(Providers.PluginConfiguration).discover(path));
+        serviceProvider.setConfig(this.app.resolve(Providers.PluginConfiguration).discover(name, path));
 
         this.app
             .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)

@@ -21,12 +21,12 @@ export class PluginManifest {
     /**
      * Get the manifest for the given package.
      *
-     * @param {string} name
+     * @param {string} packageId
      * @returns {this}
      * @memberof PluginManifest
      */
-    public discover(name: string): this {
-        this.manifest = require(`${name}/package.json`);
+    public discover(packageId: string): this {
+        this.manifest = require(`${packageId}/package.json`);
 
         return this;
     }

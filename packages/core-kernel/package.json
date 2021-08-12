@@ -31,6 +31,7 @@
         "env-paths": "^2.2.0",
         "fs-extra": "^8.1.0",
         "functional-red-black-tree": "^1.0.1",
+        "glob": "^7.1.7",
         "import-fresh": "^3.2.1",
         "inversify": "^5.0.1",
         "ipaddr.js": "^2.0.0",
