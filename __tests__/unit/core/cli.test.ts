@@ -1,7 +1,7 @@
 import "jest-extended";
 
 import { CommandLineInterface } from "@packages/core/src/cli";
-import { Commands } from "@packages/core-cli";
+import { Commands, Services } from "@packages/core-cli";
 import prompts from "prompts";
 import envPaths from "env-paths";
 import { join } from "path";
@@ -26,12 +26,14 @@ describe("CLI", () => {
 
     it("should set exitCode = 2 when using invalid commands", async () => {
         let message: string;
-        jest.spyOn(console, "warn").mockImplementationOnce((m) => (message = m));
+        jest.spyOn(console, "warn").mockImplementationOnce((m: string) => (message = m));
+        const spyOnCheck = jest.spyOn(Services.Updater.prototype, "check").mockImplementation();
 
         const cli = new CommandLineInterface(["hello"]);
         prompts.inject([false]);
         await cli.execute("./packages/core/dist")
 
+        expect(spyOnCheck).toBeCalled();
         expect(message).toContain(`is not a ark command.`);
         expect(process.exitCode).toEqual(2);
     });
