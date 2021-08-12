@@ -90,7 +90,7 @@ export class CommandLineInterface {
             return;
         }
 
-        if (commandInstance && flags.help) {
+        if (flags.help) {
             commandInstance.showHelp();
 
             return;
