@@ -1,10 +1,14 @@
 import "jest-extended";
 
 import { CommandLineInterface } from "@packages/core/src/cli";
-import { Commands } from "@packages/core-cli";
+import { Commands, Services } from "@packages/core-cli";
 import prompts from "prompts";
 import envPaths from "env-paths";
 import { join } from "path";
+
+beforeEach(() => {
+    process.exitCode = undefined;
+})
 
 afterEach(() => jest.clearAllMocks());
 
@@ -20,34 +24,30 @@ describe("CLI", () => {
         await expect(cli.execute()).toReject();
     });
 
-    it.skip("should reject when using invalid commands", async () => {
-        // @ts-ignore
-        const mockExit = jest.spyOn(process, "exit").mockImplementation(() => {});
+    it("should set exitCode = 2 when using invalid commands", async () => {
         let message: string;
-        jest.spyOn(console, "warn").mockImplementationOnce((m) => (message = m));
+        jest.spyOn(console, "warn").mockImplementationOnce((m: string) => (message = m));
+        const spyOnCheck = jest.spyOn(Services.Updater.prototype, "check").mockImplementation();
 
         const cli = new CommandLineInterface(["hello"]);
         prompts.inject([false]);
-        await expect(cli.execute("./packages/core/dist")).toReject();
+        await cli.execute("./packages/core/dist")
 
+        expect(spyOnCheck).toBeCalled();
         expect(message).toContain(`is not a ark command.`);
-        expect(mockExit).toHaveBeenCalled();
+        expect(process.exitCode).toEqual(2);
     });
 
-    it("should exit when the command doesn't have a valid signature", async () => {
-        // @ts-ignore
-        const mockExit = jest.spyOn(process, "exit").mockImplementation(() => {});
+    it("should set exitCode = 2 when the command doesn't have a valid signature", async () => {
         const cli = new CommandLineInterface(["--nope"]);
-        await expect(cli.execute("./packages/core/dist")).toReject();
-        expect(mockExit).toHaveBeenCalled();
+        await cli.execute("./packages/core/dist");
+        expect(process.exitCode).toEqual(2);
     });
 
-    it("should exit when a valid command appears with the help flag", async () => {
-        // @ts-ignore
-        const mockExit = jest.spyOn(process, "exit").mockImplementation(() => {});
+    it("should not set exitCode when a valid command appears with the help flag", async () => {
         const cli = new CommandLineInterface(["update", "--help"]);
         await expect(cli.execute("./packages/core/dist")).toResolve();
-        expect(mockExit).toHaveBeenCalled();
+        expect(process.exitCode).toEqual(undefined);
     });
 
     it("should execute a suggested command", async () => {
