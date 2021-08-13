@@ -41,6 +41,6 @@ describe("SuggestCommand", () => {
             bin: "ark",
         });
 
-        expect(spyInfo).toHaveBeenCalledWith(`Run ${blue("ark --help")} for a list of available commands.`);
+        expect(spyInfo).toHaveBeenCalledWith(`Run ${blue("ark help")} for a list of available commands.`);
     });
 });
