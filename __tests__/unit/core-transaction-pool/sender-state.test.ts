@@ -47,6 +47,7 @@ const transaction = {
     id: "tx1",
     timestamp: 13600,
     data: { senderPublicKey: "sender's public key", network: 123 },
+    serialized: Buffer.alloc(10),
 } as Interfaces.ITransaction;
 
 describe("SenderState.apply", () => {
