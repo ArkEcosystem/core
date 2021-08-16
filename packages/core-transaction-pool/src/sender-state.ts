@@ -35,7 +35,7 @@ export class SenderState implements Contracts.TransactionPool.SenderState {
 
     public async apply(transaction: Interfaces.ITransaction): Promise<void> {
         const maxTransactionBytes: number = this.configuration.getRequired<number>("maxTransactionBytes");
-        if (transaction.serialized.length > maxTransactionBytes) {
+        if (JSON.stringify(transaction.data).length > maxTransactionBytes) {
             throw new TransactionExceedsMaximumByteSizeError(transaction, maxTransactionBytes);
         }
 
