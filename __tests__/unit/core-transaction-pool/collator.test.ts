@@ -27,7 +27,7 @@ beforeEach(() => {
 });
 
 describe("Collator.getBlockCandidateTransactions", () => {
-    it("should respect block.maxTransactions limit", async () => {
+    it("should respect block.maxTransactions milestone limit", async () => {
         const poolTransactions = [
             { data: { senderPublicKey: "0" }, serialized: Buffer.alloc(10) },
             { data: { senderPublicKey: "1" }, serialized: Buffer.alloc(10) },
@@ -54,7 +54,7 @@ describe("Collator.getBlockCandidateTransactions", () => {
         expect(validator.validate).toBeCalledTimes(5);
     });
 
-    it("should respect block.maxPayload configuration limit", async () => {
+    it("should respect block.maxPayload milestone limit", async () => {
         const poolTransactions = [
             { data: { senderPublicKey: "0" }, serialized: Buffer.alloc(10) },
             { data: { senderPublicKey: "1" }, serialized: Buffer.alloc(10) },
