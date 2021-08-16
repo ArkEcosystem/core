@@ -29,7 +29,7 @@ export class Collator implements Contracts.TransactionPool.Collator {
             4 + // version
             4 + // timestamp
             4 + // height
-            (milestone.block.idFullSha256 ? 32 : 8) + // previousBlock
+            (milestone.block.idFullSha256 ? 32 : 8) + // previousBlockId
             4 + // numberOfTransactions
             8 + // totalAmount
             8 + // totalFee
