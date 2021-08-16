@@ -126,12 +126,10 @@ export class WalletRepository implements Contracts.State.WalletRepository {
         return Utils.BigNumber.ZERO;
     }
 
-    public index(wallets: Contracts.State.Wallet | Contracts.State.Wallet[]): void {
-        if (!Array.isArray(wallets)) {
-            this.indexWallet(wallets);
-        } else {
-            for (const wallet of wallets) {
-                this.indexWallet(wallet);
+    public index(wallet: Contracts.State.Wallet): void {
+        for (const index of Object.values(this.indexes)) {
+            if (index.autoIndex) {
+                index.index(wallet);
             }
         }
     }
@@ -166,12 +164,5 @@ export class WalletRepository implements Contracts.State.WalletRepository {
         }
 
         return walletClone;
-    }
-
-    protected indexWallet(wallet: Contracts.State.Wallet): void {
-        for (const index of Object.values(this.indexes).filter((index) => index.autoIndex)) {
-            index.forgetWallet(wallet);
-            index.index(wallet);
-        }
     }
 }

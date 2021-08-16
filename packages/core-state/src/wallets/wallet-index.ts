@@ -28,6 +28,16 @@ export class WalletIndex implements Contracts.State.WalletIndex {
     }
 
     public index(wallet: Contracts.State.Wallet): void {
+        const keys = this.keysByWallet.get(wallet)!;
+
+        if (keys) {
+            for (const key of keys) {
+                this.walletByKey.delete(key);
+            }
+
+            this.keysByWallet.delete(wallet);
+        }
+
         this.indexer(this, wallet);
     }
 
@@ -70,18 +80,6 @@ export class WalletIndex implements Contracts.State.WalletIndex {
             existingKeys.delete(key);
 
             this.walletByKey.delete(key);
-        }
-    }
-
-    public forgetWallet(wallet: Contracts.State.Wallet): void {
-        const keys = this.keysByWallet.get(wallet)!;
-
-        if (keys) {
-            for (const key of keys) {
-                this.walletByKey.delete(key);
-            }
-
-            this.keysByWallet.delete(wallet);
         }
     }
 

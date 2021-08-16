@@ -138,13 +138,13 @@ export class WalletRepositoryClone extends WalletRepository {
         }
     }
 
-    protected indexWallet(wallet: Contracts.State.Wallet): void {
+    public index(wallet: Contracts.State.Wallet): void {
         const indexKeys = {};
         for (const indexName of this.getIndexNames()) {
             indexKeys[indexName] = this.getIndex(indexName).walletKeys(wallet);
         }
 
-        super.indexWallet(wallet);
+        super.index(wallet);
 
         for (const indexName of this.getIndexNames()) {
             const walletKeys = this.getIndex(indexName).walletKeys(wallet);
