@@ -1,5 +1,6 @@
 import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { Interfaces, Managers } from "@arkecosystem/crypto";
+import { TransactionHasExpiredError } from "./errors";
 
 @Container.injectable()
 export class Collator implements Contracts.TransactionPool.Collator {
@@ -52,19 +53,19 @@ export class Collator implements Contracts.TransactionPool.Collator {
                 continue;
             }
 
-            if (await this.expirationService.isExpired(transaction)) {
-                this.logger.warning(`${transaction} expired.`);
-                failedTransactions.push(transaction);
-                continue;
-            }
-
-            if (bytesLeft - 4 - transaction.serialized.length < 0) {
-                break;
-            }
-
             try {
+                if (await this.expirationService.isExpired(transaction)) {
+                    const expirationHeight: number = await this.expirationService.getExpirationHeight(transaction);
+                    throw new TransactionHasExpiredError(transaction, expirationHeight);
+                }
+
+                if (bytesLeft - 4 - transaction.serialized.length < 0) {
+                    break;
+                }
+
                 await validator.validate(transaction);
                 candidateTransactions.push(transaction);
+
                 bytesLeft -= 4;
                 bytesLeft -= transaction.serialized.length;
             } catch (error) {
