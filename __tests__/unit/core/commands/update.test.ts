@@ -70,7 +70,7 @@ describe("UpdateCommand", () => {
             exitCode: 0,
         });
 
-        await cli.withFlags({ force: true }).execute(Command);
+        await cli.withFlags({ force: true, updateProcessManager: true }).execute(Command);
 
         // yarn info peerDependencies
         // yarn global add
@@ -118,7 +118,7 @@ describe("UpdateCommand", () => {
         });
         jest.spyOn(processManager, "restart").mockImplementation(undefined);
 
-        await cli.withFlags({ force: true, restart: true }).execute(Command);
+        await cli.withFlags({ force: true, restart: true, updateProcessManager: true }).execute(Command);
 
         // yarn info peerDependencies
         // yarn global add
@@ -144,7 +144,7 @@ describe("UpdateCommand", () => {
         const isOnline = jest.spyOn(processManager, "isOnline").mockReturnValue(true);
         const restart = jest.spyOn(processManager, "restart").mockImplementation(undefined);
 
-        await cli.withFlags({ force: true, restartCore: true }).execute(Command);
+        await cli.withFlags({ force: true, restartCore: true, updateProcessManager: true }).execute(Command);
 
         expect(sync).toHaveBeenCalledTimes(3);
         expect(isOnline).toHaveBeenCalled();
@@ -167,7 +167,7 @@ describe("UpdateCommand", () => {
         const isOnline = jest.spyOn(processManager, "isOnline").mockReturnValue(true);
         const restart = jest.spyOn(processManager, "restart").mockImplementation(undefined);
 
-        await cli.withFlags({ force: true, restartRelay: true }).execute(Command);
+        await cli.withFlags({ force: true, restartRelay: true, updateProcessManager: true }).execute(Command);
 
         expect(sync).toHaveBeenCalledTimes(3);
         expect(isOnline).toHaveBeenCalled();
@@ -190,7 +190,7 @@ describe("UpdateCommand", () => {
         const isOnline = jest.spyOn(processManager, "isOnline").mockReturnValue(true);
         const restart = jest.spyOn(processManager, "restart").mockImplementation(undefined);
 
-        await cli.withFlags({ force: true, restartForger: true }).execute(Command);
+        await cli.withFlags({ force: true, restartForger: true, updateProcessManager: true }).execute(Command);
 
         expect(sync).toHaveBeenCalledTimes(3);
         expect(isOnline).toHaveBeenCalled();
@@ -221,7 +221,7 @@ describe("UpdateCommand", () => {
 
         await cli.execute(Command);
 
-        expect(sync).toHaveBeenCalled();
+        expect(sync).toHaveBeenCalledTimes(2);
         expect(isOnline).toHaveBeenCalled();
         expect(restart).toHaveBeenCalledTimes(3);
     });
