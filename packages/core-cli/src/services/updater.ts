@@ -107,7 +107,7 @@ export class Updater {
      * @returns {Promise<boolean>}
      * @memberof Updater
      */
-    public async update(force: boolean = false): Promise<boolean> {
+    public async update(updateProcessManager: boolean = false, force: boolean = false): Promise<boolean> {
         if (this.latestVersion === undefined) {
             return false;
         }
@@ -132,7 +132,9 @@ export class Updater {
 
         this.installer.install(this.packageName, this.packageChannel);
 
-        this.processManager.update();
+        if (updateProcessManager) {
+            this.processManager.update();
+        }
 
         spinner.succeed();
 
