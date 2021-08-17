@@ -6,7 +6,6 @@ import { Collator } from "../../../packages/core-transaction-pool/src/collator";
 jest.mock("@arkecosystem/crypto");
 
 const validator = { validate: jest.fn() };
-const configuration = { get: jest.fn() };
 const createTransactionValidator = jest.fn();
 const blockchain = { getLastBlock: jest.fn() };
 const pool = { removeTransaction: jest.fn() };
@@ -15,7 +14,6 @@ const poolQuery = { getFromHighestPriority: jest.fn() };
 const logger = { warning: jest.fn(), error: jest.fn() };
 
 const container = new Container.Container();
-container.bind(Container.Identifiers.PluginConfiguration).toConstantValue(configuration);
 container.bind(Container.Identifiers.TransactionValidatorFactory).toConstantValue(createTransactionValidator);
 container.bind(Container.Identifiers.BlockchainService).toConstantValue(blockchain);
 container.bind(Container.Identifiers.TransactionPoolService).toConstantValue(pool);
@@ -29,16 +27,17 @@ beforeEach(() => {
 });
 
 describe("Collator.getBlockCandidateTransactions", () => {
-    it("should respect milestone transaction count limit", async () => {
+    it("should respect block.maxTransactions milestone limit", async () => {
         const poolTransactions = [
-            { data: { senderPublicKey: "0" } },
-            { data: { senderPublicKey: "1" } },
-            { data: { senderPublicKey: "2" } },
-            { data: { senderPublicKey: "3" } },
-            { data: { senderPublicKey: "4" } },
+            { data: { senderPublicKey: "0" }, serialized: Buffer.alloc(10) },
+            { data: { senderPublicKey: "1" }, serialized: Buffer.alloc(10) },
+            { data: { senderPublicKey: "2" }, serialized: Buffer.alloc(10) },
+            { data: { senderPublicKey: "3" }, serialized: Buffer.alloc(10) },
+            { data: { senderPublicKey: "4" }, serialized: Buffer.alloc(10) },
+            { data: { senderPublicKey: "5" }, serialized: Buffer.alloc(10) },
         ];
 
-        const milestone = { block: { maxTransactions: 5 } };
+        const milestone = { block: { idFullSha256: true, maxTransactions: 5, maxPayload: 2097152 } };
         const lastBlock = { data: { height: 10 } };
 
         (Managers.configManager.getMilestone as jest.Mock).mockReturnValueOnce(milestone);
@@ -50,26 +49,25 @@ describe("Collator.getBlockCandidateTransactions", () => {
         const candidateTransaction = await collator.getBlockCandidateTransactions();
 
         expect(candidateTransaction.length).toBe(5);
-        expect(configuration.get).toBeCalled();
         expect(Managers.configManager.getMilestone).toBeCalled();
         expect(createTransactionValidator).toBeCalled();
         expect(validator.validate).toBeCalledTimes(5);
     });
 
-    it("should respect maxTransactionBytes configuration limit", async () => {
+    it("should respect block.maxPayload milestone limit", async () => {
         const poolTransactions = [
-            { data: { senderPublicKey: "0" } },
-            { data: { senderPublicKey: "1" } },
-            { data: { senderPublicKey: "2" } },
-            { data: { senderPublicKey: "3" } },
-            { data: { senderPublicKey: "4" } },
+            { data: { senderPublicKey: "0" }, serialized: Buffer.alloc(10) },
+            { data: { senderPublicKey: "1" }, serialized: Buffer.alloc(10) },
+            { data: { senderPublicKey: "2" }, serialized: Buffer.alloc(10) },
+            { data: { senderPublicKey: "3" }, serialized: Buffer.alloc(10) },
+            { data: { senderPublicKey: "4" }, serialized: Buffer.alloc(10) },
+            { data: { senderPublicKey: "5" }, serialized: Buffer.alloc(10) },
         ];
 
-        const milestone = { block: { maxTransactions: 100 } };
+        const milestone = { block: { idFullSha256: true, maxTransactions: 5, maxPayload: 141 + 10 + 4 + 10 + 4 } };
         const lastBlock = { data: { height: 10 } };
 
         (Managers.configManager.getMilestone as jest.Mock).mockReturnValueOnce(milestone);
-        configuration.get.mockReturnValueOnce(25);
         blockchain.getLastBlock.mockReturnValueOnce(lastBlock);
         poolQuery.getFromHighestPriority.mockReturnValueOnce(poolTransactions);
         expirationService.isExpired.mockResolvedValue(false);
@@ -78,7 +76,6 @@ describe("Collator.getBlockCandidateTransactions", () => {
         const candidateTransaction = await collator.getBlockCandidateTransactions();
 
         expect(candidateTransaction.length).toBe(2);
-        expect(configuration.get).toBeCalled();
         expect(Managers.configManager.getMilestone).toBeCalled();
         expect(createTransactionValidator).toBeCalled();
         expect(validator.validate).toBeCalledTimes(2);
@@ -86,14 +83,15 @@ describe("Collator.getBlockCandidateTransactions", () => {
 
     it("should ignore future sender transactions if one of them expired", async () => {
         const poolTransactions = [
-            { data: { senderPublicKey: "0" } },
-            { data: { senderPublicKey: "0" } },
-            { data: { senderPublicKey: "2" } },
-            { data: { senderPublicKey: "3" } },
-            { data: { senderPublicKey: "4" } },
+            { data: { senderPublicKey: "0" }, serialized: Buffer.alloc(10) },
+            { data: { senderPublicKey: "0" }, serialized: Buffer.alloc(10) },
+            { data: { senderPublicKey: "2" }, serialized: Buffer.alloc(10) },
+            { data: { senderPublicKey: "3" }, serialized: Buffer.alloc(10) },
+            { data: { senderPublicKey: "4" }, serialized: Buffer.alloc(10) },
+            { data: { senderPublicKey: "5" }, serialized: Buffer.alloc(10) },
         ];
 
-        const milestone = { block: { maxTransactions: 5 } };
+        const milestone = { block: { idFullSha256: true, maxTransactions: 5, maxPayload: 2097152 } };
         const lastBlock = { data: { height: 10 } };
 
         (Managers.configManager.getMilestone as jest.Mock).mockReturnValueOnce(milestone);
@@ -105,24 +103,24 @@ describe("Collator.getBlockCandidateTransactions", () => {
         const collator = container.resolve(Collator);
         const candidateTransaction = await collator.getBlockCandidateTransactions();
 
-        expect(candidateTransaction.length).toBe(3);
-        expect(configuration.get).toBeCalled();
+        expect(candidateTransaction.length).toBe(4);
         expect(Managers.configManager.getMilestone).toBeCalled();
         expect(createTransactionValidator).toBeCalled();
         expect(validator.validate).toBeCalledTimes(4);
         expect(logger.warning).toBeCalledTimes(1);
     });
 
-    it.only("should ignore future sender transactions if one of them failed", async () => {
+    it("should ignore future sender transactions if one of them failed", async () => {
         const poolTransactions = [
-            { data: { senderPublicKey: "0" } },
-            { data: { senderPublicKey: "0" } },
-            { data: { senderPublicKey: "2" } },
-            { data: { senderPublicKey: "3" } },
-            { data: { senderPublicKey: "4" } },
+            { data: { senderPublicKey: "0" }, serialized: Buffer.alloc(10) },
+            { data: { senderPublicKey: "0" }, serialized: Buffer.alloc(10) },
+            { data: { senderPublicKey: "2" }, serialized: Buffer.alloc(10) },
+            { data: { senderPublicKey: "3" }, serialized: Buffer.alloc(10) },
+            { data: { senderPublicKey: "4" }, serialized: Buffer.alloc(10) },
+            { data: { senderPublicKey: "5" }, serialized: Buffer.alloc(10) },
         ];
 
-        const milestone = { block: { maxTransactions: 5 } };
+        const milestone = { block: { idFullSha256: true, maxTransactions: 5, maxPayload: 2097152 } };
         const lastBlock = { data: { height: 10 } };
 
         (Managers.configManager.getMilestone as jest.Mock).mockReturnValueOnce(milestone);
@@ -134,11 +132,10 @@ describe("Collator.getBlockCandidateTransactions", () => {
         const collator = container.resolve(Collator);
         const candidateTransaction = await collator.getBlockCandidateTransactions();
 
-        expect(candidateTransaction.length).toBe(3);
-        expect(configuration.get).toBeCalled();
+        expect(candidateTransaction.length).toBe(4);
         expect(Managers.configManager.getMilestone).toBeCalled();
         expect(createTransactionValidator).toBeCalled();
-        expect(validator.validate).toBeCalledTimes(4);
+        expect(validator.validate).toBeCalledTimes(5);
         expect(logger.warning).toBeCalledTimes(1);
     });
 });
