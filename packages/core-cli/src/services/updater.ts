@@ -103,6 +103,7 @@ export class Updater {
     }
 
     /**
+     * @param {boolean} [updateProcessManager=false]
      * @param {boolean} [force=false]
      * @returns {Promise<boolean>}
      * @memberof Updater
