@@ -44,7 +44,7 @@ export interface Config {
 export interface Updater {
     check(): Promise<boolean>;
 
-    update(force?: boolean): Promise<void>;
+    update(updateProcessManager?: boolean, force?: boolean): Promise<boolean>;
 
     getLatestVersion(): Promise<string | undefined>;
 }
