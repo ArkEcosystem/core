@@ -9,6 +9,7 @@ import { Config } from "../contracts";
 import { Identifiers, inject, injectable } from "../ioc";
 import { Installer } from "./installer";
 import { ProcessManager } from "./process-manager";
+import * as Contracts from "../contracts";
 
 const ONE_DAY = 1000 * 60 * 60 * 24;
 
@@ -17,7 +18,7 @@ const ONE_DAY = 1000 * 60 * 60 * 24;
  * @class Updater
  */
 @injectable()
-export class Updater {
+export class Updater implements Contracts.Updater {
     /**
      * @private
      * @type {Application}
@@ -103,11 +104,12 @@ export class Updater {
     }
 
     /**
+     * @param {boolean} [updateProcessManager=false]
      * @param {boolean} [force=false]
      * @returns {Promise<boolean>}
      * @memberof Updater
      */
-    public async update(force: boolean = false): Promise<boolean> {
+    public async update(updateProcessManager: boolean = false, force: boolean = false): Promise<boolean> {
         if (this.latestVersion === undefined) {
             return false;
         }
@@ -132,7 +134,9 @@ export class Updater {
 
         this.installer.install(this.packageName, this.packageChannel);
 
-        this.processManager.update();
+        if (updateProcessManager) {
+            this.processManager.update();
+        }
 
         spinner.succeed();
 
@@ -144,7 +148,7 @@ export class Updater {
      * @returns {(Promise<string | undefined>)}
      * @memberof Updater
      */
-    private async getLatestVersion(): Promise<string | undefined> {
+    public async getLatestVersion(): Promise<string | undefined> {
         try {
             const latest: string | undefined = await latestVersion(this.packageName, {
                 version: this.packageChannel,
