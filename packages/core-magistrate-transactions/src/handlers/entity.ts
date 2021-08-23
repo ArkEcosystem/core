@@ -108,7 +108,12 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
                 throw new EntityAlreadyRegisteredError();
             }
 
-            if (this.walletRepository.hasByIndex(MagistrateIndex.EntityNamesTypes, `${transaction.data.asset.data.name}-${transaction.data.asset.type}`)) {
+            if (
+                this.walletRepository.hasByIndex(
+                    MagistrateIndex.EntityNamesTypes,
+                    `${transaction.data.asset.data.name}-${transaction.data.asset.type}`,
+                )
+            ) {
                 throw new EntityNameAlreadyRegisteredError();
             }
 
@@ -163,7 +168,10 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
             case Enums.EntityAction.Register:
                 delete entities[transaction.id!];
 
-                this.walletRepository.forgetOnIndex(MagistrateIndex.EntityNamesTypes, `${transaction.data.asset.data.name}-${transaction.data.asset.type}`)
+                this.walletRepository.forgetOnIndex(
+                    MagistrateIndex.EntityNamesTypes,
+                    `${transaction.data.asset.data.name}-${transaction.data.asset.type}`,
+                );
                 break;
             case Enums.EntityAction.Update:
                 return this.revertForSenderUpdate(transaction, this.walletRepository);
@@ -254,7 +262,11 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
                     data: transaction.asset!.data,
                 };
 
-                this.walletRepository.setOnIndex(MagistrateIndex.EntityNamesTypes, `${transaction.asset.data.name}-${transaction.asset.type}`, wallet)
+                this.walletRepository.setOnIndex(
+                    MagistrateIndex.EntityNamesTypes,
+                    `${transaction.asset.data.name}-${transaction.asset.type}`,
+                    wallet,
+                );
                 break;
             case Enums.EntityAction.Update:
                 entities[transaction.asset!.registrationId] = {
