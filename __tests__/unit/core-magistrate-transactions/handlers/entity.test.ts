@@ -180,7 +180,7 @@ describe("Entity handler", () => {
 
             await expect(entityHandler.bootstrap()).toResolve();
 
-            expect(setOnIndex).toHaveBeenCalled();
+            expect(setOnIndex).toHaveBeenCalledTimes(2); // EntityNamesTypes & Entities
         });
     });
 
@@ -336,7 +336,7 @@ describe("Entity handler", () => {
                     },
                 });
 
-                expect(setOnIndex).toHaveBeenCalled();
+                expect(setOnIndex).toHaveBeenCalledTimes(2); // EntityNamesTypes & Entities
             });
         });
 
@@ -356,7 +356,7 @@ describe("Entity handler", () => {
                 expect(wallet.setAttribute).toBeCalledWith("entities", {});
                 expect(walletAttributes).toEqual({ entities: {} });
 
-                expect(forgetOnIndex).toHaveBeenCalled();
+                expect(forgetOnIndex).toHaveBeenCalledTimes(2); // EntityNamesTypes & Entities
             });
         });
 
