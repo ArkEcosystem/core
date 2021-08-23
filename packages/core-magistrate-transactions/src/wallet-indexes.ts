@@ -24,14 +24,6 @@ export const bridgechainIndexer = (index: Contracts.State.WalletIndex, wallet: C
     }
 };
 
-export const entityIndexer = (index: Contracts.State.WalletIndex, wallet: Contracts.State.Wallet): void => {
-    if (wallet.hasAttribute("entities")) {
-        for (const id of Object.keys(wallet.getAttribute("entities"))) {
-            index.set(id, wallet);
-        }
-    }
-};
-
 export const entityNameTypeIndexer = (index: Contracts.State.WalletIndex, wallet: Contracts.State.Wallet): void => {
     if (wallet.hasAttribute("entities")) {
         for (const asset of Object.values(wallet.getAttribute("entities") as MagistrateInterfaces.IEntityAsset)) {
