@@ -8,6 +8,7 @@ import {
     bridgechainIndexer,
     businessIndexer,
     MagistrateIndex,
+    entityIndexer,
 } from "@packages/core-magistrate-transactions/src/wallet-indexes";
 import { Wallets } from "@packages/core-state";
 import {
@@ -130,6 +131,12 @@ export const initApp = (): Application => {
     app.bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex).toConstantValue({
         name: MagistrateIndex.Bridgechains,
         indexer: bridgechainIndexer,
+        autoIndex: true,
+    });
+
+    app.bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex).toConstantValue({
+        name: MagistrateIndex.Entities,
+        indexer: entityIndexer,
         autoIndex: true,
     });
 

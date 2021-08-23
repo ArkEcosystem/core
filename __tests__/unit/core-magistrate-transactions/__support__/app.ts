@@ -4,6 +4,7 @@ import { NullEventDispatcher } from "@packages/core-kernel/src/services/events/d
 import {
     bridgechainIndexer,
     businessIndexer,
+    entityIndexer,
     entityNameTypeIndexer,
     MagistrateIndex,
 } from "@packages/core-magistrate-transactions/src/wallet-indexes";
@@ -95,6 +96,12 @@ export const initApp = (): Application => {
     app.bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex).toConstantValue({
         name: MagistrateIndex.Bridgechains,
         indexer: bridgechainIndexer,
+        autoIndex: true,
+    });
+
+    app.bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex).toConstantValue({
+        name: MagistrateIndex.Entities,
+        indexer: entityIndexer,
         autoIndex: true,
     });
 
