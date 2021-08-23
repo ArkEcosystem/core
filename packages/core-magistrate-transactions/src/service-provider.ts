@@ -9,7 +9,7 @@ import {
     BusinessUpdateTransactionHandler,
     EntityTransactionHandler,
 } from "./handlers";
-import { bridgechainIndexer, businessIndexer, entityIndexer, MagistrateIndex } from "./wallet-indexes";
+import { bridgechainIndexer, businessIndexer, entityIndexer, entityNameTypeIndexer, MagistrateIndex } from "./wallet-indexes";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
@@ -36,5 +36,9 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.app
             .bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex)
             .toConstantValue({ name: MagistrateIndex.Entities, indexer: entityIndexer, autoIndex: true });
+
+        this.app
+            .bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex)
+            .toConstantValue({ name: MagistrateIndex.EntityNamesTypes, indexer: entityNameTypeIndexer, autoIndex: true });
     }
 }

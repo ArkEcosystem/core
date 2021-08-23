@@ -1,9 +1,11 @@
 import { Contracts, Utils } from "@arkecosystem/core-kernel";
+import { Interfaces as MagistrateInterfaces } from "@arkecosystem/core-magistrate-crypto";
 
 export enum MagistrateIndex {
     Businesses = "businesses",
     Bridgechains = "bridgechains",
     Entities = "entities",
+    EntityNamesTypes = "entityNamesTypes",
 }
 
 export const businessIndexer = (index: Contracts.State.WalletIndex, wallet: Contracts.State.Wallet): void => {
@@ -26,6 +28,14 @@ export const entityIndexer = (index: Contracts.State.WalletIndex, wallet: Contra
     if (wallet.hasAttribute("entities")) {
         for (const id of Object.keys(wallet.getAttribute("entities"))) {
             index.set(id, wallet);
+        }
+    }
+};
+
+export const entityNameTypeIndexer = (index: Contracts.State.WalletIndex, wallet: Contracts.State.Wallet): void => {
+    if (wallet.hasAttribute("entities")) {
+        for (const asset of Object.values(wallet.getAttribute("entities") as MagistrateInterfaces.IEntityAsset)) {
+            index.set(`${asset.data.name}-${asset.type}` , wallet);
         }
     }
 };
