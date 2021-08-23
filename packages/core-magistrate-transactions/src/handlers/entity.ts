@@ -59,8 +59,6 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
             const wallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.senderPublicKey);
 
             this.applyTransactionToWallet(transaction, wallet);
-
-            this.walletRepository.index(wallet);
         }
     }
 
@@ -150,11 +148,11 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
         const wallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.data.senderPublicKey!);
 
         this.applyTransactionToWallet(transaction.data, wallet);
-
-        this.walletRepository.index(wallet);
     }
 
     public async revertForSender(transaction: Interfaces.ITransaction): Promise<void> {
+        KernelUtils.assert.defined<object>(transaction.data.asset);
+
         await super.revertForSender(transaction);
 
         const wallet = this.walletRepository.findByPublicKey(transaction.data.senderPublicKey!);
@@ -164,6 +162,8 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
         switch (transaction.data.asset!.action) {
             case Enums.EntityAction.Register:
                 delete entities[transaction.id!];
+
+                this.walletRepository.forgetOnIndex(MagistrateIndex.EntityNamesTypes, `${transaction.data.asset.data.name}-${transaction.data.asset.type}`)
                 break;
             case Enums.EntityAction.Update:
                 return this.revertForSenderUpdate(transaction, this.walletRepository);
@@ -173,7 +173,6 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
         }
 
         wallet.setAttribute("entities", entities);
-        this.walletRepository.index(wallet);
     }
 
     public async applyToRecipient(
@@ -237,8 +236,6 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
         };
 
         sender.setAttribute("entities", entities);
-
-        walletRepository.index(sender);
     }
 
     private applyTransactionToWallet(
@@ -247,6 +244,8 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
     ): void {
         const entities: IEntitiesWallet = wallet.getAttribute<IEntitiesWallet>("entities", {});
 
+        KernelUtils.assert.defined<object>(transaction.asset);
+
         switch (transaction.asset!.action) {
             case Enums.EntityAction.Register:
                 entities[transaction.id!] = {
@@ -254,6 +253,8 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
                     subType: transaction.asset!.subType,
                     data: transaction.asset!.data,
                 };
+
+                this.walletRepository.setOnIndex(MagistrateIndex.EntityNamesTypes, `${transaction.asset.data.name}-${transaction.asset.type}`, wallet)
                 break;
             case Enums.EntityAction.Update:
                 entities[transaction.asset!.registrationId] = {

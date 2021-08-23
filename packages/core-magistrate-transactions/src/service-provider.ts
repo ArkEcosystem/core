@@ -35,6 +35,6 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
         this.app
             .bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex)
-            .toConstantValue({ name: MagistrateIndex.EntityNamesTypes, indexer: entityNameTypeIndexer, autoIndex: true });
+            .toConstantValue({ name: MagistrateIndex.EntityNamesTypes, indexer: entityNameTypeIndexer, autoIndex: false });
     }
 }
