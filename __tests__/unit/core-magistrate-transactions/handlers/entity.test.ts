@@ -176,7 +176,11 @@ describe("Entity handler", () => {
         });
 
         it("should resolve", async () => {
+            const setOnIndex = jest.spyOn(walletRepository, "setOnIndex");
+
             await expect(entityHandler.bootstrap()).toResolve();
+
+            expect(setOnIndex).toHaveBeenCalled();
         });
     });
 
@@ -307,6 +311,8 @@ describe("Entity handler", () => {
     describe("register", () => {
         describe("applyToSender", () => {
             it.each([validRegisters])("should set the wallet attribute", async (asset) => {
+                const setOnIndex = jest.spyOn(walletRepository, "setOnIndex");
+
                 const builder = new EntityBuilder();
                 const transaction = builder.asset(asset).sign("passphrase").build();
 
@@ -329,11 +335,15 @@ describe("Entity handler", () => {
                         },
                     },
                 });
+
+                expect(setOnIndex).toHaveBeenCalled();
             });
         });
 
         describe("revertForSender", () => {
             it.each([validRegisters])("should delete the wallet attribute", async (asset) => {
+                const forgetOnIndex = jest.spyOn(walletRepository, "forgetOnIndex");
+
                 const builder = new EntityBuilder();
                 const transaction = builder.asset(asset).sign("passphrase").build();
 
@@ -345,6 +355,8 @@ describe("Entity handler", () => {
 
                 expect(wallet.setAttribute).toBeCalledWith("entities", {});
                 expect(walletAttributes).toEqual({ entities: {} });
+
+                expect(forgetOnIndex).toHaveBeenCalled();
             });
         });
 
@@ -493,6 +505,8 @@ describe("Entity handler", () => {
     describe("resign", () => {
         describe("applyToSender", () => {
             it.each([validResigns])("should set the wallet entity attribute to resigned", async (asset) => {
+                const setOnIndex = jest.spyOn(walletRepository, "setOnIndex");
+
                 const builder = new EntityBuilder();
                 const transaction = builder.asset(asset).fee(updateAndResignFee).sign("passphrase").build();
 
@@ -513,11 +527,15 @@ describe("Entity handler", () => {
                 expect(walletAttributes).toEqual({
                     entities: { [asset.registrationId]: { ...entityNotResigned, resigned: true } },
                 });
+
+                expect(setOnIndex).not.toHaveBeenCalled();
             });
         });
 
         describe("revertForSender", () => {
             it.each([validResigns])("should delete the wallet entity 'resigned' attribute", async (asset) => {
+                const forgetOnIndex = jest.spyOn(walletRepository, "forgetOnIndex");
+
                 const builder = new EntityBuilder();
                 const transaction = builder.asset(asset).fee(updateAndResignFee).sign("passphrase").build();
 
@@ -534,6 +552,8 @@ describe("Entity handler", () => {
 
                 expect(wallet.setAttribute).toBeCalledWith("entities", { [asset.registrationId]: entityNotResigned });
                 expect(walletAttributes).toEqual({ entities: { [asset.registrationId]: entityNotResigned } });
+
+                expect(forgetOnIndex).not.toHaveBeenCalled();
             });
         });
 
@@ -647,6 +667,8 @@ describe("Entity handler", () => {
     describe("update", () => {
         describe("applyToSender", () => {
             it.each([validUpdates])("should apply the changes to the wallet entity", async (asset) => {
+                const setOnIndex = jest.spyOn(walletRepository, "setOnIndex");
+
                 const builder = new EntityBuilder();
                 const transaction = builder.asset(asset).fee(updateAndResignFee).sign("passphrase").build();
 
@@ -671,11 +693,15 @@ describe("Entity handler", () => {
                 expect(wallet.setAttribute).toBeCalledWith("entities", { [asset.registrationId]: expectedEntityAfter });
 
                 expect(walletAttributes).toEqual({ entities: { [asset.registrationId]: expectedEntityAfter } });
+
+                expect(setOnIndex).not.toHaveBeenCalled();
             });
         });
 
         describe("revertForSender", () => {
             it.each([validUpdates])("should restore the wallet to its previous state", async (asset) => {
+                const forgetOnIndex = jest.spyOn(walletRepository, "forgetOnIndex");
+
                 const builder = new EntityBuilder();
                 const transaction = builder.asset(asset).fee(updateAndResignFee).sign("passphrase").build();
 
@@ -727,6 +753,8 @@ describe("Entity handler", () => {
                         },
                     },
                 });
+
+                expect(forgetOnIndex).not.toHaveBeenCalled();
             });
         });
 

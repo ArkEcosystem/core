@@ -3,4 +3,6 @@ export const walletRepository = {
     index: () => {},
     allByIndex: () => [],
     hasByIndex: () => false,
+    setOnIndex: () => {},
+    forgetOnIndex: () => {},
 };
