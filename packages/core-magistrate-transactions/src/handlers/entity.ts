@@ -110,20 +110,8 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
                 throw new EntityAlreadyRegisteredError();
             }
 
-            for (const wallet of this.walletRepository.allByIndex(MagistrateIndex.Entities)) {
-                if (wallet.hasAttribute("entities")) {
-                    const entityValues: IEntityWallet[] = Object.values(wallet.getAttribute("entities"));
-
-                    if (
-                        entityValues.some(
-                            (entity) =>
-                                entity.data.name!.toLowerCase() === transaction.data.asset!.data.name.toLowerCase() &&
-                                entity.type === transaction.data.asset!.type,
-                        )
-                    ) {
-                        throw new EntityNameAlreadyRegisteredError();
-                    }
-                }
+            if (this.walletRepository.hasByIndex(MagistrateIndex.EntityNamesTypes, `${transaction.data.asset.data.name}-${transaction.data.asset.type}`)) {
+                throw new EntityNameAlreadyRegisteredError();
             }
 
             // specific check for Delegate entity to ensure that the sender delegate username matches the entity name
