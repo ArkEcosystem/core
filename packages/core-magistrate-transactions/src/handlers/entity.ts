@@ -172,6 +172,7 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
                     MagistrateIndex.EntityNamesTypes,
                     `${transaction.data.asset.data.name}-${transaction.data.asset.type}`,
                 );
+                this.walletRepository.forgetOnIndex(MagistrateIndex.Entities, transaction.id!);
                 break;
             case Enums.EntityAction.Update:
                 return this.revertForSenderUpdate(transaction, this.walletRepository);
@@ -267,6 +268,7 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
                     `${transaction.asset.data.name}-${transaction.asset.type}`,
                     wallet,
                 );
+                this.walletRepository.setOnIndex(MagistrateIndex.Entities, transaction.id!, wallet);
                 break;
             case Enums.EntityAction.Update:
                 entities[transaction.asset!.registrationId] = {
