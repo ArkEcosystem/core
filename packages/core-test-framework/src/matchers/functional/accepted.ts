@@ -16,27 +16,18 @@ declare global {
 
 expect.extend({
     toBeAccepted: async (transaction: Interfaces.ITransactionData) => {
-        let pass: boolean = false;
-        let error: string;
+        const { body } = await got.post(`http://localhost:4003/api/transactions`, {
+            body: JSON.stringify({ transactions: [transaction] }),
+        });
 
-        try {
-            const { body } = await got.post(`http://localhost:4003/api/transactions`, {
-                body: JSON.stringify({ transactions: [transaction] }),
-            });
+        const parsedBody = JSON.parse(body);
 
-            const parsedBody = JSON.parse(body);
+        const pass =
+            parsedBody.errors === undefined &&
+            parsedBody.data.accept.includes(transaction.id) &&
+            parsedBody.data.broadcast.includes(transaction.id);
 
-            pass =
-                parsedBody.errors === undefined &&
-                parsedBody.data.accept.includes(transaction.id) &&
-                parsedBody.data.broadcast.includes(transaction.id);
-
-            error = JSON.stringify(parsedBody.errors);
-        } catch (e) {
-            // console.error(e);
-            error = e.message;
-            // console.error(error);
-        }
+        const error = JSON.stringify(parsedBody.errors);
 
         return {
             pass,
@@ -48,22 +39,14 @@ expect.extend({
         };
     },
     toBeAllAccepted: async (transactions: Interfaces.ITransactionData[]) => {
-        let pass: boolean = false;
-        let error: string;
+        const { body } = await got.post(`http://localhost:4003/api/transactions`, {
+            body: JSON.stringify({ transactions }),
+        });
 
-        try {
-            const { body } = await got.post(`http://localhost:4003/api/transactions`, {
-                body: JSON.stringify({ transactions }),
-            });
+        const parsedBody = JSON.parse(body);
+        const pass = parsedBody.errors === undefined;
 
-            const parsedBody = JSON.parse(body);
-            pass = parsedBody.errors === undefined;
-
-            error = JSON.stringify(parsedBody.errors);
-        } catch (e) {
-            error = e.message;
-            // console.error(error);
-        }
+        const error = JSON.stringify(parsedBody.errors);
 
         return {
             pass,
@@ -78,22 +61,16 @@ expect.extend({
         let pass = true;
         let error: string | undefined;
 
-        try {
-            for (const tx of transactions) {
-                const { body } = await got.post(`http://localhost:4003/api/transactions`, {
-                    body: JSON.stringify({ transactions: [tx] }),
-                });
+        for (const tx of transactions) {
+            const { body } = await got.post(`http://localhost:4003/api/transactions`, {
+                body: JSON.stringify({ transactions: [tx] }),
+            });
 
-                const parsedBody = JSON.parse(body);
-                if (parsedBody.errors) {
-                    error += JSON.stringify(parsedBody.errors);
-                    pass = false;
-                }
+            const parsedBody = JSON.parse(body);
+            if (parsedBody.errors) {
+                error += JSON.stringify(parsedBody.errors);
+                pass = false;
             }
-        } catch (e) {
-            pass = false;
-            error = e.message;
-            // console.error(error);
         }
 
         return {
