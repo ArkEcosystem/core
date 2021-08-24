@@ -102,13 +102,13 @@ export const initApp = (): Application => {
     app.bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex).toConstantValue({
         name: MagistrateIndex.Entities,
         indexer: entityIndexer,
-        autoIndex: true,
+        autoIndex: false,
     });
 
     app.bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex).toConstantValue({
         name: MagistrateIndex.EntityNamesTypes,
         indexer: entityNameTypeIndexer,
-        autoIndex: true,
+        autoIndex: false,
     });
 
     app.bind(Identifiers.WalletFactory).toFactory<Contracts.State.Wallet>(
