@@ -1,5 +1,6 @@
 import { Container, Contracts, Enums } from "@arkecosystem/core-kernel";
-import { Crypto, Interfaces, Managers } from "@arkecosystem/crypto";
+import { Crypto, Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
+import { Errors } from "@arkecosystem/core-transactions";
 
 import { SenderState } from "../../../packages/core-transaction-pool/src/sender-state";
 
@@ -103,6 +104,25 @@ describe("SenderState.apply", () => {
 
         expect(emitter.dispatch).toHaveBeenCalledTimes(1);
         expect(emitter.dispatch).toHaveBeenCalledWith(Enums.TransactionEvent.Expired, expect.anything());
+    });
+
+    it("should throw when transaction handler is disabled", async () => {
+        const senderState = container.resolve(SenderState);
+        const internalTransactionType = ({} as unknown) as Transactions.InternalTransactionType; // mocked crypto workaround
+        const deactivatedHandlerError = new Errors.DeactivatedTransactionHandlerError(internalTransactionType);
+
+        (Managers.configManager.get as jest.Mock).mockReturnValue(123); // network.pubKeyHash
+        (Crypto.Slots.getTime as jest.Mock).mockReturnValue(13600);
+        configuration.getRequired.mockReturnValueOnce(1024); // maxTransactionBytes
+        expirationService.isExpired.mockReturnValueOnce(false);
+        handlerRegistry.getActivatedHandlerForData.mockRejectedValueOnce(deactivatedHandlerError);
+
+        const promise = senderState.apply(transaction);
+
+        await expect(promise).rejects.toBeInstanceOf(Contracts.TransactionPool.PoolError);
+        await expect(promise).rejects.toHaveProperty("type", "ERR_OTHER");
+
+        expect(handlerRegistry.getActivatedHandlerForData).toBeCalledWith(transaction.data);
     });
 
     it("should throw when transaction fails to verify", async () => {
