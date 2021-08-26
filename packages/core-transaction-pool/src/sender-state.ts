@@ -56,23 +56,31 @@ export class SenderState implements Contracts.TransactionPool.SenderState {
             throw new TransactionHasExpiredError(transaction, expirationHeight);
         }
 
-        const handler: Handlers.TransactionHandler = await this.handlerRegistry.getActivatedHandlerForData(
-            transaction.data,
-        );
+        try {
+            const handler: Handlers.TransactionHandler = await this.handlerRegistry.getActivatedHandlerForData(
+                transaction.data,
+            );
 
-        if (await this.triggers.call("verifyTransaction", { handler, transaction })) {
-            if (this.corrupt) {
-                throw new RetryTransactionError(transaction);
-            }
+            if (await this.triggers.call("verifyTransaction", { handler, transaction })) {
+                if (this.corrupt) {
+                    throw new RetryTransactionError(transaction);
+                }
 
-            try {
-                await this.triggers.call("throwIfCannotEnterPool", { handler, transaction });
-                await this.triggers.call("applyTransaction", { handler, transaction });
-            } catch (error) {
-                throw new TransactionFailedToApplyError(transaction, error);
+                try {
+                    await this.triggers.call("throwIfCannotEnterPool", { handler, transaction });
+                    await this.triggers.call("applyTransaction", { handler, transaction });
+                } catch (error) {
+                    throw new TransactionFailedToApplyError(transaction, error);
+                }
+            } else {
+                throw new TransactionFailedToVerifyError(transaction);
             }
-        } else {
-            throw new TransactionFailedToVerifyError(transaction);
+        } catch (error) {
+            if (error instanceof Contracts.TransactionPool.PoolError) {
+                throw error;
+            } else {
+                throw new Contracts.TransactionPool.PoolError(error.message, "ERR_OTHER");
+            }
         }
     }
 
