@@ -16,10 +16,10 @@ export class Installer {
     public install(pkg: string, tag: string = "latest"): void {
         this.installPeerDependencies(pkg, tag);
 
-        const { stdout, stderr, exitCode } = sync(`yarn global add ${pkg}@${tag}`, { shell: true });
+        const { stdout, stderr, exitCode } = sync(`yarn global add ${pkg}@${tag} --force`, { shell: true });
 
         if (exitCode !== 0) {
-            throw new Error(`"yarn global add ${pkg}@${tag}" exited with code ${exitCode}\n${stderr}`);
+            throw new Error(`"yarn global add ${pkg}@${tag} --force" exited with code ${exitCode}\n${stderr}`);
         }
 
         console.log(stdout);
