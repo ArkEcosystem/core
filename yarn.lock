@@ -16168,9 +16168,9 @@ xregexp@2.0.0:
   integrity sha1-UqY+VsoLhKfzpfPWGHLxJq16WUM=
 
 xstate@^4.8.0:
-  version "4.11.0"
-  resolved "https://registry.yarnpkg.com/xstate/-/xstate-4.11.0.tgz#dc0bd31079fe22918c2c27c118d6310bef3dcd9e"
-  integrity sha512-v+S3jF2YrM2tFOit8o7+4N3FuFd9IIGcIKHyfHeeNjMlmNmwuiv/IbY9uw7ECifx7H/A9aGLcxPSr0jdjTGDww==
+  version "4.23.3"
+  resolved "https://registry.yarnpkg.com/xstate/-/xstate-4.23.3.tgz#affadf52857b7c39ab6ad2ccd891dbd5f1c56ab0"
+  integrity sha512-Djw9CJ5gpivFe6wGNsSFs8Ya5awG2hxbDHxBjqQrysl3LiOr+uULExs11eqTi8IIw9WWE2lbiJMbWRONCvj1Yg==
 
 xtend@^4.0.0, xtend@~4.0.1:
   version "4.0.2"
