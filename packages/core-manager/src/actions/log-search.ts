@@ -20,11 +20,11 @@ export class Action implements Actions.Action {
             dateTo: {
                 type: "number",
             },
-            level: {
-                type: "string",
+            levels: {
+                type: "array",
             },
-            process: {
-                type: "string",
+            processes: {
+                type: "array",
             },
             searchTerm: {
                 type: "string",
