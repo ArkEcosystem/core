@@ -144,7 +144,7 @@ describe("LogsDatabaseService", () => {
         });
 
         it("should filter by log level", async () => {
-            const result = database.search({ limit: 1000, level: "info" });
+            const result = database.search({ limit: 1000, levels: ["info"] });
 
             expect(result.total).toBe(100);
             expect(result.limit).toBe(1000);
@@ -154,7 +154,7 @@ describe("LogsDatabaseService", () => {
         });
 
         it("should filter by process", async () => {
-            let result = database.search({ limit: 1000, process: "core" });
+            let result = database.search({ limit: 1000, processes: ["core"] });
 
             expect(result.total).toBe(200);
             expect(result.limit).toBe(1000);
@@ -162,7 +162,7 @@ describe("LogsDatabaseService", () => {
             expect(result.data).toBeArray();
             expect(result.data.length).toBe(200);
 
-            result = database.search({ limit: 1000, process: "forger" });
+            result = database.search({ limit: 1000, processes: ["forger"] });
 
             expect(result.total).toBe(0);
             expect(result.limit).toBe(1000);
