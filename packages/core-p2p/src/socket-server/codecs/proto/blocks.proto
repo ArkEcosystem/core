@@ -7,6 +7,10 @@ message PostBlockRequest {
     shared.Headers headers = 2;
 }
 
+message PostBlockResponse {
+    uint32 height = 1;
+}
+
 message GetBlocksRequest {
     uint32 lastBlockHeight = 1;
     uint32 blockLimit = 2;

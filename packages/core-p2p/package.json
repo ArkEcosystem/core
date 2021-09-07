@@ -18,8 +18,8 @@
         "build": "yarn clean && yarn compile",
         "build:watch": "yarn clean && yarn compile -w",
         "build:docs": "../../node_modules/typedoc/bin/typedoc --out docs src",
-        "pbjs": "../../node_modules/protobufjs/cli/bin/pbjs -t static-module -w commonjs src/socket-server/codecs/proto/*.proto -o src/socket-server/codecs/proto/protos.js",
-        "pbts": "../../node_modules/protobufjs/cli/bin/pbts src/socket-server/codecs/proto/protos.js -o src/socket-server/codecs/proto/protos.d.ts",
+        "pbjs": "pbjs -t static-module -w commonjs src/socket-server/codecs/proto/*.proto -o src/socket-server/codecs/proto/protos.js",
+        "pbts": "pbts src/socket-server/codecs/proto/protos.js -o src/socket-server/codecs/proto/protos.d.ts",
         "build:proto": "yarn pbjs && yarn pbts",
         "clean": "rimraf dist",
         "compile": "node ../../node_modules/typescript/bin/tsc",
@@ -54,7 +54,8 @@
         "@types/fs-extra": "^8.0.1",
         "@types/hapi__sntp": "^3.1.0",
         "@types/ip": "^1.1.0",
-        "@types/semver": "^6.2.0"
+        "@types/semver": "^6.2.0",
+        "protobufjs": "^6.11.2"
     },
     "engines": {
         "node": ">=10.x"
