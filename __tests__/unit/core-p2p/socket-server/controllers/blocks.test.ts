@@ -84,7 +84,9 @@ describe("BlocksController", () => {
 
         describe("when block is not chained", () => {
             it.each([[true], [false]])("should return false only if block is not known", async (blockPing) => {
-                blockchain.getLastDownloadedBlock = jest.fn().mockReturnValueOnce(Networks.testnet.genesisBlock);
+                blockchain.getLastHeight.mockReturnValueOnce(100);
+                blockchain.getLastDownloadedBlock.mockReturnValueOnce(Networks.testnet.genesisBlock);
+
                 const blockUnchained = deepClone(block);
                 blockUnchained.data.height = 9;
                 const blockSerialized = Blocks.Serializer.serializeWithTransactions({
@@ -93,7 +95,7 @@ describe("BlocksController", () => {
                 });
 
                 if (blockPing) {
-                    blockchain.pingBlock = jest.fn().mockReturnValueOnce(true);
+                    blockchain.pingBlock.mockReturnValueOnce(true);
                     await expect(
                         blocksController.postBlock(
                             {
@@ -113,7 +115,7 @@ describe("BlocksController", () => {
                             },
                             {},
                         ),
-                    ).resolves.toBeFalsy();
+                    ).resolves.toEqual({ status: false, height: 100 });
                 }
             });
         });
