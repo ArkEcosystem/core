@@ -101,6 +101,9 @@ export namespace blocks {
     /** Properties of a PostBlockResponse. */
     interface IPostBlockResponse {
 
+        /** PostBlockResponse status */
+        status?: (boolean|null);
+
         /** PostBlockResponse height */
         height?: (number|null);
     }
@@ -113,6 +116,9 @@ export namespace blocks {
          * @param [properties] Properties to set
          */
         constructor(properties?: blocks.IPostBlockResponse);
+
+        /** PostBlockResponse status. */
+        public status: boolean;
 
         /** PostBlockResponse height. */
         public height: number;

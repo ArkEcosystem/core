@@ -248,6 +248,7 @@ $root.blocks = (function() {
          * Properties of a PostBlockResponse.
          * @memberof blocks
          * @interface IPostBlockResponse
+         * @property {boolean|null} [status] PostBlockResponse status
          * @property {number|null} [height] PostBlockResponse height
          */
 
@@ -265,6 +266,14 @@ $root.blocks = (function() {
                     if (properties[keys[i]] != null)
                         this[keys[i]] = properties[keys[i]];
         }
+
+        /**
+         * PostBlockResponse status.
+         * @member {boolean} status
+         * @memberof blocks.PostBlockResponse
+         * @instance
+         */
+        PostBlockResponse.prototype.status = false;
 
         /**
          * PostBlockResponse height.
@@ -298,8 +307,10 @@ $root.blocks = (function() {
         PostBlockResponse.encode = function encode(message, writer) {
             if (!writer)
                 writer = $Writer.create();
+            if (message.status != null && Object.hasOwnProperty.call(message, "status"))
+                writer.uint32(/* id 1, wireType 0 =*/8).bool(message.status);
             if (message.height != null && Object.hasOwnProperty.call(message, "height"))
-                writer.uint32(/* id 1, wireType 0 =*/8).uint32(message.height);
+                writer.uint32(/* id 2, wireType 0 =*/16).uint32(message.height);
             return writer;
         };
 
@@ -335,6 +346,9 @@ $root.blocks = (function() {
                 var tag = reader.uint32();
                 switch (tag >>> 3) {
                 case 1:
+                    message.status = reader.bool();
+                    break;
+                case 2:
                     message.height = reader.uint32();
                     break;
                 default:
@@ -372,6 +386,9 @@ $root.blocks = (function() {
         PostBlockResponse.verify = function verify(message) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
+            if (message.status != null && message.hasOwnProperty("status"))
+                if (typeof message.status !== "boolean")
+                    return "status: boolean expected";
             if (message.height != null && message.hasOwnProperty("height"))
                 if (!$util.isInteger(message.height))
                     return "height: integer expected";
@@ -390,6 +407,8 @@ $root.blocks = (function() {
             if (object instanceof $root.blocks.PostBlockResponse)
                 return object;
             var message = new $root.blocks.PostBlockResponse();
+            if (object.status != null)
+                message.status = Boolean(object.status);
             if (object.height != null)
                 message.height = object.height >>> 0;
             return message;
@@ -408,8 +427,12 @@ $root.blocks = (function() {
             if (!options)
                 options = {};
             var object = {};
-            if (options.defaults)
+            if (options.defaults) {
+                object.status = false;
                 object.height = 0;
+            }
+            if (message.status != null && message.hasOwnProperty("status"))
+                object.status = message.status;
             if (message.height != null && message.hasOwnProperty("height"))
                 object.height = message.height;
             return object;

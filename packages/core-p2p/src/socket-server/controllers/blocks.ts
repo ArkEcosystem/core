@@ -13,16 +13,16 @@ export class BlocksController extends Controller {
     @Container.tagged("plugin", "@arkecosystem/core-p2p")
     private readonly configuration!: Providers.PluginConfiguration;
 
-    @Container.inject(Container.Identifiers.StateStore)
-    private readonly stateStore!: Contracts.State.StateStore;
-
     @Container.inject(Container.Identifiers.BlockchainService)
     private readonly blockchain!: Contracts.Blockchain.Blockchain;
 
     @Container.inject(Container.Identifiers.DatabaseService)
     private readonly database!: DatabaseService;
 
-    public async postBlock(request: Hapi.Request): Promise<{ status: boolean; height: number }> {
+    public async postBlock(
+        request: Hapi.Request,
+        h: Hapi.ResponseToolkit,
+    ): Promise<{ status: boolean; height: number }> {
         const blockBuffer: Buffer = request.payload.block;
 
         const deserializedHeader = Blocks.Deserializer.deserialize(blockBuffer, true);
@@ -50,7 +50,7 @@ export class BlocksController extends Controller {
 
         if (!fromForger) {
             if (this.blockchain.pingBlock(block)) {
-                return { status: true, height: this.stateStore.getLastHeight() };
+                return { status: true, height: this.blockchain.getLastHeight() };
             }
 
             const lastDownloadedBlock: Interfaces.IBlockData = this.blockchain.getLastDownloadedBlock();
@@ -58,7 +58,7 @@ export class BlocksController extends Controller {
             const blockTimeLookup = await Utils.forgingInfoCalculator.getBlockTimeLookup(this.app, block.height);
 
             if (!Utils.isBlockChained(lastDownloadedBlock, block, blockTimeLookup)) {
-                return { status: false, height: this.stateStore.getLastHeight() };
+                return { status: false, height: this.blockchain.getLastHeight() };
             }
         }
 
@@ -72,7 +72,7 @@ export class BlocksController extends Controller {
 
         await this.blockchain.handleIncomingBlock(block, fromForger);
 
-        return { status: true, height: this.stateStore.getLastHeight() };
+        return { status: true, height: this.blockchain.getLastHeight() };
     }
 
     public async getBlocks(

@@ -1,3 +1,4 @@
+import { Contracts } from "@arkecosystem/core-kernel";
 import { Utils } from "@arkecosystem/crypto";
 import { blocks } from "./proto/protos";
 
@@ -87,7 +88,7 @@ export const postBlock = {
         serialize: (obj: blocks.IPostBlockResponse): Buffer => {
             return Buffer.from(blocks.PostBlockResponse.encode(obj).finish());
         },
-        deserialize: (payload: Buffer): blocks.IPostBlockResponse => {
+        deserialize: (payload: Buffer): Contracts.P2P.PostBlockResponse => {
             return blocks.PostBlockResponse.decode(payload);
         },
     },
