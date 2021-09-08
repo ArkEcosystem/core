@@ -15,8 +15,8 @@ export interface SearchParams {
     dateFrom?: number;
     dateTo?: number;
     searchTerm?: string;
-    level?: string;
-    process?: string;
+    levels?: string[];
+    processes?: string[];
     limit?: number;
     offset?: number;
     order?: string;
@@ -116,12 +116,16 @@ export class LogsDatabaseService {
             }
         }
 
-        if (searchParams.level) {
-            conditions.level = searchParams.level;
+        if (searchParams.levels) {
+            conditions.level = {
+                $in: searchParams.levels,
+            };
         }
 
-        if (searchParams.process) {
-            conditions.process = searchParams.process;
+        if (searchParams.processes) {
+            conditions.process = {
+                $in: searchParams.processes,
+            };
         }
 
         if (searchParams.searchTerm) {
