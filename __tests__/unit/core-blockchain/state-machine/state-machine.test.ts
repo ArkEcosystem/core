@@ -41,20 +41,24 @@ describe("State machine", () => {
             it("should log an error if the action cannot be resolved", () => {
                 const stateMachine = sandbox.app.resolve<StateMachine>(StateMachine);
 
-                const nextAction = "dothis";
+                const nextAction = {
+                    type: "dothis",
+                };
                 const mockNextState = { state: "next", actions: [nextAction] };
                 jest.spyOn(blockchainMachine, "transition").mockReturnValueOnce(mockNextState);
                 const nextState = stateMachine.transition("EVENT");
 
                 expect(nextState).toEqual(mockNextState);
                 expect(logService.error).toHaveBeenCalledTimes(1);
-                expect(logService.error).toHaveBeenLastCalledWith(`No action '${nextAction}' found`);
+                expect(logService.error).toHaveBeenLastCalledWith(`No action '${nextAction.type}' found`);
             });
 
             it("should execute the action", async () => {
                 const stateMachine = sandbox.app.resolve<StateMachine>(StateMachine);
 
-                const nextAction = "dothis";
+                const nextAction = {
+                    type: "dothis",
+                };
                 const mockNextState = { state: "next", actions: [nextAction] };
                 jest.spyOn(blockchainMachine, "transition").mockReturnValueOnce(mockNextState);
                 const handle = jest.fn();
