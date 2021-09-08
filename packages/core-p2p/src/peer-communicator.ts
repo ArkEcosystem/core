@@ -56,7 +56,8 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
 
     public async postBlock(peer: Contracts.P2P.Peer, block: Interfaces.IBlock) {
         const postBlockTimeout = 10000;
-        return this.emit(
+
+        const response = await this.emit(
             peer,
             "p2p.blocks.postBlock",
             {
@@ -67,6 +68,10 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
             },
             postBlockTimeout,
         );
+
+        if (response && response.height) {
+            peer.state.height = response.height;
+        }
     }
 
     public async postTransactions(peer: Contracts.P2P.Peer, transactions: Buffer[]): Promise<void> {
@@ -232,12 +237,6 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
         return true;
     }
 
-    private parseHeaders(peer: Contracts.P2P.Peer, response): void {
-        if (response.headers && response.headers.height) {
-            peer.state.height = +response.headers.height;
-        }
-    }
-
     private validateReply(peer: Contracts.P2P.Peer, reply: any, endpoint: string): boolean {
         const schema = replySchemas[endpoint];
         if (schema === undefined) {
@@ -296,7 +295,6 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
             peer.sequentialErrorCounter = 0; // reset counter if response is successful, keep it after emit
 
             peer.latency = new Date().getTime() - timeBeforeSocketCall;
-            this.parseHeaders(peer, parsedResponsePayload);
 
             if (!this.validateReply(peer, parsedResponsePayload, event)) {
                 const validationError = new Error(

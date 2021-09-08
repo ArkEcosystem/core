@@ -185,7 +185,12 @@ export const replySchemas = {
         },
     },
     "p2p.blocks.postBlock": {
-        type: "boolean",
+        type: "object",
+        additionalProperties: false,
+        properties: {
+            status: { type: "boolean" },
+            height: { type: "integer", minimum: 1 },
+        },
     },
     "p2p.transactions.postTransactions": {
         type: "array",
