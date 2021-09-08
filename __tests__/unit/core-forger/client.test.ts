@@ -2,7 +2,7 @@ import "jest-extended";
 
 import { Client } from "@arkecosystem/core-forger/src/client";
 import { Application, Container } from "@arkecosystem/core-kernel";
-import { NetworkStateStatus, Nes } from "@arkecosystem/core-p2p";
+import { NetworkStateStatus, Nes, Codecs } from "@arkecosystem/core-p2p";
 
 import { forgedBlockWithTransactions } from "./__utils__/create-block-with-transactions";
 
@@ -103,11 +103,17 @@ describe("Client", () => {
         it("should broadcast valid blocks without error", async () => {
             client.register([host]);
 
+            nesClient.request.mockResolvedValueOnce({
+                payload: Codecs.postBlock.response.serialize({ status: true, height: 100 }),
+            });
+
             await expect(client.broadcastBlock(forgedBlockWithTransactions)).toResolve();
+
             expect(nesClient.request).toHaveBeenCalledWith({
                 path: "p2p.blocks.postBlock",
                 payload: expect.any(Buffer),
             });
+
             expect(logger.error).not.toHaveBeenCalled();
         });
 
