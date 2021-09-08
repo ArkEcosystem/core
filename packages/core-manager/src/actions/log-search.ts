@@ -1,8 +1,8 @@
 import { Container } from "@arkecosystem/core-kernel";
-import { Identifiers } from "../ioc";
-import { LogsDatabaseService, SearchParams } from "../database/logs-database-service";
 
 import { Actions } from "../contracts";
+import { LogsDatabaseService, SearchParams } from "../database/logs-database-service";
+import { Identifiers } from "../ioc";
 
 @Container.injectable()
 export class Action implements Actions.Action {
@@ -20,11 +20,17 @@ export class Action implements Actions.Action {
             dateTo: {
                 type: "number",
             },
-            level: {
-                type: "string",
+            levels: {
+                type: "array",
+                items: {
+                    type: "string",
+                },
             },
-            process: {
-                type: "string",
+            processes: {
+                type: "array",
+                items: {
+                    type: "string",
+                },
             },
             searchTerm: {
                 type: "string",
@@ -39,6 +45,7 @@ export class Action implements Actions.Action {
                 type: "string",
             },
         },
+        additionalProperties: false,
     };
 
     public async execute(params: SearchParams): Promise<any> {
