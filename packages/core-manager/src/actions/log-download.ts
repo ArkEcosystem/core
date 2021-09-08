@@ -33,12 +33,18 @@ export class Action implements Actions.Action {
             },
             levels: {
                 type: "array",
+                items: {
+                    type: "string",
+                },
             },
             processes: {
                 type: "array",
+                items: {
+                    type: "string",
+                },
             },
         },
-        required: ["dateFrom", "dateTo", "levels"],
+        required: ["dateFrom", "dateTo"],
     };
 
     public async execute(params: Params): Promise<any> {
@@ -59,13 +65,17 @@ export class Action implements Actions.Action {
                 $lte: params.dateTo,
                 $gte: params.dateFrom,
             },
-            level: {
-                $in: params.levels,
-            },
             $order: {
                 id: "ASC",
             },
         };
+
+        if (params.levels) {
+            // @ts-ignore
+            query.level = {
+                $in: params.levels,
+            };
+        }
 
         if (params.processes) {
             // @ts-ignore
