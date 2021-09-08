@@ -1,3 +1,4 @@
+export * from "./blocks";
 export * from "./chunk-cache";
 export * from "./nes-client";
 export * from "./network-monitor";
