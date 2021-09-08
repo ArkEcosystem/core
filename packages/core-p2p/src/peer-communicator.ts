@@ -69,7 +69,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
             postBlockTimeout,
         );
 
-        if (response.height) {
+        if (response && response.height) {
             peer.state.height = response.height;
         }
     }
