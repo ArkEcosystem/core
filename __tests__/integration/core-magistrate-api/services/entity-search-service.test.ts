@@ -2,6 +2,7 @@ import { EntitySearchService, Identifiers as MagistrateApiIdentifiers } from "@a
 import { Container, Contracts } from "@arkecosystem/core-kernel";
 
 import { setUp } from "./__support__/setup";
+import { setIndexes } from "../__support__/set-indexes";
 import { Enums } from "@arkecosystem/core-magistrate-crypto";
 import { Identities } from "@arkecosystem/crypto";
 
@@ -40,7 +41,7 @@ describe("EntitySearchService.getEntity", () => {
     it("should return entity", () => {
         const wallet1 = walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase("wallet1"));
         wallet1.setAttribute("entities", { [entityId1]: entityAttribute1 });
-        walletRepository.index(wallet1);
+        setIndexes(walletRepository, wallet1);
 
         const entityResource1 = entitySearchService.getEntity(entityId1);
 
@@ -58,11 +59,11 @@ describe("EntitySearchService.getEntitiesPage", () => {
     it("should return all entities", () => {
         const wallet1 = walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase("wallet1"));
         wallet1.setAttribute("entities", { [entityId1]: entityAttribute1 });
-        walletRepository.index(wallet1);
+        setIndexes(walletRepository, wallet1);
 
         const wallet2 = walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase("wallet2"));
         wallet2.setAttribute("entities", { [entityId2]: entityAttribute2 });
-        walletRepository.index(wallet2);
+        setIndexes(walletRepository, wallet2);
 
         const entitiesPage = entitySearchService.getEntitiesPage({ offset: 0, limit: 100 }, []);
 
@@ -74,11 +75,11 @@ describe("EntitySearchService.getEntitiesPage", () => {
     it("should entities that match criteria", () => {
         const wallet1 = walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase("wallet1"));
         wallet1.setAttribute("entities", { [entityId1]: entityAttribute1 });
-        walletRepository.index(wallet1);
+        setIndexes(walletRepository, wallet1);
 
         const wallet2 = walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase("wallet2"));
         wallet2.setAttribute("entities", { [entityId2]: entityAttribute2 });
-        walletRepository.index(wallet2);
+        setIndexes(walletRepository, wallet2);
 
         const entitiesPage = entitySearchService.getEntitiesPage({ offset: 0, limit: 100 }, [], {
             data: { name: "entity 1" },

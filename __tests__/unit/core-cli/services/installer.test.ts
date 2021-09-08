@@ -31,7 +31,7 @@ describe("Installer.install", () => {
 
         installer.install("@arkecosystem/core");
 
-        expect(spySync).toHaveBeenCalledWith("yarn global add @arkecosystem/core@latest", { shell: true });
+        expect(spySync).toHaveBeenCalledWith("yarn global add @arkecosystem/core@latest --force", { shell: true });
     });
 
     it("should install specific package when tag is provided", () => {
@@ -44,7 +44,7 @@ describe("Installer.install", () => {
 
         installer.install("@arkecosystem/core", "3.0.0");
 
-        expect(spySync).toHaveBeenCalledWith("yarn global add @arkecosystem/core@3.0.0", { shell: true });
+        expect(spySync).toHaveBeenCalledWith("yarn global add @arkecosystem/core@3.0.0 --force", { shell: true });
     });
 
     it("should throw when exit code isn't 0", () => {
@@ -57,7 +57,7 @@ describe("Installer.install", () => {
 
         expect(() => installer.install("@arkecosystem/core")).toThrow("stderr");
 
-        expect(spySync).toHaveBeenCalledWith("yarn global add @arkecosystem/core@latest", { shell: true });
+        expect(spySync).toHaveBeenCalledWith("yarn global add @arkecosystem/core@latest --force", { shell: true });
     });
 });
 
