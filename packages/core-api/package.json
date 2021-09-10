@@ -26,7 +26,7 @@
         "@arkecosystem/core-kernel": "3.0.0-next.35",
         "@arkecosystem/core-transactions": "3.0.0-next.35",
         "@arkecosystem/crypto": "3.0.0-next.35",
-        "@hapi/boom": "9.1.4",
+        "@hapi/boom": "9.0.0",
         "@hapi/hapi": "20.1.5",
         "@hapi/hoek": "9.2.0",
         "joi": "17.3.0",
