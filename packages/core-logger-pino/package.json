@@ -20,15 +20,15 @@
         "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
-        "@arkecosystem/core-kernel": "^3.0.0-next.35",
-        "chalk": "^4.0.0",
-        "joi": "^17.3.0",
-        "pino": "^6.0.0",
-        "pino-pretty": "^4.0.0",
-        "pump": "^3.0.0",
-        "readable-stream": "^3.4.0",
-        "rotating-file-stream": "^2.1.5",
-        "split2": "^3.1.1"
+        "@arkecosystem/core-kernel": "3.0.0-next.35",
+        "chalk": "4.1.2",
+        "joi": "17.3.0",
+        "pino": "6.13.2",
+        "pino-pretty": "4.8.0",
+        "pump": "3.0.0",
+        "readable-stream": "3.6.0",
+        "rotating-file-stream": "2.1.5",
+        "split2": "3.2.2"
     },
     "engines": {
         "node": ">=10.x"
@@ -37,9 +37,9 @@
         "access": "public"
     },
     "devDependencies": {
-        "@types/pino": "^6.0.0",
-        "@types/pump": "^1.1.0",
-        "@types/readable-stream": "^2.3.5",
-        "@types/split2": "^2.1.6"
+        "@types/pino": "6.3.11",
+        "@types/pump": "1.1.1",
+        "@types/readable-stream": "2.3.11",
+        "@types/split2": "2.1.6"
     }
 }
