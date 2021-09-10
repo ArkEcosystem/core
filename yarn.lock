@@ -4570,10 +4570,10 @@
   resolved "https://registry.yarnpkg.com/@tootallnate/once/-/once-1.0.0.tgz#9c13c2574c92d4503b005feca8f2e16cc1611506"
   integrity sha512-KYyTT/T6ALPkIRd2Ge080X/BsXvy9O0hcWTtMWkPvwAwF99+vn6Dv4GzrFT/Nn1LePr+FFDbRXXlqmsy9lw2zA==
 
-"@types/async@^3.0.3":
-  version "3.0.3"
-  resolved "https://registry.yarnpkg.com/@types/async/-/async-3.0.3.tgz#ea3694128c757580e4f9328cd941b81d9c3e9bf6"
-  integrity sha512-FrIcC67Zpko1jO8K4d30C41/KVhAABbMbaSxccvXacxPcKbDBav+8WoFzv72BA2zJvyX4T9PFz0we1hcNymgGA==
+"@types/async@3.2.7":
+  version "3.2.7"
+  resolved "https://registry.yarnpkg.com/@types/async/-/async-3.2.7.tgz#f784478440d313941e7b12c2e4db53b0ed55637b"
+  integrity sha512-a+MBBfOTs3ShFMlbH9qsRVFkjIUunEtxrBT0gxRx1cntjKRg2WApuGmNYzHkwKaIhMi3SMbKktaD/rLObQMwIw==
 
 "@types/babel__core@7.1.16", "@types/babel__core@^7.0.0":
   version "7.1.16"
@@ -17577,6 +17577,11 @@ xregexp@2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/xregexp/-/xregexp-2.0.0.tgz#52a63e56ca0b84a7f3a5f3d61872f126ad7a5943"
   integrity sha1-UqY+VsoLhKfzpfPWGHLxJq16WUM=
+
+xstate@4.23.4:
+  version "4.23.4"
+  resolved "https://registry.yarnpkg.com/xstate/-/xstate-4.23.4.tgz#b894205ac46bb3acc09755907d3e57c81c86e80e"
+  integrity sha512-lWaUvyrd0HGhosyKnf8i9wBlszVaS+/uIs0EfnuPYNsZIh1BW9ed4bZ64P57wVYk2uln7v3u+Mv98FC+r8xrxQ==
 
 xstate@^4.8.0:
   version "4.23.3"
