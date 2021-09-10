@@ -12825,7 +12825,7 @@ ms@2.1.2, ms@^2.0.0, ms@^2.1.1:
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.1.2.tgz#d09d1f357b443f493382a8eb3ccd183872ae6009"
   integrity sha512-sGkPx+VjMtmA6MX27oA4FBFELFCZZ4S4XqeGOXCv68tT+jb3vk/RyaKWP0PTKyWtmLSM0b+adUTEvbs1PEaH2w==
 
-msgpack-lite@^0.1.26:
+msgpack-lite@0.1.26:
   version "0.1.26"
   resolved "https://registry.yarnpkg.com/msgpack-lite/-/msgpack-lite-0.1.26.tgz#dd3c50b26f059f25e7edee3644418358e2a9ad89"
   integrity sha1-3TxQsm8FnyXn7e42REGDWOKprYk=
@@ -13546,20 +13546,6 @@ ora@4.1.1:
     strip-ansi "^6.0.0"
     wcwidth "^1.0.1"
 
-ora@^4.0.3:
-  version "4.0.3"
-  resolved "https://registry.yarnpkg.com/ora/-/ora-4.0.3.tgz#752a1b7b4be4825546a7a3d59256fa523b6b6d05"
-  integrity sha512-fnDebVFyz309A73cqCipVL1fBZewq4vwgSHfxh43vVy31mbyoQ8sCH3Oeaog/owYOs/lLlGVPCISQonTneg6Pg==
-  dependencies:
-    chalk "^3.0.0"
-    cli-cursor "^3.1.0"
-    cli-spinners "^2.2.0"
-    is-interactive "^1.0.0"
-    log-symbols "^3.0.0"
-    mute-stream "0.0.8"
-    strip-ansi "^6.0.0"
-    wcwidth "^1.0.1"
-
 ora@^5.1.0:
   version "5.4.1"
   resolved "https://registry.yarnpkg.com/ora/-/ora-5.4.1.tgz#1b2678426af4ac4a509008e5e4ac9e9959db9e18"
@@ -14022,10 +14008,10 @@ pg-connection-string@^2.5.0:
   resolved "https://registry.yarnpkg.com/pg-connection-string/-/pg-connection-string-2.5.0.tgz#538cadd0f7e603fc09a12590f3b8a452c2c0cf34"
   integrity sha512-r5o/V/ORTA6TmUnyWZR9nCj1klXCO2CEKNRlVuJptZe85QuhFayC7WeMic7ndayT5IRIR0S0xFxFi2ousartlQ==
 
-pg-cursor@^2.1.10:
-  version "2.1.10"
-  resolved "https://registry.yarnpkg.com/pg-cursor/-/pg-cursor-2.1.10.tgz#b9842df715583c388ff948beb30fd455e8eebe5a"
-  integrity sha512-72UJk6iL28TeV75GOR9qQNpA1y8YshPe8iGy37APvjoVXT0yTSbDlSREkRBwpWgd18IgWt4s4l5fCoQPiY/94Q==
+pg-cursor@^2.5.1:
+  version "2.7.1"
+  resolved "https://registry.yarnpkg.com/pg-cursor/-/pg-cursor-2.7.1.tgz#0c545b70006589537232986fa06c03a799d8f22b"
+  integrity sha512-dtxtyvx4BcSammddki27KPBVA0sZ8AguLabgs7++gqaefX7dlQ5zaRlk1Gi5mvyO25aCmHFAZyNq9zYtPDwFTA==
 
 pg-int8@1.0.1:
   version "1.0.1"
@@ -14042,12 +14028,12 @@ pg-protocol@^1.5.0:
   resolved "https://registry.yarnpkg.com/pg-protocol/-/pg-protocol-1.5.0.tgz#b5dd452257314565e2d54ab3c132adc46565a6a0"
   integrity sha512-muRttij7H8TqRNu/DxrAJQITO4Ac7RmX3Klyr/9mJEOBeIpgnF8f9jAfRz5d3XwQZl5qBjF9gLsUtMPJE0vezQ==
 
-pg-query-stream@^3.0.4:
-  version "3.0.7"
-  resolved "https://registry.yarnpkg.com/pg-query-stream/-/pg-query-stream-3.0.7.tgz#34df1f6e9855c27d6b3ebee5532b18766494bd34"
-  integrity sha512-NzWNAyIRjotNjHah1MViHzTuZ1kcSTM7ra3KLOUn4Uma16FmzDh8MeV+I9403Y0xx7ahY6TGkw3hIVHZW/Tmzw==
+pg-query-stream@3.4.2:
+  version "3.4.2"
+  resolved "https://registry.yarnpkg.com/pg-query-stream/-/pg-query-stream-3.4.2.tgz#6cdf8f3086bfe01b2e4d7cc461ad4c8c6a7d0914"
+  integrity sha512-kaTzsi5TQ3XG1KUznEV3MnstM1U4k5Z9cZ02PNmKLMFeYiPEn83FUc2pPVPiKKv93ITI8e5oCh+zEOunjy0ZwQ==
   dependencies:
-    pg-cursor "^2.1.10"
+    pg-cursor "^2.5.1"
 
 pg-types@^2.1.0:
   version "2.2.0"
@@ -17530,7 +17516,7 @@ ws@^6.0.0:
   dependencies:
     async-limiter "~1.0.0"
 
-xcase@^2.0.1:
+xcase@2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/xcase/-/xcase-2.0.1.tgz#c7fa72caa0f440db78fd5673432038ac984450b9"
   integrity sha1-x/pyyqD0QNt4/VZzQyA4rJhEULk=
