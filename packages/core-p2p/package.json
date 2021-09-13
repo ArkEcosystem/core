@@ -41,7 +41,7 @@
         "delay": "4.4.1",
         "ip": "1.1.5",
         "ipaddr.js": "2.0.1",
-        "joi": "17.3.0",
+        "joi": "17.4.2",
         "pluralize": "8.0.0",
         "pretty-ms": "7.0.1",
         "protobufjs": "6.10.2",
