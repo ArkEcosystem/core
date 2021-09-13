@@ -64,7 +64,7 @@
         "boxen": "4.2.0",
         "dayjs": "1.10.7",
         "env-paths": "2.2.1",
-        "envfile": "5.0.0",
+        "envfile": "5.2.0",
         "execa": "3.4.0",
         "fs-extra": "8.1.0",
         "got": "11.8.2",

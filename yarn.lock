@@ -4865,12 +4865,13 @@ ajv@^8.0.1:
     require-from-string "^2.0.2"
     uri-js "^4.2.2"
 
-ambi@^7.0.0:
-  version "7.0.0"
-  resolved "https://registry.yarnpkg.com/ambi/-/ambi-7.0.0.tgz#c4494c8f1928fc0553db3ac18bdda15d5a58af7e"
-  integrity sha512-rbjgtVCNRHoI6MMcGJOTwt0YE3wEMtO1Mj13VZnvt2Rhg+NfoFr098vIRR0pqgNG0re0MlhY+RyTQyn5JmGOvA==
+ambi@^7.3.0:
+  version "7.3.0"
+  resolved "https://registry.yarnpkg.com/ambi/-/ambi-7.3.0.tgz#e3e196e4b7a17fbe566133d5edebc0ceb16c8fc0"
+  integrity sha512-RwJuvpa3uqyPozisbrvTB3QZfcYRmzcvxx7UIpa6RiORUNuSAORq5CFr0Mj5plFMFqFsdEXHwv2o4o+ubLQE/Q==
   dependencies:
-    typechecker "^6.3.0"
+    editions "^2.3.0"
+    typechecker "^7.0.0"
 
 ansi-align@^3.0.0:
   version "3.0.0"
@@ -7532,6 +7533,14 @@ ecc-jsbn@~0.1.1:
     jsbn "~0.1.0"
     safer-buffer "^2.1.0"
 
+editions@^2.3.0:
+  version "2.3.1"
+  resolved "https://registry.yarnpkg.com/editions/-/editions-2.3.1.tgz#3bc9962f1978e801312fbd0aebfed63b49bfe698"
+  integrity sha512-ptGvkwTvGdGfC0hfhKg0MT+TRLRKGtUiWGBInxOm5pz7ssADezahjCUaYuZ8Dr+C05FW0AECIIPt4WBxVINEhA==
+  dependencies:
+    errlop "^2.0.0"
+    semver "^6.3.0"
+
 electron-to-chromium@^1.3.649:
   version "1.3.835"
   resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.835.tgz#98fa4402ab7bc6afbe4953a8ca9b63cb3a6bf08b"
@@ -7637,14 +7646,15 @@ env-paths@^1.0.0:
   resolved "https://registry.yarnpkg.com/env-paths/-/env-paths-1.0.0.tgz#4168133b42bb05c38a35b1ae4397c8298ab369e0"
   integrity sha1-QWgTO0K7BcOKNbGuQ5fIKYqzaeA=
 
-envfile@5.0.0:
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/envfile/-/envfile-5.0.0.tgz#8741c8c254209f50a47be6244d9b34d099781aac"
-  integrity sha512-3DYd+6s4mvNMAZrvXeH4csSEJyYdRAVTIDgi7h3CJmcDrWP0n/LDxLa9E+z44sPOcgB/4rpbzDncgT1Znn7uxA==
+envfile@5.2.0:
+  version "5.2.0"
+  resolved "https://registry.yarnpkg.com/envfile/-/envfile-5.2.0.tgz#1c2614ee5fb13c96e9fda8807f8738c9e686f3dc"
+  integrity sha512-AvFbXqYw/zZCQLSt3KisBTf42nNAgZ9mkewvTfoPtYuBeIld7UMmNvVQewVu4c0w93STUAfyZZf8DS4jD7JTag==
   dependencies:
-    ambi "^7.0.0"
+    ambi "^7.3.0"
     eachr "^4.5.0"
-    typechecker "^6.3.0"
+    editions "^2.3.0"
+    typechecker "^7.0.0"
 
 envinfo@^7.3.1:
   version "7.5.0"
@@ -7655,6 +7665,11 @@ err-code@^1.0.0:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/err-code/-/err-code-1.1.2.tgz#06e0116d3028f6aef4806849eb0ea6a748ae6960"
   integrity sha1-BuARbTAo9q70gGhJ6w6mp0iuaWA=
+
+errlop@^2.0.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/errlop/-/errlop-2.2.0.tgz#1ff383f8f917ae328bebb802d6ca69666a42d21b"
+  integrity sha512-e64Qj9+4aZzjzzFpZC7p5kmm/ccCrbLhAJplhsDXQFs87XTsXwOpH4s1Io2s90Tau/8r2j9f4l/thhDevRjzxw==
 
 errno@^0.1.3:
   version "0.1.7"
@@ -16025,10 +16040,15 @@ type-fest@^0.8.1:
   resolved "https://registry.yarnpkg.com/type-fest/-/type-fest-0.8.1.tgz#09e249ebde851d3b1e48d27c105444667f17b83d"
   integrity sha512-4dbzIzqvjtgiM5rw1k5rEHtBANKmdudhGyBEajN01fEyhaAIhsoKNy6y7+IN93IfpFtwY9iqi7kD+xwKhQsNJA==
 
-typechecker@^6.2.0, typechecker@^6.3.0:
+typechecker@^6.2.0:
   version "6.3.0"
   resolved "https://registry.yarnpkg.com/typechecker/-/typechecker-6.3.0.tgz#c8ee2fee30e1d1156d3063efb9d115c859c3cf5b"
   integrity sha512-XZmZISfAzrzGHaC2nAwXyh/O1srpTIw/sFS5K0wGRIoWgc+bpGXJLkpI5VoZg9+2SwV6tFIS3WCb3l0bNitLag==
+
+typechecker@^7.0.0:
+  version "7.18.0"
+  resolved "https://registry.yarnpkg.com/typechecker/-/typechecker-7.18.0.tgz#0212a464dd0d64d730f82319ad90f7d14d39d4a9"
+  integrity sha512-GjwqmuBuIQOvy0VsuMyjxur1hop/mLgKby61izt4UpT3Knm/7qzXAxpQHVhLK7bgmZjIj9GtIBmh1FMnyEDVBw==
 
 typedarray-to-buffer@^3.1.5:
   version "3.1.5"
