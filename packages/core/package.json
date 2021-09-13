@@ -73,7 +73,7 @@
         "ngrok": "3.4.1",
         "prompts": "2.4.0",
         "tar": "6.1.11",
-        "type-fest": "0.16.0",
+        "type-fest": "0.21.3",
         "wif": "2.0.6"
     },
     "peerDependencies": {
