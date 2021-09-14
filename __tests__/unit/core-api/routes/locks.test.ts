@@ -66,7 +66,7 @@ describe("Locks", () => {
             const injectOptions = {
                 method: "POST",
                 url: "/locks/unlocked",
-                payload: {},
+                payload: { ids: ["bc3ee5fe72cb4c73521aef576d6d53ba3323dd9cb652f33bf613d22e7f7185a8"] },
             };
 
             const result = await server.inject(injectOptions);
