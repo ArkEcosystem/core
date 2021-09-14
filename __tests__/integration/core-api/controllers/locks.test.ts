@@ -88,3 +88,14 @@ describe("/locks", () => {
         }
     });
 });
+
+describe("/locks/unlocked", () => {
+    it("should return 422 response status when payload is empty object", async () => {
+        const client = app.resolve(ApiInjectClient);
+        const response = await client.post("/locks/unlocked", {});
+
+        expect(response).toMatchObject({
+            status: 422,
+        });
+    });
+});
