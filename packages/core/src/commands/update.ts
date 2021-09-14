@@ -42,7 +42,7 @@ export class Command extends Commands.Command {
     public configure(): void {
         this.definition
             .setFlag("token", "The name of the token.", Joi.string().default("ark"))
-            .setFlag("force", "Force an update.", Joi.boolean())
+            .setFlag("force", "Force an update.", Joi.boolean().default(false))
             .setFlag("updateProcessManager", "Update process manager.", Joi.boolean())
             .setFlag("restart", "Restart all running processes.", Joi.boolean())
             .setFlag("restartCore", "Restart the Core process.", Joi.boolean())
@@ -80,7 +80,7 @@ export class Command extends Commands.Command {
                         await this.actions.restartRunningProcess(`${this.getFlag("token")}-forger`);
                     }
                 }
-            } else {
+            } else if (!this.getFlag("force")) {
                 await this.actions.restartRunningProcessWithPrompt(`${this.getFlag("token")}-core`);
                 await this.actions.restartRunningProcessWithPrompt(`${this.getFlag("token")}-relay`);
                 await this.actions.restartRunningProcessWithPrompt(`${this.getFlag("token")}-forger`);
