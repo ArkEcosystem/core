@@ -25,19 +25,17 @@
         "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
-        "@arkecosystem/core-kernel": "^3.0.0-next.35",
-        "@arkecosystem/core-transactions": "^3.0.0-next.35",
-        "@arkecosystem/crypto": "^3.0.0-next.35",
-        "@types/better-sqlite3": "^5.4.0",
-        "@types/fs-extra": "^8.0.1",
-        "better-sqlite3": "^7.1.2",
-        "bytebuffer": "^5.0.1",
-        "fs-extra": "^8.1.0",
-        "joi": "^17.3.0"
+        "@arkecosystem/core-kernel": "3.0.0-next.35",
+        "@arkecosystem/core-transactions": "3.0.0-next.35",
+        "@arkecosystem/crypto": "3.0.0-next.35",
+        "better-sqlite3": "7.4.3",
+        "bytebuffer": "5.0.1",
+        "fs-extra": "8.1.0",
+        "joi": "17.4.2"
     },
     "devDependencies": {
-        "@types/better-sqlite3": "^5.4.0",
-        "@types/fs-extra": "^8.0.1"
+        "@types/better-sqlite3": "5.4.3",
+        "@types/fs-extra": "8.1.2"
     },
     "engines": {
         "node": ">=10.x"

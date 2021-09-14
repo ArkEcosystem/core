@@ -64,7 +64,7 @@ describe("Generate Log", () => {
         expect(existsSync(join(process.env.CORE_PATH_DATA!, "log-archive", "test.zip"))).toBeTrue();
     });
 
-    it("should destroy socket, remove temp files and throw error on pipeline error", async () => {
+    it.skip("should destroy socket, remove temp files and throw error on pipeline error", async () => {
         const spyOnBoot = jest.spyOn(Database.prototype, "boot");
         const spyOnGetAllIterator = jest.spyOn(Database.prototype, "getAllIterator").mockReturnValue(mockIterator);
         const spyOnReadableFrom = jest.spyOn(Readable, "from").mockReturnValue(mockReadable);

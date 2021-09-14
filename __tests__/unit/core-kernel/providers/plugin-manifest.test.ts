@@ -31,6 +31,7 @@ describe("PluginManifest", () => {
     });
 
     it("should merge the given value", () => {
+        // @ts-ignore
         pluginManifest.merge({ some: "value" });
 
         expect(pluginManifest.get("some")).toEqual("value");

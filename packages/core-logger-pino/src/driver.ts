@@ -71,7 +71,7 @@ export class PinoLogger implements Contracts.Kernel.Logger {
      * @memberof PinoLogger
      */
     public async make(options?: any): Promise<Contracts.Kernel.Logger> {
-        const stream: PassThrough = new PassThrough();
+        const stream = new PassThrough();
         this.logger = pino(
             {
                 base: null,
@@ -232,7 +232,7 @@ export class PinoLogger implements Contracts.Kernel.Logger {
      * @memberof PinoLogger
      */
     private createPrettyTransport(level: string, prettyOptions?: PrettyOptions): Transform {
-        const pinoPretty: PinoPretty = PinoPretty({
+        const pinoPretty = PinoPretty({
             ...{
                 levelFirst: false,
                 translateTime: "yyyy-mm-dd HH:MM:ss.l",

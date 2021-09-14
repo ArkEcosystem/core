@@ -20,20 +20,20 @@
         "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
-        "@arkecosystem/core-kernel": "^3.0.0-next.35",
-        "@arkecosystem/crypto": "^3.0.0-next.35",
-        "@hapi/boom": "^9.0.0",
-        "@hapi/hapi": "^20.0.3",
-        "fs-extra": "^8.1.0",
-        "joi": "^17.3.0",
-        "lowdb": "^1.0.0",
-        "uuid": "^8.0.0"
+        "@arkecosystem/core-kernel": "3.0.0-next.35",
+        "@arkecosystem/crypto": "3.0.0-next.35",
+        "@hapi/boom": "9.0.0",
+        "@hapi/hapi": "20.1.5",
+        "fs-extra": "8.1.0",
+        "joi": "17.4.2",
+        "lowdb": "1.0.0",
+        "uuid": "8.3.2"
     },
     "devDependencies": {
-        "@types/fs-extra": "^8.0.1",
-        "@types/hapi__boom": "^7.4.1",
-        "@types/hapi__joi": "^17.0.0",
-        "@types/uuid": "^8.0.0"
+        "@types/fs-extra": "8.1.2",
+        "@types/hapi__boom": "7.4.1",
+        "@types/hapi__joi": "17.1.7",
+        "@types/uuid": "8.3.1"
     },
     "engines": {
         "node": ">=10.x"

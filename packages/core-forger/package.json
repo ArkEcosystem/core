@@ -22,17 +22,17 @@
         "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
-        "@arkecosystem/core-kernel": "^3.0.0-next.35",
-        "@arkecosystem/core-p2p": "^3.0.0-next.35",
-        "@arkecosystem/core-transactions": "^3.0.0-next.35",
-        "@arkecosystem/crypto": "^3.0.0-next.35",
-        "joi": "^17.3.0",
-        "node-forge": "^0.10.0",
-        "wif": "^2.0.6"
+        "@arkecosystem/core-kernel": "3.0.0-next.35",
+        "@arkecosystem/core-p2p": "3.0.0-next.35",
+        "@arkecosystem/core-transactions": "3.0.0-next.35",
+        "@arkecosystem/crypto": "3.0.0-next.35",
+        "joi": "17.4.2",
+        "node-forge": "0.10.0",
+        "wif": "2.0.6"
     },
     "devDependencies": {
-        "@types/node-forge": "^0.9.7",
-        "@types/wif": "^2.0.1"
+        "@types/node-forge": "0.10.4",
+        "@types/wif": "2.0.2"
     },
     "engines": {
         "node": ">=10.x"

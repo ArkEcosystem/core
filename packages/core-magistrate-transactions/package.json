@@ -21,10 +21,10 @@
         "prepublishOnly": "yarn build"
     },
     "dependencies": {
-        "@arkecosystem/core-kernel": "^3.0.0-next.35",
-        "@arkecosystem/core-magistrate-crypto": "^3.0.0-next.35",
-        "@arkecosystem/core-transactions": "^3.0.0-next.35",
-        "@arkecosystem/crypto": "^3.0.0-next.35"
+        "@arkecosystem/core-kernel": "3.0.0-next.35",
+        "@arkecosystem/core-magistrate-crypto": "3.0.0-next.35",
+        "@arkecosystem/core-transactions": "3.0.0-next.35",
+        "@arkecosystem/crypto": "3.0.0-next.35"
     },
     "publishConfig": {
         "access": "public"
