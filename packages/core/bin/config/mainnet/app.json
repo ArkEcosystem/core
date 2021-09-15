@@ -104,21 +104,5 @@
                 "package": "@arkecosystem/core-snapshots"
             }
         ]
-    },
-    "manager": {
-        "plugins": [
-            {
-                "package": "@arkecosystem/core-logger-pino"
-            },
-            {
-                "package": "@arkecosystem/core-database"
-            },
-            {
-                "package": "@arkecosystem/core-snapshots"
-            },
-            {
-                "package": "@arkecosystem/core-manager"
-            }
-        ]
     }
 }
