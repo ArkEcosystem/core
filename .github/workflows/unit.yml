@@ -22,7 +22,6 @@ jobs:
             - core-magistrate-api
             - core-magistrate-crypto
             - core-magistrate-transactions
-            - core-manager
             - core-p2p
             - core-snapshots
             - core-state
@@ -420,40 +419,6 @@ jobs:
 
             - name: Test
               run: yarn test:parallel __tests__/unit/core-magistrate-transactions/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
-
-            - name: Archive code coverage
-              uses: actions/upload-artifact@v2
-              with:
-                  name: ${{ github.job }}-coverage
-                  path: .coverage/unit/${{ github.job }}/lcov.info
-
-    core-manager:
-        runs-on: ubuntu-latest
-
-        strategy:
-            matrix:
-                node-version: [12.x]
-
-        steps:
-            - uses: actions/checkout@v1
-
-            - name: Cache node modules
-              uses: actions/cache@v1
-              with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
-
-            - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v1
-              with:
-                  node-version: ${{ matrix.node-version }}
-
-            - name: Install & Build
-              run: yarn setup
-
-            - name: Test
-              run: yarn test:parallel __tests__/unit/core-manager/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
