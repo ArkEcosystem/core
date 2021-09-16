@@ -11,7 +11,7 @@ export const postTransactions = {
 
             let offset = 0;
             for (const tx of obj.transactions as Buffer[]) {
-                offset = tx.writeUInt32BE(tx.length, offset);
+                offset = result.writeUInt32BE(tx.length, offset);
                 offset += tx.copy(result, offset);
             }
 
