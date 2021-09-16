@@ -3,9 +3,9 @@
  * @interface Source
  */
 export interface Source {
-    exists(value: string): Promise<boolean>;
+    exists(value: string, version?: string): Promise<boolean>;
 
-    install(value: string): Promise<void>;
+    install(value: string, version?: string): Promise<void>;
 
     update(value: string): Promise<void>;
 }

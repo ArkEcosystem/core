@@ -18,12 +18,13 @@ export class NPM extends AbstractSource {
 
     /**
      * @param {string} value
+     * @param version
      * @returns {Promise<boolean>}
      * @memberof NPM
      */
-    public async exists(value: string): Promise<boolean> {
+    public async exists(value: string, version?: string): Promise<boolean> {
         try {
-            await this.getPackage(value);
+            await this.getPackage(value, version);
 
             return true;
         } catch {
@@ -40,8 +41,8 @@ export class NPM extends AbstractSource {
         await this.install(value);
     }
 
-    protected async preparePackage(value: string): Promise<void> {
-        const { name, tarball }: { name: string; tarball: string } = await this.getPackage(value);
+    protected async preparePackage(value: string, version?: string): Promise<void> {
+        const { name, tarball }: { name: string; tarball: string } = await this.getPackage(value, version);
 
         const tarballPath: string = `${this.tempPath}/${name}.tgz`;
 
@@ -56,7 +57,7 @@ export class NPM extends AbstractSource {
      * @returns {Promise<{ name: string; tarball: string }>}
      * @memberof NPM
      */
-    private async getPackage(value: string): Promise<{ name: string; tarball: string }> {
+    private async getPackage(value: string, version?: string): Promise<{ name: string; tarball: string }> {
         const registry = process.env.CORE_NPM_REGISTRY || "https://registry.npmjs.org";
         const { body } = await got(`${registry}/${value}`);
 
@@ -65,7 +66,14 @@ export class NPM extends AbstractSource {
             versions: Record<string, { tarball: string }>[];
         } = JSON.parse(body);
 
-        return { name: response.name, tarball: response.versions[response["dist-tags"].latest].dist.tarball };
+        if (version && !response.versions[version]) {
+            throw new Error("Invalid package version");
+        }
+
+        return {
+            name: response.name,
+            tarball: response.versions[version || response["dist-tags"].latest].dist.tarball,
+        };
     }
 
     /**

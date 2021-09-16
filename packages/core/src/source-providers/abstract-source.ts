@@ -1,8 +1,9 @@
+import execa from "execa";
+import { ensureDirSync, moveSync, readJSONSync, removeSync } from "fs-extra";
+import { join } from "path";
+
 import { Source } from "./contracts";
 import { InvalidPackageJson } from "./errors";
-import { ensureDirSync, readJSONSync, moveSync, removeSync } from "fs-extra";
-import execa from "execa";
-import { join } from "path";
 
 export abstract class AbstractSource implements Source {
     protected readonly dataPath: string;
@@ -15,12 +16,12 @@ export abstract class AbstractSource implements Source {
         ensureDirSync(this.dataPath);
     }
 
-    public async install(value: string): Promise<void> {
+    public async install(value: string, version?: string): Promise<void> {
         const origin = this.getOriginPath();
 
         removeSync(origin);
 
-        await this.preparePackage(value);
+        await this.preparePackage(value, version);
 
         const packageName = this.getPackageName(origin);
         this.removeInstalledPackage(packageName);
@@ -56,9 +57,9 @@ export abstract class AbstractSource implements Source {
         removeSync(this.getDestPath(packageName));
     }
 
-    public abstract async exists(value: string): Promise<boolean>;
+    public abstract async exists(value: string, version?: string): Promise<boolean>;
 
     public abstract async update(value: string): Promise<void>;
 
-    protected abstract async preparePackage(value: string): Promise<void>;
+    protected abstract async preparePackage(value: string, version?: string): Promise<void>;
 }

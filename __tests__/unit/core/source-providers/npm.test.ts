@@ -1,11 +1,11 @@
 import "jest-extended";
 
 import { NPM } from "@packages/core/src/source-providers";
+import execa from "execa";
 import fs from "fs-extra";
 import nock from "nock";
 import { join, resolve } from "path";
 import { dirSync, setGracefulCleanup } from "tmp";
-import execa from "execa";
 
 let dataPath: string;
 let tempPath: string;
@@ -50,6 +50,50 @@ describe("NPM", () => {
                 });
 
             await expect(source.exists("@arkecosystem/utils")).resolves.toBeTrue();
+        });
+
+        it("should return true if the file by version exists", async () => {
+            nock(/.*/)
+                .get("/@arkecosystem/utils")
+                .reply(200, {
+                    name: "@arkecosystem/utils",
+                    "dist-tags": {
+                        latest: "0.9.1",
+                    },
+                    versions: {
+                        "0.9.1": {
+                            name: "@arkecosystem/utils",
+                            version: "0.9.1",
+                            dist: {
+                                tarball: "https://registry.npmjs.org/@arkecosystem/utils/-/utils-0.9.1.tgz",
+                            },
+                        },
+                    },
+                });
+
+            await expect(source.exists("@arkecosystem/utils", "0.9.1")).resolves.toBeTrue();
+        });
+
+        it("should return false if the file by version doesn't exists", async () => {
+            nock(/.*/)
+                .get("/@arkecosystem/utils")
+                .reply(200, {
+                    name: "@arkecosystem/utils",
+                    "dist-tags": {
+                        latest: "0.9.1",
+                    },
+                    versions: {
+                        "0.9.1": {
+                            name: "@arkecosystem/utils",
+                            version: "0.9.1",
+                            dist: {
+                                tarball: "https://registry.npmjs.org/@arkecosystem/utils/-/utils-0.9.1.tgz",
+                            },
+                        },
+                    },
+                });
+
+            await expect(source.exists("@arkecosystem/utils", "0.5.5")).resolves.toBeFalse();
         });
 
         it("should return false if the file does not exists", async () => {
