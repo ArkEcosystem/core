@@ -6,9 +6,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [3.0.0] - 2020-06-16
-
 ### Added
 
+-   Check aip37 when transaction is switch-vote ([c017e1a83], [@rainydio])
 -   Added vendor field support to transaction factory ([8074203b7], [@kovaczan])
 -   Fee stats from last 20 tx when no days param is provided ([2c18ee218], [@air1one])
 -   Implement `manager:status`, `manager:log` & `manager:restart` cli commands ([89213147c], [@sebastijankuzner])
@@ -188,6 +188,28 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Changed
 
+-   Install specific version of plugin ([013b6b015], [@sebastijankuzner])
+-   Refactor codecs so buffer isn't re-allocated 400 times. ([b7f62ef34], [@rainydio])
+-   Remove core-manager related commands and setting ([51539e1b1], [@sebastijankuzner])
+-   Remove package ([e7953c241], [@sebastijankuzner])
+-   Skip prompts when using `--force` flag on `update` command ([50f25c74d], [@sebastijankuzner])
+-   Optional parameters & type check ([d41d65c93], [@sebastijankuzner])
+-   Use `levels` and `processes` params on `log.search` ([4ca684c97], [@sebastijankuzner])
+-   Use `--force` flag on install ([865f2d066], [@sebastijankuzner])
+-   Use EntityNamesTypes index ([600ca0456], [@sebastijankuzner])
+-   Implements `process.delete` action ([063e92923], [@sebastijankuzner])
+-   Add updateProcessManager flag in `update` command ([1f259ae31], [@sebastijankuzner])
+-   Exit cli gracefully ([92f22448b], [@sebastijankuzner])
+-   Load ServiceProviders from plugins folder ([9b59a20ee], [@sebastijankuzner])
+-   Load CLI plugins ([464fc9aad], [@sebastijankuzner])
+-   GetPeersConfig from loaded config ([0bf55c252], [@sebastijankuzner])
+-   Implements await block processing plugin ([3c757e9c1], [@sebastijankuzner])
+-   Queue extends EventEmitter ([5051dcea9], [@sebastijankuzner])
+-   Remove updateNetworkStatus on Blockchain ([c1af74dca], [@sebastijankuzner])
+-   Remove excess flags ([13d070919], [@sebastijankuzner])
+-   Allow invalid bip39 passphrases ([7a6a4e9a4], [@sebastijankuzner])
+-   Update node version to 14.x in install.sh scripts ([689d62941], [@sebastijankuzner])
+-   Add @rainydio and @sebastijankuzner to codeowners ([aef8a3848], [@sebastijankuzner])
 -   Check forged transactions in StateStore ([b158513cc], [@sebastijankuzner])
 -   Keep record of last stored block height ([ba386e3a1], [@sebastijankuzner])
 -   Implements getBlock on DatabaseInterceptor ([89975ab67], [@sebastijankuzner])
@@ -599,6 +621,25 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Fixed
 
+-   Fix `/api/lock/unlocked` payload validation ([72562a63e], [@rainydio])
+-   Get xstate action name ([62e1235b8], [@sebastijankuzner])
+-   Don't ignore server error in accepted matcher ([8cb27d6b5], [@rainydio])
+-   Re-throw errors as pool error ([5bb8a1bc1], [@rainydio])
+-   Respect block.maxPayload milestone limit ([703651f37], [@rainydio])
+-   Compare transaction.serialized.length with maxTransactionBytes ([b41d4324d], [@rainydio])
+-   Plugin:install/remove/update commands ([9c1836f63], [@sebastijankuzner])
+-   Forge custom transactions ([f7139551d], [@rainydio])
+-   Use force flag on update ([deac1569e], [@sebastijankuzner])
+-   Resolve commands path ([87ee3b595], [@sebastijankuzner])
+-   Remove CORE_SKIP_BLOCKCHAIN flag ([14d162df4], [@sebastijankuzner])
+-   Handle errors on removeBlocks ([4a632853b], [@sebastijankuzner])
+-   Reset max payload after ping ([4dd78ddeb], [@rainydio])
+-   Disable perMessageDeflate on WS ([7a6d1987a], [@sebastijankuzner])
+-   Debug scripts ([b5f4932b3], [@sebastijankuzner])
+-   Parse peers from URL response ([94d0c586f], [@sebastijankuzner])
+-   Fix rollback condition ([8cde7613a], [@rainydio])
+-   Set max payload for whole forger connection ([39c2fa9b9], [@rainydio])
+-   Iterate over active delegates who have ranks ([d634a9280], [@rainydio])
 -   Remove bad line ([5d34297d7], [@sleepdefic1t])
 -   Split log files per process ([71db9fff7], [@sebastijankuzner])
 -   Server logs ([d955559c2], [@sebastijankuzner])
@@ -920,6 +961,48 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 [@sleepdefic1t]: https://github.com/sleepdefic1t
 [@supaiku]: https://github.com/supaiku
 [@vasild]: https://github.com/vasild
+[013b6b015]: https://github.com/ARKEcosystem/core/commit/013b6b015
+[b7f62ef34]: https://github.com/ARKEcosystem/core/commit/b7f62ef34
+[51539e1b1]: https://github.com/ARKEcosystem/core/commit/51539e1b1
+[e7953c241]: https://github.com/ARKEcosystem/core/commit/e7953c241
+[50f25c74d]: https://github.com/ARKEcosystem/core/commit/50f25c74d
+[72562a63e]: https://github.com/ARKEcosystem/core/commit/72562a63e
+[d41d65c93]: https://github.com/ARKEcosystem/core/commit/d41d65c93
+[4ca684c97]: https://github.com/ARKEcosystem/core/commit/4ca684c97
+[62e1235b8]: https://github.com/ARKEcosystem/core/commit/62e1235b8
+[8cb27d6b5]: https://github.com/ARKEcosystem/core/commit/8cb27d6b5
+[865f2d066]: https://github.com/ARKEcosystem/core/commit/865f2d066
+[600ca0456]: https://github.com/ARKEcosystem/core/commit/600ca0456
+[5bb8a1bc1]: https://github.com/ARKEcosystem/core/commit/5bb8a1bc1
+[063e92923]: https://github.com/ARKEcosystem/core/commit/063e92923
+[1f259ae31]: https://github.com/ARKEcosystem/core/commit/1f259ae31
+[703651f37]: https://github.com/ARKEcosystem/core/commit/703651f37
+[b41d4324d]: https://github.com/ARKEcosystem/core/commit/b41d4324d
+[92f22448b]: https://github.com/ARKEcosystem/core/commit/92f22448b
+[9b59a20ee]: https://github.com/ARKEcosystem/core/commit/9b59a20ee
+[464fc9aad]: https://github.com/ARKEcosystem/core/commit/464fc9aad
+[0bf55c252]: https://github.com/ARKEcosystem/core/commit/0bf55c252
+[9c1836f63]: https://github.com/ARKEcosystem/core/commit/9c1836f63
+[c017e1a83]: https://github.com/ARKEcosystem/core/commit/c017e1a83
+[3c757e9c1]: https://github.com/ARKEcosystem/core/commit/3c757e9c1
+[5051dcea9]: https://github.com/ARKEcosystem/core/commit/5051dcea9
+[f7139551d]: https://github.com/ARKEcosystem/core/commit/f7139551d
+[deac1569e]: https://github.com/ARKEcosystem/core/commit/deac1569e
+[87ee3b595]: https://github.com/ARKEcosystem/core/commit/87ee3b595
+[c1af74dca]: https://github.com/ARKEcosystem/core/commit/c1af74dca
+[14d162df4]: https://github.com/ARKEcosystem/core/commit/14d162df4
+[4a632853b]: https://github.com/ARKEcosystem/core/commit/4a632853b
+[4dd78ddeb]: https://github.com/ARKEcosystem/core/commit/4dd78ddeb
+[7a6d1987a]: https://github.com/ARKEcosystem/core/commit/7a6d1987a
+[13d070919]: https://github.com/ARKEcosystem/core/commit/13d070919
+[b5f4932b3]: https://github.com/ARKEcosystem/core/commit/b5f4932b3
+[7a6a4e9a4]: https://github.com/ARKEcosystem/core/commit/7a6a4e9a4
+[94d0c586f]: https://github.com/ARKEcosystem/core/commit/94d0c586f
+[689d62941]: https://github.com/ARKEcosystem/core/commit/689d62941
+[8cde7613a]: https://github.com/ARKEcosystem/core/commit/8cde7613a
+[39c2fa9b9]: https://github.com/ARKEcosystem/core/commit/39c2fa9b9
+[aef8a3848]: https://github.com/ARKEcosystem/core/commit/aef8a3848
+[d634a9280]: https://github.com/ARKEcosystem/core/commit/d634a9280
 [5d34297d7]: https://github.com/ARKEcosystem/core/commit/5d34297d7
 [71db9fff7]: https://github.com/ARKEcosystem/core/commit/71db9fff7
 [d955559c2]: https://github.com/ARKEcosystem/core/commit/d955559c2
