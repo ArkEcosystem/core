@@ -5,1810 +5,3941 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [3.0.0] - 2020-06-16
+## [unreleased]
 
 ### Added
 
--   Added vendor field support to transaction factory ([8074203b7], [@kovaczan])
--   Fee stats from last 20 tx when no days param is provided ([2c18ee218], [@air1one])
--   Implement `manager:status`, `manager:log` & `manager:restart` cli commands ([89213147c], [@sebastijankuzner])
--   Support custom crypto packages ([aaf99b46f], [@sebastijankuzner])
--   Support custom network configurations ([4570d9fce], [@sebastijankuzner])
--   Implements `config:manager` cli command ([e36a18a9d], [@sebastijankuzner])
--   Support ZIP archive on `log.download` ([d3d77e852], [@sebastijankuzner])
--   Allow bearer token in URL ([a2bcbace7], [@sebastijankuzner])
--   Sort logs descending by defaut on `log.search` ([bb951a66b], [@sebastijankuzner])
--   Include transaction-pool options in node/configuration ([0909adc19], [@sebastijankuzner])
--   Implements `log.download` action ([94531d0a1], [@sebastijankuzner])
--   Return block height in API response headers ([79c2b1bf5], [@air1one])
--   Support custom tokens ([bf75b5b29], [@sebastijankuzner])
--   Set database default and max response limit ([82edd4633], [@sebastijankuzner])
--   Read token and network from config.json ([49e89a8f8], [@sebastijankuzner])
--   Store logs in sqlite database ([0d97a5125], [@sebastijankuzner])
--   Implement database delete support ([3ff160f5a], [@sebastijankuzner])
--   Implement database indexing support ([2b4659d0a], [@sebastijankuzner])
--   Implements info.resources action ([c480df8c6], [@sebastijankuzner])
--   P2P IPv6 support ([29c7ebb75], [@sebastijankuzner])
--   Ip address utils ([a776999aa], [@sebastijankuzner])
--   Rate limit plugin ([21eb71a8f], [@air1one])
--   Implement info.coreUpdate action ([1f28875f4], [@sebastijankuzner])
--   Add vendor field length cli flag ([e12f73f2c], [@rainydio])
--   Ser/deser on p2p and use binary over ws ([0526ad03a], [@air1one])
--   Set dynamic fees in network:generate ([feb1d6bc8], [@sebastijankuzner])
--   Add additional flags into network:generate command ([1f7468135], [@sebastijankuzner])
--   Enable wallet sync though environment variable ([b54816005], [@rainydio])
--   Sync wallet to database ([f320c0acd], [@rainydio])
--   Implement `Queue#isRunning/isStarted/onDrain/onError/onData` methods ([d80768479], [@sebastijankuzner])
--   Transform comma query into array to allow OR ([0a69f6597], [@air1one])
--   Unvote+vote transaction ([700b9cd6f], [@rainydio])
--   Wallet autoIndex option ([51d01a2db], [@sebastijankuzner])
--   Implement peer blacklisting ([f18928dd5], [@sebastijankuzner])
--   Split into 3 ports for blocks / transactions / others ([9796d138a], [@air1one])
--   Enable registering routes with pagination ([47d3cf20d], [@sebastijankuzner])
--   Add block and transactions indexes migration ([b42bfb6f7], [@sebastijankuzner])
--   Forget unresponsive peer ([5222b5cfb], [@sebastijankuzner])
--   Aip36 delegate entity ([9f2eb6296], [@air1one])
--   Include estimateTotalCount into peers response ([ed8a0e803], [@sebastijankuzner])
--   AIP36 ([36c1ca768], [@air1one])
--   Disable individual watchers ([e943e5635], [@sebastijankuzner])
--   Set up aip36 milestone to enable entity transactions ([d9fc0c094], [@air1one])
--   Implement database query support ([8a2033ac9], [@sebastijankuzner])
--   Dispatch wallet events ([7cb916abc], [@sebastijankuzner])
--   Implement AIP36 ([ce618cc3c], [@air1one])
--   Dispatch schedule events ([cc7073833], [@sebastijankuzner])
--   Dispatch queue events ([9ac9b453a], [@sebastijankuzner])
--   Implement `info.lastForgedBlock` action ([6f9887f92], [@sebastijankuzner])
--   Dispatch webhook events ([7ca7d9682], [@sebastijankuzner])
--   Implement `watcher.getEvents` action ([4757531e0], [@sebastijankuzner])
--   Implement log watcher ([1bfc528ab], [@sebastijankuzner])
--   Disaptch additional transaction-pool events ([4190ed639], [@sebastijankuzner])
--   Implements DatabaseLogger ([1c968188e], [@sebastijankuzner])
--   Implement events listener and events database ([29672aa9e], [@sebastijankuzner])
--   Implement `info.nextForgingSlot` action ([d204f752f], [@sebastijankuzner])
--   Implement workers ([d70c42275], [@rainydio])
--   Implements `forger.nextSlot` process actions ([6dacdfbb8], [@sebastijankuzner])
--   Implement `info.currentDelegate` action ([85287670b], [@sebastijankuzner])
--   Implement `snapshots.restore` action ([bd0370e3c], [@sebastijankuzner])
--   Implements `forger.lastForgedBlock` process actions ([97746d0cf], [@sebastijankuzner])
--   Implement trigger method in ProcessManager ([cf8a401bc], [@sebastijankuzner])
--   EstimateTotalCount API parameter ([c52b6ab74], [@rainydio])
--   Implement `snapshots.list` action ([7a8bb932d], [@sebastijankuzner])
--   Implements `forger.currentDelegate` process action ([052aae85f], [@sebastijankuzner])
--   Implement `snapshots.delete` action ([f87e146fb], [@sebastijankuzner])
--   Implement `snapshots.create` action ([82382fc9c], [@sebastijankuzner])
--   Implement process actions ([1cb7e23ed], [@sebastijankuzner])
--   Implement `log.log` action ([fa49ca804], [@sebastijankuzner])
--   Implement `log.archived` action ([10e821751], [@sebastijankuzner])
--   Implement `configuration.updatePlugins` action ([36a607abc], [@sebastijankuzner])
--   Implement `configuration.updateEnv` action ([ca28f66f2], [@sebastijankuzner])
--   Implement `configuration.getPlugins` action ([dcfff76d1], [@sebastijankuzner])
--   Implement `configuration.getEnv` action ([ef450f9d3], [@sebastijankuzner])
--   Count estimation ([118be7ba3], [@rainydio])
--   Implement `process.list` action ([f31109fc6], [@sebastijankuzner])
--   Implement `process.stop` action ([7db012655], [@sebastijankuzner])
--   Implement `process.start` action  ([c8fdde97c], [@sebastijankuzner])
--   Implement `process.restart` action ([3559f71ed], [@sebastijankuzner])
--   Implement `info.databaseSize` action ([f28ba8db8], [@sebastijankuzner])
--   Implement `info.diskSpace` action ([67cd2c67f], [@sebastijankuzner])
--   Implement `info.blockchainHeight` action ([9c20c02e0], [@sebastijankuzner])
--   Implement `info.coreStatus` action ([40ddab0d2], [@sebastijankuzner])
--   Implement `info.coreVersion` action ([4ef29686b], [@sebastijankuzner])
--   Feat(core-manager) implement token authentication ([81ebb9496], [@sebastijankuzner])
--   Implement basic authentication ([c30425775], [@sebastijankuzner])
--   Implement IP whitelisting ([9894e9aba], [@sebastijankuzner])
--   Implement core-manager skeleton ([fed54c9df], [@sebastijankuzner])
--   Implement core-snapshots package ([8df596ab2], [@sebastijankuzner])
--   Dynamic block times ([084b39624], [@bertiespell])
--   Hapi/nes implementation ([4ff97a26f], [@air1one])
--   Integrate triggers and actions ([0d5390fd4], [@sebastijankuzner])
--   Add reusable mocks from tests ([a82a09437], [@sebastijankuzner])
--   Transaction to string method ([4999fec69], [@rainydio])
--   Add flag to skip export of rolled back transactions ([b88806f5e], [@dated])
--   Filter peers by version range ([1359ba207], [@dated])
--   Implement dynamic fees ([af4b1b3b0], [@air1one])
--   Retrieve business by username, address or public key ([cf831409f], [@dated])
--   Add bridgechain asset repository (bridgechain registration and update) ([0805613cd], [@air1one])
--   Initial draft implementation of pluggable CLI ([8465625eb], [@faustbrian])
--   Stricter resource-based orderBy schema ([e9e518ec9], [@dated])
--   Ioc tags ([ff8975a04], [@rainydio])
--   Improve incoming WS message check + IP banning on worker ([94766eaeb], [@faustbrian])
--   Stricter p2p msg check + ip blocking ([5d21a3447], [@air1one])
--   Allow use of custom crypto configuration ([84aee929d], [@faustbrian])
--   Allow extension of cache and queue service ([daadf358a], [@faustbrian])
--   Manual registration of service providers and configuration options ([460c6faac], [@faustbrian])
--   Support modifiers in transaction factories ([5191f6996], [@faustbrian])
--   Implement peer factory ([cded589bd], [@faustbrian])
--   Implement transaction factories ([c76062089], [@faustbrian])
--   Implement null drivers ([dd83c08b2], [@faustbrian])
--   Initial draft implementation ([a636dfd38], [@faustbrian])
--   Dispatch cache events ([c4a8b70d2], [@faustbrian])
--   Implement in-memory logger as default ([a116e3f06], [@faustbrian])
--   Allow searching businesses and bridgechains by isResigned ([ab78411e9], [@dated])
--   Implement block factory ([5a5b3d7fa], [@faustbrian])
--   Implement transfer factory ([de75e6ea9], [@faustbrian])
--   Implement peer factory ([e323bb500], [@faustbrian])
--   Add round and forger tracker ([044ca8303], [@faustbrian])
--   Add ports to bridgechain registration/update ([c520d8195], [@dated])
--   Implement rate-limiter-flexible plugin ([cb50a6221], [@faustbrian])
--   Validate the application configuration ([3f62bb54c], [@faustbrian])
--   Implement pipeline service ([be2522600], [@faustbrian])
--   Allow enabling/disabling log methods ([292d9e84d], [@faustbrian])
--   Introduce process specific application configurations ([1a4e13201], [@faustbrian])
--   Add command to clear transaction pool ([56f482d5b], [@dated])
--   Add service provider events ([00f4964be], [@faustbrian])
--   Implement Address.fromWIF method ([c1eafab5b], [@faustbrian])
--   Filter locks by expiration status ([91e815eb0], [@dated])
--   Ensure unique genesisHash per bridgechain  ([5dbc8a8fc], [@lemii])
--   Add `isExpired` property to locks response ([ad8595112], [@dated])
--   Implement factories and generators ([bb91fab5f], [@faustbrian])
--   Add additional fields to bridgechains search sc… ([dee3a5c17], [@dated])
--   Implement throttling on outgoing p2p communication ([4574e6e68], [@vasild])
--   Add additional fields to businesses search sche… ([05dd51fdf], [@dated])
--   Ensure unique bridgechain name per business ([f2ced87fc], [@dated])
--   Implement businesses/bridgechains endpoint ([697d34779], [@dated])
--   Implement assertion utilities ([47275d674], [@faustbrian])
--   Add flush methods for attributes ([5c404b69b], [@faustbrian])
--   Get dependencies and required state from manifest ([95a787c20], [@faustbrian])
--   Implement plugin aliases ([213b71a12], [@faustbrian])
--   Support numerical and reference keys for attributes ([c53f6f52e], [@faustbrian])
--   Scoped attribute indexes ([c78e56116], [@faustbrian])
--   Install plugins from local tarballs ([8f7d0d319], [@faustbrian])
--   Initial draft implementation (non-fun ([2d5ea1aa8], [@faustbrian])
--   Install, update and remove plugins ([3753b290c], [@faustbrian])
--   Add support for transaction nonces ([daa830f82], [@vasild])
--   Load crypto configuration from directory ([b37233e30], [@faustbrian])
--   Allow CLI command configurations ([ad5e82306], [@faustbrian])
--   Initial draft of attributes service ([08ca0fac5], [@faustbrian])
--   Implement app config to configure log service ([dd4c9aba0], [@faustbrian])
--   Use compression on the p2p level ([f5c185fe2], [@vasild])
--   Initial draft of mixin service ([0367e8e14], [@faustbrian])
--   Initial draft of queues ([5e5eb2a46], [@faustbrian])
--   Schedule tasks by cron or block intervals ([cfd39d085], [@faustbrian])
--   Watch configuration and restart core on change ([344de61ac], [@faustbrian])
--   Initial draft of new container ([583f5a928], [@faustbrian])
--   Initial draft of actions ([1a823ee70], [@faustbrian])
--   Implement reusable exceptions ([75c117741], [@faustbrian])
--   Auto-discovery for package manifest and config ([d449340c7], [@faustbrian])
--   Use compression on the p2p level ([a201d64ff], [@vasild])
--   Ability to listen to bootstrapping events ([bf4222444], [@faustbrian])
--   Support creation of scoped child containers ([9d12bb1fc], [@faustbrian])
--   Validate and cast package configuration on register ([ade3a5d49], [@faustbrian])
--   Required plugins to terminate on registration failure ([d44e29ccc], [@faustbrian])
--   Validation service ([1de4f3fce], [@faustbrian])
--   Add relay:share command to share relay instances via ngrok ([42b0805c0], [@faustbrian])
--   Handle inclusion and exclusion of service providers ([fc157999e], [@faustbrian])
--   Conditional enabling and disabling of services ([77893fda5], [@faustbrian])
--   Implement builder pattern to support driver-based plugins ([9b368c957], [@faustbrian])
--   Filesystem abstraction ([0f7e589b4], [@faustbrian])
--   Application and service provider bootstrappers ([85b6b605e], [@faustbrian])
--   Initial draft of cache ([3c413d434], [@faustbrian])
--   Initial draft of event dispatcher ([5d96cbfc4], [@faustbrian])
--   Initial draft of scheduler ([a399f1948], [@faustbrian])
--   Initial draft of core-kernel ([f47b55c84], [@faustbrian])
+- Implements `log.download` action (#4230) ([94531d0](94531d0a18137b548565dd61fc1a58ad626ef39c))
+- Partial windows support (#4252) ([5611e29](5611e2946900bf347acfee10c4f078a31ff0d85a))
+- Include transaction-pool options in node/configuration (#4256) ([0909adc](0909adc19b48cccc2fbf5e1d627a2c0a682394bd))
+- Sort logs descending by defaut on `log.search` (#4259) ([bb951a6](bb951a66b3967f10219d9e4ed2aa47be28ce1973))
+- Add delay on multiple reconnections (client socket) (#4265) ([fe8fd07](fe8fd07ac7071651ce8b30aa205eb578476e9611))
+- Allow bearer token in URL (#4276) ([a2bcbac](a2bcbace7df7605861972951877090c43b70b492))
+- Add CORE_P2P_MIN_NETWORK_REACH env variable (#4295) ([21b12d4](21b12d4764f5910cfea0541e78a3112712f311cc))
+- Support ZIP archive on `log.download` (#4298) ([d3d77e8](d3d77e852654604c928e290ed4f163c79dcf4e0e))
+- Implements `config:manager` cli command (#4301) ([e36a18a](e36a18a9d80992169a02a61bb7f1265a87d7afd8))
+- Support custom network configurations (#4305) ([4570d9f](4570d9fce2a3b98b79be6f400a7155e455c8acbb))
+- Add integer checks to service provider schemas (#4307) ([3cf3653](3cf3653978450dddd7bf9842e4592662c0a7fd06))
+- Support custom crypto packages (#4306) ([aaf99b4](aaf99b46fcda3fdcbe7bd638ec9395ce0c3cf5ed))
+- Implement `manager:status`, `manager:log` & `manager:restart` cli commands (#4319) ([8921314](89213147c74a40e9890f19c4a14efc837dd535fc))
+- Add required fields (#4320) ([3fdb473](3fdb47329e99489b7963f2b9b3de0901c2902757))
+- Add missing interfaces (#4333) ([fa98820](fa98820fef41a885cd178358d526f295caf9831f))
+- Fee stats from last 20 tx when no days param is provided (#4330) ([2c18ee2](2c18ee2187ad4c9205f4f91b2c1fe14859530d07))
+- Added vendor field support to transaction factory (#4377) ([8074203](8074203b777f33a7e2f1b7d548465cd3ad2ed29e))
+- Support zip archive download (#4392) ([71f8194](71f81949424a83d44169dba0371f803f5895c875))
+- Add @rainydio and @sebastijankuzner to codeowners (#4435) ([aef8a38](aef8a3848fdc91aa6f44248dd37643e0fe7926e7))
+- Check aip37 when transaction is switch-vote (#4451) ([c017e1a](c017e1a83a6b4ce4d2de01d0e000f09f1aae5c65))
+- Add updateProcessManager flag in `update` command (#4465) ([1f259ae](1f259ae3127be49c5df4662d34122fcc743830ae))
 
 ### Changed
 
--   Check forged transactions in StateStore ([b158513cc], [@sebastijankuzner])
--   Keep record of last stored block height ([ba386e3a1], [@sebastijankuzner])
--   Implements getBlock on DatabaseInterceptor ([89975ab67], [@sebastijankuzner])
--   Paralel broadcast ([56111ed1d], [@sebastijankuzner])
--   Use Core transaction group as default ([83bb890d9], [@sebastijankuzner])
--   Remove valuesByIndex ([4f6cc0bed], [@sebastijankuzner])
--   Broadcast block delay ([eb1bb6be9], [@sebastijankuzner])
--   Resolve plugin enabled value ([838d897ff], [@sebastijankuzner])
--   Downloaded chunks cache ([986d86a0c], [@sebastijankuzner])
--   Use getters and setter on wallet ([9724ff42c], [@sebastijankuzner])
--   RoundState in singleton scope ([0b9b54915], [@sebastijankuzner])
--   Improve wallet repository clone performance ([a304173a9], [@sebastijankuzner])
--   Implement throwIfCannotEnterPool on IPFS ([3e79f9cd5], [@sebastijankuzner])
--   Implement throwIfCannotEnterPool on MultiSignatureRegistration ([bebe9522a], [@sebastijankuzner])
--   Implement throwIfCannotEnterPool on Entity ([1d5a5c524], [@sebastijankuzner])
--   Cleanup htlcRefund ([04a1bbae7], [@sebastijankuzner])
--   Remove double multiSignature set in MultiSignatureRegistration ([4596c85ea], [@sebastijankuzner])
--   Join duplicated logs ([9a3d9ee7e], [@sebastijankuzner])
--   Split DatabaseInteractions ([bed6bef47], [@sebastijankuzner])
--   Schedule network status updates when networkStart flag is set ([c08ebd4f2], [@sebastijankuzner])
--   Implement get and set for restoredDatabaseIntegrity ([a030900fe], [@sebastijankuzner])
--   Set default file log level to `debug` ([e911c9b65], [@sebastijankuzner])
--   Remove unused request schemas ([9e079053b], [@sebastijankuzner])
--   PushPingBlock after slot check ([9cc883b6d], [@sebastijankuzner])
--   Expose NetworkState getters ([2b9a4125b], [@sebastijankuzner])
--   Inject objects with Inversify ([3b2f5eb0f], [@sebastijankuzner])
--   Register ForgerService on boot ([b6a2d854f], [@sebastijankuzner])
--   Remove unnecessary block check ([43b9c86c7], [@sebastijankuzner])
--   Build server on boot ([ff1fcdba6], [@sebastijankuzner])
--   Remove unused clear method on stateStore ([c20652ef4], [@sebastijankuzner])
--   Expose get & set methods on StateStore ([aa671a1ae], [@sebastijankuzner])
--   Add missing interfaces ([fa98820fe], [@sebastijankuzner])
--   Use Queue worker jobs ([dd0500bd4], [@sebastijankuzner])
--   Use correct pluralization form in logs  ([8b38064b7], [@sebastijankuzner])
--   Add required fields ([3fdb47329], [@sebastijankuzner])
--   Verify codec on snapshot:dump command ([1670b2342], [@sebastijankuzner])
--   Allow only QueueJob in Queue ([dabea9561], [@sebastijankuzner])
--   Lint and include types ([9361d5cb2], [@sebastijankuzner])
--   Move snapshot progress renderer to core-snapshots package ([cb7548180], [@sebastijankuzner])
--   Improve database query performance ([919e9205d], [@sebastijankuzner])
--   Set default max payload on ws client ([ab7d013b2], [@air1one])
--   Use core-database connection in core-snapshots ([8a658f4aa], [@sebastijankuzner])
--   Add integer checks to service provider schemas ([3cf365397], [@sebastijankuzner])
--   Rename env variables CORE_MONITOR_* to CORE_MANAGER_* ([c5808c1f8], [@sebastijankuzner])
--   Replace repeated fields in getBlocks with custom ser/deser ([d85d60bc6], [@air1one])
--   Queue postTransactions requests ([409149c65], [@air1one])
--   Set up a rate limit on `postTransactions` ([66e1b571c], [@air1one])
--   Allow unknow fields in package configuration ([9e2434a82], [@sebastijankuzner])
--   Add CORE_P2P_MIN_NETWORK_REACH env variable ([21b12d476], [@sebastijankuzner])
--   Rename peer storage into repository ([bdb6ce765], [@rainydio])
--   Improve service provider schema ([af4a58f83], [@sebastijankuzner])
--   Test every wallet vote balance ([348f63df3], [@rainydio])
--   Implements service provider schema ([39caa0b07], [@sebastijankuzner])
--   Implements service provider schema ([6d86afc96], [@sebastijankuzner])
--   Implements service provider schema ([df2c5ad4b], [@sebastijankuzner])
--   Implements service provider schema ([1faef3725], [@sebastijankuzner])
--   Implements service provider schema ([16e638335], [@sebastijankuzner])
--   Implements service provider schema ([802b248d7], [@sebastijankuzner])
--   Re-enable timeout on p2p emit ([7bba591e4], [@air1one])
--   Pool processor to be injected directly ([147c4de4f], [@air1one])
--   Separate HTTP and JSON-RPC server ([da715649f], [@sebastijankuzner])
--   Implements service provider schema ([59b94008c], [@sebastijankuzner])
--   Implements service provider schema ([64659881d], [@sebastijankuzner])
--   Implements service provider schema ([f1eb6077f], [@sebastijankuzner])
--   Mirror revert block from forger ([f0eebd877], [@rainydio])
--   Implements service provider schema ([5c95ce66f], [@sebastijankuzner])
--   Add delay on multiple reconnections (client socket) ([fe8fd07ac], [@air1one])
--   Full download link on `log.archived` ([e16b841be], [@sebastijankuzner])
--   Await log generation on `log.download` ([ea3d71551], [@sebastijankuzner])
--   Enable rate limit ([015dde805], [@sebastijankuzner])
--   Custom ser/deser of transactions in `postTransactions` codec ([9c1ad8048], [@air1one])
--   Don't throw when receiving unchained block ([374c038af], [@sebastijankuzner])
--   Improve block download when above maxPayload ([8d2aef9a6], [@air1one])
--   Remove :chains: from logs ([daab2cc08], [@sebastijankuzner])
--   Set maxBytes on all routes and update postTransactions validation schema ([dd887ec70], [@air1one])
--   Remove unused entity subhandlers ([a49fb040e], [@rainydio])
--   Show and download logs from archive ([30d0788ac], [@sebastijankuzner])
--   Remove core-manager plugin from app.json ([e68ed0efc], [@sebastijankuzner])
--   Remove `@arkecosystem/core-manager` from default app.json files ([2392b4f62], [@faustbrian])
--   Use dependencies only for manager process type ([2a811608d], [@sebastijankuzner])
--   Validate version on all p2p endpoints ([633d0a0b2], [@air1one])
--   Include missing dependencies ([ca2dcdc8a], [@sebastijankuzner])
--   Match entity schema name with delegate username (2.7) ([4e85a7442], [@air1one])
--   Match entity schema name with delegate username ([7b19c8de7], [@air1one])
--   Support async PM2 triggers ([30ea0c372], [@sebastijankuzner])
--   Enable core-manager on all processes ([9eb1ce976], [@sebastijankuzner])
--   Single database path setting ([57eaabf07], [@sebastijankuzner])
--   Limit hapi ping messages ([9f0349ba2], [@air1one])
--   Extract common database logic ([4c8d44e8e], [@sebastijankuzner])
--   Remove database dependency from forger ([86cb3cc75], [@rainydio])
--   Remove `info.diskSpace` action ([96c672d08], [@sebastijankuzner])
--   Terminate on ws.ping() ws.pong() ([9f9178d88], [@air1one])
--   Use a convention for how HTTP/HTTPS ports are exposed and discovered ([566d5a25c], [@faustbrian])
--   Get version channel from core-cli config ([7aba83f31], [@sebastijankuzner])
--   Re-organize plugins in hapi lifecycle ([aebf70e87], [@air1one])
--   Rename log.log to log.search ([ab5b2ad49], [@sebastijankuzner])
--   Extract cli-manager logic ([40ec05da6], [@sebastijankuzner])
--   Remove deprecated versioning channels ([26da8d8f6], [@sebastijankuzner])
--   More granular filters for log:log action ([118c4d48b], [@sebastijankuzner])
--   Prettier network-generate formatting ([04b47c10c], [@rainydio])
--   Update @arkecosystem/utils version to 1.2.1 ([307ba66de], [@air1one])
--   `network:generate` to generate genesis block with v2 txs ([f12173c83], [@air1one])
--   Use consistent number formatting ([7b35d02a5], [@sebastijankuzner])
--   Add listeners on 'connecting' event ([b56259267], [@alessiodf])
--   Custom validation for getCommonBlocks ([2b3936357], [@alessiodf])
--   BIP38 repeat password for confirmation ([3f5d49432], [@sebastijankuzner])
--   Plugins and env endpoints adjustements ([46d80da5a], [@sebastijankuzner])
--   Use single port for p2p ([66c19e3f7], [@air1one])
--   Add `install-next.sh` script for devnet installations ([0b172029d], [@faustbrian])
--   Remove fork 6 mention ([109e26554], [@faustbrian])
--   Use `@arkecosystem/crypto-identities` to handle identity interactions ([2059dba26], [@faustbrian])
--   Block processing ([9e3704077], [@sebastijankuzner])
--   Use `@arkecosystem/crypto-networks` to handle network configurations ([02c272e6f], [@faustbrian])
--   Create index if not exists ([5c309ea40], [@sebastijankuzner])
--   Migration: add asset.payments index to transactions ([84595c67f], [@sebastijankuzner])
--   Deserialize block from Buffer ([5666c122e], [@air1one])
--   Remove deprecated env variables ([aa0643ac7], [@sebastijankuzner])
--   Implement trigger unbind and rebind methods ([24a488cda], [@sebastijankuzner])
--   Return [] if asked higher blocks than current ([312899c90], [@air1one])
--   Enable trustProxy option ([850ade02a], [@air1one])
--   Update install script for setting env ([3b7a1fe3e], [@air1one])
--   Update banner ([617fd7694], [@faustbrian])
--   Define default p2p timeouts ([ce3d9302f], [@air1one])
--   Remove `@arkecosystem/core-manager` from default configs ([3e76be0c7], [@faustbrian])
--   Fire wallet events ([2c43f6c60], [@rainydio])
--   Allow array query parameter in all schemas ([a13bf618a], [@air1one])
--   Force typeorm version 0.2.25 ([e8000a637], [@air1one])
--   Remove import from dist or src ([6e969dd1f], [@air1one])
--   Remove search endpoints ([deb2cd78b], [@air1one])
--   3.0 docker updates ([6ff407206], [@adrian69])
--   Aip36 milestone for mainnet ([ec8cbb94f], [@air1one])
--   Extend /node/fees and /transactions/fees with entities static fees ([773eb8ce7], [@air1one])
--   Do not bind directly handler to class method to allow extending response ([bab1d914a], [@air1one])
--   CloneWallet method in wallet-repository ([d0775fdc4], [@sebastijankuzner])
--   Ts-ignore ([feb1970e6], [@air1one])
--   Lint ([24b164b19], [@air1one])
--   Add devnet exception ([5da4f4dfa], [@air1one])
--   Custom entity fees for register/update/resign ([ed835c291], [@air1one])
--   Use deepmerge for plugin configuration ([777199760], [@sebastijankuzner])
--   Activate all entity types + re-allocate entity type enum ([649aeaceb], [@air1one])
--   Add indexers export ([437f8cfd5], [@air1one])
--   Wallet repository search methods ([17fcaf375], [@rainydio])
--   Verify peer claimed state ([24a8b044e], [@air1one])
--   Add exports for bridgechains ([a27b6c3fa], [@air1one])
--   Set maxPayload on ws server ([bf892b530], [@sebastijankuzner])
--   Include missing dependencies in package.json ([6bb4feddd], [@sebastijankuzner])
--   Export state-builder ([ae160d6e7], [@air1one])
--   More flexible entity types / sub-types + fees update ([06261f99c], [@air1one])
--   Add publickey verification ([440889927], [@sleepdefic1t])
--   Throw more specific multi-signature exceptions ([48e67e518], [@faustbrian])
--   Initialize blockchain when resolved first time ([3f8727b2d], [@rainydio])
--   Add devnet exception ([78c49b4ac], [@air1one])
--   Remove forget methods and use index instead ([9a6358a5f], [@sebastijankuzner])
--   Dot-separated-query hapi plugin ([d6803913c], [@rainydio])
--   Pagination configuration through joi context ([8ebf8218b], [@rainydio])
--   Put configuration into Joi context ([0ff67a96b], [@rainydio])
--   Remove bridgechain from aip36 entities ([085ab675c], [@air1one])
--   Keep process var over .env var ([640b9a1a0], [@sebastijankuzner])
--   Get registered server route ([08d8c9365], [@sebastijankuzner])
--   Use HEAD HTTP request for ping ([fcbe909bb], [@sebastijankuzner])
--   Add 3.0.0 alpha channel to valid peer versions ([f2da0bd85], [@air1one])
--   Trigger processes from ark-core or ark-forger ([f00e075da], [@sebastijankuzner])
--   BlocksInCurrentRound and forgingDelegates are arrays ([50ce984e1], [@sebastijankuzner])
--   Remove excess code from hapi-nes ([f0fe8b939], [@sebastijankuzner])
--   Remove obsolete matchers package from merge ([76e9317a3], [@air1one])
--   Bump xstate ([0601aea47], [@air1one])
--   Ts ignore ([c03c2dcfe], [@air1one])
--   Upload codecov reports all at once ([60624a3fd], [@rainydio])
--   Union query typeGroup with number ([1a81aee41], [@rainydio])
--   Skip verification of transactions sent from multisignature wallets ([fcde95442], [@sebastijankuzner])
--   Accept peers in the 2.7 range ([aab40895a], [@faustbrian])
--   Remove obsolete magistrate endpoints (AIP36) ([219a94081], [@air1one])
--   Add aip36 milestone for devnet ([1da58ebb9], [@air1one])
--   Run rollup before publishing to NPM ([b402dbbfd], [@faustbrian])
--   Remove app.events and all of its usages ([35ef5926d], [@rainydio])
--   Remove app.log and all of its usages ([bccf74d2c], [@rainydio])
--   Update `bcrypto` dependency to v5 ([0b5104292], [@faustbrian])
--   Copy over `@hapi/nes` with forked code ([5700867db], [@air1one])
--   Process blocks log line ([4e685146d], [@rainydio])
--   Upgrade typeorm and pg packages ([daf4bb485], [@rainydio])
--   Use shorter default timeouts ([f4025bbc5], [@alessiodf])
--   Better locking ([f0acce87a], [@rainydio])
--   Remove custom wallet repository ([bb8cb1293], [@rainydio])
--   Core-transaction-pool): better readd log ([d65c9de3c], [@rainydio])
--   Log milestone change ([cecf8929e], [@rainydio])
--   Fix configuration and plugin actions ([d0650b1a5], [@sebastijankuzner])
--   Update nsfw 2.0.0 to support node.js 14 ([5ef81ef77], [@rainydio])
--   `getPeerConfig` return plugins information ([a12465527], [@air1one])
--   Support fedora ([a29466e89], [@alessiodf])
--   Update bcrypto dependency ([c74e4ca72], [@sebastijankuzner])
--   CentOS install fixes ([8bd811734], [@adrian69])
--   Refactor(core-snapshot) improve snapshotService interface ([312a1a717], [@sebastijankuzner])
--   Custom validation for postBlock in worker ([247b997d8], [@air1one])
--   Enable assumeChangesOnlyAffectDirectDependencies for TypeScript ([027c6dec9], [@faustbrian])
--   Use `export * as ns` syntax ([04436877f], [@faustbrian])
--   Update @arkecosystem/utils dependency ([76283d336], [@faustbrian])
--   Block and transaction history services ([2038cd5ae], [@rainydio])
--   Fix build status badge ([6a5dc31fd], [@sleepdefic1t])
--   Update dependencies and apply formatting ([e6d579d69], [@faustbrian])
--   Reset missedBlocks before await call ([4831c7a0f], [@air1one])
--   Fix bride -> bridge typo ([82621eeb4], [@alessiodf])
--   Remove core-utils package ([e428af25d], [@faustbrian])
--   Remove app.js from .gitignore ([be37c11ea], [@air1one])
--   Use application events from core-event-emitter ([c2c93f025], [@air1one])
--   Update xstate to v4.8.0 ([50fd560b8], [@alessiodf])
--   Merge index and reindex into one function inside WalletRepository ([af2d8dcf5], [@bertiespell])
--   No default addonBytes for magistrate transactions ([980f3f528], [@air1one])
--   Add exceptions for business resignation ([ba67dbce4], [@air1one])
--   Resolve merge conflicts ([27813b35d], [@faustbrian])
--   Segregate pools by wallets ([2aca6e171], [@rainydio])
--   Define default value for maxTransactionBytes ([77e036629], [@air1one])
--   Bump hapi/joi version to 17.1.0 ([d9b8bc569], [@air1one])
--   Fix lint issues ([68f13e6c6], [@air1one])
--   Fix typescript errors ([0d726edfa], [@air1one])
--   Make bridgechain genesis hash only unique per wallet ([29019ce03], [@air1one])
--   Allow to resign business only when bridgechains are resigned ([fbb82f30e], [@air1one])
--   Allow multiple ports in bridgechain schema ([239f12e14], [@air1one])
--   Setup Wallaby.js configuration ([ac0c0fef6], [@rainydio])
--   Transaction broadcaster ([8fc18c1af], [@rainydio])
--   Processor and errors ([acf34236a], [@rainydio])
--   Remove long dependency ([bf16abde9], [@faustbrian])
--   Remove pm2 from docker ([3ddb098e4], [@adrian69])
--   Wallet repositories ([b87899a57], [@rainydio])
--   Storage ([c558ddde3], [@rainydio])
--   Use findByPublicKey to set both publickey and address on the multisig wallet ([c5284aa4a], [@air1one])
--   Add symbol for TransactionHandlerProvider ([5834847a3], [@sebastijankuzner])
--   Use @arkecosystem/exchange-json-rpc@2.0.0 ([13d7f83e0], [@faustbrian])
--   Update aip11 milestone + update p2p minver defaults ([64fe08c2f], [@air1one])
--   Merge patch from master ([3a6b6555e], [@faustbrian])
--   Timeouts for peer socket messages ([f20abf41c], [@air1one])
--   Re-enable username and 2nd public key as top-level api attributes ([d26701e31], [@air1one])
--   Htlc-lock recipient ([03b51cc6b], [@rainydio])
--   Use ioc for wallet repository indexes ([2eb295d58], [@rainydio])
--   Add ability to inject plugin configuration ([d4acdfe26], [@rainydio])
--   Remove unnecessary termination ([511bc8484], [@alessiodf])
--   Changelog ([03a5d7185], [@air1one])
--   Disable peer check for postBlock/postTransactions ([e8ca52f96], [@air1one])
--   Collator service ([319f778cc], [@rainydio])
--   Enable github tests ([9768a84e7], [@air1one])
--   Ban if remote opens multiple sockets ([bb1d2ebf9], [@air1one])
--   Custom validation for postTransactions as we cant validate with ajv in worker for transactions implemented a "light validation" to quickly discard wrong data this will need to be reworked with p2p for v3 ([b99b08271], [@air1one])
--   Ban if remote opens multiple sockets ([eb021e9ab], [@air1one])
--   Custom validation for postTransactions as we cant validate with ajv in worker for transactions implemented a "light validation" to quickly discard wrong data this will need to be reworked with p2p for v3 ([01e826483], [@air1one])
--   Call `checkNetworkHealth` less deterministically ([dce2a4401], [@alessiodf])
--   Do not include /api prefix in pagination ([49d3660ea], [@air1one])
--   Use wallet repositort with `state=temp` tag instead of temp repository ([1d10acf54], [@rainydio])
--   Tagged pool wallet repository usages state=pool ([f2a5852ad], [@rainydio])
--   Added state=blockchain tag to wallet repository and handler repository references ([72440be8f], [@rainydio])
--   Lifting singleton from transaction handler registry ([357106684], [@rainydio])
--   Stricter eslint configuration ([88219cfd8], [@faustbrian])
--   Change handler dependency handling ([b51793a68], [@rainydio])
--   Align maxPayload / maxTransactionBytes values ([7af9d8fe0], [@air1one])
--   Throw error if multi payment has less than two payments ([427b1e728], [@dated])
--   Make the canEnterTransactionPool() interface more robust ([12e8eb5d5], [@vasild])
--   IoC TransactionHandlerRegistry ([c11af3a12], [@rainydio])
--   Add shared username schema ([8ee148a74], [@dated])
--   Take voteBalance updates out of apply/revert block functions ([e69e33c0e], [@rainydio])
--   Purge ipLastError every hour ([6ab6d6938], [@air1one])
--   Resolve various circular dependencies ([c84b97666], [@faustbrian])
--   Update TypeORM to support PG12 ([905cac2fe], [@faustbrian])
--   Adjust to new infrastructure ([cad345708], [@faustbrian])
--   Setup madge to detect circular dependencies ([82623ff7d], [@faustbrian])
--   Adjust to new infrastructure ([8482282a4], [@faustbrian])
--   Update dependencies ([dc68c251a], [@faustbrian])
--   Document canEnterTransactionPool() ([ee1a13138], [@vasild])
--   Accept address, publicKey, delegate name as business id ([7f07ff0b5], [@dated])
--   Expect actions, jobs and event listeners to be classes ([84c478849], [@faustbrian])
--   Create a real block via block factory ([5a82211f0], [@faustbrian])
--   Create a real wallet via wallet factory ([838ca5de4], [@faustbrian])
--   Expose queue service through a factory pattern ([4f3e8dcee], [@faustbrian])
--   Expose pipeline service through a factory pattern ([6529b1338], [@faustbrian])
--   Expose cache service through a factory pattern ([3eab947dd], [@faustbrian])
--   Expose internals for extension ([243f0bca2], [@faustbrian])
--   Update @hapi dependencies ([1e489b063], [@faustbrian])
--   Remove until a proper rewrite ([f67c9137d], [@faustbrian])
--   Adjust to new infrastructure ([a7f3d03e8], [@faustbrian])
--   Adjust to new infrastructure ([f93a9118d], [@faustbrian])
--   Decouple wallet entity from container ([b3aab122e], [@faustbrian])
--   Fix genesis and exception transactions cache ([647b77fe0], [@rainydio])
--   Flatten contract namespace ([5c3afa4ad], [@faustbrian])
--   Clearly separate event enums by type ([a9241c6ce], [@faustbrian])
--   Rename ActionService to TriggerService ([148e98f19], [@faustbrian])
--   Convert htlc lock vendorfield to string during bootstrap ([1d9dd821d], [@dated])
--   BridgechainUpdate errors ([8d8bb74f4], [@lemii])
--   Refactor searchBusinesses & searchBridgechains ([43ce7dd42], [@dated])
--   Overwrite arrays when merging milestones ([d7e895c03], [@dated])
--   Update docker to node.js 12 ([c88c33251], [@adrian69])
--   Format timestamp of locks ([b96bb4975], [@dated])
--   Print more details in log messages ([f961d053a], [@vasild])
--   Sort peers by height, latency ([4a9afb4a8], [@dated])
--   Update yarn.lock ([67d9cef15], [@faustbrian])
--   Bump minver to next.5 ([99927e77c], [@faustbrian])
--   Better handling Debian/Ubuntu derivatives NodeJS install ([09619ad7f], [@adrian69])
--   Handle Debian/Ubuntu derivate NodeJS install ([0e1308279], [@adrian69])
--   Set minimum fee on transaction types ([d7394e946], [@dated])
--   Simplify resource transformation and response caching ([dfc95a668], [@faustbrian])
--   Pass the booted service provider to boot/disposeWhen ([acc5e16c1], [@faustbrian])
--   Split start into register and boot ([4fc0559ee], [@faustbrian])
--   Split start into register and boot ([6fe1e1e10], [@faustbrian])
--   Split start into register and boot ([3131db9b2], [@faustbrian])
--   Rename enable/disableWhen to boot/disposeWhen ([83c56f15e], [@faustbrian])
--   More verbose static fee mismatch error ([cba7f3bf1], [@dated])
--   Listen to InternalEvents.ServiceProviderBooted for enable/disableWhen ([8ca900069], [@faustbrian])
--   Flatten the Enums namespace ([dbf7a07a8], [@faustbrian])
--   Use transactionId ref in lockTransactionId schema definition ([1619caa47], [@dated])
--   Ship app.json as default configuration ([bc53bce33], [@faustbrian])
--   Remove AttributeService in favour of container bindings ([27668ace7], [@faustbrian])
--   Upgrade TypeScript ESLint to support TypeScript 3.7 ([7d449acb7], [@faustbrian])
--   Add schema for orderBy query param ([9800e34be], [@dated])
--   Use assertion functions from TypeScript 3.7 ([a801c5190], [@faustbrian])
--   Adjust generic name schema ([58fb16093], [@dated])
--   Update to TypeScript 3.7 ([65d98fb8a], [@faustbrian])
--   Move verifySignatures into Transactions.Verifier ([2a8fa004c], [@faustbrian])
--   Validate expiration type based on enum ([7acf6cc3f], [@dated])
--   Add internal contracts and delete obsolete ones ([afd151251], [@faustbrian])
--   Throw AssertionException instead of using assertions ([0a4a659b9], [@faustbrian])
--   Complete IoC migration and adjust tests ([2e7769a9d], [@faustbrian])
--   Unique ipfs hashes ([e462e76d8], [@dated])
--   Add static fee exceptions ([b31d7582a], [@faustbrian])
--   Remove misleading order by expirationValue ([63de81ed2], [@vasild])
--   Add 2.6.0-next.4 as aip11 minimum version ([7d8d8f98d], [@faustbrian])
--   More restrictive wallet id schema ([f8dfefa44], [@dated])
--   Pluralize logs ([65200125e], [@dated])
--   Use URI schema for website an… ([7d216b37c], [@lemii])
--   Improve log message ([9f410eaea], [@vasild])
--   Change MaximumPaymentCountExceededError error ([6b3e0cba7], [@lemii])
--   Don't allow multiple business or bri… ([3877e56cc], [@dated])
--   Fallback to core typegroup if querying by t… ([4787d4461], [@dated])
--   Convert htlc lock vendorfield to string during bootstrap ([95df80297], [@dated])
--   Consolidate bridgechain schem… ([deef78d89], [@lemii])
--   BridgechainUpdate errors ([2c619ae18], [@lemii])
--   Use multiPaymentLimit from milestone if avail… ([0ef251281], [@dated])
--   Refactor searchBusinesses & searchBridgechains ([d579fdaf7], [@dated])
--   Business and bridgechain ids as numbers ([61c4d5f22], [@dated])
--   Use type from core-interfaces ([d00a6a976], [@dated])
--   Generate network configuration with votes and transfers ([196be48ff], [@faustbrian])
--   Support global and local use of attribute stores ([eb52b9494], [@faustbrian])
--   Enable strict mode and fix resulting issues ([c5d360fd1], [@faustbrian])
--   Overwrite arrays when merging milestones ([bf64a68a0], [@dated])
--   Update docker to node.js 12 ([958e6257a], [@adrian69])
--   Format timestamp of locks ([651cf1607], [@dated])
--   Print more details in log messages ([d20f15b2a], [@vasild])
--   Sort peers by height, latency ([03fdf0196], [@dated])
--   Use a map to store attributes ([d1cda3c9c], [@faustbrian])
--   2.6 prereleases after milestone ([1ddcba42d], [@alessiodf])
--   Use node 12 as default version ([8dbe404b8], [@faustbrian])
--   Add core-magistrate-transactions as dependency ([15643452a], [@faustbrian])
--   Updat milestone height ([0dc63ae08], [@faustbrian])
--   Bump @arkecosystem/exchange-json-rpc to 1.0.6 ([7d09120c7], [@faustbrian])
--   Remove remote configuration driver ([a3e9749bb], [@faustbrian])
--   Load core-p2p earlier ([1b28c6d4d], [@alessiodf])
--   Convert BYTEA to/from string ([925f052ce], [@vasild])
--   Make use of more @arkecosystem/utils methods ([8056ef856], [@faustbrian])
--   Update TypeScript configuration ([db0ce174d], [@faustbrian])
--   Resolve plugin configurations from service provider repository ([b13d52d32], [@faustbrian])
--   Make use of more @arkecosystem/utils methods ([b0c57992b], [@faustbrian])
--   Load migration file names automatically ([9a6de2dd9], [@vasild])
--   Integrate hapi-pagination to replace fork ([fddd50014], [@faustbrian])
--   Setup husky and commitlint ([5fa1df36d], [@faustbrian])
--   Leave comments for things that need reviews ([a60734a87], [@faustbrian])
--   Update dependencies to support node.js 12 ([334d59af6], [@faustbrian])
--   Add trailing-slash plugin ([2a81383f4], [@faustbrian])
--   Integrate hapi-pagination to replace fork ([279585be6], [@faustbrian])
--   Use @arkecosystem/utils through @arkecosystem/core-kernel ([6645c1314], [@faustbrian])
--    Split core-marketplace into core-magistrate-crypto and core-magistrate-transactions ([6c6c96c92], [@kovaczan])
--   Don't accept expired v1 transactions ([6bccf660d], [@dated])
--   Remove trailing whitespace ([c218d1a8f], [@vasild])
--   Remove unnecessary check from validateTransactions() ([5fc1e4043], [@vasild])
--   Strengthen a nonce check in performGenericWalletChecks() ([d7dbbec84], [@vasild])
--   Drop node 11 support ([eeb996c64], [@faustbrian])
--   Should not exit on `timedatectl` error. ([2eac04200], [@adrian69])
--   Elaborate the unexpected nonce error ([8ad272ba3], [@vasild])
--   Use cloneDeep, snakeCase and camelCase from @arkecosystem/utils ([3a34308e3], [@faustbrian])
--   Temporarily deprecate core-elasticsearch ([8697d1dae], [@faustbrian])
--   Make use of IoC in blockchain, p2p and transaction pool ([8059fb51c], [@faustbrian])
--   Always check for updates when something runs ([41a869a44], [@faustbrian])
--   Replace proxy services with container bindings ([5d7d3d6cc], [@faustbrian])
--   Remove lodash dependencies & general housekeeping ([3c12f5a18], [@faustbrian])
--   Break wallet manager into repository & state management ([b2271ceb8], [@faustbrian])
--   Deprecate core-explorer ([d98ada544], [@faustbrian])
--   Deprecate core-exchange-json-rpc and core-http-utils ([7116976d3], [@faustbrian])
--   Remove the abstract logger ([bb528bf6e], [@faustbrian])
--   Deprecate core-vote-report ([c97357c76], [@faustbrian])
--   Deprecate core-tester-cli ([789fdb70e], [@faustbrian])
--   Deprecate core-wallet-api ([6a1f5c1d9], [@faustbrian])
--   Merge server utils into an HttpServer class ([d5821761c], [@faustbrian])
--   Adapt to new container ([eceab20f0], [@faustbrian])
--   Merge core-utils ([56850c56e], [@faustbrian])
--   Adapt to new container ([67b10ddcd], [@faustbrian])
--   Deprecate core-error-tracker* packages ([0c03165da], [@faustbrian])
--   Implement RFC 5424 log levels ([c61372885], [@faustbrian])
--   Deprecate core-logger-signale and core-logger-winston ([ab8cc65a5], [@faustbrian])
--   Move deprecated plugins to ArkEcosystem/core-plugins-deprecated ([33d8ba754], [@faustbrian])
--   Guarantee package order in config through arrays ([dc4bc4edf], [@faustbrian])
--   Drop node 10 from CircleCI and update .nvmrc to node 11 ([8836016ea], [@faustbrian])
--   Simplify action implementation and remove awilix ([75199f713], [@faustbrian])
--   Apply builder pattern to events service ([e6c9e9b6a], [@faustbrian])
--   Use symbols to avoid name clashes in container ([5f4c6e8c4], [@faustbrian])
--   Use object destructuring for event listeners ([d6a42f2e5], [@faustbrian])
--   Add container helper methods ([050ce16b1], [@faustbrian])
--   Group container and provider logic ([58478848a], [@faustbrian])
--   Setup documentation generation with TypeDoc ([01e47446b], [@faustbrian])
--   Replace tslint with typescript-eslint ([f407903b6], [@faustbrian])
--   Organise contracts and exceptions into namespaces ([aec0f5ad3], [@faustbrian])
--   Container friendly naming of bindings ([7c402ac2b], [@faustbrian])
--   Migrate plugin entry from objects to service providers ([0c55ea134], [@faustbrian])
--   Remove deprecated folder ([d0c299ebb], [@faustbrian])
--   Clean slate for integration and unit tests ([659b881b1], [@faustbrian])
+- Show and download logs from archive (#4231) ([30d0788](30d0788acd2e03014e9fd46fdf46f785a0668a34))
+- Remove unused entity subhandlers (#4233) ([a49fb04](a49fb040ee95451edb8f43f8d5f78de8986ae7e5))
+- Set maxBytes on all routes and update postTransactions validation schema (#4235) ([dd887ec](dd887ec7028c447ba53eb7ff09fed00b210938b7))
+- Remove :chains: from logs (#4241) ([daab2cc](daab2cc08ff31d2be1aef14a0180361c6e6ab8f4))
+- Improve block download when above maxPayload (#4249) ([8d2aef9](8d2aef9a6282e5d9a28827b5ca8f2063ec9ef61e))
+- Don't throw when receiving unchained block (#4248) ([374c038](374c038af44e88c9ba2ec52692eead45cbe2858f))
+- Custom ser/deser of transactions in `postTransactions` codec (#4245) ([9c1ad80](9c1ad80489c6f05b4ba3b37b338ab12abd13ae95))
+- Enable rate limit (#4255) ([015dde8](015dde805eb04d0094954558b0cd6bae8e30e6ca))
+- Await log generation on `log.download` (#4260) ([ea3d715](ea3d715510987b8cdc474f42eca98f3fe7cf4a6f))
+- Full download link on `log.archived` (#4258) ([e16b841](e16b841be9f640cfedb9150b23f92faac3d58fa9))
+- Implements service provider schema (#4264) ([5c95ce6](5c95ce66fbbde137c89ba73ca3105f26434c670d))
+- Mirror revert block from forger (#4266) ([f0eebd8](f0eebd87744570b2766f4030f6412fb576e9db01))
+- Implements service provider schema (#4277) ([f1eb607](f1eb6077fe48f81cdd1aaffec22be5ccc29badba))
+- Implements service provider schema (#4271) ([6465988](64659881da66119d504d67bef1d74e8ab349daef))
+- Implements service provider schema (#4268) ([59b9400](59b94008ca2dbd58ecf616bd093228a5cc447a03))
+- Separate HTTP and JSON-RPC server (#4281) ([da71564](da715649f16c9158aacd8c214a4d08b2f9378dca))
+- Pool processor to be injected directly (#4278) ([147c4de](147c4de4fa188e021cc3855411be9d6f529b99ed))
+- Re-enable timeout on p2p emit (#4263) ([7bba591](7bba591e425ffaca4cc155fe1dac07e66e32dc27))
+- Implements service provider schema (#4288) ([802b248](802b248d7f7e0ce681f4dd480c4691d8449f8365))
+- Implements service provider schema (#4287) ([16e6383](16e63833536779443d213fbbd6daabe10f15df90))
+- Implements service provider schema (#4286) ([1faef37](1faef3725d6db86eb85f9f42bedb834bf8b232ea))
+- Implements service provider schema (#4284) ([df2c5ad](df2c5ad4b003d69250bbc89541572c20ff783321))
+- Implements service provider schema (#4283) ([6d86afc](6d86afc96cb6e20dcb52341a4d20cf1be85c1a2b))
+- Implements service provider schema (#4282) ([39caa0b](39caa0b07cf0253964a61610ded7f51cebf1fc5d))
+- Test every wallet vote balance (#4285) ([348f63d](348f63df31313136ecf290f060f08cd71431e3aa))
+- Improve service provider schema (#4293) ([af4a58f](af4a58f83d750260af571e79e4b47059e859ba80))
+- Rename peer storage into repository (#4291) ([bdb6ce7](bdb6ce765e7a564274f30d76bc6e572b15c98ac3))
+- Allow unknow fields in package configuration (#4292) ([9e2434a](9e2434a824594635e3c5ff6deb682627a0823233))
+- Set up a rate limit on `postTransactions` (#4290) ([66e1b57](66e1b571c713b37408d2d40761a2c63a9323c622))
+- Queue postTransactions requests (#4299) ([409149c](409149c65c79d480bb592aea125337a9e9da185f))
+- Replace repeated fields in getBlocks with custom ser/deser (#4300) ([d85d60b](d85d60bc6e93ec372ff8506854f07bbf299d65f2))
+- Rename env variables CORE_MONITOR_* to CORE_MANAGER_* (#4304) ([c5808c1](c5808c1f8828ebebd4b3230bab1cd9d21f663f57))
+- Use core-database connection in core-snapshots (#4311) ([8a658f4](8a658f4aa9a48d038ccc132c09a1f8a9cd6723fd))
+- Set default max payload on ws client (#4308) ([ab7d013](ab7d013b2bc5538c5b00f5325f37e7edd6efc4c3))
+- Improve database query performance (#4313) ([919e920](919e9205db0e68809566b862b4f0bf0ac1b1f56c))
+- Move snapshot progress renderer to core-snapshots package (#4312) ([cb75481](cb754818037755c0ff8726605d6931c115c3977d))
+- Lint and include types (#4315) ([9361d5c](9361d5cb2d98541b93e1927634ece73d74be0b9d))
+- Allow only QueueJob in Queue (#4316) ([dabea95](dabea956180682f8bdff3ba57fa9a16893bf1622))
+- Verify codec on snapshot:dump command (#4318) ([1670b23](1670b2342742d9fb791f06b23bde07522c7b4836))
+- Use correct pluralization form in logs  (#4321) ([8b38064](8b38064b74c05e9869b8b80ac8e2a978b63fdbca))
+- Use Queue worker jobs (#4327) ([dd0500b](dd0500bd4bb861e5abd746f87f91c4535c8eedc1))
+- Expose get & set methods on StateStore (#4332) ([aa671a1](aa671a1ae6b52cb6023080b1452770ed9172a14a))
+- Remove unused clear method on stateStore (#4336) ([c20652e](c20652ef4f5fd4c2b744186e80c16f0804d725d8))
+- Build server on boot (#4340) ([ff1fcdb](ff1fcdba67154bc71804fd6c0fa9136a22e0b405))
+- Remove unnecessary block check (#4337) ([43b9c86](43b9c86c7601f48c835774e9f8d13baf04a45183))
+- Register ForgerService on boot (#4339) ([b6a2d85](b6a2d854fe4c156664227a6108963daeabab2419))
+- Inject objects with Inversify (#4341) ([3b2f5eb](3b2f5eb0f7aa0194afff075ea8ad975a0fb90f81))
+- Expose NetworkState getters (#4345) ([2b9a412](2b9a4125bd120e2c297a5b545a87886e459418d8))
+- PushPingBlock after slot check (#4346) ([9cc883b](9cc883b6dd357495aac7d4d859d26a36b08ac77a))
+- Remove unused request schemas (#4347) ([9e07905](9e079053ba7d06986bd310b04c6be18adfe115bb))
+- Set default file log level to `debug` (#4350) ([e911c9b](e911c9b657f94bac435f49a9f16a4de9d84969d3))
+- Implement get and set for restoredDatabaseIntegrity (#4354) ([a030900](a030900fec4fdaf1c8e7cd3c33e44b369747270b))
+- Schedule network status updates when networkStart flag is set (#4363) ([c08ebd4](c08ebd4f2bdd381e4ee8c897b27cabcbab91f4da))
+- Split DatabaseInteractions (#4353) ([bed6bef](bed6bef471adafe412d6ee10d62a2deb961c3c09))
+- Join duplicated logs (#4372) ([9a3d9ee](9a3d9ee7efa9b441b24f3fb9ed3f94bed37945f5))
+- Remove double multiSignature set in MultiSignatureRegistration (#4371) ([4596c85](4596c85eacb46e51e2959ca3be12952d1cf8edf9))
+- Cleanup htlcRefund (#4370) ([04a1bba](04a1bbae743cb8214993a901b8def220f4d69fa2))
+- Implement throwIfCannotEnterPool on Entity (#4368) ([1d5a5c5](1d5a5c52403fc34449ba5b4df827e180f6d787d3))
+- Implement throwIfCannotEnterPool on MultiSignatureRegistration (#4367) ([bebe952](bebe9522a80db54b2feeb3a718819ecf2b8e7e1d))
+- Implement throwIfCannotEnterPool on IPFS (#4366) ([3e79f9c](3e79f9cd547d8db24852c321fdfca6a244324cff))
+- Improve wallet repository clone performance (#4365) ([a304173](a304173a92229ce69838c4809463a1541d179409))
+- RoundState in singleton scope (#4376) ([0b9b549](0b9b549158b85aba1f3080ced0f17210b027072a))
+- Use getters and setter on wallet (#4375) ([9724ff4](9724ff42c7a54cd3a0e18506109ec431c9403f7a))
+- Downloaded chunks cache (#4378) ([986d86a](986d86a0c3e6338c080b212ef44c142093450c2a))
+- Resolve plugin enabled value (#4381) ([838d897](838d897ffdbb4a3d94f9446323dd6d3d3d34e9ee))
+- Broadcast block delay (#4380) ([eb1bb6b](eb1bb6be9b73302db4285442d78e35dcc468c9a7))
+- Remove valuesByIndex (#4383) ([4f6cc0b](4f6cc0bed627963a64aac8bbf8d0f805c0c3fdff))
+- Use Core transaction group as default (#4386) ([83bb890](83bb890d9dc19b60b79e3b45d0ad3279d6fdc7e6))
+- Paralel broadcast (#4388) ([56111ed](56111ed1d523d6dddfd1ad432fa30923a54f8746))
+- Implements getBlock on DatabaseInterceptor (#4405) ([89975ab](89975ab673c4101a9a04bb03c45f879d93739e97))
+- Keep record of last stored block height (#4407) ([ba386e3](ba386e3a180a3ddbce429f4ca58c95117f30ab69))
+- Check forged transactions in StateStore (#4408) ([b158513](b158513ccf1193bd16dec26911e9ca9d0540ac98))
+- Update changelog (#4418) ([2920863](292086306aa61042a749443cc1ea76b76393ea5e))
+- Update node version to 14.x in install.sh scripts (#4431) ([689d629](689d62941266fee005b8cf536c48946b10b103a3))
+- Allow invalid bip39 passphrases (#4439) ([7a6a4e9](7a6a4e9a49bf7338da5b320c51cd86138fb06db7))
+- Remove excess flags (#4430) ([13d0709](13d0709194c3395a0a84b5c653f3696b4618db75))
+- Remove updateNetworkStatus on Blockchain (#4402) ([c1af74d](c1af74dca5c075749a1aff1a2bb7e028b11fb2de))
+- Queue extends EventEmitter (#4450) ([5051dce](5051dcea9ca7547005acc2de92ae1c9d21eb46a0))
+- Implements await block processing plugin (#4454) ([3c757e9](3c757e9c1f7cdf24aa493746de0e2bbfe28d7d6b))
+- GetPeersConfig from loaded config (#4458) ([0bf55c2](0bf55c252a7555228b8de14e67976a5b42edf8b5))
+- Load CLI plugins (#4457) ([464fc9a](464fc9aadb8c37a1baf877fa3f9ea7e1f81fcffc))
+- Load ServiceProviders from plugins folder (#4459) ([9b59a20](9b59a20eecf1b961370aeaeca0a669053017e7bf))
+- Exit cli gracefully (#4460) ([92f2244](92f22448bb2558f78a1d6c65fdaca2ac16ea4df7))
+- Implements `process.delete` action (#4470) ([063e929](063e9292360531767e62698cbbf2e66026018643))
+- Use EntityNamesTypes index (#4468) ([600ca04](600ca04560afde28aa2b4a391dc055952cebe88a))
+- Use `--force` flag on install (#4475) ([865f2d0](865f2d066a70e40a46371dce2112998c299aab14))
+- Use `levels` and `processes` params on `log.search` (#4478) ([4ca684c](4ca684c97cb8cfefe2b6fed57f9164099db40ff8))
+- Optional parameters & type check (#4479) ([d41d65c](d41d65c933ec957e3863fb698d42cf3e58d36cd4))
+- Remove deprecated split ports (#4489) ([571cdb8](571cdb8f5502c351a5b4eb226873e78b82148ca5))
+- Skip prompts when using `--force` flag on `update` command (#4487) ([50f25c7](50f25c74d2f9f19535d83bc056e02424fe9ac95a))
+- Remove package (#4490) ([e7953c2](e7953c2415117d4e00e0ae3ef8c459b987d43d8c))
+- Remove core-manager related commands and setting (#4492) ([51539e1](51539e1b16197701adebac37b45b8d4969d23193))
+- Refactor codecs so buffer isn't re-allocated 400 times. (#4493) ([b7f62ef](b7f62ef34e69000f6bcdf4e80206269fedd05573))
+- Switch to node 14 (#4494) ([18b31b6](18b31b6d47cf4348832f0fc05d1da357fec748be))
+- Install specific version of plugin (#4495) ([013b6b0](013b6b015c2c6c3b159f227964edc41612ff3201))
 
 ### Fixed
 
--   Remove bad line ([5d34297d7], [@sleepdefic1t])
--   Split log files per process ([71db9fff7], [@sebastijankuzner])
--   Server logs ([d955559c2], [@sebastijankuzner])
--   Rollback database ([b5ac4b077], [@sebastijankuzner])
--   DeserializeTransactionsUnchecked ([a0f929d03], [@sebastijankuzner])
--   Improve sorting performance ([6fec5b2ea], [@rainydio])
--   Improve ExceptionHandler ([6c62abe3d], [@sebastijankuzner])
--   Remove BlockNotReadyCounter on Unchained handler ([2ab4c84a5], [@sebastijankuzner])
--   Use blockchain DposState ([9d4733525], [@sebastijankuzner])
--   Missing dependency logs ([fad6ea915], [@sebastijankuzner])
--   Calculate previous round ([0f40e5178], [@sebastijankuzner])
--   Support zip archive download ([71f819494], [@sebastijankuzner])
--   LastBlockHeightInRound computation ([905c191de], [@air1one])
--   Keep previously forged transaction ([278933113], [@rainydio])
--   Prioritized removeForgedTransaction ([ee8c5e3f3], [@rainydio])
--   Save .env content in valid format ([97aad10e4], [@sebastijankuzner])
--   Revert block ([e699b4d78], [@sebastijankuzner])
--   Vote dispatchEvents for all changes ([6f5966ad7], [@sebastijankuzner])
--   Accept only verified transactions ([4e3925c79], [@sebastijankuzner])
--   Fix rate limit plugin headers ([af12a265e], [@rainydio])
--   Remove connection from list onError ([219e73274], [@sebastijankuzner])
--   Dispose server ([7c27eda66], [@sebastijankuzner])
--   Eliminate collator pool clean ([17ec422a8], [@rainydio])
--   Cache status code and headers ([00f479aad], [@rainydio])
--   Use internal Hapi routes ([5d6266669], [@sebastijankuzner])
--   Hard limit number of txs in codec ([f57b56c4a], [@air1one])
--   Help output message and --help flag ([58ac94cb8], [@sebastijankuzner])
--   Handle stream errors ([fd1cbec19], [@sebastijankuzner])
--   Handle stream errors on log generatiton ([25d094377], [@sebastijankuzner])
--   Syntax in setMaxPayload ([92792750f], [@air1one])
--   Do not consume when just checking rate limit ([8ea0ed494], [@air1one])
--   Respect aip36 milestone in handlers ([bebde8efc], [@sebastijankuzner])
--   Validate htlc-lock recipient network ([210b419c3], [@rainydio])
--   Override array on merge ([e9cee040d], [@sebastijankuzner])
--   Vote balance tests and fixes ([2123ed2ff], [@rainydio])
--   Vote+unvote transaction vote balance ([b6db22c88], [@rainydio])
--   Explicit check against undefined ([ad9418fb1], [@air1one])
--   Move migration to correct location ([ddd2cbf12], [@air1one])
--   Import fix ([00545a3ad], [@sebastijankuzner])
--   Broadcast only new blocks ([730347de8], [@sebastijankuzner])
--   Check later ([1ceb1c2eb], [@sebastijankuzner])
--   Await deamonizeProcess on start commnands ([084d2da14], [@sebastijankuzner])
--   Remove duplicate connect ([8948090fd], [@air1one])
--   Set large max payload value ([cf712bfd6], [@air1one])
--   Do not terminate when app not ready ([68272904d], [@air1one])
--   Entity insufficient balance ([b0c003c08], [@rainydio])
--   Set file log level to debug ([710cb1756], [@sebastijankuzner])
--   Respect max transaction age setting ([bc4521963], [@rainydio])
--   Download blocks log message when no blocks are returned ([ed5ad9120], [@air1one])
--   TrustProxy option based on env ([fff3ecb01], [@air1one])
--   Limit peers returned by getPeers ([4c79c455a], [@air1one])
--   Reduce getBlocksTimeout to 30 sec ([93701759e], [@air1one])
--   Reset maxPayload on ws message ([f1bf19566], [@air1one])
--   Count props in p2p.peer.postTransactions payload ([021d18aa0], [@alessiodf])
--   Optional core-snapshots dependency when process is not manager ([58a66aa50], [@sebastijankuzner])
--   Append --env=test to full:testnet script ([a5779110a], [@sebastijankuzner])
--   Fix potential locking issue ([9747942aa], [@rainydio])
--   Validate incoming message json ([ae8dcd734], [@alessiodf])
--   Ensure asset recipientId and amount are strings ([29eaf1043], [@alessiodf])
--   Check client-side graceful disconnection payload ([c6d74215a], [@alessiodf])
--   Validate payload call id for all requests ([4565eba2b], [@alessiodf])
--   Reject long form signature lengths ([8f8976deb], [@alessiodf])
--   Detect missed blocks ([a2389816e], [@sebastijankuzner])
--   Generate genesis block with id full sha256 ([a476cb095], [@air1one])
--   Install peer dependencies during update ([6c7fea0da], [@rainydio])
--   Respect channel version ([0cbd90eec], [@sebastijankuzner])
--   Try all possible peers before giving up (block download) ([9009863c8], [@air1one])
--   Parse without base64ToBinaryReplacer on error ([8e41f0691], [@alessiodf])
--   Terminate and ban on error ([eecc40cec], [@air1one])
--   Always broadcast last block ([c291166f8], [@air1one])
--   Database connection and minor fixes ([43da7d719], [@sebastijankuzner])
--   Remove `transactions` field from block when requesting with `headersOnly` ([31f9407a0], [@air1one])
--   Restore accept peer plugin ([242f8b479], [@rainydio])
--   Add request method as part of cache key ([4e8f5c1ca], [@sebastijankuzner])
--   Network:generate save to default location ([3c0c4eb3e], [@sebastijankuzner])
--   Re-add transactions after state builder finished ([9c19a7a71], [@rainydio])
--   Delete all rounds starting from `round` ([b082935d0], [@rainydio])
--   Fix peer connecting to itself ([4a825d16a], [@rainydio])
--   Set adequate autovacuum settings ([fbbda7bff], [@rainydio])
--   Use set config when loading cryptography ([65b09802f], [@sebastijankuzner])
--   Don't rollback transaction that failed to start ([12f0a7795], [@rainydio])
--   Filter asset by original or cast values ([1d03a2c51], [@rainydio])
--   Count performance ([d0d98f8fc], [@rainydio])
--   Log only once when app is not ready ([4eb14eecc], [@sebastijankuzner])
--   Log fatal errors ([ebe038d69], [@sebastijankuzner])
--   Clear request on timeout ([76aebaed3], [@sebastijankuzner])
--   Do not await tx broadcast in processor ([ba0b44302], [@air1one])
--   Strict greater than ([8006a8da3], [@air1one])
--   Htlc lock recipientId is required ([380fb5b60], [@air1one])
--   Ban if not authorized on internal ([dd96ee491], [@air1one])
--   Check that message is a string ([5e1c5a330], [@air1one])
--   Fork recovery ([2eadff3ce], [@sebastijankuzner])
--   Run state builder after database integrity ([7cf044089], [@air1one])
--   Respond with error when blockchain is not ready ([d44e7e17b], [@air1one])
--   Update vote balance for each asset vote ([361ddabae], [@rainydio])
--   Fix block returned by api by either id or height ([214dec2c4], [@rainydio])
--   Don't spam dynamic fee messages ([7c071051b], [@rainydio])
--   Fix unvote+vote bootstrap ([75e9c2130], [@rainydio])
--   Don't throw forgetting undefined attribute ([e8fb5f946], [@rainydio])
--   Block download ([da2e5639d], [@sebastijankuzner])
--   Destroy connection after terminate ([a853d63ff], [@air1one])
--   Rate limit and peer broadcast ([6988cdd4a], [@air1one])
--   Use getRegisteredHandlers() to get all registered handlers in /node/fees controller ([a917e0853], [@air1one])
--   Slot, round and forgingInfo calculation for dynamic block times ([2d3fe0914], [@sebastijankuzner])
--   Initialize maxPayload on connection create ([3ac3eb17e], [@air1one])
--   Stricter multipayment tx check ([620027df0], [@air1one])
--   Only verify peer blocks < our height and disable peer verifier caching ([c968e69d5], [@air1one])
--   Delegate check only needed on entity register ([64b63b54c], [@air1one])
--   Wallet repository clone instantiation ([2fb47e6de], [@rainydio])
--   Fix delegate.lastBlock.timestamp property ([66f39cb4f], [@rainydio])
--   Use head from utils ([da13465ea], [@air1one])
--   Entity name only unique by type ([3b12c7037], [@air1one])
--   Clone wallet on mempool wallet-repository ([140b860fc], [@sebastijankuzner])
--   Replace micromatch with nanomatch ([4387b1dfb], [@sebastijankuzner])
--   Decouple database and state packages ([af5e54233], [@bertiespell])
--   Dynamically import @pm2/io ([4fc57db60], [@sebastijankuzner])
--   RevertBlock ([3565ef51b], [@sebastijankuzner])
--   Fix delegate search order ([f21af3704], [@rainydio])
--   Limit parameter (rollback #3940) ([39894a40d], [@rainydio])
--   Find by address / public key before username ([ddd19cc2d], [@air1one])
--   Check sig length value vs r/s length ([c2d3f2e5f], [@air1one])
--   Discard zero-padded R/S ([9f197fa11], [@air1one])
--   Fix order in delegates/{id}/blocks ([50492b454], [@rainydio])
--   Fix transactions/${id} confirmations and timestamp fields ([a7b46a906], [@rainydio])
--   Manually apply b0296e765700d0dc7c0356770bd3941da1609660 ([abfe43f8c], [@air1one])
--   Limit max retries form infinity to 1 ([184f5007f], [@sebastijankuzner])
--   Disconnect all sockets on peer disconnect ([95d6b2c2c], [@sebastijankuzner])
--   Expose two methods for findByHeightRangeWithTransactions ([dc431faff], [@sebastijankuzner])
--   Check that R and S is positive ([0783ec08d], [@air1one])
--   Check sig length vs R and S length ([1b0863c38], [@air1one])
--   Allow to discard possibly invalid txs from pool ([0450ee842], [@air1one])
--   Stricter rate limit for getBlocks ([df7a3aa15], [@air1one])
--   Ping ports using head ([db226bd3a], [@air1one])
--   Reduce download block size when getting no block ([e22328753], [@air1one])
--   Sort transactions by sequence before saving block ([cd29f850e], [@sebastijankuzner])
--   Reset peer errorCounter after response ([1e7d11d46], [@sebastijankuzner])
--   Remove unnecessary assertion check to enable devnet sync ([381e9c7ae], [@bertiespell])
--   Uses new promise instead Promise.race ([915263a27], [@sebastijankuzner])
--   Guaranteed transaction order ([110ada8df], [@rainydio])
--   Allow dynamic fees ([2400b8df8], [@bertiespell])
--   Remove obsolete check (unique per wal ([d9c8b070c], [@air1one])
--   Handle when there is no business.bridgechains ([14a3af3af], [@air1one])
--   Version 1 multi-signature handler should check milestone data ([74e1e3790], [@bertiespell])
--   Re-add unconfirmed matcher ([7123ff20a], [@air1one])
--   Remove duplicates entity resigned/isResigned ([90bf42de3], [@air1one])
--   Entity handler bootstrap method, fetch transactions using asset type/subType as number ([4031a51da], [@air1one])
--   Ensure peer port is always an integer to avoid socket validation errors ([4e7cca1f3], [@bertiespell])
--   Stream transactions during bootstrap ([8a6be81d8], [@rainydio])
--   Restrict internal routes to whitelisted IPs ([34672893b], [@bertiespell])
--   Union type with number in pool query ([cf43417e2], [@rainydio])
--   Respect CORE_API_RATE_LIMIT_DISABLED env variable ([c7d8242f3], [@rainydio])
--   Fix entity register bootstrap method ([bd5b1ad03], [@air1one])
--   Fix entity bootstrap methods ([89a7176fd], [@air1one])
--   Transaction builder should build and sign versioned transactions ([93937b286], [@bertiespell])
--   Prevent watcher from calling app.reboot multiple times ([0d4b21020], [@rainydio])
--   InitializeActiveDelegates just use current round ([7fa7af259], [@air1one])
--   Return serialized transactions ([7e369b186], [@air1one])
--   Fix round order ([9921a0d1e], [@rainydio])
--   Fix delete blocks ([b2fee486a], [@rainydio])
--   Transaction filter multipayment recipientId ([70700fa2c], [@rainydio])
--   Block schema violation ([54ba2d211], [@air1one])
--   Handle transaction deserialize error ([09e089277], [@rainydio])
--   Return last common block ([b21960971], [@sebastijankuzner])
--   Rebuild vs update race ([507f8112f], [@rainydio])
--   Replace ws connection logging method ([3525e8609], [@sebastijankuzner])
--   Log all unexpected errors ([9fc047a1f], [@rainydio])
--   Fix transaction resource responses ([b3e0b984a], [@rainydio])
--   Re-add transactions to pool when milestone changes ([eddb726ff], [@rainydio])
--   Set default orderBy value ([9ea9bb4e6], [@rainydio])
--   Introduce CORE_RESET_POOL env variable ([ba49d8797], [@rainydio])
--   Use hapi inject when creating transfer transaction ([3ac7a0345], [@rainydio])
--   Straight delete blocks during rollback ([b87a7a8a6], [@rainydio])
--   Round deletion when deleting blocks ([62f5ae962], [@rainydio])
--   Fix wallet/transactions confirmations and timestamp fields ([666ba6787], [@rainydio])
--   Include multipayment in forged amount ([3439e5283], [@rainydio])
--   Handle multipayment recipientId during search ([67ae0c811], [@rainydio])
--   Discard late-forged blocks from forger ([36b5115b9], [@air1one])
--   Throw ERR_HIGH_FEE when fee is too high ([8a383b8dd], [@sebastijankuzner])
--   Get app version from package.json ([56107062d], [@air1one])
--   Show log levels <= defined threshold level ([e1921baa9], [@air1one])
--   Use sorted array (instead of tree) for storing transactions by fee and nonce ([e0b1431ea], [@air1one])
--   Update vote balance with htlc locked balance on vote transactions ([b0296e765], [@air1one])
--   Create a unique round ID ([5911c7cd5], [@faustbrian])
--   Import scope ([37cb56efc], [@kovaczan])
--   Add check in config-cli command to check whether the token flag has been set ([94c2da2b7], [@bertiespell])
--   Blockchain and p2p fixes to be able to launch a network ([e97a18aed], [@air1one])
--   Allow transition to fork from idle ([f779485a7], [@air1one])
--   Change import scope from @package to @arkecosystem ([606faac84], [@kovaczan])
--   Log warning when active delegates are under the required delegate count ([937ffa087], [@bertiespell])
--   Block incomplete sockets ([f1c35f3a9], [@air1one])
--   AcceptBlockHandler apply block to tx pool before db ([21436df52], [@air1one])
--   Add missing transactions.type_group index ([5bf4e5901], [@faustbrian])
--   Always call applyToRecipient ([509db52aa], [@air1one])
--   Jemalloc compatibility for ubuntu 16.04 ([64084a0aa], [@alessiodf])
--   Handle multiple installations of jemalloc ([b7e639842], [@alessiodf])
--   Set height 1 on config manager for processing genesis block (blockchain replay) ([31eb27a2a], [@air1one])
--   Undefined pool variable ([9a8ecde92], [@rainydio])
--   Allow string and number for rewardAmount ([f7c474109], [@faustbrian])
--   Enable HTLC by default ([37728bdc1], [@faustbrian])
--   Add username and secondPublicKey to wallet resource ([c12064dc7], [@faustbrian])
--   CalculateLockExpirationStatus method signature ([fc6720206], [@faustbrian])
--   Adjust transaction factory for custom network configurations ([ab27881a4], [@faustbrian])
--   Use Joi.object() in schema definition ([2a325d197], [@air1one])
--   Only accept valid http path (SC http server) ([f6462ef68], [@air1one])
--   Disable permessage-deflate ([7bbd962dd], [@alessiodf])
--   Make app.js optional as initially intended ([9f5785e5c], [@faustbrian])
--   Check for missed blocks before applying round ([6d4c00a9a], [@alessiodf])
--   Multisig legacy allow signatures property ([454a125a4], [@air1one])
--   Apply genesis wallet exception to lastForgedBlocks ([6dbae81e1], [@air1one])
--   Set network height on configManager ([481d59f9f], [@air1one])
--   Pass IBlockData to processBlocks instead of IBlock ([117bb9e2c], [@air1one])
--   Handle p2p edge cases ([1d3614dee], [@faustbrian])
--   Remove banning when peer opens multiple sockets ([16af15d69], [@air1one])
--   Edge cases handling ([99eded0c7], [@faustbrian])
--   Stop processing blocks containing too many transactions ([4b43552e5], [@air1one])
--   Disconnect existing connections from the same ip ([a02d3ca38], [@air1one])
--   Block invalid opcode packets ([5b49532b6], [@air1one])
--   Disconnect if event does not have a defined handler ([a324bf344], [@air1one])
--   Block payload with additional props ([99fc27820], [@air1one])
--   Stop processing blocks containing too many transactions ([dcfa1be7d], [@alessiodf])
--   Disconnect existing connections from the same ip ([ebbe5ae7c], [@alessiodf])
--   Block invalid opcode packets ([4c5e6f1c9], [@alessiodf])
--   Disconnect if event does not have a defined handler ([fb16e931c], [@alessiodf])
--   Block payloads with additional properties ([8461c9cde], [@alessiodf])
--   Allow legacy transaction in getBlocksForRound ([16446a145], [@air1one])
--   Master merge fixes for core-p2p worker ([bc71013fc], [@air1one])
--   Handle disconnect packets ([5c0c439a7], [@air1one])
--   Business/bridgechain update handlers - revertForSender ([7dc219a62], [@air1one])
--   Use parent findByPublicKey method for temp-wallet-manager ([8494784b3], [@air1one])
--   Don't assume blocksInCurrentRound is defined ([b15387132], [@vasild])
--   Throw error instead of omitting long vendorField values ([bde4e4cd0], [@lemii])
--   Businesses/bridgechains search by name ([33256dbe9], [@dated])
--   Handle forgedTotal and voteBalance in orderBy query param ([c84943a94], [@dated])
--   Update sender's wallet after validation ([92c31bee8], [@rainydio])
--   Issues after merge ([8bea92418], [@faustbrian])
--   Search by genesisHash in show method ([2ab33be68], [@dated])
--   Parallel download ([80d6712b4], [@vasild])
--   Emit correct event ([02a575ca8], [@dated])
--   Use numerics for typeGroups in /transactions/typ… ([c199cd803], [@vasild])
--   Properly terminate bad connections ([6f7b54cf8], [@alessiodf])
--   Use strict comparison to decide if a transaction should be enabled ([27abce8e6], [@faustbrian])
--   Use wallet publicKey for business id index ([3416b86a6], [@air1one])
--   Remove password flag constraint for core:forger command ([5aea54f32], [@faustbrian])
--   Don't swallow BIP38 errors ([f3dcb1f36], [@faustbrian])
--   Use genesisHash for bridgechainId ([12869b386], [@air1one])
--   Wallet-manager fallback to database wallet manager findByIndex() when no "local" match ([9c9e7b336], [@air1one])
--   Replace ipfs exception ([8f028f8ca], [@dated])
--   Do not attempt to convert vendorfield ([0663b0ff8], [@dated])
--   Adjust genericName regex and add tests ([89fc75762], [@dated])
--   Return early only if there are rows ([ee802a06d], [@dated])
--   Include query in wallets/{id}/locks cache ([0257c3c44], [@dated])
--   Case insensitive bridgechain comparison ([c6b31eb86], [@dated])
--   Add additional bridgechain registration exception handling ([98522ea19], [@dated])
--   Add ipfs exception handling ([159098b08], [@dated])
--   Check for an exception before checking for invalid fees ([3863d6eb3], [@faustbrian])
--   Stricter WS/SC events/messages handling ([cb2c9a399], [@air1one])
--   Handle unwanted control frames ([cecf2f97b], [@alessiodf])
--   Stricter WS/SC events/messages handling ([ef796f975], [@faustbrian])
--   Stricter WS/SC events/messages handling ([2854dc9f1], [@air1one])
--   Handle unwanted control frames ([a8f88db7d], [@alessiodf])
--   Allow unvoting a resigned delegate ([f361a796c], [@dated])
--   Prevent snapshot commands from running if core is running ([1b3c5b6f6], [@faustbrian])
--   Remove delegate.rank for resigned delegates ([f284b4bea], [@vasild])
--   Reindex wallet when applying delegate resignation ([12ec1a22e], [@dated])
--   Call next() so that the request can proceed ([14b64899b], [@air1one])
--   Correctly reduce indexed bridgechain entries ([8b64f7f50], [@dated])
--   Properly implement block size limit ([4bbfaa22a], [@vasild])
--   Improve 'name' field validation to… ([e67abe70d], [@lemii])
--   Get connection from databaseservice ([0081a2fd2], [@dated])
--   Parallel download ([98def5ab5], [@vasild])
--   Emit correct event ([5ef8fc8a8], [@dated])
--   Use numerics for typeGroups in /transactions/typ… ([7d1809290], [@vasild])
--   Properly terminate bad connections ([cbd4abc21], [@alessiodf])
--   Use strict comparison to decide if a transaction should be enabled ([13808e09f], [@faustbrian])
--   Respect the include and exclude rules of the CLI ([6c41a0832], [@faustbrian])
--   Resolve issues and conflicts after 2.6 merge ([6a1f8d2b8], [@faustbrian])
--   Add missing offset handling to /api/peers ([3bcc8fae3], [@faustbrian])
--   Use the request origin to avoid 404s ([98c88c400], [@faustbrian])
--   Activate AIP11 at height 2 on testnet to avoid genesis collision ([2ca694f9c], [@faustbrian])
--   Strengthen schema validation checks ([12d5f031b], [@vasild])
--   Resolve issues and conflicts after 2.6 merge ([bfa2c2827], [@faustbrian])
--   Store vendor field in bytea ([63dc25257], [@vasild])
--   Convert isAppReady response to object ([892a6105f], [@alessiodf])
--   Basic validation on incoming p2p data + terminate socket on error ([92e01152d], [@air1one])
--   Use correct IV length for encryption ([2aad9efd4], [@faustbrian])
--   Match the long version of bytebuffer ([516a58619], [@faustbrian])
--   Export/import transactions' type_group ([7aaa14343], [@vasild])
--   Remove bogus skipRoundRows ([77cc8d7c7], [@vasild])
--   Range selection in pool's getTransactions() ([84aedb1b4], [@vasild])
--   Htlc refund handler to use performGenericWalletChecks (+ fix e2e tests) ([ec2002d48], [@air1one])
--   Terminate connection when not authorized ([0dce18971], [@faustbrian])
--   Disconnect external connections to internal endpoints ([f73bd8bbb], [@alessiodf])
--   Sort by fee, nonce ([298117628], [@vasild])
--   Htlc lock buffer allocation ([5f7ca208c], [@kovaczan])
--   Use postgresql-9.5 compatible syntax ([37e8f52ae], [@vasild])
--   Terminate blocked client connections ([76f06acaa], [@alessiodf])
--   Drop connections with malformed messages ([5ac0c41b0], [@alessiodf])
--   Only shift milestoneHeights[] if at that height ([56ff979db], [@vasild])
--   Cast params in condition checks ([8e8034044], [@dated])
--   Move wallet manager "zero balance" check to transaction handlers ([8c773dab4], [@air1one])
--   Cast params in condition checks ([1016bd5fa], [@dated])
--   Transaction pool options access ([29e8485f8], [@faustbrian])
--   Resolve logger as log from container ([daf1d922a], [@faustbrian])
--   Get the basics running again ([53e4469f3], [@faustbrian])
--   Resolve build issues after core-kernel introduction ([e8a2d6bea], [@faustbrian])
--   Update core-interfaces imports to core-kernel ([c70bf0bb7], [@faustbrian])
+- Download blocks log message when no blocks are returned (#4229) ([ed5ad91](ed5ad912054c15ad39a85c777900c5e39a77eca2))
+- Respect max transaction age setting (#4221) ([bc45219](bc452196301198e8a230998fffc32ba1fd4fc4aa))
+- Set file log level to debug (#4226) ([710cb17](710cb1756b25cfb19e1ae8aced51cbde18271b44))
+- Entity insufficient balance (#4234) ([b0c003c](b0c003c08b1582d0bd469c1b1f17ffb5b5709ce7))
+- Do not terminate when app not ready (#4232) ([6827290](68272904d4d6da9495e3ca88d118482d37adcaeb))
+- Set large max payload value ([cf712bf](cf712bfd67cbbae43fbe21915c025b1262053159))
+- Fix tests ([8918596](89185964a4d7b9bc8f19e64fac422a8484203b36))
+- Fix forger tests ([0e477e1](0e477e14ecab3cb9318aca2fdb899cca54b35226))
+- Await deamonizeProcess on start commnands (#4240) ([084d2da](084d2da145c91b7847fe8bdafacd3ce2157c51d0))
+- Check later (#4243) ([1ceb1c2](1ceb1c2ebaae0df7c315d89956d7d47d222dd97b))
+- Broadcast only new blocks (#4247) ([730347d](730347de8b2b14db732bc3d948d4dc7bea7c43f3))
+- Import fix (#4250) ([00545a3](00545a3adcc86ccd6cd1b21fe66ec654261cdf79))
+- Move migration to correct location (#4246) ([ddd2cbf](ddd2cbf12a487e32208811e77648c7d224b803a5))
+- Explicit check against undefined (#4251) ([ad9418f](ad9418fb14ce5d5190eaf4110a4580bffaad36a4))
+- Vote+unvote transaction vote balance (#4253) ([b6db22c](b6db22c8890e10e0e3e91ff8042e4ec8f6957274))
+- Vote balance tests and fixes (#4262) ([2123ed2](2123ed2ff7ecbb89c1211b7ac1893098b7f8e2e9))
+- Override array on merge (#4269) ([e9cee04](e9cee040d98875c54ad823edbbb62bafdaa80156))
+- Htlc vote balance tests (#4272) ([5361660](5361660d050ef0c39bc2920f62477dd8f9c36e86))
+- Multi-payment vote balance tests (#4273) ([f9c704e](f9c704e308bf5b7a55942e212caf8d59ad9e4774))
+- Transfer vote balance tests (#4274) ([dd3bb01](dd3bb014b8a56a3ed4beac7002e47959c93b63bb))
+- Validate htlc-lock recipient network (#4275) ([210b419](210b419c344c82c09996dfd0b2469a1c217f5b54))
+- Fix joi imports (#4289) ([010592c](010592c1d67c01cdecee2c688f31090b4175c57e))
+- Respect aip36 milestone in handlers (#4294) ([bebde8e](bebde8efc566caa45a5158f107b39b1712edc7ef))
+- Do not consume when just checking rate limit (#4297) ([8ea0ed4](8ea0ed4940d56cbf73d7a23b92ea4c72d9d002a1))
+- Syntax in setMaxPayload (#4309) ([9279275](92792750fbae9d5d5464f551c58641151a413c6a))
+- Handle stream errors on log generatiton (#4303) ([25d0943](25d094377f6f0a2fe0ec0d91b5b2fd8b4c752d28))
+- Handle stream errors (#4314) ([fd1cbec](fd1cbec190586e91f2b24c60a8335e8a3acf9b2e))
+- Help output message and --help flag (#4317) ([58ac94c](58ac94cb8efb5015d634c74382abc58a88455910))
+- Hard limit number of txs in codec (#4324) ([f57b56c](f57b56c4a1a8a3434d51e9eb38c48138a3596586))
+- Use internal Hapi routes (#4325) ([5d62666](5d6266669004f071c3f40dc18d342e5553facc39))
+- Cache status code and headers (#4329) ([00f479a](00f479aad466ca6d704fe0947cb036fb974ca834))
+- Eliminate collator pool clean (#4338) ([17ec422](17ec422a826c8dc9434b3078d0cee8ec0d29341b))
+- Dispose server (#4344) ([7c27eda](7c27eda66078c0ff59ed85d1768a97c7c820a41e))
+- Fix rate limit plugin headers (#4349) ([af12a26](af12a265e319cc2b61abacedfd50a11e6ba5b2c9))
+- Accept only verified transactions (#4360) ([4e3925c](4e3925c79cc6360fccd0f0fe08db22363c86b89d))
+- Vote dispatchEvents for all changes (#4369) ([6f5966a](6f5966ad7835423cba667516933fcc434cfc485a))
+- Revert block (#4379) ([e699b4d](e699b4d78ecae62816c51965136b3f1090c557fe))
+- Save .env content in valid format (#4385) ([97aad10](97aad10e4d5c4f1045c2d40ea89d47aeed906c5c))
+- Prioritized removeForgedTransaction (#4389) ([ee8c5e3](ee8c5e3f37e55429645e5f65d09875c9da275704))
+- Keep previously forged transaction (#4390) ([2789331](27893311326b419cec2ee44983955ef62b29aa8f))
+- LastBlockHeightInRound computation (#4387) ([905c191](905c191de193a69012a00f20df4c6c6b3d9f69d5))
+- Calculate previous round (#4394) ([0f40e51](0f40e51788d2edf462a5e0ac0d4f437fbe0aaf88))
+- Missing dependency logs (#4395) ([fad6ea9](fad6ea9151a676f1bfb4636b7a26df8a430523dd))
+- Use blockchain DposState (#4398) ([9d47335](9d47335251d7877d2f0c559dd7f4376fa61950a5))
+- Improve ExceptionHandler (#4406) ([6c62abe](6c62abe3d8f9b4aff3b9a306b9f277225f25e891))
+- Improve sorting performance (#4409) ([6fec5b2](6fec5b2eaa93f338bc6d328a27479280d7aab1fc))
+- DeserializeTransactionsUnchecked (#4410) ([a0f929d](a0f929d0398c601db3d45b431c41b153fc7e9cf6))
+- Rollback database (#4411) ([b5ac4b0](b5ac4b0770309f5f8bf71727026de11bf62af286))
+- Server logs (#4413) ([d955559](d955559c2346fea7b8bad11d817a3baecff1ec2a))
+- Split log files per process (#4414) ([71db9ff](71db9fff7c1e27075b9f7f30dddd32070608f14e))
+- Iterate over active delegates who have ranks (#4421) ([d634a92](d634a9280da4dbcb8219adcd03b87fcc050aaafd))
+- Set max payload for whole forger connection (#4438) ([39c2fa9](39c2fa9b91d1663ff51fc0ab1cd524d33ff2e834))
+- Fix rollback condition (#4432) ([8cde761](8cde7613a6a7ddf995ae4dd0ee1e759c39799be2))
+- Parse peers from URL response (#4436) ([94d0c58](94d0c586f9df96f7c8354a46456d59b0e440fd09))
+- Debug scripts (#4427) ([b5f4932](b5f4932b3ad4dbb40a6756e66b98991534c536e4))
+- Disable perMessageDeflate on WS (#4441) ([7a6d198](7a6d1987a3aa14b91e57e7ab0fa985e8069f626f))
+- Fix log rotate check (#4433) ([6dbf484](6dbf484c20dd8095de7e15a134b6b2c3d5c62950))
+- Reset max payload after ping (#4440) ([4dd78dd](4dd78ddebfae1647221cef6e8fd078ea4ed2cee0))
+- Handle errors on removeBlocks (#4423) ([4a63285](4a632853b7ac1309b7cf11e729ad26757e0786a8))
+- Resolve commands path (#4444) ([87ee3b5](87ee3b5954e6d9741529a529a2c174e558d064e7))
+- Use force flag on update (#4445) ([deac156](deac1569ecfa79887e08270410d7f06a78cd7980))
+- Forge custom transactions (#4449) ([f713955](f7139551d142282142bb54234f84bc1322bc7acc))
+- Fix imports in tests (#4455) ([0878fdc](0878fdcbed95944077117d1b63bdc590122872f3))
+- Plugin:install/remove/update commands (#4424) ([9c1836f](9c1836f6362e9d9a66650282b19a58c07ccfa8c9))
+- Compare transaction.serialized.length with maxTransactionBytes (#4463) ([b41d432](b41d4324d43dbdea5aea1fd03dbcdda290bbe0e1))
+- Respect block.maxPayload milestone limit (#4462) ([703651f](703651f376a2e0f0270b93ca9f7c9f906bcdebfa))
+- Re-throw errors as pool error (#4473) ([5bb8a1b](5bb8a1bc145e4098546b0916a6c13202cc49fa72))
+- Don't ignore server error in accepted matcher (#4472) ([8cb27d6](8cb27d6b505d4f00e5136f90b97a744782fbc8be))
+- Get xstate action name (#4477) ([62e1235](62e1235b8d59117f9440fead8c57b0f9765752e2))
+- Fix `/api/lock/unlocked` payload validation (#4488) ([72562a6](72562a63e75eba635789019f7a3f625f78cf9771))
 
+### Removed
 
-[@adrian69]: https://github.com/adrian69
-[@air1one]: https://github.com/air1one
-[@alessiodf]: https://github.com/alessiodf
-[@bertiespell]: https://github.com/bertiespell
-[@dated]: https://github.com/dated
-[@faustbrian]: https://github.com/faustbrian
-[@kovaczan]: https://github.com/kovaczan
-[@lemii]: https://github.com/lemii
-[@rainydio]: https://github.com/rainydio
-[@sebastijankuzner]: https://github.com/sebastijankuzner
-[@sleepdefic1t]: https://github.com/sleepdefic1t
-[@supaiku]: https://github.com/supaiku
-[@vasild]: https://github.com/vasild
-[5d34297d7]: https://github.com/ARKEcosystem/core/commit/5d34297d7
-[71db9fff7]: https://github.com/ARKEcosystem/core/commit/71db9fff7
-[d955559c2]: https://github.com/ARKEcosystem/core/commit/d955559c2
-[b5ac4b077]: https://github.com/ARKEcosystem/core/commit/b5ac4b077
-[a0f929d03]: https://github.com/ARKEcosystem/core/commit/a0f929d03
-[6fec5b2ea]: https://github.com/ARKEcosystem/core/commit/6fec5b2ea
-[b158513cc]: https://github.com/ARKEcosystem/core/commit/b158513cc
-[6c62abe3d]: https://github.com/ARKEcosystem/core/commit/6c62abe3d
-[ba386e3a1]: https://github.com/ARKEcosystem/core/commit/ba386e3a1
-[2ab4c84a5]: https://github.com/ARKEcosystem/core/commit/2ab4c84a5
-[89975ab67]: https://github.com/ARKEcosystem/core/commit/89975ab67
-[9d4733525]: https://github.com/ARKEcosystem/core/commit/9d4733525
-[fad6ea915]: https://github.com/ARKEcosystem/core/commit/fad6ea915
-[0f40e5178]: https://github.com/ARKEcosystem/core/commit/0f40e5178
-[71f819494]: https://github.com/ARKEcosystem/core/commit/71f819494
-[905c191de]: https://github.com/ARKEcosystem/core/commit/905c191de
-[278933113]: https://github.com/ARKEcosystem/core/commit/278933113
-[ee8c5e3f3]: https://github.com/ARKEcosystem/core/commit/ee8c5e3f3
-[56111ed1d]: https://github.com/ARKEcosystem/core/commit/56111ed1d
-[83bb890d9]: https://github.com/ARKEcosystem/core/commit/83bb890d9
-[97aad10e4]: https://github.com/ARKEcosystem/core/commit/97aad10e4
-[4f6cc0bed]: https://github.com/ARKEcosystem/core/commit/4f6cc0bed
-[eb1bb6be9]: https://github.com/ARKEcosystem/core/commit/eb1bb6be9
-[838d897ff]: https://github.com/ARKEcosystem/core/commit/838d897ff
-[986d86a0c]: https://github.com/ARKEcosystem/core/commit/986d86a0c
-[8074203b7]: https://github.com/ARKEcosystem/core/commit/8074203b7
-[9724ff42c]: https://github.com/ARKEcosystem/core/commit/9724ff42c
-[e699b4d78]: https://github.com/ARKEcosystem/core/commit/e699b4d78
-[0b9b54915]: https://github.com/ARKEcosystem/core/commit/0b9b54915
-[a304173a9]: https://github.com/ARKEcosystem/core/commit/a304173a9
-[3e79f9cd5]: https://github.com/ARKEcosystem/core/commit/3e79f9cd5
-[bebe9522a]: https://github.com/ARKEcosystem/core/commit/bebe9522a
-[6f5966ad7]: https://github.com/ARKEcosystem/core/commit/6f5966ad7
-[1d5a5c524]: https://github.com/ARKEcosystem/core/commit/1d5a5c524
-[04a1bbae7]: https://github.com/ARKEcosystem/core/commit/04a1bbae7
-[4596c85ea]: https://github.com/ARKEcosystem/core/commit/4596c85ea
-[9a3d9ee7e]: https://github.com/ARKEcosystem/core/commit/9a3d9ee7e
-[bed6bef47]: https://github.com/ARKEcosystem/core/commit/bed6bef47
-[4e3925c79]: https://github.com/ARKEcosystem/core/commit/4e3925c79
-[c08ebd4f2]: https://github.com/ARKEcosystem/core/commit/c08ebd4f2
-[a030900fe]: https://github.com/ARKEcosystem/core/commit/a030900fe
-[af12a265e]: https://github.com/ARKEcosystem/core/commit/af12a265e
-[e911c9b65]: https://github.com/ARKEcosystem/core/commit/e911c9b65
-[219e73274]: https://github.com/ARKEcosystem/core/commit/219e73274
-[9e079053b]: https://github.com/ARKEcosystem/core/commit/9e079053b
-[9cc883b6d]: https://github.com/ARKEcosystem/core/commit/9cc883b6d
-[2b9a4125b]: https://github.com/ARKEcosystem/core/commit/2b9a4125b
-[3b2f5eb0f]: https://github.com/ARKEcosystem/core/commit/3b2f5eb0f
-[7c27eda66]: https://github.com/ARKEcosystem/core/commit/7c27eda66
-[b6a2d854f]: https://github.com/ARKEcosystem/core/commit/b6a2d854f
-[43b9c86c7]: https://github.com/ARKEcosystem/core/commit/43b9c86c7
-[ff1fcdba6]: https://github.com/ARKEcosystem/core/commit/ff1fcdba6
-[c20652ef4]: https://github.com/ARKEcosystem/core/commit/c20652ef4
-[17ec422a8]: https://github.com/ARKEcosystem/core/commit/17ec422a8
-[aa671a1ae]: https://github.com/ARKEcosystem/core/commit/aa671a1ae
-[2c18ee218]: https://github.com/ARKEcosystem/core/commit/2c18ee218
-[00f479aad]: https://github.com/ARKEcosystem/core/commit/00f479aad
-[fa98820fe]: https://github.com/ARKEcosystem/core/commit/fa98820fe
-[dd0500bd4]: https://github.com/ARKEcosystem/core/commit/dd0500bd4
-[5d6266669]: https://github.com/ARKEcosystem/core/commit/5d6266669
-[f57b56c4a]: https://github.com/ARKEcosystem/core/commit/f57b56c4a
-[8b38064b7]: https://github.com/ARKEcosystem/core/commit/8b38064b7
-[3fdb47329]: https://github.com/ARKEcosystem/core/commit/3fdb47329
-[89213147c]: https://github.com/ARKEcosystem/core/commit/89213147c
-[1670b2342]: https://github.com/ARKEcosystem/core/commit/1670b2342
-[58ac94cb8]: https://github.com/ARKEcosystem/core/commit/58ac94cb8
-[dabea9561]: https://github.com/ARKEcosystem/core/commit/dabea9561
-[9361d5cb2]: https://github.com/ARKEcosystem/core/commit/9361d5cb2
-[fd1cbec19]: https://github.com/ARKEcosystem/core/commit/fd1cbec19
-[cb7548180]: https://github.com/ARKEcosystem/core/commit/cb7548180
-[aaf99b46f]: https://github.com/ARKEcosystem/core/commit/aaf99b46f
-[919e9205d]: https://github.com/ARKEcosystem/core/commit/919e9205d
-[ab7d013b2]: https://github.com/ARKEcosystem/core/commit/ab7d013b2
-[8a658f4aa]: https://github.com/ARKEcosystem/core/commit/8a658f4aa
-[3cf365397]: https://github.com/ARKEcosystem/core/commit/3cf365397
-[25d094377]: https://github.com/ARKEcosystem/core/commit/25d094377
-[4570d9fce]: https://github.com/ARKEcosystem/core/commit/4570d9fce
-[92792750f]: https://github.com/ARKEcosystem/core/commit/92792750f
-[c5808c1f8]: https://github.com/ARKEcosystem/core/commit/c5808c1f8
-[e36a18a9d]: https://github.com/ARKEcosystem/core/commit/e36a18a9d
-[8ea0ed494]: https://github.com/ARKEcosystem/core/commit/8ea0ed494
-[d85d60bc6]: https://github.com/ARKEcosystem/core/commit/d85d60bc6
-[d3d77e852]: https://github.com/ARKEcosystem/core/commit/d3d77e852
-[409149c65]: https://github.com/ARKEcosystem/core/commit/409149c65
-[66e1b571c]: https://github.com/ARKEcosystem/core/commit/66e1b571c
-[9e2434a82]: https://github.com/ARKEcosystem/core/commit/9e2434a82
-[bebde8efc]: https://github.com/ARKEcosystem/core/commit/bebde8efc
-[21b12d476]: https://github.com/ARKEcosystem/core/commit/21b12d476
-[bdb6ce765]: https://github.com/ARKEcosystem/core/commit/bdb6ce765
-[af4a58f83]: https://github.com/ARKEcosystem/core/commit/af4a58f83
-[348f63df3]: https://github.com/ARKEcosystem/core/commit/348f63df3
-[39caa0b07]: https://github.com/ARKEcosystem/core/commit/39caa0b07
-[6d86afc96]: https://github.com/ARKEcosystem/core/commit/6d86afc96
-[df2c5ad4b]: https://github.com/ARKEcosystem/core/commit/df2c5ad4b
-[1faef3725]: https://github.com/ARKEcosystem/core/commit/1faef3725
-[16e638335]: https://github.com/ARKEcosystem/core/commit/16e638335
-[802b248d7]: https://github.com/ARKEcosystem/core/commit/802b248d7
-[7bba591e4]: https://github.com/ARKEcosystem/core/commit/7bba591e4
-[147c4de4f]: https://github.com/ARKEcosystem/core/commit/147c4de4f
-[da715649f]: https://github.com/ARKEcosystem/core/commit/da715649f
-[59b94008c]: https://github.com/ARKEcosystem/core/commit/59b94008c
-[64659881d]: https://github.com/ARKEcosystem/core/commit/64659881d
-[f1eb6077f]: https://github.com/ARKEcosystem/core/commit/f1eb6077f
-[f0eebd877]: https://github.com/ARKEcosystem/core/commit/f0eebd877
-[210b419c3]: https://github.com/ARKEcosystem/core/commit/210b419c3
-[a2bcbace7]: https://github.com/ARKEcosystem/core/commit/a2bcbace7
-[e9cee040d]: https://github.com/ARKEcosystem/core/commit/e9cee040d
-[2123ed2ff]: https://github.com/ARKEcosystem/core/commit/2123ed2ff
-[5c95ce66f]: https://github.com/ARKEcosystem/core/commit/5c95ce66f
-[fe8fd07ac]: https://github.com/ARKEcosystem/core/commit/fe8fd07ac
-[e16b841be]: https://github.com/ARKEcosystem/core/commit/e16b841be
-[bb951a66b]: https://github.com/ARKEcosystem/core/commit/bb951a66b
-[ea3d71551]: https://github.com/ARKEcosystem/core/commit/ea3d71551
-[0909adc19]: https://github.com/ARKEcosystem/core/commit/0909adc19
-[b6db22c88]: https://github.com/ARKEcosystem/core/commit/b6db22c88
-[015dde805]: https://github.com/ARKEcosystem/core/commit/015dde805
-[ad9418fb1]: https://github.com/ARKEcosystem/core/commit/ad9418fb1
-[9c1ad8048]: https://github.com/ARKEcosystem/core/commit/9c1ad8048
-[ddd2cbf12]: https://github.com/ARKEcosystem/core/commit/ddd2cbf12
-[00545a3ad]: https://github.com/ARKEcosystem/core/commit/00545a3ad
-[374c038af]: https://github.com/ARKEcosystem/core/commit/374c038af
-[8d2aef9a6]: https://github.com/ARKEcosystem/core/commit/8d2aef9a6
-[730347de8]: https://github.com/ARKEcosystem/core/commit/730347de8
-[1ceb1c2eb]: https://github.com/ARKEcosystem/core/commit/1ceb1c2eb
-[daab2cc08]: https://github.com/ARKEcosystem/core/commit/daab2cc08
-[084d2da14]: https://github.com/ARKEcosystem/core/commit/084d2da14
-[dd887ec70]: https://github.com/ARKEcosystem/core/commit/dd887ec70
-[8948090fd]: https://github.com/ARKEcosystem/core/commit/8948090fd
-[cf712bfd6]: https://github.com/ARKEcosystem/core/commit/cf712bfd6
-[68272904d]: https://github.com/ARKEcosystem/core/commit/68272904d
-[b0c003c08]: https://github.com/ARKEcosystem/core/commit/b0c003c08
-[a49fb040e]: https://github.com/ARKEcosystem/core/commit/a49fb040e
-[30d0788ac]: https://github.com/ARKEcosystem/core/commit/30d0788ac
-[710cb1756]: https://github.com/ARKEcosystem/core/commit/710cb1756
-[bc4521963]: https://github.com/ARKEcosystem/core/commit/bc4521963
-[ed5ad9120]: https://github.com/ARKEcosystem/core/commit/ed5ad9120
-[94531d0a1]: https://github.com/ARKEcosystem/core/commit/94531d0a1
-[fff3ecb01]: https://github.com/ARKEcosystem/core/commit/fff3ecb01
-[4c79c455a]: https://github.com/ARKEcosystem/core/commit/4c79c455a
-[93701759e]: https://github.com/ARKEcosystem/core/commit/93701759e
-[f1bf19566]: https://github.com/ARKEcosystem/core/commit/f1bf19566
-[021d18aa0]: https://github.com/ARKEcosystem/core/commit/021d18aa0
-[e68ed0efc]: https://github.com/ARKEcosystem/core/commit/e68ed0efc
-[2392b4f62]: https://github.com/ARKEcosystem/core/commit/2392b4f62
-[2a811608d]: https://github.com/ARKEcosystem/core/commit/2a811608d
-[633d0a0b2]: https://github.com/ARKEcosystem/core/commit/633d0a0b2
-[58a66aa50]: https://github.com/ARKEcosystem/core/commit/58a66aa50
-[a5779110a]: https://github.com/ARKEcosystem/core/commit/a5779110a
-[ca2dcdc8a]: https://github.com/ARKEcosystem/core/commit/ca2dcdc8a
-[4e85a7442]: https://github.com/ARKEcosystem/core/commit/4e85a7442
-[79c2b1bf5]: https://github.com/ARKEcosystem/core/commit/79c2b1bf5
-[7b19c8de7]: https://github.com/ARKEcosystem/core/commit/7b19c8de7
-[bf75b5b29]: https://github.com/ARKEcosystem/core/commit/bf75b5b29
-[30ea0c372]: https://github.com/ARKEcosystem/core/commit/30ea0c372
-[9747942aa]: https://github.com/ARKEcosystem/core/commit/9747942aa
-[82edd4633]: https://github.com/ARKEcosystem/core/commit/82edd4633
-[49e89a8f8]: https://github.com/ARKEcosystem/core/commit/49e89a8f8
-[ae8dcd734]: https://github.com/ARKEcosystem/core/commit/ae8dcd734
-[29eaf1043]: https://github.com/ARKEcosystem/core/commit/29eaf1043
-[c6d74215a]: https://github.com/ARKEcosystem/core/commit/c6d74215a
-[4565eba2b]: https://github.com/ARKEcosystem/core/commit/4565eba2b
-[8f8976deb]: https://github.com/ARKEcosystem/core/commit/8f8976deb
-[9eb1ce976]: https://github.com/ARKEcosystem/core/commit/9eb1ce976
-[57eaabf07]: https://github.com/ARKEcosystem/core/commit/57eaabf07
-[0d97a5125]: https://github.com/ARKEcosystem/core/commit/0d97a5125
-[9f0349ba2]: https://github.com/ARKEcosystem/core/commit/9f0349ba2
-[3ff160f5a]: https://github.com/ARKEcosystem/core/commit/3ff160f5a
-[2b4659d0a]: https://github.com/ARKEcosystem/core/commit/2b4659d0a
-[4c8d44e8e]: https://github.com/ARKEcosystem/core/commit/4c8d44e8e
-[c480df8c6]: https://github.com/ARKEcosystem/core/commit/c480df8c6
-[86cb3cc75]: https://github.com/ARKEcosystem/core/commit/86cb3cc75
-[29c7ebb75]: https://github.com/ARKEcosystem/core/commit/29c7ebb75
-[96c672d08]: https://github.com/ARKEcosystem/core/commit/96c672d08
-[a776999aa]: https://github.com/ARKEcosystem/core/commit/a776999aa
-[9f9178d88]: https://github.com/ARKEcosystem/core/commit/9f9178d88
-[21eb71a8f]: https://github.com/ARKEcosystem/core/commit/21eb71a8f
-[a2389816e]: https://github.com/ARKEcosystem/core/commit/a2389816e
-[566d5a25c]: https://github.com/ARKEcosystem/core/commit/566d5a25c
-[a476cb095]: https://github.com/ARKEcosystem/core/commit/a476cb095
-[7aba83f31]: https://github.com/ARKEcosystem/core/commit/7aba83f31
-[1f28875f4]: https://github.com/ARKEcosystem/core/commit/1f28875f4
-[aebf70e87]: https://github.com/ARKEcosystem/core/commit/aebf70e87
-[ab5b2ad49]: https://github.com/ARKEcosystem/core/commit/ab5b2ad49
-[e12f73f2c]: https://github.com/ARKEcosystem/core/commit/e12f73f2c
-[40ec05da6]: https://github.com/ARKEcosystem/core/commit/40ec05da6
-[26da8d8f6]: https://github.com/ARKEcosystem/core/commit/26da8d8f6
-[118c4d48b]: https://github.com/ARKEcosystem/core/commit/118c4d48b
-[04b47c10c]: https://github.com/ARKEcosystem/core/commit/04b47c10c
-[6c7fea0da]: https://github.com/ARKEcosystem/core/commit/6c7fea0da
-[0cbd90eec]: https://github.com/ARKEcosystem/core/commit/0cbd90eec
-[307ba66de]: https://github.com/ARKEcosystem/core/commit/307ba66de
-[9009863c8]: https://github.com/ARKEcosystem/core/commit/9009863c8
-[f12173c83]: https://github.com/ARKEcosystem/core/commit/f12173c83
-[7b35d02a5]: https://github.com/ARKEcosystem/core/commit/7b35d02a5
-[8e41f0691]: https://github.com/ARKEcosystem/core/commit/8e41f0691
-[b56259267]: https://github.com/ARKEcosystem/core/commit/b56259267
-[2b3936357]: https://github.com/ARKEcosystem/core/commit/2b3936357
-[eecc40cec]: https://github.com/ARKEcosystem/core/commit/eecc40cec
-[3f5d49432]: https://github.com/ARKEcosystem/core/commit/3f5d49432
-[46d80da5a]: https://github.com/ARKEcosystem/core/commit/46d80da5a
-[c291166f8]: https://github.com/ARKEcosystem/core/commit/c291166f8
-[43da7d719]: https://github.com/ARKEcosystem/core/commit/43da7d719
-[31f9407a0]: https://github.com/ARKEcosystem/core/commit/31f9407a0
-[66c19e3f7]: https://github.com/ARKEcosystem/core/commit/66c19e3f7
-[0b172029d]: https://github.com/ARKEcosystem/core/commit/0b172029d
-[109e26554]: https://github.com/ARKEcosystem/core/commit/109e26554
-[2059dba26]: https://github.com/ARKEcosystem/core/commit/2059dba26
-[0526ad03a]: https://github.com/ARKEcosystem/core/commit/0526ad03a
-[9e3704077]: https://github.com/ARKEcosystem/core/commit/9e3704077
-[02c272e6f]: https://github.com/ARKEcosystem/core/commit/02c272e6f
-[242f8b479]: https://github.com/ARKEcosystem/core/commit/242f8b479
-[4e8f5c1ca]: https://github.com/ARKEcosystem/core/commit/4e8f5c1ca
-[feb1d6bc8]: https://github.com/ARKEcosystem/core/commit/feb1d6bc8
-[1f7468135]: https://github.com/ARKEcosystem/core/commit/1f7468135
-[5c309ea40]: https://github.com/ARKEcosystem/core/commit/5c309ea40
-[3c0c4eb3e]: https://github.com/ARKEcosystem/core/commit/3c0c4eb3e
-[9c19a7a71]: https://github.com/ARKEcosystem/core/commit/9c19a7a71
-[b082935d0]: https://github.com/ARKEcosystem/core/commit/b082935d0
-[4a825d16a]: https://github.com/ARKEcosystem/core/commit/4a825d16a
-[fbbda7bff]: https://github.com/ARKEcosystem/core/commit/fbbda7bff
-[84595c67f]: https://github.com/ARKEcosystem/core/commit/84595c67f
-[65b09802f]: https://github.com/ARKEcosystem/core/commit/65b09802f
-[12f0a7795]: https://github.com/ARKEcosystem/core/commit/12f0a7795
-[5666c122e]: https://github.com/ARKEcosystem/core/commit/5666c122e
-[1d03a2c51]: https://github.com/ARKEcosystem/core/commit/1d03a2c51
-[d0d98f8fc]: https://github.com/ARKEcosystem/core/commit/d0d98f8fc
-[4eb14eecc]: https://github.com/ARKEcosystem/core/commit/4eb14eecc
-[ebe038d69]: https://github.com/ARKEcosystem/core/commit/ebe038d69
-[aa0643ac7]: https://github.com/ARKEcosystem/core/commit/aa0643ac7
-[76aebaed3]: https://github.com/ARKEcosystem/core/commit/76aebaed3
-[b54816005]: https://github.com/ARKEcosystem/core/commit/b54816005
-[f320c0acd]: https://github.com/ARKEcosystem/core/commit/f320c0acd
-[24a488cda]: https://github.com/ARKEcosystem/core/commit/24a488cda
-[ba0b44302]: https://github.com/ARKEcosystem/core/commit/ba0b44302
-[8006a8da3]: https://github.com/ARKEcosystem/core/commit/8006a8da3
-[380fb5b60]: https://github.com/ARKEcosystem/core/commit/380fb5b60
-[dd96ee491]: https://github.com/ARKEcosystem/core/commit/dd96ee491
-[5e1c5a330]: https://github.com/ARKEcosystem/core/commit/5e1c5a330
-[312899c90]: https://github.com/ARKEcosystem/core/commit/312899c90
-[850ade02a]: https://github.com/ARKEcosystem/core/commit/850ade02a
-[2eadff3ce]: https://github.com/ARKEcosystem/core/commit/2eadff3ce
-[3b7a1fe3e]: https://github.com/ARKEcosystem/core/commit/3b7a1fe3e
-[617fd7694]: https://github.com/ARKEcosystem/core/commit/617fd7694
-[7cf044089]: https://github.com/ARKEcosystem/core/commit/7cf044089
-[d44e7e17b]: https://github.com/ARKEcosystem/core/commit/d44e7e17b
-[ce3d9302f]: https://github.com/ARKEcosystem/core/commit/ce3d9302f
-[361ddabae]: https://github.com/ARKEcosystem/core/commit/361ddabae
-[214dec2c4]: https://github.com/ARKEcosystem/core/commit/214dec2c4
-[7c071051b]: https://github.com/ARKEcosystem/core/commit/7c071051b
-[75e9c2130]: https://github.com/ARKEcosystem/core/commit/75e9c2130
-[e8fb5f946]: https://github.com/ARKEcosystem/core/commit/e8fb5f946
-[3e76be0c7]: https://github.com/ARKEcosystem/core/commit/3e76be0c7
-[2c43f6c60]: https://github.com/ARKEcosystem/core/commit/2c43f6c60
-[a13bf618a]: https://github.com/ARKEcosystem/core/commit/a13bf618a
-[d80768479]: https://github.com/ARKEcosystem/core/commit/d80768479
-[e8000a637]: https://github.com/ARKEcosystem/core/commit/e8000a637
-[6e969dd1f]: https://github.com/ARKEcosystem/core/commit/6e969dd1f
-[0a69f6597]: https://github.com/ARKEcosystem/core/commit/0a69f6597
-[da2e5639d]: https://github.com/ARKEcosystem/core/commit/da2e5639d
-[deb2cd78b]: https://github.com/ARKEcosystem/core/commit/deb2cd78b
-[6ff407206]: https://github.com/ARKEcosystem/core/commit/6ff407206
-[a853d63ff]: https://github.com/ARKEcosystem/core/commit/a853d63ff
-[6988cdd4a]: https://github.com/ARKEcosystem/core/commit/6988cdd4a
-[ec8cbb94f]: https://github.com/ARKEcosystem/core/commit/ec8cbb94f
-[773eb8ce7]: https://github.com/ARKEcosystem/core/commit/773eb8ce7
-[700b9cd6f]: https://github.com/ARKEcosystem/core/commit/700b9cd6f
-[a917e0853]: https://github.com/ARKEcosystem/core/commit/a917e0853
-[bab1d914a]: https://github.com/ARKEcosystem/core/commit/bab1d914a
-[2d3fe0914]: https://github.com/ARKEcosystem/core/commit/2d3fe0914
-[3ac3eb17e]: https://github.com/ARKEcosystem/core/commit/3ac3eb17e
-[620027df0]: https://github.com/ARKEcosystem/core/commit/620027df0
-[c968e69d5]: https://github.com/ARKEcosystem/core/commit/c968e69d5
-[d0775fdc4]: https://github.com/ARKEcosystem/core/commit/d0775fdc4
-[feb1970e6]: https://github.com/ARKEcosystem/core/commit/feb1970e6
-[24b164b19]: https://github.com/ARKEcosystem/core/commit/24b164b19
-[5da4f4dfa]: https://github.com/ARKEcosystem/core/commit/5da4f4dfa
-[ed835c291]: https://github.com/ARKEcosystem/core/commit/ed835c291
-[64b63b54c]: https://github.com/ARKEcosystem/core/commit/64b63b54c
-[2fb47e6de]: https://github.com/ARKEcosystem/core/commit/2fb47e6de
-[777199760]: https://github.com/ARKEcosystem/core/commit/777199760
-[649aeaceb]: https://github.com/ARKEcosystem/core/commit/649aeaceb
-[437f8cfd5]: https://github.com/ARKEcosystem/core/commit/437f8cfd5
-[66f39cb4f]: https://github.com/ARKEcosystem/core/commit/66f39cb4f
-[17fcaf375]: https://github.com/ARKEcosystem/core/commit/17fcaf375
-[da13465ea]: https://github.com/ARKEcosystem/core/commit/da13465ea
-[24a8b044e]: https://github.com/ARKEcosystem/core/commit/24a8b044e
-[3b12c7037]: https://github.com/ARKEcosystem/core/commit/3b12c7037
-[a27b6c3fa]: https://github.com/ARKEcosystem/core/commit/a27b6c3fa
-[bf892b530]: https://github.com/ARKEcosystem/core/commit/bf892b530
-[140b860fc]: https://github.com/ARKEcosystem/core/commit/140b860fc
-[6bb4feddd]: https://github.com/ARKEcosystem/core/commit/6bb4feddd
-[4387b1dfb]: https://github.com/ARKEcosystem/core/commit/4387b1dfb
-[ae160d6e7]: https://github.com/ARKEcosystem/core/commit/ae160d6e7
-[06261f99c]: https://github.com/ARKEcosystem/core/commit/06261f99c
-[51d01a2db]: https://github.com/ARKEcosystem/core/commit/51d01a2db
-[440889927]: https://github.com/ARKEcosystem/core/commit/440889927
-[48e67e518]: https://github.com/ARKEcosystem/core/commit/48e67e518
-[3f8727b2d]: https://github.com/ARKEcosystem/core/commit/3f8727b2d
-[af5e54233]: https://github.com/ARKEcosystem/core/commit/af5e54233
-[4fc57db60]: https://github.com/ARKEcosystem/core/commit/4fc57db60
-[78c49b4ac]: https://github.com/ARKEcosystem/core/commit/78c49b4ac
-[9a6358a5f]: https://github.com/ARKEcosystem/core/commit/9a6358a5f
-[d6803913c]: https://github.com/ARKEcosystem/core/commit/d6803913c
-[3565ef51b]: https://github.com/ARKEcosystem/core/commit/3565ef51b
-[f21af3704]: https://github.com/ARKEcosystem/core/commit/f21af3704
-[8ebf8218b]: https://github.com/ARKEcosystem/core/commit/8ebf8218b
-[39894a40d]: https://github.com/ARKEcosystem/core/commit/39894a40d
-[ddd19cc2d]: https://github.com/ARKEcosystem/core/commit/ddd19cc2d
-[c2d3f2e5f]: https://github.com/ARKEcosystem/core/commit/c2d3f2e5f
-[9f197fa11]: https://github.com/ARKEcosystem/core/commit/9f197fa11
-[0ff67a96b]: https://github.com/ARKEcosystem/core/commit/0ff67a96b
-[085ab675c]: https://github.com/ARKEcosystem/core/commit/085ab675c
-[640b9a1a0]: https://github.com/ARKEcosystem/core/commit/640b9a1a0
-[50492b454]: https://github.com/ARKEcosystem/core/commit/50492b454
-[08d8c9365]: https://github.com/ARKEcosystem/core/commit/08d8c9365
-[fcbe909bb]: https://github.com/ARKEcosystem/core/commit/fcbe909bb
-[a7b46a906]: https://github.com/ARKEcosystem/core/commit/a7b46a906
-[f2da0bd85]: https://github.com/ARKEcosystem/core/commit/f2da0bd85
-[abfe43f8c]: https://github.com/ARKEcosystem/core/commit/abfe43f8c
-[f00e075da]: https://github.com/ARKEcosystem/core/commit/f00e075da
-[184f5007f]: https://github.com/ARKEcosystem/core/commit/184f5007f
-[95d6b2c2c]: https://github.com/ARKEcosystem/core/commit/95d6b2c2c
-[dc431faff]: https://github.com/ARKEcosystem/core/commit/dc431faff
-[0783ec08d]: https://github.com/ARKEcosystem/core/commit/0783ec08d
-[1b0863c38]: https://github.com/ARKEcosystem/core/commit/1b0863c38
-[0450ee842]: https://github.com/ARKEcosystem/core/commit/0450ee842
-[df7a3aa15]: https://github.com/ARKEcosystem/core/commit/df7a3aa15
-[db226bd3a]: https://github.com/ARKEcosystem/core/commit/db226bd3a
-[e22328753]: https://github.com/ARKEcosystem/core/commit/e22328753
-[50ce984e1]: https://github.com/ARKEcosystem/core/commit/50ce984e1
-[cd29f850e]: https://github.com/ARKEcosystem/core/commit/cd29f850e
-[1e7d11d46]: https://github.com/ARKEcosystem/core/commit/1e7d11d46
-[f18928dd5]: https://github.com/ARKEcosystem/core/commit/f18928dd5
-[9796d138a]: https://github.com/ARKEcosystem/core/commit/9796d138a
-[47d3cf20d]: https://github.com/ARKEcosystem/core/commit/47d3cf20d
-[b42bfb6f7]: https://github.com/ARKEcosystem/core/commit/b42bfb6f7
-[5222b5cfb]: https://github.com/ARKEcosystem/core/commit/5222b5cfb
-[381e9c7ae]: https://github.com/ARKEcosystem/core/commit/381e9c7ae
-[915263a27]: https://github.com/ARKEcosystem/core/commit/915263a27
-[110ada8df]: https://github.com/ARKEcosystem/core/commit/110ada8df
-[f0fe8b939]: https://github.com/ARKEcosystem/core/commit/f0fe8b939
-[9f2eb6296]: https://github.com/ARKEcosystem/core/commit/9f2eb6296
-[2400b8df8]: https://github.com/ARKEcosystem/core/commit/2400b8df8
-[d9c8b070c]: https://github.com/ARKEcosystem/core/commit/d9c8b070c
-[76e9317a3]: https://github.com/ARKEcosystem/core/commit/76e9317a3
-[14a3af3af]: https://github.com/ARKEcosystem/core/commit/14a3af3af
-[74e1e3790]: https://github.com/ARKEcosystem/core/commit/74e1e3790
-[0601aea47]: https://github.com/ARKEcosystem/core/commit/0601aea47
-[c03c2dcfe]: https://github.com/ARKEcosystem/core/commit/c03c2dcfe
-[7123ff20a]: https://github.com/ARKEcosystem/core/commit/7123ff20a
-[90bf42de3]: https://github.com/ARKEcosystem/core/commit/90bf42de3
-[4031a51da]: https://github.com/ARKEcosystem/core/commit/4031a51da
-[4e7cca1f3]: https://github.com/ARKEcosystem/core/commit/4e7cca1f3
-[8a6be81d8]: https://github.com/ARKEcosystem/core/commit/8a6be81d8
-[60624a3fd]: https://github.com/ARKEcosystem/core/commit/60624a3fd
-[34672893b]: https://github.com/ARKEcosystem/core/commit/34672893b
-[cf43417e2]: https://github.com/ARKEcosystem/core/commit/cf43417e2
-[c7d8242f3]: https://github.com/ARKEcosystem/core/commit/c7d8242f3
-[1a81aee41]: https://github.com/ARKEcosystem/core/commit/1a81aee41
-[bd5b1ad03]: https://github.com/ARKEcosystem/core/commit/bd5b1ad03
-[89a7176fd]: https://github.com/ARKEcosystem/core/commit/89a7176fd
-[fcde95442]: https://github.com/ARKEcosystem/core/commit/fcde95442
-[aab40895a]: https://github.com/ARKEcosystem/core/commit/aab40895a
-[219a94081]: https://github.com/ARKEcosystem/core/commit/219a94081
-[1da58ebb9]: https://github.com/ARKEcosystem/core/commit/1da58ebb9
-[ed8a0e803]: https://github.com/ARKEcosystem/core/commit/ed8a0e803
-[93937b286]: https://github.com/ARKEcosystem/core/commit/93937b286
-[b402dbbfd]: https://github.com/ARKEcosystem/core/commit/b402dbbfd
-[36c1ca768]: https://github.com/ARKEcosystem/core/commit/36c1ca768
-[35ef5926d]: https://github.com/ARKEcosystem/core/commit/35ef5926d
-[0d4b21020]: https://github.com/ARKEcosystem/core/commit/0d4b21020
-[bccf74d2c]: https://github.com/ARKEcosystem/core/commit/bccf74d2c
-[e943e5635]: https://github.com/ARKEcosystem/core/commit/e943e5635
-[7fa7af259]: https://github.com/ARKEcosystem/core/commit/7fa7af259
-[7e369b186]: https://github.com/ARKEcosystem/core/commit/7e369b186
-[0b5104292]: https://github.com/ARKEcosystem/core/commit/0b5104292
-[5700867db]: https://github.com/ARKEcosystem/core/commit/5700867db
-[9921a0d1e]: https://github.com/ARKEcosystem/core/commit/9921a0d1e
-[b2fee486a]: https://github.com/ARKEcosystem/core/commit/b2fee486a
-[4e685146d]: https://github.com/ARKEcosystem/core/commit/4e685146d
-[d9fc0c094]: https://github.com/ARKEcosystem/core/commit/d9fc0c094
-[daf4bb485]: https://github.com/ARKEcosystem/core/commit/daf4bb485
-[70700fa2c]: https://github.com/ARKEcosystem/core/commit/70700fa2c
-[f4025bbc5]: https://github.com/ARKEcosystem/core/commit/f4025bbc5
-[54ba2d211]: https://github.com/ARKEcosystem/core/commit/54ba2d211
-[09e089277]: https://github.com/ARKEcosystem/core/commit/09e089277
-[f0acce87a]: https://github.com/ARKEcosystem/core/commit/f0acce87a
-[bb8cb1293]: https://github.com/ARKEcosystem/core/commit/bb8cb1293
-[b21960971]: https://github.com/ARKEcosystem/core/commit/b21960971
-[507f8112f]: https://github.com/ARKEcosystem/core/commit/507f8112f
-[3525e8609]: https://github.com/ARKEcosystem/core/commit/3525e8609
-[9fc047a1f]: https://github.com/ARKEcosystem/core/commit/9fc047a1f
-[b3e0b984a]: https://github.com/ARKEcosystem/core/commit/b3e0b984a
-[d65c9de3c]: https://github.com/ARKEcosystem/core/commit/d65c9de3c
-[cecf8929e]: https://github.com/ARKEcosystem/core/commit/cecf8929e
-[d0650b1a5]: https://github.com/ARKEcosystem/core/commit/d0650b1a5
-[8a2033ac9]: https://github.com/ARKEcosystem/core/commit/8a2033ac9
-[7cb916abc]: https://github.com/ARKEcosystem/core/commit/7cb916abc
-[ce618cc3c]: https://github.com/ARKEcosystem/core/commit/ce618cc3c
-[eddb726ff]: https://github.com/ARKEcosystem/core/commit/eddb726ff
-[cc7073833]: https://github.com/ARKEcosystem/core/commit/cc7073833
-[9ac9b453a]: https://github.com/ARKEcosystem/core/commit/9ac9b453a
-[9ea9bb4e6]: https://github.com/ARKEcosystem/core/commit/9ea9bb4e6
-[5ef81ef77]: https://github.com/ARKEcosystem/core/commit/5ef81ef77
-[ba49d8797]: https://github.com/ARKEcosystem/core/commit/ba49d8797
-[3ac7a0345]: https://github.com/ARKEcosystem/core/commit/3ac7a0345
-[6f9887f92]: https://github.com/ARKEcosystem/core/commit/6f9887f92
-[7ca7d9682]: https://github.com/ARKEcosystem/core/commit/7ca7d9682
-[b87a7a8a6]: https://github.com/ARKEcosystem/core/commit/b87a7a8a6
-[62f5ae962]: https://github.com/ARKEcosystem/core/commit/62f5ae962
-[4757531e0]: https://github.com/ARKEcosystem/core/commit/4757531e0
-[1bfc528ab]: https://github.com/ARKEcosystem/core/commit/1bfc528ab
-[4190ed639]: https://github.com/ARKEcosystem/core/commit/4190ed639
-[1c968188e]: https://github.com/ARKEcosystem/core/commit/1c968188e
-[666ba6787]: https://github.com/ARKEcosystem/core/commit/666ba6787
-[3439e5283]: https://github.com/ARKEcosystem/core/commit/3439e5283
-[29672aa9e]: https://github.com/ARKEcosystem/core/commit/29672aa9e
-[a12465527]: https://github.com/ARKEcosystem/core/commit/a12465527
-[67ae0c811]: https://github.com/ARKEcosystem/core/commit/67ae0c811
-[a29466e89]: https://github.com/ARKEcosystem/core/commit/a29466e89
-[d204f752f]: https://github.com/ARKEcosystem/core/commit/d204f752f
-[d70c42275]: https://github.com/ARKEcosystem/core/commit/d70c42275
-[36b5115b9]: https://github.com/ARKEcosystem/core/commit/36b5115b9
-[c74e4ca72]: https://github.com/ARKEcosystem/core/commit/c74e4ca72
-[6dacdfbb8]: https://github.com/ARKEcosystem/core/commit/6dacdfbb8
-[85287670b]: https://github.com/ARKEcosystem/core/commit/85287670b
-[8a383b8dd]: https://github.com/ARKEcosystem/core/commit/8a383b8dd
-[8bd811734]: https://github.com/ARKEcosystem/core/commit/8bd811734
-[bd0370e3c]: https://github.com/ARKEcosystem/core/commit/bd0370e3c
-[97746d0cf]: https://github.com/ARKEcosystem/core/commit/97746d0cf
-[cf8a401bc]: https://github.com/ARKEcosystem/core/commit/cf8a401bc
-[c52b6ab74]: https://github.com/ARKEcosystem/core/commit/c52b6ab74
-[7a8bb932d]: https://github.com/ARKEcosystem/core/commit/7a8bb932d
-[052aae85f]: https://github.com/ARKEcosystem/core/commit/052aae85f
-[f87e146fb]: https://github.com/ARKEcosystem/core/commit/f87e146fb
-[82382fc9c]: https://github.com/ARKEcosystem/core/commit/82382fc9c
-[312a1a717]: https://github.com/ARKEcosystem/core/commit/312a1a717
-[1cb7e23ed]: https://github.com/ARKEcosystem/core/commit/1cb7e23ed
-[fa49ca804]: https://github.com/ARKEcosystem/core/commit/fa49ca804
-[10e821751]: https://github.com/ARKEcosystem/core/commit/10e821751
-[36a607abc]: https://github.com/ARKEcosystem/core/commit/36a607abc
-[ca28f66f2]: https://github.com/ARKEcosystem/core/commit/ca28f66f2
-[dcfff76d1]: https://github.com/ARKEcosystem/core/commit/dcfff76d1
-[ef450f9d3]: https://github.com/ARKEcosystem/core/commit/ef450f9d3
-[118be7ba3]: https://github.com/ARKEcosystem/core/commit/118be7ba3
-[f31109fc6]: https://github.com/ARKEcosystem/core/commit/f31109fc6
-[7db012655]: https://github.com/ARKEcosystem/core/commit/7db012655
-[c8fdde97c]: https://github.com/ARKEcosystem/core/commit/c8fdde97c
-[3559f71ed]: https://github.com/ARKEcosystem/core/commit/3559f71ed
-[f28ba8db8]: https://github.com/ARKEcosystem/core/commit/f28ba8db8
-[67cd2c67f]: https://github.com/ARKEcosystem/core/commit/67cd2c67f
-[9c20c02e0]: https://github.com/ARKEcosystem/core/commit/9c20c02e0
-[40ddab0d2]: https://github.com/ARKEcosystem/core/commit/40ddab0d2
-[247b997d8]: https://github.com/ARKEcosystem/core/commit/247b997d8
-[4ef29686b]: https://github.com/ARKEcosystem/core/commit/4ef29686b
-[81ebb9496]: https://github.com/ARKEcosystem/core/commit/81ebb9496
-[c30425775]: https://github.com/ARKEcosystem/core/commit/c30425775
-[9894e9aba]: https://github.com/ARKEcosystem/core/commit/9894e9aba
-[fed54c9df]: https://github.com/ARKEcosystem/core/commit/fed54c9df
-[56107062d]: https://github.com/ARKEcosystem/core/commit/56107062d
-[e1921baa9]: https://github.com/ARKEcosystem/core/commit/e1921baa9
-[8df596ab2]: https://github.com/ARKEcosystem/core/commit/8df596ab2
-[027c6dec9]: https://github.com/ARKEcosystem/core/commit/027c6dec9
-[04436877f]: https://github.com/ARKEcosystem/core/commit/04436877f
-[e0b1431ea]: https://github.com/ARKEcosystem/core/commit/e0b1431ea
-[b0296e765]: https://github.com/ARKEcosystem/core/commit/b0296e765
-[76283d336]: https://github.com/ARKEcosystem/core/commit/76283d336
-[084b39624]: https://github.com/ARKEcosystem/core/commit/084b39624
-[5911c7cd5]: https://github.com/ARKEcosystem/core/commit/5911c7cd5
-[37cb56efc]: https://github.com/ARKEcosystem/core/commit/37cb56efc
-[2038cd5ae]: https://github.com/ARKEcosystem/core/commit/2038cd5ae
-[4ff97a26f]: https://github.com/ARKEcosystem/core/commit/4ff97a26f
-[0d5390fd4]: https://github.com/ARKEcosystem/core/commit/0d5390fd4
-[6a5dc31fd]: https://github.com/ARKEcosystem/core/commit/6a5dc31fd
-[94c2da2b7]: https://github.com/ARKEcosystem/core/commit/94c2da2b7
-[e6d579d69]: https://github.com/ARKEcosystem/core/commit/e6d579d69
-[a82a09437]: https://github.com/ARKEcosystem/core/commit/a82a09437
-[e97a18aed]: https://github.com/ARKEcosystem/core/commit/e97a18aed
-[f779485a7]: https://github.com/ARKEcosystem/core/commit/f779485a7
-[606faac84]: https://github.com/ARKEcosystem/core/commit/606faac84
-[937ffa087]: https://github.com/ARKEcosystem/core/commit/937ffa087
-[4831c7a0f]: https://github.com/ARKEcosystem/core/commit/4831c7a0f
-[f1c35f3a9]: https://github.com/ARKEcosystem/core/commit/f1c35f3a9
-[82621eeb4]: https://github.com/ARKEcosystem/core/commit/82621eeb4
-[21436df52]: https://github.com/ARKEcosystem/core/commit/21436df52
-[e428af25d]: https://github.com/ARKEcosystem/core/commit/e428af25d
-[be37c11ea]: https://github.com/ARKEcosystem/core/commit/be37c11ea
-[5bf4e5901]: https://github.com/ARKEcosystem/core/commit/5bf4e5901
-[c2c93f025]: https://github.com/ARKEcosystem/core/commit/c2c93f025
-[50fd560b8]: https://github.com/ARKEcosystem/core/commit/50fd560b8
-[509db52aa]: https://github.com/ARKEcosystem/core/commit/509db52aa
-[64084a0aa]: https://github.com/ARKEcosystem/core/commit/64084a0aa
-[af2d8dcf5]: https://github.com/ARKEcosystem/core/commit/af2d8dcf5
-[b7e639842]: https://github.com/ARKEcosystem/core/commit/b7e639842
-[31eb27a2a]: https://github.com/ARKEcosystem/core/commit/31eb27a2a
-[980f3f528]: https://github.com/ARKEcosystem/core/commit/980f3f528
-[ba67dbce4]: https://github.com/ARKEcosystem/core/commit/ba67dbce4
-[27813b35d]: https://github.com/ARKEcosystem/core/commit/27813b35d
-[9a8ecde92]: https://github.com/ARKEcosystem/core/commit/9a8ecde92
-[4999fec69]: https://github.com/ARKEcosystem/core/commit/4999fec69
-[2aca6e171]: https://github.com/ARKEcosystem/core/commit/2aca6e171
-[f7c474109]: https://github.com/ARKEcosystem/core/commit/f7c474109
-[37728bdc1]: https://github.com/ARKEcosystem/core/commit/37728bdc1
-[c12064dc7]: https://github.com/ARKEcosystem/core/commit/c12064dc7
-[fc6720206]: https://github.com/ARKEcosystem/core/commit/fc6720206
-[ab27881a4]: https://github.com/ARKEcosystem/core/commit/ab27881a4
-[77e036629]: https://github.com/ARKEcosystem/core/commit/77e036629
-[2a325d197]: https://github.com/ARKEcosystem/core/commit/2a325d197
-[d9b8bc569]: https://github.com/ARKEcosystem/core/commit/d9b8bc569
-[68f13e6c6]: https://github.com/ARKEcosystem/core/commit/68f13e6c6
-[0d726edfa]: https://github.com/ARKEcosystem/core/commit/0d726edfa
-[f6462ef68]: https://github.com/ARKEcosystem/core/commit/f6462ef68
-[29019ce03]: https://github.com/ARKEcosystem/core/commit/29019ce03
-[fbb82f30e]: https://github.com/ARKEcosystem/core/commit/fbb82f30e
-[239f12e14]: https://github.com/ARKEcosystem/core/commit/239f12e14
-[ac0c0fef6]: https://github.com/ARKEcosystem/core/commit/ac0c0fef6
-[7bbd962dd]: https://github.com/ARKEcosystem/core/commit/7bbd962dd
-[8fc18c1af]: https://github.com/ARKEcosystem/core/commit/8fc18c1af
-[9f5785e5c]: https://github.com/ARKEcosystem/core/commit/9f5785e5c
-[acf34236a]: https://github.com/ARKEcosystem/core/commit/acf34236a
-[bf16abde9]: https://github.com/ARKEcosystem/core/commit/bf16abde9
-[3ddb098e4]: https://github.com/ARKEcosystem/core/commit/3ddb098e4
-[6d4c00a9a]: https://github.com/ARKEcosystem/core/commit/6d4c00a9a
-[b87899a57]: https://github.com/ARKEcosystem/core/commit/b87899a57
-[454a125a4]: https://github.com/ARKEcosystem/core/commit/454a125a4
-[c558ddde3]: https://github.com/ARKEcosystem/core/commit/c558ddde3
-[c5284aa4a]: https://github.com/ARKEcosystem/core/commit/c5284aa4a
-[b88806f5e]: https://github.com/ARKEcosystem/core/commit/b88806f5e
-[1359ba207]: https://github.com/ARKEcosystem/core/commit/1359ba207
-[5834847a3]: https://github.com/ARKEcosystem/core/commit/5834847a3
-[13d7f83e0]: https://github.com/ARKEcosystem/core/commit/13d7f83e0
-[64fe08c2f]: https://github.com/ARKEcosystem/core/commit/64fe08c2f
-[3a6b6555e]: https://github.com/ARKEcosystem/core/commit/3a6b6555e
-[6dbae81e1]: https://github.com/ARKEcosystem/core/commit/6dbae81e1
-[f20abf41c]: https://github.com/ARKEcosystem/core/commit/f20abf41c
-[d26701e31]: https://github.com/ARKEcosystem/core/commit/d26701e31
-[481d59f9f]: https://github.com/ARKEcosystem/core/commit/481d59f9f
-[117bb9e2c]: https://github.com/ARKEcosystem/core/commit/117bb9e2c
-[03b51cc6b]: https://github.com/ARKEcosystem/core/commit/03b51cc6b
-[2eb295d58]: https://github.com/ARKEcosystem/core/commit/2eb295d58
-[d4acdfe26]: https://github.com/ARKEcosystem/core/commit/d4acdfe26
-[af4b1b3b0]: https://github.com/ARKEcosystem/core/commit/af4b1b3b0
-[511bc8484]: https://github.com/ARKEcosystem/core/commit/511bc8484
-[1d3614dee]: https://github.com/ARKEcosystem/core/commit/1d3614dee
-[16af15d69]: https://github.com/ARKEcosystem/core/commit/16af15d69
-[99eded0c7]: https://github.com/ARKEcosystem/core/commit/99eded0c7
-[03a5d7185]: https://github.com/ARKEcosystem/core/commit/03a5d7185
-[e8ca52f96]: https://github.com/ARKEcosystem/core/commit/e8ca52f96
-[319f778cc]: https://github.com/ARKEcosystem/core/commit/319f778cc
-[9768a84e7]: https://github.com/ARKEcosystem/core/commit/9768a84e7
-[bb1d2ebf9]: https://github.com/ARKEcosystem/core/commit/bb1d2ebf9
-[b99b08271]: https://github.com/ARKEcosystem/core/commit/b99b08271
-[4b43552e5]: https://github.com/ARKEcosystem/core/commit/4b43552e5
-[a02d3ca38]: https://github.com/ARKEcosystem/core/commit/a02d3ca38
-[5b49532b6]: https://github.com/ARKEcosystem/core/commit/5b49532b6
-[a324bf344]: https://github.com/ARKEcosystem/core/commit/a324bf344
-[99fc27820]: https://github.com/ARKEcosystem/core/commit/99fc27820
-[eb021e9ab]: https://github.com/ARKEcosystem/core/commit/eb021e9ab
-[01e826483]: https://github.com/ARKEcosystem/core/commit/01e826483
-[dcfa1be7d]: https://github.com/ARKEcosystem/core/commit/dcfa1be7d
-[dce2a4401]: https://github.com/ARKEcosystem/core/commit/dce2a4401
-[ebbe5ae7c]: https://github.com/ARKEcosystem/core/commit/ebbe5ae7c
-[4c5e6f1c9]: https://github.com/ARKEcosystem/core/commit/4c5e6f1c9
-[fb16e931c]: https://github.com/ARKEcosystem/core/commit/fb16e931c
-[8461c9cde]: https://github.com/ARKEcosystem/core/commit/8461c9cde
-[cf831409f]: https://github.com/ARKEcosystem/core/commit/cf831409f
-[49d3660ea]: https://github.com/ARKEcosystem/core/commit/49d3660ea
-[1d10acf54]: https://github.com/ARKEcosystem/core/commit/1d10acf54
-[f2a5852ad]: https://github.com/ARKEcosystem/core/commit/f2a5852ad
-[0805613cd]: https://github.com/ARKEcosystem/core/commit/0805613cd
-[72440be8f]: https://github.com/ARKEcosystem/core/commit/72440be8f
-[357106684]: https://github.com/ARKEcosystem/core/commit/357106684
-[16446a145]: https://github.com/ARKEcosystem/core/commit/16446a145
-[88219cfd8]: https://github.com/ARKEcosystem/core/commit/88219cfd8
-[bc71013fc]: https://github.com/ARKEcosystem/core/commit/bc71013fc
-[b51793a68]: https://github.com/ARKEcosystem/core/commit/b51793a68
-[8465625eb]: https://github.com/ARKEcosystem/core/commit/8465625eb
-[5c0c439a7]: https://github.com/ARKEcosystem/core/commit/5c0c439a7
-[e9e518ec9]: https://github.com/ARKEcosystem/core/commit/e9e518ec9
-[7af9d8fe0]: https://github.com/ARKEcosystem/core/commit/7af9d8fe0
-[427b1e728]: https://github.com/ARKEcosystem/core/commit/427b1e728
-[7dc219a62]: https://github.com/ARKEcosystem/core/commit/7dc219a62
-[12e8eb5d5]: https://github.com/ARKEcosystem/core/commit/12e8eb5d5
-[8494784b3]: https://github.com/ARKEcosystem/core/commit/8494784b3
-[c11af3a12]: https://github.com/ARKEcosystem/core/commit/c11af3a12
-[ff8975a04]: https://github.com/ARKEcosystem/core/commit/ff8975a04
-[8ee148a74]: https://github.com/ARKEcosystem/core/commit/8ee148a74
-[b15387132]: https://github.com/ARKEcosystem/core/commit/b15387132
-[bde4e4cd0]: https://github.com/ARKEcosystem/core/commit/bde4e4cd0
-[e69e33c0e]: https://github.com/ARKEcosystem/core/commit/e69e33c0e
-[94766eaeb]: https://github.com/ARKEcosystem/core/commit/94766eaeb
-[6ab6d6938]: https://github.com/ARKEcosystem/core/commit/6ab6d6938
-[5d21a3447]: https://github.com/ARKEcosystem/core/commit/5d21a3447
-[c84b97666]: https://github.com/ARKEcosystem/core/commit/c84b97666
-[905cac2fe]: https://github.com/ARKEcosystem/core/commit/905cac2fe
-[cad345708]: https://github.com/ARKEcosystem/core/commit/cad345708
-[82623ff7d]: https://github.com/ARKEcosystem/core/commit/82623ff7d
-[8482282a4]: https://github.com/ARKEcosystem/core/commit/8482282a4
-[dc68c251a]: https://github.com/ARKEcosystem/core/commit/dc68c251a
-[33256dbe9]: https://github.com/ARKEcosystem/core/commit/33256dbe9
-[ee1a13138]: https://github.com/ARKEcosystem/core/commit/ee1a13138
-[c84943a94]: https://github.com/ARKEcosystem/core/commit/c84943a94
-[7f07ff0b5]: https://github.com/ARKEcosystem/core/commit/7f07ff0b5
-[84aee929d]: https://github.com/ARKEcosystem/core/commit/84aee929d
-[daadf358a]: https://github.com/ARKEcosystem/core/commit/daadf358a
-[460c6faac]: https://github.com/ARKEcosystem/core/commit/460c6faac
-[84c478849]: https://github.com/ARKEcosystem/core/commit/84c478849
-[5191f6996]: https://github.com/ARKEcosystem/core/commit/5191f6996
-[5a82211f0]: https://github.com/ARKEcosystem/core/commit/5a82211f0
-[838ca5de4]: https://github.com/ARKEcosystem/core/commit/838ca5de4
-[cded589bd]: https://github.com/ARKEcosystem/core/commit/cded589bd
-[c76062089]: https://github.com/ARKEcosystem/core/commit/c76062089
-[dd83c08b2]: https://github.com/ARKEcosystem/core/commit/dd83c08b2
-[4f3e8dcee]: https://github.com/ARKEcosystem/core/commit/4f3e8dcee
-[6529b1338]: https://github.com/ARKEcosystem/core/commit/6529b1338
-[3eab947dd]: https://github.com/ARKEcosystem/core/commit/3eab947dd
-[a636dfd38]: https://github.com/ARKEcosystem/core/commit/a636dfd38
-[243f0bca2]: https://github.com/ARKEcosystem/core/commit/243f0bca2
-[1e489b063]: https://github.com/ARKEcosystem/core/commit/1e489b063
-[f67c9137d]: https://github.com/ARKEcosystem/core/commit/f67c9137d
-[a7f3d03e8]: https://github.com/ARKEcosystem/core/commit/a7f3d03e8
-[f93a9118d]: https://github.com/ARKEcosystem/core/commit/f93a9118d
-[92c31bee8]: https://github.com/ARKEcosystem/core/commit/92c31bee8
-[c4a8b70d2]: https://github.com/ARKEcosystem/core/commit/c4a8b70d2
-[b3aab122e]: https://github.com/ARKEcosystem/core/commit/b3aab122e
-[a116e3f06]: https://github.com/ARKEcosystem/core/commit/a116e3f06
-[647b77fe0]: https://github.com/ARKEcosystem/core/commit/647b77fe0
-[ab78411e9]: https://github.com/ARKEcosystem/core/commit/ab78411e9
-[5a5b3d7fa]: https://github.com/ARKEcosystem/core/commit/5a5b3d7fa
-[de75e6ea9]: https://github.com/ARKEcosystem/core/commit/de75e6ea9
-[e323bb500]: https://github.com/ARKEcosystem/core/commit/e323bb500
-[5c3afa4ad]: https://github.com/ARKEcosystem/core/commit/5c3afa4ad
-[a9241c6ce]: https://github.com/ARKEcosystem/core/commit/a9241c6ce
-[148e98f19]: https://github.com/ARKEcosystem/core/commit/148e98f19
-[8bea92418]: https://github.com/ARKEcosystem/core/commit/8bea92418
-[2ab33be68]: https://github.com/ARKEcosystem/core/commit/2ab33be68
-[1d9dd821d]: https://github.com/ARKEcosystem/core/commit/1d9dd821d
-[8d8bb74f4]: https://github.com/ARKEcosystem/core/commit/8d8bb74f4
-[43ce7dd42]: https://github.com/ARKEcosystem/core/commit/43ce7dd42
-[80d6712b4]: https://github.com/ARKEcosystem/core/commit/80d6712b4
-[02a575ca8]: https://github.com/ARKEcosystem/core/commit/02a575ca8
-[c199cd803]: https://github.com/ARKEcosystem/core/commit/c199cd803
-[d7e895c03]: https://github.com/ARKEcosystem/core/commit/d7e895c03
-[6f7b54cf8]: https://github.com/ARKEcosystem/core/commit/6f7b54cf8
-[c88c33251]: https://github.com/ARKEcosystem/core/commit/c88c33251
-[b96bb4975]: https://github.com/ARKEcosystem/core/commit/b96bb4975
-[f961d053a]: https://github.com/ARKEcosystem/core/commit/f961d053a
-[4a9afb4a8]: https://github.com/ARKEcosystem/core/commit/4a9afb4a8
-[27abce8e6]: https://github.com/ARKEcosystem/core/commit/27abce8e6
-[67d9cef15]: https://github.com/ARKEcosystem/core/commit/67d9cef15
-[99927e77c]: https://github.com/ARKEcosystem/core/commit/99927e77c
-[044ca8303]: https://github.com/ARKEcosystem/core/commit/044ca8303
-[c520d8195]: https://github.com/ARKEcosystem/core/commit/c520d8195
-[09619ad7f]: https://github.com/ARKEcosystem/core/commit/09619ad7f
-[0e1308279]: https://github.com/ARKEcosystem/core/commit/0e1308279
-[d7394e946]: https://github.com/ARKEcosystem/core/commit/d7394e946
-[3416b86a6]: https://github.com/ARKEcosystem/core/commit/3416b86a6
-[5aea54f32]: https://github.com/ARKEcosystem/core/commit/5aea54f32
-[f3dcb1f36]: https://github.com/ARKEcosystem/core/commit/f3dcb1f36
-[12869b386]: https://github.com/ARKEcosystem/core/commit/12869b386
-[dfc95a668]: https://github.com/ARKEcosystem/core/commit/dfc95a668
-[cb50a6221]: https://github.com/ARKEcosystem/core/commit/cb50a6221
-[3f62bb54c]: https://github.com/ARKEcosystem/core/commit/3f62bb54c
-[9c9e7b336]: https://github.com/ARKEcosystem/core/commit/9c9e7b336
-[be2522600]: https://github.com/ARKEcosystem/core/commit/be2522600
-[292d9e84d]: https://github.com/ARKEcosystem/core/commit/292d9e84d
-[1a4e13201]: https://github.com/ARKEcosystem/core/commit/1a4e13201
-[8f028f8ca]: https://github.com/ARKEcosystem/core/commit/8f028f8ca
-[56f482d5b]: https://github.com/ARKEcosystem/core/commit/56f482d5b
-[0663b0ff8]: https://github.com/ARKEcosystem/core/commit/0663b0ff8
-[acc5e16c1]: https://github.com/ARKEcosystem/core/commit/acc5e16c1
-[4fc0559ee]: https://github.com/ARKEcosystem/core/commit/4fc0559ee
-[6fe1e1e10]: https://github.com/ARKEcosystem/core/commit/6fe1e1e10
-[3131db9b2]: https://github.com/ARKEcosystem/core/commit/3131db9b2
-[83c56f15e]: https://github.com/ARKEcosystem/core/commit/83c56f15e
-[cba7f3bf1]: https://github.com/ARKEcosystem/core/commit/cba7f3bf1
-[89fc75762]: https://github.com/ARKEcosystem/core/commit/89fc75762
-[8ca900069]: https://github.com/ARKEcosystem/core/commit/8ca900069
-[dbf7a07a8]: https://github.com/ARKEcosystem/core/commit/dbf7a07a8
-[1619caa47]: https://github.com/ARKEcosystem/core/commit/1619caa47
-[bc53bce33]: https://github.com/ARKEcosystem/core/commit/bc53bce33
-[00f4964be]: https://github.com/ARKEcosystem/core/commit/00f4964be
-[27668ace7]: https://github.com/ARKEcosystem/core/commit/27668ace7
-[7d449acb7]: https://github.com/ARKEcosystem/core/commit/7d449acb7
-[ee802a06d]: https://github.com/ARKEcosystem/core/commit/ee802a06d
-[9800e34be]: https://github.com/ARKEcosystem/core/commit/9800e34be
-[a801c5190]: https://github.com/ARKEcosystem/core/commit/a801c5190
-[0257c3c44]: https://github.com/ARKEcosystem/core/commit/0257c3c44
-[58fb16093]: https://github.com/ARKEcosystem/core/commit/58fb16093
-[c6b31eb86]: https://github.com/ARKEcosystem/core/commit/c6b31eb86
-[65d98fb8a]: https://github.com/ARKEcosystem/core/commit/65d98fb8a
-[98522ea19]: https://github.com/ARKEcosystem/core/commit/98522ea19
-[2a8fa004c]: https://github.com/ARKEcosystem/core/commit/2a8fa004c
-[7acf6cc3f]: https://github.com/ARKEcosystem/core/commit/7acf6cc3f
-[c1eafab5b]: https://github.com/ARKEcosystem/core/commit/c1eafab5b
-[91e815eb0]: https://github.com/ARKEcosystem/core/commit/91e815eb0
-[afd151251]: https://github.com/ARKEcosystem/core/commit/afd151251
-[5dbc8a8fc]: https://github.com/ARKEcosystem/core/commit/5dbc8a8fc
-[0a4a659b9]: https://github.com/ARKEcosystem/core/commit/0a4a659b9
-[ad8595112]: https://github.com/ARKEcosystem/core/commit/ad8595112
-[2e7769a9d]: https://github.com/ARKEcosystem/core/commit/2e7769a9d
-[159098b08]: https://github.com/ARKEcosystem/core/commit/159098b08
-[e462e76d8]: https://github.com/ARKEcosystem/core/commit/e462e76d8
-[b31d7582a]: https://github.com/ARKEcosystem/core/commit/b31d7582a
-[3863d6eb3]: https://github.com/ARKEcosystem/core/commit/3863d6eb3
-[cb2c9a399]: https://github.com/ARKEcosystem/core/commit/cb2c9a399
-[cecf2f97b]: https://github.com/ARKEcosystem/core/commit/cecf2f97b
-[bb91fab5f]: https://github.com/ARKEcosystem/core/commit/bb91fab5f
-[ef796f975]: https://github.com/ARKEcosystem/core/commit/ef796f975
-[2854dc9f1]: https://github.com/ARKEcosystem/core/commit/2854dc9f1
-[a8f88db7d]: https://github.com/ARKEcosystem/core/commit/a8f88db7d
-[f361a796c]: https://github.com/ARKEcosystem/core/commit/f361a796c
-[1b3c5b6f6]: https://github.com/ARKEcosystem/core/commit/1b3c5b6f6
-[f284b4bea]: https://github.com/ARKEcosystem/core/commit/f284b4bea
-[12ec1a22e]: https://github.com/ARKEcosystem/core/commit/12ec1a22e
-[63de81ed2]: https://github.com/ARKEcosystem/core/commit/63de81ed2
-[7d8d8f98d]: https://github.com/ARKEcosystem/core/commit/7d8d8f98d
-[dee3a5c17]: https://github.com/ARKEcosystem/core/commit/dee3a5c17
-[4574e6e68]: https://github.com/ARKEcosystem/core/commit/4574e6e68
-[f8dfefa44]: https://github.com/ARKEcosystem/core/commit/f8dfefa44
-[65200125e]: https://github.com/ARKEcosystem/core/commit/65200125e
-[7d216b37c]: https://github.com/ARKEcosystem/core/commit/7d216b37c
-[14b64899b]: https://github.com/ARKEcosystem/core/commit/14b64899b
-[9f410eaea]: https://github.com/ARKEcosystem/core/commit/9f410eaea
-[05dd51fdf]: https://github.com/ARKEcosystem/core/commit/05dd51fdf
-[6b3e0cba7]: https://github.com/ARKEcosystem/core/commit/6b3e0cba7
-[8b64f7f50]: https://github.com/ARKEcosystem/core/commit/8b64f7f50
-[4bbfaa22a]: https://github.com/ARKEcosystem/core/commit/4bbfaa22a
-[3877e56cc]: https://github.com/ARKEcosystem/core/commit/3877e56cc
-[4787d4461]: https://github.com/ARKEcosystem/core/commit/4787d4461
-[e67abe70d]: https://github.com/ARKEcosystem/core/commit/e67abe70d
-[95df80297]: https://github.com/ARKEcosystem/core/commit/95df80297
-[deef78d89]: https://github.com/ARKEcosystem/core/commit/deef78d89
-[2c619ae18]: https://github.com/ARKEcosystem/core/commit/2c619ae18
-[0ef251281]: https://github.com/ARKEcosystem/core/commit/0ef251281
-[f2ced87fc]: https://github.com/ARKEcosystem/core/commit/f2ced87fc
-[697d34779]: https://github.com/ARKEcosystem/core/commit/697d34779
-[d579fdaf7]: https://github.com/ARKEcosystem/core/commit/d579fdaf7
-[61c4d5f22]: https://github.com/ARKEcosystem/core/commit/61c4d5f22
-[0081a2fd2]: https://github.com/ARKEcosystem/core/commit/0081a2fd2
-[98def5ab5]: https://github.com/ARKEcosystem/core/commit/98def5ab5
-[5ef8fc8a8]: https://github.com/ARKEcosystem/core/commit/5ef8fc8a8
-[7d1809290]: https://github.com/ARKEcosystem/core/commit/7d1809290
-[d00a6a976]: https://github.com/ARKEcosystem/core/commit/d00a6a976
-[196be48ff]: https://github.com/ARKEcosystem/core/commit/196be48ff
-[eb52b9494]: https://github.com/ARKEcosystem/core/commit/eb52b9494
-[c5d360fd1]: https://github.com/ARKEcosystem/core/commit/c5d360fd1
-[bf64a68a0]: https://github.com/ARKEcosystem/core/commit/bf64a68a0
-[47275d674]: https://github.com/ARKEcosystem/core/commit/47275d674
-[cbd4abc21]: https://github.com/ARKEcosystem/core/commit/cbd4abc21
-[958e6257a]: https://github.com/ARKEcosystem/core/commit/958e6257a
-[651cf1607]: https://github.com/ARKEcosystem/core/commit/651cf1607
-[d20f15b2a]: https://github.com/ARKEcosystem/core/commit/d20f15b2a
-[03fdf0196]: https://github.com/ARKEcosystem/core/commit/03fdf0196
-[13808e09f]: https://github.com/ARKEcosystem/core/commit/13808e09f
-[5c404b69b]: https://github.com/ARKEcosystem/core/commit/5c404b69b
-[95a787c20]: https://github.com/ARKEcosystem/core/commit/95a787c20
-[6c41a0832]: https://github.com/ARKEcosystem/core/commit/6c41a0832
-[213b71a12]: https://github.com/ARKEcosystem/core/commit/213b71a12
-[d1cda3c9c]: https://github.com/ARKEcosystem/core/commit/d1cda3c9c
-[c53f6f52e]: https://github.com/ARKEcosystem/core/commit/c53f6f52e
-[c78e56116]: https://github.com/ARKEcosystem/core/commit/c78e56116
-[6a1f8d2b8]: https://github.com/ARKEcosystem/core/commit/6a1f8d2b8
-[3bcc8fae3]: https://github.com/ARKEcosystem/core/commit/3bcc8fae3
-[98c88c400]: https://github.com/ARKEcosystem/core/commit/98c88c400
-[1ddcba42d]: https://github.com/ARKEcosystem/core/commit/1ddcba42d
-[8dbe404b8]: https://github.com/ARKEcosystem/core/commit/8dbe404b8
-[15643452a]: https://github.com/ARKEcosystem/core/commit/15643452a
-[0dc63ae08]: https://github.com/ARKEcosystem/core/commit/0dc63ae08
-[7d09120c7]: https://github.com/ARKEcosystem/core/commit/7d09120c7
-[a3e9749bb]: https://github.com/ARKEcosystem/core/commit/a3e9749bb
-[2ca694f9c]: https://github.com/ARKEcosystem/core/commit/2ca694f9c
-[1b28c6d4d]: https://github.com/ARKEcosystem/core/commit/1b28c6d4d
-[12d5f031b]: https://github.com/ARKEcosystem/core/commit/12d5f031b
-[925f052ce]: https://github.com/ARKEcosystem/core/commit/925f052ce
-[8056ef856]: https://github.com/ARKEcosystem/core/commit/8056ef856
-[db0ce174d]: https://github.com/ARKEcosystem/core/commit/db0ce174d
-[b13d52d32]: https://github.com/ARKEcosystem/core/commit/b13d52d32
-[bfa2c2827]: https://github.com/ARKEcosystem/core/commit/bfa2c2827
-[b0c57992b]: https://github.com/ARKEcosystem/core/commit/b0c57992b
-[63dc25257]: https://github.com/ARKEcosystem/core/commit/63dc25257
-[892a6105f]: https://github.com/ARKEcosystem/core/commit/892a6105f
-[9a6de2dd9]: https://github.com/ARKEcosystem/core/commit/9a6de2dd9
-[8f7d0d319]: https://github.com/ARKEcosystem/core/commit/8f7d0d319
-[92e01152d]: https://github.com/ARKEcosystem/core/commit/92e01152d
-[fddd50014]: https://github.com/ARKEcosystem/core/commit/fddd50014
-[2aad9efd4]: https://github.com/ARKEcosystem/core/commit/2aad9efd4
-[2d5ea1aa8]: https://github.com/ARKEcosystem/core/commit/2d5ea1aa8
-[5fa1df36d]: https://github.com/ARKEcosystem/core/commit/5fa1df36d
-[3753b290c]: https://github.com/ARKEcosystem/core/commit/3753b290c
-[516a58619]: https://github.com/ARKEcosystem/core/commit/516a58619
-[a60734a87]: https://github.com/ARKEcosystem/core/commit/a60734a87
-[334d59af6]: https://github.com/ARKEcosystem/core/commit/334d59af6
-[2a81383f4]: https://github.com/ARKEcosystem/core/commit/2a81383f4
-[daa830f82]: https://github.com/ARKEcosystem/core/commit/daa830f82
-[279585be6]: https://github.com/ARKEcosystem/core/commit/279585be6
-[7aaa14343]: https://github.com/ARKEcosystem/core/commit/7aaa14343
-[6645c1314]: https://github.com/ARKEcosystem/core/commit/6645c1314
-[6c6c96c92]: https://github.com/ARKEcosystem/core/commit/6c6c96c92
-[6bccf660d]: https://github.com/ARKEcosystem/core/commit/6bccf660d
-[77cc8d7c7]: https://github.com/ARKEcosystem/core/commit/77cc8d7c7
-[84aedb1b4]: https://github.com/ARKEcosystem/core/commit/84aedb1b4
-[c218d1a8f]: https://github.com/ARKEcosystem/core/commit/c218d1a8f
-[5fc1e4043]: https://github.com/ARKEcosystem/core/commit/5fc1e4043
-[d7dbbec84]: https://github.com/ARKEcosystem/core/commit/d7dbbec84
-[eeb996c64]: https://github.com/ARKEcosystem/core/commit/eeb996c64
-[b37233e30]: https://github.com/ARKEcosystem/core/commit/b37233e30
-[ad5e82306]: https://github.com/ARKEcosystem/core/commit/ad5e82306
-[2eac04200]: https://github.com/ARKEcosystem/core/commit/2eac04200
-[8ad272ba3]: https://github.com/ARKEcosystem/core/commit/8ad272ba3
-[ec2002d48]: https://github.com/ARKEcosystem/core/commit/ec2002d48
-[0dce18971]: https://github.com/ARKEcosystem/core/commit/0dce18971
-[f73bd8bbb]: https://github.com/ARKEcosystem/core/commit/f73bd8bbb
-[3a34308e3]: https://github.com/ARKEcosystem/core/commit/3a34308e3
-[298117628]: https://github.com/ARKEcosystem/core/commit/298117628
-[5f7ca208c]: https://github.com/ARKEcosystem/core/commit/5f7ca208c
-[8697d1dae]: https://github.com/ARKEcosystem/core/commit/8697d1dae
-[8059fb51c]: https://github.com/ARKEcosystem/core/commit/8059fb51c
-[37e8f52ae]: https://github.com/ARKEcosystem/core/commit/37e8f52ae
-[41a869a44]: https://github.com/ARKEcosystem/core/commit/41a869a44
-[5d7d3d6cc]: https://github.com/ARKEcosystem/core/commit/5d7d3d6cc
-[3c12f5a18]: https://github.com/ARKEcosystem/core/commit/3c12f5a18
-[08ca0fac5]: https://github.com/ARKEcosystem/core/commit/08ca0fac5
-[b2271ceb8]: https://github.com/ARKEcosystem/core/commit/b2271ceb8
-[d98ada544]: https://github.com/ARKEcosystem/core/commit/d98ada544
-[7116976d3]: https://github.com/ARKEcosystem/core/commit/7116976d3
-[bb528bf6e]: https://github.com/ARKEcosystem/core/commit/bb528bf6e
-[c97357c76]: https://github.com/ARKEcosystem/core/commit/c97357c76
-[789fdb70e]: https://github.com/ARKEcosystem/core/commit/789fdb70e
-[dd4c9aba0]: https://github.com/ARKEcosystem/core/commit/dd4c9aba0
-[76f06acaa]: https://github.com/ARKEcosystem/core/commit/76f06acaa
-[5ac0c41b0]: https://github.com/ARKEcosystem/core/commit/5ac0c41b0
-[56ff979db]: https://github.com/ARKEcosystem/core/commit/56ff979db
-[8e8034044]: https://github.com/ARKEcosystem/core/commit/8e8034044
-[f5c185fe2]: https://github.com/ARKEcosystem/core/commit/f5c185fe2
-[6a1f5c1d9]: https://github.com/ARKEcosystem/core/commit/6a1f5c1d9
-[d5821761c]: https://github.com/ARKEcosystem/core/commit/d5821761c
-[eceab20f0]: https://github.com/ARKEcosystem/core/commit/eceab20f0
-[56850c56e]: https://github.com/ARKEcosystem/core/commit/56850c56e
-[67b10ddcd]: https://github.com/ARKEcosystem/core/commit/67b10ddcd
-[0c03165da]: https://github.com/ARKEcosystem/core/commit/0c03165da
-[c61372885]: https://github.com/ARKEcosystem/core/commit/c61372885
-[ab8cc65a5]: https://github.com/ARKEcosystem/core/commit/ab8cc65a5
-[33d8ba754]: https://github.com/ARKEcosystem/core/commit/33d8ba754
-[dc4bc4edf]: https://github.com/ARKEcosystem/core/commit/dc4bc4edf
-[8c773dab4]: https://github.com/ARKEcosystem/core/commit/8c773dab4
-[8836016ea]: https://github.com/ARKEcosystem/core/commit/8836016ea
-[0367e8e14]: https://github.com/ARKEcosystem/core/commit/0367e8e14
-[75199f713]: https://github.com/ARKEcosystem/core/commit/75199f713
-[e6c9e9b6a]: https://github.com/ARKEcosystem/core/commit/e6c9e9b6a
-[5e5eb2a46]: https://github.com/ARKEcosystem/core/commit/5e5eb2a46
-[5f4c6e8c4]: https://github.com/ARKEcosystem/core/commit/5f4c6e8c4
-[d6a42f2e5]: https://github.com/ARKEcosystem/core/commit/d6a42f2e5
-[050ce16b1]: https://github.com/ARKEcosystem/core/commit/050ce16b1
-[cfd39d085]: https://github.com/ARKEcosystem/core/commit/cfd39d085
-[58478848a]: https://github.com/ARKEcosystem/core/commit/58478848a
-[344de61ac]: https://github.com/ARKEcosystem/core/commit/344de61ac
-[01e47446b]: https://github.com/ARKEcosystem/core/commit/01e47446b
-[583f5a928]: https://github.com/ARKEcosystem/core/commit/583f5a928
-[1a823ee70]: https://github.com/ARKEcosystem/core/commit/1a823ee70
-[f407903b6]: https://github.com/ARKEcosystem/core/commit/f407903b6
-[75c117741]: https://github.com/ARKEcosystem/core/commit/75c117741
-[1016bd5fa]: https://github.com/ARKEcosystem/core/commit/1016bd5fa
-[aec0f5ad3]: https://github.com/ARKEcosystem/core/commit/aec0f5ad3
-[d449340c7]: https://github.com/ARKEcosystem/core/commit/d449340c7
-[a201d64ff]: https://github.com/ARKEcosystem/core/commit/a201d64ff
-[bf4222444]: https://github.com/ARKEcosystem/core/commit/bf4222444
-[9d12bb1fc]: https://github.com/ARKEcosystem/core/commit/9d12bb1fc
-[ade3a5d49]: https://github.com/ARKEcosystem/core/commit/ade3a5d49
-[d44e29ccc]: https://github.com/ARKEcosystem/core/commit/d44e29ccc
-[1de4f3fce]: https://github.com/ARKEcosystem/core/commit/1de4f3fce
-[29e8485f8]: https://github.com/ARKEcosystem/core/commit/29e8485f8
-[42b0805c0]: https://github.com/ARKEcosystem/core/commit/42b0805c0
-[fc157999e]: https://github.com/ARKEcosystem/core/commit/fc157999e
-[7c402ac2b]: https://github.com/ARKEcosystem/core/commit/7c402ac2b
-[daf1d922a]: https://github.com/ARKEcosystem/core/commit/daf1d922a
-[77893fda5]: https://github.com/ARKEcosystem/core/commit/77893fda5
-[9b368c957]: https://github.com/ARKEcosystem/core/commit/9b368c957
-[0f7e589b4]: https://github.com/ARKEcosystem/core/commit/0f7e589b4
-[85b6b605e]: https://github.com/ARKEcosystem/core/commit/85b6b605e
-[53e4469f3]: https://github.com/ARKEcosystem/core/commit/53e4469f3
-[e8a2d6bea]: https://github.com/ARKEcosystem/core/commit/e8a2d6bea
-[0c55ea134]: https://github.com/ARKEcosystem/core/commit/0c55ea134
-[c70bf0bb7]: https://github.com/ARKEcosystem/core/commit/c70bf0bb7
-[d0c299ebb]: https://github.com/ARKEcosystem/core/commit/d0c299ebb
-[3c413d434]: https://github.com/ARKEcosystem/core/commit/3c413d434
-[5d96cbfc4]: https://github.com/ARKEcosystem/core/commit/5d96cbfc4
-[a399f1948]: https://github.com/ARKEcosystem/core/commit/a399f1948
-[f47b55c84]: https://github.com/ARKEcosystem/core/commit/f47b55c84
-[f3ed2f980]: https://github.com/ARKEcosystem/core/commit/f3ed2f980
-[64cb9e929]: https://github.com/ARKEcosystem/core/commit/64cb9e929
-[659b881b1]: https://github.com/ARKEcosystem/core/commit/659b881b1
+- Remove duplicate connect ([8948090](8948090fd72f2337cfdd3fec5a71eac4b4346817))
+- Remove connection from list onError (#4348) ([219e732](219e73274738bf703b9dec7085ddb064556193c7))
+- Remove BlockNotReadyCounter on Unchained handler (#4404) ([2ab4c84](2ab4c84a5ecac4058c165f6343a090a8d99e15fc))
+- Remove bad line (#4415) ([5d34297](5d34297d7c59314adb11b13270f29c069f697f0b))
+- Remove CORE_SKIP_BLOCKCHAIN flag (#4400) ([14d162d](14d162df4e8f88771f1bbb2d9de08d4ad4804079))
+
+## [2.7.24] - 2020-12-14
+
+### Added
+
+- Add vendor field length cli flag (#4179) ([e12f73f](e12f73f2c1ef44652c320cec445d28067bf7d9ce))
+- Implement info.coreUpdate action (#4184) ([1f28875](1f28875f4a45368592945eacfe89405fca589b85))
+- Rate limit plugin (#4193) ([21eb71a](21eb71a8f767f54d71cb90ecfaf12df89e98ad79))
+- Ip address utils (#4195) ([a776999](a776999aac4bae05d8ddd875e7f264365a19a870))
+- P2P IPv6 support (#4196) ([29c7ebb](29c7ebb757530b613be8ed953d992d94188378a1))
+- Implements info.resources action (#4197) ([c480df8](c480df8c63eabee8999d7a152906d75b7b89d3eb))
+- Implement database indexing support (#4201) ([2b4659d](2b4659d0ad0152a7f164af80e502405bc55e05c8))
+- Implement database delete support (#4202) ([3ff160f](3ff160f5a22a22cbc4b8dec18995a2b69f1bfcec))
+- Store logs in sqlite database (#4203) ([0d97a51](0d97a5125d5e3815a1477ab76c4554e34f370717))
+- Read token and network from config.json (#4208) ([49e89a8](49e89a8f8a0380d1de856b7671aad8a590b5fd61))
+- Set database default and max response limit (#4206) ([82edd46](82edd46335c6f19ab4b1e6b59a399ad37d3b4b87))
+- Support async PM2 triggers (#4214) ([30ea0c3](30ea0c372e6aeaf3ba34648f3044ba19028e5088))
+- Support custom tokens (#4213) ([bf75b5b](bf75b5b296f566c1bd42672add52c230c170828e))
+- Return block height in API response headers (#4210) ([79c2b1b](79c2b1bf58fc806f2f989999df99959904547625))
+
+### Changed
+
+- `network:generate` to generate genesis block with v2 txs (#4173) ([f12173c](f12173c83ecd3a037b094c73f17d98331554b8fa))
+- Update @arkecosystem/utils version to 1.2.1 (#4178) ([307ba66](307ba66deaa4716ace0f1d6db5822cfb33532675))
+- Prettier network-generate formatting (#4180) ([04b47c1](04b47c10c1454aaa5a39cfdb8d709ff33b1948e7))
+- More granular filters for log:log action (#4175) ([118c4d4](118c4d48b044468ff721c24809882fb5554c819c))
+- Remove deprecated versioning channels (#4183) ([26da8d8](26da8d8f69940ea9fe2e287c82b6edc7a5576db0))
+- Extract cli-manager logic (#4181) ([40ec05d](40ec05da6657e5e2e97e061acc3c095818e1dda3))
+- Rename log.log to log.search (#4188) ([ab5b2ad](ab5b2ad49a86fb76524c247dbe21b48af48dabd8))
+- Re-organize plugins in hapi lifecycle (#4186) ([aebf70e](aebf70e8783781642a6e06df11a5b9e02ab7143e))
+- Get version channel from core-cli config (#4185) ([7aba83f](7aba83f314dc5365d39253b6b4a79bab2df478fc))
+- Use a convention for how HTTP/HTTPS ports are exposed and discovered (#4189) ([566d5a2](566d5a25c2358dd1ea11f1ec77eea0c65c8cd776))
+- Terminate on ws.ping() ws.pong() (#4194) ([9f9178d](9f9178d88e238128711407dcf54237960a094296))
+- Remove `info.diskSpace` action (#4198) ([96c672d](96c672d08bd9f8c41bbec3ba177d24c0b5042c48))
+- Remove database dependency from forger (#4192) ([86cb3cc](86cb3cc75d2419d4df4418599447f3b35440f4ef))
+- Extract common database logic (#4200) ([4c8d44e](4c8d44e8e538fe323220293e4510a40ca8d4ce64))
+- Limit hapi ping messages (#4199) ([9f0349b](9f0349ba25697b382a20383e743a7f358069fd6e))
+- Single database path setting (#4204) ([57eaabf](57eaabf07e4ba3b9ba1a5b6dca52078bf686a382))
+- Enable core-manager on all processes (#4205) ([9eb1ce9](9eb1ce9764a2e93ffe3d356e941859be8f55ad82))
+- Match entity schema name with delegate username (#4209) ([7b19c8d](7b19c8de738b72e4937eb121d3584782934ec360))
+- Match entity schema name with delegate username (2.7) (#4211) ([4e85a74](4e85a744222cf5b26ee26c24c1fda5f8aec76f6d))
+- Include missing dependencies (#4217) ([ca2dcdc](ca2dcdc8a468494e124b5b740b00e531c1fa56ee))
+- Validate version on all p2p endpoints (#4216) ([633d0a0](633d0a0b235e03418a846c908415fb20cdd392a9))
+- Use dependencies only for manager process type (#4220) ([2a81160](2a811608dd94af7ecb40cf5ba169fb852d3b41f3))
+- Remove `@arkecosystem/core-manager` from default app.json files ([2392b4f](2392b4f627c8ffbe0ad1e260b74ed3d256162ea8))
+- Remove core-manager plugin from app.json (#4223) ([e68ed0e](e68ed0efc12d76aa5c698a9ced070f05c837b305))
+
+### Fixed
+
+- Try all possible peers before giving up (block download) (#4171) ([9009863](9009863c8e39630a2abeeeec19dbe83cb95d27b5))
+- Respect channel version (#4177) ([0cbd90e](0cbd90eeccd594db54341d728ed6ba3f1b24670e))
+- Install peer dependencies during update (#4163) ([6c7fea0](6c7fea0dad5c4cb9d33bf77d5e17447b14c2c932))
+- Increase test coverage (#4182) ([e211fe9](e211fe94d6a50ba64881db98ddf248ede5d611a5))
+- Generate genesis block with id full sha256 (#4187) ([a476cb0](a476cb0959c1329a38fb0a8618a96ff082cade43))
+- Detect missed blocks (#4191) ([a238981](a2389816e75eefdfa7193d006cfa862363a7ac86))
+- Reject long form signature lengths ([8f8976d](8f8976deb7fe6e6a759710f370d85f910c221c30))
+- Validate payload call id for all requests ([4565eba](4565eba2b48ffbb7f1f7212e22abe89be2300464))
+- Check client-side graceful disconnection payload ([c6d7421](c6d74215a74811d6f48b7049573747dacca95aac))
+- Ensure asset recipientId and amount are strings ([29eaf10](29eaf104312f14bebefd1b64a8111a4c79f56c1b))
+- Validate incoming message json ([ae8dcd7](ae8dcd73441643061626d92a09cf164b76cf91a2))
+- Fix potential locking issue (#4207) ([9747942](9747942aad34d8d634cba72db01b19b4f45a8b55))
+- Append --env=test to full:testnet script (#4218) ([a577911](a5779110a106f49951f0fda59eeb25348d8b9639))
+- Optional core-snapshots dependency when process is not manager (#4219) ([58a66aa](58a66aa501f7144c6c778f73850e0334b4c39dc3))
+- Count props in p2p.peer.postTransactions payload ([021d18a](021d18aa0ee012fdedfb3c5efd5e4ab6b3a7ffff))
+- Reset maxPayload on ws message ([f1bf195](f1bf1956621510ffbd00dad66b7467254d936a07))
+- Reduce getBlocksTimeout to 30 sec ([9370175](93701759eca600839b3ca057fd2123f5f0ee252a))
+- Limit peers returned by getPeers ([4c79c45](4c79c455a80d6245cb0e6ad33c2a062e627fbbb2))
+- TrustProxy option based on env ([fff3ecb](fff3ecb01dc7ba2bf075cd03c6527807d6ea140b))
+
+## [2.7.13] - 2020-11-19
+
+### Added
+
+- Sync wallet to database (#4108) ([f320c0a](f320c0acdeb1a06c0f4deafa51a4a303fa0b5625))
+- Enable wallet sync though environment variable (#4127) ([b548160](b5481600569abd9ce35e9511711b7663ea86adce))
+- Migration: add asset.payments index to transactions (#4142) ([84595c6](84595c67f7c197a6f0856321f600e6c367b14900))
+- Add additional flags into network:generate command (#4148) ([1f74681](1f74681356f6dca64ff214458ee091ff1a04363b))
+- Set dynamic fees in network:generate (#4150) ([feb1d6b](feb1d6bc8ee7c9790e5f895f70b1d0865994f11e))
+- Add request method as part of cache key (#4157) ([4e8f5c1](4e8f5c1ca2b1974b0051e92b780fa07c9abf28a1))
+- Ser/deser on p2p and use binary over ws (#4132) ([0526ad0](0526ad03a94c645fe1b5a2462b5cd593d08af8ef))
+- Add `install-next.sh` script for devnet installations (#4161) ([0b17202](0b172029d1f16d1a4a0f00ba984fef110309ef44))
+- Add listeners on 'connecting' event ([b562592](b56259267ff913f49870fbde99bd319390f8d105))
+- Add index on blocks.generator_public_key, blocks.height ([6fb4ab9](6fb4ab90a63e4bb530013414e82eb8bdf5c7f721))
+
+### Changed
+
+- Implement trigger unbind and rebind methods (#4125) ([24a488c](24a488cdaeddbd1ee2d075e4854780f96daaa29a))
+- Remove deprecated env variables (#4130) ([aa0643a](aa0643ac70a55af23c0dac59f7162e89635e76f5))
+- Deserialize block from Buffer (#4137) ([5666c12](5666c122ed674733b3973bb918edbb2cee70cb08))
+- Create index if not exists (#4149) ([5c309ea](5c309ea40b48e0e0b9be3c4ba7c7b103833173df))
+- Use `@arkecosystem/crypto-networks` to handle network configurations (#4152) ([02c272e](02c272e6f4009458bac1b59d5e2e59cbaa079f4b))
+- Block processing (#4155) ([9e37040](9e37040779d2d76d40e10c0919e40b2a286e1188))
+- Use `@arkecosystem/crypto-identities` to handle identity interactions (#4151) ([2059dba](2059dba2648cd7fbc486b8f64240b29ecb443a8f))
+- Remove fork 6 mention (#4160) ([109e265](109e2655421b335627652c376103115ea63f6f7d))
+- Use single port for p2p (#4153) ([66c19e3](66c19e3f7c626374a6653311577036252b42720b))
+- Plugins and env endpoints adjustements (#4174) ([46d80da](46d80da5ad339013b2615779d86615065786c090))
+- BIP38 repeat password for confirmation (#4170) ([3f5d494](3f5d49432d491393c429c883260030f7dc3c9637))
+- Custom validation for getCommonBlocks ([2b39363](2b3936357b2c027c1bff7887c1a7a91767628ef8))
+- Use consistent number formatting (#4172) ([7b35d02](7b35d02a5c4f5e51b8ff2a4bcb3f9ef1cff40949))
+
+### Fixed
+
+- Do not await tx broadcast in processor (#4119) ([ba0b443](ba0b4430270bee7b4d1f176d8989f1d59e53edba))
+- Clear request on timeout (#4129) ([76aebae](76aebaed3901088b11e60d3e5c3925ef35def19d))
+- Log fatal errors (#4133) ([ebe038d](ebe038d69ac585912aed0a80b731b2ccf233e7a4))
+- Log only once when app is not ready (#4134) ([4eb14ee](4eb14eecca1eb3c189e03380fe3ff560f7648c5c))
+- Count performance (#4135) ([d0d98f8](d0d98f8fcfc7ace619527b02ebe5193617e75b4b))
+- Filter asset by original or cast values (#4126) ([1d03a2c](1d03a2c5168f592d487833940c82863fa8b8e399))
+- Don't rollback transaction that failed to start (#4136) ([12f0a77](12f0a779558e9b6a369af0cf5a6bcf689c515929))
+- Use set config when loading cryptography (#4140) ([65b0980](65b09802f95815685f1faf85bfb9ea454758de2d))
+- Set adequate autovacuum settings (#4146) ([fbbda7b](fbbda7bffeaffe1a15188fa5a0f5ae315e603ad3))
+- Fix peer connecting to itself (#4143) ([4a825d1](4a825d16a0eae2194808bdef34e4503b1b4a0f33))
+- Re-add transactions after state builder finished (#4144) ([9c19a7a](9c19a7a7185e5ac9e245a9040e61e09ee3710421))
+- Network:generate save to default location (#4138) ([3c0c4eb](3c0c4eb3e6bc5bd6f1dc1687eb82301aaeca4df6))
+- Restore accept peer plugin (#4158) ([242f8b4](242f8b479c2b3ec45f1b51719a9e1b6a64c965f4))
+- Database connection and minor fixes (#4168) ([43da7d7](43da7d7190c47a909a36ba76e1b3fe1eaff3c5c9))
+- Always broadcast last block ([c291166](c291166f89f1e3379487283cabfe58ad10023ab1))
+- Terminate and ban on error ([eecc40c](eecc40ceca20d7cff52757573ab323d3b5907887))
+- Parse without base64ToBinaryReplacer on error ([8e41f06](8e41f0691cc405024572ab578ec88227759a896b))
+
+### Removed
+
+- Delete all rounds starting from `round` (#4145) ([b082935](b082935d0b288904b4657db3cdf54bcc488c384f))
+- Remove `transactions` field from block when requesting with `headersOnly` (#4169) ([31f9407](31f9407a0d2e7afc112d5e919c65bc1f5959c99d))
+
+## [2.7.7] - 2020-10-22
+
+### Fixed
+
+- Strict greater than (#4121) ([8006a8d](8006a8da357f5465083ab91a6eaf88d5212f0a4f))
+
+## [2.7.6] - 2020-10-22
+
+### Added
+
+- Transform comma query into array to allow OR (#4068) ([0a69f65](0a69f6597c25ed4c21bb73ed0c783a079be043d7))
+- Implement `Queue#isRunning/isStarted/onDrain/onError/onData` methods (#4077) ([d807684](d80768479dea64c3b6bcaeaefb185c1db1f4cd99))
+
+### Changed
+
+- 3.0 docker updates (#4066) ([6ff4072](6ff4072060ad59c20ad13ad4c159e3bc70776cdf))
+- Remove search endpoints (#4067) ([deb2cd7](deb2cd78bacd5183fb840804b097e92d7fb55ca6))
+- Remove import from dist or src (#4070) ([6e969dd](6e969dd1f202f55c3dcd617ead3adcf83a4ca910))
+- Force typeorm version 0.2.25 (#4074) ([e8000a6](e8000a637bc03ff7efcd2775c8f3d954fb016ed7))
+- Allow array query parameter in all schemas (#4079) ([a13bf61](a13bf618aace43e3d2e16efc61d0b859244108b8))
+- Fire wallet events (#4076) ([2c43f6c](2c43f6c6070ccc819de788f69b8a25f936bff600))
+- 3.0 changelog (#4081) ([171adfb](171adfb23eb2b44893f501704995182bbace7ca1))
+- Remove `@arkecosystem/core-manager` from default configs (#4084) ([3e76be0](3e76be0c7af09b0b3b9d0bb58b758a9ddb5e78a9))
+- Define default p2p timeouts (#4110) ([ce3d930](ce3d9302f7bb536b74bb024572c9946b9e3e3eef))
+- Update banner (#4116) ([617fd76](617fd76949863c2dda7ea3db939fa4feb77301b8))
+- Update install script for setting env (#4117) ([3b7a1fe](3b7a1fe3e95d2e51b342ed47f0a2d49bb62833dc))
+- Enable trustProxy option ([850ade0](850ade02a9fb0a49f0938ba855e0edbf3e4f5e9c))
+- Return [] if asked higher blocks than current ([312899c](312899c9010d0f840326248eb97aa2bfaa837797))
+
+### Fixed
+
+- Increase test coverage to 100% (#4061) ([448b941](448b941c1e4fd915ceef6b20cbad3b279d382fae))
+- Block download (#4057) ([da2e563](da2e5639dc9d6903a8d36994809ba60577fcda4f))
+- Don't throw forgetting undefined attribute (#4086) ([e8fb5f9](e8fb5f946fe9a0872be058da2dd3c252f8a9538e))
+- Fix unvote+vote bootstrap (#4097) ([75e9c21](75e9c213012a84d7a312e4278a1ff68858d2c934))
+- Don't spam dynamic fee messages (#4100) ([7c07105](7c071051bfc7f395fb17f2e417bc34a0aae77776))
+- Fix block returned by api by either id or height (#4098) ([214dec2](214dec2c413ef68dfd81e15d5e2a9e09a28c370c))
+- Update vote balance for each asset vote (#4099) ([361ddab](361ddabaea65015ebaed7d813409ef02d4562ad7))
+- Respond with error when blockchain is not ready (#4109) ([d44e7e1](d44e7e17b2fe22a12677bc53f1f5317407937c1d))
+- Run state builder after database integrity (#4111) ([7cf0440](7cf04408992938e142fe12511dde30fc666fb4d0))
+- Fork recovery (#4118) ([2eadff3](2eadff3cea9d9656712244b37c1afdafda31ccb1))
+- Check that message is a string ([5e1c5a3](5e1c5a3306f24d4304e7baff52ada4740cfe8e6c))
+- Ban if not authorized on internal ([dd96ee4](dd96ee4918d57141498ecf2d0d0cb827e38604ca))
+- Htlc lock recipientId is required ([380fb5b](380fb5b606151f444e05b922ad5d930f7870f517))
+
+## [2.7.1] - 2020-09-28
+
+### Changed
+
+- 3.0 changelog (#4055) ([15521b7](15521b71f5cb7a8ab369efef055581bfe2f95b36))
+
+### Fixed
+
+- Destroy connection after terminate (#4065) ([a853d63](a853d63ff38ca976d79635dba92352b4567d00bf))
+
+## [2.7.0] - 2020-09-23
+
+### Added
+
+- Unvote+vote transaction (#4044) ([700b9cd](700b9cd6fcd192fbe59b6b526472eb30f79c5392))
+
+### Changed
+
+- Do not bind directly handler to class method to allow extending response (#4045) ([bab1d91](bab1d914a61f29500ce923500237b23524ddb10f))
+- Extend /node/fees and /transactions/fees with entities static fees (#4047) ([773eb8c](773eb8ce7ba23964ed5f516067a1c154993380a0))
+- Aip36 milestone for mainnet (#4053) ([ec8cbb9](ec8cbb94f5b0898e320250f14a5f49d768e6df04))
+
+### Fixed
+
+- Fix transaction handler tests ([0991f72](0991f72625917268e993ba2a94443700d155b974))
+- Fix peer-verifier tests ([482b1f1](482b1f1d9244b129f421724b2c6b507e39bac9e2))
+- Slot, round and forgingInfo calculation for dynamic block times (#4034) ([2d3fe09](2d3fe091434127c15ddd517d3c77ae9ad6ea3dcd))
+- Use getRegisteredHandlers() to get all registered handlers in /node/fees controller (#4046) ([a917e08](a917e085339ae5ace9258ec013206fde30dce968))
+- Increase test coverage (#4049) ([0a2bce5](0a2bce5f996ac67063e71b55c7dd3f80028e207e))
+- Increase test coverage (#4032) ([ac01f55](ac01f554a39795b98090b71137ccee31d4749f55))
+- Rate limit and peer broadcast (#4054) ([6988cdd](6988cdd4aa7518c279a3cc084810890390ed19c9))
+
+## [2.6.57] - 2020-09-17
+
+### Added
+
+- Add indexers export (#4018) ([437f8cf](437f8cfd5cd7589dc4c11192847cbbf8707a0d76))
+- Add devnet exception (#4031) ([5da4f4d](5da4f4dfac30f7e3510d0574eb9cc0018d6153ca))
+
+### Changed
+
+- Wallet repository search methods (#3931) ([17fcaf3](17fcaf375d3124bc821175e5bcc29c83b5a6f232))
+- Update dependency npm-check-updates to v9 (#4022) ([1617b2e](1617b2e190103740863a06839838710459dadf86))
+- Activate all entity types + re-allocate entity type enum (#4020) ([649aeac](649aeacebf3fc59773e0657ccb4b895431554ef7))
+- Use deepmerge for plugin configuration (#4023) ([7771997](777199760dceb11ca265a8fde7f9eecdfd81ec63))
+- Update commitlint monorepo to v11 (major) (#4025) ([956d629](956d629eb78a81d3ca8d26dac8c0b30e4acfb286))
+- Custom entity fees for register/update/resign (#4029) ([ed835c2](ed835c291153bf82715d0844dd4f345cdc5c471d))
+- Lint ([24b164b](24b164b19c1ef706541db2798afcb55f7903baf7))
+- Ts-ignore ([feb1970](feb1970e615c4e29b71807edddacd28600d86ed0))
+- Bump node-forge from 0.9.2 to 0.10.0 in /packages/core-forger (#4037) ([fea7dd8](fea7dd88edc5a1bd5b961c19ddccf37192c2dc2f))
+- CloneWallet method in wallet-repository (#4027) ([d0775fd](d0775fdc4fa2044570c067e3eea6a1e13813957f))
+- Update node.js to v12.18.4 (#4036) ([7f4ef20](7f4ef20d14d03990dcca8a5b3d5ff5c3a650ae1d))
+
+### Fixed
+
+- Consider delegate collected fees (#4010) ([b6c736d](b6c736db179e935f345b6ecff0bfe1cfd7b8372c))
+- Fix delegate.lastBlock.timestamp property (#4019) ([66f39cb](66f39cb4ffb4d810617e23d73c0b539b11b356bc))
+- Update dependency yargs-parser to v20 (#4016) ([5e64ef6](5e64ef620bc4f65194df07765e420cf4ce9ec7fb))
+- Ignore random type errors thrown by lowdb on build (#4017) ([785680c](785680c0cb8606566fe97f0ebc7afc02b8f31cd3))
+- Increase test coverage to 100% (#4021) ([05d59a9](05d59a95a50dc9a22b1038ed5aa311143a18e954))
+- Wallet repository clone instantiation (#4009) ([2fb47e6](2fb47e6deb5b67dae4b76bd88f1b11eddba16575))
+- Delegate check only needed on entity register (#4024) ([64b63b5](64b63b54c9e26804d04a3a868e01b1aaaf09ad88))
+- Fix tests / remove obsolete things ([0a2ae4e](0a2ae4ecb8cbf790b5c5f89f67c8e3f17673d89c))
+- Fix tests ([9315d59](9315d597933923f709f86a2bcea4f0656c4c9b86))
+- Fix p2p unit test ([584a428](584a4281ad3ddde691ee50341084c7f7465287f7))
+- Only verify peer blocks < our height ([c968e69](c968e69d5642fbb7a9f3b18f2cacb7a02f34f243))
+- Stricter multipayment tx check ([620027d](620027df0bf12f14ed19dda3ccd161a924051665))
+- Initialize maxPayload on connection create ([3ac3eb1](3ac3eb17efb9e1fce15affb57c755bf7a5d6d472))
+
+## [2.6.54] - 2020-09-09
+
+### Added
+
+- Add devnet exception (#3967) ([78c49b4](78c49b4ac85f67a09ed1b8184fdfeed747045d39))
+- Add publickey verification (#3974) ([4408899](4408899278bfbaebf28f4893e1f9fb95890211d8))
+- Wallet autoIndex option (#3985) ([51d01a2](51d01a2db58d8d8186625a8aadbc372e15edc9a7))
+- Additional test cases (#3995) ([05e158d](05e158de3735871ee79d786ce94ac865e9a241f7))
+- Add exports for bridgechains (#4007) ([a27b6c3](a27b6c3fa1cb801c24201299d7ba49338a91fb0b))
+
+### Changed
+
+- Pagination configuration through joi context (#3955) ([8ebf821](8ebf8218bfe34583f4842293a0156686f6c405df))
+- Dot-separated-query hapi plugin (#3965) ([d680391](d6803913ca1f28f7f4bae17f2de3ca55a1070eab))
+- Remove forget methods and use index instead (#3962) ([9a6358a](9a6358a5f9ebfa51dba57cb6d28b6c2c1989d18d))
+- Initialize blockchain when resolved first time (#3969) ([3f8727b](3f8727b2d2dca347f05f7b59ce529eb70972b5b9))
+- Throw more specific multi-signature exceptions (#3976) ([48e67e5](48e67e5188a4358b2b9e0cf6aef2a3ff1c89da08))
+- More flexible entity types / sub-types + fees update (#3986) ([06261f9](06261f99c75ce33a4de0392c1e4ac2fa72f5681e))
+- Export state-builder (#3987) ([ae160d6](ae160d6e7262f3e28edb5981ac00de238ceaeb85))
+- Include missing dependencies in package.json (#3999) ([6bb4fed](6bb4feddd432d49a8d4d62334367f5667163ca21))
+- Update dependency eslint-plugin-jest to v24 (#4002) ([ddca08f](ddca08fc37c34467d1b053566b57ef6aae0befa9))
+- Set maxPayload on ws server (#3996) ([bf892b5](bf892b530fc3c8014fe92923343c05a6bbcb409b))
+- Verify peer claimed state ([24a8b04](24a8b044e14286c109b05ae69cd6bdc35a347603))
+
+### Fixed
+
+- Limit parameter (rollback #3940) (#3953) ([39894a4](39894a40d6f312876111a032704317f11e673886))
+- Fix delegate search order (#3939) ([f21af37](f21af3704f26d60de0d72b78eddf382f53a9c47c))
+- RevertBlock (#3948) ([3565ef5](3565ef51befe0d9f7cd792e18945b53e194001ae))
+- Update dependency ipaddr.js to v2 (#3964) ([fac635e](fac635ed423edd4af263f538f570c37dede793ee))
+- Dynamically import @pm2/io (#3968) ([4fc57db](4fc57db6046d7b3ef35b9f8376af274cb18d0896))
+- Decouple database and state packages (#3936) ([af5e542](af5e5423389be47470f82d99351f57cb8a871cd6))
+- Increate coverage to 100 % (#3972) ([36878fc](36878fc63ec2123f0cbb88173e948dac54d8cf4e))
+- Increase test coverage (#3984) ([b40add4](b40add4442f9f02791a448eb612b4baac406033a))
+- Increase test coverage to 100% (#3983) ([4167457](416745762a3899b7676f368f12c6dd677dd44aa5))
+- Replace micromatch with nanomatch (#3994) ([4387b1d](4387b1dfb26b4d5fd67d2629c451281ce2499ac8))
+- Increase coverage to 100% (#3992) ([3fef590](3fef590a722fcbaba56bbed4e82850f96906fd03))
+- Clone wallet on mempool wallet-repository (#3998) ([140b860](140b860fc9e6d5297a91d8d6bc3a6efdd6ddf856))
+- Resolve .env and app.json file path from package name (#4006) ([c715c85](c715c859526b30909495bf3785ff507b6c993a6f))
+- Increase test coverage (#4004) ([faaf4e1](faaf4e182d7e977e30946e1bd361ecad0c8344b2))
+- Entity name only unique by type (#4008) ([3b12c70](3b12c7037902f351b1b383d77ca91d9fa0c980b9))
+- Use head from utils ([da13465](da13465ea8b995aef1b87ce4b1a16e88c9c34fe3))
+
+## [2.6.52] - 2020-08-11
+
+### Added
+
+- Add 3.0.0 alpha channel to valid peer versions (#3924) ([f2da0bd](f2da0bd850c3071e0b7af597ff3230176d32d0c8))
+
+### Changed
+
+- Trigger processes from ark-core or ark-forger (#3915) ([f00e075](f00e075dad29e3611c80633f19eb649a2206bf20))
+- Use HEAD HTTP request for ping (#3926) ([fcbe909](fcbe909bb022840a77847d522eba547c20858fbe))
+- Get registered server route (#3928) ([08d8c93](08d8c9365e2aa2f3c588db534ba199e0e2a7df7b))
+- Keep process var over .env var (#3935) ([640b9a1](640b9a1a096ed2cd51ba610009a7d7b981e717bc))
+- Update dependency rollup-plugin-terser to v7 (#3945) ([570eaed](570eaed729cc1e19868f1cbb27e63b6e1c96e418))
+- Remove bridgechain from aip36 entities (#3937) ([085ab67](085ab675cc2dd77a52b9437c5a6bfb0dfdd87c4b))
+- Put configuration into Joi context (#3940) ([0ff67a9](0ff67a96b1f7d57febedc1e33a6afbb32db2ab4b))
+
+### Fixed
+
+- Expose two methods for findByHeightRangeWithTransactions (#3906) ([dc431fa](dc431faff66a5c3fdebe092f661f9900018693f1))
+- Disconnect all sockets on peer disconnect (#3909) ([95d6b2c](95d6b2c2ca6d7d68bdd8b6634b76b3acab8b6fa2))
+- Limit max retries form infinity to 1 (#3916) ([184f500](184f5007fc46e952b737a4152a7af70fc6612705))
+- Manually apply b0296e765700d0dc7c0356770bd3941da1609660 ([abfe43f](abfe43f8c3c37eabf33aba42d59609b896869d5b))
+- Fix tests ([d47bcf9](d47bcf916788f389de3cd2d68af1df6942a92716))
+- Re-add tests ([dabe6a3](dabe6a32aec8ae9efe28484e5a4f5372ec1f4cd7))
+- Move test ([f4dba90](f4dba90baf7b7a8063a045716a0e9fcf0d043a89))
+- Fix transactions/${id} confirmations and timestamp fields (#3925) ([a7b46a9](a7b46a906b4abd9e939d65b62b7ea971dffb4489))
+- Fix order in delegates/{id}/blocks (#3932) ([50492b4](50492b4540588f4f52761d72ec572c6f3a794b5f))
+- Discard zero-padded R/S ([9f197fa](9f197fa114078d865c67bbc88fb9bed623a7cf95))
+- Check sig length value vs r/s length ([c2d3f2e](c2d3f2e5f302289fce84b7fb188feb43dd98798c))
+- Find by address / public key before username ([ddd19cc](ddd19cc2d7fcb38211959d21ec08c49443bc77e2))
+
+## [2.6.49] - 2020-07-22
+
+### Added
+
+- Include estimateTotalCount into peers response (#3825) ([ed8a0e8](ed8a0e803bbba82043996ff19053a83cf2e5c0c5))
+- Add aip36 milestone for devnet (#3845) ([1da58eb](1da58ebb92304e1f210fdca42b64e6b0cb66c3fe))
+- Add missing return type to this.queue (#3817) ([511e575](511e5755df826cb7ffc0c4d3d1e929e34616fdad))
+- Add vote balance matcher ([1b68cae](1b68cae0c69936c1cc4e79df455d7da3d739751a))
+- Aip36 delegate entity (#3877) ([9f2eb62](9f2eb6296de7d8140c20376618f19fea18b09f60))
+- Forget unresponsive peer (#3887) ([5222b5c](5222b5cfbbb0d89fb7b88d94edcbc352b6fa2e5b))
+- Add block and transactions indexes migration (#3892) ([b42bfb6](b42bfb6f79f1b92550de40c9bdeb6586f69c21f6))
+- Enable registering routes with pagination (#3895) ([47d3cf2](47d3cf20dadc2e7fa333db0e8c48d4192e18e86f))
+- Split into 3 ports for blocks / transactions / others (#3896) ([9796d13](9796d138a0be797f3964bf36545e96a2a493fdd9))
+- Implement peer blacklisting (#3898) ([f18928d](f18928dd5e023acbd42eeb1919ca1c16651304bb))
+
+### Changed
+
+- Update dependency nock to v13 (#3840) ([d1018f5](d1018f5a33af677e67a4aa9045f69acb6a8750d3))
+- Remove obsolete magistrate endpoints (AIP36) (#3847) ([219a940](219a94081ae885ac678088985a120113d19023ee))
+- Accept peers in the 2.7 range (#3848) ([aab4089](aab40895a7158c06d6cdf60ad081546f25b42c2d))
+- Skip verification of transactions sent from multisignature wallets (#3846) ([fcde954](fcde954423dc20369d7d1f9ef0be76d7ee4a4956))
+- Union query typeGroup with number (#3854) ([1a81aee](1a81aee41190a5336c0f74b8281257fbfa34c863))
+- Upload codecov reports all at once (#3856) ([60624a3](60624a3fd6999e081766b50def0e2c4e1955d1e7))
+- Update node.js to v12.18.2 (#3861) ([0e9f76e](0e9f76e402469c56dc51fcf0c5e2bcd084bb705c))
+- Ts ignore ([c03c2dc](c03c2dcfea3c5ef251af1b10cd407d2acccfac60))
+- Bump xstate ([0601aea](0601aea47adc9c18701a416f02e7c3c8fd541bff))
+- Update dependency depcheck to v1 (#3874) ([5dc157b](5dc157b5bf8b0b1a900f04e9c9e6bfdf25cac2fb))
+- Remove obsolete matchers package from merge ([76e9317](76e9317a3d7fc54a37f2a0698bf4874bf60b74c4))
+- Remove excess code from hapi-nes (#3878) ([f0fe8b9](f0fe8b9396cad6709561532b3d5e65916bb770f1))
+- BlocksInCurrentRound and forgingDelegates are arrays (#3902) ([50ce984](50ce984e16a5ad086303e332322329d02d14d293))
+
+### Fixed
+
+- Update dependency type-fest to ^0.16.0 (#3839) ([aace12e](aace12e593bfc5c72d216fc2ba1e62e83f2de06f))
+- Transaction builder should build and sign versioned transactions (#3831) ([93937b2](93937b2862bfe3127285279e4a28646a56295476))
+- Fix magistrate tests (#3849) ([ed91409](ed91409d06a8e4f4abeb87cb7c4fceb28b7b1a42))
+- Fix entity bootstrap methods (#3851) ([89a7176](89a7176fdd42f89e89759246ea78bb1798ce44e9))
+- Fix entity register bootstrap method (#3850) ([bd5b1ad](bd5b1ad03ed3bbd8578d99fb13576f2151ddd8f9))
+- Respect CORE_API_RATE_LIMIT_DISABLED env variable (#3855) ([c7d8242](c7d8242f3d34bbbaf9349a957af453cf9bb8a784))
+- Union type with number in pool query (#3857) ([cf43417](cf43417e27d22b50c1c148fb813601b9c015fb61))
+- Restrict internal routes to whitelisted IPs (#3853) ([3467289](34672893b44a5af3722bb7edf75bb9ed0a4cd0e0))
+- Increase coverage to 100% (#3859) ([2bb51a2](2bb51a275fb7f59d5906f065ab2eeaa63bb39e82))
+- Stream transactions during bootstrap (#3844) ([8a6be81](8a6be81d88eeeb1fae964f56841cb072171ea649))
+- Ensure peer port is always an integer to avoid socket validation errors (#3864) ([4e7cca1](4e7cca1f3d554aea11052378f965037307fd447d))
+- Increase coverage to 100% (#3865) ([4f041b3](4f041b3542f193af5ee89fe524bcf5cb92524bb8))
+- Entity handler bootstrap method, fetch transactions using asset type/subType as number (#3852) ([4031a51](4031a51da27f8e506f9daf8010a40e4b9ae01053))
+- Increase test coverage to 100% (#3867) ([68bc033](68bc033b0243ecbba771d8238bfc36443f395fe5))
+- Fix tests after merge ([fa2e5d9](fa2e5d9e4c1e758629337cdd9f954c506494de3b))
+- Re-add unconfirmed matcher ([7123ff2](7123ff20a08669fd408a1be7c221081b363b3cf0))
+- Fix snoozeForBlock ([f924eb1](f924eb155cbe46797cdf5efc91d441dc0049cfbf))
+- Fix functional tests ([20ad955](20ad95519cd966fe33f5b375640f4305cdee154d))
+- Version 1 multi-signature handler should check milestone data (#3871) ([74e1e37](74e1e37905126dad2bd7cd6659781e2ac19c5fc7))
+- Handle when there is no business.bridgechains ([14a3af3](14a3af3af05fdee4cee1046a6bd30e1e410805a5))
+- Fix failing tests ([7ebb126](7ebb1262e087803e77693d2b2c899957681e46d6))
+- Fix magistrate test ([7ec1ba8](7ec1ba83edd3688489421fcdab8e478dc3b4e1de))
+- Allow dynamic fees (#3876) ([2400b8d](2400b8df88e5754e7dd33b2b1736af69374b8f6a))
+- Increase coverage to 100% (#3884) ([1d91aeb](1d91aeb5b264de3a3f3af18a6fb629d421c1f080))
+- Guaranteed transaction order (#3879) ([110ada8](110ada8df3fa00550e8a6b91b610af059b50a360))
+- Uses new promise instead Promise.race (#3886) ([915263a](915263a273bdf087ca25327770cb2e6256fba1e6))
+- Reset peer errorCounter after response (#3901) ([1e7d11d](1e7d11d4625d6806222e5ea59d2bd343c48ff50e))
+- Sort transactions by sequence before saving block (#3900) ([cd29f85](cd29f850ea61035c7757dca66fb2ca8e2a9c4b44))
+- Use bundled file for `browser` field (#3904) ([20d66cf](20d66cf38ce32283f5162f7162390d27f740a1e1))
+- Reduce download block size when getting no block ([e223287](e22328753844d4388bd7fdd4663cae5d83e9a3c1))
+- Ping ports using head ([db226bd](db226bd3a3859fcb45dedf7785bdf03bf98d53a3))
+- Stricter rate limit for getBlocks ([df7a3aa](df7a3aa1533dbd118f51954ff0ae89aac5519747))
+- Allow to discard possibly invalid txs from pool ([0450ee8](0450ee8425873d303082469aa52f3c43022cc602))
+- Check sig length vs R and S length ([1b0863c](1b0863c38bce6eb6f7b58333c4ff89ffb653d33e))
+- Check that R and S is positive ([0783ec0](0783ec08da1488e0bb831848fc39506f22ebb48f))
+
+### Removed
+
+- Remove duplicates entity resigned/isResigned (#3858) ([90bf42d](90bf42de37a8a90abf6d435684510e4d4223909c))
+- Remove obsolete check (unique per wallet now) ([d9c8b07](d9c8b070c7a4109e16f36196570c9575cd010884))
+- Remove unnecessary assertion check to enable devnet sync (#3885) ([381e9c7](381e9c7ae16007d1a88e553e367ce9259f545262))
+
+## [2.6.42] - 2020-06-29
+
+### Added
+
+- Set up aip36 milestone to enable entity transactions (#3811) ([d9fc0c0](d9fc0c094ed56c633babb2a01c05a6dc56c7eca6))
+- Disable individual watchers (#3829) ([e943e56](e943e5635223ecfa153ff2c1f30c0924e1064f07))
+- Add rollup config for browsers (#3830) ([da0d8d5](da0d8d5ae55defd33dfa505ebf06cd76066d3d9e))
+- AIP36 (#3836) ([36c1ca7](36c1ca76871704c246472ef73ea2a33acb6ce364))
+
+### Changed
+
+- Use shorter default timeouts (#3804) ([f4025bb](f4025bbc538da378d8af7d125ddb358141651814))
+- Update node.js to v12.18.1 (#3809) ([2a2216f](2a2216f46a2699985a8bca4db354202a56a18006))
+- Upgrade typeorm and pg packages (#3812) ([daf4bb4](daf4bb485dc37d05e52dfe5aa595de6e90c8a2dd))
+- Process blocks log line (#3815) ([4e68514](4e685146d4c87e02f4d1dc278efc49ba180f837f))
+- Update commitlint monorepo to v9 (major) (#3819) ([587297b](587297b45a34b47efe31f5f85c890fd016ce2810))
+- Copy over `@hapi/nes` with forked code (#3813) ([5700867](5700867dbb03c58958b54309b6d1c793edbd3ec5))
+- Update dependency ws to v7 (#3821) ([7dcad10](7dcad10a47dcc77e04a9790d20de54c95bc27c9e))
+- Update hapijs monorepo (major) (#3822) ([c79a1dd](c79a1dd16f71a30a24a54aa93fd27c22f125497e))
+- Update `bcrypto` dependency to v5 (#3823) ([0b51042](0b510429289cb5025936ab7bf3bec54c5978fc77))
+- Remove app.log and all of its usages (#3833) ([bccf74d](bccf74d2c49725edaf6f1d36adcc01e0a922f7a8))
+- Remove app.events and all of its usages (#3835) ([35ef592](35ef5926d5321f94fde6caccaf09c2cb9df5b7bf))
+- Run rollup before publishing to NPM (#3843) ([b402dbb](b402dbbfd3400496a1547cb1dd12ba8da86f9018))
+
+### Fixed
+
+- Fix blockchain unit test (#3807) ([611eeb3](611eeb31fcc3d3fd47d731a9f0cc7e7a43d5d250))
+- Update dependency kleur to v4 (#3805) ([3e292ee](3e292ee8242fc30e41a997862bc392c865174b85))
+- Transaction filter multipayment recipientId (#3810) ([70700fa](70700fa2c2c9aab24899d69391c10bbe33aa11a5))
+- Fix delete blocks (#3814) ([b2fee48](b2fee486a1e40c16ed66736005e38f83145bf948))
+- Fix round order (#3816) ([9921a0d](9921a0d1e7906013333fa3dea6426af9a36e2c05))
+- Use incremental timestamps for `make:block` (#3818) ([4612cd2](4612cd243cee0c049903d557194236c347301557))
+- Return serialized transactions (#3824) ([7e369b1](7e369b18683954c8ad8477fcce255303ab7fc7bf))
+- InitializeActiveDelegates just use current round (#3827) ([7fa7af2](7fa7af259dc75413b4c90ccd8b0a28b357c4bebe))
+- Prevent watcher from calling app.reboot multiple times (#3834) ([0d4b210](0d4b210204d66c5caef18aa7332c86a2e519fc6c))
+- Increase coverage to 100% (#3837) ([196c501](196c50194d1f16e3a7a1072c5d6e33064f572cf1))
+
+## [2.6.39] - 2020-06-17
+
+### Added
+
+- Implement workers (#3693) ([d70c422](d70c422754c4a30059f803698941bed8ab68b3e6))
+- Implement `info.nextForgingSlot` action (#3748) ([d204f75](d204f752ff940046f839cccf13aa423e1f320783))
+- Support fedora (#3749) ([a29466e](a29466e89b40955b0d36a2bba91568792e770a00))
+- Implement events listener and events database (#3754) ([29672aa](29672aa9e5672acc5ff6672ea682f6205c2f87fe))
+- Implements DatabaseLogger (#3767) ([1c96818](1c968188ef3f22fbbda4f70522b8b0c545f67781))
+- Disaptch additional transaction-pool events (#3766) ([4190ed6](4190ed639f1f7c8d939006868851e90551898693))
+- Implement log watcher (#3762) ([1bfc528](1bfc528ab3c41b8cbe30bfe5339e27b92a6f1634))
+- Implement `watcher.getEvents` action (#3760) ([4757531](4757531e0b12dc20d2794c332ee036621a2547ec))
+- Dispatch webhook events (#3771) ([7ca7d96](7ca7d96821b84de368c22411bcb8e5852d38f6e9))
+- Implement `info.lastForgedBlock` action (#3747) ([6f9887f](6f9887f929a340a2a374552ca6667a67f4d7e03e))
+- Dispatch queue events (#3769) ([9ac9b45](9ac9b453a444bb1eeebc99f225dc4f66961dae91))
+- Dispatch schedule events (#3770) ([cc70738](cc7073833b45ed22426bb4659f3b01a71878a7e5))
+- Implement AIP36 (#3763) ([ce618cc](ce618cc3c8ee83e50e3a2881c18f7181b57ff564))
+- Dispatch wallet events (#3776) ([7cb916a](7cb916abcf741303e77e3294b1070a35b738f84d))
+- Implement database query support (#3780) ([8a2033a](8a2033ac91513db496b6351d7290bf17fa5837ff))
+
+### Changed
+
+- Update dependency typesync to ^0.7.0 (#3752) ([f288f8e](f288f8eec8776b8cb53deb65d6e2bc0cd31d8e15))
+- `getPeerConfig` return plugins information (#3755) ([a124655](a12465527e108bcbef2977fa2f1d005d48dfba5d))
+- Update nsfw 2.0.0 to support node.js 14 (#3775) ([5ef81ef](5ef81ef775abbef9f36d87e6672b232737b5aa11))
+- Fix configuration and plugin actions (#3788) ([d0650b1](d0650b1a53df37d62c1f16d132e53dae0d1e1f41))
+- Update dependency @types/jest to v26 (#3787) ([4578d9c](4578d9cbf6d7f04fae6c5ed904f0bc4941886d11))
+- Update dependency npm-check-updates to v7 (#3786) ([4ac2706](4ac2706b1f0a68ef811907afb4c7ca6eb56ca242))
+- Update typescript-eslint monorepo to v3 (major) (#3783) ([5026e23](5026e230083f74c7c295c8fe889d991caf099310))
+- Log milestone change (#3797) ([cecf892](cecf8929ef757f52eff82a9188c50a504e9b68b9))
+- Remove custom wallet repository (#3803) ([bb8cb12](bb8cb129337e304d270ced54e2de2fc43f79baa8))
+- Better locking (#3802) ([f0acce8](f0acce87a48c1de6fc93a61556a572a0643f583b))
+
+### Fixed
+
+- Handle multipayment recipientId during search (#3756) ([67ae0c8](67ae0c81148c2755f12466f6f695fa0ed0a3c09c))
+- Include multipayment in forged amount (#3733) ([3439e52](3439e528311220a227584ad49514ed8c3b1f9ae0))
+- Fix wallet/transactions confirmations and timestamp fields (#3761) ([666ba67](666ba6787ed6dfe9cf9e23485ecba2a8514d6870))
+- Round deletion when deleting blocks (#3772) ([62f5ae9](62f5ae962d1be1c45b703d8c0c3dabe46c51e605))
+- Straight delete blocks during rollback (#3773) ([b87a7a8](b87a7a8a605ef8d2092add5eba3bcb823c9a6a5a))
+- Use hapi inject when creating transfer transaction (#3774) ([3ac7a03](3ac7a0345854e0399d031d5470377e872433373d))
+- Introduce CORE_RESET_POOL env variable (#3765) ([ba49d87](ba49d87977e69b73e51bd1012bb2735b3ac82e06))
+- Set default orderBy value (#3777) ([9ea9bb4](9ea9bb4e6f4f491733852d8a9f859c5ad0bfe506))
+- Re-add transactions to pool when milestone changes (#3764) ([eddb726](eddb726ff8474c38e454316c796ba1c78bdd0936))
+- Fix transaction resource responses (#3794) ([b3e0b98](b3e0b984a2f8348a3e80741d91d0ff6baaa088b7))
+- Log all unexpected errors (#3792) ([9fc047a](9fc047a1fae91d4ac7eb0f05cd14e6bf7d2520bf))
+- Replace ws connection logging method (#3791) ([3525e86](3525e860901490b5663b2a31e7376e8294b2a7ca))
+- Rebuild vs update race (#3800) ([507f811](507f8112f911c1a4baddc630fd5dd5811455807a))
+- Return last common block (#3801) ([b219609](b2196097106534908073b525f26b620fbd0b63bc))
+- Handle transaction deserialize error (#3793) ([09e0892](09e0892770b2ed01c33000922d7ef55e1d166ac8))
+- Block schema violation (#3806) ([54ba2d2](54ba2d211d9bfcf63c94f13608a7f647fedd08b9))
+
+## [2.6.38] - 2020-05-27
+
+### Added
+
+- Implement `info.coreStatus` action (#3694) ([40ddab0](40ddab0d2f0ba650b12095abd08e846318cf5de2))
+- Implement `info.blockchainHeight` action (#3696) ([9c20c02](9c20c02e0facf9682c93bbf9616b36f99f3309b6))
+- Implement `info.diskSpace` action (#3698) ([67cd2c6](67cd2c67faf3b932dfe632fbc50a60bbc350ae90))
+- Implement `info.databaseSize` action (#3699) ([f28ba8d](f28ba8db8f879574b3ca0bb077ebf0d198abd83e))
+- Implement `process.restart` action (#3704) ([3559f71](3559f71ed27fb05d74ae0df65a5c21df167d6de1))
+- Implement `process.start` action  (#3703) ([c8fdde9](c8fdde97c52484789f470553ba2c0c4e248c4ac9))
+- Implement `process.stop` action (#3702) ([7db0126](7db012655cfe557c8907e265f6a599f8d8c4d4a9))
+- Implement `process.list` action (#3701) ([f31109f](f31109fc669b004a3ad23ed71016a04b940856d4))
+- Count estimation (#3706) ([118be7b](118be7ba3e0722bf92518de1282216d7300fb8a0))
+- Implement `configuration.getEnv` action (#3716) ([ef450f9](ef450f9d377b161b99bafe91d646f29bb7b92230))
+- Implement `configuration.getPlugins` action (#3717) ([dcfff76](dcfff76d1b38cd913e254f8a1aa47946f81d601a))
+- Implement `configuration.updateEnv` action (#3718) ([ca28f66](ca28f66f295e6193259f425e56850cc3581d8e8b))
+- Implement `configuration.updatePlugins` action (#3719) ([36a607a](36a607abc8f2376f4d4b53de5a373e21bff51160))
+- Implement `log.archived` action (#3714) ([10e8217](10e821751689001edce83d898b0e040af9cf21f0))
+- Implement `log.log` action (#3713) ([fa49ca8](fa49ca804119a1f7980f6a83c400a4082cab0e0f))
+- Implement process actions (#3710) ([1cb7e23](1cb7e23ed8cb680a0fb05d12728250fb9bad1ae6))
+- Implement `snapshots.create` action (#3728) ([82382fc](82382fc9c8882769405e058941a5467a614d95de))
+- Implement `snapshots.delete` action (#3724) ([f87e146](f87e146fb9cd32f13d959e0f81d1c846958b9d5b))
+- Implements `forger.currentDelegate` process action (#3723) ([052aae8](052aae85fc9c7c9755b3c7f033c43ed51cb1ad00))
+- Implement `snapshots.list` action (#3722) ([7a8bb93](7a8bb932d8fc33e941c7f9923d771a3b8df5bb9c))
+- EstimateTotalCount API parameter (#3725) ([c52b6ab](c52b6ab74a5656074403371ff7f94594b179f2d0))
+- Implement trigger method in ProcessManager (#3736) ([cf8a401](cf8a401bc684572cb4e336cbeacbd12bcb864cab))
+- Implements `forger.lastForgedBlock` process actions (#3734) ([97746d0](97746d0cfa2f032270ae78cda98616abcb2a4e0b))
+- Implement `snapshots.restore` action (#3732) ([bd0370e](bd0370e3cc03dc5ab8e05d85414e7c0b4436a125))
+- Implement `info.currentDelegate` action (#3739) ([8528767](85287670be46d0fdf7f98a329a12b571e3fb071b))
+- Implements `forger.nextSlot` process actions (#3735) ([6dacdfb](6dacdfbb8f0114e477c55cf50d9434fb119b8596))
+
+### Changed
+
+- Update dependency npm-check-updates to v6 (#3705) ([51bea66](51bea664f4a40d04dfff87ae0ef5b2a0df1f9fff))
+- Update dependency ts-jest to v26 (#3708) ([b21f841](b21f84143ec5ff075adf6bc724a5208a65b4dc42))
+- Update dependency @types/uuid to v8 (#3715) ([dafd569](dafd569ada35c1a435b0a58378b4da7edd4db537))
+- CentOS install fixes (#3738) ([8bd8117](8bd8117340bf49057c3acd2ece1d503839346cd9))
+- Update node.js to v12.17.0 (#3744) ([90831dc](90831dc1138c72def90af08c970128a1b93f33ae))
+- Update bcrypto dependency (#3737) ([c74e4ca](c74e4ca7217a4b22b2984bf491c5a5564ff915a9))
+
+### Fixed
+
+- Unit tests (#3700) ([c11ebdc](c11ebdc6d19dadcbdd9fc85eef4e9f78da3bd995))
+- Update dependency type-fest to ^0.14.0 (#3721) ([a336694](a3366947f2be83ab833d8f70bb75de76f04e3779))
+- Throw ERR_HIGH_FEE when fee is too high (#3743) ([8a383b8](8a383b8dde16e77266dfb972e69b7b4623667261))
+- Discard late-forged blocks from forger (#3746) ([36b5115](36b5115b9ac9e05d5e33bf166833f5e86085f3b4))
+
+## [2.6.37] - 2020-05-12
+
+### Added
+
+- Implement core-snapshots package (#3672) ([8df596a](8df596ab27733cf0e5db3ab038973517e40eb05f))
+- Implement core-manager skeleton (#3685) ([fed54c9](fed54c9df250c211d05be36b572b3edace40bfc6))
+- Implement IP whitelisting (#3686) ([9894e9a](9894e9aba8d4fef42b326cd67842a76f5edc8eb4))
+- Implement basic authentication (#3687) ([c304257](c30425775d303db534e15b97e1b199db241abd8d))
+- Implement `info.coreVersion` action (#3692) ([4ef2968](4ef29686ba6b783be004c16bd5a1e5ef107abe99))
+
+### Changed
+
+- Use `export * as ns` syntax (#3677) ([0443687](04436877fc4067acce44af8e5bb5522e6c7f6df6))
+- Enable assumeChangesOnlyAffectDirectDependencies for TypeScript (#3676) ([027c6de](027c6dec984eb3baef0e7e744750283e030ac4f1))
+- Update dependency jest to v26 (#3680) ([43de681](43de681af48feb076e9c75d63c183ea2b7e2ad8a))
+- Update dependency @types/hapi__joi to v17 (#3682) ([32db696](32db696ca7942e7d902967d62486778495891801))
+- Update dependency npm-check-updates to v5 (#3690) ([1896d85](1896d853968fe0da0397f861b9f772692598629d))
+- Update dependency eslint to v7 (#3689) ([faeeed2](faeeed21b32c2aaba56782ea8f849440b43b9af5))
+- Custom validation for postBlock in worker (#3695) ([247b997](247b997d85b3dd06e4c1f8c7ea37622c684a57a1))
+
+### Fixed
+
+- Increase coverage to 100% (#3673) ([8434157](84341572b78495941631e2d51b669086162b9d7d))
+- Show log levels <= defined threshold level (#3681) ([e1921ba](e1921baa94f1b6c7b351cf933cc2c060acd0c4ca))
+- Get app version from package.json (#3684) ([5610706](56107062dd788b85c09a2a5c6a50f9d029a1dc30))
+
+## [2.6.36] - 2020-05-04
+
+### Changed
+
+- Update dependency tmp to ^0.2.0 (#3660) ([5aadc68](5aadc6845bff0612558700f35907c96e245a6020))
+- Update node.js to v12.16.3 (#3670) ([b5c55ba](b5c55ba4922c27a1ddd87bb6c484f9e5124212ac))
+
+### Fixed
+
+- Update vote balance with htlc locked balance on vote transactions (#3669) ([b0296e7](b0296e765700d0dc7c0356770bd3941da1609660))
+- Update dependency pretty-ms to v7 (#3663) ([7386f04](7386f04fb4f3aa24bc0c266fd1a5510a2168190b))
+- Update dependency simple-git to v2 (#3668) ([d5e11e4](d5e11e4311dae5297dde195ce3fd37085ea14f08))
+- Update dependency uuid to v8 (#3671) ([3be635e](3be635ebd373a9bd26fdda768b55f66459a7f0bf))
+- Update dependency better-sqlite3 to v7 (#3661) ([932cfec](932cfec2412b66aed157f48def6ed2cf4ccfc10b))
+- Use sorted array (instead of tree) for storing transactions by fee and nonce (#3678) ([e0b1431](e0b1431ea5e577c0ed8f11b44ac8374f2d9b6004))
+
+## [2.6.34] - 2020-04-28
+
+### Added
+
+- Add reusable mocks from tests (#3621) ([a82a094](a82a09437f7c3acafafd36a8fa68adfd473733ad))
+- Add check in config-cli command to check whether the token flag has been set (#3631) ([94c2da2](94c2da2b7370e67503d9ee5a0e34d140a61fb706))
+- Integrate triggers and actions (#3634) ([0d5390f](0d5390fd42cac3cf87a55f3776edb2eabc0ac1b2))
+- Hapi/nes implementation (#3643) ([4ff97a2](4ff97a26f0d3bb722ca195fb573e53a3141ce259))
+- Dynamic block times (#3650) ([084b396](084b3962455623b0176b8b34bb0661dca2d40f44))
+
+### Changed
+
+- Update dependencies and apply formatting (#3624) ([e6d579d](e6d579d69c3077b2fcdb3682df7a2f39bbd59d1c))
+- Update dependency @types/prettier to v2 (#3638) ([f1317c4](f1317c4f0442be0f60643eb826fa7fbffaf9149c))
+- Fix build status badge (#3639) ([6a5dc31](6a5dc31fd0153e60952cf14651c0cabaeaaf187e))
+- Update node.js to v12.16.2 (#3646) ([d32feb2](d32feb23ebf6f2cc5fb3bbce311bfb0d2e55871f))
+- Update dependency @types/pino to v6 (#3649) ([f631218](f6312182744074ca8b852b4a9ef5a3584fb49a2a))
+- Block and transaction history services (#3644) ([2038cd5](2038cd5ae95c8f42aa06341b6297df36008ddb1d))
+- Update @arkecosystem/utils dependency (#3665) ([76283d3](76283d33604c4cb402309294cc7a40f699d46e5f))
+- Use tree memory structure to sort by fee and by sender nonce (#3667) ([74aa1e0](74aa1e0facf6fb8c19accadb7492707865df217e))
+
+### Fixed
+
+- Update dependency envfile to v5 (#3620) ([a0d90d0](a0d90d0b290c4646170d34a23252ecf3855cbadb))
+- Blockchain and p2p fixes to be able to launch a network (#3619) ([e97a18a](e97a18aed3ee3815c3413e73651d208795846691))
+- Update dependency pino to v6 (#3622) ([1299551](129955182a002dfdd268535c7da441d084d7d91c))
+- Update dependency uuid to v7 (#3630) ([8953c24](8953c24394bbe1570da1f8a79e9a89becf164dfd))
+- Increase coverage to 100% (#3623) ([6769ce0](6769ce08d6ea66c51fc88ff7284200cbbd9d4932))
+- Update dependency pg to v8 (#3633) ([6a0ed9e](6a0ed9e3fdb3e5b47a4c1dbf093596ff41b561fd))
+- Update dependency cli-table3 to ^0.6.0 (#3632) ([b3153ed](b3153ed494aa8aac3348199240872f82fab5a0b3))
+- Update dependency type-fest to ^0.13.0 (#3640) ([64ca605](64ca60596b5163107029fd7f7f1ebc59b0fff82a))
+- Update dependency pino-pretty to v4 (#3635) ([2f014c7](2f014c7bedadeadac521023f2f78ff4d5435b60b))
+- Update dependency chalk to v4 (#3636) ([9484306](9484306c3e8d199c9d11ee67ba2d2ff67c028d2d))
+- Block and transaction history services (#3657) ([a9254a3](a9254a3d4d44e2a6bf99731dcadfc627d657f925))
+- Import scope (#3658) ([37cb56e](37cb56efc799b0287ee2a3a84ef352ebb821152e))
+- Create a unique round ID (#3659) ([5911c7c](5911c7cd582685635426b9e3a63811fef8b7675d))
+- Update dependency got to v11 (#3655) ([c4988c7](c4988c71d0046fe2d5b9438c53c60ab37f05fa71))
+- Increase coverage (#3597) ([1f57a85](1f57a85fbc52ebdb0b48f0b5766a9100a0a2b62a))
+
+## [2.6.31] - 2020-03-25
+
+### Changed
+
+- Update dependency prettier to v2 (#3609) ([a593000](a593000727fd9753ed92c3adcbc443e8df917123))
+- Update dependency @types/rimraf to v3 (#3608) ([6e5fead](6e5fead74f61a7f81a1ba9dd07d7c58a7a1292cf))
+
+### Fixed
+
+- Increase coverage to 100% (#3607) ([6a0f382](6a0f382e2900c2773900a905d4d04eaf021682b1))
+- Log warning when active delegates are under the required delegate count (#3611) ([937ffa0](937ffa08737400fb7e85a23f871ddf02cfc00f3a))
+- Increase coverage to 100% (#3604) ([6c8c436](6c8c4360f08a0ba1ec0f96b8fd5cf05ff24b6971))
+- Change import scope from @package to @arkecosystem (#3612) ([606faac](606faac84e5ea1b65d7f40b9e9236cb4162f0e88))
+- Increase coverage to 100% (#3613) ([1532562](15325627465b05dea2430b4be6d762c60afee25f))
+- Allow transition to fork from idle (#3614) ([f779485](f779485a703151b5ce201b8393ac306ca2dc4659))
+
+## [2.6.30] - 2020-03-19
+
+### Changed
+
+- Update dependency typedoc to ^0.17.0 (#3599) ([4a76ef2](4a76ef23daaeb587840bd9dc35806a732547fda9))
+- Database optimization (#3605) ([8929708](8929708f7028ec8acd1ad5c0bdedf6e9fe9ceb9e))
+
+### Fixed
+
+- Increase coverage to 100% (#3602) ([50fd8fe](50fd8fe5a7143036636781b2331a55e2e9d7f72e))
+- Increase coverage to 100% (#3601) ([a056ff5](a056ff50ce4a01c0f951b2deb8fd7b98f2f0d8bb))
+- Increase coverage to 100% (#3603) ([c5e80cc](c5e80cc3d352ad61a341bc53aad9a24780d4181d))
+
+## [2.6.28] - 2020-03-13
+
+### Changed
+
+- Reset missedBlocks before await call (#3598) ([4831c7a](4831c7a0f25659a1f4c845dfa4f1be926d3420bd))
+
+## [2.6.27] - 2020-03-12
+
+### Fixed
+
+- Increase coverage to 100% (#3553) ([462314a](462314af5744848128a6fb5540006b112150052a))
+- Increase coverage to 100% (#3543) ([babee6a](babee6a69409349b505235c0ca73d057e7f4ca1d))
+- Always apply to sender wallet on acceptChainedBlock (#3594) ([77c9a88](77c9a88ea094add6d224ec7900f5f72fb70b7068))
+- Increase coverage to 100% (#3593) ([ae0ca12](ae0ca1242cd02de4a5fc94c98b87ccc55048ede5))
+- Block incomplete sockets (#3596) ([f1c35f3](f1c35f3a9c8bc277b13da400d0e4984d626d3a65))
+
+## [2.6.25] - 2020-03-09
+
+### Changed
+
+- Remove app.js from .gitignore (#3577) ([be37c11](be37c11eac11169b323fc207b7791f313617f72c))
+- Remove core-utils package (#3579) ([e428af2](e428af25dc6f303e271fbc8ca0f94e590d9c8fbd))
+- Fix bride -> bridge typo (#3585) ([82621ee](82621eeb419297d565b87351c2ce2cffc68bc36a))
+
+### Fixed
+
+- Fix github environment variable setup (#3578) ([b7aeb97](b7aeb970154420fab4a34b7ce8ebaabc5a894160))
+- Increase coverage to 100% (#3580) ([c1c7add](c1c7add7d38796d9b2daa1807f3b719999e6d85f))
+- Disable coverage collection until overhaul (#3581) ([51e9f20](51e9f201b29cc631edea69a08c33c7a5de18951a))
+- Disable coverage collection until overhaul (#3582) ([2fac9a5](2fac9a505b4812b9cd00a733f5ba0a3bb9e545de))
+- Increase coverage to 100% (#3584) ([256db1e](256db1e3cf5c8e0573f621c8b2edeb17931f0e8f))
+- Increase coverage to 100% (#3566) ([f10f596](f10f596f25e7e090f4bc28ab969ea345f72d2c7e))
+- Update dependency type-fest to ^0.12.0 (#3588) ([62aaec7](62aaec77b70c7a5a1df9eeae76604ef3e3f79bcc))
+- AcceptBlockHandler apply block to tx pool before db (#3590) ([21436df](21436df52ee4e92945f2877751398513f8ed808e))
+
+## [2.6.24] - 2020-03-04
+
+### Added
+
+- Add missing transactions.type_group index (#3573) ([5bf4e59](5bf4e5901ae94325069256e44a468747b96e2a50))
+
+### Changed
+
+- Update xstate to v4.8.0 (#3575) ([50fd560](50fd560b8ecbcf3989d8c5d3cc5688092f9f8528))
+- Use application events from core-event-emitter (#3574) ([c2c93f0](c2c93f025923786c8563083935e89755652d178a))
+
+## [2.6.21] - 2020-03-04
+
+### Added
+
+- Add username and secondPublicKey to wallet resource ([c12064d](c12064dc7261e5c430d731ea8d772cff0854b9ad))
+- Transaction to string method (#3536) ([4999fec](4999fec699a97eee183eccaeca9ead11f33b3d6e))
+- Add exceptions for business resignation (#3551) ([ba67dbc](ba67dbce46a025a68d6cebe61d4d1578be0200cd))
+
+### Changed
+
+- Update readme links (#3540) ([61c500c](61c500c62e3b98a071d691a327d2d78b908bf1f6))
+- Fix typescript errors ([0d726ed](0d726edfad1b3ad21344b2e6ab3ab330d4937e02))
+- Fix lint issues ([68f13e6](68f13e6c67b03e12371d930680237f290b4c098b))
+- Bump hapi/joi version to 17.1.0 ([d9b8bc5](d9b8bc5690119ac210845a82a608d8826cba7178))
+- Define default value for maxTransactionBytes ([77e0366](77e036629666c65d18c025bbf653de5e133253c6))
+- Segregate pools by wallets (#3499) ([2aca6e1](2aca6e171b35eebf1c82ab1a03cb79c356359d43))
+- Resolve merge conflicts ([27813b3](27813b35debd7d72c7acd8e2a1470034d320da72))
+- Update dependency typedoc to ^0.16.0 (#3544) ([a2f436d](a2f436da66eb99e59ab02a1318d1d28e99d83447))
+- Update dependency @types/yargs-parser to v15 (#3546) ([a0e0d1f](a0e0d1f2fe80a4170c1f67b39bdf119f39b335dd))
+- Update dependency sinon to v9 (#3547) ([7955b1c](7955b1c56d7b38ac1fb41d53ae79a8a24e930e23))
+- No default addonBytes for magistrate transactions (#3560) ([980f3f5](980f3f5287fb7076653c06e08b10f7d587180ef5))
+- Use jemalloc as the memory allocator (#3541) ([71daf5f](71daf5f29c3ff123ef29169eed55149b8ee047c8))
+- Merge index and reindex into one function inside WalletRepository (#3563) ([af2d8dc](af2d8dcf5b743d073141a571852b5da5530afed8))
+
+### Fixed
+
+- Re-enable tests ([49d12e8](49d12e8d9822b038a70f9535e79e64639ca9861e))
+- Use Joi.object() in schema definition ([2a325d1](2a325d197214933e38714f329a8be14d874c20bc))
+- Fix bridgechain registration ([20bf9ac](20bf9ac3cdc5c38a723c1097ddfb75ab8c2eeed0))
+- Adjust transaction factory for custom network configurations ([ab27881](ab27881a42cc700fad781ebff299dcd56b93dd26))
+- Use unique business and bridgechain names ([d9631fb](d9631fb64220146694d7ea2a5c292212a5c289db))
+- CalculateLockExpirationStatus method signature ([fc67202](fc67202065dfdf754cc10ced2751d58fe28780d3))
+- Set height to AIP11 for magistrate transactions builder ([ee8860c](ee8860c1789cef4c2b510f120bf157be13b0bd4e))
+- Use htlc secret as hex ([0c38e1b](0c38e1bc99c7f2a1ea6482a0dcfd6f5b64072819))
+- Enable HTLC by default ([37728bd](37728bdc18d1be3422605866786bceb8ef586838))
+- Use htlc secret as hex ([6d0afd1](6d0afd1d1d0939a2a6e58860b046dd57fc8e1dcf))
+- Fix schemas unit tests ([e74fdba](e74fdbaf259dfe99f0034abda5c11f249c2a3102))
+- Explicitly use multisig v2 for schema tests ([c892a2d](c892a2d7fbe82f26cde7188335c02022846726d5))
+- Allow string and number for rewardAmount ([f7c4741](f7c474109d81b91f1a4bb87125154328a63ef643))
+- Account for new step in call times ([1fd4359](1fd435927462e78b5f3b1200eca4921c807c33c3))
+- Validate multisignature against legacy schema ([c71cc33](c71cc3342f7c972fda54b6abd35ad3012d5f2d9c))
+- Clear mock in transaction broadcaster test (#3531) ([b98477c](b98477c83a6bb779a9e073d1fcec18935b7e8a88))
+- Undefined pool variable (#3535) ([9a8ecde](9a8ecde929c5cf82a651ed65324f90a5fe38f9c0))
+- Update dependency type-fest to ^0.11.0 (#3545) ([b87e6d5](b87e6d5a8cb26707e69e59f172531cd5b4a253f0))
+- Update hapijs monorepo (major) (#3457) ([a710906](a7109062a002b9bdb33ba24342d37a94a7f7dbeb))
+- Update dependency tar to v6 (#3549) ([ecc38d1](ecc38d1ce8e69be368288aa3b9a04458b1e15abc))
+- Update dependency otplib to v12 (#3548) ([4142145](41421455cdc6c41633af9afe51eaecf2c426efd5))
+- Update dependency yargs-parser to v17 (#3550) ([3fa361f](3fa361fc587ad97dcb65610035bcd353aef46cd5))
+- Increase coverage to 100% (#3520) ([c0dce16](c0dce16e04d82996a5677b02ab3ed2b14de9fe82))
+- Update dependency yargs-parser to v18 (#3559) ([64403cd](64403cd949ba9beb2b7d1194566ece57ace1b566))
+- Set height 1 on config manager for processing genesis block (blockchain replay) (#3561) ([31eb27a](31eb27a2aaab1417a021666b1ec82127f925de8f))
+- Handle multiple installations of jemalloc (#3562) ([b7e6398](b7e639842f802a6ddab0089c596f47629cfbaae6))
+- Increase coverage to 100% (#3564) ([6701702](6701702ac2e5ce24be197b5891a1035105c56617))
+- Jemalloc compatibility for ubuntu 16.04 (#3567) ([64084a0](64084a0aadde7e20d496a304a84abd2cd13b8c04))
+- Always call applyToRecipient (#3570) ([509db52](509db52aa4eed6ebd7310caa9e8e4539486deadc))
+
+### Removed
+
+- Remove unused variable ([ed5c91d](ed5c91d00d7b32fdc8fb87fa22bd1ff311778b02))
+- Remove unused variables ([7667bf7](7667bf7e6b8ec52dd291c04c9637dc7e2f6eb785))
+
+## [2.6.11] - 2020-02-26
+
+### Changed
+
+- Setup Wallaby.js configuration (#3522) ([ac0c0fe](ac0c0fef6a250f8655cad21fc1f530bcc0ba4f46))
+- Allow multiple ports in bridgechain schema (#3504) ([239f12e](239f12e144ba1ad80ad3748bae019e8973c68141))
+- Allow to resign business only when bridgechains are resigned (#3524) ([fbb82f3](fbb82f30ed36bbea481ca7f6cbe61dd129281425))
+- Make bridgechain genesis hash only unique per wallet (#3523) ([29019ce](29019ce0362c3179d7034819da388ad638a0a4f8))
+
+### Fixed
+
+- Only accept valid http path (SC http server) (#3537) ([f6462ef](f6462ef68cf6214da396254752c7b397efb4d50b))
+
+### Removed
+
+- Delete all tests before merge ([795def9](795def943d99486ea0d4a9aeef9847f30aead98e))
+
+## [2.6.10] - 2020-02-20
+
+### Changed
+
+- Transaction broadcaster (#3516) ([8fc18c1](8fc18c1afc03c34ec4e10a39f475f239cdaae0ec))
+
+### Fixed
+
+- Disable permessage-deflate (#3518) ([7bbd962](7bbd962dd0e5360dd5c587fac4faa65da614aec1))
+
+## [2.6.9] - 2020-02-19
+
+### Added
+
+- Add symbol for TransactionHandlerProvider (#3496) ([5834847](5834847a335794dc48efd44279fea1e81099ba9c))
+- Filter peers by version range (#3465) ([1359ba2](1359ba20794e86f5c5ebdd9137863d7d1fc83503))
+- Add flag to skip export of rolled back transactions (#3459) ([b88806f](b88806f5e4cf79bb242420b8006dbb0b973fd33e))
+
+### Changed
+
+- Use findByPublicKey to set both publickey and address on the multisig wallet (#3498) ([c5284aa](c5284aa4afa6be9b4f15e41aa792c28db3a8bc6f))
+- Storage (#3500) ([c558ddd](c558ddde3e82c364b4bfc590ad321f187ec8f150))
+- Wallet repositories (#3501) ([b87899a](b87899a57a3ef760e168fef7a97854605ecb6200))
+- Update node.js to v12.16.0 (#3463) ([363c65a](363c65a322aae9537a9cb494816d9bba7bf0738d))
+- Update dependency pretty-ms to v6 (#3493) ([6379b83](6379b83a3a86b21adb8b15ddb66bb8bb417a6cad))
+- Remove pm2 from docker (#3505) ([3ddb098](3ddb098e46104263991f59c83e57628127687ee8))
+- Remove long dependency (#3502) ([bf16abd](bf16abde9e425b6306cee8643778f80fac2702b7))
+- Processor and errors (#3514) ([acf3423](acf34236acf910592ab6e14635f9ea0cd6106ec3))
+
+### Fixed
+
+- Multisig legacy allow signatures property (#3489) ([454a125](454a125a401430704e05405114ba7f88702cd47c))
+- Check for missed blocks before applying round (#3507) ([6d4c00a](6d4c00a9ae9c64b2820276223d659aa51668685c))
+- Make app.js optional as initially intended (#3510) ([9f5785e](9f5785e5c8e08415f6e6300f41cb1e742637b6f0))
+
+## [2.6.0] - 2020-02-11
+
+### Added
+
+- Implement dynamic fees (#3416) ([af4b1b3](af4b1b3b02dbaf6730600efa459545e47039352a))
+- Add ability to inject plugin configuration ([d4acdfe](d4acdfe26990bc9bf593c6eee8cfd777760973df))
+- Add types to delegateAttribute ([baf84a8](baf84a83296f01a190446aaeeb79f99dcdbbe2a1))
+
+### Changed
+
+- Update dependency jest to v25 (#3414) ([c62b5f8](c62b5f8b0f5dfa691d81d35900ddb7894b0dbaed))
+- Remove unnecessary termination (#3415) ([511bc84](511bc8484ce6e6aab6b4743de8a0daae47c6ec95))
+- Use ioc for wallet repository indexes ([2eb295d](2eb295d58ce44590ac3f564fa71eee5e0d3c814e))
+- Update dependency ts-jest to v25 (#3420) ([6805f57](6805f577a86c0811047f1d5eaf4efdd56aae8fec))
+- Htlc-lock recipient ([03b51cc](03b51cc6b98881bfb20900b42f4528bf7ba5efed))
+- Update dependency cross-env to v7 (#3422) ([627a496](627a4965ed057f6e2bff0becb2a5322695609cde))
+- Use type index when querying multipayments (#3430) ([1e4c2d1](1e4c2d15254839a64ed5a6e12df8efc17ddb6aed))
+- 2.6.0 changelog (#3435) ([782e073](782e07306099d6dfad74a3f0485f8b22f6380c7e))
+- Re-enable username and 2nd public key as top-level api attributes (#3437) ([d26701e](d26701e31b9683aa9d55be273727f02d185d9248))
+- Timeouts for peer socket messages (#3439) ([f20abf4](f20abf41c757a42f83021fd2bf4cbb44bacc4644))
+- Merge patch from master (#3456) ([3a6b655](3a6b6555e4572d2d3fb2e368dc0b7c2213c3a990))
+- Update aip11 milestone + update p2p minver defaults (#3460) ([64fe08c](64fe08c2f1f2a6a14540966a793bc8ebc1c3d648))
+- Use @arkecosystem/exchange-json-rpc@2.0.0 (#3458) ([13d7f83](13d7f83e0de8c24a685fa961d380986217353a23))
+
+### Fixed
+
+- Fix p2p socket test ([2ccc33e](2ccc33eef92c402dfe917bb18cf1eb1e509ad0ca))
+- Handle p2p edge cases (#3412) ([1d3614d](1d3614dee12eb9be3b92681e5ec03c8e6c24c783))
+- Business tests (#3398) ([7311efa](7311efaea49773fedd23da063f56cefa7764f3ee))
+- Pass IBlockData to processBlocks instead of IBlock (#3426) ([117bb9e](117bb9e2c0bd1cd7bd5e2385cf7826d73a4fe955))
+- Set network height on configManager (#3432) ([481d59f](481d59f9fc0f2208fe1e07e2161a603ab7732a79))
+- Apply genesis wallet exception to lastForgedBlocks (#3440) ([6dbae81](6dbae81e194e4c23c88f03173a997d011fd2c7f2))
+- Fix import order ([704644f](704644f3f2ff7ad1aa47599a4be25168aeedc783))
+- Fix minver unit test (#3462) ([dabd270](dabd2701f512ccf38b1dc7625a2d0b4f0bc06d4b))
+
+## [2.5.37] - 2020-01-21
+
+### Removed
+
+- Remove banning when peer opens multiple sockets (#3409) ([16af15d](16af15d69c5dda5603c9570efa2b4416b2499f2f))
+
+## [2.5.36] - 2020-01-21
+
+### Added
+
+- Initial draft implementation of pluggable CLI ([8465625](8465625eb52df6229da75ee8ea006d995b4db6e3))
+- Added state=blockchain tag to wallet repository and handler repository references ([72440be](72440be8fd9af9e4a7e6525985654c8056255ece))
+- Add bridgechain asset repository (bridgechain registration and update) (#3375) ([0805613](0805613cdb67572f034d93f95e54fa8ae9354bde))
+- Retrieve business by username, address or public key (#3379) ([cf83140](cf831409f6f5cfebc6f4635c0551c1d6036ca1a2))
+
+### Changed
+
+- Discover peers when checking network health (#3358) ([68e1c9d](68e1c9d4c093e300b6c2cb3f6f128a6b280651ce))
+- Enable htlc types via dedicated milestone (#3353) ([e246093](e246093fdf1f89ec65324fe44b88366d33dd699e))
+- Change handler dependency handling ([b51793a](b51793a68b0bff1092c68b91a0f7efd2a883f3c2))
+- Stricter eslint configuration ([88219cf](88219cfd8b9fa86b3c7bcb8e39462675e85c2ea8))
+- Call `checkNetworkHealth` more deterministically (#3360) ([4d5b365](4d5b365c989f8444596b90fb6d3164b12f64295f))
+- Update node.js to v12.14.1 (#3376) ([7545925](75459251b816055ba4b244f962582b0689526c06))
+- Lifting singleton from transaction handler registry ([3571066](357106684a5c72f6d698ebcb2fb7c72aab7cce73))
+- Wallet transform (#3312) ([774b525](774b5259709db49f6c1dba7bf8d3f1bbeed856c8))
+- Tagged pool wallet repository usages state=pool ([f2a5852](f2a5852aded43c7634648c6b509244a256c6eed3))
+- Use wallet repositort with `state=temp` tag instead of temp repository ([1d10acf](1d10acf54301237f0c2fe280bb7b469b8e87d9d0))
+- Do not include /api prefix in pagination (#3381) ([49d3660](49d3660ea845672ccdeec4a854c0f8385a438a90))
+- Use shared rate limiter for defined endpoints only ([09fa383](09fa383d69079654204fbcda246438d9a86e81aa))
+- Call `checkNetworkHealth` less deterministically ([dce2a44](dce2a440135dabf920989f86f70102243fa18ccb))
+- Custom validation for postTransactions ([01e8264](01e826483a3e87758a03755933fab4b5d452d4d5))
+- Ban if remote opens multiple sockets ([eb021e9](eb021e9ab9ca348f054f5035498e4939736c14ff))
+- Custom validation for postTransactions as we cant validate with ajv in worker for transactions implemented a "light validation" to quickly discard wrong data this will need to be reworked with p2p for v3 ([b99b082](b99b0827158620a4fbbb4d40bc1b406c8bf047fe))
+- Ban if remote opens multiple sockets ([bb1d2eb](bb1d2ebf9ffb78707162c56f8ec10de8b656bcbb))
+- Enable github tests ([9768a84](9768a84e708d93c19b1fdd67e704ecb30a957f61))
+- Collator service ([319f778](319f778cce45c29ba785e1a1b4bd1c3c4d6f7275))
+- Disable peer check for postBlock/postTransactions ([e8ca52f](e8ca52f96521f6bc1399c4641d989abeaf36deff))
+- Changelog ([03a5d71](03a5d7185b59a194b5504eab837d5dffc3ce5675))
+
+### Fixed
+
+- 100% test coverage ([bee0f29](bee0f2948e6672715a6cc18ee92df5517951a3b1))
+- Master merge fixes for core-p2p worker (#3359) ([bc71013](bc71013fc588105d27fa86ffa32742e40be582bd))
+- Allow legacy transaction in getBlocksForRound (#3372) ([16446a1](16446a1459e93c1bfb974c8ba16c710a6c482419))
+- Block payloads with additional properties ([8461c9c](8461c9cde3e6c7885b9fd53112429182a075f8ee))
+- Disconnect if event does not have a defined handler ([fb16e93](fb16e931cbed1f07c2a3c1fbe2cba000301fac24))
+- Block invalid opcode packets ([4c5e6f1](4c5e6f1c962c2716af9b353e7c484539cdd15988))
+- Disconnect existing connections from the same ip ([ebbe5ae](ebbe5ae7c9de378782eb055fcbfab9718c7f037c))
+- Stop processing blocks containing too many transactions ([dcfa1be](dcfa1be7d8556200e59ef2a7e9bdfe85ba07b865))
+- Block payload with additional props ([99fc278](99fc27820dda420d349b19aac9f0e02d9971d15d))
+- Disconnect if event does not have a defined handler ([a324bf3](a324bf344151059d2975ea4bbefe2f9de4638cb6))
+- Block invalid opcode packets ([5b49532](5b49532b63a8296262b4a4fc80bae30989feb546))
+- Disconnect existing connections from the same ip ([a02d3ca](a02d3ca38116575a9168a5334cf2be099b2c280f))
+- Stop processing blocks containing too many transactions ([4b43552](4b43552e5d65517a7fd03faf6e40a28d8c35f38f))
+- Fix integration tests ([730df85](730df85b0637f51b275efbea57d66bcb2bf8fcb4))
+- Relax network interface check for seednode ips (#3391) ([2824ac6](2824ac6218d9b6a02e0364564d75f0fcd388c643))
+- Edge cases handling (#3404) ([99eded0](99eded0c7bafa56595dcedae9afef075797ff50e))
+
+## [2.5.31] - 2019-12-19
+
+### Added
+
+- Add shared username schema (#3344) ([8ee148a](8ee148a749c49b1a0ed2a62b702553334e6bf82e))
+- Ioc tags ([ff8975a](ff8975a042ef449f17b5696dffb73a02ab6f084d))
+- Stricter resource-based orderBy schema (#3319) ([e9e518e](e9e518ec9ac23ec977e58cc93bc2c8f309c1629f))
+
+### Changed
+
+- Take voteBalance updates out of apply/revert block functions ([e69e33c](e69e33c0e77bfb4e7c2c04d56c48e8d703b4ed08))
+- IoC TransactionHandlerRegistry ([c11af3a](c11af3a12f29970d811c7a08af6835c62719aba1))
+- Update node.js to v12.14.0 (#3351) ([76063a3](76063a396d72b2c505f275ada6b46913a7b915e6))
+- Update dependency @sindresorhus/tsconfig to ^0.7.0 (#3348) ([8a4e79b](8a4e79b2203bad3a8f103dcde30df340cec92032))
+- Make the canEnterTransactionPool() interface more robust (#3342) ([12e8eb5](12e8eb5d5aea4262b16bac734d8e4544804caedc))
+- Throw error if multi payment has less than two payments (#3345) ([427b1e7](427b1e72872a2b482db8861e968ddcb19b517e13))
+- Align maxPayload / maxTransactionBytes values (#3287) ([7af9d8f](7af9d8fe018c3a43a0971962e2214a4f2bc502f5))
+
+### Fixed
+
+- Simplify e2e init & network launch (#3333) ([4c1797d](4c1797d4e786a7eeb1fbc9deb3923169229559c4))
+- Throw error instead of omitting long vendorField values (#3338) ([bde4e4c](bde4e4cd0cc47f9e75982b8430e8b7ef8967aca3))
+- Network generate command (#3334) ([a0de07a](a0de07a4811c6b9aba85ad0be73ae167d1dfe499))
+- Don't assume blocksInCurrentRound is defined (#3341) ([b153871](b153871324487d8a3ff72f551344cba99d95028f))
+- Update dependency semver to v7 (#3346) ([28ccf81](28ccf8126c73bf322691f254390cb2b180f8cc16))
+- Use parent findByPublicKey method for temp-wallet-manager (#3336) ([8494784](8494784b30ee8e69caa488a035ebf69605162169))
+- Business/bridgechain update handlers - revertForSender (#3350) ([7dc219a](7dc219a62787da0daa00b8baaa21c819cfb7e105))
+- Handle disconnect packets (#3354) ([5c0c439](5c0c439a71bb03e24a4f1b92db2a75bd7579f378))
+
+## [2.5.30] - 2019-12-09
+
+### Added
+
+- Implement factories and generators ([bb91fab](bb91fab5f1c1e7ae101f36fcae07fe277b3e9455))
+- Add static fee exceptions (#3214) ([b31d758](b31d7582afd21763867085946e9f162ba323b137))
+- Add ipfs exception handling (#3217) ([159098b](159098b085958c54aff91aeb6fcb8e792b8667d7))
+- Add `isExpired` property to locks response (#3221) ([ad85951](ad8595112352a90e4890b8c79a52a896e48fcd3b))
+- Ensure unique genesisHash per bridgechain  (#3199) ([5dbc8a8](5dbc8a8fcac6ad41d066d7cfa4ca2c1319d99cac))
+- Add internal contracts and delete obsolete ones ([afd1512](afd1512517ea5486a16f8ad502e5aee7deafa2c2))
+- Filter locks by expiration status (#3227) ([91e815e](91e815eb0fbfcc4b84679078afb5237be31a642a))
+- Implement Address.fromWIF method (#3228) ([c1eafab](c1eafab5b04834808c4af95d79beb6ed7e0dd05a))
+- Add additional bridgechain registration exception handling (#3222) ([98522ea](98522ea193efdeb49204764421466af09f69ce82))
+- Add schema for orderBy query param (#3243) ([9800e34](9800e34befe9d10760b2bdd2c5ce7c16b4933a3d))
+- Add service provider events ([00f4964](00f4964be31d10bf6768d049172e53b61116952f))
+- Add command to clear transaction pool (#3250) ([56f482d](56f482d5bb043591a7bf2ef83b12c0040b80bb7f))
+- Introduce process specific application configurations ([1a4e132](1a4e132010b0a2088c3bae65437f0fd69b15986c))
+- Allow enabling/disabling log methods ([292d9e8](292d9e84d96c13a32344cf0d2e4d5da48af6c0ed))
+- Implement pipeline service ([be25226](be25226009278cca60ade8e200857490b87d1245))
+- Validate the application configuration ([3f62bb5](3f62bb54c63ca385fbc7847c57ef7d49753936f7))
+- Implement rate-limiter-flexible plugin ([cb50a62](cb50a622165f3cabbdea147ba29fb7d0e6e0b51b))
+- Add ports to bridgechain registration/update (#3255) ([c520d81](c520d81954eeb63638713f956310d1e32119a87d))
+- Make roundInfo optional in databaseService.getActiveDelegates() (#3276) ([68c108a](68c108a74cf59ed9994fe66b3f1e3ea53fb24338))
+- Add round and forger tracker ([044ca83](044ca8303b0745899040e217defffc99d65c43d7))
+- Implement businesses/bridgechains endpoint (#3119) ([b337cbe](b337cbe34915c1ecd4460edb1b4f7b586225817b))
+- Ensure unique bridgechain name per business (#3132) ([cfda857](cfda8572884ee5d667743d37c8413e2464fa3856))
+- Add transactions back to pool only after… (#3138) ([3b026d6](3b026d6e35f3497fd4fa38acfdac9668f1cedeae))
+- Add additional fields to businesses search sche… (#3160) ([1b7d90a](1b7d90ac1fb1031df796ec1797132bd88a175efd))
+- Implement throttling on outgoing p2p communication (#3170) ([03c2ea3](03c2ea3b5f55c5ebf4eefa9b196410bb1745aa20))
+- Add additional fields to bridgechains search sc… (#3165) ([34b7e34](34b7e34e6449ea120af805d0413f8b2ed99e2072))
+- Include business asset in wallet transformer (#3205) ([7cf1b10](7cf1b1073267e69a479649ee04e4eec7de7726b9))
+- Add ipfs exception handling (#3217) ([693160e](693160eeabc28b7fc2d2a65f0717dae5710cf0e6))
+- Add `isExpired` property to locks response (#3221) ([2f734e4](2f734e4fa7e1848e273e152a6ae7e2422c1ae395))
+- Ensure unique genesisHash per bridgechain  (#3199) ([bdb7f94](bdb7f946f0351cb72f60d7c3b1ab3616d2b9ec1d))
+- Filter locks by expiration status (#3227) ([a0096ff](a0096ffee311a2b0f8a732c708c91e1a4ae6565b))
+- Implement Address.fromWIF method (#3228) ([193417e](193417e10aa58df23d5129bc56e5057902762cb8))
+- Add additional bridgechain registration exception handling (#3222) ([7d7a4a8](7d7a4a81be471e5d6a553cfc7ae8abd7cb20abef))
+- Add schema for orderBy query param (#3243) ([166b1da](166b1dac0dd9f1f3a8c0bb39c58b35cb730b48c7))
+- Add command to clear transaction pool (#3250) ([6d6b6d3](6d6b6d33901735a42292b78ac7064407e663602f))
+- Add ports to bridgechain registration/update (#3255) ([7fc356c](7fc356c7ccddb504ce5302d83523e51ddd37b4ef))
+- Make roundInfo optional in databaseService.getActiveDelegates() (#3276) ([6e59a43](6e59a43d743c52a83f19ed83735c2af7fbb9433f))
+- Add back transaction tests ([9feb0ed](9feb0ed2e29919b6c84ca81f2878b9fa7e80b730))
+- Implement peer factory ([e323bb5](e323bb50086a91bc637f52660c7fd3a5c3710081))
+- Implement transfer factory ([de75e6e](de75e6ea9f8a2c053b64a1e095994065fa718d2c))
+- Implement block factory ([5a5b3d7](5a5b3d7fa95bb651c9623a8d0bb227869e5f7caf))
+- Allow searching businesses and bridgechains by isResigned (#3292) ([ab78411](ab78411e9f236f203173035374453a7fd473f055))
+- Implement in-memory logger as default ([a116e3f](a116e3f0624e4609c9f861e1fae9d2d3f0d72c00))
+- Dispatch cache events ([c4a8b70](c4a8b70d24fe36864d79bbe34856e77d156d29b8))
+- Initial draft implementation ([a636dfd](a636dfd387756c106255ea8ace7d83b172279c4f))
+- Add missing delegate attributes to walletAttributes (#3304) ([1f40526](1f405267711e6fa1903486300eec6ef4160a4f7a))
+- Implement null drivers ([dd83c08](dd83c08b27fc6705fcf8216dd701239ff0839034))
+- Implement transaction factories ([c760620](c76062089d044f9482408fb44088f5edc313f522))
+- Implement peer factory ([cded589](cded589bd332b836542f627b3b52b42a069ea9af))
+- Support modifiers in transaction factories ([5191f69](5191f6996cde847ef79dd4a0a59cce09b9fe59ce))
+- Versioned transaction types ([ae6cab5](ae6cab5d34ce7eba7d31dbf2642cf63a2f9c5f47))
+- Manual registration of service providers and configuration options ([460c6fa](460c6faac8a431a6f72a1f1e10ef4412956a6865))
+- Allow extension of cache and queue service ([daadf35](daadf358acfa8d796749d6da6af0b8e4e41ef5ea))
+- Allow use of custom crypto configuration ([84aee92](84aee929d6085a87976447d1453fffe6bdd8d104))
+- Increase maximum token symbol length (#3311) ([e55602d](e55602d34b0d6548828b059df28d24ce51a6a198))
+- Add tmp-shm and tmp-wal to .gitignore (#3317) ([b23a335](b23a335b2c9d424a47c91ae274fd0258d7dccc56))
+- Stricter p2p msg check + ip blocking ([5d21a34](5d21a34475363e2c32f7ba4070b12083e0623d4e))
+- Improve incoming WS message check + IP banning on worker (#3331) ([94766ea](94766eaeb61ab002a438216ce0621686632ca810))
+
+### Changed
+
+- Update dependency @types/depcheck to ^0.9.0 (#3211) ([20c4d21](20c4d21944af760553dd68a776bcf92cafb0d886))
+- Unique ipfs hashes (#3204) ([e462e76](e462e76d81ff0c5d44baf6ddd1dd84818baabd20))
+- Complete IoC migration and adjust tests ([2e7769a](2e7769a9d29f637a72ce2e7c9d60226323abe4b9))
+- Throw AssertionException instead of using assertions ([0a4a659](0a4a659b9264ca9b87c5eb033ab4c2ad052452b4))
+- Update to TypeScript 3.7 (#3230) ([b5ea607](b5ea60784d5dbb689cedf78cc442f22bb434284f))
+- Validate expiration type based on enum (#3226) ([7acf6cc](7acf6cc3fe5de758b5cb027a7f62ca82618e2b53))
+- Move verifySignatures into Transactions.Verifier (#3231) ([2a8fa00](2a8fa004cf7eda911ad2029523d807f0f09c7f67))
+- Update to TypeScript 3.7 ([65d98fb](65d98fb8a3bbe48182d1aa383b04ceb2f89cd08b))
+- Make deserializers static (#3234) ([6250c0c](6250c0ccbbae731a47a4f16bab5844934a7e3a9f))
+- Adjust generic name schema (#3229) ([58fb160](58fb1609316dda749927130cd6fd8f333f764a0c))
+- Use assertion functions from TypeScript 3.7 ([a801c51](a801c519020da73146323e47706d7376e9bdebc7))
+- Upgrade TypeScript ESLint to support TypeScript 3.7 ([7d449ac](7d449acb7a7e98d3d4b58addf0ebc7b1623185fc))
+- Remove AttributeService in favour of container bindings ([27668ac](27668ace73214e8a57411604fecfc130566ca314))
+- Ship app.json as default configuration ([bc53bce](bc53bce33bc0e482aa31ec496dd924d6d122faa0))
+- Use transactionId ref in lockTransactionId schema definition (#3246) ([1619caa](1619caa47dd99e15b125b2ccf74a44e7870eb22a))
+- Flatten the Enums namespace ([dbf7a07](dbf7a07a8251a54a4b508669efe66724a09b8ef6))
+- Listen to InternalEvents.ServiceProviderBooted for enable/disableWhen ([8ca9000](8ca900069190afb002a055f1c8bc7de7b8c52472))
+- More verbose static fee mismatch error (#3248) ([cba7f3b](cba7f3bf1f2c8812a462450e79958ed35e2a82ef))
+- Rename enable/disableWhen to boot/disposeWhen ([83c56f1](83c56f15e071195e4a11abf1d52b46d3e1f7b7b6))
+- Split start into register and boot ([3131db9](3131db9b23e846305e87d8340851f8d63e1c67f5))
+- Split start into register and boot ([6fe1e1e](6fe1e1e10f6c9cf9d11807b9979c624d08e9b3c4))
+- Split start into register and boot ([4fc0559](4fc0559ee4579104e4a1107c91da265d347f33cc))
+- Pass the booted service provider to boot/disposeWhen ([acc5e16](acc5e16c1f72e4388d1f797d7a67a61694cdc6bf))
+- Simplify resource transformation and response caching ([dfc95a6](dfc95a668ee54cc0f82f871dfe169ea6dd9684e4))
+- Set transactionBaseSchema fee minimum to 0 (#3275) ([a15f2bc](a15f2bcfc42a8bc8eca28cc571b5fcc7685583e9))
+- Update dependency @types/node-forge to ^0.9.0 (#3274) ([0476a2a](0476a2ac6cca5232a9b6e110aa1137c13b0b1253))
+- Set minimum fee on transaction types (#3278) ([d7394e9](d7394e94627feb15900ec04ae8a4ae0b81c184ce))
+- Handle Debian/Ubuntu derivate NodeJS install (#3272) ([0e13082](0e1308279dda939bd1612b4e32311560b98a06fb))
+- Update node.js to v12.13.1 (#3279) ([eb6c9f5](eb6c9f50cbc5aeb4c4ba1f9b2ccbab020f8e0fce))
+- Better handling Debian/Ubuntu derivatives NodeJS install (#3283) ([09619ad](09619ad7f7aa94ea27189734aef167b41dee0e3e))
+- Bump minver to next.5 ([99927e7](99927e77c7240658912b63801f19364f9bfc4514))
+- Update yarn.lock ([67d9cef](67d9cef154aeade9eeca7a07e8ea8bb9847d7cf0))
+- Migrate to TypeORM ([c91073e](c91073ee549b77fef1718f1b1a0e7a747f58c84d))
+- Sort peers by height, latency (#3078) ([4a9afb4](4a9afb4a8f1e03254cbd9206f2a4417289c8be79))
+- Print more details in log messages (#3089) ([f961d05](f961d053aee6311631606462b52a61e42a7a3bb6))
+- Format timestamp of locks (#3091) ([b96bb49](b96bb4975665b39e83921b0c0dc4e377489cc3d0))
+- Update docker to node.js 12 (#3101) ([c88c332](c88c33251722e0a600d148136adead347e37b236))
+- Overwrite arrays when merging milestones (#3108) ([d7e895c](d7e895c0350a0714ad260387433d89841dc8fa35))
+- Refactor searchBusinesses & searchBridgechains (#3110) ([43ce7dd](43ce7dd4254c97e5258dcb99c5828368d16a0592))
+- Use multiPaymentLimit from milestone if avail… (#3136) ([7510239](7510239e06b2a11736598971e203d2ad5a65e4cb))
+- BridgechainUpdate errors (#3141) ([8d8bb74](8d8bb74f41838f5ee979344202bdb644538585b0))
+- Consolidate bridgechain schem… (#3143) ([c08d15d](c08d15d4d9a6fa32b8055009f73d80ede0e607d9))
+- Convert htlc lock vendorfield to string during bootstrap (#3145) ([1d9dd82](1d9dd821dbaf74dbb56c8e6222348654f96c0997))
+- Don't allow multiple business or bri… (#3137) ([8e5475d](8e5475d9910572860b81cb65477e26de62529ee1))
+- Use 4 bytes instead of 8 byte… (#3156) ([ea195e2](ea195e2baf2708133fc7c1f16b6b7051340dacb1))
+- Change MaximumPaymentCountExceededError error (#3152) ([d5d9b98](d5d9b983333a7f84862e065ec858112f51ee69d6))
+- Update multipayment limits (#3157) ([e516c54](e516c544885b6fa1c5c7c2866a29e7729a591215))
+- Improve log message (#3161) ([0acd17f](0acd17fd307cd62e50dbfece531b3703cf080f0e))
+- Use URI schema for website an… (#3162) ([55a8bbb](55a8bbb51cb95102a90b7b6a5984932dd5f9ed1a))
+- More restrictive wallet id schema (#3166) ([905b8d2](905b8d22f50de9bb8f38e82f8bda6b699f5969eb))
+- Remove misleading order by expirationValue (#3181) ([168c0c7](168c0c7975f1ac7983a44d324910993988664c08))
+- Require static fee (#3194) ([bd57313](bd573137d00ad0e244b9b1cd3b9e199e9f001a33))
+- Unique ipfs hashes (#3204) ([b1efd04](b1efd04c0c1e78931d57f42893067a4796c81bff))
+- Validate expiration type based on enum (#3226) ([f471dd9](f471dd9705cef2333d22cf3c7259be0ba83447d0))
+- Move verifySignatures into Transactions.Verifier (#3231) ([0cb6ba0](0cb6ba017ec3a09ac80571aaa2b2246fc70a6a31))
+- Make deserializers static (#3234) ([c5b5301](c5b5301bfcdc0942e038bd6f71ee0ba8c8d038de))
+- Adjust generic name schema (#3229) ([3945522](3945522753c85f933e52237979d02108fad77e35))
+- Use transactionId ref in lockTransactionId schema definition (#3246) ([1f5aee4](1f5aee463f1700e0e8425f4b24cb4e99c397bbaa))
+- More verbose static fee mismatch error (#3248) ([218555a](218555a321498391d60329dcd2f623ca406ec081))
+- Set transactionBaseSchema fee minimum to 0 (#3275) ([169170e](169170e5e23d531bd8c350b6ec7471c88ff7e13e))
+- Set minimum fee on transaction types (#3278) ([53cb5c4](53cb5c4f00230f52cd9f0055e6fc668dc895fbb4))
+- Handle Debian/Ubuntu derivate NodeJS install (#3272) ([9d8de5d](9d8de5debcde2d3beb6bc5974312a7e423ad2fc3))
+- Better handling Debian/Ubuntu derivatives NodeJS install (#3283) ([d893125](d8931255fb21ffd6a45d108f355c07f5ab810fa4))
+- Rename ActionService to TriggerService ([148e98f](148e98f1963a046fe0b96d5a33913452d27e24c3))
+- Clearly separate event enums by type ([a9241c6](a9241c6ce0f088cd4eb541822d781730aa56edb2))
+- Flatten contract namespace ([5c3afa4](5c3afa4adc9bc60c093a4c0e7eb469ef1b8edfc1))
+- Fix genesis and exception transactions cache (#3296) ([647b77f](647b77fe0fb98d01425005478b42257563ceea1b))
+- Decouple wallet entity from container ([b3aab12](b3aab122eb0b422b447da46bb8bb3a2e19091001))
+- Adjust to new infrastructure ([f93a911](f93a9118d8ddfb55addc295d5a157da5b8c95ebb))
+- Adjust to new infrastructure ([a7f3d03](a7f3d03e85f487cf8f9fb846f2ea0b188f350d5c))
+- Remove until a proper rewrite ([f67c913](f67c9137db3e92c4db00071bde6762915a1e5106))
+- Update @hapi dependencies ([1e489b0](1e489b063bcb43f89fe4c498395d56fb0810100b))
+- Expose internals for extension ([243f0bc](243f0bca20eb909b146011bd7ccbed899828890a))
+- Expose cache service through a factory pattern ([3eab947](3eab947dd3bd826289fd953d1bac0d442ff33095))
+- Expose pipeline service through a factory pattern ([6529b13](6529b13384c7956a86df369dd711e9618e22a51f))
+- Expose queue service through a factory pattern ([4f3e8dc](4f3e8dcee18c7aed61dab562806d43c4c0cc5625))
+- Create a real wallet via wallet factory ([838ca5d](838ca5de4e74a67b490af1dce1125657aaeb57d4))
+- Create a real block via block factory ([5a82211](5a82211f0f701ecd96b4fb05758535dea440e698))
+- Expect actions, jobs and event listeners to be classes ([84c4788](84c478849f2eebb6549fa299d2b19c0a69914037))
+- Accept address, publicKey, delegate name as business id (#3310) ([7f07ff0](7f07ff0b57c4a6774ddc67fbebddafb0da973e7a))
+- Document canEnterTransactionPool() (#3323) ([ee1a131](ee1a13138a52e104378e2849cf952dc40895dae3))
+- Update dependencies ([dc68c25](dc68c251afd0b7464f6dcedd11938b8d7878f8df))
+- Adjust to new infrastructure ([8482282](8482282a4a96cba3a1737935d1478f0925ff5436))
+- Setup madge to detect circular dependencies ([82623ff](82623ff7d54f7727d848b24e999e38fbe113e2e1))
+- Adjust to new infrastructure ([cad3457](cad345708b34334ef239017edc5eb4bc5efb48f7))
+- Update TypeORM to support PG12 ([905cac2](905cac2fee422ee1c95e1b055a04eb4ece7f536a))
+- Resolve various circular dependencies ([c84b976](c84b97666a19f123fa20c25fc09c67ccdf514835))
+- Purge ipLastError every hour ([6ab6d69](6ab6d69384bdaaf109549ff281489aaa372a8609))
+
+### Fixed
+
+- Handle unwanted control frames ([cecf2f9](cecf2f97b1deed8d672ae13e2755b39b3f82c497))
+- Stricter WS/SC events/messages handling ([cb2c9a3](cb2c9a3993387377c64a04e7fc4e438de1d41154))
+- Check for an exception before checking for invalid fees (#3215) ([3863d6e](3863d6eb30cfcf3a9306a7d025f1cdf1dc925600))
+- Fix mock common block (#3220) ([a3c937c](a3c937c8b7f6a01eb2ed6017c1978fc4c05efb14))
+- Htlc bootstrap (#3213) ([36410d7](36410d7ced0d2757e11e392fc439ba7c68a7b6a8))
+- Update dependency chalk to v3 (#3235) ([0b9b0bc](0b9b0bc69efe24d9224ba335322c60e136d60ecc))
+- Case insensitive bridgechain comparison (#3233) ([c6b31eb](c6b31eb8654f3b167d5f5bc176b848746498f4e2))
+- Include query in wallets/{id}/locks cache (#3240) ([0257c3c](0257c3c442aa18b27aa4b0d787bc99737b3ebd52))
+- Return early only if there are rows (#3244) ([ee802a0](ee802a06d2d08337ab6819f18a2f82b650364bd6))
+- Adjust genericName regex and add tests (#3247) ([89fc757](89fc75762126a0767045ed6c5e80463ac720e442))
+- Do not attempt to convert vendorfield (#3252) ([0663b0f](0663b0ff84b7aeba73b1812f64c32f900f50ff18))
+- Replace ipfs exception (#3253) ([8f028f8](8f028f8cafa096e7c3cd8d811f46f91719deae96))
+- Wallet-manager fallback to database wallet manager findByIndex() when no "local" match (#3256) ([9c9e7b3](9c9e7b336fc1f7bc1fa883ec8523d36914045d54))
+- Update dependency envfile to v4 (#3266) ([800bc8e](800bc8e9749bd897c2f5914b62b8404fb99358fb))
+- Use genesisHash for bridgechainId (#3258) ([12869b3](12869b3862e7b826838d69d8d7102255ca1c9f8b))
+- Don't swallow BIP38 errors (#3271) ([f3dcb1f](f3dcb1f369a13c24bdd257bf2a3c5b46bb8068e4))
+- Use wallet publicKey for business id index (#3268) ([3416b86](3416b86a6a8dd286461decf9232065b713e4f001))
+- Fix bip38 failure expectations ([aa70a63](aa70a63e9070122dbe3c74f091d037ceba75ca85))
+- Re-enable application command tests ([2274d74](2274d74b4aaa7951f86cf499cf9f8084d47835b7))
+- Business / bridgechain e2e workflow (#3280) ([59f67f7](59f67f76e526f1acb80ba854f03fdd127146884d))
+- Use strict comparison to decide if a transaction should be enabled (#3087) ([27abce8](27abce8e6c65c7fa2b2f0c9bd3048cb554567a20))
+- Throw if transaction key is already tak… (#3095) ([eaadddc](eaadddc49d8e4fa616046bc3cdbdb13cc7eea054))
+- Properly terminate bad connections (#3103) ([6f7b54c](6f7b54cf8d9b3114b71cb7cefaba74dd072ebbcb))
+- Set last height before initializing last bl… (#3109) ([3f28e9d](3f28e9da03faeccfb2ec7fc726dff519df7f5e46))
+- Use numerics for typeGroups in /transactions/typ… (#3112) ([c199cd8](c199cd803f398c7733911be1a158fc8a79f4e8ec))
+- Emit correct event (#3128) ([02a575c](02a575ca887c1650469c2b69acb8423d4af46fdc))
+- Parallel download (#3092) ([80d6712](80d6712b44ad1039ae655d6b577d15f0f27ec026))
+- Uncaught IPC timeout (#3140) ([f1716e1](f1716e1febd5560eda281b3855feebebeb15cdca))
+- Improve 'name' field validation to… (#3148) ([b5d6c14](b5d6c14fc27bcdc5b490af06eaaab9c1720b7218))
+- Properly implement block size limit (#3154) ([8e476bc](8e476bc34c3de1266bbc55b5f00314c31f6c7d46))
+- Write accepted blocks to database before… (#3155) ([28611ae](28611aefb8f76b365f92e54ef14cdf5b89a0e49a))
+- Timeout promise race (#3158) ([5a9a24c](5a9a24c3ce647959047539ed049d754a94ed3f56))
+- Call next() so that the request can proceed (#3163) ([76c7f8d](76c7f8d0cb17777966e8c2b2d70405411eb2dcb6))
+- Return error when app is not ready (#3171) ([c7d9249](c7d9249c99065b27fccaa3cab1253222c9d6e40d))
+- Reindex wallet when applying delegate resignation (#3185) ([2ab2593](2ab25931900c04ae4db4f65f28c74c494f59e08c))
+- Validate address of multi payment recipients (#3187) ([5122f08](5122f0848ed12cb68504fc1e23268d85ac9cc17f))
+- Allow unvoting a resigned delegate (#3201) ([a742fac](a742fac0562a517658ebbf4e64d276402667b141))
+- Stricter WS/SC events/messages handling ([31abd8e](31abd8eefe74f6c37f7e34e102e40bbe5a846aeb))
+- Check for an exception before checking for invalid fees (#3215) ([a44f977](a44f97713f3d693f0180bb000c99b8bf88fc8511))
+- Search by genesisHash in show method (#3293) ([2ab33be](2ab33be6833173e8dac06463b4272ba6737fc70e))
+- Htlc bootstrap (#3213) ([f6a007d](f6a007d8d14d35729b6f8e1c151cc7a7a3bb1f46))
+- Case insensitive bridgechain comparison (#3233) ([52b91a7](52b91a7f8e27475a326a7c5228f37ba752178799))
+- Adjust genericName regex and add tests (#3247) ([a9144f0](a9144f0a3ab2cb5533e1ec81a9627c6c9017e85e))
+- Do not attempt to convert vendorfield (#3252) ([a7034bf](a7034bf926f5551c768af2c63286e235e47bd5e0))
+- Wallet-manager fallback to database wallet manager findByIndex() when no "local" match (#3256) ([9af6aa0](9af6aa0a562c7c1fefd318d499feed6f3036a9bb))
+- Use genesisHash for bridgechainId (#3258) ([b0494a3](b0494a3d2166e50c170f6b3c8e1f89e98e54b553))
+- Don't swallow BIP38 errors (#3271) ([344cbbd](344cbbdc63300a339d5606cd0f72fe5a7272f1b7))
+- Use wallet publicKey for business id index (#3268) ([3fd2b2a](3fd2b2ab51f67ad49ad06a053512710e067ead88))
+- Search by genesisHash in show method (#3293) ([ed5b17a](ed5b17a668b0b32adf83f0facf4376d725dd292c))
+- Inject ([29f4f6b](29f4f6bf2ccf87ca38226d0380e8265fae227f7d))
+- Allow missing publicKey, since it isnt guaranteed to exist ([59a8edd](59a8edddcbf00e93bc4a1b94ee9be5258af6565a))
+- Issues after merge ([8bea924](8bea924183ffda330346ebff7344c3cde587e1f1))
+- Fix transaction factory usage ([438176f](438176fca56d838cd331456533f7006eac2c51a0))
+- Use unique genesis hashes for bridgechains and fix random issues ([82f0594](82f059460cc0618589c91edd7611b4932114f241))
+- Update sender's wallet after validation (#3291) ([92c31be](92c31bee829a83eaee70f123dca23f48415a189a))
+- Use IdentityFactory instead of generator function ([af42659](af42659a040fdbc984320beac7c0a309da817a41))
+- Use BlockFactory instead of generator function ([7f50af1](7f50af1911fedb62150e56c753286f74599bb7f7))
+- Use RoundFactory instead of generator function ([57774f0](57774f025e37b59f31b8dca2f98ed4d940bcf6db))
+- Fix "file path exists" error (#3321) ([fa32660](fa326603397958d7f334d33ce7aae7c1f4db73e5))
+- Handle forgedTotal and voteBalance in orderBy query param (#3320) ([c84943a](c84943a94bb4564c16df3ec4bb852240d0c178c5))
+- Businesses/bridgechains search by name (#3313) ([33256db](33256dbe9c53334611e8607d40e975bf8184a5d2))
+- Fix socket server tests ([9a10896](9a10896da1c1cc4ab5f92b94710e03f363f436cc))
+
+### Removed
+
+- Remove password flag constraint for core:forger command (#3270) ([5aea54f](5aea54f3282a3e8851fe044b54e18af3581bcf3b))
+- Remove redundant bridgechain sc… (#3150) ([317a89f](317a89fe5b176510c2a791ec78c4af6342504add))
+- Remove delegate.rank for resigned delegates (#3202) ([6a97dcd](6a97dcd4c1eff049ad5c8f836633bc48020421f6))
+- Remove password flag constraint for core:forger command (#3270) ([969732c](969732ce2e0f5683a73e43872d7d28ead3e22076))
+
+## [2.5.28] - 2019-11-05
+
+### Added
+
+- Add legacy multisignature schema (#3040) ([19ad6b4](19ad6b43445d27bae018f54468f83098734a9ffb))
+- Add index on transactions.type (#3043) ([ddeb991](ddeb9915c7ae59afb1d7bdce5e7760156ae447c6))
+- Install plugins from local tarballs ([8f7d0d3](8f7d0d319985f84e39cc40176fa3fc270b58aa5a))
+- Add devnet milestones (#3064) ([986c65d](986c65d924438fda70d93053a1667e62d6b37ffc))
+- Add core-magistrate-transactions as dependency ([1564345](15643452a8cb7ac9cd36db4f983da2781c79d6f7))
+- Add missing offset handling to /api/peers (#3075) ([3bcc8fa](3bcc8fae31ee0955ed74f8ab6389dfacf053df2d))
+- Support nonces and chunk transactions before broadcast (#3081) ([32e03d0](32e03d0757e18c9b319eeda76cc29cb381de1f57))
+- Add `/transactions/schemas` endpoint (#3083) ([9413dea](9413deafc671c3abd55ef57cb412b6da59627b45))
+- Add `stateBuilder.finished` to Ap… (#3084) ([f05fd6a](f05fd6ae36a0c7a1ca1186df24aa6a5fc3861046))
+- Add back crypto tests ([9df36db](9df36db2048ce65b21744182de9998070ccb20ed))
+- Scoped attribute indexes ([c78e561](c78e56116b514454bec3a7c1a95a31b26442b6c2))
+- Support numerical and reference keys for attributes ([c53f6f5](c53f6f52ef68539b7370b9bd6ae5f8bdd99feef2))
+- Implement plugin aliases ([213b71a](213b71a12b3ef05757436329ad868736b7deaab5))
+- Get dependencies and required state from manifest ([95a787c](95a787c209437f8bf0f128efdcf4b1b46d527f3f))
+- Add flush methods for attributes ([5c404b6](5c404b69bfbcdbfc965982dfca14420341974027))
+- Add back functional tests ([0a497bd](0a497bd224721c8dd19da940c3b368bde2b61722))
+- Expose transaction height, blockId and generatorPublicKey… (#3096) ([69f2758](69f2758c3006bf12cb0b06671ca5a2c9fa291e8d))
+- Implement assertion utilities ([47275d6](47275d6748cd9cb540665b3e7fec845ec248e153))
+- Support global and local use of attribute stores ([eb52b94](eb52b949410b80ad1e5db4c00116926e93f7dc79))
+- Implement businesses/bridgechains endpoint (#3119) ([697d347](697d34779882f31c170615de67b3cb4a24f7184f))
+- Ensure unique bridgechain name per business (#3132) ([f2ced87](f2ced87fc5868cfff380a989a162daef371ac68a))
+- Add transactions back to pool only after… (#3138) ([025c440](025c4404bc46c66c83e81f355d6f91f89f535865))
+- Add additional fields to businesses search sche… (#3160) ([05dd51f](05dd51fdfe4462a4c458b8710c5d66c3da7cea1f))
+- Log-process-errors (#3174) ([ce92431](ce924312e07254730c2259f1e9b12dc4e50e5a6b))
+- Implement throttling on outgoing p2p communication (#3170) ([4574e6e](4574e6e68febd08e192ec7602ee5fe5a99ff9b2e))
+- Add `delegate.producedBlocks` attribute (#3178) ([cb8289a](cb8289af634cfb03d4298f07d71e9b63fc894747))
+- Add additional fields to bridgechains search sc… (#3165) ([dee3a5c](dee3a5c17bf89b3e7da1cc9260e7d7fbac7c25a0))
+- Add 2.6.0-next.4 as aip11 minimum version ([7d8d8f9](7d8d8f98d55af81236f2685d5599636172e67d1c))
+- Add back core-api tests ([463af7f](463af7f80950323034772c7633d6a6a516fd012a))
+- Include business asset in wallet transformer (#3205) ([0fba73e](0fba73e67928aebcb65475a92461c1f3cf0d05b1))
+- Add dependency caching (#3206) ([fc04afe](fc04afeb14c673b333d9086d48586732d3c1e08d))
+
+### Changed
+
+- Disable TransactionReader (#3041) ([8adb302](8adb3025c0c69970a28013674e34ae6f872ef75c))
+- Load migration file names automatically (#3049) ([9a6de2d](9a6de2dd9fe75e3a5824ed172640752d97c18677))
+- Switch to TypeScript 3.6 (#3057) ([38156bc](38156bc83b4e166e48842d7fd9afeff84301ae47))
+- Make use of more @arkecosystem/utils methods ([b0c5799](b0c57992ba0f244e9dc5074e4c4eb2f8724f63e4))
+- Cleanup socket errors (#3056) ([2226abe](2226abe0332bc6ac7f2d48e52f265ca31a6177d9))
+- Resolve plugin configurations from service provider repository ([b13d52d](b13d52d3245221fe74b14bc474c99c21e17934b1))
+- Update TypeScript configuration ([db0ce17](db0ce174de21c49b6f5c14a59ae8a2e76eced29f))
+- 2.6.0 changelog (#3060) ([6a3c9d0](6a3c9d07370dd2d4145356764e21481485793c93))
+- Make use of more @arkecosystem/utils methods ([8056ef8](8056ef856aa8402cc887c359b264198b7bfe3703))
+- Convert BYTEA to/from string (#3058) ([925f052](925f052ce48e5b6fb80a452682a221a3a937d0e2))
+- Load core-p2p earlier (#3051) ([1b28c6d](1b28c6d4d48f52e6f7b33d0f267083f14fb9425a))
+- Remove remote configuration driver ([a3e9749](a3e9749bb200c643e035d8692211956164dc1a64))
+- Bump @arkecosystem/exchange-json-rpc to 1.0.6 (#3066) ([7d09120](7d09120c729ca4dc3a33b356ca4edf88b5c69177))
+- Updat milestone height (#3067) ([0dc63ae](0dc63ae08c4f8b0db324c27ead7a8a7b188678cf))
+- Use node 12 as default version (#3072) ([8dbe404](8dbe404b8c0fd01b60c82ab74a4f12abb3c9e658))
+- 2.6 prereleases after milestone (#3077) ([1ddcba4](1ddcba42d86366799e41d2c7d30e2660effcf048))
+- Make block ping log less confusing (#3082) ([0e3e1a3](0e3e1a3725553d646cb75418ddd688f6d324073d))
+- Use a map to store attributes ([d1cda3c](d1cda3c9c7bf7b17e1230706d08c2875ff2d1359))
+- Sort peers by height, latency (#3078) ([03fdf01](03fdf019618c81e2c35378c480f079dafc462a6d))
+- Print more details in log messages (#3089) ([d20f15b](d20f15b2a40c878ae236c0db599523dd6605a40e))
+- Update node.js to v12.13.0 (#3094) ([67a5138](67a5138d90a77c57fb13624241d1c9cb6da2f0ef))
+- Format timestamp of locks (#3091) ([651cf16](651cf16078bf476f96116582e500ebf4e126c901))
+- Update docker to node.js 12 (#3101) ([958e625](958e6257af46f3f812f82254610b457323f8b35f))
+- Overwrite arrays when merging milestones (#3108) ([bf64a68](bf64a68a045583b963edd1250ae228d1dac369fc))
+- Enable strict mode and fix resulting issues ([c5d360f](c5d360fd180a1d672a955f091e490454b12889b3))
+- Generate network configuration with votes and transfers ([196be48](196be48ff66c5c7f426482a2770ea9d4c6d966fd))
+- Use type from core-interfaces (#3121) ([d00a6a9](d00a6a97610dc4ec3e0a9d28718008a250257b4f))
+- Business and bridgechain ids as numbers (#3118) ([61c4d5f](61c4d5f2233099731712f0d28fe9718316c45691))
+- Refactor searchBusinesses & searchBridgechains (#3110) ([d579fda](d579fdaf7aedc6938dba22e887f351d35f430835))
+- Use multiPaymentLimit from milestone if avail… (#3136) ([0ef2512](0ef2512818424b9f9f9bfa6c94669ce68c4894ef))
+- BridgechainUpdate errors (#3141) ([2c619ae](2c619ae18f9c0832c2775fa47474524901215195))
+- Consolidate bridgechain schem… (#3143) ([deef78d](deef78d89f7b6134bc502239008fbc136ff90383))
+- Convert htlc lock vendorfield to string during bootstrap (#3145) ([95df802](95df8029790a4004775dd59a83d811ec21d8978d))
+- Fallback to core typegroup if querying by t… (#3147) ([4787d44](4787d44613998167008cc006fcb293f572bab306))
+- Don't allow multiple business or bri… (#3137) ([3877e56](3877e56cca98f32bbc620aea4973cf769761fd18))
+- Use 4 bytes instead of 8 byte… (#3156) ([035fd92](035fd92ed531bbad904893ef140d4f470a9de34c))
+- Change MaximumPaymentCountExceededError error (#3152) ([6b3e0cb](6b3e0cba7b4290cf522781b875bef8e0027c62a9))
+- Update multipayment limits (#3157) ([c9330a8](c9330a89b9d383628455bc7dc815f83227f1a868))
+- Improve log message (#3161) ([9f410ea](9f410eaea50dee4f7fd211d0db5387c6eb3acf7d))
+- Use URI schema for website an… (#3162) ([7d216b3](7d216b37ceedf33909d04a97b9668d92f17c4495))
+- Pluralize logs (#3168) ([6520012](65200125e78b0c5667b4689385cada9d62285c24))
+- More restrictive wallet id schema (#3166) ([f8dfefa](f8dfefa446c6dbcc7e464c3cb7ceeeca9eee3cbc))
+- Remove misleading order by expirationValue (#3181) ([63de81e](63de81ed21886d4bcd7d0dea6be0cbccc22d035c))
+- Rename handler parameter, check ag… (#3183) ([820fc0a](820fc0af76263a2512a915ab29d6576d6b1c5157))
+- Require static fee (#3194) ([312abcf](312abcfe70d1c8055ef82380c00a8a8acd284225))
+- Update dependency depcheck to ^0.9.0 (#3192) ([9aaf105](9aaf1053c8141fc0ce529e9bc26869e84e4ec226))
+- Emit sourcemaps ([25bab00](25bab007d1f676fba5ca503453323b856d7257fe))
+
+### Fixed
+
+- Basic validation on incoming p2p data + terminate socket on error (#3037) ([92e0115](92e01152d87ec73bf67ac4f5cf2af7deac8fad2a))
+- Delegate resignation (#3045) ([9107c84](9107c842f6890caf7ecef42d80d0e9556ad5a9e0))
+- Missing confirmations for lock transactions (#3046) ([7b0fe0e](7b0fe0eb61e0babdf9783705d528f0c3a2902ee4))
+- Unit test the git, npm and file sources ([109b985](109b985a2c05d5e254e2fcb36f62ad24453ac1f4))
+- Convert isAppReady response to object (#3050) ([892a610](892a6105f98f6aa4a5dcaa702fcb3a11beb6e3af))
+- Store vendor field in bytea (#3048) ([63dc252](63dc25257006704040f171ceb7b5b58a0bcc86b7))
+- Handle mainnet address exceptions (#3055) ([ed46b61](ed46b61be76c721c56d9cc7b909b5f32c708108b))
+- Resolve issues and conflicts after 2.6 merge ([bfa2c28](bfa2c282782e9fd1f697db84b2eed1fb2640cdf0))
+- Strengthen schema validation checks (#3062) ([12d5f03](12d5f031b0e92d0afb33ab8d948385533ca4b05f))
+- Activate AIP11 at height 2 on testnet to avoid genesis collision ([2ca694f](2ca694f9cdc34b2a0b52534a2bc81800d8addd57))
+- Raise `getCommonBlocks` rate limit (#3069) ([2785eb8](2785eb842acf836a395dac43d37ec83920bd6d1a))
+- Use the request origin to avoid 404s (#3071) ([98c88c4](98c88c400a8b3d84c36a42630b4cd4371a60f205))
+- Resolve issues and conflicts after 2.6 merge ([6a1f8d2](6a1f8d2b83afbeecca22db620a50df2dd9709f4d))
+- Nested attributes in attribute index ([b0d2839](b0d2839718b5b26bc5237b0aa8c921f58e50f03d))
+- Coverage back to 100% ([452f98a](452f98a812148b39f8a0ac638b9a7d1783555711))
+- Ignore strict mode errors for oclif ([d4e5a26](d4e5a26116d963060e4f7e2b886d93dfe03c5b43))
+- Create new wallet if not found (#3086) ([e928df7](e928df76fb9a135ca8555a9d318c51ac11dd3762))
+- Respect the include and exclude rules of the CLI ([6c41a08](6c41a083274aa7f3f5493594540c22602dd83454))
+- Use strict comparison to decide if a transaction should be enabled (#3087) ([13808e0](13808e09f388583570f0b0405e005840ba6733d2))
+- Copy attributes from object to object by ID (WeakMap) ([e091eee](e091eee342089a7fb1206f321bbbe6e0ed7fa5a7))
+- Throw if transaction key is already tak… (#3095) ([24a955b](24a955b5adfb2fc784a826b2dce609475a607535))
+- Properly terminate bad connections (#3103) ([cbd4abc](cbd4abc210f8385bcc4b72bdff2724bfa67090fe))
+- Set last height before initializing last bl… (#3109) ([3f80f38](3f80f38064af153766092def7b98eb421e95b331))
+- Use numerics for typeGroups in /transactions/typ… (#3112) ([7d18092](7d1809290c105f6345e42aaf64b31e34bba2ad7a))
+- Emit correct event (#3128) ([5ef8fc8](5ef8fc8a8626e8ec7208bcf2dca7b5e2a7b3897f))
+- Parallel download (#3092) ([98def5a](98def5ab500c4492822691a7742da9c6b01496a2))
+- Get connection from databaseservice (#3130) ([0081a2f](0081a2fd2cdb123bbe764ddabae99f8da51b56b4))
+- Read `paths.config` instead of env variable (#3142) ([312e6cd](312e6cd5b9969e7ea54982b39ac10ed6317e97d0))
+- Uncaught IPC timeout (#3140) ([c76adaa](c76adaa88eca3af00bc189d1d4784bad9f25ec3f))
+- Improve 'name' field validation to… (#3148) ([e67abe7](e67abe70d01c08e5996ebce5854f5c448d57d971))
+- Properly implement block size limit (#3154) ([4bbfaa2](4bbfaa22a39247fd650b2d131b6bfad9cdf75f72))
+- Correctly reduce indexed bridgechain entries (#3153) ([8b64f7f](8b64f7f50cc01cf06d04c4e2e7381bc00e57ab6d))
+- Write accepted blocks to database before… (#3155) ([1a74f32](1a74f3245a2760d3cdb50f1301dfcfc602ee0da1))
+- Timeout promise race (#3158) ([3443f3a](3443f3aca926dcb4b3007e790adc39d18d46c942))
+- Call next() so that the request can proceed (#3163) ([14b6489](14b64899b8e8a50803e7069f3ebc051d20af315a))
+- Update dependency newrelic to v6 (#3177) ([3d21f35](3d21f3586d45bf5aafdedafab3abc6b0ad98e01c))
+- Return error when app is not ready (#3171) ([3b26321](3b26321a1c93fe6c13f9b0eb32a08af44167e8b4))
+- Reindex wallet when applying delegate resignation (#3185) ([12ec1a2](12ec1a22eb27f74dee8135bff455223282eefec4))
+- Validate address of multi payment recipients (#3187) ([22bc51d](22bc51d8506bfa0b0d9bfb3692ae3a9c55990195))
+- Update framework (#3190) ([f69c129](f69c129a0fa15941992f47b839adcc2b0326198e))
+- Prevent snapshot commands from running if core is running (#3196) ([1b3c5b6](1b3c5b6f688cfa9d65f3adc8bc14ca21ec41c800))
+- Allow unvoting a resigned delegate (#3201) ([f361a79](f361a796c37d16220cd96df213eda5f3d13c3de4))
+- Handle unwanted control frames ([a8f88db](a8f88db7d3e78edfdc33b28c3832b11343aa5756))
+- Stricter WS/SC events/messages handling ([2854dc9](2854dc9f19840dbf4f8a201c1367d9560b9fe962))
+- Stricter WS/SC events/messages handling (#3208) ([ef796f9](ef796f975aca88f88eb10c2e899074d3c4b18071))
+
+### Removed
+
+- Remove redundant bridgechain sc… (#3150) ([3e17881](3e178814ddd2f647ad49305084c1483a2eab84ea))
+- Remove delegate.rank for resigned delegates (#3202) ([f284b4b](f284b4bea75827698f2ebc7b7465cdc603e0575c))
+
+## [2.5.26] - 2019-10-08
+
+### Added
+
+- Allow CLI command configurations ([ad5e823](ad5e82306fe80ae729da2cf1f538938c1a305798))
+- Load crypto configuration from directory ([b37233e](b37233e30e8cc9df0db004a68522095b0323dcd7))
+- Expose `isValidPeer` via ajv format rule (#2960) ([edb33b3](edb33b3d529a9fd0c402ac39f5aaf53661dda4d8))
+- Endpoints for locks/businesses/bridgechains (#2940) ([d8b1994](d8b19949a9742f8b21de01086a186dcfd2bf1af3))
+- Allow CLI command configurations (#2972) ([b6bc4b4](b6bc4b48b81479f80c602f15df9500128b629519))
+- Add renovate.json (#2978) ([3828674](38286747e8961fe2e7662f640aeaf3c77efec6ed))
+- Find htlc unlock transactions (#2976) ([785187f](785187f99e8b6ce74fa32299b193d66f933e92f0))
+- MultiSignWif (#2979) ([2323c4d](2323c4d12018680f104953d0733aebaab2d916a8))
+- Allow passing height to `configManager.isNewMilestone` (#3001) ([409cedb](409cedb34a1694d5b958f4e17c8b231a518fbb97))
+- Add `vendorField` and `timestamp` to `/locks` endpoint (#3005) ([ee6fe40](ee6fe408eef7b749ad45429964a818341b1c7a61))
+- Add `round.missed` event (#3011) ([4953e48](4953e489cab03dc42ffaf5db49fe3fc865a3b036))
+- Add support for transaction nonces (#2925) ([daa830f](daa830f828a7627c558aa6f793cc85638f2e6d40))
+- Add trailing-slash plugin (#3027) ([2a81383](2a81383f4264b8a889a8edfc10e1f1e0a57d8346))
+- Install, update and remove plugins ([3753b29](3753b290c4c71064f6c6ece2bec96820b4e341c2))
+- Initial draft implementation (non-functional) ([2d5ea1a](2d5ea1aa8b781aa388138087b151e663f90078d0))
+
+### Changed
+
+- Use lodash to efficiently remove forged transactions (#2942) ([18900c3](18900c31acd7e2f31dad4ca42acb5bad8e487042))
+- Avoid O(m*n) when filtering pool txs and simplify the code (#2941) ([c18b04f](c18b04ff4d8cd45f3d3c21346aa1d90f85fe92ff))
+- Elaborate the unexpected nonce error (#2943) ([8ad272b](8ad272ba301e653af65d660732307264428eca21))
+- Should not exit on `timedatectl` error. (#2953) ([2eac042](2eac042005e870e86d46ce1e28c3dd0be3fae143))
+- Make peer reply errors less verbose (#2962) ([d5e9eaa](d5e9eaa13a2db1a9a1142ad17a9bc6613e86875e))
+- Change maximum recipients of multipayment via milestone (#2961) ([ebee960](ebee960de8d31ea2b4112aefbb311c7c35d77a7d))
+- Drop node 11 support (#2965) ([eeb996c](eeb996c64eadb4e922537934ca6e32adace31701))
+- Strengthen a nonce check in performGenericWalletChecks() (#2949) ([d7dbbec](d7dbbec841cbf9740e22e9ee0451bd391b9e9218))
+- Remove unnecessary check from validateTransactions() (#2951) ([5fc1e40](5fc1e404322b7e2e808b86e340afb0fbf945af0e))
+- Remove trailing whitespace (#2971) ([c218d1a](c218d1a8f9c82f35d6b3717a31dba787bfff9887))
+- Don't accept expired v1 transactions (#2948) ([6bccf66](6bccf660d703e0237111632ebdf5de0c2cdd8d67))
+- Update dependency del-cli to v3 (#2986) ([48cdc2e](48cdc2eaca7846f4f5743d3aba5083801fe21534))
+- Update dependency @types/newrelic to v5 (#2984) ([9699a14](9699a14c5363059dd909004a0ea21d85c1d812cd))
+- Use @arkecosystem/utils through @arkecosystem/core-kernel ([6645c13](6645c1314e3c114de80250d47d6349d0adffba22))
+- Core-magistrate-crypto export namespaces (#2980) ([43db49c](43db49c0bfdb5a0e2f9338f33157c3371944a5f4))
+- Update dependency rimraf to v3 (#2987) ([11ba0ee](11ba0ee962032226bcd859fa3edb3b8546404a4b))
+- Update dependency cross-env to v6 (#2985) ([5abc055](5abc0552f96f47c510f959a84f0e31fa03d46dc7))
+- Use default heap size regardless of available memory (#2998) ([b6379a5](b6379a52f6784048199a2a3bccc01f4f9a227e52))
+- Update dependency typesync to ^0.6.0 (#2981) ([49d918a](49d918a439b2f9d41008e08bb4ca17440f8ace9f))
+- Remove asset migration heuristic (#2999) ([6b7e313](6b7e3133fbfe2e373818d3a8e409d36a245ca8e0))
+- Integrate hapi-pagination to replace fork (#2994) ([279585b](279585be6231879fabefcf1650e58581b206730b))
+- Replace bignumber.js with native BigInt (#3010) ([7469ee9](7469ee98f88c411c4d78842fcb164c7b3dcc8cee))
+- Bootstrap transactions in batches (#2997) ([27132f0](27132f00b3108ff3c1ec5ac94ad1781ddcdf6ac1))
+- Memoize base58 de/encoding (#3015) ([b65a0e0](b65a0e0a89766a5c11f8cf52d9cf76e16eb2a404))
+- Remove `vendorFieldHex` (#3014) ([575234e](575234e7b67402ed31a497ffff56a049c1accc70))
+- Make address network byte check part of serde (#3000) ([90a2f85](90a2f85dfffe2a14bcb80d24ea985edaa1a8b265))
+- Ditch unnecessary reindex() in multi-payment bootstrap (#3022) ([3cdb728](3cdb728a3664f97eefb52595c1c8e103c2a3624d))
+- Htlc bootstrap (#3023) ([ea1dea0](ea1dea0fc3814dd5f02dde010409c791fe5cdb08))
+- Update dependencies to support node.js 12 (#3028) ([334d59a](334d59af6980c04825742e8aeab4c408c34c98d9))
+- Leave comments for things that need reviews ([a60734a](a60734a87d29d39dec9ec67431e152e6f2596ce6))
+- Setup husky and commitlint ([5fa1df3](5fa1df36de60ca0c89c0e8a4595498793b99ec71))
+- Integrate hapi-pagination to replace fork (#3034) ([fddd500](fddd5001459128f629f72967059dae8257287b4c))
+
+### Fixed
+
+- Extend the TempWalletManager test to test the TempWalletManager class (#2950) ([7bfba27](7bfba271034872f14d13673fde5e78f58833e798))
+- Index recipient wallets during bootstrap (#2947) ([451aa16](451aa1686d695bc32cd7aa84a5055b967b75c57e))
+- No need to run as root the chmod command when modifying own's files (#2958) ([3eab1ef](3eab1ef71922a3b3ff024ee5d05f36792cf4bf3a))
+- Do not reset `noBlockCounter` when `downloadBlocks` succeeds (#2968) ([7aa4ecf](7aa4ecf1568f53de9b3f565969dda1b91952af96))
+- Update wallet nonce when applying v1 transaction (#2959) ([bcce772](bcce7727a87a2694021ad93b012097eb83929323))
+- Range selection in pool's getTransactions() (#2952) ([84aedb1](84aedb1b4ec2344f3d2d9c1590d9490e02aa57a7))
+- Round deletion during rollback (#2970) ([4c8f365](4c8f365f5cee66c3e5eb95ae84036eac3c969e31))
+- Missing orderBy (#2974) ([16591dd](16591dd16ef1b9f70d3857237e42a506606b0174))
+- Update dependency winston-daily-rotate-file to v4 (#2992) ([3827138](3827138163a2005377d94d1cd5dd79419a2bb802))
+- Update dependency cli-progress to v3 (#2990) ([109a750](109a750651df7ae3db9c016f0e1d64a538ab2ae4))
+- Update dependency node-forge to ^0.9.0 (#2983) ([1a046d4](1a046d424e78b11e3c682e11aa964a95d08d847c))
+- Export/import transactions' type_group (#2996) ([7aaa143](7aaa14343edcd88712283abc35364e40594988bd))
+- Update dependency @hapi/boom to v8 (#2988) ([14dfc07](14dfc07a2d6d6e4a0faa62641f75f5797796e67e))
+- Run ajv validator again when encountering exceptions (#3008) ([81a7cbc](81a7cbce3f77217f94a4380092df49959a9994dd))
+- Match the long version of bytebuffer (#3025) ([516a586](516a58619914a8c802480eb0861667c23270c54d))
+- Use correct IV length for encryption (#3036) ([2aad9ef](2aad9efd41fdc3a87555b4fc12279b86fa679eb1))
+
+### Removed
+
+- Remove bogus skipRoundRows (#2973) ([77cc8d7](77cc8d7c73664da537d638f48429472c80aaff3b))
+- Remove benchmarking job and fix test triggers ([2bae8e4](2bae8e4deaa7c8412db6e03a5d562911e6715063))
+
+## [2.5.25] - 2019-09-19
+
+### Added
+
+- Implement app config to configure log service ([dd4c9ab](dd4c9aba0c05407629fa0b9b8064601357f78013))
+- Add e2e tests for more multisignature cases including htlc (#2917) ([36a7940](36a79405517917d06cbfe6c8c635aa76eff5d3ff))
+- Add server test coverage ([b5773d3](b5773d3daf1cc92ba9e4b71d3d2c390c265becbc))
+- Initial draft of attributes service ([08ca0fa](08ca0fac571388cc9797b70d975f784b9f8f9bd9))
+- Add `/node/debug` endpoint (#2929) ([23f0e91](23f0e911cd5a8cb3dd44c5e8f8aeb49b73e306e7))
+- Add missing typeGroup and emit StateStarting (#2932) ([325d910](325d91081ca46d78d2985e82df8a911ba23b5520))
+
+### Changed
+
+- Speed up nonce checks at DB level (#2910) ([e8588e3](e8588e3dffdf8e8d124dbf2f618ccf2d7ea7b5fa))
+- Share rate limiter between workers (#2912) ([97be5df](97be5df6c6ea5eb5543772884f986aee17d4b1a6))
+- Deprecate core-tester-cli ([789fdb7](789fdb70e9fc8e19e6a6cde17f612ff91c0b3b03))
+- Deprecate core-vote-report ([c97357c](c97357c7647eec8fe1ff3f77a48ff5938fa6b670))
+- Remove the abstract logger ([bb528bf](bb528bf6e0ab8111d889d24c8ce66ed1a4da22d8))
+- Deprecate core-exchange-json-rpc and core-http-utils ([7116976](7116976d377a00197e194524288b0671126c8df2))
+- Deprecate core-explorer ([d98ada5](d98ada5442c1416bf1b05971d9b34544741835fd))
+- Clear cached transaction ids after accepting block (#2916) ([578d3fd](578d3fdd965a545a621d1f0763ab7b040f9c372e))
+- Break loop if block contains v1 transaction (#2914) ([0c89e4a](0c89e4a84a030324ff45fad75df69bc4d6e0abfa))
+- Break wallet manager into repository & state management ([b2271ce](b2271ceb84325170493bc26a744f5a82f1751885))
+- Remove lodash dependencies & general housekeeping ([3c12f5a](3c12f5a18525905d8cfeeb0ee450c35465d12542))
+- Replace proxy services with container bindings ([5d7d3d6](5d7d3d6cc2836a33cdf84a890a77f24e31f0eb57))
+- Always check for updates when something runs ([41a869a](41a869a446f20bb52b236adea353cd82ea2757e0))
+- Htlc implementation (#2915) ([c5d7239](c5d72399f93c8854e02db4410309e0b9aa495d06))
+- Make use of IoC in blockchain, p2p and transaction pool ([8059fb5](8059fb51cd96f726718a9fa7472f4a2cf8b7bcab))
+- Temporarily deprecate core-elasticsearch ([8697d1d](8697d1daed6f16225bb14da51041d6988bd8517e))
+- Use cloneDeep, snakeCase and camelCase from @arkecosystem/utils ([3a34308](3a34308e3a94e34c29c19511e867a457ff4f52ba))
+- Make error more verbose (#2938) ([2334cd2](2334cd2da3d5d0f77124d62ef67420e0009179c9))
+
+### Fixed
+
+- Mock missing wsServer ([a9e2274](a9e2274296de249cb41f0987b0ec8ebe8ec9c095))
+- Disconnect if api reports different network (#2909) ([e00735d](e00735df5be2cda1535dfc6dc58c3ecd2f10980d))
+- 100% coverage ([8ebf285](8ebf2851dd9a7509fc754e486f998295f7fd867e))
+- Use supply calculator in delegate approval calculation (#2918) ([2edcd53](2edcd53bd6e5a28ab4be8972e44b13dc282e729d))
+- `buildVoteBalances` called too early (#2920) ([778a96c](778a96cc97dde6ad59595db498fb80612bf0ea67))
+- `buildDelegateRanking` called too early (#2921) ([86c98bf](86c98bf156a19b41c8527462a4c3ee5997af2693))
+- `/wallets/{id}/transactions` search parameters (#2923) ([af87eaa](af87eaa10ffcd35fbd24364cec7d6a4203222a41))
+- Use 2 bytes to store number of payments (#2928) ([e169215](e1692151455fee6471ab7b544e5e3f8cd64381e8))
+- Make npm registry reliant tests more reliable ([028b65f](028b65f60bbea4faf448794598cb9f99a470e6fa))
+- Reject delegate resignation if not enough inactive delegates (#2919) ([9c800e8](9c800e842524f837243a544b4317ea198c50fc18))
+- Wallet search (#2926) ([6a88e9f](6a88e9f0d0132d556be337a5f783185cbfab2755))
+- Use postgresql-9.5 compatible syntax (#2933) ([37e8f52](37e8f52aef04da1be926dd9ab18170cfc4131405))
+- Htlc lock buffer allocation (#2936) ([5f7ca20](5f7ca208ce39fa7ce04f63427f94c3659aaa90fa))
+- Sort by fee, nonce (#2937) ([2981176](298117628d47630659bbcf314a519fbe03c98df5))
+- Mock missing wsServer ([be3901a](be3901a190ccb34702f4e80f7d28baae70e982b2))
+- Disconnect external connections to internal endpoints ([f73bd8b](f73bd8bbb1058dfd3c634c4dd4d04d3da0015a6e))
+- Terminate connection when not authorized (#2945) ([0dce189](0dce18971c9f66f90d019cd7e3d66c1784b0bf72))
+- Htlc refund handler to use performGenericWalletChecks (+ fix e2e tests) (#2944) ([ec2002d](ec2002d48d1c38368fe044b962e4e0c8dc020e81))
+
+## [2.5.24] - 2019-09-04
+
+### Added
+
+- Enforce transactions' nonce order from blockPr… (#2873) ([64cb9e9](64cb9e92980109debe813ad9feef333f45a83b69))
+- Implement AIP 103 (#2858) ([f3ed2f9](f3ed2f980974e2cdc876c0196c8f8a191ff2ee99))
+- Initial draft of core-kernel ([f47b55c](f47b55c8425e59052dd6c52f27645be9769900b6))
+- Initial draft of scheduler ([a399f19](a399f1948e0a50c0b8fb1571d430be32bea63e79))
+- Initial draft of event dispatcher ([5d96cbf](5d96cbfc439ec97c99cb324f18dbd8db385b0349))
+- Initial draft of cache ([3c413d4](3c413d43495c12ff609af89ca0d8dc0aa3e7de2b))
+- Application and service provider bootstrappers ([85b6b60](85b6b605e86cee0fcb2c40cb63146635d19a995d))
+- Filesystem abstraction ([0f7e589](0f7e589b4de9bc1591c6895ca343378efc4514b0))
+- Implement builder pattern to support driver-based plugins ([9b368c9](9b368c957bc459042c7cb3176ea71b8c0f3295dc))
+- Conditional enabling and disabling of services ([77893fd](77893fda5a4fc61a1d2af19674feca822cf0936a))
+- Handle inclusion and exclusion of service providers ([fc15799](fc157999e20933ceb4eaef0cd9e17bf8d63fef30))
+- Add relay:share command to share relay instances via ngrok ([42b0805](42b0805c051b2dcda14a85c261eb38174a73c9e1))
+- Validation service ([1de4f3f](1de4f3fce39ccb553108c596a7846ad01a96980c))
+- Required plugins to terminate on registration failure ([d44e29c](d44e29cccac29e1c1033c8d0ef1f09c0afba1adf))
+- Validate and cast package configuration on register ([ade3a5d](ade3a5d494fc6247faeff78e1dd9809d04b140a2))
+- Support creation of scoped child containers ([9d12bb1](9d12bb1fc370c8d4478ae9620d3a52eaccb6cf95))
+- Ability to listen to bootstrapping events ([bf42224](bf422244423cbb0cbca868e55a51c7b098a2090d))
+- Use compression on the p2p level (#2886) ([a201d64](a201d64ffafd9bcf4d8f82d6dd9cc067b11046d6))
+- Auto-discovery for package manifest and config ([d449340](d449340c781743815906ac74f518f75802c2b416))
+- Implement reusable exceptions ([75c1177](75c117741012b377279c36f021bcd43c036488cf))
+- Initial draft of actions ([1a823ee](1a823ee700c4bf3c197496fad4d6918e42c2010c))
+- Initial draft of new container ([583f5a9](583f5a9288978f8c111c57dc4fba8de4afec1257))
+- Watch configuration and restart core on change ([344de61](344de61ac47a64856fbb08a550e15b761a416174))
+- Schedule tasks by cron or block intervals ([cfd39d0](cfd39d0859b836905a9f4dfa0759be1feb78216f))
+- Add container helper methods ([050ce16](050ce16b16298377c565a440cd62b60a3251f753))
+- Initial draft of queues ([5e5eb2a](5e5eb2a461171b6e70c55d792f525b082e6a417f))
+- Initial draft of mixin service ([0367e8e](0367e8e14f3f9c75fac78ab72a98a19eb44d2742))
+- Add unit tests ([ad1c59c](ad1c59c04f8570d72c869de7e6ff668f2b5fed97))
+- Use compression on the p2p level (#2886) ([f5c185f](f5c185fe21fd44b583e0a2a872a1a4995c618951))
+
+### Changed
+
+- Clean slate for integration and unit tests ([659b881](659b881b104c3ebe59aec1f340df6060e51dbf2b))
+- Signature deserialization (#2877) ([b083dbe](b083dbef998bd2a841b40ef07b789b0988591235))
+- Return all registered transaction types (#2878) ([ee80ac5](ee80ac51912ba7a0cb8a22be2db32553f18ac997))
+- Reject V1 transactions after milestone (#2879) ([5df769b](5df769b65db812823d29c4e3b70c28d121cc1011))
+- Remove deprecated folder ([d0c299e](d0c299ebb1bcd9fdb7b4c73f7cd91e2da5e892a2))
+- Migrate plugin entry from objects to service providers ([0c55ea1](0c55ea134b75d2f59d8aec329b38190a9d604eeb))
+- Container friendly naming of bindings ([7c402ac](7c402ac2bb570e05f330417e2a315dd5bd6d5449))
+- Organise contracts and exceptions into namespaces ([aec0f5a](aec0f5ad37d1469609458e41b0f074037b42fd0a))
+- Replace tslint with typescript-eslint ([f407903](f407903b6cec1a365d33aa18ceafaa2ab2d19483))
+- Setup documentation generation with TypeDoc ([01e4744](01e47446b4e73e9e54bc74b735b9955ae7a9f3f6))
+- Group container and provider logic ([5847884](58478848ab8a35fd3491e814272178040e6161a4))
+- Use object destructuring for event listeners ([d6a42f2](d6a42f2e511c9bf6339a92a8802be6600497c810))
+- Use symbols to avoid name clashes in container ([5f4c6e8](5f4c6e8c4d38168329640830e7a4f024f380b96a))
+- Apply builder pattern to events service ([e6c9e9b](e6c9e9b6a732a7acb0a5046a0c598f5b6868ff3d))
+- Simplify action implementation and remove awilix ([75199f7](75199f71383794c83de3e8fd8600cf746ef4568e))
+- AIP103 (#2892) ([3f645e0](3f645e069f6db2d22be5f5fda4340796ebc75f9e))
+- Emit `forging.missing` earlier (#2893) ([2a382b7](2a382b7f5b13d82b09d9d78008119388d1f7b6c7))
+- Emit missing `transaction.reverted` event and remove obsolete ones (#2895) ([26426b4](26426b485f472b00436f2da13c1bb74aee7bdd88))
+- Drop node 10 from CircleCI and update .nvmrc to node 11 (#2899) ([8836016](8836016ea605ac70267cf0ce195accae8c3e42b3))
+- Guarantee package order in config through arrays ([dc4bc4e](dc4bc4edfd102ff4c1f05223bc3b9233573e6315))
+- Move deprecated plugins to ArkEcosystem/core-plugins-deprecated (#2902) ([33d8ba7](33d8ba754eb706e7d8df965e732d2925ac1f388d))
+- Deprecate core-logger-signale and core-logger-winston ([ab8cc65](ab8cc65a5d5526aa52c34a02f8fc31bb6cc0424f))
+- Implement RFC 5424 log levels ([c613728](c613728851a64b87d073acb6b943c5144a8d8297))
+- Deprecate core-error-tracker* packages ([0c03165](0c03165da7d36a3c88b55684fcce1cbc12041e4e))
+- Adapt to new container ([67b10dd](67b10ddcdf8a4300bd9814b2b5db0efb6716609a))
+- Merge core-utils ([56850c5](56850c56e0570e5663eec4ab12241d98d8c03bb7))
+- Adapt to new container ([eceab20](eceab20f037dea81e20f0572af263c472a2cf736))
+- Merge server utils into an HttpServer class ([d582176](d5821761c33d5d5a913729b2274a4c2ea0fcc9ad))
+- Deprecate core-wallet-api ([6a1f5c1](6a1f5c1d991f767ba8f847f657c81f9639316a0f))
+
+### Fixed
+
+- Update core-interfaces imports to core-kernel ([c70bf0b](c70bf0bb70e99e2cc24fc0cb659097f7ba06b68c))
+- Resolve build issues after core-kernel introduction ([e8a2d6b](e8a2d6bea3637ebda76fce4dd97edafa7ac4a1b5))
+- Get the basics running again ([53e4469](53e4469f3969da5bfab5c542708940120cd557cc))
+- Resolve logger as log from container ([daf1d92](daf1d922a9073afedc604c68594a4bb4f7f95ef0))
+- Transaction pool options access ([29e8485](29e8485f86d00f2344a00473283649685eb329d7))
+- Cast params in condition checks (#2887) ([1016bd5](1016bd5faa35195d15b66b13cbe282bf9f9ed632))
+- Ensure only one signature per participant (#2889) ([76f1f41](76f1f41f475c604ac0312bd0e760255ebf5a3dbf))
+- Use `anyOf` for transactions schema (#2894) ([f0f4fbf](f0f4fbf16c0e3be6e5c834998a33e02688ebe183))
+- Unit test all is* helpers ([8d9649d](8d9649dac4f713d991e8c540810f2b63f9bca8d7))
+- Clear queue on invalid block (#2897) ([dc70bcd](dc70bcd3f27cdfcdc34b3ae6e9684e5bc38e278d))
+- Legacy multi signature verification (#2898) ([e03846d](e03846de4cdacd3855a4acc8145809d389607aba))
+- Move wallet manager "zero balance" check to transaction handlers (#2896) ([8c773da](8c773dab4a9ea05ddfccc7319e6e2e8e46d4f8c0))
+- Unit tests for 100% coverage ([b472b8a](b472b8aab652e65fde8876c70da59c54219dac9d))
+- Cast params in condition checks (#2887) ([8e80340](8e8034044a09b734d9254cb54532ca6c2db9b004))
+- Use `anyOf` for transactions schema (#2894) ([c3aebbf](c3aebbf75c707c424c07a10a82066abcd054a5b6))
+- Only shift milestoneHeights[] if at that height (#2904) ([56ff979](56ff979db096369daf135813af7a2cbcdd741397))
+- Return block timestamp for v2 transactions (#2906) ([9c4a746](9c4a7465e9bd6a4d98537e47224d11b6af8b3e62))
+- Drop connections with malformed messages ([5ac0c41](5ac0c41b03de8d640b6a8d6dbc812c3361efade7))
+- Terminate blocked client connections ([76f06ac](76f06acaa7b8ea709b1df6d08dd965b2aebc70e2))
+
+### Removed
+
+- Remove I prefix from interfaces ([1841d4c](1841d4cb5597c8d6eff681b3424e7b5171b5fd39))
+- Remove Abstract prefix from base classes ([d7d6e2d](d7d6e2d6142278dbdb733361d39a548e495cde5b))
+
+## [2.5.19] - 2019-08-14
+
+### Added
+
+- Implement AIP 102 (HTLC) (#2773) ([51b9939](51b9939fed329b297850c165cf5f20807cb69c3d))
+- Transaction type dependencies (#2859) ([16a15e0](16a15e00e19c3c199500d9d4f7fb28c3ec9bdeee))
+- Add nonce column (#2844) ([79dcbe0](79dcbe04568d9b2242c380146abbde3b58b201ce))
+- Register wallet attributes before accessing them (#2867) ([3c39180](3c391809430f023518b8df5118bd34abbdaea2f3))
+- Change minimum version via milestone (#2869) ([d504e41](d504e416e5bfc446f0d0658b9363e81fbeda7bf8))
+- Include core version in node/configuration (#2855) ([7da2373](7da237322fed2dc6f4d028f08fe72ed4af6d0bcb))
+
+### Changed
+
+- Expose current block for transaction handlers (#2856) ([f68c724](f68c724ce11a51b2c49b9b593c15b484c096dff1))
+- Increase transaction type size (#2861) ([10f62a4](10f62a4e4ad60f2e3dbafc0249b84a9a6177b6df))
+- Make handler functions asynchronous (#2865) ([2b8c517](2b8c51780dbb955372d31b854f873e808f3f457c))
+
+### Fixed
+
+- Ensure payload database exists (#2851) ([b190622](b190622545300f952f8a08ecc1aaf39e9f287df9))
+- Differentiate between wallets and delegates (#2854) ([4304d40](4304d40a657635a5bbdc094792d27a7391703289))
+- Differentiate between wallets and delegates (#2854) ([1c0d4b0](1c0d4b07dc8c043340b44680cdfd0bf43b5a574d))
+- Clone webhook before mutating it ([3145be7](3145be7dee304efd152472d14b48a141850f7495))
+- Clone webhook before mutating it (#2863) ([49d3d8c](49d3d8cb8a26766ef9e50398232a4d0daf526322))
+- Merge ([c3f76f2](c3f76f2d8b95307ef750a809d9e8fc89248bb862))
+- Stricter schema on peer replies, disconnect on invalid requests (#2875) ([29429be](29429be73b8682b524d301d2dbaacc93e6064cda))
+
+### Removed
+
+- Delete existing db ([f7e2eeb](f7e2eeb1f7b40f7f54cdc1635be2765efd7ec6a7))
+- Delete existing db (#2864) ([9dc7ebe](9dc7ebe358194f11ee87acc1bf3acdffad9a361e))
+
+## [2.5.14] - 2019-07-30
+
+### Added
+
+- Add ntp and google servers for ntpd (#2823) ([f18327d](f18327dc35c457d175f1a3e23b67f8147364da08))
+- Add lead maintainer information (#2835) ([1f5c1d4](1f5c1d4c91c307f4fef3129602eb36cb383180d2))
+- Attributes getter/setter for wallet (#2839) ([016ab15](016ab155697650076dba6f2df84e686855d7c413))
+- Add content-type header (#2840) ([8c1a0ff](8c1a0ff7e0484fd58240f83cfec26bea4a5e7021))
+- Wallet manager indexes (#2845) ([f934468](f93446829fd2454cb789599af85892951de71470))
+
+### Changed
+
+- Setup codacy configuration (#2827) ([5a5a056](5a5a056053070fe4363b878005c1db75160d1592))
+- Ignore development folders on codacy ([1eaa40f](1eaa40f9abfcac65f492ca5772d6377aad14f01b))
+- Setup probot/stale configuration (#2834) ([d2209b7](d2209b789012334bf946ceefc44c87ba7c16ad28))
+- Lookup delegates by key (#2837) ([594b0b3](594b0b3448e70ef7ae33d22c5d1aabfea5abf659))
+- Transaction fees (#2842) ([aeff8b1](aeff8b19fb2cc0a8fd7abc93d4a92e05decab8e3))
+- Increase network timeouts (#2828) ([c882656](c88265662226167c947db91fe171f4823588bec1))
+- Improve transactions endpoint (#2848) ([b12483b](b12483b99b6411c19cf62f49e9485c6fa112c8f4))
+
+### Fixed
+
+- Return count of filtered peers (#2814) ([3363fe7](3363fe75c53adc38db29acc0effb280d6362c537))
+- Prefix table names with schema (#2830) ([a8aae20](a8aae208f4269f7e5831bbe494c27145a2b2098b))
+- Return data directly if cache is disabled (#2831) ([757b7f5](757b7f5269a43809adf290029b16dfee9dc88c7b))
+- Internal server error caused by invalid orderBy field (#2847) ([1e48d4d](1e48d4d1cfff50431d86825a6e619f29efcda1c2))
+- Multipayment balance / vote balance (#2838) ([c58261b](c58261bb726ef7e9dd5f7fc4219fc5d5e1eb0401))
+- Initial tests for transactions handlers bootstrap methods (#2843) ([56f8ea9](56f8ea91812ee1252069bf6c57a8b95e21fd13e5))
+- Peer discovery limit (#2850) ([c34fd75](c34fd755a5d9bdf86a3b4366a27bbd7cdf745e6f))
+
+## [2.5.7] - 2019-07-16
+
+### Changed
+
+- Remove unused function sortTransactions() (#2779) ([b14fe92](b14fe9200914b3b0cfec4ac6096ab9849521e794))
+- Update dependencies to their latest versions (#2808) ([ce8ea1f](ce8ea1fb30c4bb9ffb361198ba3744c98c613202))
+- Export dist/index.js for cjs and umd (#2807) ([8bc6567](8bc65674cfcc7ee432b1a7aa425318b576494123))
+- Lookup wallets by keys (#2810) ([3afb6e2](3afb6e2a0d205b0a1dc4aea44563726d8dd9ef54))
+
+### Fixed
+
+- Accepted versions (#2802) ([ae1cb1d](ae1cb1d409302b18e8a94871f47c5432837e1f7a))
+- E2e tests  (#2781) ([bc75615](bc75615edf77fe11c806fb1d658fdc67efb12115))
+- Also fix the genesis block id during verify (#2809) ([5adf23d](5adf23d3ec069db1f018c0494d72739b3a9ded1f))
+- Also fix the genesis block id during verify (#2809) ([dadfea4](dadfea427b329a236c63a1f6aca00358efc2e319))
+- Also fix the genesis block id during verif… (#2811) ([26a6c0d](26a6c0dd9e4f4b92e9d7b0c34577bdc58ab4cac6))
+
+## [2.5.1] - 2019-07-11
+
+### Fixed
+
+- Loading of ssl certificate (#2800) ([8f8a078](8f8a078b8f97745086b7f3457ee557d34f4b3309))
+
+## [2.5.0] - 2019-07-11
+
+### Added
+
+- Let the user choose if they want to use @next release (#2789) ([34c1b56](34c1b567d023a44537a37d2fc27095b760da498c))
+
+### Changed
+
+- Run GC earlier on potatos (#2785) ([59aed5d](59aed5ddac4b8c4a33ad729b270e6a2bc2ec8336))
+- Always enforce `application/json` as content-type (#2786) ([c642f89](c642f8909f7fbac0254108dc97fe7b10738cc610))
+- Increase timeout, check time left in slot (#2788) ([4267236](42672364228a1bae6e3ac26ad695b5f4210b53c9))
+- Refresh peer ports (#2784) ([c384625](c3846255d26e14154d3533ce77909fd7e1c8e975))
+- 2.5.0 (#2790) ([dddeaf1](dddeaf1e123edf3e296caf36227f6596cf3af3b1))
+- Remove reverted PR from 2.5.0 ([c17a83f](c17a83fa8fe348a8976415b01519fceae272fbf9))
+- Bump @arkecosystem/exchange-json-rpc to 1.0.1 (#2799) ([a160194](a160194be69a366c3ab4a03856576cbf85db6d9f))
+
+### Fixed
+
+- Allow future timestamps up to 3600 + blocktime seconds (#2787) ([1c01a08](1c01a08d7f9aec7a2f7ca3b2a3a5a9d635ade66e))
+- Also check if still in same slot (#2792) ([ec68d39](ec68d39f399384fa27f27bf73a418cb57123f323))
+- Handle null url and malformed JSON payloads (#2797) ([9ea7fed](9ea7fed0d3c801c892f2e96e5f221c6be9ba9709))
+
+## [2.4.15] - 2019-07-09
+
+### Added
+
+- Enforce chained blocks at database level (#2753) ([7de758b](7de758b8e3ffaa26d0caeb8bb91ab75c71a62f02))
+- Make it configurable whether to use estimates (#2772) ([1e185ea](1e185eab27770aa76ef409ad3805074847f63554))
+
+### Changed
+
+- Delete last block if deserialization fails (#2770) ([8a1ecce](8a1ecce6ea2217fe99fbb34d57473d49dd3f3957))
+- Discover new peers sooner (#2771) ([5e17b5a](5e17b5a3ce3205f9758f3775c8736368b6c5f9bd))
+- Update dependencies to latest versions (#2768) ([43bbb3f](43bbb3fc63c22f1031697296bab86249bcad0875))
+
+### Fixed
+
+- Reject future and expired transaction timestamps (#2757) ([f163023](f16302378a94cae5c875cde63aec919d998d45b5))
+- Fix ([5fee319](5fee31961c5900b14b3b71243707bbe844d1e08a))
+- TypeError: Reduce of empty array with no initial value (#2774) ([bc9d295](bc9d2959706637fe85fdcdcefcb261b172ff2ff5))
+- Drop check_previous_block with arguments (#2775) ([8c540ca](8c540ca08bbb994991b53d479a5c3fa5ce10cd34))
+- Raise bignumber maximum (#2777) ([9bccd10](9bccd106191e90a76dc1e49a1b1841d769dfe5eb))
+
+## [2.4.14] - 2019-07-02
+
+### Added
+
+- Return timestamp from /node/status (#2758) ([4c688c6](4c688c6ab6b24d8688ab2de82308a8f93d3e41eb))
+- Add nonce to wallet transformer (#2760) ([dd09cd3](dd09cd3cdf46f62ef304a5008eab276c3b93b6dc))
+- Implement MultiPayment (AIP11) (#2669) ([3444fa1](3444fa10b9d861f286223c87a84aac96c793fd55))
+
+### Changed
+
+- Check error code instead of e… (#2755) ([4dfe51a](4dfe51ab46e59c26fe2beb57acf9b7f80547dfad))
+- Remove blockSender (#2756) ([9b1e64f](9b1e64f51fd68025157c1216f7578876b403911c))
+- Add Wallets API, remove PostgreSQL container port default mapping to localhost (#2741) ([1d5c408](1d5c408f4ce10b85f0dec408d5f7ed0330a7b0c6))
+- Updated README (#2742) ([6edcb93](6edcb93b6cc4b3e15c1b7af9c5ad6a371d460ef3))
+- Remove the id column from rounds (#2723) ([7199090](7199090df0e5cba35b92da83822b336974e89ed7))
+
+### Fixed
+
+- Previous round order calculation (#2754) ([80aa5ff](80aa5ffa3599688bbd7355301dba1d6c0fec3285))
+- Treat and return BigInt values as strings (#2739) ([16ace9d](16ace9d4920291dba510a131845fca2378659f3a))
+- Revert accepted blocks when saveBlocks fails (#2761) ([a917758](a91775860e43c287b891d0b053b6eb5c6032ef7d))
+- Install.sh and docker (#2762) ([7cf4d7e](7cf4d7eeb612bdb3d0c4dd94435724871cade7fa))
+- Do not restore genesis block with wrong id (#2759) ([134fdf6](134fdf66e38637fe73a4e032d56764fb6b5de9a5))
+- Avoid iterating on non-iterable peerBlocks (#2763) ([7909ca5](7909ca5bdd2f639df10129a755a7d7a33f47905f))
+- Correct estimate if less than limit rows (#2764) ([51240b3](51240b3ea496788da1a21781b6171f70a4e1b923))
+- Try harder to return the requested number of transactions (#2765) ([fcc8a23](fcc8a238950a7e815f33d43f844e1ded64238b90))
+- Try harder to return the requested number of transactions (#2766) ([0f19122](0f1912220067ab7ee1dd8c450596b032e5b57655))
+
+## [2.4.13] - 2019-06-26
+
+### Added
+
+- Add 2.5 to minimum versions (#2703) ([5fa4049](5fa4049e383947bf91802399bd0a71b6226cd920))
+- Add foreign key on transactions block id (#2671) ([0e55dff](0e55dff410960f68dd109b6374a00b7c32662247))
+- Add option to configure request timeout (#2710) ([a6373f3](a6373f39fc21eb170009a225e38b46dab5601b09))
+- Impose the same rate limit as the public API (#2717) ([2ec6df4](2ec6df4e5697f3983b956f213a0642eb21bfae0f))
+
+### Changed
+
+- Fix formatting ([8b8c433](8b8c433bba2ade4761da037a98784e8fb8d67bde))
+- Only look for new peers when below minimum peers (#2714) ([8c3c38a](8c3c38aa899aff93d5ae9269ba7784e9e62f9ce4))
+- Always keep the Wallet API enabled (#2715) ([24fa281](24fa281ab9b952cf30fe18511e7b18f0d91f6f1d))
+- Allow 2.4 and 2.5 nodes (#2716) ([5c03914](5c0391479c880ecb587d57f771ec47b9ae72980e))
+- Improve peer block header check (#2719) ([a819326](a819326780b02200129f81ecaeba81eb69313f97))
+- Export abstract builder for use by plugins (#2721) ([5dbc5b3](5dbc5b34fe99343c84fe5fc6a82b02289f893d10))
+- Only fetch block headers when verifying peers (#2728) ([3f088a6](3f088a65d4abae5e32af4af374cc650ffc5c55ad))
+- Delay peer discovery until after state initialization is done (#2727) ([142dc3d](142dc3d093ce43660d89b8b896ef300c3a045d50))
+- Remove createSecureServer method (#2730) ([582b8c3](582b8c34300f6ab95f346bfb648b5ed571164a54))
+- Improved rate limiting (#2729) ([4176f3a](4176f3ac38683133b66155d9315763881ee1ceba))
+- Respect the whitelist of the public API (#2718) ([e1de9d1](e1de9d1727cb0a06fdbbf8d1fc203c42a4b55715))
+- Add Wallets API, remove PostgreSQL container port default mapping to localhost (#2741) ([9c7520e](9c7520ef8ab21b26639826c1a15527d8651b614e))
+- Updated README (#2742) ([b29f364](b29f3646e9a25761dd248f180210a2f61e23a688))
+- Exit on unexpected error (#2744) ([239080b](239080bce01060179f037416d8c112436f1b3832))
+- Download serialized blocks (#2743) ([5ae7f4e](5ae7f4ef10a78cc663b0475bf0bbcbdb3162c9bf))
+- Block when rate limit exceeded (#2745) ([66ecd74](66ecd74662f7a5716e4c81984065bd9a5559f5b4))
+
+### Fixed
+
+- Possible database corruption when writing and deleting blocks (#2707) ([a0ba29b](a0ba29b675c8d9477f027a5733e8e8e03c0349d9))
+- Use CORE_API_DISABLED variable in defaults (#2711) ([90187e4](90187e475da101839c03424bd493ead9fc3fbf75))
+- Forget peer when socket is disconnected (#2720) ([b0bcb12](b0bcb12c6ad9cc223b6361a5cbebd9e746a2f294))
+- Off-by-one error when fetching blocks from peer (#2733) ([92c0a3d](92c0a3d532c7e3d370aaffc1b1bcde0c0236dfcb))
+- Check for user confirmation in snapshot commands (#2734) ([49e25f8](49e25f86d8f48d57a779d1bc95f3a1eca9db056c))
+- Transformer service and 404 assertions (#2735) ([8d45678](8d45678f0a0d450af24666c895bb2688fe5cb953))
+- Test /transactions/fees and /blockchain endpoints (#2736) ([2db650b](2db650be2079d425b286a2834639bde03d697d24))
+- /node/configuration/crypto endpoint (#2737) ([f34edcf](f34edcfb18c012cd935825dd52c4955ae5abb32a))
+- /node/fees endpoint (#2738) ([fd2d056](fd2d056f668030d2b7a57ddcbece893124fc6b25))
+- Always attempt to download blocks after start (#2746) ([2633741](26337410d735da0536d19dfbcdb6ba0226ba611a))
+- Grant access if the whitelist is empty (#2748) ([5a7392c](5a7392cc1923193df78ec845931210348282aa77))
+- Do not purge transactions when a block is not accepted (#2751) ([d67fc61](d67fc6111c4ec306eb5a98cb49a09033a71c2d3c))
+
+## [2.4.12] - 2019-06-14
+
+### Changed
+
+- Remove the legacy API and support asset search (#2697) ([0ff5241](0ff5241e9fe65874a7cf3e053f1de17a005476a6))
+- Cache genesis transaction ids (#2699) ([c201c70](c201c70bf69bff786c632e9f0c818f8488ba71aa))
+
+### Fixed
+
+- Take milestones into account when downloading blocks in parallel (#2700) ([f983e2c](f983e2cdb0497096e29100bdb8ef4969c4a2fa08))
+
+## [2.4.1] - 2019-06-13
+
+### Changed
+
+- Use sql to calculate fee statistics (#2692) ([d870e13](d870e13be629dfa614ac6840a065b89daf33c954))
+
+### Fixed
+
+- Increase rate limit to handle bigger networks (#2693) ([654db01](654db01d96bffe2c5ded3f56b5b01342be25cdf7))
+
+## [2.4.0] - 2019-06-12
+
+### Added
+
+- Add core-state dependency (#2598) ([4c90372](4c903722853fc17cd7fb259ac3261e84473d2f1a))
+- Add missing dependencies (#2599) ([b743c8c](b743c8cde87ef56133920c792376df780bf1528e))
+- Initial nonce implementation (#2573) ([a69cf51](a69cf515a924668dc6495b39df6c3047bca9fb00))
+- Initial implementation (#2604) ([358009c](358009ccc92a5ea91a582ef7b5041d585ce214f3))
+- Add commands to check for missing dependencies and types (#2603) ([08a8a65](08a8a65e287801f302817c189e5a21eb717eef88))
+- Allow retrieval of raw blocks and transactions (#2616) ([0e18f94](0e18f94c27de82b8460635fe5c7fe4c8f45a6a83))
+- Search transactions by asset (#2618) ([6f810ca](6f810cabdf682a9d64c1ab119196d76ab05a7a4b))
+- Add latest changes for 2.4.0 (#2638) ([0c834df](0c834df49b131e607b2e0d53412161f28eaf51bc))
+- Allow easy retrieval of first and last block (#2641) ([9b06161](9b061616ced4e4d553649d6232b5cdc4d371807c))
+- Add missing @hapi/boom and @hapi/joi dependencies (#2642) ([814f753](814f7533d79927b81d0c7f3ff09e0e2cff79c01a))
+- Use @arkecosystem/core-exchange-json-rpc programmatically (#2643) ([a780395](a7803953e1c5eb94c8918ad9c46ab766b719f05e))
+- Add more tests for `getTransactionsForForging` (#2659) ([ceee129](ceee1290714a2da352ee2977eae6fba17f64ac3d))
+- Add CORE_LOG_LEVEL for mainnet (#2683) ([9b78571](9b78571578c846e6ab035423967d4702e887608f))
+- Add CORE_LOG_LEVEL_FILE for mainnet ([6c7fa66](6c7fa66b6209ab1692a909d3bf27a2958ed2383b))
+
+### Changed
+
+- Use dayjs as it now has official UTC support (#2592) ([beffc2a](beffc2adf4512ecbecad6f891ad84c21404f2b89))
+- Use blockId schema for validation (#2596) ([86a77ba](86a77bae9a9675bdce05ac1aa71fa88685e9d2ea))
+- Remove timeout banning (#2597) ([4d2e01a](4d2e01a508f8a7847db31d2004f3f028ad59e29c))
+- Remove peer caching (#2606) ([523618b](523618bbaa3af416997e8174d812ff100817088f))
+- Show mapped IPs as IPv4 (#2605) ([6cb7f9e](6cb7f9eadd08a386d79b2a61f15d47e4fc78e3e5))
+- Update contribution link (#2609) ([8708ec2](8708ec239f68d5d5fca6cbacf3ceeb8d134739d5))
+- Remove peer banning (#2612) ([5f5152c](5f5152cbf84b59b60eca723d831c85096da1dddf))
+- Remove coldstart period (#2619) ([1316ad7](1316ad7cfa278468ae0b1bcb7365506170e901f9))
+- 2.5.0 changelog ([279b58a](279b58a788e431dca3d1f05ba759b6d7da55ed81))
+- Update dependencies to latest versions (#2620) ([23c6182](23c618264b66433579a0e4f018defa7a1e3b6083))
+- Use organization-wide GitHub Configuration (#2621) ([305bc48](305bc487c73e48389c1854d6e74639b67a9eb07c))
+- Deserialize transactions before they leave the pool (#2622) ([2cf81a0](2cf81a0c744f5af4f1576eb194687fb925a80d9f))
+- Do not temporary inc/dec nonce when checking tx validity (#2587) ([090bc2d](090bc2d8aef1b9e7ed4b3326e32fa3376aa9f1e2))
+- Require a minimum of 0 as pubKeyHash (#2628) ([58e3fb2](58e3fb2e66470f60bb91fd478d7bd7d884e117bb))
+- Ask for a retry if installing core fails from install.sh (#2633) ([b434c7b](b434c7b236c7422a5c232f18db4ffb13090a117d))
+- Improve database configuration in install.sh script (#2632) ([ac57453](ac574530d054d7bb03f4622c3f5e8d8f001c6086))
+- Keep genesis block instance in-memory ([7a73aef](7a73aef8b29d40572d1524cf8b1bafbffa3b0964))
+- Remove redundant p2p port from broadcast (#2648) ([0d63050](0d63050b61c579383a86b8a2dffb158eae2ddb5c))
+- Improve logging (#2652) ([b00e107](b00e107f6cfb3dfa11ddca51b2b6b2daa1871626))
+- Remove whitelist access log (#2655) ([301790e](301790eb0a381edd3c57ab7bae8470931f14cecd))
+- 2.4.0 changelog (#2660) ([0a29adf](0a29adfbef9c85171a16c793c0c616d841ff713b))
+- Replace bs58check with bstring (#2673) ([50ded58](50ded587f2f7141da2cc9811472eb7fc0e0f5442))
+- Move base58 functions to utils (#2675) ([c70b6fb](c70b6fb7c22c6d3d7bcb7d9bf292a0b79cc15da2))
+- Expire transactions that don't have … (#2672) ([6b7fb4b](6b7fb4b8d368f301df73e5965c50af52d4855001))
+- Allow custom wallet api port (#2679) ([582d057](582d05716b048204d92544e8c6aee2cb261227d7))
+- 2.4.0 changelog (#2677) ([a73edf4](a73edf4fea6b2c9fc0e335f09a6a465bbe1b6dd6))
+- Set core_channel for devnet ([db09d5b](db09d5b7d9a3d2559cc3f48973dd5db015b112e2))
+- Update environment files (#2684) ([b353720](b35372077ea686f21006acb81bd43a4ead634679))
+- 2.4.0 changelog (#2688) ([22b823f](22b823fc2331b24afa45698ff20be4c4222a2f76))
+- Use stable @arkecosystem/exchange-json-rpc (#2681) ([bdc911f](bdc911fb8f3fd1af314cf393968c4b55ef50fe00))
+
+### Fixed
+
+- Use day instead of date (#2595) ([7c6021d](7c6021d174316f4eccae61777b3b85b56e0d2445))
+- Non-blocking port ping (#2607) ([cba3065](cba30652394b9927b58fd7b04704f6000f601cfb))
+- Use a static reconnect timeout (#2610) ([1f6e36e](1f6e36ef5b2df1322c302d01ea1bdd65438a57a7))
+- Assign calculated delegate ranks from temp wallets (#2611) ([4223f94](4223f94045c30af45081004872ca144d3ee91402))
+- Return plugins with package names (#2613) ([f790749](f79074988580f70c5ee4354d5933659d95592d64))
+- Camelize block keys before bignum transformation (#2615) ([bd3912a](bd3912a3cba8d99c62caf4dc5b0fb8d270d0f0e8))
+- Chain replay stopped working after dependency update (#2629) ([8f08910](8f08910db91bb9fb1950b4895d752ddc3ec95f12))
+- Wrap error message to satisfy schema (#2630) ([67c993e](67c993ebe1bcfd9356d25fa30c1694ac0dc0e7ad))
+- Allow full sync testing (#2625) ([be8dd98](be8dd98c8e7f80720fb3d17b5b073587e5c4880d))
+- Require all properties in schema and handle 404 resources (#2634) ([a832610](a832610ba1ff7ce5b5fa2fa769c469c3242c82f4))
+- Handle undefined `curr` during block download (#2636) ([c8f2800](c8f280000bb529b6dbe86b46707b7898350e0210))
+- Check if transactions can still be applied before forging (#2635) ([c8ca51f](c8ca51f147257b5524891b5f998c14c70a31277a))
+- Off by one error in transaction confirmations (#2645) ([34c1424](34c1424fd0620ee73ee0991a0f943995c797f1d4))
+- Update state storage stubs ([a239cd0](a239cd09fed59bbc9b97781b289e28790018db1b))
+- Fix the link to the documentation (#2650) ([b6c136c](b6c136c69c3071fec6312c925f7aaad8426e9845))
+- Set the correct channel if core was directly installed with @next (#2646) ([2b431e4](2b431e4e21e458e71e75b184a180454264a7e346))
+- Invalid orderBy causes internal server error (#2653) ([2578376](2578376c07deb14d56c30cdf8053bdc5b27ea8b6))
+- Perform `acceptNewPeer` non-blocking (#2656) ([122254b](122254b5925bdd7e7c4b73e2208f52c6231b1c96))
+- Avoid trying to INSERT duplicates in rounds (#2651) ([84f32b8](84f32b854e0324e2f968cbdd509614b9ab6607d6))
+- Handle failing optional plugins gracefully (#2657) ([5fbf8b6](5fbf8b66019954cae2c9a89559b9cf2c5651621a))
+- Correctly purge invalid transactions from disk on start (#2665) ([28441ff](28441ff33bfc63124736b73045678aa11058a4f8))
+- Don't append duplicate rounds rows to a snapshot (#2662) ([2a38c9b](2a38c9be9d6072613c61fd62bb6492905a64ec5a))
+- Use temporary wallets for transaction validation (#2666) ([25783ae](25783ae861d145fc07b1908f07a02de692282358))
+- Correctly display second signature if available (#2670) ([1bb6e93](1bb6e9317cdec6937772a16fec20e8e98f4433bc))
+- Fix connection.test.ts ([201fc51](201fc511e25751cd07eb8d833c7c988ec7276277))
+- Fix connection.forging.test.ts ([5137ca3](5137ca35d4bfa773db110d4f20c409e9e0312abb))
+- Always deserialize vendor field ([b537d6f](b537d6f327e939ff40b680ea7d558e8fdb3ac921))
+- Copy vote target into temp wallet manager ([1209a36](1209a36366c8fd3ba31fab2463011b7ce1a7d844))
+- Missing block confirmations on v2 endpoint (#2674) ([145135b](145135b59ba83e86883b4a6f18ed751c4d98465c))
+- Do not sort transactions in forger / update purgeByBlock logic for handling nonces (#2678) ([2dd318f](2dd318f43d4c7a56d5754f7c9b12fe0346d531ac))
+- Delay transaction purge on start until after StateBuilder finished (#2685) ([5c9f8cc](5c9f8cc0cb63e378b2b488df47c55fa471515508))
+- Ignore overheight block (#2687) ([72dc441](72dc441035f9268f9d38bea7e8e46688e3650bb4))
+- Check claimed state of peer (#2686) ([867c334](867c334b494a85a85fe1d9806fbf8c45d55d95a7))
+
+### Removed
+
+- Remove unused variable ([f9414f0](f9414f04c04a0a58e2de2c08c9a4a100b8f10716))
+
+## [2.3.23] - 2019-05-21
+
+### Added
+
+- Blockchain replay command (#2526) ([af0a517](af0a517489c9089db7e82127513e3b07309270f3))
+- Implement IPFS (AIP11) (#2537) ([2d78da0](2d78da033614c95e1a14822181b25b1307587e16))
+- Initial implementation (#2544) ([d3af2e9](d3af2e9d565c65fc9c0c730a1d23009429ab94b3))
+- Proxy API calls to core-api until fully developed (#2558) ([a7ced36](a7ced368cc897b6f40cd38abedd23457e77a8ecd))
+- Add database configuration command (#2557) ([093e4c0](093e4c0d1e3f33a13e64383cfa655d30e3991e79))
+- Interactive database configuration (#2563) ([1ad8526](1ad8526793f1a9787bfe86c9fa1bd8702f13cba8))
+- Functional test matchers (#2562) ([1bea3ff](1bea3ff4e63f157a976fb869de1174fb1af1b343))
+- Implement Delegate Resignation (AIP11) (#2538) ([1c30978](1c3097836c4dc155ef04906c3fc71ffb3b549831))
+- Accept block height to list block transactions (#2567) ([e16bafd](e16bafd12126d0a6558bfb1a369941347480376e))
+- Don't trust headers and verify config and plugin connectivity of peers (#2559) ([fd18f7c](fd18f7cf92505b008112f23b0877022c7b977425))
+- Command to generate network configuration (#2582) ([9f3b0a9](9f3b0a96f2646916421b738265449004c9e51601))
+- Add latest changes for 2.4.0 (#2591) ([8971fc9](8971fc93c7a71cf62a552b8e5d646378e309aa2b))
+
+### Changed
+
+- Enable ban rule for tslint (#2527) ([28bf8b6](28bf8b6eea16bc8650718b30d1f8995cb1864336))
+- Move mainnet exceptions to config (#2529) ([f7129bb](f7129bb29d483e1b85b05bf43b8a4dc399910ffb))
+- Cleanup TODOs and FIXMEs (#2530) ([728b2a9](728b2a9a81139a91fae91845b9c5bde8711aefad))
+- 2.4.0 changelog (#2534) ([9ff377c](9ff377c845017fc7128326dc61c688cb775b0683))
+- Invalidate blocks with expired transactions (#2528) ([7dac85a](7dac85ae3774818cb3df17298fac3d9c72ed45b1))
+- Let the process manager extend @faustbrian/foreman (#2536) ([fc035f2](fc035f277eb69fb73b6999dc98578bdc2b87088f))
+- Transaction type agnostic wallet bootstrap (#2539) ([afb69f2](afb69f2141383ef07b5abb97708cb3d6a742a1ac))
+- Update and remove unused dependencies (#2546) ([30a3723](30a3723baa09bd827f3e5bdb1487471f8511ffda))
+- Reduce log noise (#2548) ([7dde7b7](7dde7b71b2627f8070bc4efaa9ca243f169ae5c0))
+- Remove peer.os property (#2552) ([14f705f](14f705fb62e23a142e41f028f710206059a9341d))
+- Remove peer.nethash property (#2553) ([7d1bbd2](7d1bbd2f593291f35b19a11bf382019c0bca8230))
+- Replace pokemon.random with Math.random to avoid value collision (#2564) ([7dcfaf4](7dcfaf4e4e16f32caa8a095a0ba2f2bccd9df1ba))
+- Socketcluster shutdown and logging (#2560) ([0f6b217](0f6b217d32985316b604b88b4b4c7ed45c0d96be))
+- Return all schema errors in hapi-ajv (#2571) ([b2b229a](b2b229abe8aaca6d72051652128e5c7d51568782))
+- Change hasExceededMaxTransactions()'s argument type (#2568) ([466d4df](466d4dfdcfba861ab8c0e21fa61a56c445d6228d))
+- Register /api/v2 as a transition period fallback (#2578) ([f2ebebc](f2ebebc9e815f0b34f69e648cb59980ae6f3c9d9))
+- Update CircleCI configuration ([e186c1b](e186c1bcbc7ccefdb98c13de88ddee061a78f428))
+- Use pagination configuration limit ([032caa1](032caa1b990e91937e4bc1561bc1aeaeca9e37d9))
+- Enforce "application/json" as content-type ([36ea057](36ea0572652418093d1b4c2488d854f340544ba2))
+- Use ApplicationEvents enum instead of string (#2580) ([2dff4b8](2dff4b82982e0dbb69e958aa0b37e787c366c8d4))
+- Fallback to ECDSA signature for version 2 transactions (#2584) ([eb7a28e](eb7a28e13a6f9ceeab3b9c01a6b5cd6fd5916d35))
+- Setup node.js 12 on CircleCI (#2474) ([44bf0e6](44bf0e662f0fd45e019893abcd8464ef3489e382))
+- Improved version of #2593 ([0c92cf3](0c92cf3ce2de74d44fe4341faf17cf5cfac0ab14))
+
+### Fixed
+
+- Handle missing version (#2525) ([df45f2d](df45f2d508cbd206c2a6c10c8a024cb2def2fea5))
+- ECDSA signature (#2533) ([59c3e3e](59c3e3e1f0a0ea627eaf4bbd4aa4162c18773097))
+- Use the --env flag to start testnet via CLI (#2543) ([c55cbed](c55cbed7e791ddfbadc86772384992b7d0f5af36))
+- Ignore maxSameSubnetPeers in seed mode (#2547) ([6658860](6658860b5f298618005b3fd3829b1be82f997145))
+- Sync issues with devnet and mainnet (#2565) ([6243c12](6243c1264cc985db6f0c25a49399de30c21f3700))
+- Use resolveOptions("blockchain") to get databaseRollback options (#2572) ([e1111a5](e1111a573f7541b8f5c9d45f17ab375bfd91193a))
+- Polish tx pool stress test and don't clock the TransactionFactory (#2575) ([d2b426e](d2b426e84ab0288c1260c71bd2c054616f753f14))
+- Make transaction amount required (#2574) ([e6c8406](e6c8406d4fb07757ab171e9cf5566f37827b0cd7))
+- Update API mock URLs ([50ad1b9](50ad1b960a0a9c5d2a8f6fac2429420038489a82))
+- Set p2p port on dummy peer ([71a6150](71a615050119f12b8314eb6a9b46c102e653720c))
+- Don't cause suspensions for unresponsive plugins ([34749bf](34749bf84bcec3fecd0098c0d42f52deb1f6ba4a))
+- Don't cause suspensions for unresponsive plugins (#2583) ([37c3b3a](37c3b3a2c3e31b3430773b37dde5d1f7b920b19f))
+- Divide blocks into smaller chunks for batch processing (#2586) ([f4dd41f](f4dd41ff2a792a5e0de4775994ca2abf489e5521))
+- Do not suspend peer for `AppNotReady` (#2590) ([375e4d9](375e4d9df620aa532bae9467bb19381e48d3e02e))
+- Allow use of old and new block IDs (#2593) ([81519cb](81519cb9f2b097db0bcd8ab8bd67882799de7212))
+
+### Removed
+
+- Remove forged transactions from pool before discarding block (#2555) ([20428c5](20428c5f1b3476d1bbee67289c2a337c3ea657bf))
+- Remove version assertions ([a9b721f](a9b721f173a5cef7e5a29481830fad85a008a38e))
+- Delete bad rounds after unclean shutdown (#2581) ([d18dbd5](d18dbd5d2fa514d93490de3e554f6b5d58ac7794))
+
+## [2.3.22] - 2019-05-02
+
+### Added
+
+- Filter peers that are on the same IP subnet (#2507) ([b9a54b3](b9a54b33b33ed36117969fd58883fbc0e0914cb2))
+- Initial implementation of AIP18 (#2508) ([a4b9737](a4b97378b0fe9759e115d4389da3a947c44af5e9))
+- Require the user to choose a snapshot if the blocks flag is missing (#2522) ([f5c10c5](f5c10c565a07b62ba187d167c95ed6eebd417828))
+
+### Changed
+
+- Update all @hapijs dependencies to use the package scope (#2505) ([ca69781](ca69781b4645eb26228378a08868df7d183bdbf1))
+- Extract transaction verification out of the model (#2506) ([0a53532](0a53532b93f8f218d3e5a363c059684af7d645eb))
+- Enable no-null-keyword and return-undefined rules for tslint (#2509) ([f119e9d](f119e9d5a3801355f61171b72abf5a2c590b3604))
+- Enable only-arrow-functions rule for tslint (#2510) ([b611819](b611819903b9a3d9ff6d9fdae5044a125f6f8c06))
+- Extract transaction signing and utils out of the model (#2514) ([7e346af](7e346af233bd1749ac88879ae4800f7f7e08160e))
+- Move the wallet interfaces to core-state (#2515) ([884cb2d](884cb2ddd85f36b94bcd6cce919c1935b5010cfc))
+- Fix imports for hash algos (#2519) ([21137fe](21137fe76d828fbcb6e60222dba6065b7da524f9))
+- Update dependencies and types (#2520) ([92f9253](92f9253ed788a8d35003fee0357d274f6e505672))
+- Return transaction timestamp instead of block timestamp (#2513) ([2748ecc](2748ecc641665dbea3a6207f2a66a3b6b1ce3107))
+
+### Fixed
+
+- More multi signature tests (#2511) ([21cbccf](21cbccfdd9e933aaad732ca195a2df180bc01b6e))
+- Specify sed extension to support macOS (#2516) ([61d1894](61d1894f681ccee3b1739e35fe8c398ae0ef4a86))
+- Use public API for auto-configuration (#2517) ([f8df021](f8df021b038ef1d8955ea6fd17e37ec78d691456))
+- Transform numerical values to BigNumber before serializing (#2518) ([038ce12](038ce1253a2d3ec4f46a5bc8b93e01074c7b8a6a))
+- Mark the blocks flag as required for snapshot:verify (#2521) ([3a90fd0](3a90fd0f5fda8ad98a5a163b972f7fc20f522757))
+- Stop e2e test runner when no new blocks are coming (#2523) ([67d933f](67d933ff074b008cb91f035e08bcf89d82edc5a8))
+
+## [2.3.21] - 2019-04-30
+
+### Added
+
+- Switch expiration to chain height (#2461) ([5d48f03](5d48f037e0a47c7c5ba034e05f97e782d7275672))
+- In-memory storage for last N blocks and transactions (#2492) ([86c7762](86c776226d562987d24a7ffa65d63defab61373d))
+- Save blocks in batches during sync (#2500) ([ca74c46](ca74c461ea26da98fc734851429c5520fed3d89a))
+
+### Changed
+
+- Move in-memory wallet logic to core-state (#2489) ([0d84842](0d84842986a2a35b22ff5f7d8b480ea556f8763d))
+- Reorganize exports (#2496) ([4e174f4](4e174f41f32504aacc7bf0a03b20187cb34f3884))
+- Simplify by not using insertion order (#2495) ([cf3cc14](cf3cc143c3813ef2ccc4e4b03db2e4c4a70df4d1))
+
+### Fixed
+
+- Parse only the last line of pm2 stdout (#2484) ([d73f350](d73f3502ab623d293d203bd961326c3ab67e5af8))
+- Don't modify transaction's expiration (#2497) ([a4389eb](a4389eb8d2a318dcba80196ccbc498a9880ebfa9))
+- Purge invalid transactions after a milestone change (#2499) ([8b18564](8b185640ab97d6dd24f8b92d5186a186b07cf69f))
+- Avoid getting stuck on a peer by picking a random one each time (#2491) ([d6289e6](d6289e6f803c80b0a8ad946082e6098bc9199fd5))
+- Asset import, include rounds table (#2502) ([bdf3be2](bdf3be282183bf77d1ebceb6913a6abc92584a80))
+- Accept requests to /transactions regardless of suspension (#2503) ([5116229](51162295aa8788d8c1b131ff69c69e5d548d23c8))
+
+## [2.3.18] - 2019-04-26
+
+### Fixed
+
+- Update configManager height (#2487) ([6986636](69866363421b47bcb1076e20582ad410d09c79ed))
+- Reset unfinished round after import (#2486) ([ac4ca4d](ac4ca4d4ea9308ab0dca80201e3cd511bd941994))
+
+## [2.3.16] - 2019-04-25
+
+### Added
+
+- Add core-state to manage the state of in-memory data (#2479) ([a4567cd](a4567cd2696f2c9c6061c47dc0172dc31d994417))
+
+### Fixed
+
+- Initialize height on startup (#2482) ([2b3118f](2b3118f931438ebc47b888645d2fa657814f9e77))
+
+## [2.3.14] - 2019-04-25
+
+### Added
+
+- Add release section to pull request template (#2472) ([dbcd9a5](dbcd9a5e22e9334109d1f83d2adddd8462e4a4c8))
+- Add exceptions for transactions with invalid recipients (#2471) ([f05dde1](f05dde1cb8b324300c33799165e49a0ff58a0e35))
+
+### Changed
+
+- Update yarn.lock ([116e6d1](116e6d16adcb90382ad5873cfb2e2c8aa70686d6))
+- Fix absolute banner urls (#2469) ([460c13e](460c13e27db9c4709b036b929ae209cebe5cb2de))
+- Remove unused methods to get/set/reset height (#2467) ([03dc204](03dc20453831053d5b0b713122fcf2b35076cf8c))
+- Make all Slots.* methods static (#2473) ([ba10a90](ba10a90ce43423d7cc65efe505fafd80c7fda035))
+- Remove support for old release channels (#2476) ([b5c5507](b5c55076655224dc3a4381a5a58f9717c85d34bd))
+
+### Fixed
+
+- Don't use vendorField type as buffer encoding for IPFS (#2466) ([a58148f](a58148fa1c848ab8d28ee53f374a4979d3368468))
+- Integrate end-to-end tests (#2468) ([3114e58](3114e58fa959573446022453a2a524095cd2bf76))
+
+## [2.3.12] - 2019-04-24
+
+### Fixed
+
+- Use correct genesis block instead of hardcoding devnet (#2462) ([cd48afb](cd48afb1b3a94ef69ac83e5f3d78eb087ef83a4b))
+- Don't pass suffix flag to bip38 and bip39 command (#2464) ([0287267](02872672244c92ed944c348f6a92dcfc5f046c1a))
+
+## [2.3.1] - 2019-04-23
+
+### Fixed
+
+- Deserialize type > 0 with vendor field instead of skipping it (#2459) ([9588dbc](9588dbc84aae593f6a359e3b4e4687d9b32a4dd5))
+
+## [2.3.0] - 2019-04-23
+
+### Added
+
+- Add missing oclif dependency (#2267) ([9b0f15b](9b0f15b5bd720b7997276e67bbc8f286ac7022f0))
+- Add missing dependencies (#2272) ([ebbbc8b](ebbbc8b4868cee7cd5ae00e8ea3e1665da21ee5b))
+- Initial implementation (#2287) ([51f133b](51f133bd6a4d2f11cebf9966fa5cb4e72c8ae6e3))
+- Initial implementation (#2288) ([01a9c79](01a9c7942e9bd2749636d0f869f8955de1fcf1a9))
+- Initial implementation (#2289) ([e35c16b](e35c16b63da85dbee9ea5589351dfc872ef1bdda))
+- Support PG9.5 for asset column migration (#2295) ([89ef7eb](89ef7ebf0091f64b88d6c68ee48916ca106fc10b))
+- Rollback by a given amount of blocks (#2300) ([2e10e9a](2e10e9a9aa9cab8474b3ba89cd2b657fe2735ac4))
+- Initial implementation (#2290) ([bf78e81](bf78e818c18b92679032e25788ca603a84b7e4e4))
+- Add EQ operator to block height (#2313) ([d9979eb](d9979eb8b8b50900423a7b1f2155bd9a4d4680b2))
+- Add signSignature to schema (#2315) ([4133d4e](4133d4e7b22e5fdd6882b18b815ce42e8526d7c8))
+- Support common blocks with sha256 ids (#2317) ([1c5e64c](1c5e64c83a7baf72446205797c96a9a8b52ad0e4))
+- Support IN operator for block id, height and generator (#2319) ([87499b2](87499b288b89691b2b46fc21e5bb24cdbfb9afaf))
+- Add more block and transaction pool events (#2321) ([33e0f3b](33e0f3bf33d1a5e8e28dbfe73628692335b4cea7))
+- Add function to search a block by id or height (#2337) ([317a19e](317a19e87bb125f38d0addbff38464a81cde2c84))
+- Add findByHeight to avoid confusion with the misleading findByHeights (#2338) ([eae1c87](eae1c87551a957ebc1c04ee656065faa669296cf))
+- Initial implementation (#2343) ([677be71](677be715fe193869290a48bb61534e69e7cd5349))
+- Implement WebSockets with SocketCluster (#2273) ([34a7560](34a7560b5d03e96f683ee9dfda8dffb6621b8ab8))
+- Add TransactionFactory and RestClient test helpers (#2355) ([341a4c7](341a4c7f08da0472f740bd11e71c290f5b38041b))
+- Add rounds endpoint (#2369) ([3646ed5](3646ed50f8580531948b5c3f05510117a8b81d18))
+- Add Block.fromHex, Block.fromBytes and Block.fromData methods (#2377) ([02c0385](02c0385af3d2382dab713b81ac9931e0ac28a4d0))
+- Return slip44 and wif via node/configuration (#2388) ([ae90ea2](ae90ea2bfe61bc6205b178491d0063d6e7ef3e26))
+- Add off method (#2396) ([085b5a8](085b5a829d338f602300077bc1b2156362a29aed))
+- Add air1one to code owners ([344dc97](344dc9700cd8b8bef539bf4a0981f35677bb927e))
+- Add peer state interface (#2411) ([156c0a3](156c0a355480261d5b23c2968ae57525c6d5435c))
+- Add interfaces, type hints and remove comments (#2412) ([1a860d6](1a860d640d003f302f7c93ed7b5873c66669b478))
+- Add more interfaces and types (#2415) ([7f5b808](7f5b808145882f0048f47bbb3882b38d710baad8))
+- Add more type hints (#2418) ([7ca542b](7ca542b082e6d1106ff82e3685fe0933fbe1f242))
+- Add types, remove dead code and unused imports (#2420) ([7b5ea48](7b5ea481471bc99ce0fb5d695304f0af87f7c00c))
+- Add type hints and return types (#2421) ([9ddce7a](9ddce7a8c65bc1e3cee9c50abd4ee997c6816337))
+- Allow setting a vendor field for transactions (#2425) ([37c686b](37c686b0d957c735bf620b374f8c9320c97f9082))
+- Add more types and interfaces (#2427) ([d012ce8](d012ce8a22518365469f2ad7ceac9b25dd45b533))
+- Parallel block download (#2433) ([46a5dc5](46a5dc503e4fcfcfcd0a177f8ee521ed581f4c76))
+- Implement TransactionFactory (#2437) ([f77ed69](f77ed6953cb5f93c4fd86db455362982fb97f722))
+- Implement BlockFactory (#2429) ([c2fd46f](c2fd46ffad9a73509911cc4de93fcde57e350584))
+- Add type, interfaces and sort out structural issues (#2448) ([2cd33fd](2cd33fdd1c6112fb2e43987ed7f0794c8746ea3f))
+
+### Changed
+
+- Import lodash functions from function packages instead of the full lodash (#2285) ([ec63289](ec63289c114f1a354882f66a5b365a9b121b3c67))
+- Move winston to maintained packages (#2291) ([55bfbd5](55bfbd59a330695470f86e06df8324dd81886efa))
+- Remove extraneous .gitattributes entries (#2292) ([231c7fe](231c7fecf37c8518451d4b0710a809c32c989538))
+- Drop the git commit hash identifier (#2293) ([b0f3c38](b0f3c3874f12af8de53b7600cbf3514296e26dce))
+- Raise the minimum version to 2.3.0 (#2294) ([5d5e41d](5d5e41dd78a364e7d771302cf1e9bce3fbbc0e0c))
+- Make core the only codec for reliability (#2301) ([196d5d3](196d5d300f9699b3470c51251051e20f2a127b41))
+- Replace any with proper types (#2276) ([2036f5b](2036f5b3ad31721b982855dc823b4a6f822cf9f4))
+- Use kebab case for aliases (#2283) ([aab04e1](aab04e1731a5bcd134223826a801e8650a586216))
+- Skip transaction verification overhead (#2307) ([9998866](99988667f8835d06729a04853ae2a99c6da85d47))
+- Remove the remote interface (#2311) ([006f080](006f0801f7d9be3a280a15088155b00b81455f3a))
+- Use nsfw for log watching instead of node-tail (#2310) ([31432de](31432de3ce86e3b2c4771a9de8640df557704a73))
+- Remove dead code (#2308) ([5424a0c](5424a0cb209daaa70687cde405442e071d02c868))
+- Transaction transformer (#2327) ([d512dac](d512dac6c40a02e4f07fe0f0601f8b0894807818))
+- Install node.js 11 now that it is stable (#2330) ([6e941fa](6e941fa1a6acc1cf12f3c5dc470d10ec40c17972))
+- Use a raw query to get a block by height (#2339) ([f358745](f3587459ebead42507f4b918b10156a1fb293bc0))
+- Explicitly name integration test jobs (#2340) ([5ef7ce8](5ef7ce808dcf202515ec567c4c97e6db8078c694))
+- Remove the postgres setup from unit test jobs (#2345) ([a2cec00](a2cec005923bebd3d83569b8a2d4f9456ce9dcf2))
+- Clearly separate manager and factory behaviour (#2346) ([ee0398b](ee0398bcf6d365381b8e8d8314b3ac0a5233cbef))
+- Memory leak, log spam, cleanup (#2341) ([327b98c](327b98c6fad03140bb75143fe8c1a5301584107c))
+- Replace various any with types and simpler interface naming (#2348) ([5966c30](5966c30de5bb533efe782636ae84a7f5894eccc1))
+- Clearly separate manager and factory behaviour (#2347) ([1daef74](1daef748c5611ae1ef38d22650448f20d368d675))
+- Expose all application events through an enum (#2349) ([476359c](476359c372665cda27745ac716b87193f9746670))
+- Reduce duplication in all logger packages (#2344) ([072e5fe](072e5feefe53241ba5504d5b0937bb50dbcbee1a))
+- Replace various any with types, property visibility and interface naming (#2352) ([9355f1a](9355f1afeebc1ad2a4ee369c3df08838e6e6ffb3))
+- Remove active delegates endpoint (#2357) ([45b41b3](45b41b30a9c7fe4beccb9b794cfc2557f2341ce0))
+- Round logic (#2358) ([52b229b](52b229b4d883e8432dff870f7afd28ad0da22cc0))
+- Don't test private methods in the peer guard (#2359) ([e0a4bb6](e0a4bb615ee6f0fa810414f2564d862a016485f9))
+- Remove height difference ban (#2360) ([5e1244f](5e1244f74812d987ffca2dab8a6edd5bf780d1be))
+- Check all hosts for 1 second while waiting for an open socket (#2361) ([107d086](107d0869150a68783340f60ccd997cee13a3c190))
+- 2.3.0 changelog (#2372) ([c0774bb](c0774bb47dc59b39452edac0d4322b234ffb785c))
+- Mention webhook recreation in changelog for 2.3.0 ([d0f6ee8](d0f6ee8124c7353cf455497382ad20627a590cb8))
+- Separate responsibilities of classes (#2364) ([af89f46](af89f46b21a67add1337501247f3bc3c383be3a8))
+- Types, method visibility and various fixes (#2378) ([37ea8a3](37ea8a3451eafccfda2ca91686b5636b020db4f8))
+- Bind plugin options before registering the plugin (#2375) ([1375ceb](1375ceb791018acca340600ae5d067542c3e156b))
+- Move interfaces, types and models (#2379) ([1195396](11953967cace896c93811c410400a80ef2f6ac1d))
+- Pass suffix to container (#2387) ([5d1e11e](5d1e11e1d8d9728949c9c8b767e444c780025992))
+- Bump vendorFieldLength and blockid milestone heights (#2395) ([2770bfa](2770bfa57c6fcbd124c14dabada39fafb202c081))
+- Use ARK as prefix for everything (#2397) ([86f04e3](86f04e3e3cfd46a9decbbb6947829e27cc799492))
+- Enforce BigNumber for satoshi based values (#2391) ([df9fd4d](df9fd4d242f6a49eb8ac85d328c1fc6b0c800de8))
+- Simplify handlers and remove dead code (#2400) ([bd135d2](bd135d2937abc21bb6cc261e128cf910d2e57fc2))
+- Make SocketCluster configurable (#2399) ([d4914c0](d4914c077b5d0f00d2607c0ab870b2986593c9af))
+- Suspend peers if they exceed the rate limit (#2401) ([6c80eaa](6c80eaa4a3f7175457c8219d02b2ad6664480c13))
+- Return boolean from verifyBlockchain and log errors (#2403) ([c7c7ce4](c7c7ce4ea17be5d41abbbe3e219afbad9e940787))
+- Throw response errors instead of returning a success boolean (#2402) ([ce56537](ce565374cbd74cf566bb3d5a520f5261e1d51d21))
+- Store connection errors in connector (#2408) ([da3d358](da3d358832443cc670dff0492b42e336d8850208))
+- Suspend a peer directly with the noCommonBlocks punishment (#2409) ([f1189e4](f1189e4258b4a64659d6b8bc08601a6f8253f717))
+- Remove the status property from peers (#2410) ([ca6e002](ca6e002dcb0f833a0f10723a9259eb7330387358))
+- Pass IBlockData instead of IBlock to isBlockChained (#2413) ([7c97812](7c9781264ec5af07d465e759a0ff9bdfdac707bb))
+- Hint IBlock/ITransactions instead of Block/Transaction (#2414) ([edeebd3](edeebd3f38e2b247abf86c19e056baaa1cf42560))
+- Replace bignumify with Utils.BigNumber.make (#2416) ([c50a7fc](c50a7fc6bdffc74d2e9d2ef51bb8bc16a4e3728d))
+- Remove extraneous Client class (#2417) ([097f051](097f051164e83138ef565e10b833611e9fc382e2))
+- Reduce complexity and add types (#2422) ([60e3b06](60e3b06ac0a4e9e40298c7a88685a30133523d51))
+- Drop no longer needed pagination (#2424) ([886b4a8](886b4a88950f3e773042078f9d20fbfae6b09ff2))
+- Replace Joi with AJV for internal validation (#2426) ([e794b54](e794b541782f75306d085fe0ebaacbd0474f1b9c))
+- Block broadcast when block comes from forger (#2430) ([92adfad](92adfade03221c97a6c5de220dbf2c6009f2a979))
+- Throw an error if there is a wallet integrity issue (#2434) ([201e6a7](201e6a7765f91412fdd8daa4c2a4fb64b8e063b5))
+- 2.3.0 changelog (#2435) ([e7b209f](e7b209f73c42dbee942e6f8291ac4387f7b683bd))
+- 2.3.0 changelog ([a0b39a6](a0b39a67a1e6712d02bd8c9d0e90b6e074ac669f))
+- Remove the legacy API (#2439) ([d3f6b77](d3f6b77290bb34fbfa1cf73935db7f87bebdfb0b))
+- Extend the node.js event emitter (#2440) ([9aeba81](9aeba81c628162263f3b7b60f94b28669bb01841))
+- Always use crypto identities to work with keys and addresses (#2443) ([4d39748](4d3974840c4b90f75e711fa24a2bfc9dd2465fb3))
+- Split the Crypto class into Hash and Transaction (#2444) ([43c4129](43c4129b1dc625fffcff09a3cfac32d6386b7518))
+- Remove extraneous jest-mock-process dependency (#2454) ([10471da](10471da08de7909cc19c5cc63ac3dffe8fa0d309))
+- Bump all dependencies to the latest version (#2455) ([a7caf57](a7caf5738246a105765b6aebbe9457271b2ae349))
+
+### Fixed
+
+- Crash on rotate, use compression (#2270) ([becd5cc](becd5cc2af30cf734864e486c9f7864b7bca4fac))
+- Pass all opts to httpie instead of just headers (#2271) ([945ae65](945ae655bbcafb68a4f75ba58fe1c548134a7958))
+- Prettify filestream (#2280) ([b22bd51](b22bd515d6c8e2ba611cb6569b1a905047f63f80))
+- Asset migration on mainnet (#2281) ([5b98ea7](5b98ea709f97c065585e319a0b4cfaee9251c778))
+- Sort transactions by timestamp:desc by default (#2298) ([632dd48](632dd4853275c655e8055170ded62fc8a8e0b685))
+- Always load core-database-postgres (#2302) ([56db76f](56db76f9f4e4397050d582a300399999afe508a0))
+- Serialize correct timestamp, dont corrupt buffers (#2304) ([7f8b225](7f8b225ae3ed419f2aa105add01a8d2e7421edcc))
+- Write block timestamp as transaction timestamp (#2305) ([eebb791](eebb79167e767decf916c837f64f3060a3d2109e))
+- Adjust schema validation of blocks show (#2306) ([2c1ceb4](2c1ceb473e29a8d8aa2c00cc4bd035a1d9bf087f))
+- Read the correct property for the new CLI version (#2309) ([e5b7e36](e5b7e36b3fab8fca9d90f8c493e56df518967784))
+- Always refresh peer status (#2318) ([237e80d](237e80d37c83639cc138e6ecef6124e332fdf852))
+- Map block to transaction in findById (#2316) ([e547b09](e547b09f923e48aa025d3d2f27457c5634b118ab))
+- Check if block contains exceptions (#2323) ([810cf0a](810cf0a87b554a98924bfc9623563024ec35e2eb))
+- Shutdown when integrity check fails (#2324) ([c447a34](c447a345ecba71fff40ef5d48d7dfa115fa9ef99))
+- Preserve existing logs and attach the last line when the log is modified (#2322) ([99b5cff](99b5cffee5e987141b5fef1ecb997263f69a4859))
+- Two-way ban (#2325) ([9c7811b](9c7811ba7188028af60e5b424f537931407fc4e1))
+- Accept already accepted peers (#2328) ([04df6e0](04df6e02e9d9836c6a673fddaae23f08a890c079))
+- Run the asset migration before starting the record migration (#2332) ([e1e6308](e1e6308f5066f96c365f90f7994e3c0e473b6d66))
+- Use the maxTransactionsPerRequest configuration for API validation (#2331) ([06426da](06426dab95011eabefd2ed4b36aa5775f41312ce))
+- Ensure the event listener won’t exceed the max listener count (#2329) ([8434b16](8434b16bbbdc4a56bee6c9bc83ca426780e9543b))
+- Sort heights in getNetworkHeight as numbers (#2334) ([6abdeaa](6abdeaae8552cc330119de4b4b82523d482af355))
+- Broadcast and forge all transaction types (#2333) ([e10f756](e10f7561b1f64173bee2e2e71ca1ef5865dcfb7e))
+- Search a block ID if there is no height match (#2342) ([c079896](c07989663f8f90ad4c013824f377c10ec81bd5be))
+- Initialize active delegates on startup (#2353) ([3178426](31784261bda1646e2d10bd20e8ee2ee39ab8db1b))
+- Use calculated id for exception check (#2356) ([032ff89](032ff891efbc2682869a0626e6c998084fa422b3))
+- Frequent peer timeout errors (#2363) ([39da913](39da913f8213c26c496bde2fb32648aceea4aa00))
+- Fix failing tests (#2368) ([673701c](673701ca8e86d7a0a629e8d34762780c4f1fbf15))
+- Cope with dynamic round sizes (#2370) ([806733b](806733bc2a8a41da1fc0c392dd641b38a25a56a8))
+- Insert the genesis block as soon as the database is ready (#2376) ([fbe459d](fbe459d452b8cd61bd68aba3d5cbb3d918d67ea6))
+- Initial rotation (#2380) ([accc4ff](accc4ff45c0431ffdec6f24397095c2d90ccf93d))
+- Unit tests for logger and manager (#2373) ([f60916f](f60916fc46b1f66faf70ce6705d599f480538e6b))
+- Avoid duplicate connections with the same peer (#2382) ([26dc71b](26dc71b630cad1e9a4e4e6a3569617625c5b3015))
+- Set headers on peer instance (#2383) ([10b954c](10b954c0f88624b56d1b5d0314795d8792b48384))
+- Init config manager from network preset (#2384) ([0ab2be5](0ab2be54097da61ef83025a902d1d3fd6f2e3f95))
+- Forget peer connection on disconnect (#2386) ([25d9a67](25d9a671328ef39741af2c289ed2b264d85a0ddf))
+- Log the IP address of the host we contact (#2385) ([9af4066](9af40660e781c98df2473c50375ac951908111e9))
+- Pass cli flags correctly (#2389) ([33c01d7](33c01d7509300843744b900f9f230a945325ec02))
+- Sync with network (#2390) ([74aba20](74aba20194bc8cce0b15826ad248119749ef2c22))
+- Validate address is on network (#2394) ([b60364c](b60364c613237f998870b96fe7b99d39a09f88bc))
+- Handle unknown transaction search (#2404) ([887b244](887b24463a9dbd84cd5c65eca305af27166fc3e2))
+- Prevent wallet managers from indexing/creating ghost wallets (#2405) ([d84d80b](d84d80b430a96ce4e04bdddf8a417e37592d13a9))
+- Don't swallow errors in buildWallets (#2428) ([18a5d4f](18a5d4f133ab1c7e568d09de1e2e9613dd685ed5))
+- Broken genesis wallet check (#2432) ([e9846dc](e9846dc1231c606e60b8a5b2589a6aec91235411))
+- Wrong delegate order after start up (#2431) ([901e763](901e763b5263069aaf1527269278725ac78f57f2))
+- Unit test the BlockFactory and TransactionFactory (#2438) ([83ac1e8](83ac1e8dc3f11523af35278e68c855806e344821))
+- Test responses with verification failures (#2442) ([a37cff1](a37cff1be265a8305dd34cb0e4444f5042ae7494))
+- Use address identity ([e058259](e058259dde37f16fe474d5a71ab780ab05baaca6))
+- Disable rate limit for forger (#2445) ([c497f93](c497f93be752dff709814effb8f773393ab89870))
+- Still download blocks when network height <= our height (#2449) ([ebc99ba](ebc99ba0ea4d18b515a2b18d367bb9474aeea49f))
+- Issues after merging 2.3 (#2456) ([63d09df](63d09dfee385247c5b3d85a94c6d70597a855a9c))
+- Refuse transactions from senders with pending second signature registrations (#2458) ([9f298cd](9f298cd10ca59714139d77a79c472aed0698876d))
+
+### Removed
+
+- Remove wallets, add asset handling (#2269) ([909806a](909806a4aca8a06d0123008ea68b118c58e34596))
+- Remove core source and add channel support (#2274) ([ffd7b19](ffd7b196a4f401883396bb5254c022154f2f4c85))
+- Remove ping timeout ban (#2366) ([19619f0](19619f0269bb28e26ed8c8fd7eaf7fbf13ea9889))
+
+## [2.2.2] - 2019-03-19
+
+### Added
+
+- Add make:block command (#2221) ([9ca8f61](9ca8f61f0a45e4b18b69a84fae328c26447e3c82))
+- Switch block id to full SHA256 (#2156) ([6012203](6012203288f51c7a639cb809b7d0032f064a835e))
+- Transaction asset column (#2236) ([3be82e8](3be82e8e440ebee6a279f63491ea0c03c4997516))
+- Add publish scripts for npm (#2240) ([00b4815](00b4815374363d390e277fb6f8e487e8bba83d51))
+- Add update script for dependencies (#2244) ([b6bfc0f](b6bfc0f7cebf1dc75c72e6b17855be17c92c3063))
+- Add publish script for the next channel (#2249) ([69ec84e](69ec84e35d80d9d109b5d7b94d3c90ddc2a9cfa9))
+- Support for the next channel (#2250) ([99dc9d0](99dc9d0092c3a8ef5fc4ff58b8424dde54236f47))
+- Set different log levels for console and file (#2261) ([66bd762](66bd76281e96334859325d5e359a53d0dbc33560))
+
+### Changed
+
+- Replace axios with got (#2203) ([34d43b4](34d43b4402bc15d4cacfbc99781d3187920967b8))
+- Always use latest available height (#2231) ([eb6b092](eb6b09277ea549ce3a80d5d9c0b356a59757935d))
+- Move wallet class out of crypto (#2237) ([e607f7a](e607f7ac59c9373b1b9f79d2d0b76964231a134a))
+- Less noise in the GitHub PR template (#2238) ([d841953](d8419531d1eb267ae7b6f0dcc4b7af8bc8ba5ce6))
+- Disable webhooks on testnet (#2239) ([c7d5b8c](c7d5b8c8cbd0ed620d64da5add5cacf2faf384f6))
+- Remove unused typedoc dependency (#2241) ([ebc8faa](ebc8faa3bfe6ea75612bd0b681cb540fe6844570))
+- Setup linting for tests (#2242) ([d398f32](d398f32f9252865bc0b201319fdae94c6e70d7be))
+- Remove pretest and lint scripts from packages (#2243) ([bda844d](bda844d9b066f10a0295b5de88abd28c87929e65))
+- Custom transaction types (#2247) ([eaf7bcd](eaf7bcd4252a274ab55c73389c0a9411f957e201))
+- Initial 2.3.0 changelog (#2255) ([264bd69](264bd69b25bb579f2b9afd8c8c4bb1a8684c772f))
+- Remove packages from codecov ignore list (#2256) ([7a1ccd6](7a1ccd6cb8ad3e463a6ec2641add29cc8d5194f3))
+- Remove missed blocks and productivity (#2257) ([0288158](0288158ffe38c8e271b68fe2a32eefab3db50dbe))
+- Fix broken references to plugins docs (#2264) ([762d873](762d8737e89f058fc54de4585ae67ae5e204191d))
+- Bump to 2.2.2 ([70c4c9d](70c4c9d54c7f0109e7cefa17abd488c3ee1024f1))
+- Changelog ([a27c70b](a27c70bf5a246a5f79251d0771297972ef72b1e5))
+- Update readme files with all contributors and fix banners (#2266) ([c613c26](c613c26636bead2b5bcc6b8f1f20c42f6861d5c0))
+
+### Fixed
+
+- Properly sort semver versions (#2229) ([c123959](c1239594a02628fe7f576fb8acf34f99267f6ad5))
+- Keep old vendor field padding (#2233) ([1e42dc1](1e42dc1bccfff1da22d6d8eb5b816b8329fd1542))
+- Properly cast Buffer to hex string (#2232) ([8ce224a](8ce224afcacb6048280b1289d98b0378e18a6b8c))
+- Only use toBytesHex() for old block ids ([db0d2d0](db0d2d015fef565fce8f6138c9c1e7740b172464))
+- Extend tests with a block with full sha256 id (#2235) ([0d4e162](0d4e16221ed6271a4e1e771c244897505c705056))
+- Reference the home directory via HOME, not ~ (#2246) ([fca6888](fca688826d9f9e109d99593df95838a993f5c930))
+- Return array instead of joined string from applyOrder (#2245) ([1194ebc](1194ebc49ae0a5c939593e221ae6056cfeb70237))
+- Return an empty array if no webhooks exist for a given event (#2252) ([ddcd27c](ddcd27c0937e5abe31aa3ac614d4eb475eb6b502))
+- Unit test the database (#2253) ([51176e9](51176e95f84717c28de6c4a79f27ea5cb2d9a4dd))
+- Handle NSect edge case (#2259) ([d7f8351](d7f8351bc24fef0f9533b247f8e17b6d5d956002))
+- Handle unhandled event (#2260) ([ee4436a](ee4436aa575fd8141ba3c3a2f686745a056e3dfa))
+
+### Removed
+
+- Remove voter balances endpoint ([e5d6a4a](e5d6a4adcde466807af100385ebf4b9e83dc93b5))
+
+## [2.2.1] - 2019-03-12
+
+### Changed
+
+- Bump versions ([4ce1636](4ce163612701ac63a49da34eba63f9c31e6f7426))
+- Yarn.lock ([9e7ea5e](9e7ea5eb623efc7ede577f0ca4c0b04d12bd3a0c))
+- Use yarn setup on CircleCI ([d5358f9](d5358f977fbf310396f59bfc5b07a54ee07dfccf))
+- Update CircleCI config ([565fbd8](565fbd89cfed16318f48477effd208fdef6e0f52))
+- Merge master into develop ([b0b0c10](b0b0c10dcc7e4f3c92b2cda829aacb010a28b434))
+- Update dependencies and remove unused imports (#2212) ([f0fa7e8](f0fa7e8f71984c54a27a5bd6fe46c4dffd16e09f))
+- Sync version with npm (#2228) ([f271747](f2717474ab31434fb8be15cf65887c43dd895359))
+
+### Fixed
+
+- Resolve core-tester-utils conflicts and various errors ([45d33d7](45d33d7ca56d615c514df400fcbac255e819bd0e))
+- Don't hide errors from HTTP failures (#2223) ([9ee8adb](9ee8adbaba4a54500b61e92664b07c9a82257a13))
+
+## [2.2.0] - 2019-03-11
+
+### Added
+
+- Add sorting to voters endpoint (#2103) ([7b9fe68](7b9fe686dfb0af16417898e0883069ca42bb9c2e))
+- Implement a CLI with @oclif to replace commander (#2100) ([3dc9a63](3dc9a6385ff998284915c31292ca9a70bf991d37))
+- Implement AIP29 (#2122) ([187993d](187993decbaa4c94f02447da9cbd222e89537844))
+- Validate GET replies from other peers (#2102) ([bbca40c](bbca40cbde3ec9c58750118514bbfa97f68303d9))
+- Add tests to blocks & transactions business repositories (#2147) ([6a914c2](6a914c2885accf6cd61d1ebd67a392464cb68e94))
+- Merge core-snapshot-cli commands into core (#2149) ([83fd1e5](83fd1e5e5e6a0c92e208d93c1433421372cd4cb9))
+- Configuration and channel support for the CLI (#2145) ([e02c2c8](e02c2c8741e6bd832e8c243416100136e4acd5f7))
+- Fetch list of peers from at least a few others (#2152) ([499c52e](499c52e453e81c4343c1b96cd0124232afb248e3))
+- Ask for process restarts after updating (#2155) ([42ce0a4](42ce0a4fcf9ff27e95613a721b7a3700303f0ff6))
+- Initial implementation (#2134) ([be50e96](be50e961e4deb511e03925d9425471e859863440))
+- Search delegates by usernames (#2143) ([e194ac6](e194ac6c11e66d19a9a46e2d37f65c153c2a2954))
+- Increase vendor field length to 255 bytes (#2159) ([66b3a28](66b3a28278a1fa00ed26b50bdc8ba04877d0bebe))
+- Add methods for online, stopped and errored states (#2178) ([0604f45](0604f45a8524398c0b92b25727bb2f38f01adff2))
+- Add abortion state helpers (#2180) ([cb7726f](cb7726f4c100f6356a32773d9e41f9a267c73a12))
+- Add missing devDependencies (#2187) ([63039ad](63039ad7a0ef6c2f8d51716e8c7264fc866f6eeb))
+- Test the vendor field (#2189) ([cf781a1](cf781a1aa9b51bbf051566a8c0167d9be02a43c7))
+- Add the ability to send multiple waves (#2191) ([8a95e95](8a95e950100fe037f345d34162a656f687ddc841))
+- Add support for reinstalling the current version (#2192) ([4e2c3f2](4e2c3f2c1a841b33fbb0955027c39ab484c6042a))
+- Add support for forced updates (#2190) ([5bfc691](5bfc691a51cbed62bdfceeca24d41792ae5f3813))
+- More params for delegates search endpoint (#2184) ([3377337](33773379a754d91c5885969f6458f8de7ec214f3))
+- Add active delegates endpoint (#2205) ([7889947](78899474d6af1d85d12f3bf060b6aab33002f182))
+- Add #2207 to the changelog ([3bfaff3](3bfaff3fb1a55dfccdddc920c7c7c0fc55e479e8))
+- Don't spoil the quorum if the peer has !forgingAllowed (#2214) ([0359c09](0359c09d7686396c42bcd0210146de263048e8e4))
+- Add #2217 to the changelog ([2a87c02](2a87c02f75a9a096cdfd5357208c6f2e21ec7304))
+- Add restart flags to update command (#2218) ([ae3c428](ae3c42855f107b412bef5c30a7364f4673c2db00))
+- Suggest another command if the requested one was not found ([d06feca](d06fecaa2f0daa105deee98971d82b0597e8b996))
+
+### Changed
+
+- Bump version ([9633592](963359223e613347da44a181192f3ff501931872))
+- Update all packages (#2092) ([e8a187b](e8a187b1896ac2871bac4c63337230b90a55596f))
+- Allow multiple minimum versions for alpha/beta/rc releases (#2101) ([d040f87](d040f873af70e48dc757503fa77bb96656ccc296))
+- Rename arktoshi to satoshi to be generic (#2104) ([ce9f3b5](ce9f3b51b9defd5e289025f30c427ba611792cee))
+- Merge small utils into utils files (#2105) ([06b0fa4](06b0fa483ffc25c1117dbfa1bbfe83fdfcc088c0))
+- Replace lodash.sortBy/orderBy with faster implementations (#2106) ([b5f03f7](b5f03f769f924be59b4e8be04e97cf49ed089ca8))
+- Run linting on CircleCI (#2113) ([093dc6f](093dc6f38df2bf5cced6c554710ef5fbbb03be83))
+- 2.2.0-beta.4 (#2117) ([0871720](087172055df778ef57d18e63bbf13c3d68763f8b))
+- Make it possible to disable a non-dev warning (#2120) ([92d25e2](92d25e23eb850008f7baebc5d208f6c2577a94f6))
+- Move core-api repositories into core-database-* (#2107) ([57374e6](57374e6e541cf809a9123a77b0271c39f5e0af12))
+- Reduce complexity and fix wrong offset behaviour (#2119) ([9d30d6f](9d30d6f92e4392088afe0d4a98313b2cf73a41b9))
+- Remove unnecessary ping() call (#2123) ([a102716](a1027165bbb28f52eaad519c75d0271e524e2951))
+- Remove broken getRandomDownloadBlocksPeer() (#2121) ([d963957](d963957d62504872c98fd9e98c40a918ba95a3a9))
+- Remove accidentally committed env variables (#2126) ([82d1dd4](82d1dd4e0fa472fac583183e915f2db52f901eb9))
+- Replace sqlite3 with lowdb (#2124) ([cc10cf6](cc10cf6f4443db7a040d49311737d3a0b68c610c))
+- Improve fork handling in updatePeersOnMissingBlocks (#2125) ([ef55a62](ef55a622dd9fa8d48963179fb873ef1fbb8ea61c))
+- 2.2.0-beta.5 (#2132) ([40e660c](40e660c735ce24911420a60b7baae65b5d762779))
+- Throw an error if the peers or plugins file are missing (#2135) ([e83e676](e83e67610c3b4837ca67d80b4298575258641870))
+- 2.2.0-beta.6 (#2136) ([9651517](965151756fbd4b6417532b9933ad1bbe203bd949))
+- Improve selection of peer for downloading blocks (#2137) ([38f6833](38f68339151eb52409b1771362f3bff37bfdec09))
+- 2.2.0-beta.7 (#2141) ([c7be0cf](c7be0cf828ba5447b61d962e0cd2014aa95f694c))
+- More robust check for ensureDefaults (#2151) ([a3c2e40](a3c2e4045c06ca165f37fa0b8456f97d2b9bf0a3))
+- Require the user to take action for updates (#2153) ([921eb0a](921eb0a3b34b31b3c7d98b946bc40175cfaa4383))
+- Replace pm2 with process manager (#2154) ([6fc1c61](6fc1c61193efc8a17a8fc940b34963c92f55a08f))
+- Integrate bcrypto (#2158) ([fd70671](fd70671c282042b271aeb83d0dab5236e3eee669))
+- Exit the CLI if snapshots are not available (#2161) ([44132ac](44132ac6f1d138785983436179ba7b73f7875bf8))
+- Remove dead configuration code (#2166) ([bb27698](bb276987faacfab672a6259d1e3d98ef04b8dd89))
+- Replace micromatch with nanomatch and remove heavy deps (#2165) ([1c47fa2](1c47fa2ed8a6d8b3ebd0265c6a9edfb788cd991d))
+- Use reload instead of restart and update the env vars (#2163) ([d503297](d50329716927bd0511051bb17b5e60e2d0a30b3d))
+- Benchmarks (#2167) ([3449c6f](3449c6fc6e9473ded4dac3eaf10276243706b301))
+- Move core-graphql to the deprecated folder (#2169) ([358c312](358c312d5753b3a1dbcb2ef084de3a0b872aa5b9))
+- Only ask to restart processes that are online (#2173) ([4905ec2](4905ec2b5bd57108ce74933300dac767b2fe50e1))
+- Replace dayjs-ext with dato (#2168) ([44b6ed9](44b6ed99889e504ef7e41bf67e8ab41ea433c991))
+- Peg block timestamp to slot (#2176) ([379522b](379522bdac0d91b09b0a22063d2972bc00cbfe3c))
+- Circleci update coverage directory (#2177) ([0875de6](0875de68131a9d42afc1709d82683fcae450eff2))
+- Start 'stopped' process through start command (#2174) ([09a2218](09a22180a89f42e48a50c55a372ce26e99518b4d))
+- Exit start commands if the process is already running (#2179) ([9ba7820](9ba7820d72f224025f54edbc3d7b9b1a36e67b60))
+- Remove extraneous jest presets and config (#2182) ([eaf4fe1](eaf4fe1adf5b11e1e9541fad222889b02c5d7eeb))
+- Move @types to development dependencies (#2183) ([c849b2d](c849b2def98f9b0037a691e103b0696f2fb000e7))
+- 2.2.0 changelog (#2170) ([bf4b1ae](bf4b1ae851e7fcd67f21e51c85c1ca01c8a6aa92))
+- Rewrite from scratch (#2133) ([bdd07d3](bdd07d3f0d4f9e75d0d8c02827eaf0a088581908))
+- De/serialization (#2175) ([a986cb8](a986cb8288661cfee2d38c7916298decd6a1f381))
+- Move transaction logic out of crypto (#2188) ([317e86e](317e86e8474e0b79f6f8c82571a555106fcdadfa))
+- Install stable release via setup script ([31f1819](31f181948256ec50d211a29f80b08b74d13cfca4))
+- Move transaction type specific logic into core-transactions (#2201) ([9e253bd](9e253bd740ef3b7fd568e5df1a7203272b977bd4))
+- Increase timeout for getting the network state (#2208) ([47d3b3f](47d3b3f10635b37b884428a56968a7d30ecc8de0))
+- Remove old fast rebuild code (#2210) ([d00d471](d00d4710e52d4a9167beee97741ca0bf7bfed709))
+- Purely rely on in-memory wallets based on transactions (#2209) ([477db4c](477db4c26a3bb47c32a30d42c9fde872ea935a60))
+- Log concise error message instead of dumping the reply (#2215) ([7a76aa5](7a76aa51f8db8b5dd619b9c04041e7755f5775ac))
+- Log the pm2 status if it is unknown ([71bbf18](71bbf1811d4fc71618a38d0ec3828ee510773fd2))
+- Handle pm2 errors outside of the process manager ([78c7325](78c7325c9108bd70bea64ab37ec75912288c09c4))
+- Log the stderr output for pm2 errors ([6bd998d](6bd998d1a690cea7370050d6dde0403a510353d9))
+- Use restart instead of reload ([195ed8a](195ed8a232a99cef71a0014c8ce07bf2947f93a4))
+- Allow to provide yes/no callbacks for confirm ([79420a0](79420a031a6b43f17896377420768fac0364f652))
+- Resolve conflicts ([4e4e5fc](4e4e5fc4eb0f0ac6605ee2f12213f2d168021822))
+- Circleci restore caching + re-organize jobs for unit / integration tests (#2222) ([e731c8f](e731c8f8694aa671d822e37e9197b2c53f574548))
+
+### Fixed
+
+- Schema ([f4803e5](f4803e501ec6b2bdea2a043acaddfea317645f0b))
+- Max payload size ([e508702](e508702be2657ec4acc12e199bab99048447ad28))
+- Replace fixture ([f3cc9de](f3cc9de7f8c6e20b81f3400b1a7dc6986b76c03e))
+- Fix test and use default param ([cf3cfaf](cf3cfafe7c072cd4ca352bcf4910d05dda012770))
+- Allow more minimum versions ([8b29e12](8b29e12833e92d8b396f3611cf5f20943d7d8eaa))
+- Pass the base flags for programmatic calls (#2108) ([6c847f7](6c847f7f4c67d81b32dbe0df83063bc6397a76a4))
+- Disable peer verifier (#2112) ([e4d0658](e4d0658f1aafe5616a9d54e5acbf36c195b6376d))
+- Build failure (#2127) ([fc69339](fc69339d0a8af97a3a11c65bb9b9abdec3c7c414))
+- Do not ignore the network flag in parseWithNetwork (#2138) ([b4749f2](b4749f2f0424c86a474ada002a3db7126466ac12))
+- Overwrite the config path if an env variable is provided (#2140) ([525bca2](525bca22c1818d85a80da6921884b98ebcbb3fcf))
+- Stuck at not ready to accept new block (#2139) ([2a9bbdd](2a9bbdd1b9d0876ea93dfc82c32bd7375a6235c2))
+- Pass query to findAllByVote method (#2142) ([79ec08f](79ec08f5ff4811afd5af3f14bee8880f942297cd))
+- Properly sort BigNumber values (#2144) ([b836819](b8368193df6a45a61e62bc5a100e5cde847a8b5a))
+- Return correct suffix for core:restart command (#2150) ([a25352a](a25352aa9c892602860ec3034c7442231f0ec086))
+- Ensure file and defaults before reading ([d508e4b](d508e4b3a44b1666f8e9ba914d792626cb83cb9a))
+- Reset configuration if --network is passed (#2164) ([3da661b](3da661b3c68efac4090d0b7ea304a65d764aaaa5))
+- Initial restructure & split of unit and integration tests (#2172) ([a823c32](a823c325e86cf20fe23cf8d9d51df6a1085cf172))
+- Pass the bip38 and password flags to the forger:run command (#2185) ([4032d3a](4032d3a88ab69babc5f67f055c9b2def52f498a2))
+- Parse the network for the snapshot restore command (#2196) ([12f54f7](12f54f77ff6e87b43226b1357d4a5cb2f0244ff3))
+- ToBeGreaterThanOrEqual instead of toBe ([884c894](884c8946f7b7fa766ccd39c86e14582023ef445b))
+- Exclude undefined values from string casting ([a1c7ddf](a1c7ddf76eea09ff58cb594661018feb4063fec3))
+- Set crypto network for debug commands (#2204) ([ea06ba4](ea06ba42816699e619e11d34477277909548dd3e))
+- Vote balance update (#2207) ([5050778](5050778c9f86d8698f79fbc20929d0cc6866d0dd))
+- Vote balance update (develop) (#2211) ([62aeb20](62aeb2033722966eaa4877db0736813f6a7fd41c))
+- Escape string flags ([6dbefc6](6dbefc6565d4ee737c89913c7fed87108a54ce08))
+- Fix the description of debug:serialize ([183eab1](183eab137b7839cf5e0cc77901686dbb903552c8))
+- Invalid transactions after rollback (#2217) ([6526856](65268565ce74ae5a1c50e525c321dca41286b72c))
+- Return if last downloaded block changed (#2216) ([37aaa33](37aaa33cd6d26209ce4f7c3ae5d0664eddcb838a))
+- Node stuck during sync  (#2220) ([e2c975c](e2c975c9e575f89aca6f0b05c8f714e3243885ee))
+- Only quote string flags that contain whitespace ([55663b1](55663b19f3955edd16f769bc9dc09a83689d1751))
+
+### Removed
+
+- Remove old flags from install script ([693b73a](693b73a689722aaee88bd9a931279c92fbdf2b70))
+- Remove superfluous log message (#2128) ([d8895b6](d8895b690fa550ded22acfa34eb1548b57d20336))
+- Remove force flag and add a forger check (#2162) ([de61933](de6193357628367a478e2a38be2f56c32127b29b))
+- Remove old test ([f89ebe4](f89ebe4d4537b562f10ae80ee9907b71841b3387))
+- Remove integration setup & tests from unit tests (#2194) ([0479d01](0479d010f9204c82fbdb605837582e67064fd633))
+
+## [2.1.2] - 2019-02-13
+
+### Added
+
+- Add Docker README and banner (#2095) ([87feec5](87feec5f0519fd6eaf18c1da82d90d421c795c44))
+
+### Changed
+
+- More extensive peer state verification (#2032) ([421e0be](421e0be5814e4cfad7de7c7df75da0f5479c1655))
+- Allow longer version strings (#2096) ([342a54e](342a54e1d06a29a8facf63bc55813c8df2414504))
+- Bump version ([e227cf7](e227cf712c917818141b6731c2b00d63ecae9069))
+
+### Fixed
+
+- Quorum issues (#2091) ([c8c8112](c8c811235b75b96412ffbdc30beb76837a171439))
+- Proper hex validation (#2093) ([df094dc](df094dcb964ed965189ab496a41415a15d823eff))
+- Quorum issues (#2091) ([476ad8a](476ad8a8ab281e9dcbfd7809fc09137116f8d6aa))
+- Max payload size ([7691cef](7691cef939d066507b566f5226b225a7c929421d))
+- Schema ([30c9cee](30c9cee3d4cf020be99a8fa953f36adcd6862eea))
+
+## [2.1.1] - 2019-02-12
+
+### Added
+
+- Add vagrant boxes for easier testing on multiple platforms (#2079) ([dfd478c](dfd478cfd8bb028a7ad7330598d67981bb515b71))
+
+### Changed
+
+- Do not run tests in prepublishOnly (#2081) ([67c8557](67c85577587536e28a72a368cab08511e5558365))
+- Setup code owners ([26ea032](26ea032592c18afbe6e2bc1434a4d017896f6e41))
+- 2.1.1 changelog and version bumps (#2084) ([f8e2233](f8e22335578d691201531d6c2d66abb427dab242))
+
+### Fixed
+
+- Configuration endpoint does not show dynamic fees (#2082) ([ad5aafd](ad5aafdc9a5c9d178c842bc4bc498fedf2aa2407))
+- Use the supply calculator in the v1 API (#2083) ([8c91440](8c91440e8f5cb7cd9b6ed2ffc6515f33378ddb44))
+
+## [2.1.0] - 2019-02-11
+
+### Added
+
+- Add devnet tx exceptions (#2043) ([c922325](c922325a07c4244fdece66de25d8ba5b27842da0))
+- Implement error classes (#2038) ([b5bcfe9](b5bcfe902bb670f9bf36c1550f57167719810a61))
+- Add bash fallback for ARK > CORE in upgrade script ([8a3a45b](8a3a45b7f16ea1df1ed897502a2dce104a8505c5))
+- Add github templates for docs, security and support (#2059) ([5a3e765](5a3e765ec37c20958e06402096b31b901fb0f788))
+- Add multisignature related exceptions (#2071) ([68534ec](68534ec58f65f88cc4f36468ce31d0c581ab2aed))
+- Add upgrade scripts for future reference (#2074) ([a7439e0](a7439e0d474c98e67d68cd209923cdd9bce75e71))
+- Add multisignature related exceptions (#2076) ([f3ef473](f3ef47317b41d7d42ab5e075dcc37bb480098d96))
+
+### Changed
+
+- Remove progress tracker and further reduce log noise (#2044) ([b10a948](b10a9480c7eda2fddc86912d02a4f2a32384f3ed))
+- Update changelog with pull request links ([d1e65c0](d1e65c077881be345c7ca5a16f4b44775ebf5f7e))
+- Ignore a few things for coverage ([0652c09](0652c0968851b6442e9c089692804df6e188fc93))
+- Replace commander.js with @oclif (#2050) ([d77b15a](d77b15aae8333d2938229b4f7a4d558a4900ee72))
+- Replace commander.js with @oclif (#2049) ([ef563b7](ef563b78a89e0dda15a9827155efa6233be92579))
+- Replace commander.js with @oclif (#2051) ([c2c99e6](c2c99e6b4f99ca7d64700d15fc3db23b85835b56))
+- Store development docker files in docker/development (#2053) ([27e4aa6](27e4aa65b3fb285661e6869a4e77ddf631cb6f8f))
+- Move genesisBlock to network config and remove extraneous config (#2052) ([9828c96](9828c965ac89772738c91693ce74d70a7b455a68))
+- Few upgrade script fixes (#2060) ([0dd9062](0dd9062c4efafcd0cb0f58f3e028c37808a2a4a7))
+- Preliminary 2.1 changelog (#2062) ([bcbed22](bcbed22b0f2c021ef97b4bc0ec55c2122a59ad5b))
+- Docker production set (#2063) ([e0f65b5](e0f65b5d49a64e0539d183ae1f5861ff21d36d3b))
+- Mount database and log paths as volumes (#2064) ([235300f](235300f5f6afac5dabb2ab271f74d3cfb271459d))
+- Ignore a few things for coverage ([cf74814](cf748143b6c8593e74aa1a220319c70e7cd265e0))
+- Rename development to unitnet (#2065) ([5fd79ed](5fd79ed4ad71e38bdaf6247fb595296986199b6c))
+- Update p2p port for mainnet production ([5254e07](5254e0706b348be26d44e0fdf8f02e156d72813f))
+- Separate business-logic from data-layer logic (#2055) ([4e41294](4e41294e915b2ac65b2220975135344947275bcf))
+- Changed forging secret and password handling (#2075) ([5f1892e](5f1892ee5dfc2970853c47a630e4064456645bda))
+- 2.1.0 changelog (#2072) ([716e129](716e1299a452289cad3f9060b1cb6cbb174fd787))
+
+### Fixed
+
+- Ip address validation (#2045) ([fd1bb45](fd1bb458e1533802d1512e53cd28eed59ceade7a))
+- Invalid timestamp check (#2046) ([1ec1ee9](1ec1ee9ce9c44dfd48f225e4b4a72fdfd83d49af))
+- Check if state is available (#2047) ([4bc439a](4bc439a79cc70c0869d3b5d22a1f96e7bc57740c))
+- Disable multisig (#2057) ([aac0e96](aac0e967f07387a2c085e139819a0950a0cb82b8))
+- Syntax error in upgrade script ([8e9049e](8e9049e5acf3e27a5ed656130ad0ec88807dd23a))
+- Return an empty array if the peers cache parsing fails (#2061) ([ccf3647](ccf36477e6a527319c4b7013a0d862ad41bf4268))
+- Always sort transactions by sequence and the requested field (#2058) ([0318bd8](0318bd8032ed4c26f5e471122b9d5f3899e6ce02))
+- Increase coverage (#2066) ([9a09fd4](9a09fd4f567b327fbed51d3e36aba084cf0114cd))
+- Give user requested field priority for sorting (#2073) ([7e5382b](7e5382be14f554a6627f2ee92b0c9a4c1287542e))
+- Disallow multiple registrations for same delegate (#2080) ([8399caa](8399caa5fd4d871599915366f5be36da90fd6c03))
+
+### Removed
+
+- Remove entries with double and single quotes during the upgrade ([76eda8f](76eda8ffa0c792adcd902013b9b8f99a2a9f9e81))
+
+## [2.0.19] - 2019-01-31
+
+### Added
+
+- Add default notice to upgrade script ([c4d9879](c4d9879659be479723ab1c3fd56d76060a2840c1))
+- Add missing devnet block exceptions (#2023) ([eea3a76](eea3a76aafa3ce0e9abd9735b13ac4a657953433))
+- Add centOS support to install script and some fixes (#2024) ([77653d7](77653d741fbf892bc1c4d5064939cb30407c25bd))
+
+### Changed
+
+- Delete pm2 processes before upgrading to avoid config issues ([36f96dd](36f96dd0efd703d07209d67fb4bb4c6e0cbbd822))
+- Remove validation rules and validator (#2021) ([4b59073](4b59073552cc645068d16675e7bc586fcb95d5fe))
+- Fix exit in install script (#2025) ([75962f3](75962f395d09ffc14687f8e3c4b8c25e271f8f62))
+- Better database detection in install script (#2031) ([50568a4](50568a437bf35f4f2fe73502dff908577a91108d))
+- Replace all ARK occurrences with CORE during the upgrade ([13f2ecc](13f2eccc510b367662c342de6cc632cef86b9c41))
+
+### Fixed
+
+- Update the plugins.js file through the upgrade script (#2022) ([ec643fe](ec643fe335b30ac1649083a246977e62c7bd9830))
+- 100% coverage (#2030) ([9b54de8](9b54de8a636077a26acb7cfb9d8ebb3f6a9b238a))
+- Return fixed states for the v1 and v2 API peer lists (#2027) ([6949148](69491489a59cfb5b678c975f7a6aa871355ce2ba))
+- Use correct paths and add migration (#2033) ([fb0491a](fb0491af54894dcc71aed3e5919b3f34fb3e9207))
+- Core-SV-009 and Core-SV-010 (#2042) ([8a62f55](8a62f559cbfe67cc03167a63f1a06810eadc737c))
+
+## [2.0.18] - 2019-01-28
+
+### Added
+
+- Use system paths for configuration and data (#1987) ([9f7e0f4](9f7e0f450679613e8c1884b05314b3893fcf40a0))
+- Add missing @types (#1990) ([24d43fe](24d43fe0a95260d0d629f59fcb1d41800b69cb0e))
+- Add devnet blocks and transactions exceptions (#2002) ([5dd3121](5dd312166f8a4eff15fc14cff48f90783b53af98))
+- Return wallet vote on v2 endpoints (#2009) ([7d6125c](7d6125c2795847980c3ef3a32a49d2838658db72))
+- Add flag to disable extra spacing for readability (#2013) ([cc1c249](cc1c249b171177eb82d0b186c6ef4e9446ec2d64))
+- Add missing tests to get coverage to 100% (#2019) ([5db86e1](5db86e11b2751fc502b4f464f9643f8f834f7cee))
+- Add missing bignumber rules ([f882207](f882207ce407cd3a92e10360b0c0910fffd2022f))
+
+### Changed
+
+- Split de/serialization, more static typing, cleanup (#1969) ([5aa2731](5aa2731053262dfa71992d49d4ec9c1ec6ffb8e2))
+- Optimize StateStorage.getCommonBlocks() (#1981) ([1b42c18](1b42c182364e1d5bf6625f2b42378bb315e3ff62))
+- Optimize Peer.getPeers() (#1983) ([7808755](7808755f58533ce1a75f9c295e57fd5d340210e1))
+- Debrand core by renaming ARK to CORE (#1970) ([a7e7cb6](a7e7cb6e0b9651375ca6910be98cf440ad62f9bc))
+- Ark => core in docker-compose files (#1991) ([5a703df](5a703df3c2b1f86a7e25a7d39fb2334af4d7b436))
+- Increase max transaction age to 6 hours (#1996) ([c3ad02d](c3ad02dfd029a697a64f92bf6f6e60eaf85154a0))
+- Bump @types/node-forge (#1998) ([de97a29](de97a29d695cc9662890c555a073637f81df8144))
+- Mark __ methods as private (#1997) ([aa0718e](aa0718e3ca09bdf5f06f07674f20c56041557adf))
+- Use token in database name (#1992) ([ea4f775](ea4f7759d29a5811e24c189d9f1fd5c4026b9a3b))
+- Update storage paths (#2007) ([00a9f86](00a9f8673f0381fcee13e22d8432edb5e90c5324))
+- Do not log empty values and stringify non-string values (#2011) ([938d79b](938d79b1a2854603ab769b1d2280424509b670ea))
+- Setup basic crypto benchmarks (#2014) ([5980c33](5980c3305c32bcdef934989f09223cbf8710971b))
+- Update changelog ([0bad276](0bad2766866cc4e34fe8fcf546c22e4e579484d4))
+- Upgrade script for the 2.1 release (#1999) ([5c687f4](5c687f4b6b27e4d6c0ec7396700962f30f8375ab))
+- Install script for core (#2016) ([9a264b4](9a264b462791cc480b550052689000e8670f6eb7))
+- Bump version ([ba5d994](ba5d994611586785f9ddfdc27c52f19b63336227))
+
+### Fixed
+
+- Increase coverage (#1975) ([7ff52c8](7ff52c8afaef3d002377964e63c621c7311b49c7))
+- Initial setup (#1979) ([ce45f61](ce45f61faad085f52785886373c25e1f722ceb10))
+- Bignumber coverage (#1984) ([dcfa2c7](dcfa2c78137c570aed9b3ee0b30405099f26cae4))
+- Port slot check from master (#1985) ([5df5ba2](5df5ba250e4eb04667c52e85b1c1fe24b146e7eb))
+- Increase coverage (#1966) ([795c077](795c077682187ff2267a8552c1e325c07d573638))
+- Temporarily add data and config flags ([491852e](491852e92e5cba2dcbd3a85334a25dee75e09f1a))
+- Always set path variables and overwrite custom ones (#1989) ([a1609a2](a1609a2cac5100348943bfaa419579eabf6e8bc0))
+- Off-by-one error in getBlocks() (#1982) ([52e7fe8](52e7fe84b9391b72022cd55a01450a25bc45fd31))
+- Fix coverage by registering current package plugin manually (#1995) ([8cb6716](8cb6716b17063687517a8ced0b8ed4640762ddb0))
+- Increase model coverage (#2005) ([ec5cd33](ec5cd33b61fb26f6051cd7ce2bb4fe725a3a8799))
+- Transaction validators (#2008) ([23b978c](23b978c64c42c58fa90827e4583ed0f4f40e62ce))
+- Ser/deserialization on blocks and transaction (#2018) ([2a185a9](2a185a90cd19122e5bf15f91f922a6a3331fe727))
+- Use positive rule for number and bignumber ([f04fe92](f04fe92b978b7cab536bbe79fc0fb72d022fcd2e))
+- Expect fee to be number or bignumber ([078a653](078a653ec35212fd8ab8b3d608918b11fcd501ea))
+
+## [2.0.17] - 2019-01-14
+
+### Added
+
+- Milestone hash (#1837) ([3674423](367442318d182ac23ad61e765e14f5d438ab472d))
+- Add a document to provide upgrade steps (#1839) ([83ad5b5](83ad5b5d220344c4099d5e583a65c94d8ea1d7e8))
+- Add dynamic fee config to default plugin.js files (#1840) ([7c6100d](7c6100dc0b4ef011f572b25889260708065a166c))
+- Add the milestoneHash as a required header (#1841) ([7d4d126](7d4d12651341c537922bd4f5ace9a010d20f70e3))
+- Add try catch to whitelist ip match (#1849) ([d68943d](d68943d8f889516f44da8ea9637df0207b33099c))
+- Allow searching wallets by several addresses at once (#1852) ([b172743](b172743953d8f32051b7b84dbabf71910b0db5b7))
+- Add missing type declarations (#1866) ([d202f2c](d202f2cf522419bf4e11604548d61f2e12e6e5cb))
+- Add devnet milestone for invalid second signature field (#1871) ([30ab06d](30ab06d11cc62f2ee3d6350a048b63d1e8db752b))
+- Allow searching by several addresses on `/api/transactions/search` (#1872) ([f545b3f](f545b3fb3c7e6a22c6706c1c514a772032b40d4a))
+- Enable delegate ordering by 'rank' (#1890) ([8c2e8e8](8c2e8e859411eb1570655b79bfa6850e559abaa6))
+- Enable delegate ordering by 'productivity' & 'approval' (#1892) ([9a19547](9a195476d3678a79788821b2c81a037a91943b40))
+- Add minFeeBroadcast to getFeeStatistics query (#1873) ([7df0e8c](7df0e8cc051e91cd5e0622e7a8781b24b07a84bd))
+- Allow full disabling of caching (#1895) ([3a96db4](3a96db467ca4e3a862cfb341e7808b092d919e16))
+- Return the transaction expiration time via node/configuration (#1927) ([18120a3](18120a3a66c4755dc77aa6b750f8c1aabf082c2f))
+- Initial implementation (#1924) ([dfa3881](dfa38816dfff038abbd35cc23d948de32743e931))
+- Unit network for unit tests (#1952) ([d0634da](d0634da0eb41649bdf9261e56542babf7562b530))
+
+### Changed
+
+- Split config into network, milestones, exceptions and dynamic-fees (#1733) ([9a76d4c](9a76d4c309054d33ece288303e3ac0635f8cfd34))
+- Update changelog (#1838) ([be16f1d](be16f1d63c408d91c36afccf918034a8f3215825))
+- Export core-logger types. Update core-winston-logger to use types (#1833) ([ef2d321](ef2d32182fafcec9842fddd8f1b54553ffdb27ba))
+- Remove core-deployer (#1864) ([bf990b8](bf990b897cb3d35991427b68fe4a260d67941bf2))
+- Setup dependency update command (#1865) ([d147c7b](d147c7b772bd7a88510c440cc45afd9532d0ad5e))
+- Ignore bootstrap files for coverage (#1870) ([066d1a7](066d1a7cfb50bc0e165cbb12d4faacb4fdf9ec75))
+- Export core-logger-winston types. (#1887) ([8dffbb7](8dffbb7eef4001cc8315199799238dd081c4db59))
+- Export core-container types (#1891) ([26374df](26374dfbd3deef21e53bcefdcb26f95d4eeb1739))
+- Update changelog (#1897) ([64e290c](64e290cc5632cd5ea75bd6e620c7e1bc8d4887eb))
+- Export core-database typedefs (#1901) ([6466030](6466030d5bc08f40e6bdc8252d368520a2186c36))
+- Export core-database typedefs (#1905) ([c5a235b](c5a235b72e6f43c8ad768daddf26c1dea107a389))
+- Export core-database typedefs (#1906) ([f8c4796](f8c4796d00290a294f53394ae6ebdc5d64377eac))
+- Remove transactionsFromIds endpoint (#1911) ([9900caa](9900caa64317640f3d77287161e4b2465d081599))
+- Export type definitions (#1917) ([d7d74bc](d7d74bcdfae55213e2b8962b76d228440fe2ab54))
+- Simplify updatePeersOnMissingBlocks() (#1916) ([d7bb3b6](d7bb3b69966569725647676b3d2894579f859d80))
+- Extract jest matchers into its own package (#1926) ([b26ab9c](b26ab9ce8cd29d4ae10a5f3ee0d47959e1ce0f65))
+- Simpler CircleCI config generation script (#1928) ([276b4e2](276b4e2eaf2d716b02d5d773ae5cf8a77184e679))
+- Implement a cache service to DRY the server method logic (#1930) ([13bc930](13bc930b91b0e130cf54115537e89c48008725bf))
+- Use distinct error codes for different fee problems (#1938) ([06ab743](06ab743d0175f8f95da2dbb109732abcd6a982d3))
+- Only allow vendor fields for type 0 & type 6 (#1931) ([86a4a2f](86a4a2f9d8c00475787d336ab7c204c8987eb1a6))
+- Network state quorum calculation (#1898) ([c25967f](c25967f9edb37742c01847e047ce047fa4d3ed87))
+- Native bip38 (#1941) ([02467f3](02467f38cd4f4336c22e91467908e03b79baef7d))
+- Remove slow jobs from CircleCI (#1942) ([7597399](759739940698370c16eb8d89b20487d542c1c4ed))
+- Export core-blockchain types (#1943) ([12a6aa7](12a6aa7cda7a5bb1d75448f09fe0305bced2cf75))
+- Reset wakeup timeout (#1946) ([e5d9abd](e5d9abdb79dbe8a22439aa7b0e88ba7728f628ff))
+- Export and use core-snapshots types (#1947) ([72b1a0b](72b1a0b707558af8407ad0408da5764e3ffe5178))
+- Export core-api types (#1948) ([9d223c8](9d223c8ee2004fe35923d4b95b400afabde9cc14))
+- Block processing (#1953) ([39b6aa8](39b6aa8802e3fe2236d39681351133157ff49c77))
+- Remove hacky use of 'global' in transaction builder tests (#1971) ([de13e61](de13e61bc6f2859e90559bfb197e1b309fbde7da))
+- Bump version ([e1c25af](e1c25af80b0263e0fee999b10a9c4750e06589ef))
+
+### Fixed
+
+- Discard blocks containing forged tx and stop process queue on fork (#1732) ([35dbb99](35dbb99b62b5a11bb4a21ec456b9093f15ad9522))
+- Check validity of version instead of throwing error (#1836) ([aff9c15](aff9c159acdef85fa744f65abf83c1b6121fc815))
+- Ensure that search deals with "undefined" as username (#1831) ([8c9b323](8c9b32353552d1c81fce2ddb45f42e12b23cb905))
+- Check both the peer and the headers for the milestone hash (#1842) ([f082137](f0821374c2a34fe440e3e8d270647b76963819c9))
+- Check milestoneHash on the peer instance (#1843) ([967d014](967d0146d3717922a0913fbe25f3babae96ae435))
+- Config getter (#1845) ([07380e9](07380e952cb5498036bd4c06a84e1f335b14fe49))
+- Get exceptions through the crypto config and handle them (#1844) ([bc2a79b](bc2a79b98c104b3aac477e3e8f38f159d9fbb97d))
+- Parse headers milestone hash (#1851) ([cb444cf](cb444cfdc019e703c632377d94501f071595bdfa))
+- Wrong config object in /config (#1854) ([a1d4077](a1d40778d64ef6b6b38c3367e7153a1c8341b888))
+- Push job when there are no conditions (#1869) ([9d06e55](9d06e550261fbac7babd15729bf5ef79a3a823a7))
+- Cast core-p2p port to number (#1889) ([017e0bd](017e0bdea6d53d9cea01a18e7aa14d16cee0a862))
+- Check against transaction network byte if set (#1853) ([22e04af](22e04afa92f0ef80d90b676e5b49ff8974205be3))
+- Populate last block of all delegates during SPV (#1919) ([6967e5b](6967e5b3c03a45a67aef860e1c6009cc2ab2a709))
+- Generate valid cache key for block transactions ([a71f007](a71f007fe13e5465f2a5ecc20203ded04b2bc783))
+- Use correct schemas (#1954) ([80e35a9](80e35a9fe4f0c05669e74cbe9ee3a825554bf215))
+- Modify transactions after signing in the transaction guard (#1956) ([a6e98f0](a6e98f0c9d0a732b7e3e773f3e3267c192b6f79a))
+- Update handler tests to apply basic tests to all handlers (#1958) ([9b26df4](9b26df4cd132455a59d60f74f65022cb2f4f383f))
+- Mark cold wallets as "not found" (#1955) ([7dcb256](7dcb256914283fb6008cc31979e794daf2de80a9))
+- Malformed condition for filtering peers (#1939) ([a8aa729](a8aa729f64033a7a8bc1a7b25ea295055f3a3509))
+- Transaction replay tests for blockchain and transaction-pool (#1962) ([1c254aa](1c254aa06ac39baa9fe77dc0a9993319f22dd13b))
+- Return the database timestamp instead of deserialised ([2b575fd](2b575fdfd979a175f2024a4e06b4c024bf2f92aa))
+- Increase coverage (#1968) ([252a16a](252a16aac0d273ecf4a31f59095a4ef962df7136))
+- Inactive forgers ([d30fbdd](d30fbdd3187ed97307bfb511abafa8b7b77199be))
+- Check previous slot ([e350826](e3508261939f5c1c1d42398aec1284161bd3dad8))
+- Block-processor (#1973) ([b69c92f](b69c92f9c3ff0c658667a2981083bd79b8914616))
+
+### Removed
+
+- Remove reverse mapping from /transactions/types (#1850) ([24efce7](24efce784a9cb7874f21a80bbfb7e716d1276408))
+
+## [2.0.16] - 2018-12-17
+
+### Added
+
+- Add usage of cross-env-shell (#1691) ([452f96b](452f96be5599242561dbad4a9bb096edf365cdcc))
+- Add missing log statement for block verification (#1729) ([c419ef7](c419ef74549b11c53ae60431d7784f25e29c4773))
+- Allow filtering of transactions for wallet resources (#1728) ([3487fed](3487fed80b8f2b3410efae657d8c682a8f6c7a33))
+
+### Changed
+
+- Migrate to typescript (#1625) ([fad5a25](fad5a259b1b1c074e7cf35d8279371ac78a47062))
+- Use a faster alternative to derive an estimate (#1655) ([8fc955a](8fc955ae395e4256803d9b4081d4954ddc230987))
+- Update @types/better-sqlite3 to version 5.0.1 (#1722) ([d3815ac](d3815ac3f8da030959c1510cb88a85f32e078b4a))
+- Update husky to version 1.2.1 (#1724) ([fb7e703](fb7e703ce8048cebb7139ab1dd1ca1a00d9c8906))
+- Update pg-promise to version 8.5.4 (#1725) ([6284457](6284457f40c7103944b06e78547a18b011079afe))
+- Update @sentry/node to version 4.4.2 (#1723) ([5d7e891](5d7e891f8f47245b25c57a9618491d24fef07afa))
+- Release plugins in locked mode with a shared version (#1721) ([03aef7f](03aef7f9d199dff1a4f6a42ddb4c440bfb4f28e0))
+- Adjust some ban durations (#1730) ([08558a3](08558a3b73afe441b8c62c73d1061bc10ca21a5e))
+- Replace the network update timeout with a period check (#1738) ([e42f4c7](e42f4c7894b7ce94c2915d844185b09bed27c171))
+- Update better-sqlite3 to version 5.2.0 (#1739) ([3b43057](3b43057c90cc7e0ad45b7fa8c38b8ab842ac98eb))
+- Update @babel/core and @babel/preset-env (#1740) ([5d9c769](5d9c769013d6b335aa5936b9be8b83b93f4807be))
+- Changelog and readme formatting (#1824) ([e39e781](e39e781af997b86f9f573c175fc70259a4b8ebe8))
+- Update ajv to version 6.6.2 (#1827) ([db6590e](db6590e735f3aed8cb8b2fca2e096178996f3f19))
+
+### Fixed
+
+- Pagination schema (#1717) ([9f320c4](9f320c4f9aa19960ba19b75a19882dfe8d56f238))
+- Malformed condition for filtering peers (#1689) ([0c23196](0c2319649f9304465bfc60140c77e45fa225e77a))
+- Get difference in milliseconds (#1726) ([904bfba](904bfba01977d91a0c69181a6ea79a52b052be57))
+- Revert #1689 as it randomly causes issues ([109a4d3](109a4d31131341ba192e87baf64c19a45ad12296))
+- Delegate ordering (#1731) ([2bb00da](2bb00da852f790441b5597e19706ef0f4e8161bd))
+- Prevent the list of peers to become too short (#1713) ([9502585](950258546fd91c820aa328ffc3e09d0a53f42452))
+- Call updateNetworkStatusIfNotEnoughPeers in the correct context (#1737) ([9c545bc](9c545bc2537b0ebe64f85f62c31ac49965e3da16))
+- Increase coverage (#1742) ([c551622](c551622457e73e5ec325089282b1af838dff186d))
+- Increase coverage (#1743) ([55bf003](55bf003918fb964d77561c2e1c38e5220e5c52df))
+- Increase identity coverage (#1744) ([e9a7e4c](e9a7e4c15d4ce228537436f50fc694254387651d))
+- Increase handler coverage (#1745) ([375770c](375770c57a033a7da138169d979448d22e5a4040))
+- Increase handler coverage (#1746) ([61e8bc1](61e8bc16fe96eb32aaaf052e6fb06cb9004a6b87))
+- Increase multi signature/payment coverage (#1747) ([4980c07](4980c07fce1ca0fd77741ae3c163210f19d610bf))
+- Prevent the list of peers to become too short (#1829) ([e652300](e652300fc471e8a088642402867bcb6634ab69d6))
+
+## [2.0.15] - 2018-12-11
+
+### Changed
+
+- Update hapi-rate-limit to version 3.0.0 (#1687) ([f5fdddb](f5fdddb3861600432c6838b525e94149746cd23b))
+- Improve remote address checks (#1695) ([a3c70fb](a3c70fb5f575c95e9c9666c581b76b992683df17))
+- Bump to 2.0.15 (#1697) ([fd683f0](fd683f058a77f637ad640117b991a644f8434559))
+
+## [2.0.14] - 2018-12-10
+
+### Changed
+
+- Raise the minimum version to 2.0.12 (#1686) ([bbdab91](bbdab9142d00ccd66fd77909698692e9af4004e2))
+
+### Fixed
+
+- Reset last downloaded block (#1692) ([3d7baf9](3d7baf961b23d5ba8757375096d15a2ea90367af))
+
+## [2.0.13] - 2018-12-07
+
+### Changed
+
+- Update snyk to version 1.116.0 (#1668) ([2736379](27363791e79e594094d9a3b611ca11df40f69b2e))
+- Update xstate to version 4.2.1 (#1667) ([c630385](c630385ba7c99ce8e6bd853bc95154a9dcae76b4))
+
+### Fixed
+
+- Update second signature tests (#1665) ([662c59f](662c59f79c3cb721d6167b0dfa972134b41e3c9c))
+- Ensure safe integer range for block height lookups (#1673) ([97c2572](97c25727f7a012f6db803e7191c1901098d628de))
+
+## [2.0.12] - 2018-12-06
+
+### Changed
+
+- Update changelog and bump version (#1660) ([fb6b917](fb6b9174cce0902da288a6816a1339ad713ff052))
+- Update changelog and bump version (#1660) (#1661) ([b5535fe](b5535fed8ded15008be4f5f16b9f3bdf6dc23800))
+
+### Fixed
+
+- Return the encoded WIF for BIP38 wallets instead of the encrypted WIF (#1653) ([3a0b19b](3a0b19bfdd93fc4634a0f1faa922756ea715dbbf))
+- Perform second signature checks for multi-signature wallets (#1658) ([97c3876](97c387661ae2718f986ddd06b072fc6cbcdb50f1))
+
+## [2.0.11] - 2018-12-05
+
+### Added
+
+- Store executed migrations in the database (#1648) ([b4e4d56](b4e4d5661d8afd5d743d933a9f636459b52aecb3))
+
+### Changed
+
+- Increase cache generation timeout for block and transaction endpoints (#1645) ([f2b8ba5](f2b8ba5f36a6872ace2e2f7ea75b6fbdeb0e47fb))
+- Make cache timeout configurable (#1646) ([7532831](75328312cfcb3047a3908122a82795634f0fcc79))
+- Properly split migrations and name them (#1649) ([5406ead](5406ead51ff0991e1b622540770b9324d581e1f1))
+- Update changelog and bump version (#1650) ([8aff430](8aff4304a42f1468908c1981edd8b7f5ddcbe944))
+
+### Fixed
+
+- Ensure booleans for the cache timeout are handled (#1647) ([73d434e](73d434e71e61a2b5c6b44ca40146e8e1d479886f))
+
+## [2.0.1] - 2018-12-05
+
+### Added
+
+- Allow block display via height in v2 API (#1626) ([c912546](c91254666922213f8a9608447ecd6b6e2ca692cb))
+- Add index on transactions (timestamp) (#1636) ([d0ba656](d0ba6564de8098dabb3839217c87db7682dadef1))
+- Add sender&receiver indexes (#1638) ([81f414a](81f414ae65b6cdab290cae085babba9b4366a7f9))
+
+### Changed
+
+- Remove unnecessary await (#1559) ([2a80a2f](2a80a2fedfd198f086d4c38c93a0a613774973c6))
+- Wrong CONTRIBUTING link (#1560) ([88b6c42](88b6c422f01b55cdcbb75f32943f8d2aecb3e230))
+- Adjust some package versions (#1561) ([89e3664](89e366421d9fd807e0ceaa31fff099e650364015))
+- Remove jsdoc configs (#1562) ([1036fcc](1036fccc2a3ab9d151aaf81380d8486060f48230))
+- Update changelogs and bump versions (#1627) ([e41269c](e41269c86bd34db6d45895f761c8a934c88c5778))
+- Increasing offset for delegate registration (#1629) ([21a4f07](21a4f07998786056a7198ddbbf9f36008390326b))
+- Setup greenkeeper (#1631) ([8d1fc28](8d1fc28c1a1a9e06b45cc0a7be62ddc1f6b2c246))
+- Drop redundant and add missing index on blocks (#1634) ([83a9641](83a9641f2ec72b8d68c59c95c36fe8513a12e4ed))
+- Increase devnet block size at height 1000000 (#1635) ([6226bab](6226babeb20cb0c936c2f620f5a3601819e3ab99))
+- Remove depcheck (#1632) ([b7597ce](b7597ce41b8b9df8258bd203a95e03f0e366fa81))
+- Update deepmerge to version 3.0.0 (#1639) ([887f8b5](887f8b517faa96bb6ed64463592e2965edc5ba23))
+- Update changelogs and bump versions (#1642) ([fe0f93b](fe0f93bfb78cbe66b97fb4a61e29a45036f7fda2))
+
+### Fixed
+
+- Return the correct total count for /api/v2/peers (#1563) ([b0e5772](b0e5772fa084c22039918dab1d5af5667c22a32e))
+- Pass correct transaction data (#1564) ([867d9ea](867d9eab567d3945285f0af0392fba070bac12d5))
+- Map keys based on object keys instead of values (#1630) ([a9d42af](a9d42af5f6aa114deadec545620da7fedb05f39b))
+- Supply calculation (#1640) ([a6a6802](a6a6802bfbbde6bf203c372a3a094a83b19e8693))
+- Fix bad method call for warning logger ([bf8234b](bf8234b6af0e7d35983a836813b793cb7cb9f659))
+
+## [2.0.0] - 2018-12-03
+
+### Added
+
+- Initial implementation of bip38 encryption ([85b4424](85b4424c745c4b3914c6d311a00f7ce56b91107e))
+- Add a README.md to the root ([46f6b41](46f6b41fa20665eb89635a55dc0c45eaf3eb592c))
+- Add wallet generator to core-test-utils ([1c15590](1c1559055a381796df06a36b9c20d3a4aeeade1d))
+- Add husky for git hooks ([2e225f9](2e225f9a645a16318a4a5140005a5dc20b7570d9))
+- Add core-event-emitter ([23000a0](23000a016184b448db01b3a7d5329e6137c7763a))
+- Add node-emoji to core-logger-winston ([66bef7a](66bef7adab59302a58be3f7822717d49e7c3b4f4))
+- Graphql initial implementation ([62805e7](62805e72b1a2a96c69201fca2b4585b10c5fcb12))
+- Add is-online util to core-api-p2p ([3332d3f](3332d3fcc04c9dab31dc279a31a73660b6951356))
+- Add check-ntp util ([ba11491](ba11491644c6ffb43e12c721c0cf05b7b3533817))
+- Support separate config and data directories ([3889a90](3889a904b1fd9c62a995c5171b17f1d3aab75326))
+- Add some defaults to config ([37f824b](37f824b47f5c973b5f08e60a81697b50d813645e))
+- Add wallet dummies ([a0db989](a0db989ec6391ec9771e36d2d12354591ab5f51e))
+- Core-tester-cli ([7e5d677](7e5d677cf523644d54c311cf5ab57b14505b727a))
+- Basic config validation ([5a99359](5a993596d2c2a6383cb73c3bac3a1259c058f08f))
+- Add ability to deregister plugins ([3e29664](3e296645098b7a2a09acfe6550920b1274ef0575))
+- Shutdown server ([e47442a](e47442aca3151274a9742f3fb0fa4053c3323bb0))
+- GetNextForgers for v1 ([40d0062](40d006231fd85fc8433053ae4f5df3a5006485fe))
+- Implement __updateVoteBalance ([05c4690](05c4690c7247b44788b7e3540a8b99f5450e55ce))
+- Update fee options for tester cli ([a22d771](a22d7710baab43a7b87ba3facd1908b83426304b))
+- Checks for approved transactions ([c383723](c383723afc2731de2cbbd1e88cc3c5a65ef5eddc))
+- Set testnet p2p port to match testnet.1 ([a25a6e8](a25a6e876082980a5a92802f4dd929e752987054))
+- Add signSignature to transaction model ([8d71874](8d71874c2564188c68ba3bc00c5045c74c64cc02))
+- Add new banners ([f2cbcba](f2cbcbaa7b4544d35ec08c565e166a17ef26d2e1))
+- Adding more txs to fixtures ([27ccbdf](27ccbdfb020e77b8e37bd940ecdd7b332f6afc3e))
+- Test for re-register multisig ([1080fa4](1080fa40660a9ea4a99dd5f94e35b01fd110d173))
+- Export wallet manager ([e80a891](e80a89196a3c811b8a5188429827189d80e3d84f))
+- Starting to add wallet manager for pool ([2e7e521](2e7e5213f7219a9df6f32e22a3e41e64f9b6de68))
+- Dependencies methods ([2b64660](2b6466079d1aebd4adcbf3b26621d683435f0f7a))
+- Install script initial commit ([7bf2b23](7bf2b23b1681a202f2be6f62264ca42e3099481c))
+- Staring to implement poolwalletmanager ([bec8ad2](bec8ad254154899973d985de410bdc5b997eeb3c))
+- Option to skip validation ([16faaaa](16faaaaa5e60949c819c424541608ecedd732ced))
+- Method to pass in fee range ([225902a](225902a3ffb8489bf3b3d2626ad0922cd9c287ba))
+- Options to override base api & p2p ([facfa9c](facfa9cdf482ac1ff2efa90ed21f00329139d130))
+- Overriding methods from WalletManager ([30fbb10](30fbb106df9208867c302b980891cadac88c8128))
+- Binding new poolWalletManager to transactionPool and Guard ([f86116c](f86116ce8cbb6e67ed335f122e174bad0bd91e75))
+- Tx-pool-manager incomming validation ([89d1060](89d106090288fec11b126881b06bba6a2f1a98d4))
+- Add missing query builder tests ([20c0499](20c04996f03934ee94781b1f483ce85b684016a1))
+- Adding options to enable/diable event emitting in walletmanager ([0b35fe8](0b35fe8d325b7e4ead3fe3363252b27762d3fc60))
+- Add host to P2P and Public API ([ae92f8e](ae92f8e2243758d82d5093f9109690a504ce97a1))
+- Whitelist plugin for core-api ([b8eb0bc](b8eb0bc0545b265f0f5f7cb9e05dc8fa746b9d98))
+- Adding accept block logic to the pool ([3698487](369848774d1de8b85b7736acd243b390a4ad3d91))
+- Block logic and  purging ([bf59c08](bf59c08d107f81892e4dc26124211979a6fee1f9))
+- Reverting expired transaction ([84d6df8](84d6df8c602fd54bb9c1766c959c782f04ec0260))
+- Block processing and log info for testing ([5016d48](5016d48ad5080206ef51c38df5fad6662e8df5d0))
+- Handling duplicates and crypto before everthying else ([3cd7e3e](3cd7e3ed82d67b244887b4786622ce1e24d15f26))
+- Adding amount to tester-cli transfer ([6646537](6646537263ca6c7692367c1263fb04d414cad3d3))
+- Add test command to root (#591) ([cf1e282](cf1e282b6f808d5cc8ae050a44f2efd30a519489))
+- Recipient network check ([76bceb9](76bceb9ff4845e71a9de72edcdf8d19564db5db8))
+- Moving to poolManager for apply check, adding rebuild to the pool ([813658e](813658ebc83afde78e971a2cc0e56b3e42f1bf15))
+- Adding call to rebuilt wallets - when rebuild is finished ([8e3126b](8e3126b538a58985c0e7a4183bcc3ee33751f987))
+- Adding build wallets to state machine ([991e41d](991e41de98ee947f8cef5219362e5bc550e2e24b))
+- Init of pool manager wallets after SPV or rebuild is finished ([e9a4b41](e9a4b41d4acbbae33668f3b2899bd18f48ca0683))
+- Adjusted to use own local wallets (set at boot from SPV or rebuild) ([9e47522](9e4752251c92804e74a10569fcdd4ef2b3c3f3ea))
+- Adding option to overried and send transaction to fixed recipient ([dc29e5d](dc29e5dc4a865d2f32ec6969f7926a18c3cfe99a))
+- Add database host to config (#603) ([7001b25](7001b2553c2d0e0c2616536da2f7ca0d34129129))
+- Adjustments to rebuild and spv start ([65b054d](65b054d3bd2f3a40548a4008e281574a95ed1fdd))
+- Adding blocking of sender to the pool ([56557b3](56557b3f022a7f8b902044cce92cc1ab8136bb20))
+- Call block sender - upon possible double spending attack ([f93bb65](f93bb6533b0a6717f3ae4b7d42ca62c7ceeee1f4))
+- Guard skip blocked transactions ([93689fb](93689fbc3c0fe69b682a5fb31780bcbc37080eb8))
+- Adding avg calcualtion to the fee stats ([06af86b](06af86b3a7f0c2af6341a2f49aa79cdb1a83005d))
+- Adding already forged check on pool incomming trx ([bfe112a](bfe112a668ebb2be07c178515436ced40845227e))
+- Chech if forged on guard.js ([10f6ede](10f6ede7d3f9d71ba76e928cf4ac65aff63eacf0))
+- Broadcasting only from broadcast array ([37e57f6](37e57f6eaa3313d066d99e3f3b735ba304609168))
+- Linting ([215e3fa](215e3fa7a80ea5002d4f78b7d55ed8cab822d9bf))
+- Moving broadcast selection ([b9c37a3](b9c37a3e2a94fad1342cca5100a9904032e4e027))
+- Adding avg and transformer to cover the float conversion of AVG ([deee4bc](deee4bcaa5f3fe63481b43210d7f1603c51b3941))
+- Adding fee statistics to v2 ([12c00ac](12c00ac30567e61980e948dac52dd02fad6dd408))
+- Displaying ports of enabled plugins ([02dd728](02dd728aa27568d5ea73effd259d9889b9ef926e))
+- Custom connection for database cache (#624) ([31b0f7a](31b0f7a605e35f9c5959ea48a59028748549e9e4))
+- Forger commands for setup ([2896e38](2896e383580dd9bf6344120800e42d3d32b958ff))
+- Adding check for forged transaction on build wallets ([6ee3f2c](6ee3f2c0dda9fb4d53ee80d61fdb7fce7268f341))
+- Add lerna scope ([e6c24e9](e6c24e939f161c88338a3b12b580bbbe381bac64))
+- Add contributing file ([3ca4575](3ca45751cdd2c288aab04083df5c8c7726923015))
+- Add code of conduct and pr template ([d7dfe69](d7dfe693aa634cf880f3a0bb5038871d7cb26443))
+- Add license ([f5245f0](f5245f0af9bcd18b0ba2163cdc104beaa89dcf07))
+- Add core packages to readme ([73abd52](73abd5253895ae8517e458a2b291383fce27f293))
+- Add missing host to json-rpc ([e403ff0](e403ff00271b6626588fe1c8fbff76b30b3b883e))
+- Multiple hosts / relays for forger (#657) ([8929cfb](8929cfb1de027dd81d22226d78420010cbf0af1a))
+- Third-party plugins folder (#662) ([ccdf178](ccdf178bfa1e212d07603e8d5d3dc7d0e6d8289c))
+- Method to get highest peer ([f70ca31](f70ca3199ea50357deb119b91903340c63360bf8))
+- Method to get highest peer ([3c807ed](3c807edea6132af734b717f207c7299279526309))
+- Peer method to determine if has common block ([0ca173b](0ca173b244db97be7df7bf0f6144f07cbf470ec6))
+- Check peer common blocks before accepting ([a237893](a2378931cc1cc2938dcb7e178065d60d8fbd68e9))
+- Update peers every 10 minutes in background ([6b6ed55](6b6ed55501d0ba00e0dfc533e0f465a81364998e))
+- Voter balances endpoint in v2 (#690) ([2336367](23363674176f4f8bfb96a691133d66680efe8270))
+- Add time estimate to sync tracker (#692) ([5b72193](5b721937f0a94d20ec4e8ed2598688e7c775859b))
+- Add newLine parameter to printTracker ([7ba3e74](7ba3e74027675ad193e6957adf499fa64f5d1a60))
+- Adding pbft calculation for forger - initial ([c56cef5](c56cef520795051f57bf7bc804b8dfd8e7571335))
+- Testnetlive settings changed, docker restore script for pg ([1c71c7f](1c71c7f6f79dcf8a96f0de59c8a7f310242b1b30))
+- Quorum calculator ([2d6ca3a](2d6ca3a5a14d099882d17fbe4d1362bbba7176ba))
+- Do not accept blocks until we are synced ([6a660a2](6a660a23264c155fc28d612b27489c2a18c6e5b7))
+- Add additional result validation (#712) ([119e389](119e38927e99928d844af3cc062bca05c2a2b072))
+- Addint additional condition logic to forger, connecting with p2p quorum ([9d33835](9d338351f8860a44066448e81eea51fb3982a8ff))
+- More data to forger ([0df29db](0df29dbe7a48bb930802fa4f2b8952482b6f9f9c))
+- Added overheight check (double forging) and refactor ([d8f2a14](d8f2a14b82909a8d52515ca3cf8db726fc94acc5))
+- Optimizations and added double forgery and network state log method ([c616d14](c616d144dfb27d8194674ee1d8f24f2faeae70b7))
+- Replacing hardcoded values with corelated calc from config ([5467009](546700924b9d54623be2bb16afc04d30d54314e2))
+- Delay according to block time and some refactoring ([388e949](388e949879c213147081c09425fcd16fbf5ecf8f))
+- Adding coldstart to wait for nodes to recognize ([ffabc75](ffabc7528eaa717ec43c71cbd48f637578989df0))
+- Coldstart in monitor and suspendPeer, whitelisting peers ([55c5257](55c52570fcbdbd607985bfc504adc3a61b499e11))
+- Added ([82a76f8](82a76f838af32a7a801971cd11f81a8e6fb812dc))
+- Adding configs to all networks ([5ec64f5](5ec64f5eedd275b00b271d5e82705bf9b63d423a))
+- Fast network state and removing blacklisted peers on getPeers call ([f33ab7f](f33ab7fac5dfe440ad34e61ebef9101ace2522e0))
+- Additional tests ([90e4e57](90e4e57d4b3d3f48cb822738a61305f6cf0501b8))
+- P2p ignore own ip when checking/cleaning, ([47bcf2c](47bcf2c1deeb780d33a2b7386055a50e3a280251))
+- Suspended peers endpoint for v2 (#735) ([c425c89](c425c89a105b3ff9f57df25c2bcd8eb693fd3935))
+- Add depcheck command to Travis CI (#729) ([1137bf5](1137bf50f0745cdaf249e1b4b1cf612b7d63c7f2))
+- Adding +1 so we dont remove 1 too many from blocksRemove and get undefined on last element ([fc68aa3](fc68aa39f002891de480b08f4f33f17bb64394c0))
+- Add comment, drop done() ([787afba](787afba98e7873b80c1ae5a6a899e8f471e4a747))
+- Add comparison between transaction row length and 'high-level' count property ([218a351](218a351fdebcb5778b5f6bba79e4e6e988e1ae4a))
+- Check common blocks on download ([67eec3e](67eec3ecd3acf4524c9ef51b9d00b2e92970cd1f))
+- Store recent block ids ([fafaad5](fafaad5af90182f08f91022e166c911ea9118198))
+- Reject blacklisted peers (#791) ([95ba85b](95ba85b41e4e684e792b018a685471ca699e1459))
+- Method to get blocks for round ([fbfdb70](fbfdb70a54933483d619d5234a5973589a969d3d))
+- Loads blocks from current round on start ([e802be0](e802be0ccb573bf4dc45b549c38c54afb55d66c6))
+- Add logging message for missed blocks ([c9fee4f](c9fee4f4ce38398edd526aef74f01c5f9e62742e))
+- P2p request throttling (#796) ([cac61ec](cac61ec2d6fd027e665a7732f774e647029f9c60))
+- New genesis block ([06535c3](06535c336dcf5ccd60d16815d7cf4266555f215c))
+- Forging rewards after 10800 blocks ([e443565](e4435656bab133aaf8aa59d0c567b673f0d43955))
+- Update nethash ([3debedd](3debeddaed2dc57e1149ceccff10500d2c9d4761))
+- Minimum peer version (#807) ([aaab0ed](aaab0ed80a3ddbb27d817730941e371c8dca9954))
+- Peer guard (#809) ([dc484c6](dc484c6bb91729391729dd0673304a6d916ac0a5))
+- Windows support for tests (#837) ([99c716e](99c716e66616ab080450c621affd835a019d98d9))
+- Support for building crypto & client on windows (#842) ([f693bf2](f693bf24dfffd9164e75b7755461455aece0b99c))
+- Test for duplicate transaction ids in post response (#840) ([bcfa8e2](bcfa8e24d398e4154f4558c57e5eaf4ef34c3228))
+- Add cors additionalHeaders (#829) ([471bd4f](471bd4f21eee3e2740653a8fd3656cc380030c4f))
+- Add `test:force-exit` to force the exit of tests (#856) ([8102f23](8102f23ff59a156dae10b1fd48260c934709592e))
+- Add an API Client example (#844) ([cdb34dd](cdb34dd949a9f427175041db85b7930da99e33e8))
+- Log usernames in forger (via P2P API) (#858) ([8a6b5ec](8a6b5ec5bf958a4fae0285957c269b63c7d34ff1))
+- Stop blockchain (#833) ([8af805d](8af805df6e774dd545aacd40243c8992b2c65340))
+- Blockchain ready plugin for P2P API (#871) ([35efc56](35efc569f79d55ccc9ecbe2ff281b99670b80d05))
+- P2P Config API (#889) ([e6ba670](e6ba670413bf430f768b2a130d54d7981dbd3e11))
+- Internal event emitting via P2P API (#891) ([c7a3bc7](c7a3bc75ffed5e5b9453d0de38937540fe48bce5))
+- Add core-forger package to jest config (#893) ([5423ea5](5423ea5bddfac386565d00143d66374ce5edb1cd))
+- Add core-database package to jest config + fix some tests (#898) ([1fdf589](1fdf589d243a747e8f510b7eb74f873de445464d))
+- Enable cors for p2p post transactions endpoint (#911) ([95c3763](95c376331fedea21ae01132587dc5753e9742676))
+- Limit the number of transactions allowed per request (#914) ([d6f88c6](d6f88c6c449b88fe2290e303bf42f7b3f2a958b7))
+- Setting slot height (#937) ([042547b](042547bd048040fc46ac70872b8bdcab17f363c0))
+- Immutable storage (#936) ([6ec0cf7](6ec0cf7a9167d6c40b392a0131ce8b644c97d2d3))
+- Criteria based peer suspensions (#932) ([8ae44ea](8ae44ea79ff11ea67d7b987d89c0ca8994b4ff70))
+- Repeat offender banning (#938) ([6a81fa3](6a81fa37fc8bd05916c1728e040d22718bd568f2))
+- Adding docker-compose for mainnet (#948) ([c50b10e](c50b10efdfdabe69f2e7023d604490f2c8a2bc3f))
+- Add crypto package (#951) ([17f705e](17f705ebe0dbb15bac3a6572983197dea3d1f459))
+- Add missing signSignature and signatues to transformer (#963) ([df7d2b1](df7d2b1c8c7b39edf24a8a3cbac9f0ad6d95c85a))
+- Client peers override (#970) ([831dd43](831dd43c4f7de891976d4f243bc7f02f2265f7bf))
+- Pure PostgreSQL integration (#969) ([55fb6af](55fb6af4624fa6104319471d0a44cb3854c8ff8e))
+- Handle wrong nethash suspension (#988) ([c362564](c3625649d2bafcf3ec4e342c956d8c1b5468a7c6))
+- Bignumber integration (#971) ([09f4ace](09f4acea0ccb6a44dea0cc31d8d507f446e7dd34))
+- Add enabled check to webhook (#1007) ([1139d3c](1139d3c1040d123812d9c63863ec7043bfea14ac))
+- Add back delegate ranks (#1024) ([248542c](248542c9d1ef54dcda3a302460dc9a99ec668363))
+- P2p header validation (#1028) ([721e115](721e11540fa2184a8a4e3121c6f2b9ea6c8393fb))
+- HDWallet (#1030) ([50e0b17](50e0b178beaea338b3cbeb621e8b46968d386d73))
+- Core-debugger-cli (#1048) ([daddd2f](daddd2ffefdf662cba129799453b5bdec59c8a3f))
+- Temporary 503 ban (#1050) ([98758ef](98758ef8b27db57ef34dc71df5127a642bc9d414))
+- Transaction guard error feedback (#1057) ([7acc45b](7acc45b4dad5e9042233bc308de1298849d2165c))
+- Include a shell script for purging the `development` containers, volumes and network (#1071) ([8826ff0](8826ff07a3841bd3bfa9e1a5affbe1f4cd0c28c5))
+- Core-debugger-cli commands to retrieve identities and verify second signature (#1073) ([0752eef](0752eef603d041c3e1e3c46af99f486fe79f8be1))
+- Forged rewards and fees for delegate (v2 API) (#1076) ([86d20de](86d20de685ddf0319255362e58e9b78846a0f939))
+- Core-utils (#1077) ([0e9743e](0e9743ed4a96fd05aea03b1c4e617fb5b494ac1a))
+- Add core-tester-cli option for custom smartBridge values (#1086) ([1f59647](1f59647474960ba79870065902173a00c4913c09))
+- Add retry delay to choose host on forger startup (#1090) ([ad6907b](ad6907ba5538768eccf2274a62ff0323e3ee71fa))
+- Add query params (#1103) ([66b6f84](66b6f84ea063d544e1c3316c857f1c7456159092))
+- Core-transaction-pool-mem (#1066) ([cf6c51d](cf6c51df835d747da8859ed6560b943bd68691fc))
+- Create table util (#1147) ([172d24b](172d24be9011ad2c0ec9f754bcb6f9ffde6061d3))
+- Sign transaction with wif (#1146) ([f13e141](f13e1415f21126e2c930429e8a8d17c313d18032))
+- Limit votes to 1 per wallet in pool via guard (#1120) ([1fa7858](1fa785823307dac2e57bded2213f9f0cf86bbad2))
+- Block exceptions (#1149) ([6198c39](6198c39c630105b8e5a3913f444facbc6cfe9e8e))
+- Handle common block bans (#1165) ([5de65ce](5de65cef497c221177040fe2a1a386d7f320c8a0))
+- Get transactions from mem pool ordered by fee (#1131) ([5731735](57317354daf0077a84834d548e419fb775adbea1))
+- Message sign and verify (#1171) ([c614720](c614720f6d392ee65c6a7b59997fd37fe8da2908))
+- Remote API authentication (#1173) ([478f34d](478f34d69d5a5207b1cdaf9b803527d18cbacbcf))
+- Recalculate previous delegate list instead of querying db (#1184) ([23237d6](23237d6979f61368d7a9a2c6fb4c8ce8cd958c0d))
+- Add missing orderBy parameter to block transactions (#1196) ([2c3b32c](2c3b32c6b8f07870025f50cbe97122b035b3a83a))
+- Search by owner id (#1197) ([efc6cbd](efc6cbd149f9739214701860f257a2f1beb3c5fd))
+- Additional test coverage for transfer command (#1206) ([66caaf1](66caaf15ce825f501eeb4dabb7d0ec1ab666dd4b))
+- Add better function description (#1213) ([e2bb85b](e2bb85bf37a2ffc6ed99400c59b85a2309e4b15d))
+- Sign message with wif (#1214) ([c57366c](c57366cc1e0df6314e9bc1119255f7cf30e76423))
+- Stateful data storage (#1220) ([f885058](f885058974d5213cb5339c35e85a01d7a35521b9))
+- Implement identities (#1211) ([5d50a18](5d50a1866bea7fe882a8ba778a6680282dda86e4))
+- Read bip38 from env (#1224) ([fa5adb1](fa5adb1f5e87337a0771ffdc7197d88459a0dfe6))
+- Add associated username to wallet api response (#1244) ([4fc471b](4fc471b2cf70992a428108e1f73e40f3e3de79ba))
+- Add container.exit to process final log messages (#1248) ([beb9a42](beb9a4203501d56c76b067e12f73ea9d862ffbc1))
+- Add core-error-tracker-bugsnag package (#1266) ([5cc7ff5](5cc7ff5eed9ebe0a65ef9a006e6f09ae2741707d))
+- Add core-error-tracker-sentry package (#1265) ([579bb26](579bb261eb23a43384404aa6c36697bf1556c83a))
+- Add --runInBand jest's argument where it is missing (#1278) ([23a4dc9](23a4dc9ae77bace439db5dc917e0a9795c9e6e31))
+- Add core-vote-report package (#1263) ([a74725f](a74725f4c723adfc577cc64278a66cadcc6274d8))
+- Add cors-headers plugin (#1283) ([a9ce9bb](a9ce9bbf5cbc90b2c7baad2434f2b577abc64928))
+- Allow to pass in container opts (#1286) ([0856c1c](0856c1cea902249ab501658249ef022f8c26c793))
+- Initial implementation (#1176) ([d7da86c](d7da86c1e61fb1cbc8bfae9ebb9f8b796e665106))
+- Initial implementation (#1264) ([939398d](939398dbb51215f6e0edde27726d091a8740a4c3))
+- Add additional checks for transactions types (#1304) ([228867a](228867a1aad9566451ef4e1d02baa72492644c3b))
+- Silent shutdown (#1321) ([1a653b4](1a653b4bfcad30caa05f923bfc5f265d7aec306b))
+- Add number validation to schemata (#1315) ([fb4ca04](fb4ca04e00cc3730e6e58f67d4c989735b303da8))
+- Configure via remote peer (#1309) ([f33cf7d](f33cf7de5f12297be0ea617cd1f10e747f8fb9bc))
+- Add hapi-rate-limit plugin (#1314) ([a1f430f](a1f430fddaf6d7ff7e80b1514f9cd36e5791e79a))
+- Add rate limit offence (#1323) ([f5c5d3e](f5c5d3eb34e09f66f426517683c92df7d12204be))
+- Allow to configure peer discovery (#1325) ([0b3f514](0b3f5148408f04c42c19ba50e6c0c612b13b9988))
+- Add flag to disable peer discovery (#1326) ([d9b649a](d9b649a8d7d1d4c1f04042dd0c81a1e9728825d3))
+- Add ability to skip initial peer discovery (#1327) ([3350107](3350107caff6a3f233cabbd1f3d33805b8bd5625))
+- Add ARK_API_RATE_LIMIT config value (#1328) ([2486906](248690607d6f71ec163d818ee546d475a7baaeec))
+- Add exception for unicode transaction (#1318) (#1329) ([db42a03](db42a0312d6d5222c3f4acd1e55127a8fd87d2ef))
+- Add more exceptions for unicode transactions (#1335) ([c4085ab](c4085ab703992fa2caefb4a1698883136baa07c5))
+- Add update counter (#1352) ([75c1b20](75c1b2036f4b14c12f2552fb5cb349f3f9109ff5))
+- Do not decline high fee transactions (#1353) ([b28b2b8](b28b2b82e31aa86278e1c0aaaa3ac8edaaae9e0e))
+- Transaction ping and rebroadcast (#1390) ([4a41591](4a41591f660930405c698996dbefeb376d0dd06d))
+- Add flow build command (#1420) ([ad13e76](ad13e76c06678be14fc863ae345dde86818cfde6))
+- POST payload validation (#1424) ([c647f4b](c647f4bb5ef34161f7765c9530a5a8805ddead1f))
+- Cache last transaction ids (#1447) ([ed8fe56](ed8fe565cdbc02488da1f5c5c457d7ee02a6591f))
+- Dump the peer list on shutdown (#1446) ([d12a6c2](d12a6c2e55d4c915e254ccb9cd775a07f11e2439))
+- Transaction payload validation (#1466) ([d9a1187](d9a11874aa7ca57f4b36f337f4f31a7b3bd2faa9))
+- Only allow JSON requests for APIs (#1475) ([4843cb2](4843cb2f106860d85b9cded67e9fcb1925bb436a))
+- Add cors-headers plugin (#1504) ([c77e73b](c77e73b8aadeb5ccc4c5287f758a2d9901807188))
+- Add snapshots dependency to core (#1524) ([d28b66f](d28b66f032f91e8b213f3b4ad6b463a4f33f05bc))
+- Add git commit hash for development environments to peers (#1532) ([0e996a1](0e996a1438032f52625b997fd19894230e4d1dcd))
+- Add hashid peer log for development networks (#1540) ([cc7ceb8](cc7ceb8f8cbf35192379a2fd9d5ac3e20932e0ce))
+- Add missing block_id index to transactions table (#1545) ([befce62](befce624ddd4f603e18b4cf55d77e5bed5ffb2f9))
+
+### Changed
+
+- Setup commitizen and commitlint ([c52b834](c52b83424875cdbfe4773b5583fba268315f3c3c))
+- Upgrade husky dependency ([a524628](a5246283393a31753ee5c16d155c8423cc7981fd))
+- Migration and model comments ([d06e781](d06e78165f7d8620a3bb5888f2b34e32eef4ee6d))
+- Some manager comments ([a771386](a77138605c561212b7a23a98ade902fc89abcbc9))
+- Core-webhook comments ([d5de343](d5de34387b74c791e719e3c1cb65422fa54793b7))
+- Core-logger-* comments ([c458ed9](c458ed9e91fbf32578f537bff927ce4de0ad875e))
+- Jsdocs for several core-* packages ([32d6c38](32d6c3808f1cfda890713ea323fbb95dbff3632a))
+- Blockchain manager comments ([846d0d8](846d0d849184bb500ce90a33e63f704fae352ce7))
+- Cleaning ([5a01ebc](5a01ebccd850c88780ef53aba9a6b8811e4cd458))
+- Hapi handler docs ([e24f813](e24f813b34897dbc84c2afe66c9d0ec0863a38b1))
+- Disable commit-msg hook for now ([25b9805](25b9805cf590e6c8cd8016165987f0b12c5441fe))
+- Adjust core-commander to plugin system ([e090585](e090585ff6111c11816d6b1c32b09c075d43aff2))
+- Styles, refactor and docs ([2f32269](2f3226985555f176087e3a43432227e5197ea8e3))
+- Use logger in is-online util ([75795ec](75795ec8618a0f16282af01937253fd527ec68dc))
+- Better paths pass in ([476d7f7](476d7f7f31232a5874284ae5471b116146ce16cd))
+- Register all paths as env variables ([cdbbeaf](cdbbeaf6c9cea5e713b000e0d1c99865e2114e48))
+- Refactor for testing ([0a4ffb7](0a4ffb724d59f6936b54756ebeed7789cda579f5))
+- Enable __registerShutdownListener ([03cc63d](03cc63d17e8ad18af80ba1b3ad3ce256a78696a1))
+- Test phrasing ([c37693b](c37693bb7ace6f685bf8c5f0ee9f73e71e21b714))
+- Update config files ([97a5cd8](97a5cd8e9ebaaad6db5a9d66ef89e1dcb5c70044))
+- Cleaning ([a702ed3](a702ed346e4162ab5ef9628950898b3a36ec4166))
+- Change test setup to testnet ([4868fe7](4868fe75beab07352b8766543641f6d9ecae7e0f))
+- Remove getDelegate method ([87c2bb1](87c2bb1274bd1a0a73f567903a640aa9d730ebd8))
+- This and that ([05f7041](05f7041535cd10dbe129217005c65b850500a870))
+- Remove useless commands ([09a3424](09a34249ed224e1ca3a8f181d1e93e39c079bd4f))
+- Use graphql-tools instead of graphql-sequelize ([f56533b](f56533b69d17fb1e9aa6926eccc0ea837a4fa675))
+- Move core-plugin-manager to core-container ([f49ac04](f49ac045d2250eb227b967779874576e264b4b2a))
+- Improved container API ([c259f88](c259f882d6bd7c81b7e7e047cefaedefbe8c760e))
+- Update yarn.lock ([c5cc797](c5cc79797e821cdcb8a2633439a9582e4c0e82a0))
+- Cleaner crypto builder ([41d6fd0](41d6fd08ecf02e3092a41e66105510cc71f5eef8))
+- Rename public-api to api ([b0e8403](b0e84031c141939fa2149cd6b891ce142e8adb88))
+- Remove crypto builder ([a801656](a801656801c0a062aa5e401cb0700fee162da7cc))
+- Improve getForgedByAccount ([ecab55b](ecab55b7684b0279c76cc499e74e9bfaf32fc7d4))
+- Move __updateVoteBalance to wallet manager ([f37b445](f37b4459fbd87be8b2805524e2b17f5b45138037))
+- Remove debug votebalance lines ([c3d06c5](c3d06c57bdd0e90ef31054c30b62fa931d3ed905))
+- Reword & filter array instead of reject ([d6e9ac9](d6e9ac904b1891a215e91aca7da469067a4d47d1))
+- Enable dynamic fee once in milestones ([bffc948](bffc9485a8daebb0233b6f276e8b06d212ec34a3))
+- Use raw queries for API ([7347fc7](7347fc7e92a109620e5de58e11305b3ec24bf63d))
+- Remove statistics for better API performance ([c75806d](c75806d9d3f926c881dbc9168d070c3b8003b487))
+- Consistent configuration ([46dfb07](46dfb07691330814b4ac94bcd68af85e215896b5))
+- Store block heights in redis for API calls ([e7c0706](e7c07061af405914221d0223a9b6e43e5c9460ca))
+- Disable core-graphql-api by default ([c90df24](c90df24118de7d287f3479e3f54f9ee56733e81e))
+- Dynamic fees -> moving to module ([699c9a0](699c9a0478a81050886bd49bdbc5f31e3c4ff34f))
+- Comments ([c7f1df7](c7f1df7d7b9a775021e185330ed3490390868fc5))
+- Faster getFeeStatistics ([e5ee008](e5ee00872085a03a350a247e5152e43e850d511e))
+- Update dependencies ([34b12b1](34b12b1b3b2bbbaa380dfa9b23724112a1cb4502))
+- Move updateDelegates for less calls ([63e85bf](63e85bf2a34fccb58bd34c2c2ac85f1026b3893c))
+- Use raw queries for SPV ([965d5fd](965d5fdb82ae4c47f0189e2ed821915d621a7847))
+- Allow min of 1 for multisig ([343c83f](343c83f5f98bf60dddb644a29e6cc84ab6042c47))
+- Move remove signature from loop ([6e24f80](6e24f80a0e7e5e94b7e9ed46108da1135d61cb67))
+- Remove debug ([534d399](534d3996b829c475685adaf62b4743f7261baa57))
+- Replace Sequelize methods with raw queries ([804aebf](804aebfc735deb27b86fdeb321471b522438fe56))
+- Replace sequelize method with raw query ([eb63515](eb6351577daa4f3fa4389ee49d889bd85bbfc6dc))
+- More test output ([37f8cb6](37f8cb68322144ea41811f59629f2755a8d361d0))
+- Disable updateDelegates call for now ([d3341b8](d3341b8578bd1cbd81e9d16ea0ac55265f5eb5c6))
+- Change ports for testnet ([a183cac](a183cac16460b8b1a07d5ebeda4ee9b6b803f547))
+- Reduce shared options ([449c42f](449c42f1ad0966a139e97a24ab86aa1cf69769a5))
+- Rename wallet builder for clarity ([e6b2daf](e6b2daf4f31f38a4c525e26fde8d4a4a2331de69))
+- Implement concerns for query builder ([d9e8657](d9e8657a0832251aa05ad41111b027049ca30242))
+- Extract build methods into SqlBuilder ([1ab9832](1ab9832f38f2e104eeef3825137b1a6c6d05dcf9))
+- Always build SELECT and FROM ([491273e](491273eb78b0f294f9d218b10de3a289a70b3158))
+- Push aggregates to SELECT ([199d22e](199d22ed0ee1a7e2a3cca41b1f1543e8c9aa0d43))
+- Escape queries without sequelize ([aadbdfc](aadbdfcf8cee5ecaaa905a830d696764d541f21d))
+- Aggregates and method calls ([749db8f](749db8f7f42fe72921e00f0827b12c13a4b7ced9))
+- Cleaner build method calling ([000ccd3](000ccd3d11646b4d48ce052927aa87e99a307f0a))
+- DRY aggregates ([b03c9f7](b03c9f74aa1f2200bcc01f524ed2a57534523404))
+- Rename concerns to clauses ([76122ff](76122ff18cb37a88f4ab3bce174729228850d755))
+- Rename concerns to clauses ([ad2c698](ad2c6987c0d3dd80dea19c4462cd9cd0d51d7f46))
+- Removed todo question for Promise.All vs each... ([c69c509](c69c509c2bdb4ef85ca96e2b39a42db1a65330c9))
+- Merge core-graphql and core-graphql-api ([a456981](a4569814a32ac4b0781deb39e9aae815959eb88c))
+- Merge core-webhooks and core-webhooks-api ([0680567](0680567a7137a06288e062b3e4fa7e835ab4a5f0))
+- Merge core-config and core-config-json ([22bbf14](22bbf1440d38445d2becd8856b714a04e0b67e94))
+- Reducing logger ([c0015d6](c0015d68e1ac3088d3c86e1632a25448f506d724))
+- More info in log ([16cf41b](16cf41b50a87902a9934c6403d555272e04bafea))
+- Remove install.sh - commander is ready (#613) ([15b9da8](15b9da89e7ed0cfed08fd0cde4b33b1ab38eaf7e))
+- Set initial version to 0.1.0 (#614) ([3a6e0ec](3a6e0ecec843e016300e805d3f53dc43a521ab01))
+- Do not require address on top of bip38 (#615) ([7beaf32](7beaf3286a1c02e7264a7f5373b75b1e29cccc39))
+- Enable public API on devnet ([fe28008](fe280089ebe5e20ed4dd98c585871fee5d8b2c2a))
+- Remove persona (#622) ([10462f2](10462f2ec956e67117083747416ec1df0e74bc94))
+- Change default pg username to ark (#623) ([8d44833](8d448333f6c118b5a374f533adc8af50142713d7))
+- Logs ([6987837](6987837a6744798e4f71e3b17ada62381beea06f))
+- Disable count queries for blocks and transations ([eecee68](eecee686c2ac5443fe7d4c2ca216298211e843ce))
+- Disable count on v1 API ([53b53d5](53b53d510b042fa0066b8136c1465a43c1eb736a))
+- Set initial versions to 0.1.0 ([60d2ff1](60d2ff12bf3eb4aa9fdb9b4b5d940500a78b88d7))
+- Remove id from ajv schema ([fa328b0](fa328b07bc6711b589fd46ce30a16ae6b932984b))
+- Use postgres as default for production ([e596959](e5969590b30dc55d11ba796529b57d266a450765))
+- Make packages public ([e5d7d9c](e5d7d9cd73ffc6ae60fb73a1d599eb8ee1615be0))
+- Remove .md ref ([1720168](1720168e527edfedc453c6f40775b0e5ec32c6f9))
+- Log message improvements (#647) (#648) ([41581a8](41581a8da9db938e240ca893312e4a4019481a4e))
+- Update contributing URL for PR template ([f5960c2](f5960c2afb40af650580a8f2b29e98f8298ddde5))
+- Return block model for getLastBlock & getLastDownloadedBlock (#661) ([3f4a93a](3f4a93a6494ffbae2d02cbf4382f758e55cb747b))
+- Change emojis ([ae9a9a9](ae9a9a9dee55bb34035423526c8712af0ab4c74d))
+- Drop yarn.lock (#663) ([664d87b](664d87b1e3fdd07e7370e70f5a5c088058b39763))
+- Log newly forged block (#664) ([8cdfa62](8cdfa62c8d54a1df7db0b3c1ac6ddb257f412ce3))
+- GetBlockIDs method ([4dcb720](4dcb720c88c968641fd1a20f612219fe99055d87))
+- SuspendPeer method ([52c1b5b](52c1b5bd566ab41984bba7013dccec075f971085))
+- CamelCase ([b1853ec](b1853ec241cea560c882a79c0fe49878557db8c5))
+- Use download progress instead of timestamps for tracker (#687) ([a8df246](a8df2468c7aac4d4bb83863645805a1af3bfdc8b))
+- Update github templates ([38e5c9f](38e5c9fb0c4d69e4c884c48e3d3f887b28d09188))
+- Set block height as downloadedBlocks amount ([bd12244](bd12244699f6e8a6d385d5335e29ef3dfacf2c27))
+- Improved time tracking during sync (#695) ([4d45336](4d45336202fde7aec3c92a5d874ef46a23e546b7))
+- Reduce frequency of peer cleaning ([cb7861b](cb7861b03cffb4dc077a24d794b4e96fd948fc90))
+- Monitor performance and reduce duplication (#709) ([1a316be](1a316be00641be66213760d668c6c77b2aa25f79))
+- Rename, wait one round if not enough quorum ([9749835](97498353d3800b87adfca8058714d707041d391b))
+- Adjusting forger to coldstart and changed response ([f514fd5](f514fd59355609e4e460f75d30e3d533b7da015e))
+- Fix linter issue ([fb4cb66](fb4cb66f1dd0a5aeef7cf9e27f3bd8718067eda8))
+- Transaction pool changelogs (#787) ([4134745](413474576b768fd4899df03d0db9abc298634d77))
+- Overlooked some tests before ([15097b6](15097b6dc081a6b516841b28bc8e432562564a2d))
+- Tidy random peers ([8c171b6](8c171b61c66cedc96dad12d5d6dc427f00eac070))
+- Use method to get blocks for round ([dd116b2](dd116b294afc5f7ebc23beae5f2d846a71aec8c4))
+- Remove unused variables (#793) ([6fb575d](6fb575da04b2e625d2a4a5f8874488588990663f))
+- Improve computational complexity when removing forged transactions (#794) ([41a6b35](41a6b353db67e34eda438293051bcdb12e22a25d))
+- Log after increasing missed blocks ([cf44a25](cf44a2593b7115a7c1c104895c61c6856b5e7d32))
+- Fixed incorrect ([9af1751](9af1751e49f059e505ead3320a9a425e57b14c27))
+- Use logger for errors (#804) ([70e5c18](70e5c182788625f9f71ee271556091608cf559ac))
+- Move outlook table to network config (#800) ([9664f5d](9664f5d2c85f4707a221398d3bb52eca0bcc0cc1))
+- Remove all commented console.log (#806) ([178aa60](178aa60604359f750530fa976fe92d20ca74250e))
+- Temporarily disable p2p throttling ([7e95fb7](7e95fb752ce988482168f83cfabfb35ed9a63522))
+- Disable filtered peer check for now ([0d73f20](0d73f20da8971f0936479c7cf1c85b7332af1ee7))
+- Block processing logic (#817) ([37be330](37be330b7aa8c7830b767bbc79b9feec7265fb83))
+- Setup codecov for Travis CI (#821) ([d182c86](d182c8605cf121994883da835d61359a6b83a52d))
+- Setup cross-env to support Windows (#823) ([4fd43bb](4fd43bbe113ce6c80f65f8c1506260453b4d1b7d))
+- Rename the `ArkClient` to `ArkEcosystemClient` to keep it consistent (#825) ([ecff375](ecff3752e603db98d0173909e77177afa7f8ad87))
+- Rename `ArkCrypto` to `ArkEcosystemCrypto` to keep it consistent (#824) ([ad0c3d2](ad0c3d2689e6047ead9bfffbd090fd329e827328))
+- Use the Jest option `maxWorkers` to reduce test execution time on Travis CI (#834) ([79fc99a](79fc99ab171dadaefca4329d7d5ae4944e1fa97e))
+- Bump client & crypto versions (#838) ([4c08bfb](4c08bfb9d357af7809b5126549f047188a90a503))
+- Remove useless thread that downloads blocks (#828) ([9e4400c](9e4400cbefed173efda72dd7c78ab8641678e6b5))
+- Close redis connections (#832) ([07f326d](07f326ded445ed4748b722701783336aa445b780))
+- Return broadcast IDs for better feedback (#859) ([4e50ded](4e50ded20da9b3e1fecfe62c95a8b8322d5f75a6))
+- Set fast rebuild to off by default (#860) ([9280767](9280767a801182bcac5b15351b329e49935b83a4))
+- Use v2 endpoints for core-tester-cli (#864) ([c3e0d5d](c3e0d5d3d759b7738f9c4120a7c1d586bcdae2df))
+- Better v2 API error messages (#866) ([6f8986c](6f8986cf29f957150cae45d93bed44a8a7fa249e))
+- Webhooks queue & tests (#875) ([a6b92bb](a6b92bb9fd03d0d8c929020481b46dc2e0caffd2))
+- GraphQL (#880) ([5192fec](5192fec9e41ef9ef2e5cdb92f9e916e191369fe6))
+- Enable logging of dynamic fee actions (#897) ([45d0cab](45d0cab14564ea622451a616711f3774ba58d739))
+- Enable cors for p2p config endpoint (#896) ([97b39b0](97b39b0c5005117b732148d35278af4efd95fc78))
+- Reduce p2p complexity (#900) ([2eea29b](2eea29bfccfc214a70464df6657ac5f9d693c6d7))
+- Select a host per cycle in forger (#904) ([448f319](448f31963a0f48655e4d7086705ddf6f90405b6a))
+- Increase transactions per block to 150 (#906) ([4081b51](4081b51185bfa085f14e698ee4f38ff6d0dae5a7))
+- Improved dynamic fee log messages (#909) ([484542b](484542b6fc03166a3b2396812607e253d22524ab))
+- Return the last block from peer/blocks if no height is specified (#913) ([6281dbd](6281dbdc670e8fc5456ce51dd0b4b556a38a1d07))
+- Change testnet database path (#934) ([bcb4bf2](bcb4bf2b62237d1b28de7b0663aa1bd02ff7bccb))
+- Use p2p port for forger in plugins & tests (#941) ([c85e48a](c85e48a290e5a4ff8be7523e6876f8a0ea99ef36))
+- Don't load .env in test environment (#928) ([5ea3eb4](5ea3eb4a374d6cb7a112091419335f201266b77b))
+- Use immutable Map instead of object as storage (#942) ([a6a5f6e](a6a5f6e375227f5da07c9577afe51cc3096b0d1f))
+- Update test names of crypto package (#943) ([649f30e](649f30e40da3d2a7ea09913a69156be4e1f47338))
+- Register core-storage plugin (#950) ([d424102](d42410274da8aabaf69f783b07272a7bf8f67522))
+- Modernise the P2P API (#949) ([0d3719c](0d3719cf22b8a2a781951737bb1cd6aca8cce8c0))
+- Improve wallet manager method names (#954) ([43077c4](43077c4ac09316d6177c865e9dbda7616ff7e90b))
+- Wallet manager immutable storage (#958) ([19a1b44](19a1b447d575528bde03494fee712290cf4c0943))
+- Improve method names in wallet manager (#965) ([590905d](590905d2693f46512ffef7ee6ea93ba7acb189c1))
+- Migrate to apollo server 2 (#968) ([0d262d2](0d262d24ac74be0eff5047b9d383f5232aec5f6b))
+- Re-use transaction (#977) ([843b886](843b88676476a9fe46b4b6652628edf304894d67))
+- Drop arkjs dependency (#976) ([1e8938d](1e8938dd16be389b88ca1f43412f905fc91a2cc7))
+- Camelize votebalance (#981) ([01e8c41](01e8c41e539a5441f737aa4fbc6ba6f4a1e22e95))
+- Remove sequelize (#985) ([66ba069](66ba069a93e93c74a706520f6adf734134b9656f))
+- Use secp256k1 for verifying and signing (#992) ([cc513c8](cc513c8b231b6b44e1d3ecd99c61beef85908ec5))
+- Run tests first (#994) ([62d343b](62d343bbc7fed603c7a5ab6937257b01ce7a037d))
+- Bump client version (#996) ([f2e2a9b](f2e2a9b1e048c52fd03af4db604b96810c032ef7))
+- Replace leveldb with keyv (#998) ([33fc4cb](33fc4cb6e538fad3fc308e3710c9a3be348d6333))
+- Crypto package (#997) ([4e2af66](4e2af66fb2200973b4d7e3ee40e072ea089b03fc))
+- Move validations to crypto (#1000) ([1d14146](1d14146be7f6e740d0f54eb2351030b6db7a12b4))
+- Bump crypto to 0.2.0 (#1005) ([7e9e885](7e9e885c6b22ac01a4687010585b924e9d05b088))
+- Remove sequelize files that were added again by error (#1008) ([bce414c](bce414cd60956527464ed35ee655e22fcf176c98))
+- Bump API client version to 0.1.4 (#1016) ([fca4324](fca432405f4d1cf11dc3c5e182a98d469e0089f9))
+- Fire forging events after a successful new block broadcast (#1022) ([ce84716](ce84716c77dd1dee1fa57f3daaba17ff7d141392))
+- Size-based log rotation (#1027) ([fe16f1d](fe16f1d90905cdaade25e509adf8288d1a74ace6))
+- Disable header checks for now ([bbfcddd](bbfcdddc4abbd8c7b37b16c5308e358369bd599f))
+- Test utils across packages (#1031) ([ce464cf](ce464cf6b8ba7212328c06d873b4b191030d40c4))
+- Optimize Transaction.fromBytes (#1034) ([1798f74](1798f74d4f897bc77d7bd5a978e0b4dbcffb27dd))
+- Broken tx verification (#1039) ([60ff405](60ff4058a41529b6583df888ed2684d05cc7d698))
+- Update docker development config + core-test-utils config + travis (#1047) ([5323231](532323122629a8fbd8ddf64b23eae41e17772096))
+- Use official hapi-api-version dependency (#1051) ([d8ce52f](d8ce52ff9ad3eacd9ed59682288ee8ae828c9b24))
+- Tester cli (#1059) ([f2600e5](f2600e54e64f9d4b3c14371573acf7ef60cd3bd1))
+- Change transaction.serialized from buffer to hexstring (#1058) ([e9d854e](e9d854ed1062a58ec08535104455f09b95a04b82))
+- Bump API client version to 0.1.5 (#1065) ([eca3b58](eca3b581e7c84a2537c167cd2d755401c7545706))
+- Update container name for docker development to avoid conflict (#1067) ([2a905f5](2a905f5643924a37c21bb64d3f341b64495682b1))
+- Defaulting values for api and p2p port in tester (#1068) ([2a52e29](2a52e29ce1f63c88944209814f243c8390404102))
+- Rename the API vendor name to the recommended format (#1069) ([4d297d1](4d297d1686b95357e8d0af4ba5771b2bd8480bd5))
+- Jest test all packages + update travis config for core-json (#1081) ([bfca20b](bfca20bdea63b0b78e134c7e00348ce39821bd53))
+- Travis config use postgres 9.6 (#1083) ([c5c6c97](c5c6c97984ab895bd9e59b8d91d6ed7ca4da9c35))
+- Core-test-utils transactions generators (#1088) ([537d758](537d75883dd9faedefde7229b7aad0b01312b3ba))
+- Circleci config (#1092) ([db4ad92](db4ad92675d47346617da2ca17c24a8e3ba15482))
+- Remove Travis config as we switch to CircleCI (#1093) ([34b0513](34b051375b0d50c487269e2817b71e14736ccf65))
+- Find peers timeout (#1104) ([f78b591](f78b5911ffc223ad4d40220d629837e8ac0d2124))
+- Bump api client (#1107) ([7c204ee](7c204eef62994a6110b819c303d3ce1d03162461))
+- Replace toString with toFixed (#1097) ([9d08362](9d0836207e85f47f7225b6ae85f79028343dd8e1))
+- Remove core-storage (#1108) ([6ecb9c5](6ecb9c5082fab2030de7ee9fb3401fa5e40e26bd))
+- Update dependency versions (#1112) ([905cd7a](905cd7a232eef41eb7b27e3a1875ac2accf3415d))
+- Plugin extensions (#1118) ([2788522](27885226205275321c6c0f9cf14a6ff60524f4ca))
+- Bump api client version (#1121) ([a6b437b](a6b437bd4a171ccd944f75b103b286fb73c0b2b0))
+- Update docs and remove unused configs (#1123) ([54ded9b](54ded9b6430a883c3dbd226ec330e5f49800cbf1))
+- Use static log file path (#1129) ([8f35ab8](8f35ab8b0d954ca84fa796012e26f0837f454eb6))
+- Replace travis badge with circleci (#1130) ([4b889bd](4b889bd51f49edd43d103245ad4a1c137bebe785))
+- Remove core-transaction-pool-redis (#1127) ([af81403](af8140346fd5de28150662e5eb33fefc00245ef5))
+- Remove remaining redis dependencies (#1132) ([69e21fb](69e21fb3f7e0d17daa31d71b00ef2ccc440cf940))
+- Check for negative balances (#1148) ([2c326a9](2c326a98625f8909a62d159c32b883c5650ecd9c))
+- Build delegate list from memory (#1134) ([c95e170](c95e1709b9c1e0022fb6391d4b5501eb1ee062c5))
+- Fix wrong database docs and add SPV info (#1168) ([cf6c99d](cf6c99d7f5360b1b9e29bfe87705f592f765daa3))
+- Perform vote balance calculations in-memory (#1157) ([cc5c1a1](cc5c1a1c887f34af10d9478ff12c26b0cad8346b))
+- Remove forged only during startup (#1182) ([1df3fd8](1df3fd8c9edfe143989cc712e9802cbd2f7d3981))
+- Compile preliminary changelogs (#1185) ([3957347](3957347e08088d13787a009e498999aafa41294c))
+- Remove unused method removeTransactions() (#1183) ([e0c873c](e0c873c26ec211a61f8ea778564e58914c05ef37))
+- Simplify transaction expiration ([e702213](e70221310fbb60d5bbc53a5189ad9882c5f0049b))
+- Adhere to naming and readme conventions (#1186) ([773cfe1](773cfe1147af89a69930b71d75c620c1de7d4911))
+- Ignore index.js files for coverage (#1192) ([4e0c386](4e0c386b91a8c1c7718ae9d49c91e6383e88328e))
+- Batch wallets on force insert (#1189) ([6f66102](6f66102e300481c02d880f42b2c1b37e7ca2609c))
+- Make db calls during applyRound non-blocking (#1190) ([aa0d0a6](aa0d0a6c9099edb35b966fcc2a19b29e8b62cb47))
+- Update changelog (#1195) ([428ebd4](428ebd405827212f588afd74575a7b48d0b1b794))
+- Update changelog dates ([e611be4](e611be4ce3f68c08d6fd289a05004270c8dbc5a0))
+- Release 0.2.2 ([1e5afce](1e5afcef774b837df87d06308d0eabaf160c1f81))
+- Use an assert with more verbose output (#1201) ([e19a98b](e19a98b6a346898cdbe848b8e33a8dbaa435b883))
+- Update dependencies (#1200) ([3a38358](3a383582c33c4525b25b821df6bf653dc082f763))
+- Make shutdown more graceful (#1205) ([5a5e113](5a5e113ae64dff4a6e6ce2f3b2b27d9d54c6b9e6))
+- Allow sending HTTP requests to P2P API (#1204) ([8c9755b](8c9755b16af8c154ff3fd09dca8029d99e3069c9))
+- BIP38 & v2 Support (#1193) ([5b2edce](5b2edced42b436976997f55e9d1e79e6bfabd17c))
+- Circleci show last 1000 lines of test output +update node 10 test (#1208) ([a651428](a651428a16f051d1cc16b7fccb1d61b8445b7127))
+- Move server duplications and plugins to core-http-utils (#1207) ([5a2ff7b](5a2ff7b6613298150e86214b7269a50400348a60))
+- Enable validate-headers plugin (#1210) ([776eaf9](776eaf94b68097dd04dd599bd8b2b3df3a028df6))
+- Bump crypto release (#1215) ([3cc5ace](3cc5ace6581517b5f8d309ebb2bef03c974e8e90))
+- Tail test output only on test failure (#1217) ([af0ba17](af0ba17d6933513fd1127a39e0eac0a648d400ba))
+- Reduce number of loops when reading/writing transaction bytes (#1221) ([b67cd86](b67cd86bda27c7960f4bf4c850d6d1cb4a170852))
+- Stricter API validation (#1218) ([d4d5416](d4d54168478a48d7dd26f7d961eb72ce3d557134))
+- Reduce number of loops when reading/writing transaction bytes (#1223) ([0bf784b](0bf784b20451c9c9649055059641941891ebbb65))
+- Pass name to whitelist plugin (#1226) ([547f093](547f093c11a364d7b6a6572a36efdce226bb4347))
+- Only allowRemote can bypass whitelisting (#1233) ([4f5a565](4f5a56510f5668f82dbf2b0a611cf4f97e0614ee))
+- Update dependencies (#1234) ([cc0b161](cc0b16118e95e56e3b3a78e71c78963f55b257a5))
+- Properly handle errors and empty data (#1235) ([45fbd98](45fbd98aa6a58e5a51c100064d74efb6d78b0de5))
+- Switch nvm to v10.12.0 (#1237) ([a6ec74d](a6ec74dffed1b784e0b56173c724273664bbeb3f))
+- Remove duplicated argument to jest (#1239) ([9342cfb](9342cfb2e7327d250adaeac84862c38ffe2a7454))
+- Remove unneeded await/async from mem pool methods (#1238) ([bae2fb9](bae2fb93933b3365512ca1b7c4a100e23f5e98cf))
+- Remove statistic left-overs (#1240) ([f263b24](f263b24f6ec7d37a5fe21ca93121c904efa5b7ab))
+- Allow page & offset ([59581ee](59581ee5d8971328f404070695e1acf9be72b08e))
+- Remove stale config from start-forger (#1241) ([4b2b27e](4b2b27e265968b65b0063f9b604790911538aa72))
+- Remove async from __determineValidTransactions() (#1242) ([4fb4a14](4fb4a140f65289dd87edae44f2d84040d46f440d))
+- Drop node 9 from CircleCI (#1245) ([f85c541](f85c5418d0850790d725d9e188fbff7a7fa1ea20))
+- Require node 10 as minimum engine (#1246) ([971e311](971e311d058cb723a25a4db7dff9e65afc02a290))
+- Make sure all numerical inputs have a minimum (#1251) ([4f5f0f8](4f5f0f8ace06a7fa3ffa18e2cb27cbb5c3400024))
+- Remove format-timestamp util (#1253) ([498711e](498711e7b4f3db3ad1f69454e9b455ca8bf96f71))
+- Use delegate rank as it is always available (#1254) ([9a96101](9a96101040aaa207bda874161fc242ad68334c73))
+- Update changelogs (#1255) ([d3205f1](d3205f13091908f78d9956edb547e3179484fe2e))
+- Further numerical input validation (#1256) ([3fa4ff1](3fa4ff1e756cb64cb7736f0c5dc7cc44152a1f60))
+- Allow registration of additional plugins (#1257) ([8911d42](8911d422719d66de84ff4ea4b5e2bad789b9063f))
+- Peer ban after fork (#1258) ([21a4f61](21a4f6186d6fdcfc0f9d060797c9ae8bf8c83722))
+- Use full Ark amounts in core-tester-cli instead for more intuitive testing (#1260) ([8fb0e35](8fb0e357de41707fde33c501a73913cdccb99a0d))
+- Remove client package (#1261) ([b5e2b89](b5e2b899ce56d5b50734dbdc731511586cf65539))
+- Use full Ark amounts (#1273) ([1ab5c58](1ab5c587fcb9cd6803d77b93251e99eb2cd47f04))
+- More clear exit message ([056b70a](056b70a939196622080839995278df6ff3b1d481))
+- Return error if transaction fails verification (#1267) ([66702a1](66702a1d6438bfe304614ad30470506b3eaa24e4))
+- Use 1e8 instead of math.pow (#1284) ([0ab4297](0ab42975b23a479c6168fb5a73ebbbc51932f031))
+- Better logging if unable to get tx from pool (#1290) ([f05bc9e](f05bc9ed874f7bbea20547a5f8d7458152a45642))
+- Raise minimumVersion to 1.3.3 (#1293) ([d625949](d625949fc8968118f147a81506d7b92301f19714))
+- Remove jsdon (#1296) ([6dea724](6dea724592c0868e38e1aaad9e5b11e5c9cf480a))
+- Fixed some outdated readme info (#1299) ([903b562](903b562c4886d1bdbdf056e372b3ecab8e0d3c26))
+- Error handling on getRound() and conditional logging (#1300) ([c4bb457](c4bb457b86d7c9d075f8480f2ec8703b0a9dde83))
+- Allow better config of hapi-rate-limit and hapi-api-version (#1302) ([3a864b0](3a864b0389c6ce011023e2bda14eb94703138499))
+- Reducing expiration to 45 minutes (#1306) ([fa14ee5](fa14ee59cedb5ff3b2b8f48cf3584ec881713244))
+- Remove typo (#1308) ([240e02d](240e02dad3e2d462a7ec8922a6be4106eb130e77))
+- Adjust transaction pool timeouts in config (#1310) ([2349439](23494399a630e1715b82559fac94ea5679b5cc72))
+- Setup node 11 for CircleCI (#1312) ([bbcb356](bbcb3566ed1e37ccf87ecbc2f249b265f3547bea))
+- Select id without distinct (primary key) ([d508c7e](d508c7e5a1a72c791dc5b0a39977e9ea78ccd5ac))
+- Update changelogs (#1324) ([e9bf187](e9bf187deec0efa0f6626a5f6652b418af243145))
+- Remove redundant memory.js (#1316) ([49f0719](49f07197faa89018f4a842a087058d8e4d8083b7))
+- Log invalid response status error (#1332) ([9668b16](9668b161a9ed40035f61e6174bfee7e967b1d11b))
+- Missing transaction exceptions (#1336) ([f168e97](f168e978f75fda2f0919b9c1099c15a83ff4ad0b))
+- Improve behavior when network is missing blocks (#1342) ([58342c8](58342c8b86fa05ba4c9a46d1d30e26e403745ff3))
+- Avoid that transactions below the minimum fee enter the pool (#1343) ([9626ffc](9626ffcbc149c8a783738d144e7452cd12cb4b57))
+- Log the address to which the request failed (#1346) ([9fd2668](9fd26681511ee66f0b7e1f2891d505aa9c062c11))
+- Match __post method with __get (#1347) ([6b65358](6b653585b947964f4142550bbb43200687eb777d))
+- Loaded delegate logs (#1348) ([5e3763f](5e3763f4be48a625ed0b780b468e56f92236da45))
+- Update dependencies (#1331) ([cb5f6e8](cb5f6e81e50b2e953344e2905afd4c50740f23ab))
+- Return type and message for transaction errors (#1356) ([215225a](215225afea1d58eec9b46a661bb61f2ef92d9e37))
+- Use totalAmount of block instead of computing it (#1357) ([4f0821c](4f0821c9e8b9f84ee8e5f821b296916e3ba14d5e))
+- Update changelogs (#1358) ([9cbe01a](9cbe01a3566865823810ee4c547df58e4848284d))
+- Setup snyk (#1367) ([2b2a9d3](2b2a9d36635390e687c0ad6a9801aa5f2c90033d))
+- Initial flow setup (#1364) ([be4ef40](be4ef4037e73940bd08c5ced9f3ecb3c15c5c17d))
+- Setup dependency update script (#1370) ([1c7d322](1c7d3229665b5d02d1a4032e061910d084d1e87d))
+- Setup flow within packages (#1372) ([196f0f6](196f0f6d41a7f7a81a049a7d1732385ab825d7bf))
+- Setup stricter eslint and prettier formatter (#1366) ([9379144](93791447166dfc1cfbc40082f64b8e516f8f721c))
+- Proper pluralization in logs (#1379) ([e7e5236](e7e52365179aff6118c7eaa78590a30626b69f49))
+- Log if sender is blocked (#1383) ([28a6a00](28a6a0005fb31a56c108e94ba5e8289f1ba69431))
+- Updating docker nodes to v.10 (#1387) ([aed59c1](aed59c129eba254e9058dffb72b5595d7bda76cc))
+- Update changelogs and dependencies (#1393) ([a262998](a262998a9f3e1dd81d0f5118865b35603cf1a289))
+- Fix typos (#1395) ([d3c9dc2](d3c9dc2d3d6201175ebecbf50819db4c58b98b61))
+- Do not wait for broadcasting on API requests (#1398) ([aad509d](aad509d343fe6d14169f392069a68d1caa85ea08))
+- Redirect requests with trailing slash (#1405) ([f9612e8](f9612e8ced16151a97de39a4a1567030541f53c5))
+- Peer blocks request handling (#1400) ([b5ded82](b5ded82740a9fa5f17058dc9aab9edbae01da1ba))
+- Close database connection earlier (#1403) ([46b7dfa](46b7dfade3da2842623253cea66d08a361dd0041))
+- Trim trailing slashes for all hapi servers (#1410) ([2719331](27193311b9655a640e50775ef7c34035fc56d169))
+- Simpler forging allowance check (#1411) ([46207c0](46207c08194582333be4d1e50b27fca16bc92ef4))
+- Move copy command test (#1414) ([2f1c560](2f1c5607895710359c9cc825827bdbd92533bfa6))
+- Log reason why transaction fails (#1430) ([a1bc04f](a1bc04f1662b861975260319fe339cc6cc12cb4a))
+- Set rate limit expiration to 1 minute ([d0be575](d0be57584c17f30b4384368570235626a2aa30b4))
+- Joi block id extension (#1440) ([7eb2cd5](7eb2cd5c4041febb71f693d3bcab9b747dbb14c6))
+- Apply transaction after it has been added (#1439) ([396d817](396d817f4cd0e4db51bacda8214c729610f59a02))
+- Adjust rate limit values (#1442) ([a83cd6b](a83cd6b3c6fdccecbb64d9b445f4b7ca031e4d1f))
+- Update dependencies (#1443) ([65ac57b](65ac57bd9be686996c87053997ff8beebda5d490))
+- Combine allowedSender log (#1448) ([205b524](205b524aa8246be6d5f8831d0cbfaba54e4f9ef5))
+- Limit number of peers during broadcast (#1449) ([47a7a24](47a7a248a169662e7bcb8fc87c40903adb2cd2ca))
+- Set max line length to 120 (#1454) ([2f9b4df](2f9b4df39a1c1c147a42c90dbc3f7e1cf5a772d4))
+- Remove peer version of the API (#1455) ([3941a9c](3941a9c9b1c4a6cf9e61757e72959796f5b72ca0))
+- Adjust max-len rules (#1456) ([c426f73](c426f73779ce6b90d6a766d42667d1b9a5bc6728))
+- Link to the official docs for each plugin (#1465) ([ed04690](ed04690348ed13c1318acf63f5ec40e3c4e1a166))
+- Remove rarely changed values from default configs (#1462) ([d672858](d67285803f18bf4ebb7f62123f7b4dc756b6500d))
+- Drop flow (not required anymore in the near future) (#1467) ([38cccaf](38cccafd6abc64b13de7a65e22e3653f94e6f0d6))
+- Only require lodash functions instead of the whole module (#1463) ([26040f0](26040f0abd6adbfd869554e4d232c3ad939cd44b))
+- Use @arkecosystem/eslint-config-base via npm (#1470) ([716266d](716266dd3a06e9af61b390b70af9a4d68ec74e6e))
+- Refactor immutable.js usage (#1472) ([166e33b](166e33ba8769f42fcbcacffab6025233cd336ff9))
+- Replace moment with dayjs (#1461) ([c66de44](c66de4426b10c5974e61b8f6cd218916ded41b4c))
+- Broadcast transactions in chunks to meet peers requirements (#1468) ([e533fa9](e533fa9a1b3df7dbfbb9043e50323e11885842eb))
+- Replace dayjs with with dayjs-ext (#1474) ([62ec97e](62ec97e09f85087ac1548929459b98824c51997c))
+- Update changelogs (#1477) ([3c4183a](3c4183a7cb50f0453a2255387211e25f64d36fd3))
+- Remove yarn install step from CircleCI (#1478) ([3ec4b0a](3ec4b0a824e63dc67ca2db3c7d519805c7c504d9))
+- Transaction fee logs (#1480) ([7b10480](7b1048079e36906f522acbfb246dce2c7cea3278))
+- Typo (#1484) ([fb99f70](fb99f702f21012db3e5bc36f6faf683e1bd9d960))
+- Pluralize log output (#1486) ([f1921f0](f1921f03133a2a65774978da731d8eb36db703ec))
+- Remove all logging (#1485) ([2ff6c47](2ff6c473bcba980b90c8e161a2d7dc443ebf4b34))
+- Lazily sort transactions by expiration when adding them (#1487) ([da5daa5](da5daa5c32db4d13265034665c9eb0c00500dcce))
+- Don't always purge expired txs when checking for existence (#1488) ([5ffecb2](5ffecb2f0d6321e50d61dd6348933885e3dbaf3c))
+- Peer update (#1489) ([4f8d4bd](4f8d4bd1e6af277e517982df7e1bd82ac70a6b5c))
+- Median block height and action logs (#1491) ([de3ed90](de3ed90d809fb49c4ae77537966953c35a3e9300))
+- Implement server methods (#1492) ([df3f087](df3f087b887b22f15f40c3aa791b29451235fd5b))
+- Remove old and unused config (#1495) ([f826efe](f826efefa15ae82479c8d5644c8b3ece2692bc8d))
+- Update changelogs with release dates (#1500) ([fee2b0d](fee2b0d2a491c4965788cb054971e3cdd077aaae))
+- Use ~ instead of ^ for @ArkEcosystem contraints (#1502) ([abc9802](abc980283208a8e852c0be96933f892afb183637))
+- Base core version on package.json (#1505) ([f07e0fa](f07e0fae39b6289020e420b80d74d29ee8824466))
+- Rename container to app for more clarity and future refactor (#1508) ([889aa9f](889aa9f1640a84a3d8357392c318092b326643e6))
+- Change alias (#1511) ([80ecfce](80ecfce878feb4d10c0572493cd4f265556bc2ee))
+- Pluralization in logs (#1513) ([b228c3c](b228c3c8b1a14a6d395059016493cdbc6efd3edf))
+- Configurable row count and formatting (#1517) ([d394b4e](d394b4ee7056005176557b2f4f3f9416586163bc))
+- Update mainnet peers (#1520) ([0857234](08572342b0482b0682e06541cf7bcbf7f99ed393))
+- Bump min version to 2.0.0 (#1521) ([090aec3](090aec321f9e5084d71da35b19421ffdff6b3711))
+- Remove chunk broadcasting (#1523) ([a700481](a70048127b311ce82a4abb885394ae1b4b603af1))
+- Fix typo in import statement (#1525) ([87ca23c](87ca23cf9b34121e2128dc59deb55b27897a08b4))
+- Update release dates in changelogs (#1526) ([7243ab6](7243ab63ab0054bac7705378407018419e059679))
+- Set 150 transaction height for mainnet (#1527) ([c762b0b](c762b0b854ee463f78509f374c8f2609c3e8ad8f))
+- Update dependencies (#1539) ([d2d2035](d2d2035033f5fc6d552c8528189ce13abe7c5b0c))
+- Network settings and dynamic-fee on by default, increas of minlimits for mainnet ([13c1d5b](13c1d5bd6bc54506c286f54cd222850226377db3))
+- Changelog updates (#1557) ([935b1e1](935b1e1a6d6c84b7fdf8f49a1fb069f212335028))
+
+### Fixed
+
+- Fix invalid jsdoc path ([4d2d391](4d2d391e03d97614c60fbc5714365a14665ad077))
+- Register event listener ([b63437c](b63437c03df847fca504c02f7c90e97fedb11e9a))
+- Core-transaction-pool registration ([09fc94d](09fc94d7fd1171b2a8133ad63bacc515e93cfba5))
+- Undefined variable ([80a0f6a](80a0f6a32426316f474bc672e3b2c86635146818))
+- Undefined variable ([41639f7](41639f7cf8c903f3bc2c98f4e473eb89e644d6b7))
+- Minor issues ([23192aa](23192aa3747b51104021c8d426b9368f450d448a))
+- Shutdown p2p ([0e5dd61](0e5dd61aceca8b4ed674da2ddb934aba66a3ce68))
+- Only handle ctrl+c ([8e81561](8e81561c50a5f51c69871dc9cef26478b485c1c6))
+- Eslint ([54bf7a0](54bf7a0844b2a4131fd36c56b6b93c32bfb360d6))
+- Wait for p2p stop ([9c91c8b](9c91c8b50aa2af3ccbee6b1e398676497753c2ac))
+- Prepare wallet manager ([c43eb70](c43eb701c715d02c462238c1ea49b62ad4e7f872))
+- Eslint ([109c21a](109c21a3566c8389a618fe053f9354137a97da6b))
+- Rename delegatesByUsername to walletsByUsername ([500be1a](500be1ae609d38fef9b5edf337015fd45db3597a))
+- BLOB-tiny to BLOB ([90de221](90de221244a86cf3c8c43df2efac8de2278cdf33))
+- BLOB-tiny to BLOB ([ea4563b](ea4563b9eb08ade00053b5c6f161fc45b2bc9dae))
+- __canBePurged ([0297ccf](0297ccf7ff8e66764dc0f4c0f975eb0848e02a8a))
+- PurgeEmptyNonDelegates & isGenesis ([7af89ba](7af89bacbfe7e56e0f018327cdcc4293cf47d509))
+- ApplyTransaction & undoTransaction ([6e1e33b](6e1e33bfd5c035e8a14e872e8bced9b763ea7e5d))
+- Enable transactions pagination ([702e99a](702e99a38eb7ee8bd74b5b21044f26728b2de3dc))
+- Disable pagination on transactions store ([584a335](584a335db28907cf8f2d4fe7a8ce3af011f9c632))
+- Eslint ([9a1fa58](9a1fa5892298741f001dab6845fde23ec773c426))
+- Use getLastBlock() ([5692312](569231299c393e4a51ffdbfbf419b46b975f3c2f))
+- Eslint ([df27cea](df27cea32d2a8ae0bd006158964b285dd3f436ea))
+- Eslint ([96436e8](96436e8ea2238ccaa0b6c585cad9ba463c67b680))
+- Eslint ([e06d73e](e06d73eec32fb6188b135b7faefbf3e9e0cf56a4))
+- Eslint ([a8315b3](a8315b3b3746edce4a63036f464cbd391bc2e4a4))
+- Calling missing method ([ad92ecf](ad92ecf1ef0524c41db4993939ca9d70f2edbe71))
+- Removin  wrong change I made ([cf8358d](cf8358d43c9d0eb2a300ae4a82420dfa249bd13c))
+- Broadcasting of transactions.. received in payload.. not one-by-one ([03972b9](03972b95e5c8cb133d5dad3af3a47cadf4d002f5))
+- Fixing flushing - not to delete all other stuff in redis ([b963689](b9636890ae9ccdddb43d019e1c6bf2c84a2d9eb8))
+- Filering and handling only ark expiration messages.. ([422c9f8](422c9f8ce72ffcb1d48fe8b81fd79d02a309d896))
+- Set default key to ark for pool key prefix ([39d2871](39d28714f940249050c2057f034b3dcf38bd27c6))
+- Removing console.log ([1377730](13777302989fe4f2114f58b791820717366d8589))
+- Pgsql grouping for wallets ([7a6f57d](7a6f57d5d67de5c072d621599155fdc1240046db))
+- Another pgsql grouping issue ([b101523](b101523be09d23a32f19bc0d33a5f0ad74678ebd))
+- Handle not found exceptions in v2 API ([c289f0e](c289f0e8e91815f4e3899f93770be4984c91be07))
+- Crypto use in json-rpc ([4e03d32](4e03d3290406bcd6c597c2827c548b536513f8df))
+- Docker paths ([8202d9b](8202d9be07bf70594dd4e30d2623e4e4a174945f))
+- V1 API - delegate endpoint ([1678544](167854465a4620bbc43c4e2a8483b7a1cbd70dbb))
+- Several v1 inconsistencies ([7114c17](7114c175d627981aa4894c86611b47d0f34ba28b))
+- Several v1 inconsistencies ([5b2c348](5b2c3489ae1019c5a7d0bb85148c86a38236ee97))
+- Missing peer height on v1 ([41611df](41611df8fe6480e02561038fe3e0791f5a71563f))
+- Minor API issues ([1ae6e5a](1ae6e5acb745b09adbf3673a35e0f7fc26d11f7b))
+- TransactionData is not defined ([43a8dfc](43a8dfcd404393f3ea399522c77aeba4a6ebed8d))
+- Revert SPV for delegate usernames ([75f51b9](75f51b99aea2673b63c007da1be576e562214bc7))
+- Stop adding partially staged files ([ed97a1b](ed97a1bd42a6634341712d6d2057140bd298b605))
+- Error syntax ([3bc5cd9](3bc5cd93cb763a70e23158d81c14f9a8ce75a9ce))
+- Second signature on CLI ([8febb46](8febb46749aeafc414a1ccf6017fde91e7edeac5))
+- Registration public key not required ([21ea984](21ea984b0d2eda9615299dc5e8be86f9543e05b9))
+- Catch exception for second signature if missing ([d0f4ab4](d0f4ab4c92c1756c77d39ee119cb9daa1fb0ec8f))
+- Pool tests adjusted ([195b097](195b09730df6e6136ecdbd94cc5661d0f381a61a))
+- Invalid variable use ([dcb0aff](dcb0affec888378c0b7f8de200ebf056494cfddc))
+- Pool is whitelisting by publickey ([6c896a8](6c896a8d8dd057254e86aa8966a12effebb907a3))
+- Moving verify call to own module... ([b921f8a](b921f8a157b08ce1b3b84e2ec3f07101a9d1330b))
+- Casing issue with psql ([4b3028d](4b3028dbdc8b7f3f5e57de18d3c193091f93748f))
+- Redis whitelist is publickey based not ip ([2efc619](2efc619c76bc5fc2615734428db09da32cbc05c3))
+- Escape columns for pgsql ([4e15131](4e15131d52259a504cf44a728ebe6d3aedb7c132))
+- Limit delegate endpoint ([942b851](942b8515b6ff0f96ee177309b591b171f1383636))
+- V1 delegate endpoint ([575ae88](575ae88505a1a92a648825f9069c2ff381e79280))
+- Correct calculation of votes and ranks ([83a4fce](83a4fceb4885178fa3266c4158adc6676f0e5c21))
+- Correct forger event names ([5a8540c](5a8540c7bcd5113b879462e64d32ecb1d4c83206))
+- Sort local delegates not global ([c531f91](c531f910ad419b2edb4fabe789666614686ee745))
+- Properly sort delegates via API ([0d584f5](0d584f5c42f57c36c0c0c5dbf31aebb1958048d7))
+- Return total delegate count, not limited ([5a4758b](5a4758b3ce441b97eec206b5ac6e16dc1272ee73))
+- Change rank to rate for v1 sorting BC ([469865b](469865ba14406605efb5797553373142914ad741))
+- Field is called rate, not rank ([0b6d0f0](0b6d0f01e4b742c27f8ad840e5e5b0c24f92c007))
+- Delegate limiting issue ([6cd94e4](6cd94e4c8df0dba71cef9241e99a328c26cb6393))
+- Only apply first multisig registration in SPV ([b3d3bf6](b3d3bf65089025a44858fb0926230032106185d5))
+- Missing output methods ([f24a2f3](f24a2f392ce1082c3653ea5985cf134f15fd2658))
+- Cli command names ([31ebad0](31ebad0444fa3fa7edb4e7ddd6ad8f5d52d7d586))
+- Delegate not found ([2cf93ca](2cf93cac12f695718d79a3710f740101680d28c8))
+- Prepare query builder tests ([0548e89](0548e89d9f35a7c66882d1b14af6e45d8a3a217c))
+- Linter ([a3f60dc](a3f60dc616a5b94b375513d2be215c272b364918))
+- Checking canApply before going out of pool ([61abcfb](61abcfbf335d286ff917b59a4e6522bb8a37590d))
+- Removing duplicate method ([3c9abfa](3c9abfaecfc3c49f1946e240754a11a905016cd7))
+- Wrong order of query builder ([a1f1c34](a1f1c3484518dd2bc7681ee99199b48f3c027a4e))
+- Handle escaping issue ([10990fc](10990fcee2e6fc45099729b47d1a98d789f4435d))
+- Displaying of amounts ([31e6bb0](31e6bb049db20ccfd499bf797f32775dddb4f962))
+- Adjust broken API queries ([bbf7d59](bbf7d59d24f52d051c5312261133a4a88eeec4e4))
+- Adjusting pool to store transactionid related to sender ([4139ad2](4139ad234cfcfe2d603a43470e270a57aa046983))
+- Broken query for missing delegates ([d33e5c3](d33e5c30f213ba734c6b4070ea3940aefb671442))
+- Wrong call ([7c68d3f](7c68d3f8dbb57a393a9124c11f36649957a73e29))
+- Spliting canApply and apply ([882731a](882731a94acaf26e872d00cf0a44f93d23b73299))
+- Reverting poolwallet manager if not succesfully added to pool ([fe5ad9c](fe5ad9c1fd77099db72b819535530d149663a37c))
+- Bloc handling on pool level and 0 balances wallet purge ([dd79011](dd79011e979da0cadcfd84a903e63dc463188482))
+- Joining access check and canApply check - no need to revert later ([99672ba](99672ba55ac44bcdc9f785d334a1b41d1bdd8349))
+- Broadcast ([dce9f85](dce9f854fb62001e714975f53b5cd9948689f3d4))
+- Enablin broadcast to all peers, only 1 time... ([be8c628](be8c628d8027d95c56d9c8afc305ad2daa86d654))
+- Parameters ([21531e2](21531e252122c08a5455dd52f0ae75f5ea67dc05))
+- Transforming payload for one-time broadcast ([6f27f68](6f27f686725676184cfc2210d94c48eb89a5b1b8))
+- Single quote escape for postgres ([700635f](700635f0e365bf453e0732bcbb56487bb80fc5c3))
+- Db name ([b785ef7](b785ef74ffdacfaa937583fc59392edbb025ebc2))
+- Adjustin tests to changes ([a61f01b](a61f01bdfd26860ad4456bec2e2c1e85f3183b54))
+- Rename function ([321dfce](321dfce3d224dcf2df8c5259785ffe563d05f758))
+- Log queries for tests, not testnet (#606) ([3f4174c](3f4174cfa25c095fd80505d91022462c5bbacddf))
+- Log plugin error, don't swallow it (#608) ([4b856fa](4b856fa344bedc1c205613ef71306541a0f569f7))
+- Update banners (#609) ([7256a05](7256a0568febb5f47646b1c043ba45e08e52fce3))
+- Whitelist value is publickey ([409e4c7](409e4c71f855bac29978ae90b11bf2cffc1c87a1))
+- Expose APIs to public (#612) ([d7c7d6b](d7c7d6b3c10134e227da85319648a7bdb6a05811))
+- GetBlocks query without IDs (#618) ([fa8751d](fa8751db1fdd3fb3b8885df2c8835fc2ab843321))
+- Typo (#619) ([e752811](e752811369026e4329ecf160b0052c20c3ebe6ad))
+- Only get transactions if there are block IDs (#621) ([194d471](194d471fbd50a7c10eb11d89b5476ac5b86c6fd9))
+- Postgre grouping issue ([ccbe60d](ccbe60d907f512e72e839c7422fc1ede71555288))
+- Undefined cache (#625) ([a0f6183](a0f618320b04d66400b8f14c260602751e7437e9))
+- Check for delegate config path ([cd85e20](cd85e20190000e00eec6563a35d3098760836ea0))
+- Pass token to setFromPreset ([c14e1ac](c14e1ac35465649f82c5b5b3b0e5762bc5854518))
+- Invalid import ([5c632e7](5c632e7f09af7091ac233469fac4b92d58c6e462))
+- Undefined wif ([25fcef5](25fcef50908359dde457e4558fdc84403acf1cc1))
+- Clean ([c7f4326](c7f4326928b85184417212b9871d5a4d0069dd66))
+- Move getLastBlock call into try/catch for getRound ([c1e9314](c1e9314075cddd624d166fd988436b7552e63d38))
+- Moving apply transaction to poolwallet manager, other small fixes ([0f732d2](0f732d271c59b708498ae39fdb26266f34c0f751))
+- Order of plugins ([df8316d](df8316df17ced7aacb5990ec0f2041c1b1dc7503))
+- Order of plugins moving pool after blockchain ([797082e](797082ebe7a5729c2e3b0e8b911db989343e2ea0))
+- Removing all occurencies of id in list and additional filter on top of it ([a1a7030](a1a703005734ae1f02b3ba31296bb88e4ab99e69))
+- Unset bip38 when using plain secret ([f6eafd4](f6eafd46d7f7e4aa26bdea2e78b034c38c70a532))
+- More tests and green ([ac36d84](ac36d84833793fe17f097a96ea18c50a07d5bbe9))
+- Apply schema to p2p API ([fce6e40](fce6e4091be5b3e3fc9bbd7fc0941d73c597b571))
+- Stop checking same peer so soon ([f4246be](f4246beb5e5a3b7534472d3229e05247f304edb5))
+- GetBlocks log wording ([94d0aa3](94d0aa386e7c07518f4bde1f94c8afc8e377f243))
+- 60 minute default to suspend peers ([d58bd57](d58bd5727b0f0c74055c244aedd3a7429a55a29e))
+- Suspended peers ([a168120](a168120fdc84b55d7c98ea3c122bbccf6949ad9d))
+- Match v2 API and P2P transaction posting (#652) ([2e37ec0](2e37ec08c4ecc95d4900976ea33213a8ed3bec4d))
+- Edge case issue on restart ([dc7a560](dc7a560cdeb0a749500eb9944d41fd8e11414224))
+- Issue on recreating blocks with wrong order of tx ([3d38e3d](3d38e3de8b85b513e0d1381a578a0830b088c4b6))
+- Let JSON RPC getFromNode() method query v1 and v2 nodes (p2p/api) (#651) ([1a40dbf](1a40dbf80f145388858a839e5e9befa60046a0a7))
+- Block timestamp access ([24e5804](24e5804660df2c2b9aa341f84cff814bdbd38d73))
+- Ensure that values are added and not concatenated (#655) ([cda9c2e](cda9c2eea7d16017c8f68af82887aed45b5b4fff))
+- Pass model object to isSynced ([d95c174](d95c174bd727af2de3d2861d32e4617c9e0a1e3a))
+- Concat number issue ([d0c0f6e](d0c0f6e260378cbb1453c6598c703ecd6d350934))
+- Data type inconsistencies in API transformers (#668) ([97ba9c4](97ba9c49a173de35ac8d746310bdf54350a2aa3a))
+- Bad method call for unconfirmed transaction endpoint (#671) ([1f80e3d](1f80e3db2c74afc37c219473a5913c9060c73e46))
+- Delegate object has no data property (#670) ([65b2bf0](65b2bf089e17abc39da6cc20a3599bba94d9c7a8))
+- Bad method calls for unconfirmed transactions (#672) ([54b4b9e](54b4b9ebeaa5b5a7d57b0f7a1ca1787f08d5c50f))
+- Default offset & limit for v2 API (#673) ([dd4ba22](dd4ba22d03b177dd678097d07bce2cd3709207e5))
+- Rob ([d1181f6](d1181f6666f2f096724ca3083be79253817a8612))
+- Pass in plugin options via resolveOptions ([02aeaf9](02aeaf9a76f5e92680107b5037531064b85ae7f1))
+- Use common blocks to determine valid peers ([6311454](6311454d121cf6fdbb16283d501de1aacf6876bf))
+- Check common blocks on clean peers ([31ea813](31ea813cb3a8f77a1d56eec562b7ee6164685cd8))
+- Unconfirmed transaction endpoints ([e4388a9](e4388a93cf1e1df693f8c8209c55379e26ab9db0))
+- Accidentally removed API endpoint ([c2327f5](c2327f5da632892541443988c1f73c04acf21756))
+- Cast result value to number for type check ([0ea47cb](0ea47cbc71483f3b22fcf38fd8036003bb27f0e3))
+- VerifyBlockchain test placeholders ([6934da7](6934da78a35ee48c75c230e99d2efb245b99d6da))
+- Rename offset param to page for v2 transactions/unconfirmed ([52e156f](52e156fb1358c86fd6c236b3771cd29b966b0d91))
+- Sync tracker with postgres (#708) ([f4ed6fe](f4ed6fe9e9c86eb6f9957ae3559dad6a0e219587))
+- TimelockType needs to be timelocktype for signing ([80135cc](80135cc68538a8504f12904573c47f2e45f6bf1f))
+- Change delegate "votes" property to "vote" as in v1 (#713) ([117f44d](117f44d0d76fd91451290ffd241416937e970712))
+- Rename endpoint ([d20689f](d20689f9fe980faafd141b03e647a212a10113f8))
+- Typo ([5857c24](5857c24781bf57cfb6ae72510671c14663d0d3bb))
+- Rename of previous method wasn't handled here ([48f1203](48f1203a860e943e257967be5fbe13abbb1c31a3))
+- Removing synced check ([d0bf8af](d0bf8afff3cb1e1f876b441b36b91850c856b831))
+- Fix multisig handler test (#710) ([f285a09](f285a09118c2a923abcf6971f1fbc8e8e3880040))
+- Wrong export statement (#717) ([a51ab6a](a51ab6a29da254f68a3b4a37540795153d7755b9))
+- Updating peer/status - not doing discovery upon forge ([8fd3e64](8fd3e64b636c8cf9e5b9771230cf430daa733979))
+- Condition ([e563fe8](e563fe80d331a73a6b7518dc9efb779106eaa548))
+- Cleaning ([21317ef](21317ef83813cda0a909796a42863afe0d9469a9))
+- Correclty returning overheight header ([70c075e](70c075eaca51c5efa494f57dea5efbc6c428e4a9))
+- Allowed to forge calc ([86c2827](86c28273c926ab54eb2668161b18de3b082f72ec))
+- Removing this check, as is handled during quorum calc ([41d63f7](41d63f7fd174aee1cf4e5102de7aad85afebeba0))
+- No need for this check ([99aed40](99aed40117f4aceaaf113639dcbdd5b262e19750))
+- Log more clear ([d2fd9c3](d2fd9c34d54e2d598102c85be253fa891419a704))
+- Back to old discover ([d96c462](d96c462832eea68b50e5fcdc6bf714ec0247331a))
+- Typo ([541a7ca](541a7ca41487109a7946ffbe2c6868b4be1e9d86))
+- Condition ([d5809a4](d5809a45e865448871224cbcff9b8109839cbd4f))
+- IsMySelf send whole peer ([97b9861](97b986103ed922855fd82f763e11595fc38fbc11))
+- Whitelist config ([e48aaeb](e48aaeb580dc431fad1b25561714703114c7f44b))
+- Small fix ([3a6bd7d](3a6bd7d3c81a3bf19e5614e2ce7efe2c959faad4))
+- Peer cleaning (cold start related to forger only) ([e5658d8](e5658d808dc93961cb78e18ceb8a8f30870564dd))
+- Returning event also if not network start. was causing state machine hangs ([7efd057](7efd05713caa419137cfa024ec0f2d503c0e6573))
+- Core-container tests (#727) ([6d68d04](6d68d0466d78b2692291d564ee4817ece94d924c))
+- P2p verbose off and updated peers ([d9f0d65](d9f0d65c69d2b2ac3d6fab140d801d2b9a8d0dbc))
+- State machine - when rebuild complete -> sync and continue ([001d017](001d017fd72e3b1920611278f6d6945409a87bcc))
+- State machine chaining for rebuildComplete ([731410a](731410a4c856536855e60cce0e4f9fc86f443e1f))
+- Log NaN fix ([d47e17d](d47e17d1ba28d4dc94b9817a0740603736117e44))
+- Removing from log ([31bca20](31bca20aeed81c906ba811a1032cd9c9387ab603))
+- Error in transaction guard (#786) ([0d555bb](0d555bb35779fed1806b558387620fa390536ad7))
+- Pool wallet manager state & minor issues (#785) ([e3e01c2](e3e01c21ea6e889e00048d77b43b207325f6293d))
+- Create unit test genesis block only after setup ([507b0b0](507b0b0db933f238cda69cb60cd93b1ee8182df7))
+- Broken unit test due to recent change ([cfc0a07](cfc0a0790a54f886e7665e7648492cf2f0058145))
+- Revert highest peer ([9ea18f5](9ea18f57c3b48272c41c9e297c3d3a07cadec3db))
+- Download size check on random peer ([09da47b](09da47bf12af3370cd47a1fbd650ef90636d75a9))
+- Only store 10 recent block ids ([39a5859](39a585938f5c8ffa633c5232f6d268bc4cc52a7e))
+- Move query logic to sequelize connection ([ac3cf2b](ac3cf2b781e63944a3810a75fee7bab98e263b98))
+- Only have comma at end of url if 1 block id ([eb46a22](eb46a22f9ad12aad218c1d2c58f8c08bf6e3fe64))
+- Get block id from data ([8f144be](8f144beff119ef9195223565117ca29350692807))
+- Check block data for generatorPublicKey ([bcf9046](bcf9046a433aafcc4d9251967d02ba1962b25249))
+- Append current round blocks before applying round ([d013d88](d013d88541f3ce070058bb39b31962729c8f674c))
+- Blocks for current round calculations ([5601b39](5601b39423cb71bc2b8a5950f02fbb07bed5ada9))
+- Check for last block ([ff9d293](ff9d29349f00d4d793c6587bbb047b41c35ff043))
+- Apply missed blocks to wallet in SPV ([51ee1b0](51ee1b0dbbdf6adf905ef205f5b324dbca00d990))
+- Mark wallet dirty when missing blocks ([7a25a50](7a25a5073e3e5ddb552c33b7a8e992927b671d46))
+- Handling of "boolean" environment variables (#792) ([5e3fd7c](5e3fd7c04ce29ff9f3ee2aae51e4001913866505))
+- Wrong docs link (#797) ([d921829](d92182927a454bc7ef694dd6eae77a07caaf82f5))
+- Wrong docs link (#798) ([42f0e3f](42f0e3fb14a45c32d9fe5a87376b0045c3a3ff54))
+- Cast forged reward and fee casting ([d227f5b](d227f5bd2121f82f57cc8b349e3ef787fa6249fe))
+- Casting for wallet balance ([a5a90ea](a5a90eac2185cfc62e01c7c55cbdc43e1dc3535d))
+- Wallet applyBlock ([3191d69](3191d699e9b0352880e2b2f4efe6c1adbaf7364b))
+- GetRecentBlockIds ([81d5380](81d53807370b15b30e7cf5c52fd6feeddfeb2c5c))
+- Await getRandomDownloadBlocksPeer ([cb15441](cb154413c2fb0c18261fae859a875d0a6363d09e))
+- Changed unconfirmedBalance to balance in model, to fix issue with value being undefined (#742) ([fbce524](fbce52495fbedba9a46daeab83f725d3ab799781))
+- Core container deregister test (#777) ([806691e](806691e7bbd30b7929ca2f0565480e1c1ef67a8e))
+- Broken transfer & vote commander in tester CLI (#788) ([fa9c170](fa9c17068c17405969e3ba27897eb682f92aa1b0))
+- FindAll / findAllLegacy search transactions with senderId invalid or unknown should return no transaction (#776) ([ba4e03e](ba4e03e99a73021a567402077737ddbb7513d04b))
+- Wrong doc links ([3444ea0](3444ea01ec321d760495d832dd28ac912b818aa5))
+- Bug in the v1/accounts/delegate endpoint (#811) ([ef73008](ef7300849cb174f479d1e95265075b2fad19343c))
+- Log syntax ([e15b2e7](e15b2e7186348e010b5fbe55c8198d725ca13c15))
+- Redis config was deleted in sequelize connection init (#820) ([a2fe69c](a2fe69ccd54ef487e5198872fe2c9127adf9d69d))
+- Transaction storing - race condition (#826) ([826190a](826190a334d8d84ecbcfa2518ee7897c08ecebfe))
+- Sort peers by latency, not random (#839) ([96365e3](96365e3987a6a8605b21d0b74f90e698298933d6))
+- Failing database tests (#835) ([973b58d](973b58d1fa49cb8ba67e8da2fea281dcf5470bf7))
+- Prepare core-graphql tests (#816) ([47da1f6](47da1f663af5a6bc919d47ff8380c1d4819d09e5))
+- Delegate API data (#815) ([35de0c1](35de0c1ab2ae488e4e35583aa9a7b1b1ad8b2fc3))
+- Improve core-graphql setup (#854) ([e6f8d73](e6f8d732f79842fe01cd73644bfcd3b334406fe8))
+- Wrong blocks in current round handling (#847) ([481ab6d](481ab6d94db06973586fa4ac1004624d58c8d80b))
+- The API client was consuming bad URLs and the tests weren't detecting it (#845) ([0a66839](0a6683974071b448f6da944f73bc21ecdc613750))
+- Vote & multisignature processing (#861) ([f80567c](f80567ca0b67be163d043bf14e7829bbcd4f1388))
+- Rollback issues with peers (#857) ([963f179](963f17923248adbfa08fc7c5b553871f03a6ed84))
+- Blockchain not ready for usernames (#867) ([25ff545](25ff5452aca27f76340179d86b7cf203cf47ec72))
+- Cast port number from peers when finding (#868) ([715930c](715930ce7008da3cc2826a804483ae86f3ef7114))
+- New delegate registration not updating (#870) ([45da119](45da1196dadbcb52f6e106f72d19cda89517aa49))
+- Delegate voters endpoint 500 error (#869) ([8e44b9c](8e44b9c80de7c2f000b4f2ee916c70912e02aa62))
+- V2 API - pagination & sorting issues (#878) ([cb3d79a](cb3d79aede6d91f01c80147ef45d9e43b85070f3))
+- Sending too many requests to relays in forger (#887) ([7dfb8a7](7dfb8a75fa88eb93ad9a1089ba29b29facbe2527))
+- Setup graphql fixtures and structure (#894) ([c4f0a6b](c4f0a6b5d111c83f1baddc4095ab86ab8e87951e))
+- Return peer height on v2 endpoints (#902) ([a3a13da](a3a13da625c1f1163c9d8a682022d1546160c1cf))
+- Delegate order on mainnet sync (#905) ([177ee7a](177ee7a35f28a3b8a74cdb37bac11f6604ab97d5))
+- Prevent feeMultiplier from being negative (#908) ([246e338](246e3387e489485b9eee1671c09185da0ab7ec29))
+- Properly update transactions per block & payload size (#910) ([f5cd627](f5cd6271006fc6297f3a4de7875337f8caa5d7e8))
+- Switch order in which servers are started (#917) ([e175a7d](e175a7d9ecb1e7eac1a7d8ed3e7323ddd9626295))
+- Bad method call on suspended peers endpoint (#916) ([2143cbd](2143cbd2b08d25201371081f4490a83276533521))
+- Prepare graphql tests (#903) ([553fe43](553fe433a7a2edf23def4b1405ced470e25fa2b1))
+- Fix core-p2p tests (#918) ([7376522](737652299ee043108149be9608740a36f28b9307))
+- Changed logic in getRandomPeer > keys.filter, was too permissive (#920) ([fb0bbf5](fb0bbf543d1f358e9ae670f0d48b3c439ae84479))
+- Cast port number in peer list to number (#930) ([7f7a264](7f7a264acad9ec127edb97f45243436663a5eb17))
+- Return empty object instead of array (#929) ([c2d882c](c2d882ca94d16dba6e75d9a0ae70e441acb693ca))
+- Core-blockchain tests and add package to jest config + refactor (#926) ([f980238](f9802384aab0da34cf0bf9ac9cf0af53eca829f6))
+- Post transaction endpoint to closer match v1 (#907) ([742fbbe](742fbbe1bcecfe97fb6e2a8b7b92f2d11f73d044))
+- Core-transaction-pool package (#935) ([9c79a14](9c79a140760b94a9db9665b77b6b4b18eb3fcc64))
+- Core-json-rpc package (#944) ([8856ca6](8856ca6db64fcdc3618198eff621c6d1452b5eac))
+- Process queue memory leak (#946) ([42f3b31](42f3b312846502636645aa4b7ee3089f3a7260bf))
+- Only save dirty wallets (#947) ([a86d48f](a86d48f39de085f590bd705adb912ac139b92195))
+- P2P API requests before the monitor is ready (#952) ([e36ae6c](e36ae6c69e8894bc5acc4063e2ce5bbf5709f8a6))
+- Properly set crypto config on launch (#953) ([4572bb9](4572bb9c42589ed360e549a40e62d69a11ec086e))
+- Validation of incoming payloads (#933) ([8beccac](8beccac45512a1b275ea1f45b1f00cd2685b776d))
+- Suspending peer object. Otherwise suspend method crashes (#955) ([a8e826d](a8e826d5eb7f9b7524189c873835edd03d27f2d7))
+- Core-api package + bug fix (#959) ([f3037c8](f3037c85845933bf113a6b688c280f1a221ba50f))
+- Listen for all events on webhooks (#972) ([1b04e6d](1b04e6d21996b9b4b3264aa3d97a95cc90c9779f))
+- Initial tests on graphql package + fix wallets query (#973) ([ca5a2a7](ca5a2a77d750d84b0b96a05845f6ad36aabdd35a))
+- Ignore package core-tester-cli in test coverage reports (#979) ([72ffccf](72ffccf6ac87430e3b2e14879d45e9cf06e35285))
+- Use hapi inject instead of axios (#978) ([2d54da4](2d54da4b1a41a5a7ef923cdf529cc37980e4c957))
+- Webhook event listener (#980) ([76b7f48](76b7f48e41692e5e1b86a25d67c333d2511b18c0))
+- Arkjs removal follow-up (#982) ([b36c245](b36c245ad6e86037948d8274198df32eece10187))
+- V2 peer API (#983) ([9468ca7](9468ca76952b2b241a9b668ce5427d24a747bc3f))
+- UpdateDelegates votebalance (#984) ([8c36df8](8c36df848aa14890d12b5434ef616a841166388b))
+- Expect many or no results from heightRange (#986) ([dbec1e1](dbec1e12878373eeba560e66e32307b5927ddd7a))
+- Circular error when stringifying (#987) ([83bbc4f](83bbc4f5c29f2293e4a19232a50d28931226a5e0))
+- Enable block height caching (#993) ([9791f4d](9791f4dde3c9f7d7f9ef01c0398628caf1174e35))
+- Use repository instead of database (#999) ([a64b309](a64b3096b94c28161c60db5f48a49129978b3a23))
+- Id calculation (#956) ([ffe2704](ffe27042236a3ab6ae9f4a336f5ea0e8acdf16ed))
+- Multisig serialization (#1004) ([aa36582](aa36582eac4a7ad3f965648b96a53e80f2bbbe3d))
+- Core-blockchain (#1006) ([7e88a57](7e88a572fd09fb8bb8edd21746c340e17de725ee))
+- More core-p2p tests (#1011) ([ccb6423](ccb6423897dd97ec3ccabead544b4b6b2b8ef3ab))
+- Use a mock server to test forger client http calls (#1014) ([3474e41](3474e414714711dc9682529b96780b08cf3109cd))
+- Send API client HTTP params (query string) (#1015) ([2b2b5d8](2b2b5d8d3cab49e1089f0ba6f9ae430bda3291de))
+- Graphql queries which were not working after postgres migration (#1017) ([46e5506](46e550628f421539e50caaab97ba5fea44e9f176))
+- Increase coverage of core-forger (#1020) ([3cef75c](3cef75c32f3739c2d154e635f71efd19733ef53a))
+- Sorting of top wallets (#1025) ([3a39e3b](3a39e3b162aa835cf4fc9d4db03eb7482efdd458))
+- Failed to emit event in forger (#1026) ([dda1a8d](dda1a8dab5b5fc0337b38d8768fcb372f043fc29))
+- Turn vote balance to number (#1029) ([aded331](aded3319a08abc4e39a09272c8fc6fd26557d736))
+- Convert Buffer to hex string (#1033) ([8c68b23](8c68b236f4e426f1b72f8b57b2280ea15b7891a9))
+- The `docker-compose.yml` for the development environment (#1035) ([7bc7b32](7bc7b32127db7f9a12aec96e72589b127f220f99))
+- Api v2 transaction search endpoint (#1038) ([b0fce25](b0fce25be6d1492d0123770b78c0e4818bc070de))
+- Delegate registration (#1044) ([82c0ced](82c0ced23b3a4b0b0f257c97b6e3ec8304ba328b))
+- Tester cli multi-sig & other areas (#1045) ([51c9b24](51c9b24db4b7a9cd094764dde88c4f7320bce26d))
+- IdHex calculation and getHeader (#1046) ([1aa695c](1aa695c166d18d03caf3866a7ceed236d6374ce8))
+- Use the accept header instead of api-version (#1032) ([16ebb1b](16ebb1bba3cc40e5ad2a9bb72f01cafd462e5e5a))
+- Update peer height (#1049) ([1c71f00](1c71f0082195aa2d0cddd41530d247e7192f5e70))
+- Check if blockchain is ready (#1052) ([5d30e03](5d30e034604d9f693c4ede96b9a8ba16555b8502))
+- Using correct value in block verify ([1bea74c](1bea74cbe38456129a3ef6f34dfc4fa03cbd57ba))
+- Transaction builder verification (#1055) ([506b8c5](506b8c58498f3447fecefb6d692176279efc3ef5))
+- Missing transaction vendorField (#1064) ([1a13ba4](1a13ba42afd4686931c3808b870effe20cf50a9d))
+- Use correct endpoint version (#1075) ([80a387a](80a387ad9023f64bb9770494511683ccd8536304))
+- Update peer status from http status + manage 'OK' special case + improve suspended peer logging (#1078) ([02167ae](02167aed10265b7d65c6f60757c516f51fee14be))
+- Promise.all() usage (#1079) ([1d6b120](1d6b120c912d3c9a6b054e442154f1902396830a))
+- Client `Accept` header (#1082) ([c6711f1](c6711f13b15e3374388b403b79bf428716963c42))
+- Return false instead of throwing (#1087) ([dad2af4](dad2af47ff2d6332f940fb03e47b84f065f840d3))
+- Check lastBlock for null to reduce noise in unit tests (#1089) ([b657b21](b657b21e764806e4f9b80ee916ce9672b2cfb3eb))
+- Use await for IF condition to work as expected (#1091) ([a4250d4](a4250d4f9344e4fba52afbf559cce5b5b463c70f))
+- Limit decimals to 0 (#1096) ([8f8e0c9](8f8e0c90437f0db63dab7511fa17eb8a5d960ce8))
+- Double spend tests on api, p2p, transaction-pool-redis (#1095) ([ba635f5](ba635f5aac0551152bd5e6ea1ddd90cfe6c83d74))
+- Fix TIMELOCK_TRANSFER usage (#1098) ([23d9d3f](23d9d3f2cfd1b704336beb1366cf1736bad31588))
+- Transactions by blockId (#1101) ([65c161b](65c161ba898ddd5e5d025ab90d282d5abf5aff6d))
+- Verify that the tx are genesis tx (#1102) ([87a1912](87a19122fb6662cd0e1dc4e24844d6764efe9181))
+- Graphql blocks error and relationships (#1100) ([45d139c](45d139ce393f32c5d8a43b712e89710b2899e2e6))
+- Format timestamp (#1106) ([c05ca6e](c05ca6e73eb687671c59a7e132464cd6a0dfa657))
+- Ensure database exists (#1109) ([bd78ef0](bd78ef092d2a953f7a68d101dc71bb86ce1d8460))
+- Client cater for v2 peer list endpoint (#1111) ([f2fc053](f2fc0538a78e27f0f4e33da341bd488ab2b4164a))
+- Manually started blockchain was never stopped (#1114) ([cddd522](cddd522e2fb2e0a47671c109d3f84455ca3605c3))
+- Delegate approval calculation (#1117) ([7f64999](7f64999c9b17f7a3eed6d7af474a107b7b3bd019))
+- Winston file logger format (#1122) ([2bb59c0](2bb59c0dc1e4d7f4afd0097f5f029c90ebad884b))
+- Emptying wallet tests for pool-mem, core-api and core-p2p (#1135) ([18c18eb](18c18ebdf0b75956b2a9d92772a5a4c8872766cf))
+- Replace toBeTruthy / Falsy by toBeTrue / False when appropriate (#1136) ([ff8c4ef](ff8c4efa58105807cec9478795847d5ba12aead7))
+- Cast delegate round to number (#1143) ([6d0479a](6d0479a0ef37679d74f2338713bd8d01ded6f4af))
+- Handle peer sorting for v1 and v2 (#1142) ([b46da4e](b46da4ed685102f45ebc8826831647bf16e3c680))
+- Update core-api test setup + core-p2p ntp mocking for CircleCI (#1150) ([8b9e86c](8b9e86cef9f8c7dff63c2be38f1d0e91f9c03a73))
+- Round to number (#1152) ([82f6f4f](82f6f4f42eebd1b003555ce08474e9da78f24dfa))
+- Only issue equal vote balance warning for active delegates (#1156) ([af50874](af50874df936739fe995dfd787d9eb734d6d1eb4))
+- Reduce nondeterminism in the tx expiration test (#1159) ([3f1f197](3f1f197268220209479b88a75c2d3515800ae649))
+- Invalid async methods (#1162) ([21ee5c2](21ee5c26ee5acad43580b24ea3f4ad0420349ef9))
+- Calculate correct logger padding (#1167) ([822ae01](822ae010872e09d2fdeb30451c63f89a764ab81b))
+- Return delegates list in proper v1 format (#1169) ([53689ea](53689eaf5ab98991e3708da1ee93e2f731339d15))
+- Properly log the transaction audit (#1175) ([f70a05e](f70a05eaea74ca1211dc0630e7c90f07c82b2cb9))
+- Error logging (#1178) ([60d34b2](60d34b28dbd552f3757b4b949095eb1d6aebda74))
+- Update delegate rank for wallet-manager (#1179) ([b27ebb3](b27ebb316752a88796440e88da2810ed838a287b))
+- Failing tests (#1180) ([cf9719e](cf9719e77216790a6c20c0916f0bc56a69a091eb))
+- Call getTransactionIdsForForging() properly (#1181) ([3ce409f](3ce409f9664840eb65edac828852940f5269d8ae))
+- Use the network WIF as default (#1191) ([4a27e7e](4a27e7e4bde44a95c616708e932d91df98db737b))
+- Extend test coverage (#1188) ([99a1e50](99a1e505064d5fd6bfec29a3f0dc26654971dd99))
+- Wrong loader methods (#1194) ([f467535](f4675355f9881b5348f91962f4fc94a4132c58a5))
+- Move orderBy to query parameters ([d13652e](d13652ea0072612dd755d226eaef883a080c337e))
+- Properly filter by ownerId (#1202) ([564198b](564198bcd654a6cae605cf18a489f9646a6aab3c))
+- Fix test "amount > wallet balance" which was testing nothing (#1203) ([2ae992d](2ae992dff950715f6834ac8c22bb7e79263eeb49))
+- Ignore index.js and defaults.js in coverage report (#1199) ([75c70cc](75c70cc003cf0c43aedfc98ddf40bd3d2235d69e))
+- Change API client to use the configured `core-api` port (#1138) ([1fb0272](1fb027228cf96de463610d00d92af83f0f50bf42))
+- Implement the 'remove forged during our downtime' test (#1209) ([5155089](5155089d4f734e42134ff18a283154d415bbfe29))
+- Invalid sorting columns crash (#1212) ([6c5b653](6c5b65303b168ddf739132eb79913824c7dc4096))
+- Handle senderId as snake_case (#1216) ([b26e528](b26e528afe2af6f4a7466299a64d2feee03e659e))
+- Allow p2p config without headers (#1222) ([d644e68](d644e68f3e352bd8b73bcf5cb0ea132510f9ded6))
+- Vote command (#1231) ([bbc5ac1](bbc5ac15938c1684a8308ff3a3cfd566ed608ec2))
+- Mark block IDs as unsafe integers (#1232) ([2a31479](2a3147914470afcb755ea8e6fac7e3d9666dfe8a))
+- Allow ownerId as search parameter ([795d9f2](795d9f2c856604e8d2ebff90c1eba6ca235b6926))
+- Stop plugin setup on container shutdown (#1247) ([0dc6725](0dc67256a94efe4e5a100f2a2c81bc5baa95ac03))
+- Uppercase publicKey/signature fields when read from sqlite (#1259) ([fcb4602](fcb460212e8607a902905a16ab10139cc1fdd0f7))
+- Don't accept forger as peer (#1269) ([b89bd2b](b89bd2b513efc04b58fa1b255b324bd548843fd5))
+- Restrict regex to .js and .json files (#1272) ([47bb091](47bb091a78deb2116d20edc1830321d5207c4a22))
+- Lowercase orderBy params (#1275) ([bd484e6](bd484e69d01baf04ac102013392a3424e86f3941))
+- Sorting and limiting of records (#1271) ([e92ad15](e92ad1548bcf48a3d4a22fd5fe9f681e9617fe63))
+- Malformed orderBy query behaviour for blocks (#1282) ([23fee42](23fee42b0c69a8c49ae51478875e2b7bbce4a01f))
+- Fee parsing & display output in ark (#1280) ([eb87b12](eb87b126d7c6f8618b2f4ecf18ee32df7d4c0e4a))
+- Sort transactions by numerical fee value (#1288) ([ba9c990](ba9c9906cd737163c8619103bae24e3bfb86cde0))
+- Incorrect destination balance logs (#1291) ([9d9c725](9d9c725fc125407ba664c921d04ff0e61e233007))
+- Validate the vendor field length (#1289) ([ab9553d](ab9553d8da60880953fe975fc4938a175576ca6f))
+- Include webhook ID in update schema (#1295) ([f19f8e7](f19f8e7eb559eea73f97faf1fda6c169b5ac26de))
+- Accept v1 peers ([157dd46](157dd46977158f0ad312334ff4da0bb7059f513b))
+- Properly exit if no forgers are configured (#1294) ([3989037](398903716b3cea9986b1e27dac697b152aa4a5a8))
+- Fix sorting of votes during SPV (#1303) ([f03eac1](f03eac1ca5985ca7e4218c061bfe84877b59ff70))
+- Sort votes by ascending sequence (#1305) ([64439cf](64439cf83e5d05cdddf7e9064aa25e45a44c183c))
+- Rollback file location storage (#1307) ([9c2b801](9c2b8010b70060e6a9f615fa49f03385b004d8f8))
+- Do not handle all !=TRANSFER transactions as VOTE ([3c9a092](3c9a0929e8faa7f453416f46145430fe8101af4f))
+- Make sure state is ready in guard (#1311) ([f4bd3a4](f4bd3a49f7264760451c01d4ef017e7b212fe681))
+- Vendor field length validation (#1320) ([3605e12](3605e128ee078c425c2d68d8c37e4a0ee2e91739))
+- Try to recover when missing blocks (#1317) ([9245249](92452495e27b0e603f026984d4b6a8c665d9dd68))
+- Handle unexpected transaction errors in guard (#1322) ([bf04094](bf04094bd5882f493993f8d0429f200513cfbeb6))
+- Get suspended peers (#1330) ([d1f1382](d1f1382fd7fd51a289c3bfb97675b4f2eb82c30f))
+- Fix wrong route (#1334) ([c21d456](c21d4561fe9c555988f0e9a8aabdb9ae757fa3d4))
+- Retry in getTransactionsForForging() (#1350) ([a07be2a](a07be2a12a9a73847fc453fa1c7732b9efd0bbdc))
+- Use transaction builder network version as default (#1354) ([866b1b5](866b1b5fc6dcb705c93a01348d3a35d29bc94f24))
+- Correctly update lastDownloadedBlock when not ready to accept (#1355) ([2e84c10](2e84c103fea82e616ea97b2a4682422541732ca3))
+- Improved block property assertions (#1319) ([c6772ed](c6772ed7298650e0f3d2796231d831a84dd3d96f))
+- Return total forged and total transaction amount (#1359) ([505fbff](505fbff746520db6570bdb8a8ea51ebc30b2d8c8))
+- Pluralisation condition (#1361) ([9fc8559](9fc8559b880cc804b6cc9abeda133ad8cfa6df70))
+- Properly verify the payload length of blocks (#1362) ([959a22b](959a22b0621c80c059be1135a202873aa3d61b57))
+- Disable payload length check for now ([3a4bb56](3a4bb56c0058b46ab769b599cc20a89bcd6b63b9))
+- Pagination allow 0 offset (#1374) ([a0a4935](a0a493515e9c0bf42c39addc1252844a06d944fc))
+- Only call checkLater if not called yet (#1376) ([c7bae71](c7bae711855d1e27b1b3c991bb657ecce638b595))
+- OrderBy for wallet transaction endpoints (#1380) ([78d4030](78d40309e71dad0e530cf5e69c5c2cc6fb5cd002))
+- Pagination in wallet transactions endpoint (#1384) ([f5226bd](f5226bda8a9b3a1de6fdbc5742bf74a51bbcfb71))
+- Broken naming (#1386) ([51a2c2f](51a2c2fc42c810a90f40c9751389dc8ed35358ad))
+- Revert not matching dynamic fee transactions in the pool-wallet-manager (#1389) ([0a5bcd3](0a5bcd3e1354332a9fe5184dd63e89a19f62520c))
+- Move exit handler registration to setUp (#1391) ([9dffe07](9dffe0784a7702923dbd3ab12207ccbc03492902))
+- Revert excess and possible duplicates due to race conditions. (#1394) ([0f3a945](0f3a945fc4278bed09f94820dd509621398774ae))
+- Exclude tx from broadcast if it is already in the pool (#1399) ([0e6ce68](0e6ce682b77f2500f127a902b6e96334fe0e1682))
+- Fork fixes (#1396) ([3a031f4](3a031f446fba9678447d2fed9a6431e47c834726))
+- Delegate-registration command (#1409) ([bf83f0b](bf83f0bca3510deb40b608dad33339422a2b1439))
+- Second-signature command (#1404) ([4cb3df2](4cb3df2b1c12bdc336e04bfbd39a6aa34f6c2b2a))
+- Cleanup after remote loader test (#1406) ([5dbbc81](5dbbc8121def958870b17d89d8f65b8696c881fc))
+- Reject transactions from the future (#1408) ([90525be](90525be59454e02002351ea5965824ee30fb4f31))
+- Run command (#1416) ([029a708](029a708ca4c01c5fd0e7752f3e3c2586066da4f4))
+- Generate wallet command (#1417) ([445cca6](445cca67826c6e1db37ccb559ca9330f52975636))
+- Init command (#1415) ([59d63d9](59d63d9508e40a0786583dcde26e827d487dbd1a))
+- Private functions tests (#1425) ([457fef4](457fef4e34e3b27ac07991ddfbb4b12d37652a14))
+- Finish commands tests (#1429) ([20e4419](20e44197a39c77d7d0fa4d2f9c4bcf0a2606c29a))
+- Adjust some validation extensions (#1431) ([a1ceafd](a1ceafd307ab4e9b9be84e735ed97aaca21d2dbb))
+- Vote sign with wif (#1432) ([829a43b](829a43b370eae4c2865fad80ae6e8267f4425f70))
+- Second passphrase config (#1441) ([c61108f](c61108f55a551831aec14dbfdcfc307440a2c574))
+- Pool wallet manager / wallet manager + small fixes (#1445) ([212dbc5](212dbc5f379953a562508ea14eebfecca261b624))
+- Allowed sender (#1451) ([180b57a](180b57ac0efa946426a4a63c4a92ce12d1142962))
+- Grab the number of max transactions instead of a fixed 100 (#1453) ([9160973](9160973ec7ec3f8c6d7747848378b7b50e16d045))
+- Also remove cached transactions when building wallets (#1458) ([7dcb557](7dcb55710062994fc132476f6e58617809ac1e52))
+- Update .skip() tests + small fixes (#1469) ([552dade](552dadeb227a899081c8a1a5dba192ee03f7f103))
+- Rollback the sqlite transaction if it aborts (#1471) ([f667c73](f667c738086e30815eb1be028e5880d13fc1c7d3))
+- Update .skip() tests (again) + small changes (#1473) ([39d6e43](39d6e433403e57b94f708e3a1c22b05e6e605e77))
+- Wrong log statements (#1476) ([a3bdee6](a3bdee683ced8dfcd8c9328e6c1b9b09fcfb18f9))
+- Cast env options to number (#1490) ([25cc2da](25cc2da937f9080c49fe276d2969944502bb70b3))
+- Keep transaction broadcast when pool is full (#1493) ([f6dc01d](f6dc01d653d702353b95c380886567754b3a339d))
+- Properly return boom errors if cached (#1496) ([084b7ec](084b7ec30c645a17c81af395a25fd3e64489076f))
+- Properly return boom errors if cached (#1497) ([b462a7e](b462a7e98c1c96be4bdc471aec3b6ef5c2799203))
+- Payload validation for v1 p2p tx endpoint (#1498) ([477a578](477a57847b00b060f4e955dce216f14095270f70))
+- Enable core-api by default on mainnet (#1503) ([4c5f3a0](4c5f3a0fc4804ca89aa52c849954c99477e6e196))
+- Do not use __mocks__ folder as it mocks for all tests (#1506) ([7ef2947](7ef2947f21104d780bba0f05a5f62ecc3c38b263))
+- Purge bad block transactions from pool (#1509) ([c1bdf4d](c1bdf4d01a8c138ed350662c278ceded2439bc7a))
+- Purge block (#1510) ([194c28c](194c28cc34151d2ba411e79cd1245d2b79123d32))
+- Handle empty transaction payloads due to content-type (#1516) ([9126b94](9126b9438fad5a062d1d73b25d3dbc0d78c3c90f))
+- Condition delete pool wallet (#1515) ([314bbc5](314bbc58be8de8d889c737a5d0f59f0f609b6d8b))
+- Dont cache if tx cannot be applied (#1518) ([8a27e56](8a27e56424c1b0fe460129c4460803e9fd26caf3))
+- Quorum issue (#1519) ([2eb0ea8](2eb0ea8a077f3e41d0d89a53da661c71a54c31c1))
+- Check for cold wallet and apply tx when sender unknown (#1522) ([55cded4](55cded4f7e908985464fdcb46776daa1f37741e2))
+- Pool wallet "chained transfers" tests (#1530) ([01a4e26](01a4e261fc5503af23b0b6fa51126f3af1af1da2))
+- Fix cold wallet check (#1533) ([086aac1](086aac1907efd581625c76c37211642c9e59cec8))
+- Properly filter out any version mismatch peers (#1529) ([b22ca35](b22ca355e30fbc4ac276dddc1975e1b311cd2885))
+- Properly filter out any version mismatch peers (#1535) ([bf66701](bf6670159a5f7496262da0879869d0710c254f80))
+- Hashid missing from headers (#1536) ([1467dec](1467dec1ac0246bd751e94530ef93f6c5be6373c))
+- Fix app being declared twice (#1537) ([1a1417c](1a1417c2144253386c0c4056d3955415917e5490))
+- Call updateNetworkStatus with possible networkStart option (#1543) ([0ae1aef](0ae1aef265c4e88dad1d942f46c220a96a6fa50a))
+- Do not show discovery logs when discovery is skipped (#1541) ([79e3acd](79e3acd3d617f2b8d9bb11d245cbba941afcacc5))
+- Pool wallet manager update wallets when receiving new block (#1548) ([2bd93fd](2bd93fddaef49b41be2271b4e9d06784d4975408))
+- Move wallets table integrity check to SPV (#1549) ([ef560a5](ef560a57acc0c3a81594426853ab86ff9384d632))
+- Transaction pool wallet manager apply logic change (#1547) ([cc488d6](cc488d677505c645f15cec9fd8aaee56c7bba647))
+- Insert bignumber as string (#1550) ([d0ec1f6](d0ec1f6c5cfac1f4fbf01828cdb784f8a13764d6))
+- Set hashid length to 8 (#1551) ([be4d2d6](be4d2d688116bd0a2efd9b2f78394a2bd090da51))
+- Typo in changed defaults (#1556) ([d05815d](d05815def5af041cfa01ccb598e28f7bd383eef7))
+
+### Removed
+
+- Remove console.log ([4dfb813](4dfb81308402c055d12ffedf7dad660dd078d77b))
+- Remove console.log ([78e1802](78e1802433bc35c36cc33bffca2148019addee1e))
+- Remove peer if suspended ([a3a3d1a](a3a3d1ad9ef8b2bef2f889c843e286cc86af2834))
+- Remove incorrect test ([fe4e192](fe4e192a2556c7c94ffc01a4cb584915d198223e))
+- RemoveTransactionById (#819) ([3211f8a](3211f8af47ed8666adf5f8bacb471b72547d321c))
+- Remove head merge left-over ([f13061b](f13061bf9d2e9c04e78d05ab6233fe5cdc789d79))
+- Remove username logging in forger (no access to wallets) (#855) ([6fc6080](6fc6080acfa0021a926b71af4a51555bf8b709cc))
+- Delete ID query parameter to prevent faulty query for votes (#883) ([8c9de7f](8c9de7f71a2a24b57cdc2ce2b585ac6c049deb54))
+- Delete blocks on commit (#1113) ([eb2211f](eb2211fbfbba0fadd59ed4bc52c3a48948208d37))
+- Remove the `--watch` option of `test:debugger` to ensure that it works (#1144) ([a230fe5](a230fe5644a2ebe4ac31e1ef5aa914c61a9aa8aa))
+- Remove assert (#1270) ([7db2d1f](7db2d1fe0a75d71766b1f5ccba820316548f5f6b))
+- Remove test commands from packages that don't have tests (#1279) ([ac6f819](ac6f8194276900efebe128eb7f58bb2476a1d60f))
+- Remove duplicate secrets (#1344) ([ba930d6](ba930d61fffeae27f7dd301e89482c4be4f6fa4d))
+- Remove old maximum payload length check for blocks (#1360) ([035d090](035d0900e3ec1d7724b62f4660c12a1005bd7826))
+- Remove tx from broadcast when already forged (#1460) ([3d1aeb7](3d1aeb7d95c9cc8b28728d0c52c485473714052a))
+- Remove invalid transactions from pool when receiving a bad block (#1499) ([258fb7d](258fb7d487958f6163aae4d1392f66b7ce9e6ece))
+- Remove cold wallet check (#1512) ([9d94dce](9d94dced028ff46dcb7fcebc788dc54c85119a91))
+
+<!-- generated by git-cliff -->
