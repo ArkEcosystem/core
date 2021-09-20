@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-magistrate-transactions",
-    "version": "3.0.0-next.37",
+    "version": "3.0.0-next.38",
     "description": "ARK transactions for businesses and bridgechains",
     "license": "MIT",
     "contributors": [
@@ -21,10 +21,10 @@
         "prepublishOnly": "yarn build"
     },
     "dependencies": {
-        "@arkecosystem/core-kernel": "3.0.0-next.37",
-        "@arkecosystem/core-magistrate-crypto": "3.0.0-next.37",
-        "@arkecosystem/core-transactions": "3.0.0-next.37",
-        "@arkecosystem/crypto": "3.0.0-next.37"
+        "@arkecosystem/core-kernel": "3.0.0-next.38",
+        "@arkecosystem/core-magistrate-crypto": "3.0.0-next.38",
+        "@arkecosystem/core-transactions": "3.0.0-next.38",
+        "@arkecosystem/crypto": "3.0.0-next.38"
     },
     "publishConfig": {
         "access": "public"
