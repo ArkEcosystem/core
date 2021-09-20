@@ -6,7 +6,7 @@ describe("castFlagsToString", () => {
             castFlagsToString({
                 key: "value",
             }),
-        ).toEqual("--key=value");
+        ).toEqual("--key='value'");
     });
 
     it("should handle strings with spaces", () => {
@@ -14,7 +14,7 @@ describe("castFlagsToString", () => {
             castFlagsToString({
                 key: "hello world",
             }),
-        ).toEqual('--key="hello world"');
+        ).toEqual("--key='hello world'");
     });
 
     it("should handle integers", () => {
@@ -42,6 +42,6 @@ describe("castFlagsToString", () => {
                 },
                 ["ignore"],
             ),
-        ).toEqual("--key=value");
+        ).toEqual("--key='value'");
     });
 });
