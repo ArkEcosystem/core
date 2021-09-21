@@ -1,4 +1,4 @@
-import { freemem, totalmem } from "os";
+import { totalmem } from "os";
 
 import { Application } from "../application";
 import { Spinner } from "../components";
@@ -59,9 +59,7 @@ export class DaemonizeProcess {
 
             flagsProcess.name = processName;
 
-            const totalMemGb: number = totalmem() / Math.pow(1024, 3);
-            const freeMemGb: number = freemem() / Math.pow(1024, 3);
-            const potato: boolean = totalMemGb < 2 || freeMemGb < 1.5;
+            const potato: boolean = totalmem() < 2 * 1024 ** 3;
 
             this.processManager.start(
                 {

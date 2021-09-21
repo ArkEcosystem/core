@@ -91,7 +91,6 @@ describe("DaemonizeProcess", () => {
         const has = jest.spyOn(processManager, "has").mockReturnValue(true);
         const isUnknown = jest.spyOn(processManager, "isUnknown").mockReturnValue(false);
         const isOnline = jest.spyOn(processManager, "isOnline").mockReturnValue(false);
-        const freemem = jest.spyOn(os, "freemem").mockReturnValue(99999999999);
         const totalmem = jest.spyOn(os, "totalmem").mockReturnValue(99999999999);
         const start = jest.spyOn(processManager, "start").mockImplementation(undefined);
 
@@ -107,7 +106,6 @@ describe("DaemonizeProcess", () => {
         expect(has).toHaveBeenCalledWith("ark-core");
         expect(isUnknown).toHaveBeenCalledWith("ark-core");
         expect(isOnline).toHaveBeenCalledWith("ark-core");
-        expect(freemem).toHaveBeenCalled();
         expect(totalmem).toHaveBeenCalled();
         expect(start).toHaveBeenCalledWith(
             {
@@ -123,7 +121,6 @@ describe("DaemonizeProcess", () => {
         has.mockClear();
         isUnknown.mockClear();
         isOnline.mockClear();
-        freemem.mockClear();
         totalmem.mockClear();
         start.mockClear();
     });
@@ -132,7 +129,6 @@ describe("DaemonizeProcess", () => {
         const has = jest.spyOn(processManager, "has").mockReturnValue(true);
         const isUnknown = jest.spyOn(processManager, "isUnknown").mockReturnValue(false);
         const isOnline = jest.spyOn(processManager, "isOnline").mockReturnValue(false);
-        const freemem = jest.spyOn(os, "freemem").mockReturnValue(99999999999);
         const totalmem = jest.spyOn(os, "totalmem").mockReturnValue(99999999999);
         const start = jest.spyOn(processManager, "start").mockImplementation(undefined);
 
@@ -148,7 +144,6 @@ describe("DaemonizeProcess", () => {
         expect(has).toHaveBeenCalledWith("ark-core");
         expect(isUnknown).toHaveBeenCalledWith("ark-core");
         expect(isOnline).toHaveBeenCalledWith("ark-core");
-        expect(freemem).toHaveBeenCalled();
         expect(totalmem).toHaveBeenCalled();
         expect(start).toHaveBeenCalledWith(
             {
@@ -164,7 +159,6 @@ describe("DaemonizeProcess", () => {
         has.mockClear();
         isUnknown.mockClear();
         isOnline.mockClear();
-        freemem.mockClear();
         totalmem.mockClear();
         start.mockClear();
     });
@@ -173,7 +167,6 @@ describe("DaemonizeProcess", () => {
         const has = jest.spyOn(processManager, "has").mockReturnValue(true);
         const isUnknown = jest.spyOn(processManager, "isUnknown").mockReturnValue(false);
         const isOnline = jest.spyOn(processManager, "isOnline").mockReturnValue(false);
-        const freemem = jest.spyOn(os, "freemem").mockReturnValue(99999999999);
         const totalmem = jest.spyOn(os, "totalmem").mockReturnValue(99999999999);
         const start = jest.spyOn(processManager, "start").mockImplementation(undefined);
 
@@ -189,7 +182,6 @@ describe("DaemonizeProcess", () => {
         expect(has).toHaveBeenCalledWith("ark-core");
         expect(isUnknown).toHaveBeenCalledWith("ark-core");
         expect(isOnline).toHaveBeenCalledWith("ark-core");
-        expect(freemem).toHaveBeenCalled();
         expect(totalmem).toHaveBeenCalled();
         expect(start).toHaveBeenCalledWith(
             {
@@ -205,7 +197,6 @@ describe("DaemonizeProcess", () => {
         has.mockClear();
         isUnknown.mockClear();
         isOnline.mockClear();
-        freemem.mockClear();
         totalmem.mockClear();
         start.mockClear();
     });
@@ -214,8 +205,7 @@ describe("DaemonizeProcess", () => {
         const has = jest.spyOn(processManager, "has").mockReturnValue(true);
         const isUnknown = jest.spyOn(processManager, "isUnknown").mockReturnValue(false);
         const isOnline = jest.spyOn(processManager, "isOnline").mockReturnValue(false);
-        const freemem = jest.spyOn(os, "freemem").mockReturnValue(1);
-        const totalmem = jest.spyOn(os, "totalmem").mockReturnValue(1);
+        const totalmem = jest.spyOn(os, "totalmem").mockReturnValue(2 * 1024 ** 3 - 1);
         const start = jest.spyOn(processManager, "start").mockImplementation(undefined);
 
         action.execute(
@@ -230,7 +220,6 @@ describe("DaemonizeProcess", () => {
         expect(has).toHaveBeenCalledWith("ark-core");
         expect(isUnknown).toHaveBeenCalledWith("ark-core");
         expect(isOnline).toHaveBeenCalledWith("ark-core");
-        expect(freemem).toHaveBeenCalled();
         expect(totalmem).toHaveBeenCalled();
         expect(start).toHaveBeenCalledWith(
             {
@@ -251,7 +240,6 @@ describe("DaemonizeProcess", () => {
         has.mockClear();
         isUnknown.mockClear();
         isOnline.mockClear();
-        freemem.mockClear();
         totalmem.mockClear();
         start.mockClear();
     });
@@ -260,7 +248,6 @@ describe("DaemonizeProcess", () => {
         const has = jest.spyOn(processManager, "has").mockReturnValue(true);
         const isUnknown = jest.spyOn(processManager, "isUnknown").mockReturnValue(false);
         const isOnline = jest.spyOn(processManager, "isOnline").mockReturnValue(false);
-        const freemem = jest.spyOn(os, "freemem").mockReturnValue(99999999999);
         const totalmem = jest.spyOn(os, "totalmem").mockReturnValue(99999999999);
         const start = jest.spyOn(processManager, "start").mockImplementation(() => {
             throw new Error("unexpected error");
@@ -280,7 +267,6 @@ describe("DaemonizeProcess", () => {
         expect(has).toHaveBeenCalledWith("ark-core");
         expect(isUnknown).toHaveBeenCalledWith("ark-core");
         expect(isOnline).toHaveBeenCalledWith("ark-core");
-        expect(freemem).toHaveBeenCalled();
         expect(totalmem).toHaveBeenCalled();
         expect(start).toHaveBeenCalledWith(
             {
@@ -296,7 +282,6 @@ describe("DaemonizeProcess", () => {
         has.mockClear();
         isUnknown.mockClear();
         isOnline.mockClear();
-        freemem.mockClear();
         totalmem.mockClear();
         start.mockClear();
     });
@@ -305,7 +290,6 @@ describe("DaemonizeProcess", () => {
         const has = jest.spyOn(processManager, "has").mockReturnValue(true);
         const isUnknown = jest.spyOn(processManager, "isUnknown").mockReturnValue(false);
         const isOnline = jest.spyOn(processManager, "isOnline").mockReturnValue(false);
-        const freemem = jest.spyOn(os, "freemem").mockReturnValue(99999999999);
         const totalmem = jest.spyOn(os, "totalmem").mockReturnValue(99999999999);
         const start = jest.spyOn(processManager, "start").mockImplementation(() => {
             const error: Error = new Error("hello world");
@@ -329,7 +313,6 @@ describe("DaemonizeProcess", () => {
         expect(has).toHaveBeenCalledWith("ark-core");
         expect(isUnknown).toHaveBeenCalledWith("ark-core");
         expect(isOnline).toHaveBeenCalledWith("ark-core");
-        expect(freemem).toHaveBeenCalled();
         expect(totalmem).toHaveBeenCalled();
         expect(start).toHaveBeenCalledWith(
             {
@@ -345,7 +328,6 @@ describe("DaemonizeProcess", () => {
         has.mockClear();
         isUnknown.mockClear();
         isOnline.mockClear();
-        freemem.mockClear();
         totalmem.mockClear();
         start.mockClear();
     });
