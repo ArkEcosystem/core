@@ -1,4 +1,4 @@
-import { freemem, totalmem } from "os";
+import { totalmem } from "os";
 
 import { Application } from "../application";
 import { Spinner } from "../components";
