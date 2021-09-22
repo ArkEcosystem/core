@@ -52,6 +52,3 @@ jobs:
                   cd core && npm publish --access public && cd ..
               env:
                   NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
-
-              env:
-                  NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
