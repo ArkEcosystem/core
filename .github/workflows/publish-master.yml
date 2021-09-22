@@ -29,26 +29,60 @@ jobs:
 
             - name: Publish to NPM
               run: |
+name: Publish (Master)
+
+on:
+    push:
+        branches:
+            - "master"
+
+jobs:
+    build:
+        if: "contains(github.event.head_commit.message, 'release:')"
+
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v2
+
+            - name: Set up Python 2.7
+              uses: actions/setup-python@v2
+              with:
+                  python-version: "2.7"
+
+            - uses: actions/setup-node@v1
+              with:
+                  node-version: 12
+                  registry-url: https://registry.npmjs.org/
+
+            - name: Install & Build
+              run: yarn setup
+
+            - name: Publish to NPM
+              run: |
                   cd packages
-                  cd crypto && npm publish --access public --tag next && cd ..
-                  cd core-api && npm publish --access public --tag next && cd ..
-                  cd core-blockchain && npm publish --access public --tag next && cd ..
-                  cd core-cli && npm publish --access public --tag next && cd ..
-                  cd core-database && npm publish --access public --tag next && cd ..
-                  cd core-forger && npm publish --access public --tag next && cd ..
-                  cd core-kernel && npm publish --access public --tag next && cd ..
-                  cd core-logger-pino && npm publish --access public --tag next && cd ..
-                  cd core-magistrate-api && npm publish --access public --tag next && cd ..
-                  cd core-magistrate-crypto && npm publish --access public --tag next && cd ..
-                  cd core-magistrate-transactions && npm publish --access public --tag next && cd ..
-                  cd core-manager && npm publish --access public --tag next && cd ..
-                  cd core-p2p && npm publish --access public --tag next && cd ..
-                  cd core-snapshots && npm publish --access public --tag next && cd ..
-                  cd core-state && npm publish --access public --tag next && cd ..
-                  cd core-test-framework && npm publish --access public --tag next && cd ..
-                  cd core-transaction-pool && npm publish --access public --tag next && cd ..
-                  cd core-transactions && npm publish --access public --tag next && cd ..
-                  cd core-webhooks && npm publish --access public --tag next && cd ..
-                  cd core && npm publish --access public --tag next && cd ..
+                  cd crypto && npm publish --access public && cd ..
+                  cd core-api && npm publish --access public && cd ..
+                  cd core-blockchain && npm publish --access public && cd ..
+                  cd core-cli && npm publish --access public && cd ..
+                  cd core-database && npm publish --access public && cd ..
+                  cd core-forger && npm publish --access public && cd ..
+                  cd core-kernel && npm publish --access public && cd ..
+                  cd core-logger-pino && npm publish --access public && cd ..
+                  cd core-magistrate-api && npm publish --access public && cd ..
+                  cd core-magistrate-crypto && npm publish --access public && cd ..
+                  cd core-magistrate-transactions && npm publish --access public && cd ..
+                  cd core-manager && npm publish --access public && cd ..
+                  cd core-p2p && npm publish --access public && cd ..
+                  cd core-snapshots && npm publish --access public && cd ..
+                  cd core-state && npm publish --access public && cd ..
+                  cd core-test-framework && npm publish --access public && cd ..
+                  cd core-transaction-pool && npm publish --access public && cd ..
+                  cd core-transactions && npm publish --access public && cd ..
+                  cd core-webhooks && npm publish --access public && cd ..
+                  cd core && npm publish --access public && cd ..
+              env:
+                  NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+
               env:
                   NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
