@@ -1,0 +1,36 @@
+{
+    "name": "@types/uuid",
+    "version": "3.4.5",
+    "description": "TypeScript definitions for uuid",
+    "license": "MIT",
+    "contributors": [
+        {
+            "name": "Oliver Hoffmann",
+            "url": "https://github.com/iamolivinius",
+            "githubUsername": "iamolivinius"
+        },
+        {
+            "name": "Felipe Ochoa",
+            "url": "https://github.com/felipeochoa",
+            "githubUsername": "felipeochoa"
+        },
+        {
+            "name": "Chris Barth",
+            "url": "https://github.com/cjbarth",
+            "githubUsername": "cjbarth"
+        }
+    ],
+    "main": "",
+    "types": "index",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/DefinitelyTyped/DefinitelyTyped.git",
+        "directory": "types/uuid"
+    },
+    "scripts": {},
+    "dependencies": {
+        "@types/node": "*"
+    },
+    "typesPublisherContentHash": "a10d638ea8a096d40c44c9c3ef7d6c85ad3f8849386f1ce43096385bf47cadc9",
+    "typeScriptVersion": "2.2"
+}

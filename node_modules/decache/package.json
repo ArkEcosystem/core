@@ -1,0 +1,47 @@
+{
+  "name": "decache",
+  "version": "3.1.0",
+  "description": "decache (Delete Cache) lets you delete modules from node.js require() cache; useful when testing your modules/projects.",
+  "main": "decache.js",
+  "scripts": {
+    "nocov": "./node_modules/tape/bin/tape ./test/test.js",
+    "test": "./node_modules/.bin/istanbul cover ./node_modules/tape/bin/tape ./test/*.js",
+    "coverage": "./node_modules/.bin/istanbul cover ./node_modules/tape/bin/tape ./test/*.js && ./node_modules/.bin/istanbul check-coverage --statements 100 --functions 100 --lines 100 --branches 100",
+    "jshint": "./node_modules/jshint/bin/jshint -c .jshintrc --exclude-path .gitignore ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dwyl/decache.git"
+  },
+  "keywords": [
+    "delete",
+    "node.js",
+    "require",
+    "cache",
+    "uncache",
+    "un-require"
+  ],
+  "author": "@besarthoxhaj & @nelsonic (with help from StackOverflow)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dwyl/decache/issues"
+  },
+  "homepage": "https://github.com/dwyl/decache#readme",
+  "directories": {
+    "test": "test"
+  },
+  "devDependencies": {
+    "istanbul": "^0.4.2",
+    "jshint": "^2.9.1",
+    "pre-commit": "^1.1.2",
+    "tap-spec": "^4.1.1",
+    "tape": "^4.4.0"
+  },
+  "pre-commit": [
+    "jshint",
+    "coverage"
+  ],
+  "dependencies": {
+    "find": "^0.2.4"
+  }
+}

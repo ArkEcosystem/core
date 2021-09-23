@@ -1,0 +1,8 @@
+{
+  "name": "alises/project",
+  "require": {
+    "php": ">=5.3.2",
+    "symfony/monolog-bundle": "^3.1",
+    "symfony/monolog-bridge": "2.6 as 2.7"
+  }
+}

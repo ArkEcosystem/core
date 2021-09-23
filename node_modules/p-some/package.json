@@ -1,0 +1,48 @@
+{
+	"name": "p-some",
+	"version": "4.1.0",
+	"description": "Wait for a specified number of promises to be fulfilled",
+	"license": "MIT",
+	"repository": "sindresorhus/p-some",
+	"author": {
+		"name": "Sindre Sorhus",
+		"email": "sindresorhus@gmail.com",
+		"url": "sindresorhus.com"
+	},
+	"engines": {
+		"node": ">=8"
+	},
+	"scripts": {
+		"test": "xo && ava && tsd"
+	},
+	"files": [
+		"index.js",
+		"index.d.ts"
+	],
+	"keywords": [
+		"promise",
+		"some",
+		"resolved",
+		"wait",
+		"collection",
+		"iterable",
+		"iterator",
+		"race",
+		"fulfilled",
+		"fastest",
+		"async",
+		"await",
+		"promises",
+		"bluebird"
+	],
+	"dependencies": {
+		"aggregate-error": "^3.0.0",
+		"p-cancelable": "^2.0.0"
+	},
+	"devDependencies": {
+		"ava": "^1.4.1",
+		"delay": "^4.1.0",
+		"tsd": "^0.7.2",
+		"xo": "^0.24.0"
+	}
+}

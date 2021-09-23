@@ -1,0 +1,12 @@
+export declare const between: (actual: any, expected: any) => boolean;
+export declare const contains: (actual: any, expected: any) => boolean;
+export declare const eq: (actual: any, expected: any) => boolean;
+export declare const falsy: (actual: any) => boolean;
+export declare const gt: (actual: any, expected: any) => boolean;
+export declare const gte: (actual: any, expected: any) => boolean;
+export declare const lt: (actual: any, expected: any) => boolean;
+export declare const lte: (actual: any, expected: any) => boolean;
+export declare const ne: (actual: any, expected: any) => boolean;
+export declare const notBetween: (actual: any, expected: any) => boolean;
+export declare const regexp: (actual: any, expected: any) => boolean;
+export declare const truthy: (actual: any) => boolean;

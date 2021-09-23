@@ -1,0 +1,1 @@
+{"version":3,"file":"span.js","sourceRoot":"","sources":["../src/span.ts"],"names":[],"mappings":"","sourcesContent":["/** Span holding trace_id, span_id */\nexport interface Span {\n  /** Return a traceparent compatible header string */\n  toTraceparent(): string;\n  /** Convert the object to JSON */\n  toJSON(): object;\n}\n"]}

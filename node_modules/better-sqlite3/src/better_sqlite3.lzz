@@ -1,0 +1,41 @@
+#hdr
+#include <climits>
+#include <cstdio>
+#include <cstring>
+#include <string>
+#include <vector>
+#include <set>
+#include <unordered_map>
+#include <sqlite3.h>
+#include <node.h>
+#include <node_object_wrap.h>
+#include <node_buffer.h>
+#end
+#src
+NODE_MODULE(better_sqlite3, RegisterModule);
+#end
+
+#insert "util/macros.lzz"
+#insert "util/query-macros.lzz"
+#insert "util/constants.lzz"
+#insert "util/bind-map.lzz"
+#insert "util/integer.lzz"
+#insert "objects/database.lzz"
+#insert "objects/statement.lzz"
+#insert "objects/statement-iterator.lzz"
+#insert "objects/backup.lzz"
+#insert "util/custom-function.lzz"
+#insert "util/custom-aggregate.lzz"
+#insert "util/data.lzz"
+#insert "util/binder.lzz"
+
+void RegisterModule(v8::Local<v8::Object> exports, v8::Local<v8::Object> module) {
+	EasyIsolate;
+	NewHandleScope;
+	CS::Init(isolate, exports, module);
+	Integer::Init(isolate, exports, module);
+	Database::Init(isolate, exports, module);
+	Statement::Init(isolate, exports, module);
+	StatementIterator::Init(isolate, exports, module);
+	Backup::Init(isolate, exports, module);
+}

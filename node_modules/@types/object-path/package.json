@@ -1,0 +1,28 @@
+{
+    "name": "@types/object-path",
+    "version": "0.11.0",
+    "description": "TypeScript definitions for objectPath",
+    "license": "MIT",
+    "contributors": [
+        {
+            "name": "Paulo Cesar",
+            "url": "https://github.com/pocesar",
+            "githubUsername": "pocesar"
+        },
+        {
+            "name": "BendingBender",
+            "url": "https://github.com/BendingBender",
+            "githubUsername": "BendingBender"
+        }
+    ],
+    "main": "",
+    "types": "index",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/DefinitelyTyped/DefinitelyTyped.git"
+    },
+    "scripts": {},
+    "dependencies": {},
+    "typesPublisherContentHash": "1b308c5cab9e01cf511d35e6292511388ecc9491f6f2fcd1fd1fc6555781ab79",
+    "typeScriptVersion": "2.3"
+}

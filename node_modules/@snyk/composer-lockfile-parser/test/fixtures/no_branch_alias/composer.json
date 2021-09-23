@@ -1,0 +1,10 @@
+{
+  "name": "test_of/null_branch_alias",
+  "require": {
+    "php": ">=5.5.9",
+    "josantonius/router": "^1.0.9"
+  },
+  "extra": {
+    "branch-alias": null
+  }
+}

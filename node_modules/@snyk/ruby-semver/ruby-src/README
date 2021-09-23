@@ -1,0 +1,8 @@
+This directory contains code copied directly from rubygems (ruby 2.3.1p112 (2016-04-26 revision 54768)).
+
+The following modifications have been made:
+- regular expressions have been tweaked to be compatible with JavaScripts regular expression engine
+- extraneous `require` statements have been removed
+- classes in the `Gem` module have been moved to top-level scope and prefixed with `Gem`, to make it simpler to access them from JavaScript
+
+Complete to JavaScript by running `npm run compile-ruby`.

@@ -1,0 +1,232 @@
+{
+  "name": "alises/project",
+  "version": "0.0.0",
+  "packageFormatVersion": "composer:0.0.1",
+  "dependencies": {
+    "php": {
+      "name": "php",
+      "version": "7.1.12",
+      "dependencies": {}
+    },
+    "symfony/monolog-bundle": {
+      "name": "symfony/monolog-bundle",
+      "version": "3.1.2",
+      "dependencies": {
+        "monolog/monolog": {
+          "name": "monolog/monolog",
+          "version": "1.23.0",
+          "dependencies": {
+            "php": {
+              "name": "php",
+              "version": "7.1.12",
+              "dependencies": {}
+            },
+            "psr/log": {
+              "name": "psr/log",
+              "version": "1.0.2",
+              "dependencies": {
+                "php": {
+                  "name": "php",
+                  "version": "7.1.12",
+                  "dependencies": {}
+                }
+              }
+            }
+          }
+        },
+        "php": {
+          "name": "php",
+          "version": "7.1.12",
+          "dependencies": {}
+        },
+        "symfony/config": {
+          "name": "symfony/config",
+          "version": "3.3.13",
+          "dependencies": {
+            "php": {
+              "name": "php",
+              "version": "7.1.12",
+              "dependencies": {}
+            },
+            "symfony/filesystem": {
+              "name": "symfony/filesystem",
+              "version": "3.3.13",
+              "dependencies": {
+                "php": {
+                  "name": "php",
+                  "version": "7.1.12",
+                  "dependencies": {}
+                }
+              }
+            }
+          }
+        },
+        "symfony/dependency-injection": {
+          "name": "symfony/dependency-injection",
+          "version": "3.3.13",
+          "dependencies": {
+            "php": {
+              "name": "php",
+              "version": "7.1.12",
+              "dependencies": {}
+            },
+            "psr/container": {
+              "name": "psr/container",
+              "version": "1.0.0",
+              "dependencies": {
+                "php": {
+                  "name": "php",
+                  "version": "7.1.12",
+                  "dependencies": {}
+                }
+              }
+            }
+          }
+        },
+        "symfony/http-kernel": {
+          "name": "symfony/http-kernel",
+          "version": "3.3.13",
+          "dependencies": {
+            "php": {
+              "name": "php",
+              "version": "7.1.12",
+              "dependencies": {}
+            },
+            "psr/log": {
+              "name": "psr/log",
+              "version": "1.0.2",
+              "dependencies": {
+                "php": {
+                  "name": "php",
+                  "version": "7.1.12",
+                  "dependencies": {}
+                }
+              }
+            },
+            "symfony/debug": {
+              "name": "symfony/debug",
+              "version": "3.3.13",
+              "dependencies": {
+                "php": {
+                  "name": "php",
+                  "version": "7.1.12",
+                  "dependencies": {}
+                },
+                "psr/log": {
+                  "name": "psr/log",
+                  "version": "1.0.2",
+                  "dependencies": {
+                    "php": {
+                      "name": "php",
+                      "version": "7.1.12",
+                      "dependencies": {}
+                    }
+                  }
+                }
+              }
+            },
+            "symfony/event-dispatcher": {
+              "name": "symfony/event-dispatcher",
+              "version": "3.3.13",
+              "dependencies": {
+                "php": {
+                  "name": "php",
+                  "version": "7.1.12",
+                  "dependencies": {}
+                }
+              }
+            },
+            "symfony/http-foundation": {
+              "name": "symfony/http-foundation",
+              "version": "3.3.13",
+              "dependencies": {
+                "php": {
+                  "name": "php",
+                  "version": "7.1.12",
+                  "dependencies": {}
+                },
+                "symfony/polyfill-mbstring": {
+                  "name": "symfony/polyfill-mbstring",
+                  "version": "1.6.0",
+                  "dependencies": {
+                    "php": {
+                      "name": "php",
+                      "version": "7.1.12",
+                      "dependencies": {}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "symfony/monolog-bridge": {
+          "name": "symfony/monolog-bridge",
+          "version": "2.6.0",
+          "dependencies": {
+            "monolog/monolog": {
+              "name": "monolog/monolog",
+              "version": "1.23.0",
+              "dependencies": {
+                "php": {
+                  "name": "php",
+                  "version": "7.1.12",
+                  "dependencies": {}
+                },
+                "psr/log": {
+                  "name": "psr/log",
+                  "version": "1.0.2",
+                  "dependencies": {
+                    "php": {
+                      "name": "php",
+                      "version": "7.1.12",
+                      "dependencies": {}
+                    }
+                  }
+                }
+              }
+            },
+            "php": {
+              "name": "php",
+              "version": "7.1.12",
+              "dependencies": {}
+            }
+          }
+        }
+      }
+    },
+    "symfony/monolog-bridge": {
+      "name": "symfony/monolog-bridge",
+      "version": "2.6.0",
+      "dependencies": {
+        "monolog/monolog": {
+          "name": "monolog/monolog",
+          "version": "1.23.0",
+          "dependencies": {
+            "php": {
+              "name": "php",
+              "version": "7.1.12",
+              "dependencies": {}
+            },
+            "psr/log": {
+              "name": "psr/log",
+              "version": "1.0.2",
+              "dependencies": {
+                "php": {
+                  "name": "php",
+                  "version": "7.1.12",
+                  "dependencies": {}
+                }
+              }
+            }
+          }
+        },
+        "php": {
+          "name": "php",
+          "version": "7.1.12",
+          "dependencies": {}
+        }
+      }
+    }
+  }
+}

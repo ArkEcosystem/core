@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: socketcluster
+spec:
+  type: NodePort
+  selector:
+    component: socketcluster
+  ports:
+    -
+      port: 8000
+      targetPort: 8000

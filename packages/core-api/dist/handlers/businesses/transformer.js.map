@@ -1,0 +1,1 @@
+{"version":3,"file":"transformer.js","sourceRoot":"","sources":["../../../src/handlers/businesses/transformer.ts"],"names":[],"mappings":";;AAAA,wDAAyD;AAE5C,QAAA,iBAAiB,GAAG,CAAC,QAAa,EAAE,EAAE;IAC/C,IAAI,QAAQ,CAAC,IAAI,KAAK,SAAS,EAAE;QAC7B,OAAO,6BAAe,CAAC,QAAQ,CAAC,CAAC;KACpC;IAED,OAAO,QAAQ,CAAC;AACpB,CAAC,CAAC"}

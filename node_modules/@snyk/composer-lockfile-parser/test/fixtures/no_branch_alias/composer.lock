@@ -1,0 +1,132 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "9f5eaca5ab49a72138ed13b08eaadc64",
+    "packages": [
+        {
+            "name": "josantonius/router",
+            "version": "1.0.9",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Josantonius/PHP-Router.git",
+                "reference": "b2ead540f0523c81e9486c205a67d5ef9ff5867b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Josantonius/PHP-Router/zipball/b2ead540f0523c81e9486c205a67d5ef9ff5867b",
+                "reference": "b2ead540f0523c81e9486c205a67d5ef9ff5867b",
+                "shasum": ""
+            },
+            "require": {
+                "josantonius/url": "^1.1.8",
+                "php": "^5.6 || ^7.0"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^2.3 || ^2.8",
+                "phpmd/phpmd": "^2.6",
+                "phpunit/phpunit": "^5.7 || ^6.0",
+                "squizlabs/php_codesniffer": "^3.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Josantonius\\Router\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Josantonius",
+                    "email": "hello@josantonius.com",
+                    "homepage": "https://josantonius.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Library for handling routes.",
+            "keywords": [
+                "php",
+                "router",
+                "routes"
+            ],
+            "time": "2018-01-07T13:26:09+00:00"
+        },
+        {
+            "name": "josantonius/url",
+            "version": "1.1.8",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Josantonius/PHP-Url.git",
+                "reference": "b2b0a4e774f721b9dd7cc171741ab1611db8569e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Josantonius/PHP-Url/zipball/b2b0a4e774f721b9dd7cc171741ab1611db8569e",
+                "reference": "b2b0a4e774f721b9dd7cc171741ab1611db8569e",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^5.6 || ^7.0"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^2.3 || ^2.8",
+                "phpmd/phpmd": "^2.6",
+                "phpunit/phpunit": "^5.7 || ^6.0",
+                "squizlabs/php_codesniffer": "^3.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Josantonius\\Url\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Josantonius",
+                    "email": "hello@josantonius.com",
+                    "homepage": "https://josantonius.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Library for urls manipulation.",
+            "keywords": [
+                "hhvm",
+                "https",
+                "path",
+                "php",
+                "uri",
+                "url"
+            ],
+            "time": "2017-11-12T01:39:35+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": [],
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": {
+        "php": ">=5.5.9"
+    },
+    "platform-dev": []
+}

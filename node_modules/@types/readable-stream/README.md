@@ -1,0 +1,16 @@
+# Installation
+> `npm install --save @types/readable-stream`
+
+# Summary
+This package contains type definitions for readable-stream (https://github.com/nodejs/readable-stream).
+
+# Details
+Files were exported from https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/readable-stream
+
+Additional Details
+ * Last updated: Wed, 02 Oct 2019 00:35:21 GMT
+ * Dependencies: @types/safe-buffer, @types/node
+ * Global values: _Readable
+
+# Credits
+These definitions were written by TeamworkGuy2 <https://github.com/TeamworkGuy2>.

@@ -1,0 +1,149 @@
+{
+  "api": {
+    "MIDIConnectionEvent": {
+      "__compat": {
+        "mdn_url": "https://developer.mozilla.org/docs/Web/API/MIDIConnectionEvent",
+        "support": {
+          "chrome": {
+            "version_added": "43"
+          },
+          "chrome_android": {
+            "version_added": "43"
+          },
+          "edge": {
+            "version_added": "≤79"
+          },
+          "firefox": {
+            "version_added": null
+          },
+          "firefox_android": {
+            "version_added": null
+          },
+          "ie": {
+            "version_added": false
+          },
+          "opera": {
+            "version_added": "30"
+          },
+          "opera_android": {
+            "version_added": "30"
+          },
+          "safari": {
+            "version_added": null
+          },
+          "safari_ios": {
+            "version_added": null
+          },
+          "samsunginternet_android": {
+            "version_added": "4.0"
+          },
+          "webview_android": {
+            "version_added": "43"
+          }
+        },
+        "status": {
+          "experimental": false,
+          "standard_track": true,
+          "deprecated": false
+        }
+      },
+      "MIDIConnectionEvent": {
+        "__compat": {
+          "mdn_url": "https://developer.mozilla.org/docs/Web/API/MIDIConnectionEvent/MIDIConnectionEvent",
+          "description": "<code>MIDIConnectionEvent()</code> constructor",
+          "support": {
+            "chrome": {
+              "version_added": "43"
+            },
+            "chrome_android": {
+              "version_added": "43"
+            },
+            "edge": {
+              "version_added": "≤79"
+            },
+            "firefox": {
+              "version_added": null
+            },
+            "firefox_android": {
+              "version_added": null
+            },
+            "ie": {
+              "version_added": false
+            },
+            "opera": {
+              "version_added": "30"
+            },
+            "opera_android": {
+              "version_added": "30"
+            },
+            "safari": {
+              "version_added": null
+            },
+            "safari_ios": {
+              "version_added": null
+            },
+            "samsunginternet_android": {
+              "version_added": "4.0"
+            },
+            "webview_android": {
+              "version_added": "43"
+            }
+          },
+          "status": {
+            "experimental": true,
+            "standard_track": true,
+            "deprecated": false
+          }
+        }
+      },
+      "port": {
+        "__compat": {
+          "mdn_url": "https://developer.mozilla.org/docs/Web/API/MIDIConnectionEvent/port",
+          "support": {
+            "chrome": {
+              "version_added": "43"
+            },
+            "chrome_android": {
+              "version_added": "43"
+            },
+            "edge": {
+              "version_added": "≤79"
+            },
+            "firefox": {
+              "version_added": null
+            },
+            "firefox_android": {
+              "version_added": null
+            },
+            "ie": {
+              "version_added": false
+            },
+            "opera": {
+              "version_added": "30"
+            },
+            "opera_android": {
+              "version_added": "30"
+            },
+            "safari": {
+              "version_added": null
+            },
+            "safari_ios": {
+              "version_added": null
+            },
+            "samsunginternet_android": {
+              "version_added": "4.0"
+            },
+            "webview_android": {
+              "version_added": "43"
+            }
+          },
+          "status": {
+            "experimental": true,
+            "standard_track": false,
+            "deprecated": false
+          }
+        }
+      }
+    }
+  }
+}

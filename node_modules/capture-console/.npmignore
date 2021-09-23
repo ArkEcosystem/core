@@ -1,0 +1,22 @@
+# Coverage directory used by tools like istanbul
+coverage
+
+# Dependency directory
+# https://www.npmjs.org/doc/misc/npm-faq.html#should-i-check-my-node_modules-folder-into-git
+node_modules
+
+# tmp
+.tmp
+
+# idea
+.idea
+
+# build configs
+.codeclimate.yml
+.travis.yml
+
+# docs
+docs
+
+# tests
+test

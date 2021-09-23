@@ -1,0 +1,34 @@
+# https://www.appveyor.com/docs/appveyor-yml
+
+# to disable automatic builds
+build: off
+branches:
+  only:
+    - master
+
+init:
+  - git config --global core.autocrlf true
+
+shallow_clone: true
+clone_depth: 1
+
+cache:
+  - node_modules -> package.json
+
+environment:
+  matrix:
+    - nodejs_version: "10"
+    - nodejs_version: "8"
+    - nodejs_version: "6"
+
+matrix:
+  fast_finish: true
+
+install:
+  - ps: Install-Product node $env:nodejs_version
+  - node --version
+  - npm --version
+  - npm install
+
+test_script:
+  - npm run test

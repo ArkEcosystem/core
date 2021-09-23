@@ -1,0 +1,30 @@
+{
+    "name": "@types/ip",
+    "version": "1.1.0",
+    "description": "TypeScript definitions for ip",
+    "license": "MIT",
+    "contributors": [
+        {
+            "name": "Peter Harris",
+            "url": "https://github.com/codeanimal",
+            "githubUsername": "codeanimal"
+        },
+        {
+            "name": "BendingBender",
+            "url": "https://github.com/BendingBender",
+            "githubUsername": "BendingBender"
+        }
+    ],
+    "main": "",
+    "types": "index",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/DefinitelyTyped/DefinitelyTyped.git"
+    },
+    "scripts": {},
+    "dependencies": {
+        "@types/node": "*"
+    },
+    "typesPublisherContentHash": "715fcc394cf1e3bbb1e257c8303099f4240994aa4e88979c6b4dec022db118eb",
+    "typeScriptVersion": "2.0"
+}

@@ -1,0 +1,383 @@
+{
+  "webextensions": {
+    "api": {
+      "browserSettings": {
+        "allowPopupsForUserEvents": {
+          "__compat": {
+            "mdn_url": "https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/browserSettings/allowPopupsForUserEvents",
+            "support": {
+              "chrome": {
+                "version_added": false
+              },
+              "edge": {
+                "version_added": false
+              },
+              "firefox": {
+                "version_added": "57"
+              },
+              "firefox_android": {
+                "version_added": "57"
+              },
+              "opera": {
+                "version_added": false
+              }
+            }
+          }
+        },
+        "cacheEnabled": {
+          "__compat": {
+            "mdn_url": "https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/browserSettings/cacheEnabled",
+            "support": {
+              "chrome": {
+                "version_added": false
+              },
+              "edge": {
+                "version_added": false
+              },
+              "firefox": {
+                "version_added": "56"
+              },
+              "firefox_android": {
+                "version_added": "56"
+              },
+              "opera": {
+                "version_added": false
+              }
+            }
+          }
+        },
+        "closeTabsByDoubleClick": {
+          "__compat": {
+            "mdn_url": "https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/browserSettings/closeTabsByDoubleClick",
+            "support": {
+              "chrome": {
+                "version_added": false
+              },
+              "edge": {
+                "version_added": false
+              },
+              "firefox": {
+                "version_added": "61"
+              },
+              "firefox_android": {
+                "version_added": false
+              },
+              "opera": {
+                "version_added": false
+              }
+            }
+          }
+        },
+        "contextMenuShowEvent": {
+          "__compat": {
+            "mdn_url": "https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/browserSettings/contextMenuShowEvent",
+            "support": {
+              "chrome": {
+                "version_added": false
+              },
+              "edge": {
+                "version_added": false
+              },
+              "firefox": {
+                "version_added": "59"
+              },
+              "firefox_android": {
+                "version_added": "59"
+              },
+              "opera": {
+                "version_added": false
+              }
+            }
+          }
+        },
+        "ftpProtocolEnabled": {
+          "__compat": {
+            "mdn_url": "https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/browserSettings/ftpProtocolEnabled",
+            "support": {
+              "chrome": {
+                "version_added": false
+              },
+              "edge": {
+                "version_added": false
+              },
+              "firefox": {
+                "version_added": "72"
+              },
+              "firefox_android": {
+                "version_added": false
+              },
+              "opera": {
+                "version_added": false
+              }
+            }
+          }
+        },
+        "homepageOverride": {
+          "__compat": {
+            "mdn_url": "https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/browserSettings/homepageOverride",
+            "support": {
+              "chrome": {
+                "version_added": false
+              },
+              "edge": {
+                "version_added": false
+              },
+              "firefox": {
+                "version_added": "57"
+              },
+              "firefox_android": {
+                "version_added": "57"
+              },
+              "opera": {
+                "version_added": false
+              }
+            }
+          }
+        },
+        "imageAnimationBehavior": {
+          "__compat": {
+            "mdn_url": "https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/browserSettings/imageAnimationBehavior",
+            "support": {
+              "chrome": {
+                "version_added": false
+              },
+              "edge": {
+                "version_added": false
+              },
+              "firefox": {
+                "version_added": "57"
+              },
+              "firefox_android": {
+                "version_added": "57"
+              },
+              "opera": {
+                "version_added": false
+              }
+            }
+          }
+        },
+        "newTabPageOverride": {
+          "__compat": {
+            "mdn_url": "https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/browserSettings/newTabPageOverride",
+            "support": {
+              "chrome": {
+                "version_added": false
+              },
+              "edge": {
+                "version_added": false
+              },
+              "firefox": {
+                "version_added": "57"
+              },
+              "firefox_android": {
+                "version_added": "57"
+              },
+              "opera": {
+                "version_added": false
+              }
+            }
+          }
+        },
+        "newTabPosition": {
+          "__compat": {
+            "mdn_url": "https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/browserSettings/newTabPosition",
+            "support": {
+              "chrome": {
+                "version_added": false
+              },
+              "edge": {
+                "version_added": false
+              },
+              "firefox": {
+                "version_added": "61"
+              },
+              "firefox_android": {
+                "version_added": "61",
+                "notes": "This setting can be changed but has no effect."
+              },
+              "opera": {
+                "version_added": false
+              }
+            }
+          }
+        },
+        "openBookmarksInNewTabs": {
+          "__compat": {
+            "mdn_url": "https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/browserSettings/openBookmarksInNewTabs",
+            "support": {
+              "chrome": {
+                "version_added": false
+              },
+              "edge": {
+                "version_added": false
+              },
+              "firefox": {
+                "version_added": "59"
+              },
+              "firefox_android": {
+                "version_added": "59"
+              },
+              "opera": {
+                "version_added": false
+              }
+            }
+          }
+        },
+        "openSearchResultsInNewTabs": {
+          "__compat": {
+            "mdn_url": "https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/browserSettings/openSearchResultsInNewTabs",
+            "support": {
+              "chrome": {
+                "version_added": false
+              },
+              "edge": {
+                "version_added": false
+              },
+              "firefox": {
+                "version_added": "59"
+              },
+              "firefox_android": {
+                "version_added": "59"
+              },
+              "opera": {
+                "version_added": false
+              }
+            }
+          }
+        },
+        "openUrlbarResultsInNewTabs": {
+          "__compat": {
+            "mdn_url": "https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/browserSettings/openUrlbarResultsInNewTabs",
+            "support": {
+              "chrome": {
+                "version_added": false
+              },
+              "edge": {
+                "version_added": false
+              },
+              "firefox": {
+                "version_added": "61"
+              },
+              "firefox_android": {
+                "version_added": "61"
+              },
+              "opera": {
+                "version_added": false
+              }
+            }
+          }
+        },
+        "overrideDocumentColors": {
+          "__compat": {
+            "mdn_url": "https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/browserSettings/overrideDocumentColors",
+            "support": {
+              "chrome": {
+                "version_added": false
+              },
+              "edge": {
+                "version_added": false
+              },
+              "firefox": {
+                "version_added": "61"
+              },
+              "firefox_android": {
+                "version_added": "61"
+              },
+              "opera": {
+                "version_added": false
+              }
+            }
+          }
+        },
+        "useDocumentFonts": {
+          "__compat": {
+            "mdn_url": "https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/browserSettings/useDocumentFonts",
+            "support": {
+              "chrome": {
+                "version_added": false
+              },
+              "edge": {
+                "version_added": false
+              },
+              "firefox": {
+                "version_added": "61"
+              },
+              "firefox_android": {
+                "version_added": "61"
+              },
+              "opera": {
+                "version_added": false
+              }
+            }
+          }
+        },
+        "webNotificationsDisabled": {
+          "__compat": {
+            "mdn_url": "https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/browserSettings/webNotificationsDisabled",
+            "support": {
+              "chrome": {
+                "version_added": false
+              },
+              "edge": {
+                "version_added": false
+              },
+              "firefox": {
+                "version_added": "58"
+              },
+              "firefox_android": {
+                "version_added": "58"
+              },
+              "opera": {
+                "version_added": false
+              }
+            }
+          }
+        },
+        "zoomFullPage": {
+          "__compat": {
+            "mdn_url": "https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/browserSettings/zoomFullPage",
+            "support": {
+              "chrome": {
+                "version_added": false
+              },
+              "edge": {
+                "version_added": false
+              },
+              "firefox": {
+                "version_added": "75"
+              },
+              "firefox_android": {
+                "version_added": false
+              },
+              "opera": {
+                "version_added": false
+              }
+            }
+          }
+        },
+        "zoomSiteSpecific": {
+          "__compat": {
+            "mdn_url": "https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/browserSettings/zoomSiteSpecific",
+            "support": {
+              "chrome": {
+                "version_added": false
+              },
+              "edge": {
+                "version_added": false
+              },
+              "firefox": {
+                "version_added": "75"
+              },
+              "firefox_android": {
+                "version_added": false
+              },
+              "opera": {
+                "version_added": false
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "foo": 1,
+  "complex": {
+    "animal": "dog",
+    "colour": "blue",
+    "nested": {
+      "animal": "cat",
+      "colour": "pink"
+    }
+  }
+}

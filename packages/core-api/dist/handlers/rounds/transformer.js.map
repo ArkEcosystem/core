@@ -1,0 +1,1 @@
+{"version":3,"file":"transformer.js","sourceRoot":"","sources":["../../../src/handlers/rounds/transformer.ts"],"names":[],"mappings":";;AAAA,iDAA6C;AAEhC,QAAA,sBAAsB,GAAG,KAAK,CAAC,EAAE;IAC1C,OAAO;QACH,SAAS,EAAE,KAAK,CAAC,SAAS;QAC1B,KAAK,EAAE,cAAK,CAAC,SAAS,CAAC,IAAI,CAAC,KAAK,CAAC,OAAO,CAAC,CAAC,OAAO,EAAE;KACvD,CAAC;AACN,CAAC,CAAC"}

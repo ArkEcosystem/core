@@ -1,0 +1,190 @@
+{
+  "webextensions": {
+    "manifest": {
+      "page_action": {
+        "__compat": {
+          "mdn_url": "https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/manifest.json/page_action",
+          "support": {
+            "chrome": [
+              {
+                "version_added": true,
+                "notes": "If an extension defines a page action, it is not allowed to define a browser action as well."
+              },
+              {
+                "version_added": "49",
+                "notes": "Since Chrome 49, page actions are displayed on the toolbar, rather than in the address bar."
+              }
+            ],
+            "edge": {
+              "version_added": "14"
+            },
+            "firefox": {
+              "version_added": "48"
+            },
+            "firefox_android": {
+              "version_added": true
+            },
+            "opera": {
+              "version_added": true,
+              "notes": "If an extension defines a page action, it is not allowed to define a browser action as well."
+            }
+          }
+        },
+        "browser_style": {
+          "__compat": {
+            "support": {
+              "chrome": {
+                "version_added": false
+              },
+              "edge": {
+                "version_added": false
+              },
+              "firefox": {
+                "version_added": "48"
+              },
+              "firefox_android": {
+                "version_added": false
+              },
+              "opera": {
+                "version_added": false
+              }
+            }
+          }
+        },
+        "default_icon": {
+          "__compat": {
+            "support": {
+              "chrome": {
+                "version_added": true,
+                "notes": "SVG icons are not supported."
+              },
+              "edge": {
+                "version_added": "14",
+                "partial_implementation": true,
+                "notes": [
+                  "SVG icons are not supported.",
+                  "'default_icon' must be an object, with explicit sizes."
+                ]
+              },
+              "firefox": {
+                "version_added": "48"
+              },
+              "firefox_android": {
+                "version_added": true
+              },
+              "opera": {
+                "version_added": true,
+                "notes": "SVG icons are not supported."
+              }
+            }
+          }
+        },
+        "default_popup": {
+          "__compat": {
+            "support": {
+              "chrome": {
+                "version_added": true
+              },
+              "edge": {
+                "version_added": "14"
+              },
+              "firefox": {
+                "version_added": "48"
+              },
+              "firefox_android": {
+                "version_added": true
+              },
+              "opera": {
+                "version_added": true
+              }
+            }
+          }
+        },
+        "default_title": {
+          "__compat": {
+            "support": {
+              "chrome": {
+                "version_added": true
+              },
+              "edge": {
+                "version_added": "14"
+              },
+              "firefox": {
+                "version_added": "48"
+              },
+              "firefox_android": {
+                "version_added": true
+              },
+              "opera": {
+                "version_added": true
+              }
+            }
+          }
+        },
+        "hide_matches": {
+          "__compat": {
+            "support": {
+              "chrome": {
+                "version_added": false
+              },
+              "edge": {
+                "version_added": false
+              },
+              "firefox": {
+                "version_added": "59"
+              },
+              "firefox_android": {
+                "version_added": "59"
+              },
+              "opera": {
+                "version_added": false
+              }
+            }
+          }
+        },
+        "pinned": {
+          "__compat": {
+            "support": {
+              "chrome": {
+                "version_added": false
+              },
+              "edge": {
+                "version_added": false
+              },
+              "firefox": {
+                "version_added": "64"
+              },
+              "firefox_android": {
+                "version_added": false
+              },
+              "opera": {
+                "version_added": false
+              }
+            }
+          }
+        },
+        "show_matches": {
+          "__compat": {
+            "support": {
+              "chrome": {
+                "version_added": false
+              },
+              "edge": {
+                "version_added": false
+              },
+              "firefox": {
+                "version_added": "59"
+              },
+              "firefox_android": {
+                "version_added": "59"
+              },
+              "opera": {
+                "version_added": false
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

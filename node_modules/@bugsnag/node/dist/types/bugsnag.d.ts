@@ -1,0 +1,41 @@
+import * as BugsnagCore from "./bugsnag-core";
+
+type afterErrorCb = (err: any, report: BugsnagCore.IConfig, logger: BugsnagCore.ILogger) => void;
+
+// overwrite config interface, adding node-specific options
+declare module "./bugsnag-core" {
+  interface IConfig {
+    apiKey: string;
+    beforeSend?: BugsnagCore.BeforeSend | BugsnagCore.BeforeSend[];
+    // autoBreadcrumbs?: boolean; // this option is disabled in node, see below
+    autoNotify?: boolean;
+    appVersion?: string;
+    appType?: string;
+    endpoints?: { notify: string, sessions?: string };
+    autoCaptureSessions?: boolean;
+    notifyReleaseStages?: string[];
+    releaseStage?: string;
+    maxBreadcrumbs?: number;
+    user?: object | null;
+    metaData?: object | null;
+    logger?: BugsnagCore.ILogger | null;
+    filters?: Array<string | RegExp>;
+    // catch-all for any missing options
+    [key: string]: any;
+    // options for node-specific built-ins
+    hostname?: string;
+    onUncaughtException?: afterErrorCb;
+    onUnhandledRejection?: afterErrorCb;
+    agent?: any;
+    projectRoot?: string;
+    sendCode?: boolean;
+    autoBreadcrumbs?: void;
+  }
+}
+
+// two ways to call the exported function: apiKey or config object
+declare function bugsnag(apiKeyOrOpts: string | BugsnagCore.IConfig): BugsnagCore.Client;
+
+// commonjs/requirejs export
+export default bugsnag;
+export { BugsnagCore as Bugsnag }

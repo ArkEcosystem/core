@@ -1,0 +1,95 @@
+{
+	"name": "@wessberg/stringutil",
+	"version": "1.0.19",
+	"description": "A collection of helper functions for working with strings",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/wessberg/stringutil.git"
+	},
+	"bugs": {
+		"url": "https://github.com/wessberg/stringutil/issues"
+	},
+	"files": [
+		"dist/**/*.*"
+	],
+	"scripts": {
+		"generate:readme": "scaffold readme --yes",
+		"generate:license": "scaffold license --yes",
+		"generate:contributing": "scaffold contributing --yes",
+		"generate:coc": "scaffold coc --yes",
+		"generate:changelog": "standard-changelog --first-release",
+		"generate:all": "npm run generate:license & npm run generate:contributing & npm run generate:coc & npm run generate:readme && npm run generate:changelog",
+		"clean:dist": "rm -rf dist",
+		"clean": "npm run clean:dist",
+		"lint": "tsc --noEmit && tslint -c tslint.json --project tsconfig.json",
+		"prettier": "prettier --write '{src,test,documentation}/**/*.{js,ts,json,html,xml,css,md}'",
+		"test": "ava",
+		"prebuild": "npm run clean:dist",
+		"build": "npm run rollup",
+		"rollup": "rollup -c rollup.config.js",
+		"preversion": "npm run lint && NODE_ENV=production npm run build",
+		"version": "npm run generate:all && git add .",
+		"release": "np --no-cleanup --no-yarn"
+	},
+	"keywords": [
+		"util",
+		"string",
+		"kebabCase",
+		"dash-case",
+		"PascalCase",
+		"camelCase"
+	],
+	"contributors": [
+		{
+			"name": "Frederik Wessberg",
+			"email": "frederikwessberg@hotmail.com",
+			"url": "https://github.com/wessberg",
+			"imageUrl": "https://avatars2.githubusercontent.com/u/20454213?s=460&v=4",
+			"github": "wessberg",
+			"role": "Lead Developer",
+			"twitter": "FredWessberg"
+		}
+	],
+	"license": "MIT",
+	"devDependencies": {
+		"@wessberg/ts-config": "^0.0.41",
+		"@wessberg/scaffold": "^1.0.19",
+		"@wessberg/rollup-plugin-ts": "^1.1.69",
+		"rollup": "^1.24.0",
+		"ava": "^2.4.0",
+		"tslint": "^5.20.0",
+		"typescript": "^3.6.4",
+		"standard-changelog": "^2.0.15",
+		"prettier": "^1.18.2",
+		"pretty-quick": "^2.0.0",
+		"husky": "^3.0.9",
+		"np": "^5.1.1",
+		"ts-node": "^8.4.1"
+	},
+	"main": "./dist/cjs/index.js",
+	"module": "./dist/esm/index.js",
+	"browser": "./dist/esm/index.js",
+	"types": "./dist/esm/index.d.ts",
+	"typings": "./dist/esm/index.d.ts",
+	"es2015": "./dist/esm/index.js",
+	"engines": {
+		"node": ">=8.0.0"
+	},
+	"husky": {
+		"hooks": {
+			"pre-commit": "pretty-quick --staged"
+		}
+	},
+	"ava": {
+		"files": [
+			"test/*.test.ts"
+		],
+		"compileEnhancements": false,
+		"extensions": [
+			"ts"
+		],
+		"require": [
+			"ts-node/register"
+		]
+	}
+}

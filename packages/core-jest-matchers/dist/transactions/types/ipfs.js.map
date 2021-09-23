@@ -1,0 +1,1 @@
+{"version":3,"file":"ipfs.js","sourceRoot":"","sources":["../../../src/transactions/types/ipfs.ts"],"names":[],"mappings":";;AAAA,iDAA6C;AAE7C,MAAM,EAAE,IAAI,EAAE,GAAG,cAAK,CAAC,eAAe,CAAC;AAavC,MAAM,CAAC,MAAM,CAAC;IACV,YAAY,EAAE,QAAQ,CAAC,EAAE;QACrB,OAAO;YACH,OAAO,EAAE,GAAG,EAAE,CAAC,gDAAgD;YAC/D,IAAI,EAAE,QAAQ,CAAC,IAAI,KAAK,IAAI;SAC/B,CAAC;IACN,CAAC;CACJ,CAAC,CAAC"}

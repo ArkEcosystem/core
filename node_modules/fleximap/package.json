@@ -1,0 +1,38 @@
+{
+  "name": "fleximap",
+  "description": "A flexible hash map which supports deep keys.",
+  "version": "1.0.0",
+  "author": {
+    "name": "JF Gros-Dubois",
+    "email": "flashthink@gmail.com"
+  },
+  "contributors": [
+    {
+      "name": "JF Gros-Dubois",
+      "email": "flashthink@gmail.com"
+    }
+  ],
+  "dependencies": {},
+  "devDependencies": {},
+  "keywords": [
+    "fleximap",
+    "flexible",
+    "hashmap",
+    "deep",
+    "keys",
+    "multidimensional"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/SocketCluster/fleximap.git"
+  },
+  "main": "index",
+  "engines": {
+    "node": ">= 0.8.0"
+  },
+  "optionalDependencies": {},
+  "readme": "fleximap\r\n========\r\n\r\nA flexible hash map which supports working with deep, multidimensional keys.",
+  "readmeFilename": "README.md",
+  "_id": "fleximap@0.9.0",
+  "_from": "fleximap@0.9.0"
+}

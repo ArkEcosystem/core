@@ -1,0 +1,27 @@
+{
+  "name": "@hapi/mimos",
+  "description": "Mime database interface",
+  "version": "5.0.0",
+  "repository": "git://github.com/hapijs/mimos",
+  "main": "lib/index.js",
+  "files": [
+    "lib"
+  ],
+  "keywords": [
+    "mime",
+    "database",
+    "content-type"
+  ],
+  "dependencies": {
+    "@hapi/hoek": "9.x.x",
+    "mime-db": "1.x.x"
+  },
+  "devDependencies": {
+    "@hapi/code": "8.x.x",
+    "@hapi/lab": "22.x.x"
+  },
+  "scripts": {
+    "test": "lab -m 5000 -t 100 -L -a @hapi/code"
+  },
+  "license": "BSD-3-Clause"
+}

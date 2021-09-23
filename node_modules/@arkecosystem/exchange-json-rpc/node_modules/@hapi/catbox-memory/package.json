@@ -1,0 +1,29 @@
+{
+  "name": "@hapi/catbox-memory",
+  "description": "Memory adapter for catbox",
+  "version": "5.0.0",
+  "repository": "git://github.com/hapijs/catbox-memory",
+  "main": "lib/index.js",
+  "files": [
+    "lib"
+  ],
+  "keywords": [
+    "cache",
+    "catbox",
+    "memory"
+  ],
+  "dependencies": {
+    "@hapi/boom": "9.x.x",
+    "@hapi/hoek": "9.x.x"
+  },
+  "devDependencies": {
+    "@hapi/catbox": "11.x.x",
+    "@hapi/code": "8.x.x",
+    "@hapi/lab": "22.x.x"
+  },
+  "scripts": {
+    "test": "lab -a @hapi/code -L -t 100",
+    "test-cov-html": "lab -a @hapi/code -r html -o coverage.html"
+  },
+  "license": "BSD-3-Clause"
+}

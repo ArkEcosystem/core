@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: scc-broker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: scc-broker
+  template:
+    metadata:
+      labels:
+        component: scc-broker
+    spec:
+      containers:
+        -
+          name: scc-broker
+          image: 'socketcluster/scc-broker:v6.0.1'
+          ports:
+            -
+              containerPort: 8888
+          env:
+            -
+              name: SCC_STATE_SERVER_HOST
+              value: scc-state
+            -
+              name: SOCKETCLUSTER_WORKERS
+              value: '1'
+            -
+              name: SOCKETCLUSTER_BROKERS
+              value: '1'
+            -
+              name: SCC_INSTANCE_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            -
+              name: SCC_BROKER_SERVER_LOG_LEVEL
+              value: '2'
+          readinessProbe:
+            httpGet:
+              path: /health-check
+              port: 8888
+            initialDelaySeconds: 5
+            timeoutSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health-check
+              port: 8888
+            initialDelaySeconds: 15
+            timeoutSeconds: 20

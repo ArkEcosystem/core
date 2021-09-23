@@ -1,0 +1,32 @@
+{
+  "name": "@hapi/iron",
+  "description": "Encapsulated tokens (encrypted and mac'ed objects)",
+  "version": "6.0.0",
+  "repository": "git://github.com/hueniverse/iron",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "files": [
+    "lib"
+  ],
+  "keywords": [
+    "authentication",
+    "encryption",
+    "data integrity"
+  ],
+  "dependencies": {
+    "@hapi/hoek": "9.x.x",
+    "@hapi/b64": "5.x.x",
+    "@hapi/boom": "9.x.x",
+    "@hapi/bourne": "2.x.x",
+    "@hapi/cryptiles": "5.x.x"
+  },
+  "devDependencies": {
+    "@hapi/code": "8.x.x",
+    "@hapi/lab": "22.x.x"
+  },
+  "scripts": {
+    "test": "lab -a @hapi/code -t 100 -L -Y",
+    "test-cov-html": "lab -a @hapi/code -t 100 -L -r html -o coverage.html"
+  },
+  "license": "BSD-3-Clause"
+}

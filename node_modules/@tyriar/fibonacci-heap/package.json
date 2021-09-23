@@ -1,0 +1,53 @@
+{
+  "name": "@tyriar/fibonacci-heap",
+  "version": "2.0.9",
+  "description": "An implementation of the Fibonacci heap data structure",
+  "scripts": {
+    "build": "tsc",
+    "lint": "tslint --project .",
+    "test": "nyc -x lib/test mocha lib/test/*.test.js",
+    "test-report": "nyc --reporter html mocha lib/test/*.test.js",
+    "watch": "tsc -w",
+    "prepublish": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gwtw/ts-fibonacci-heap.git"
+  },
+  "keywords": [
+    "A*",
+    "computer science",
+    "data structure",
+    "dijkstra",
+    "heap",
+    "priority queue",
+    "tree"
+  ],
+  "main": "./lib/fibonacciHeap.js",
+  "types": "typings/fibonacci-heap.d.ts",
+  "author": "Daniel Imms (http://www.growingwiththeweb.com)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/gwtw/ts-fibonacci-heap/issues"
+  },
+  "homepage": "https://github.com/gwtw/ts-fibonacci-heap",
+  "devDependencies": {
+    "@types/chai": "^4.1.4",
+    "@types/mocha": "^5.2.5",
+    "chai": "^4.1.2",
+    "coveralls": "^3.0.0",
+    "mocha": "^5.2.0",
+    "nyc": "^11.4.1",
+    "tslint": "^5.9.1",
+    "tslint-consistent-codestyle": "^1.13.0",
+    "typescript": "^3.0.3"
+  },
+  "files": [
+    "lib/**/*.js",
+    "lib/**/*.js.map",
+    "!lib/test",
+    "src/**/*.ts",
+    "!src/test",
+    "typings/*.d.ts"
+  ]
+}

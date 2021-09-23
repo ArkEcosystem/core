@@ -1,0 +1,7 @@
+{
+  "regular": 1,
+  "toBeReplaced": "Replace me twice with ${CONFIG_TEST_VALUE} ${CONFIG_TEST_VALUE}",
+  "nested": {
+    "toBeReplaced": "Replace me with ${CONFIG_TEST_VALUE}"
+  }
+}

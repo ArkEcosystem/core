@@ -1,0 +1,18 @@
+{
+    "name": "devnet",
+    "messagePrefix": "QNT message:\n",
+    "bip32": {
+        "public": 46090600,
+        "private": 46089520
+    },
+    "pubKeyHash": 30,
+    "nethash": "d8f1f2fb907afd01f82c6d9f179be792777a88a38d748a70a7f7717666414f1d",
+    "wif": 82,
+    "slip44": 1,
+    "aip20": 1,
+    "client": {
+        "token": "QNT",
+        "symbol": "Γ",
+        "explorer": "http://142.93.117.33:4200"
+    }
+}

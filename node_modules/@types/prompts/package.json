@@ -1,0 +1,39 @@
+{
+    "name": "@types/prompts",
+    "version": "2.4.0",
+    "description": "TypeScript definitions for prompts",
+    "license": "MIT",
+    "contributors": [
+        {
+            "name": "Berkay GURSOY",
+            "url": "https://github.com/Berkays",
+            "githubUsername": "Berkays"
+        },
+        {
+            "name": "Daniel Perez Alvarez",
+            "url": "https://github.com/danielpa9708",
+            "githubUsername": "danielpa9708"
+        },
+        {
+            "name": "Kamontat Chantrachirathumrong",
+            "url": "https://github.com/kamontat",
+            "githubUsername": "kamontat"
+        },
+        {
+            "name": "theweirdone",
+            "url": "https://github.com/theweirdone",
+            "githubUsername": "theweirdone"
+        }
+    ],
+    "main": "",
+    "types": "index",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/DefinitelyTyped/DefinitelyTyped.git",
+        "directory": "types/prompts"
+    },
+    "scripts": {},
+    "dependencies": {},
+    "typesPublisherContentHash": "7128854958832a687ade646bd176ba99a2e61c9a84b5ec3b025671eb8ac46cec",
+    "typeScriptVersion": "2.9"
+}

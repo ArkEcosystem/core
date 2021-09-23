@@ -1,0 +1,1 @@
+cmd_Release/obj.target/test_extension.node := g++ -shared -pthread -rdynamic -m64  -Wl,-soname=test_extension.node -o Release/obj.target/test_extension.node -Wl,--start-group Release/obj.target/test_extension/deps/test_extension.o Release/obj.target/deps/sqlite3.a -Wl,--end-group 

@@ -1,0 +1,30 @@
+{
+    "name": "@hapi/wreck",
+    "description": "HTTP Client Utilities",
+    "version": "17.0.0",
+    "repository": "git://github.com/hapijs/wreck",
+    "main": "lib/index",
+    "types": "lib/index.d.ts",
+    "keywords": [
+        "utilities",
+        "http",
+        "client"
+    ],
+    "files": [
+        "lib"
+    ],
+    "dependencies": {
+        "@hapi/bourne": "2.x.x",
+        "@hapi/boom": "9.x.x",
+        "@hapi/hoek": "9.x.x"
+    },
+    "devDependencies": {
+        "@hapi/code": "8.x.x",
+        "@hapi/lab": "22.x.x"
+    },
+    "scripts": {
+        "test": "lab -t 100 -L -a @hapi/code -m 10000 -Y",
+        "test-cov-html": "lab -r html -o coverage.html -a @hapi/code -m 10000"
+    },
+    "license": "BSD-3-Clause"
+}

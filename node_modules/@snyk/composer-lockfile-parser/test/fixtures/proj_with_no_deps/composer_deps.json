@@ -1,0 +1,12 @@
+{
+  "name": "adodb/adodb-php",
+  "version": "0.0.0",
+  "packageFormatVersion": "composer:0.0.1",
+  "dependencies": {
+    "php": {
+      "name": "php",
+      "version": "7.1.12",
+      "dependencies": {}
+    }
+  }
+}

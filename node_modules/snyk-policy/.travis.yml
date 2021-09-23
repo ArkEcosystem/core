@@ -1,0 +1,24 @@
+sudo: false
+language: node_js
+cache:
+  directories:
+    - node_modules
+notifications:
+  email: false
+node_js:
+  - '10'
+  - '8'
+  - '6'
+install:
+  - npm install
+script:
+  - npm test
+jobs:
+  include:
+    - stage: Release
+      node_js: '10'
+      script:
+      - test "${TRAVIS_PULL_REQUEST}" != "false" || npx semantic-release
+branches:
+  only:
+    - master

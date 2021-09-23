@@ -1,0 +1,20 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var environment_1 = require("./environment");
+function getDevTools() {
+    var w = window;
+    if (!!w.__xstate__) {
+        return w.__xstate__;
+    }
+    return undefined;
+}
+function registerService(service) {
+    if (environment_1.IS_PRODUCTION || typeof window === 'undefined') {
+        return;
+    }
+    var devTools = getDevTools();
+    if (devTools) {
+        devTools.register(service);
+    }
+}
+exports.registerService = registerService;

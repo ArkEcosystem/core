@@ -1,0 +1,40 @@
+{
+  "name": "capture-console",
+  "version": "1.0.1",
+  "description": "Simple and easy stdio capture for Node.js",
+  "author": {
+    "name": "Isaac Whitfield",
+    "email": "iw@zackehh.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/zackehh/capture-console.git"
+  },
+  "bugs": {
+    "email": "iw@zackehh.com",
+    "url": "http://github.com/zackehh/capture-console/issues"
+  },
+  "license": "MIT",
+  "readmeFilename": "README.md",
+  "keywords": [
+    "stdio",
+    "stderr",
+    "stdout",
+    "logging",
+    "capture",
+    "console",
+    "intercept"
+  ],
+  "scripts": {
+    "test": "mocha -u tdd test/index.js"
+  },
+  "dependencies": {
+    "argle": "~1.1.1",
+    "lodash.isfunction": "~3.0.8",
+    "randomstring": "~1.1.5"
+  },
+  "devDependencies": {
+    "mocha": "^3.2.0",
+    "should": "^11.2.0"
+  }
+}

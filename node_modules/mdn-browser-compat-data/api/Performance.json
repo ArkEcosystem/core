@@ -1,0 +1,1214 @@
+{
+  "api": {
+    "Performance": {
+      "__compat": {
+        "mdn_url": "https://developer.mozilla.org/docs/Web/API/Performance",
+        "support": {
+          "chrome": {
+            "version_added": "6"
+          },
+          "chrome_android": {
+            "version_added": "18"
+          },
+          "edge": {
+            "version_added": "12"
+          },
+          "firefox": {
+            "version_added": "7"
+          },
+          "firefox_android": {
+            "version_added": "7"
+          },
+          "ie": {
+            "version_added": "9"
+          },
+          "nodejs": {
+            "version_added": "8.5.0",
+            "notes": [
+              "Stability: Experimental",
+              "Exported from the <code>perf_hooks</code> module"
+            ],
+            "partial_implementation": true
+          },
+          "opera": {
+            "version_added": "15"
+          },
+          "opera_android": {
+            "version_added": "14"
+          },
+          "safari": {
+            "version_added": "8"
+          },
+          "safari_ios": {
+            "version_added": "9"
+          },
+          "samsunginternet_android": {
+            "version_added": "1.0"
+          },
+          "webview_android": {
+            "version_added": "1"
+          }
+        },
+        "status": {
+          "experimental": false,
+          "standard_track": true,
+          "deprecated": false
+        }
+      },
+      "clearMarks": {
+        "__compat": {
+          "mdn_url": "https://developer.mozilla.org/docs/Web/API/Performance/clearMarks",
+          "support": {
+            "chrome": [
+              {
+                "version_added": "29"
+              },
+              {
+                "version_added": "25",
+                "version_removed": "29",
+                "prefix": "webkit"
+              }
+            ],
+            "chrome_android": [
+              {
+                "version_added": "29"
+              },
+              {
+                "version_added": "25",
+                "version_removed": "29",
+                "prefix": "webkit"
+              }
+            ],
+            "edge": {
+              "version_added": "12"
+            },
+            "firefox": {
+              "version_added": "41"
+            },
+            "firefox_android": {
+              "version_added": "42"
+            },
+            "ie": {
+              "version_added": "10"
+            },
+            "nodejs": {
+              "version_added": "8.5.0"
+            },
+            "opera": {
+              "version_added": "33"
+            },
+            "opera_android": {
+              "version_added": "33"
+            },
+            "safari": {
+              "version_added": "11"
+            },
+            "safari_ios": {
+              "version_added": "11"
+            },
+            "samsunginternet_android": [
+              {
+                "version_added": "2.0"
+              },
+              {
+                "prefix": "webkit",
+                "version_added": "1.5",
+                "version_removed": "2.0"
+              }
+            ],
+            "webview_android": [
+              {
+                "version_added": "≤37"
+              },
+              {
+                "version_added": "≤37",
+                "version_removed": "≤37",
+                "prefix": "webkit"
+              }
+            ]
+          },
+          "status": {
+            "experimental": false,
+            "standard_track": true,
+            "deprecated": false
+          }
+        }
+      },
+      "clearMeasures": {
+        "__compat": {
+          "mdn_url": "https://developer.mozilla.org/docs/Web/API/Performance/clearMeasures",
+          "support": {
+            "chrome": [
+              {
+                "version_added": "29"
+              },
+              {
+                "version_added": "25",
+                "version_removed": "29",
+                "prefix": "webkit"
+              }
+            ],
+            "chrome_android": [
+              {
+                "version_added": "29"
+              },
+              {
+                "version_added": "25",
+                "version_removed": "29",
+                "prefix": "webkit"
+              }
+            ],
+            "edge": {
+              "version_added": "12"
+            },
+            "firefox": {
+              "version_added": "41"
+            },
+            "firefox_android": {
+              "version_added": "42"
+            },
+            "ie": {
+              "version_added": "10"
+            },
+            "nodejs": {
+              "version_added": false
+            },
+            "opera": {
+              "version_added": "33"
+            },
+            "opera_android": {
+              "version_added": "33"
+            },
+            "safari": {
+              "version_added": "11"
+            },
+            "safari_ios": {
+              "version_added": "11"
+            },
+            "samsunginternet_android": [
+              {
+                "version_added": "2.0"
+              },
+              {
+                "prefix": "webkit",
+                "version_added": "1.5",
+                "version_removed": "2.0"
+              }
+            ],
+            "webview_android": {
+              "version_added": true
+            }
+          },
+          "status": {
+            "experimental": false,
+            "standard_track": true,
+            "deprecated": false
+          }
+        }
+      },
+      "clearResourceTimings": {
+        "__compat": {
+          "mdn_url": "https://developer.mozilla.org/docs/Web/API/Performance/clearResourceTimings",
+          "support": {
+            "chrome": [
+              {
+                "version_added": "46"
+              },
+              {
+                "version_added": "22",
+                "version_removed": "57",
+                "prefix": "webkit"
+              }
+            ],
+            "chrome_android": [
+              {
+                "version_added": "46"
+              },
+              {
+                "version_added": "25",
+                "version_removed": "57",
+                "prefix": "webkit"
+              }
+            ],
+            "edge": {
+              "version_added": "12"
+            },
+            "firefox": {
+              "version_added": true
+            },
+            "firefox_android": {
+              "version_added": true
+            },
+            "ie": {
+              "version_added": true
+            },
+            "nodejs": {
+              "version_added": false
+            },
+            "opera": {
+              "version_added": true
+            },
+            "opera_android": {
+              "version_added": true
+            },
+            "safari": {
+              "version_added": "11"
+            },
+            "safari_ios": {
+              "version_added": "11"
+            },
+            "samsunginternet_android": [
+              {
+                "version_added": "5.0"
+              },
+              {
+                "prefix": "webkit",
+                "version_added": "1.5",
+                "version_removed": "7.0"
+              }
+            ],
+            "webview_android": [
+              {
+                "version_added": "46"
+              },
+              {
+                "version_added": true,
+                "version_removed": "57",
+                "prefix": "webkit"
+              }
+            ]
+          },
+          "status": {
+            "experimental": false,
+            "standard_track": true,
+            "deprecated": false
+          }
+        }
+      },
+      "getEntries": {
+        "__compat": {
+          "mdn_url": "https://developer.mozilla.org/docs/Web/API/Performance/getEntries",
+          "support": {
+            "chrome": [
+              {
+                "version_added": "28"
+              },
+              {
+                "prefix": "webkit",
+                "version_added": "25",
+                "version_removed": "36"
+              }
+            ],
+            "chrome_android": [
+              {
+                "version_added": "28"
+              },
+              {
+                "prefix": "webkit",
+                "version_added": "25",
+                "version_removed": "36"
+              }
+            ],
+            "edge": {
+              "version_added": "12"
+            },
+            "firefox": {
+              "version_added": true
+            },
+            "firefox_android": {
+              "version_added": "25"
+            },
+            "ie": {
+              "version_added": true
+            },
+            "nodejs": {
+              "version_added": false
+            },
+            "opera": {
+              "version_added": false
+            },
+            "opera_android": {
+              "version_added": false
+            },
+            "safari": {
+              "version_added": "11"
+            },
+            "safari_ios": {
+              "version_added": "11"
+            },
+            "samsunginternet_android": [
+              {
+                "version_added": "1.5"
+              },
+              {
+                "prefix": "webkit",
+                "version_added": "1.5",
+                "version_removed": "3.0"
+              }
+            ],
+            "webview_android": {
+              "version_added": true
+            }
+          },
+          "status": {
+            "experimental": false,
+            "standard_track": true,
+            "deprecated": false
+          }
+        }
+      },
+      "getEntriesByName": {
+        "__compat": {
+          "mdn_url": "https://developer.mozilla.org/docs/Web/API/Performance/getEntriesByName",
+          "support": {
+            "chrome": [
+              {
+                "version_added": "28"
+              },
+              {
+                "prefix": "webkit",
+                "version_added": "25",
+                "version_removed": "36"
+              }
+            ],
+            "chrome_android": [
+              {
+                "version_added": "28"
+              },
+              {
+                "prefix": "webkit",
+                "version_added": "25",
+                "version_removed": "36"
+              }
+            ],
+            "edge": {
+              "version_added": "12"
+            },
+            "firefox": {
+              "version_added": true
+            },
+            "firefox_android": {
+              "version_added": "25"
+            },
+            "ie": {
+              "version_added": true
+            },
+            "nodejs": {
+              "version_added": false
+            },
+            "opera": {
+              "version_added": false
+            },
+            "opera_android": {
+              "version_added": false
+            },
+            "safari": {
+              "version_added": "11"
+            },
+            "safari_ios": {
+              "version_added": "11"
+            },
+            "samsunginternet_android": [
+              {
+                "version_added": "1.5"
+              },
+              {
+                "prefix": "webkit",
+                "version_added": "1.5",
+                "version_removed": "3.0"
+              }
+            ],
+            "webview_android": {
+              "version_added": true
+            }
+          },
+          "status": {
+            "experimental": false,
+            "standard_track": true,
+            "deprecated": false
+          }
+        }
+      },
+      "getEntriesByType": {
+        "__compat": {
+          "mdn_url": "https://developer.mozilla.org/docs/Web/API/Performance/getEntriesByType",
+          "support": {
+            "chrome": [
+              {
+                "version_added": "28"
+              },
+              {
+                "prefix": "webkit",
+                "version_added": "25",
+                "version_removed": "36"
+              }
+            ],
+            "chrome_android": [
+              {
+                "version_added": "28"
+              },
+              {
+                "prefix": "webkit",
+                "version_added": "25",
+                "version_removed": "36"
+              }
+            ],
+            "edge": {
+              "version_added": "12"
+            },
+            "firefox": {
+              "version_added": true
+            },
+            "firefox_android": {
+              "version_added": "25"
+            },
+            "ie": {
+              "version_added": true
+            },
+            "nodejs": {
+              "version_added": false
+            },
+            "opera": [
+              {
+                "version_added": "15"
+              },
+              {
+                "prefix": "webkit",
+                "version_added": "15",
+                "version_removed": "23"
+              }
+            ],
+            "opera_android": [
+              {
+                "version_added": "15"
+              },
+              {
+                "prefix": "webkit",
+                "version_added": "14",
+                "version_removed": "24"
+              }
+            ],
+            "safari": {
+              "version_added": "11"
+            },
+            "safari_ios": {
+              "version_added": "11"
+            },
+            "samsunginternet_android": [
+              {
+                "version_added": "1.5"
+              },
+              {
+                "prefix": "webkit",
+                "version_added": "1.5",
+                "version_removed": "3.0"
+              }
+            ],
+            "webview_android": {
+              "version_added": true
+            }
+          },
+          "status": {
+            "experimental": false,
+            "standard_track": true,
+            "deprecated": false
+          }
+        }
+      },
+      "mark": {
+        "__compat": {
+          "mdn_url": "https://developer.mozilla.org/docs/Web/API/Performance/mark",
+          "support": {
+            "chrome": [
+              {
+                "version_added": "28"
+              },
+              {
+                "prefix": "webkit",
+                "version_added": "25",
+                "version_removed": "28"
+              }
+            ],
+            "chrome_android": [
+              {
+                "version_added": "28"
+              },
+              {
+                "prefix": "webkit",
+                "version_added": "25",
+                "version_removed": "28"
+              }
+            ],
+            "edge": {
+              "version_added": "12"
+            },
+            "firefox": {
+              "version_added": "41"
+            },
+            "firefox_android": {
+              "version_added": "42"
+            },
+            "ie": {
+              "version_added": "10"
+            },
+            "nodejs": {
+              "version_added": "8.5.0"
+            },
+            "opera": {
+              "version_added": "33"
+            },
+            "opera_android": {
+              "version_added": "33"
+            },
+            "safari": {
+              "version_added": "11"
+            },
+            "safari_ios": {
+              "version_added": "11"
+            },
+            "samsunginternet_android": {
+              "version_added": "1.5"
+            },
+            "webview_android": {
+              "version_added": true
+            }
+          },
+          "status": {
+            "experimental": false,
+            "standard_track": true,
+            "deprecated": false
+          }
+        }
+      },
+      "measure": {
+        "__compat": {
+          "mdn_url": "https://developer.mozilla.org/docs/Web/API/Performance/measure",
+          "support": {
+            "chrome": [
+              {
+                "version_added": "28"
+              },
+              {
+                "prefix": "webkit",
+                "version_added": "25",
+                "version_removed": "28"
+              }
+            ],
+            "chrome_android": [
+              {
+                "version_added": "28"
+              },
+              {
+                "prefix": "webkit",
+                "version_added": "25",
+                "version_removed": "28"
+              }
+            ],
+            "edge": {
+              "version_added": "12"
+            },
+            "firefox": {
+              "version_added": "41"
+            },
+            "firefox_android": {
+              "version_added": "42"
+            },
+            "ie": {
+              "version_added": "10"
+            },
+            "nodejs": {
+              "version_added": "8.5.0"
+            },
+            "opera": {
+              "version_added": "33"
+            },
+            "opera_android": {
+              "version_added": "33"
+            },
+            "safari": {
+              "version_added": "11"
+            },
+            "safari_ios": {
+              "version_added": "11"
+            },
+            "samsunginternet_android": {
+              "version_added": "1.5"
+            },
+            "webview_android": {
+              "version_added": "46"
+            }
+          },
+          "status": {
+            "experimental": false,
+            "standard_track": true,
+            "deprecated": false
+          }
+        }
+      },
+      "memory": {
+        "__compat": {
+          "mdn_url": "https://developer.mozilla.org/docs/Web/API/Performance/memory",
+          "support": {
+            "chrome": {
+              "version_added": "7"
+            },
+            "chrome_android": {
+              "version_added": "18"
+            },
+            "edge": {
+              "version_added": "≤79"
+            },
+            "firefox": {
+              "version_added": false
+            },
+            "firefox_android": {
+              "version_added": false
+            },
+            "ie": {
+              "version_added": null
+            },
+            "nodejs": {
+              "version_added": false
+            },
+            "opera": {
+              "version_added": true
+            },
+            "opera_android": {
+              "version_added": true
+            },
+            "safari": {
+              "version_added": false
+            },
+            "safari_ios": {
+              "version_added": false
+            },
+            "samsunginternet_android": {
+              "version_added": "1.0"
+            },
+            "webview_android": {
+              "version_added": true
+            }
+          },
+          "status": {
+            "experimental": false,
+            "standard_track": false,
+            "deprecated": false
+          }
+        }
+      },
+      "navigation": {
+        "__compat": {
+          "mdn_url": "https://developer.mozilla.org/docs/Web/API/Performance/navigation",
+          "support": {
+            "chrome": {
+              "version_added": "10"
+            },
+            "chrome_android": {
+              "version_added": "18"
+            },
+            "edge": {
+              "version_added": "12"
+            },
+            "firefox": {
+              "version_added": "7"
+            },
+            "firefox_android": {
+              "version_added": "7"
+            },
+            "ie": {
+              "version_added": "9"
+            },
+            "nodejs": {
+              "version_added": false
+            },
+            "opera": {
+              "version_added": "15"
+            },
+            "opera_android": {
+              "version_added": false
+            },
+            "safari": {
+              "version_added": "8"
+            },
+            "safari_ios": {
+              "version_added": "9"
+            },
+            "samsunginternet_android": {
+              "version_added": "1.0"
+            },
+            "webview_android": {
+              "version_added": true
+            }
+          },
+          "status": {
+            "experimental": false,
+            "standard_track": true,
+            "deprecated": true
+          }
+        }
+      },
+      "now": {
+        "__compat": {
+          "mdn_url": "https://developer.mozilla.org/docs/Web/API/Performance/now",
+          "support": {
+            "chrome": [
+              {
+                "version_added": "24"
+              },
+              {
+                "prefix": "webkit",
+                "version_added": "21",
+                "version_removed": "24"
+              }
+            ],
+            "chrome_android": {
+              "version_added": "25"
+            },
+            "edge": {
+              "version_added": "12"
+            },
+            "firefox": {
+              "version_added": "15",
+              "notes": [
+                "In Firefox 57.0.4 the accuracy was reduced to 20 microseconds.",
+                "In Firefox 59 the accuracy was reduced to 2 milliseconds.",
+                "In Firefox 60 the accuracy was increased to 1 millisecond."
+              ]
+            },
+            "firefox_android": {
+              "version_added": "15",
+              "notes": [
+                "In Firefox 57.0.4 the accuracy was reduced to 20 microseconds.",
+                "In Firefox 59 the accuracy was reduced to 2 milliseconds.",
+                "In Firefox 60 the accuracy was increased to 1 millisecond."
+              ]
+            },
+            "ie": {
+              "version_added": "10"
+            },
+            "nodejs": {
+              "version_added": "8.5.0"
+            },
+            "opera": {
+              "version_added": "15"
+            },
+            "opera_android": {
+              "version_added": "14"
+            },
+            "safari": {
+              "version_added": "8"
+            },
+            "safari_ios": {
+              "version_added": "9"
+            },
+            "samsunginternet_android": {
+              "version_added": "1.5"
+            },
+            "webview_android": {
+              "version_added": true
+            }
+          },
+          "status": {
+            "experimental": false,
+            "standard_track": true,
+            "deprecated": false
+          }
+        }
+      },
+      "onresourcetimingbufferfull": {
+        "__compat": {
+          "mdn_url": "https://developer.mozilla.org/docs/Web/API/Performance/onresourcetimingbufferfull",
+          "support": {
+            "chrome": [
+              {
+                "version_added": "46"
+              },
+              {
+                "version_added": "22",
+                "version_removed": "57",
+                "alternative_name": "onwebkitresourcetimingbufferfull"
+              }
+            ],
+            "chrome_android": [
+              {
+                "version_added": "46"
+              },
+              {
+                "version_added": "25",
+                "version_removed": "57",
+                "alternative_name": "onwebkitresourcetimingbufferfull"
+              }
+            ],
+            "edge": {
+              "version_added": "≤79"
+            },
+            "firefox": {
+              "version_added": true
+            },
+            "firefox_android": {
+              "version_added": true
+            },
+            "ie": {
+              "version_added": false
+            },
+            "nodejs": {
+              "version_added": false
+            },
+            "opera": {
+              "version_added": false
+            },
+            "opera_android": {
+              "version_added": true
+            },
+            "safari": {
+              "version_added": "11"
+            },
+            "safari_ios": {
+              "version_added": false
+            },
+            "samsunginternet_android": [
+              {
+                "version_added": "5.0"
+              },
+              {
+                "alternative_name": "onwebkitresourcetimingbufferfull",
+                "version_added": "1.5",
+                "version_removed": "7.0"
+              }
+            ],
+            "webview_android": [
+              {
+                "version_added": "46"
+              },
+              {
+                "version_added": true,
+                "version_removed": "57",
+                "alternative_name": "onwebkitresourcetimingbufferfull"
+              }
+            ]
+          },
+          "status": {
+            "experimental": false,
+            "standard_track": true,
+            "deprecated": false
+          }
+        }
+      },
+      "resourcetimingbufferfull_event": {
+        "__compat": {
+          "description": "<code>resourcetimingbufferfull</code> event",
+          "mdn_url": "https://developer.mozilla.org/docs/Web/API/Performance/resourcetimingbufferfull_event",
+          "support": {
+            "chrome": [
+              {
+                "version_added": "46"
+              },
+              {
+                "version_added": "22",
+                "version_removed": "57",
+                "alternative_name": "webkitresourcetimingbufferfull"
+              }
+            ],
+            "chrome_android": [
+              {
+                "version_added": "46"
+              },
+              {
+                "version_added": "25",
+                "version_removed": "57",
+                "alternative_name": "webkitresourcetimingbufferfull"
+              }
+            ],
+            "edge": {
+              "version_added": "≤79"
+            },
+            "firefox": {
+              "version_added": true
+            },
+            "firefox_android": {
+              "version_added": true
+            },
+            "ie": {
+              "version_added": false
+            },
+            "nodejs": {
+              "version_added": false
+            },
+            "opera": {
+              "version_added": false
+            },
+            "opera_android": {
+              "version_added": true
+            },
+            "safari": {
+              "version_added": "11"
+            },
+            "safari_ios": {
+              "version_added": false
+            },
+            "samsunginternet_android": [
+              {
+                "version_added": "5.0"
+              },
+              {
+                "alternative_name": "webkitresourcetimingbufferfull",
+                "version_added": "1.5",
+                "version_removed": "7.0"
+              }
+            ],
+            "webview_android": [
+              {
+                "version_added": "46"
+              },
+              {
+                "version_added": true,
+                "version_removed": "57",
+                "alternative_name": "webkitresourcetimingbufferfull"
+              }
+            ]
+          },
+          "status": {
+            "experimental": false,
+            "standard_track": true,
+            "deprecated": false
+          }
+        }
+      },
+      "setResourceTimingBufferSize": {
+        "__compat": {
+          "mdn_url": "https://developer.mozilla.org/docs/Web/API/Performance/setResourceTimingBufferSize",
+          "support": {
+            "chrome": [
+              {
+                "version_added": "46"
+              },
+              {
+                "version_added": "22",
+                "version_removed": "57",
+                "prefix": "webkit"
+              }
+            ],
+            "chrome_android": [
+              {
+                "version_added": "46"
+              },
+              {
+                "version_added": "25",
+                "version_removed": "57",
+                "prefix": "webkit"
+              }
+            ],
+            "edge": {
+              "version_added": "12"
+            },
+            "firefox": {
+              "version_added": true
+            },
+            "firefox_android": {
+              "version_added": true
+            },
+            "ie": {
+              "version_added": true
+            },
+            "nodejs": {
+              "version_added": false
+            },
+            "opera": {
+              "version_added": true
+            },
+            "opera_android": {
+              "version_added": true
+            },
+            "safari": {
+              "version_added": "11"
+            },
+            "safari_ios": {
+              "version_added": false
+            },
+            "samsunginternet_android": [
+              {
+                "version_added": "5.0"
+              },
+              {
+                "prefix": "webkit",
+                "version_added": "1.5",
+                "version_removed": "7.0"
+              }
+            ],
+            "webview_android": [
+              {
+                "version_added": "46"
+              },
+              {
+                "version_added": true,
+                "version_removed": "57",
+                "prefix": "webkit"
+              }
+            ]
+          },
+          "status": {
+            "experimental": false,
+            "standard_track": true,
+            "deprecated": false
+          }
+        }
+      },
+      "timeOrigin": {
+        "__compat": {
+          "mdn_url": "https://developer.mozilla.org/docs/Web/API/Performance/timeOrigin",
+          "support": {
+            "chrome": {
+              "version_added": "62"
+            },
+            "chrome_android": {
+              "version_added": "62"
+            },
+            "edge": {
+              "version_added": "16"
+            },
+            "firefox": {
+              "version_added": "53"
+            },
+            "firefox_android": {
+              "version_added": "53"
+            },
+            "ie": {
+              "version_added": null
+            },
+            "nodejs": {
+              "version_added": "8.5.0"
+            },
+            "opera": {
+              "version_added": "49"
+            },
+            "opera_android": {
+              "version_added": "46"
+            },
+            "safari": {
+              "version_added": false
+            },
+            "safari_ios": {
+              "version_added": false
+            },
+            "samsunginternet_android": {
+              "version_added": "8.0"
+            },
+            "webview_android": {
+              "version_added": "62"
+            }
+          },
+          "status": {
+            "experimental": true,
+            "standard_track": true,
+            "deprecated": false
+          }
+        }
+      },
+      "timing": {
+        "__compat": {
+          "mdn_url": "https://developer.mozilla.org/docs/Web/API/Performance/timing",
+          "support": {
+            "chrome": {
+              "version_added": "6"
+            },
+            "chrome_android": {
+              "version_added": "18"
+            },
+            "edge": {
+              "version_added": "12"
+            },
+            "firefox": {
+              "version_added": "7"
+            },
+            "firefox_android": {
+              "version_added": "7"
+            },
+            "ie": {
+              "version_added": "9"
+            },
+            "nodejs": {
+              "version_added": "8.5.0",
+              "alternative_name": "nodeTiming",
+              "partial_implementation": true,
+              "notes": "Returns node specific timing object"
+            },
+            "opera": {
+              "version_added": "15"
+            },
+            "opera_android": {
+              "version_added": "14"
+            },
+            "safari": {
+              "version_added": "8"
+            },
+            "safari_ios": {
+              "version_added": "9"
+            },
+            "samsunginternet_android": {
+              "version_added": "1.0"
+            },
+            "webview_android": {
+              "version_added": true
+            }
+          },
+          "status": {
+            "experimental": false,
+            "standard_track": true,
+            "deprecated": true
+          }
+        }
+      },
+      "toJSON": {
+        "__compat": {
+          "mdn_url": "https://developer.mozilla.org/docs/Web/API/Performance/toJSON",
+          "support": {
+            "chrome": {
+              "version_added": "56"
+            },
+            "chrome_android": {
+              "version_added": "56"
+            },
+            "edge": {
+              "version_added": "12"
+            },
+            "firefox": {
+              "version_added": "25"
+            },
+            "firefox_android": {
+              "version_added": "25"
+            },
+            "ie": {
+              "version_added": null
+            },
+            "nodejs": {
+              "version_added": false
+            },
+            "opera": {
+              "version_added": false
+            },
+            "opera_android": {
+              "version_added": false
+            },
+            "safari": {
+              "version_added": false
+            },
+            "safari_ios": {
+              "version_added": false
+            },
+            "samsunginternet_android": {
+              "version_added": "6.0"
+            },
+            "webview_android": {
+              "version_added": "56"
+            }
+          },
+          "status": {
+            "experimental": false,
+            "standard_track": true,
+            "deprecated": false
+          }
+        }
+      }
+    }
+  }
+}

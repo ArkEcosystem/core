@@ -1,0 +1,15 @@
+{
+  "name": "using-domains",
+  "version": "1.0.0",
+  "description": "Example using Raygun4Node and NodeJS domains",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "dwnz",
+  "license": "MIT",
+  "dependencies": {
+    "config": "^1.16.0",
+    "raygun": "^0.8.0"
+  }
+}

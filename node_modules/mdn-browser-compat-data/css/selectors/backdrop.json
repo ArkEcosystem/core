@@ -1,0 +1,195 @@
+{
+  "css": {
+    "selectors": {
+      "backdrop": {
+        "__compat": {
+          "description": "<code>::backdrop</code>",
+          "matches": {
+            "keywords": [
+              "::backdrop"
+            ]
+          },
+          "mdn_url": "https://developer.mozilla.org/docs/Web/CSS/::backdrop",
+          "support": {
+            "chrome": [
+              {
+                "version_added": "37"
+              },
+              {
+                "prefix": "-webkit-",
+                "version_added": "32"
+              }
+            ],
+            "chrome_android": [
+              {
+                "version_added": "37"
+              },
+              {
+                "prefix": "-webkit-",
+                "version_added": "32"
+              }
+            ],
+            "edge": {
+              "prefix": "-ms-",
+              "version_added": "12"
+            },
+            "firefox": {
+              "version_added": "47"
+            },
+            "firefox_android": {
+              "version_added": "47"
+            },
+            "ie": {
+              "prefix": "-ms-",
+              "version_added": "11"
+            },
+            "opera": [
+              {
+                "version_added": "24"
+              },
+              {
+                "prefix": "-webkit-",
+                "version_added": "19"
+              }
+            ],
+            "opera_android": [
+              {
+                "version_added": "24"
+              },
+              {
+                "prefix": "-webkit-",
+                "version_added": "19"
+              }
+            ],
+            "safari": {
+              "version_added": false
+            },
+            "safari_ios": {
+              "version_added": false
+            },
+            "samsunginternet_android": [
+              {
+                "version_added": "3.0"
+              },
+              {
+                "prefix": "-webkit-",
+                "version_added": "2.0"
+              }
+            ],
+            "webview_android": [
+              {
+                "version_added": "37"
+              },
+              {
+                "prefix": "-webkit-",
+                "version_added": "≤37"
+              }
+            ]
+          },
+          "status": {
+            "experimental": false,
+            "standard_track": true,
+            "deprecated": false
+          }
+        },
+        "dialog": {
+          "__compat": {
+            "description": "Support on <code>dialog</code> elements",
+            "support": {
+              "chrome": {
+                "version_added": "32"
+              },
+              "chrome_android": {
+                "version_added": "32"
+              },
+              "edge": {
+                "version_added": "79"
+              },
+              "firefox": {
+                "version_added": false
+              },
+              "firefox_android": {
+                "version_added": false
+              },
+              "ie": {
+                "version_added": false
+              },
+              "opera": {
+                "version_added": "19"
+              },
+              "opera_android": {
+                "version_added": "19"
+              },
+              "safari": {
+                "version_added": false
+              },
+              "safari_ios": {
+                "version_added": false
+              },
+              "samsunginternet_android": {
+                "version_added": "2.0"
+              },
+              "webview_android": {
+                "version_added": "≤37"
+              }
+            },
+            "status": {
+              "experimental": false,
+              "standard_track": true,
+              "deprecated": false
+            }
+          }
+        },
+        "fullscreen": {
+          "__compat": {
+            "description": "Fullscreen support",
+            "support": {
+              "chrome": {
+                "version_added": false
+              },
+              "chrome_android": {
+                "version_added": false
+              },
+              "edge": {
+                "version_added": "12",
+                "version_removed": "79"
+              },
+              "firefox": {
+                "version_added": "47"
+              },
+              "firefox_android": {
+                "version_added": "47"
+              },
+              "ie": {
+                "version_added": "11"
+              },
+              "opera": {
+                "version_added": false
+              },
+              "opera_android": {
+                "version_added": false
+              },
+              "safari": {
+                "version_added": false
+              },
+              "safari_ios": {
+                "version_added": false
+              },
+              "samsunginternet_android": {
+                "version_added": false
+              },
+              "webview_android": {
+                "version_added": false
+              }
+            },
+            "status": {
+              "experimental": false,
+              "standard_track": true,
+              "deprecated": false
+            }
+          }
+        }
+      }
+    }
+  }
+}

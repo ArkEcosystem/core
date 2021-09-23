@@ -1,0 +1,28 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const cli_ux_1 = __importDefault(require("cli-ux"));
+const command_1 = require("../commands/command");
+const process_manager_1 = require("../process-manager");
+class AbstractRestartCommand extends command_1.BaseCommand {
+    async run() {
+        const { flags } = await this.parseWithNetwork(this.getClass());
+        const processName = `${flags.token}-${this.getSuffix()}`;
+        try {
+            this.abortMissingProcess(processName);
+            this.abortStoppedProcess(processName);
+            cli_ux_1.default.action.start(`Restarting ${processName}`);
+            process_manager_1.processManager.restart(processName);
+        }
+        catch (error) {
+            error.stderr ? this.error(`${error.message}: ${error.stderr}`) : this.error(error.message);
+        }
+        finally {
+            cli_ux_1.default.action.stop();
+        }
+    }
+}
+exports.AbstractRestartCommand = AbstractRestartCommand;
+//# sourceMappingURL=restart.js.map

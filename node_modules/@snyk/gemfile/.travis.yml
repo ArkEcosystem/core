@@ -1,0 +1,21 @@
+language: node_js
+cache: npm
+notifications:
+  email: false
+node_js:
+  - "10"
+  - "8"
+  - "6"
+  - "4"
+script:
+  - npm test
+jobs:
+  include:
+    - stage: npm release
+      node_js: "10"
+      script: skip
+      after_success:
+        - npx semantic-release
+branches:
+  only:
+    - master

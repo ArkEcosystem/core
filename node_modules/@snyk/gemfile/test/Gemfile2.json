@@ -1,0 +1,305 @@
+{
+  "bundledWith": "1.13.6",
+  "rubyVersion": "2.3.1p0",
+  "platforms": {
+    "ruby": {}
+  },
+  "dependencies": {
+    "fastreader": {},
+    "nokogiri": {
+      "outsourced": true,
+      "version": "= 1.0.0"
+    },
+    "pdfkit": {
+      "version": "~> 0.5"
+    },
+    "rack": {
+      "version": "~> 1.1"
+    },
+    "rspec!": {}
+  },
+  "specs": {
+    "nokogiri": {
+      "version": "1.0.0",
+      "type": "GIT",
+      "remote": {
+        "path": "https://github.com/sparklemotion/nokogiri.git"
+      },
+      "revision": {
+        "sha": "7f8b7b2bf55829e02cd11c2eb25814c3ed458676"
+      }
+    },
+    "rspec": {
+      "version": "3.6.0.beta1",
+      "rspec-core": {
+        "version": "= 3.6.0.beta1"
+      },
+      "rspec-expectations": {
+        "version": "= 3.6.0.beta1"
+      },
+      "rspec-mocks": {
+        "version": "= 3.6.0.beta1"
+      },
+      "type": "GIT",
+      "remote": {
+        "path": "https://github.com/rspec/rspec.git"
+      },
+      "revision": {
+        "sha": "bc209d4a2a2dfbf38ac1d470b213753aa9e654db"
+      }
+    },
+    "activemodel": {
+      "version": "5.0.0.1",
+      "activesupport": {
+        "version": "= 5.0.0.1"
+      },
+      "type": "GEM",
+      "remote": {
+        "path": "https://rubygems.org/"
+      }
+    },
+    "activerecord": {
+      "version": "5.0.0.1",
+      "activemodel": {
+        "version": "= 5.0.0.1"
+      },
+      "activesupport": {
+        "version": "= 5.0.0.1"
+      },
+      "arel": {
+        "version": "~> 7.0"
+      },
+      "type": "GEM",
+      "remote": {
+        "path": "https://rubygems.org/"
+      }
+    },
+    "activesupport": {
+      "version": "5.0.0.1",
+      "concurrent-ruby": {
+        "version": "~> 1.0, >= 1.0.2"
+      },
+      "i18n": {
+        "version": "~> 0.7"
+      },
+      "minitest": {
+        "version": "~> 5.1"
+      },
+      "tzinfo": {
+        "version": "~> 1.1"
+      },
+      "type": "GEM",
+      "remote": {
+        "path": "https://rubygems.org/"
+      }
+    },
+    "arel": {
+      "version": "7.1.4",
+      "type": "GEM",
+      "remote": {
+        "path": "https://rubygems.org/"
+      }
+    },
+    "concurrent-ruby": {
+      "version": "1.0.2",
+      "type": "GEM",
+      "remote": {
+        "path": "https://rubygems.org/"
+      }
+    },
+    "diff-lcs": {
+      "version": "1.2.5",
+      "type": "GEM",
+      "remote": {
+        "path": "https://rubygems.org/"
+      }
+    },
+    "fastreader": {
+      "version": "1.0.8",
+      "activerecord": {
+        "version": ">= 2.0.0"
+      },
+      "activesupport": {
+        "version": ">= 2.0.0"
+      },
+      "feed-normalizer": {
+        "version": ">= 1.5.1"
+      },
+      "highline": {
+        "version": ">= 1.4.0"
+      },
+      "hoe": {
+        "version": ">= 1.6.0"
+      },
+      "hpricot": {
+        "version": ">= 0.6"
+      },
+      "simple-rss": {
+        "version": ">= 1.1"
+      },
+      "sqlite3-ruby": {
+        "version": ">= 1.2.2"
+      },
+      "type": "GEM",
+      "remote": {
+        "path": "https://rubygems.org/"
+      }
+    },
+    "feed-normalizer": {
+      "version": "1.5.2",
+      "hpricot": {
+        "version": ">= 0.6"
+      },
+      "simple-rss": {
+        "version": ">= 1.1"
+      },
+      "type": "GEM",
+      "remote": {
+        "path": "https://rubygems.org/"
+      }
+    },
+    "highline": {
+      "version": "1.7.8",
+      "type": "GEM",
+      "remote": {
+        "path": "https://rubygems.org/"
+      }
+    },
+    "hoe": {
+      "version": "3.15.2",
+      "rake": {
+        "version": ">= 0.8, < 12.0"
+      },
+      "type": "GEM",
+      "remote": {
+        "path": "https://rubygems.org/"
+      }
+    },
+    "hpricot": {
+      "version": "0.8.6",
+      "type": "GEM",
+      "remote": {
+        "path": "https://rubygems.org/"
+      }
+    },
+    "i18n": {
+      "version": "0.7.0",
+      "type": "GEM",
+      "remote": {
+        "path": "https://rubygems.org/"
+      }
+    },
+    "minitest": {
+      "version": "5.9.1",
+      "type": "GEM",
+      "remote": {
+        "path": "https://rubygems.org/"
+      }
+    },
+    "pdfkit": {
+      "version": "0.5.2",
+      "type": "GEM",
+      "remote": {
+        "path": "https://rubygems.org/"
+      }
+    },
+    "rack": {
+      "version": "1.6.4",
+      "type": "GEM",
+      "remote": {
+        "path": "https://rubygems.org/"
+      }
+    },
+    "rake": {
+      "version": "11.3.0",
+      "type": "GEM",
+      "remote": {
+        "path": "https://rubygems.org/"
+      }
+    },
+    "rspec-core": {
+      "version": "3.6.0.beta1",
+      "rspec-support": {
+        "version": "= 3.6.0.beta1"
+      },
+      "type": "GEM",
+      "remote": {
+        "path": "https://rubygems.org/"
+      }
+    },
+    "rspec-expectations": {
+      "version": "3.6.0.beta1",
+      "diff-lcs": {
+        "version": ">= 1.2.0, < 2.0"
+      },
+      "rspec-support": {
+        "version": "= 3.6.0.beta1"
+      },
+      "type": "GEM",
+      "remote": {
+        "path": "https://rubygems.org/"
+      }
+    },
+    "rspec-mocks": {
+      "version": "3.6.0.beta1",
+      "diff-lcs": {
+        "version": ">= 1.2.0, < 2.0"
+      },
+      "rspec-support": {
+        "version": "= 3.6.0.beta1"
+      },
+      "type": "GEM",
+      "remote": {
+        "path": "https://rubygems.org/"
+      }
+    },
+    "rspec-support": {
+      "version": "3.6.0.beta1",
+      "type": "GEM",
+      "remote": {
+        "path": "https://rubygems.org/"
+      }
+    },
+    "simple-rss": {
+      "version": "1.3.1",
+      "type": "GEM",
+      "remote": {
+        "path": "https://rubygems.org/"
+      }
+    },
+    "sqlite3": {
+      "version": "1.3.12",
+      "type": "GEM",
+      "remote": {
+        "path": "https://rubygems.org/"
+      }
+    },
+    "sqlite3-ruby": {
+      "version": "1.3.3",
+      "sqlite3": {
+        "version": ">= 1.3.3"
+      },
+      "type": "GEM",
+      "remote": {
+        "path": "https://rubygems.org/"
+      }
+    },
+    "thread_safe": {
+      "version": "0.3.5",
+      "type": "GEM",
+      "remote": {
+        "path": "https://rubygems.org/"
+      }
+    },
+    "tzinfo": {
+      "version": "1.2.2",
+      "thread_safe": {
+        "version": "~> 0.1"
+      },
+      "type": "GEM",
+      "remote": {
+        "path": "https://rubygems.org/"
+      }
+    }
+  }
+}

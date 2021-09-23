@@ -1,0 +1,243 @@
+{
+  "css": {
+    "properties": {
+      "row-gap": {
+        "flex_context": {
+          "__compat": {
+            "description": "Supported in Flex Layout",
+            "mdn_url": "https://developer.mozilla.org/docs/Web/CSS/row-gap",
+            "support": {
+              "chrome": {
+                "version_added": false
+              },
+              "chrome_android": {
+                "version_added": false
+              },
+              "edge": {
+                "version_added": false
+              },
+              "firefox": {
+                "version_added": "63"
+              },
+              "firefox_android": {
+                "version_added": "63"
+              },
+              "ie": {
+                "version_added": false
+              },
+              "opera": {
+                "version_added": false
+              },
+              "opera_android": {
+                "version_added": false
+              },
+              "qq_android": {
+                "version_added": false
+              },
+              "safari": {
+                "version_added": false
+              },
+              "safari_ios": {
+                "version_added": false
+              },
+              "samsunginternet_android": {
+                "version_added": false
+              },
+              "uc_android": {
+                "version_added": false
+              },
+              "uc_chinese_android": {
+                "version_added": false
+              },
+              "webview_android": {
+                "version_added": false
+              }
+            },
+            "status": {
+              "experimental": false,
+              "standard_track": true,
+              "deprecated": false
+            }
+          }
+        },
+        "grid_context": {
+          "__compat": {
+            "description": "Supported in Grid Layout",
+            "mdn_url": "https://developer.mozilla.org/docs/Web/CSS/row-gap",
+            "support": {
+              "chrome": [
+                {
+                  "version_added": "66"
+                },
+                {
+                  "version_added": "57",
+                  "alternative_name": "grid-row-gap"
+                },
+                {
+                  "version_added": "29",
+                  "alternative_name": "grid-row-gap",
+                  "flags": [
+                    {
+                      "type": "preference",
+                      "name": "Enable experimental Web Platform features"
+                    }
+                  ]
+                }
+              ],
+              "chrome_android": [
+                {
+                  "version_added": "66"
+                },
+                {
+                  "version_added": "57",
+                  "alternative_name": "grid-row-gap"
+                },
+                {
+                  "version_added": "29",
+                  "flags": [
+                    {
+                      "type": "preference",
+                      "name": "Enable experimental Web Platform features"
+                    }
+                  ]
+                }
+              ],
+              "edge": [
+                {
+                  "version_added": "16"
+                },
+                {
+                  "version_added": "16",
+                  "alternative_name": "grid-row-gap"
+                }
+              ],
+              "firefox": [
+                {
+                  "version_added": "61"
+                },
+                {
+                  "version_added": "52",
+                  "alternative_name": "grid-row-gap"
+                },
+                {
+                  "version_added": "40",
+                  "version_removed": "59",
+                  "alternative_name": "grid-row-gap",
+                  "flags": [
+                    {
+                      "type": "preference",
+                      "name": "layout.css.grid.enabled",
+                      "value_to_set": "true"
+                    }
+                  ]
+                }
+              ],
+              "firefox_android": [
+                {
+                  "version_added": "61"
+                },
+                {
+                  "version_added": "52",
+                  "alternative_name": "grid-row-gap"
+                },
+                {
+                  "version_added": "40",
+                  "version_removed": "59",
+                  "alternative_name": "grid-row-gap",
+                  "flags": [
+                    {
+                      "type": "preference",
+                      "name": "layout.css.grid.enabled",
+                      "value_to_set": "true"
+                    }
+                  ]
+                }
+              ],
+              "ie": {
+                "version_added": false
+              },
+              "opera": [
+                {
+                  "version_added": "53"
+                },
+                {
+                  "version_added": "44",
+                  "alternative_name": "grid-row-gap"
+                },
+                {
+                  "version_added": "28",
+                  "alternative_name": "grid-row-gap",
+                  "flags": [
+                    {
+                      "type": "preference",
+                      "name": "Enable experimental Web Platform features"
+                    }
+                  ]
+                }
+              ],
+              "opera_android": [
+                {
+                  "version_added": "47"
+                },
+                {
+                  "version_added": "43",
+                  "alternative_name": "grid-row-gap"
+                },
+                {
+                  "version_added": "28",
+                  "alternative_name": "grid-row-gap",
+                  "flags": [
+                    {
+                      "type": "preference",
+                      "name": "Enable experimental Web Platform features"
+                    }
+                  ]
+                }
+              ],
+              "qq_android": {
+                "version_added": null
+              },
+              "safari": {
+                "version_added": "10.1",
+                "alternative_name": "grid-row-gap"
+              },
+              "safari_ios": {
+                "version_added": "10.3",
+                "alternative_name": "grid-row-gap"
+              },
+              "samsunginternet_android": [
+                {
+                  "version_added": "9.0"
+                },
+                {
+                  "alternative_name": "grid-row-gap",
+                  "version_added": "6.0"
+                }
+              ],
+              "uc_android": {
+                "version_added": null
+              },
+              "uc_chinese_android": {
+                "version_added": null
+              },
+              "webview_android": [
+                {
+                  "version_added": "66"
+                },
+                {
+                  "version_added": "57",
+                  "alternative_name": "grid-row-gap"
+                }
+              ]
+            },
+            "status": {
+              "experimental": false,
+              "standard_track": true,
+              "deprecated": false
+            }
+          }
+        }
+      }
+    }
+  }
+}
