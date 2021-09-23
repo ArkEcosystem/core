@@ -1,7 +1,13 @@
 {
+<<<<<<< HEAD
   "name": "@qnt/core",
   "version": "2.6.57",
   "description": "Core of the quantum Blockchain",
+=======
+  "name": "@bridgechain/core",
+  "version": "2.6.1",
+  "description": "Core of the bridgechain Blockchain",
+>>>>>>> 1f85ef7298f73ca371b8f2835ef5178be00345a6
   "license": "MIT",
   "contributors": [
     "François-Xavier Thoorens <fx@ark.io>",
@@ -17,7 +23,11 @@
   "main": "dist/index",
   "types": "dist/index",
   "bin": {
+<<<<<<< HEAD
     "qnt": "./bin/run"
+=======
+    "bridgechain": "./bin/run"
+>>>>>>> 1f85ef7298f73ca371b8f2835ef5178be00345a6
   },
   "scripts": {
     "build": "yarn clean && yarn compile && yarn copy",
@@ -41,6 +51,7 @@
     "start:devnet": "cross-env CORE_PATH_CONFIG=./bin/config/devnet yarn ark core:run",
     "start:mainnet": "cross-env CORE_PATH_CONFIG=./bin/config/mainnet yarn ark core:run",
     "start:testnet": "cross-env CORE_PATH_CONFIG=./bin/config/testnet yarn ark core:run --env=test",
+<<<<<<< HEAD
     "qnt": "./bin/run"
   },
   "dependencies": {
@@ -61,6 +72,28 @@
     "@arkecosystem/core-wallet-api": "^2.6.57",
     "@arkecosystem/core-webhooks": "^2.6.57",
     "@arkecosystem/crypto": "^2.6.57",
+=======
+    "bridgechain": "./bin/run"
+  },
+  "dependencies": {
+    "@arkecosystem/core-api": "^2.6.1",
+    "@arkecosystem/core-blockchain": "^2.6.1",
+    "@arkecosystem/core-container": "^2.6.1",
+    "@arkecosystem/core-database-postgres": "^2.6.1",
+    "@arkecosystem/core-event-emitter": "^2.6.1",
+    "@arkecosystem/core-exchange-json-rpc": "^2.6.1",
+    "@arkecosystem/core-forger": "^2.6.1",
+    "@arkecosystem/core-logger-pino": "^2.6.1",
+    "@arkecosystem/core-magistrate-transactions": "^2.6.1",
+    "@arkecosystem/core-p2p": "^2.6.1",
+    "@arkecosystem/core-snapshots": "^2.6.1",
+    "@arkecosystem/core-state": "^2.6.1",
+    "@arkecosystem/core-transaction-pool": "^2.6.1",
+    "@arkecosystem/core-utils": "^2.6.1",
+    "@arkecosystem/core-wallet-api": "^2.6.1",
+    "@arkecosystem/core-webhooks": "^2.6.1",
+    "@arkecosystem/crypto": "^2.6.1",
+>>>>>>> 1f85ef7298f73ca371b8f2835ef5178be00345a6
     "@oclif/command": "^1.5.16",
     "@oclif/config": "^1.13.2",
     "@oclif/plugin-autocomplete": "^0.1.1",
@@ -89,7 +122,11 @@
     "lodash.minby": "^4.6.0",
     "nodejs-tail": "^1.1.0",
     "pretty-bytes": "^5.2.0",
+<<<<<<< HEAD
     "pretty-ms": "^6.0.0",
+=======
+    "pretty-ms": "^5.0.0",
+>>>>>>> 1f85ef7298f73ca371b8f2835ef5178be00345a6
     "prompts": "^2.1.0",
     "read-last-lines": "^1.7.1",
     "semver": "^7.0.0",
@@ -128,7 +165,11 @@
         "./dist/hooks/command_not_found/suggest"
       ]
     },
+<<<<<<< HEAD
     "bin": "qnt",
+=======
+    "bin": "bridgechain",
+>>>>>>> 1f85ef7298f73ca371b8f2835ef5178be00345a6
     "topics": {
       "config": {
         "description": "manage core config variables"

@@ -211,12 +211,21 @@ heading "Installing Core..."
 
 shopt -s expand_aliases
 alias ark="$HOME/core-bridgechain/packages/core/bin/run"
+<<<<<<< HEAD
 echo 'alias qnt="$HOME/core-bridgechain/packages/core/bin/run"' >> ~/.bashrc
 
 rm -rf "$HOME/core-bridgechain"
 git clone "git@github.com:Kosechi/core" "$HOME/core-bridgechain" || FAILED="Y"
 if [ "$FAILED" == "Y" ]; then
     echo "Failed to fetch core repo with origin 'git@github.com:Kosechi/core'"
+=======
+echo 'alias bridgechain="$HOME/core-bridgechain/packages/core/bin/run"' >> ~/.bashrc
+
+rm -rf "$HOME/core-bridgechain"
+git clone "git@github.com:ArkEcosystem/core.git" "$HOME/core-bridgechain" || FAILED="Y"
+if [ "$FAILED" == "Y" ]; then
+    echo "Failed to fetch core repo with origin 'git@github.com:ArkEcosystem/core.git'"
+>>>>>>> 1f85ef7298f73ca371b8f2835ef5178be00345a6
 
     exit 1
 fi
@@ -233,9 +242,15 @@ while [ "$YARN_SETUP" == "N" ]; do
   rm -rf "$HOME/.cache/yarn"
   yarn setup || YARN_SETUP="N"
 done
+<<<<<<< HEAD
 rm -rf "$HOME/.config/@qnt"
 rm -rf "$HOME/.config/@quantum"
 rm -rf "$HOME/.config/qnt-core"
+=======
+rm -rf "$HOME/.config/@bridgechain"
+rm -rf "$HOME/.config/@bridgechain"
+rm -rf "$HOME/.config/bridgechain-core"
+>>>>>>> 1f85ef7298f73ca371b8f2835ef5178be00345a6
 
 
 echo 'export PATH=$(yarn global bin):$PATH' >> ~/.bashrc

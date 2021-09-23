@@ -1,9 +1,15 @@
 {
   "blocks": [],
+<<<<<<< HEAD
   "blocksTransactions": {},
   "transactions": [],
   "outlookTable": {},
   "transactionIdFixTable": {},
   "wrongTransactionOrder": {},
   "negativeBalances": {}
+=======
+  "transactions": [],
+  "outlookTable": {},
+  "transactionIdFixTable": {}
+>>>>>>> 1f85ef7298f73ca371b8f2835ef5178be00345a6
 }

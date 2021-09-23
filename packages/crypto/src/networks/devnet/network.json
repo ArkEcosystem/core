@@ -1,11 +1,16 @@
 {
   "name": "devnet",
+<<<<<<< HEAD
   "messagePrefix": "QNT message:\n",
+=======
+  "messagePrefix": "MINE message:\n",
+>>>>>>> 1f85ef7298f73ca371b8f2835ef5178be00345a6
   "bip32": {
     "public": 46090600,
     "private": 46089520
   },
   "pubKeyHash": 30,
+<<<<<<< HEAD
   "nethash": "d8f1f2fb907afd01f82c6d9f179be792777a88a38d748a70a7f7717666414f1d",
   "wif": 82,
   "slip44": 1,
@@ -14,5 +19,15 @@
     "token": "QNT",
     "symbol": "Γ",
     "explorer": "http://142.93.117.33:4200"
+=======
+  "nethash": "72e693c43cd89a67db47329c22524f921a0e5d1518a30e28510831f1d93bf015",
+  "wif": 167,
+  "slip44": 1,
+  "aip20": 1,
+  "client": {
+    "token": "MINE",
+    "symbol": "M",
+    "explorer": "http://165.227.213.194:4200"
+>>>>>>> 1f85ef7298f73ca371b8f2835ef5178be00345a6
   }
 }

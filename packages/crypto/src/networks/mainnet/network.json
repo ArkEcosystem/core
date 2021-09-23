@@ -1,10 +1,15 @@
 {
   "name": "mainnet",
+<<<<<<< HEAD
   "messagePrefix": "QNT message:\n",
+=======
+  "messagePrefix": "MINE message:\n",
+>>>>>>> 1f85ef7298f73ca371b8f2835ef5178be00345a6
   "bip32": {
     "public": 46090600,
     "private": 46089520
   },
+<<<<<<< HEAD
   "pubKeyHash": 58,
   "nethash": "4aaadbaf1de46a4062c3da9e337b02ede6cf4ad5cec4a87e2f73b3f7fd05eb6f",
   "wif": 243,
@@ -14,5 +19,16 @@
     "token": "QNT",
     "symbol": "Γ",
     "explorer": "http://142.93.117.33:4200"
+=======
+  "pubKeyHash": 50,
+  "nethash": "2880499313bb0fca590d04a4536d54f8cd4ae55dcae3800ed4799df75eba95e2",
+  "wif": 97,
+  "slip44": 111,
+  "aip20": 0,
+  "client": {
+    "token": "MINE",
+    "symbol": "M",
+    "explorer": "http://165.227.213.194:4200"
+>>>>>>> 1f85ef7298f73ca371b8f2835ef5178be00345a6
   }
 }

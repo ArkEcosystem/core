@@ -3,7 +3,7 @@ module.exports = {
     "@arkecosystem/core-logger-pino": {},
     "@arkecosystem/core-p2p": {
         server: {
-            port: process.env.CORE_P2P_PORT || 4002,
+            port: process.env.CORE_P2P_PORT || 4102,
         },
         minimumNetworkReach: 5,
     },
@@ -23,7 +23,11 @@ module.exports = {
         maxTransactionsPerSender: process.env.CORE_TRANSACTION_POOL_MAX_PER_SENDER || 300,
         allowedSenders: [],
         dynamicFees: {
+<<<<<<< HEAD
             enabled: true,
+=======
+            enabled: false,
+>>>>>>> 1f85ef7298f73ca371b8f2835ef5178be00345a6
             minFeePool: 3000,
             minFeeBroadcast: 3000,
             addonBytes: {
@@ -35,6 +39,18 @@ module.exports = {
                 ipfs: 250,
                 multiPayment: 500,
                 delegateResignation: 400000,
+<<<<<<< HEAD
+=======
+                htlcLock: 100,
+                htlcClaim: 0,
+                htlcRefund: 0,
+                businessRegistration: 4000000,
+                businessUpdate: 500,
+                businessResignation: 100,
+                bridgechainRegistration: 4000000,
+                bridgechainUpdate: 500,
+                bridgechainResignation: 100,
+>>>>>>> 1f85ef7298f73ca371b8f2835ef5178be00345a6
             },
         },
     },
@@ -42,14 +58,14 @@ module.exports = {
     "@arkecosystem/core-api": {
         enabled: !process.env.CORE_API_DISABLED,
         host: process.env.CORE_API_HOST || "0.0.0.0",
-        port: process.env.CORE_API_PORT || 4003,
+        port: process.env.CORE_API_PORT || 4103,
     },
     "@arkecosystem/core-wallet-api": {},
     "@arkecosystem/core-webhooks": {
         enabled: process.env.CORE_WEBHOOKS_ENABLED,
         server: {
             host: process.env.CORE_WEBHOOKS_HOST || "0.0.0.0",
-            port: process.env.CORE_WEBHOOKS_PORT || 4004,
+            port: process.env.CORE_WEBHOOKS_PORT || 4104,
             whitelist: ["127.0.0.1", "::ffff:127.0.0.1"],
         },
     },

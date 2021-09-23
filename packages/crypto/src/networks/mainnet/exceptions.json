@@ -1,9 +1,30 @@
 {
   "blocks": [],
+<<<<<<< HEAD
   "blocksTransactions": {},
   "transactions": [],
   "outlookTable": {},
   "transactionIdFixTable": {},
   "wrongTransactionOrder": {},
   "negativeBalances": {}
+=======
+  "transactions": [],
+  "outlookTable": {},
+  "transactionIdFixTable": {},
+  "wrongTransactionOrder": {
+    "11773170219525190460": [
+      "bace38ea544678f951cdd4abc269be24b4f5bab925ff6d5b480657952eb5aa65",
+      "7a1a43098cd253db395514220f69e3b99afaabb2bfcf5ecfa3b99727b367344b"
+    ],
+    "5847703302374058501": [
+      "163c355844ced31ea62c86aeba033a1ba75f8a9657729990e17b06cbdf31f68a",
+      "ce3b901c5507993a282c36987cbf003769e962d721b70a9f550b9ac1654fcee7"
+    ]
+  },
+  "negativeBalances": {
+    "03d0102c85624e5bdfef4a82faea7badded8bc0dc5e087bd71d75bb534641404a1": {
+      "8": "-200000000"
+    }
+  }
+>>>>>>> 1f85ef7298f73ca371b8f2835ef5178be00345a6
 }
