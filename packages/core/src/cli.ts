@@ -107,6 +107,7 @@ export class CommandLineInterface {
     }
 
     private setNodePath(): void {
+        /* istanbul ignore next */
         const delimiter = platform() === "win32" ? ";" : ":";
 
         if (!process.env.NODE_PATH) {
@@ -114,6 +115,7 @@ export class CommandLineInterface {
         }
 
         const setPathIfExists = (path: string) => {
+            /* istanbul ignore else */
             if (existsSync(path)) {
                 process.env.NODE_PATH += `${delimiter}${path}`;
             }
