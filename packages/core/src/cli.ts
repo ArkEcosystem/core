@@ -165,8 +165,6 @@ export class CommandLineInterface {
 
         const tempFlags = await this.detectNetworkAndToken(flags);
 
-        console.log("Flags: ", tempFlags);
-
         const path = join(
             this.app
                 .get<Services.Environment>(Container.Identifiers.Environment)
