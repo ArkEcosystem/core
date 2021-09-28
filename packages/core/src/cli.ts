@@ -7,6 +7,7 @@ import {
     Plugins,
     Services,
 } from "@arkecosystem/core-cli";
+import envPaths from "env-paths";
 import { existsSync } from "fs-extra";
 import { platform } from "os";
 import { join, resolve } from "path";
@@ -146,7 +147,11 @@ export class CommandLineInterface {
         }
 
         try {
-            tempFlags.network = await this.app.resolve(Commands.DiscoverNetwork).discover(tempFlags.token);
+            tempFlags.network = await this.app.resolve(Commands.DiscoverNetwork).discover(
+                envPaths(tempFlags.token, {
+                    suffix: "core",
+                }).config,
+            );
         } catch {}
 
         return tempFlags;
@@ -159,6 +164,7 @@ export class CommandLineInterface {
         const pluginsDiscoverer = this.app.resolve(Commands.DiscoverPlugins);
 
         const tempFlags = await this.detectNetworkAndToken(flags);
+
         const path = join(
             this.app
                 .get<Services.Environment>(Container.Identifiers.Environment)
