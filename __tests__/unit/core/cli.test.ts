@@ -1,14 +1,14 @@
 import "jest-extended";
 
-import { CommandLineInterface } from "@packages/core/src/cli";
 import { Commands, Services } from "@packages/core-cli";
-import prompts from "prompts";
+import { CommandLineInterface } from "@packages/core/src/cli";
 import envPaths from "env-paths";
 import { join } from "path";
+import prompts from "prompts";
 
 beforeEach(() => {
     process.exitCode = undefined;
-})
+});
 
 afterEach(() => jest.clearAllMocks());
 
@@ -31,7 +31,7 @@ describe("CLI", () => {
 
         const cli = new CommandLineInterface(["hello"]);
         prompts.inject([false]);
-        await cli.execute("./packages/core/dist")
+        await cli.execute("./packages/core/dist");
 
         expect(spyOnCheck).toBeCalled();
         expect(message).toContain(`is not a ark command.`);
@@ -112,10 +112,10 @@ describe("CLI", () => {
             const cli = new CommandLineInterface(["help"]);
             await expect(cli.execute("./packages/core/dist")).toResolve();
 
-            expect(spyOnDiscoverNetwork).toHaveBeenCalled();
             expect(spyOnDiscoverPlugins).toHaveBeenCalledWith(
                 join(envPaths("ark", { suffix: "core" }).data, "testnet", "plugins"),
             );
+            expect(spyOnDiscoverNetwork).toHaveBeenCalledWith(envPaths("ark", { suffix: "core" }).config);
         });
     });
 });

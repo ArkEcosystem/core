@@ -7,6 +7,9 @@ import {
     Plugins,
     Services,
 } from "@arkecosystem/core-cli";
+import envPaths from "env-paths";
+import { existsSync } from "fs-extra";
+import { platform } from "os";
 import { join, resolve } from "path";
 import { PackageJson } from "type-fest";
 
@@ -44,6 +47,9 @@ export class CommandLineInterface {
      * @memberof CommandLineInterface
      */
     public async execute(dirname = __dirname): Promise<void> {
+        // Set NODE_PATHS. Only required for plugins that uses @arkecosystem as peer dependencies.
+        this.setNodePath();
+
         // Load the package information. Only needed for updates and installations.
         const pkg: PackageJson = require("../package.json");
 
@@ -101,6 +107,27 @@ export class CommandLineInterface {
         await commandInstance.run();
     }
 
+    private setNodePath(): void {
+        /* istanbul ignore next */
+        const delimiter = platform() === "win32" ? ";" : ":";
+
+        if (!process.env.NODE_PATH) {
+            process.env.NODE_PATH = "";
+        }
+
+        const setPathIfExists = (path: string) => {
+            /* istanbul ignore else */
+            if (existsSync(path)) {
+                process.env.NODE_PATH += `${delimiter}${path}`;
+            }
+        };
+
+        setPathIfExists(join(__dirname, "../../../"));
+        setPathIfExists(join(__dirname, "../../../node_modules"));
+
+        require("module").Module._initPaths();
+    }
+
     private async detectNetworkAndToken(flags: any): Promise<{ token: string; network?: string }> {
         const tempFlags = {
             token: "ark",
@@ -120,7 +147,11 @@ export class CommandLineInterface {
         }
 
         try {
-            tempFlags.network = await this.app.resolve(Commands.DiscoverNetwork).discover(tempFlags.token);
+            tempFlags.network = await this.app.resolve(Commands.DiscoverNetwork).discover(
+                envPaths(tempFlags.token, {
+                    suffix: "core",
+                }).config,
+            );
         } catch {}
 
         return tempFlags;
@@ -133,6 +164,7 @@ export class CommandLineInterface {
         const pluginsDiscoverer = this.app.resolve(Commands.DiscoverPlugins);
 
         const tempFlags = await this.detectNetworkAndToken(flags);
+
         const path = join(
             this.app
                 .get<Services.Environment>(Container.Identifiers.Environment)
