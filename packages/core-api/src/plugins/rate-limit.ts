@@ -3,6 +3,8 @@ import Hapi from "@hapi/hapi";
 import mm from "nanomatch";
 import { RateLimiterMemory, RateLimiterRes, RLWrapperBlackAndWhite } from "rate-limiter-flexible";
 
+import { getIp } from "../utils";
+
 type RateLimitPluginData = {
     remaining: number;
     reset: number;
@@ -58,11 +60,10 @@ export = {
             type: "onPostAuth",
             async method(request, h) {
                 try {
-                    const address = request.headers["x-forwarded-for"]
-                        ? request.headers["x-forwarded-for"]
-                        : request.info.remoteAddress;
-
-                    const rateLimitRes: RateLimiterRes = await rateLimiter.consume(address, 1);
+                    const rateLimitRes: RateLimiterRes = await rateLimiter.consume(
+                        getIp(request, options.trustProxy),
+                        1,
+                    );
 
                     request.plugins["rate-limit"] = {
                         remaining: rateLimitRes.remainingPoints,

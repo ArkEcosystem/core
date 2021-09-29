@@ -1,6 +1,8 @@
 import { Utils } from "@arkecosystem/core-kernel";
 import Boom from "@hapi/boom";
 
+import { getIp } from "../utils";
+
 export const whitelist = {
     name: "whitelist",
     version: "0.1.0",
@@ -12,11 +14,7 @@ export const whitelist = {
                     return h.continue;
                 }
 
-                const address = request.headers["x-forwarded-for"]
-                    ? request.headers["x-forwarded-for"]
-                    : request.info.remoteAddress;
-
-                if (Utils.isWhitelisted(options.whitelist, address)) {
+                if (Utils.isWhitelisted(options.whitelist, getIp(request, options.trustProxy))) {
                     return h.continue;
                 }
 
