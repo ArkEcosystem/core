@@ -1,7 +1,7 @@
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 import mm from "nanomatch";
-import { RateLimiterMemory, RLWrapperBlackAndWhite, RateLimiterRes } from "rate-limiter-flexible";
+import { RateLimiterMemory, RateLimiterRes, RLWrapperBlackAndWhite } from "rate-limiter-flexible";
 
 type RateLimitPluginData = {
     remaining: number;
@@ -51,7 +51,11 @@ export = {
             type: "onPostAuth",
             async method(request, h) {
                 try {
-                    const rateLimitRes: RateLimiterRes = await rateLimiter.consume(request.info.remoteAddress, 1);
+                    const address = request.headers["x-forwarded-for"]
+                        ? request.headers["x-forwarded-for"]
+                        : request.info.remoteAddress;
+
+                    const rateLimitRes: RateLimiterRes = await rateLimiter.consume(address, 1);
 
                     request.plugins["rate-limit"] = {
                         remaining: rateLimitRes.remainingPoints,

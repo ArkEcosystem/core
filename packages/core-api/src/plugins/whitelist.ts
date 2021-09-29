@@ -12,7 +12,11 @@ export const whitelist = {
                     return h.continue;
                 }
 
-                if (Utils.isWhitelisted(options.whitelist, request.info.remoteAddress)) {
+                const address = request.headers["x-forwarded-for"]
+                    ? request.headers["x-forwarded-for"]
+                    : request.info.remoteAddress;
+
+                if (Utils.isWhitelisted(options.whitelist, address)) {
                     return h.continue;
                 }
 
