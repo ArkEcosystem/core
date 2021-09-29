@@ -28,7 +28,14 @@ export = {
     once: true,
     async register(
         server: Hapi.Server,
-        options: { enabled: boolean; points: number; duration: number; whitelist: string[]; blacklist: string[] },
+        options: {
+            enabled: boolean;
+            points: number;
+            duration: number;
+            whitelist: string[];
+            blacklist: string[];
+            trustProxy: boolean;
+        },
     ): Promise<void> {
         if (options.enabled === false) {
             return;
