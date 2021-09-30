@@ -1,14 +1,15 @@
-import { dotSeparatedQuery } from "./dot-separated-query";
 import { commaArrayQuery } from "./comma-array-query";
+import { dotSeparatedQuery } from "./dot-separated-query";
 import { hapiAjv } from "./hapi-ajv";
-import { whitelist } from "./whitelist";
 import { responseHeaders } from "./response-headers";
+import { whitelist } from "./whitelist";
 
 export const preparePlugins = (config) => [
     {
         plugin: whitelist,
         options: {
             whitelist: config.whitelist,
+            trustProxy: config.trustProxy,
         },
     },
     { plugin: hapiAjv },
@@ -20,7 +21,10 @@ export const preparePlugins = (config) => [
     },
     {
         plugin: require("./rate-limit"),
-        options: config.rateLimit,
+        options: {
+            ...config.rateLimit,
+            trustProxy: config.trustProxy,
+        },
     },
     {
         plugin: require("./pagination"),
