@@ -1,4 +1,5 @@
 import { Interfaces } from "@arkecosystem/crypto";
+import { injectable } from "../../ioc";
 
 export type ProcessorError = {
     type: string;
@@ -13,6 +14,7 @@ export type ProcessorResult = {
     errors?: { [id: string]: ProcessorError };
 };
 
+injectable();
 export abstract class ProcessorExtension {
     public async throwIfCannotBroadcast(transaction: Interfaces.ITransaction): Promise<void> {
         // override me
