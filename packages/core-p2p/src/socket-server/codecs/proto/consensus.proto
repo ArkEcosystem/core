@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package consensus;
+
+message CreateBlockProposalRequest {
+    string hash = 1;
+    uint32 height = 2;
+    string generatorPublicKey = 3;
+    string signature = 4;
+    string signature = 5;
+    uint32 timestamp = 6;
+    shared.Headers headers = 7;
+}
+
+message CreateBlockProposalResponse {
+    bool status = 1;
+}
