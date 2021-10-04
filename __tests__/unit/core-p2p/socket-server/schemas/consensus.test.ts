@@ -2,7 +2,7 @@ import { consensusSchemas } from "@packages/core-p2p/src/socket-server/schemas/c
 
 describe("ConsensusSchema", () => {
     describe("createBlockProposal", () => {
-        const request = {
+        const requestOriginal = {
             hash: "d9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192",
             height: 1,
             generatorPublicKey: "03b47f6b6719c76bad46a302d9cff7be9b1c2b2a20602a0d880f139b5b8901f068",
@@ -11,6 +11,14 @@ describe("ConsensusSchema", () => {
             timestamp: 1,
             payload: {},
         };
+
+        let request;
+
+        beforeEach(() => {
+            request = {
+                ...requestOriginal,
+            };
+        });
 
         it("should pass", () => {
             const result = consensusSchemas.createBlockProposal.validate(request);
@@ -27,49 +35,36 @@ describe("ConsensusSchema", () => {
 
         describe("hash", () => {
             it("should be required", () => {
-                const requestCopy = {
-                    ...request,
-                };
-                delete requestCopy.hash;
+                delete request.hash;
 
-                const result = consensusSchemas.createBlockProposal.validate(requestCopy);
+                const result = consensusSchemas.createBlockProposal.validate(request);
 
                 expect(result.error).toBeTruthy();
                 expect(result.error!.message).toEqual('"hash" is required');
             });
 
             it("should be string", () => {
-                const requestCopy = {
-                    ...request,
-                };
-                // @ts-ignore
-                requestCopy.hash = 123;
+                request.hash = 123;
 
-                const result = consensusSchemas.createBlockProposal.validate(requestCopy);
+                const result = consensusSchemas.createBlockProposal.validate(request);
 
                 expect(result.error).toBeTruthy();
                 expect(result.error!.message).toEqual('"hash" must be a string');
             });
 
             it("should be hex", () => {
-                const requestCopy = {
-                    ...request,
-                };
-                requestCopy.hash = "g".repeat(64);
+                request.hash = "g".repeat(64);
 
-                const result = consensusSchemas.createBlockProposal.validate(requestCopy);
+                const result = consensusSchemas.createBlockProposal.validate(request);
 
                 expect(result.error).toBeTruthy();
                 expect(result.error!.message).toEqual('"hash" must only contain hexadecimal characters');
             });
 
             it("should be of length 64", () => {
-                const requestCopy = {
-                    ...request,
-                };
-                requestCopy.hash = "a";
+                request.hash = "a";
 
-                const result = consensusSchemas.createBlockProposal.validate(requestCopy);
+                const result = consensusSchemas.createBlockProposal.validate(request);
 
                 expect(result.error).toBeTruthy();
                 expect(result.error!.message).toEqual('"hash" length must be 64 characters long');
@@ -78,49 +73,36 @@ describe("ConsensusSchema", () => {
 
         describe("height", () => {
             it("should be required", () => {
-                const requestCopy = {
-                    ...request,
-                };
-                delete requestCopy.height;
+                delete request.height;
 
-                const result = consensusSchemas.createBlockProposal.validate(requestCopy);
+                const result = consensusSchemas.createBlockProposal.validate(request);
 
                 expect(result.error).toBeTruthy();
                 expect(result.error!.message).toEqual('"height" is required');
             });
 
             it("should be number", () => {
-                const requestCopy = {
-                    ...request,
-                };
-                // @ts-ignore
-                requestCopy.height = true;
+                request.height = true;
 
-                const result = consensusSchemas.createBlockProposal.validate(requestCopy);
+                const result = consensusSchemas.createBlockProposal.validate(request);
 
                 expect(result.error).toBeTruthy();
                 expect(result.error!.message).toEqual('"height" must be a number');
             });
 
             it("should be integer", () => {
-                const requestCopy = {
-                    ...request,
-                };
-                requestCopy.height = 3.14;
+                request.height = 3.14;
 
-                const result = consensusSchemas.createBlockProposal.validate(requestCopy);
+                const result = consensusSchemas.createBlockProposal.validate(request);
 
                 expect(result.error).toBeTruthy();
                 expect(result.error!.message).toEqual('"height" must be an integer');
             });
 
             it("should be positive", () => {
-                const requestCopy = {
-                    ...request,
-                };
-                requestCopy.height = 0;
+                request.height = 0;
 
-                const result = consensusSchemas.createBlockProposal.validate(requestCopy);
+                const result = consensusSchemas.createBlockProposal.validate(request);
 
                 expect(result.error).toBeTruthy();
                 expect(result.error!.message).toEqual('"height" must be a positive number');
@@ -129,49 +111,36 @@ describe("ConsensusSchema", () => {
 
         describe("generatorPublicKey", () => {
             it("should be required", () => {
-                const requestCopy = {
-                    ...request,
-                };
-                delete requestCopy.generatorPublicKey;
+                delete request.generatorPublicKey;
 
-                const result = consensusSchemas.createBlockProposal.validate(requestCopy);
+                const result = consensusSchemas.createBlockProposal.validate(request);
 
                 expect(result.error).toBeTruthy();
                 expect(result.error!.message).toEqual('"generatorPublicKey" is required');
             });
 
             it("should be string", () => {
-                const requestCopy = {
-                    ...request,
-                };
-                // @ts-ignore
-                requestCopy.generatorPublicKey = 123;
+                request.generatorPublicKey = 123;
 
-                const result = consensusSchemas.createBlockProposal.validate(requestCopy);
+                const result = consensusSchemas.createBlockProposal.validate(request);
 
                 expect(result.error).toBeTruthy();
                 expect(result.error!.message).toEqual('"generatorPublicKey" must be a string');
             });
 
             it("should be hex", () => {
-                const requestCopy = {
-                    ...request,
-                };
-                requestCopy.generatorPublicKey = "g".repeat(66);
+                request.generatorPublicKey = "g".repeat(66);
 
-                const result = consensusSchemas.createBlockProposal.validate(requestCopy);
+                const result = consensusSchemas.createBlockProposal.validate(request);
 
                 expect(result.error).toBeTruthy();
                 expect(result.error!.message).toEqual('"generatorPublicKey" must only contain hexadecimal characters');
             });
 
             it("should be of length 66", () => {
-                const requestCopy = {
-                    ...request,
-                };
-                requestCopy.generatorPublicKey = "a";
+                request.generatorPublicKey = "a";
 
-                const result = consensusSchemas.createBlockProposal.validate(requestCopy);
+                const result = consensusSchemas.createBlockProposal.validate(request);
 
                 expect(result.error).toBeTruthy();
                 expect(result.error!.message).toEqual('"generatorPublicKey" length must be 66 characters long');
@@ -180,37 +149,27 @@ describe("ConsensusSchema", () => {
 
         describe("signature", () => {
             it("should be required", () => {
-                const requestCopy = {
-                    ...request,
-                };
-                delete requestCopy.signature;
+                delete request.signature;
 
-                const result = consensusSchemas.createBlockProposal.validate(requestCopy);
+                const result = consensusSchemas.createBlockProposal.validate(request);
 
                 expect(result.error).toBeTruthy();
                 expect(result.error!.message).toEqual('"signature" is required');
             });
 
             it("should be string", () => {
-                const requestCopy = {
-                    ...request,
-                };
-                // @ts-ignore
-                requestCopy.signature = 123;
+                request.signature = 123;
 
-                const result = consensusSchemas.createBlockProposal.validate(requestCopy);
+                const result = consensusSchemas.createBlockProposal.validate(request);
 
                 expect(result.error).toBeTruthy();
                 expect(result.error!.message).toEqual('"signature" must be a string');
             });
 
             it("should be hex", () => {
-                const requestCopy = {
-                    ...request,
-                };
-                requestCopy.signature = "g".repeat(66);
+                request.signature = "g".repeat(66);
 
-                const result = consensusSchemas.createBlockProposal.validate(requestCopy);
+                const result = consensusSchemas.createBlockProposal.validate(request);
 
                 expect(result.error).toBeTruthy();
                 expect(result.error!.message).toEqual('"signature" must only contain hexadecimal characters');
@@ -219,49 +178,36 @@ describe("ConsensusSchema", () => {
 
         describe("timestamp", () => {
             it("should be required", () => {
-                const requestCopy = {
-                    ...request,
-                };
-                delete requestCopy.timestamp;
+                delete request.timestamp;
 
-                const result = consensusSchemas.createBlockProposal.validate(requestCopy);
+                const result = consensusSchemas.createBlockProposal.validate(request);
 
                 expect(result.error).toBeTruthy();
                 expect(result.error!.message).toEqual('"timestamp" is required');
             });
 
             it("should be number", () => {
-                const requestCopy = {
-                    ...request,
-                };
-                // @ts-ignore
-                requestCopy.timestamp = true;
+                request.timestamp = true;
 
-                const result = consensusSchemas.createBlockProposal.validate(requestCopy);
+                const result = consensusSchemas.createBlockProposal.validate(request);
 
                 expect(result.error).toBeTruthy();
                 expect(result.error!.message).toEqual('"timestamp" must be a number');
             });
 
             it("should be integer", () => {
-                const requestCopy = {
-                    ...request,
-                };
-                requestCopy.timestamp = 3.14;
+                request.timestamp = 3.14;
 
-                const result = consensusSchemas.createBlockProposal.validate(requestCopy);
+                const result = consensusSchemas.createBlockProposal.validate(request);
 
                 expect(result.error).toBeTruthy();
                 expect(result.error!.message).toEqual('"timestamp" must be an integer');
             });
 
             it("should be positive", () => {
-                const requestCopy = {
-                    ...request,
-                };
-                requestCopy.timestamp = 0;
+                request.timestamp = 0;
 
-                const result = consensusSchemas.createBlockProposal.validate(requestCopy);
+                const result = consensusSchemas.createBlockProposal.validate(request);
 
                 expect(result.error).toBeTruthy();
                 expect(result.error!.message).toEqual('"timestamp" must be a positive number');
@@ -270,12 +216,9 @@ describe("ConsensusSchema", () => {
 
         describe("payload", () => {
             it("should be required", () => {
-                const requestCopy = {
-                    ...request,
-                };
-                delete requestCopy.payload;
+                delete request.payload;
 
-                const result = consensusSchemas.createBlockProposal.validate(requestCopy);
+                const result = consensusSchemas.createBlockProposal.validate(request);
 
                 expect(result.error).toBeTruthy();
                 expect(result.error!.message).toEqual('"payload" is required');
