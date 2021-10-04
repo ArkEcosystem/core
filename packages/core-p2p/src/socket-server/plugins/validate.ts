@@ -1,8 +1,9 @@
 import { Container, Contracts } from "@arkecosystem/core-kernel";
 import Boom from "@hapi/boom";
-import { isValidVersion } from "../../utils";
 
+import { isValidVersion } from "../../utils";
 import { BlocksRoute } from "../routes/blocks";
+import { ConsensusRoute } from "../routes/consensus";
 import { InternalRoute } from "../routes/internal";
 import { PeerRoute } from "../routes/peer";
 import { TransactionsRoute } from "../routes/transactions";
@@ -18,6 +19,7 @@ export class ValidatePlugin {
             ...this.app.resolve(PeerRoute).getRoutesConfigByPath(),
             ...this.app.resolve(BlocksRoute).getRoutesConfigByPath(),
             ...this.app.resolve(TransactionsRoute).getRoutesConfigByPath(),
+            ...this.app.resolve(ConsensusRoute).getRoutesConfigByPath(),
         };
 
         server.ext({

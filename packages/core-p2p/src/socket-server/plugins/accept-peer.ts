@@ -2,6 +2,7 @@ import { Container, Contracts } from "@arkecosystem/core-kernel";
 
 import { getPeerIp } from "../../utils/get-peer-ip";
 import { BlocksRoute } from "../routes/blocks";
+import { ConsensusRoute } from "../routes/consensus";
 import { PeerRoute } from "../routes/peer";
 import { TransactionsRoute } from "../routes/transactions";
 
@@ -19,6 +20,7 @@ export class AcceptPeerPlugin {
             ...this.app.resolve(PeerRoute).getRoutesConfigByPath(),
             ...this.app.resolve(BlocksRoute).getRoutesConfigByPath(),
             ...this.app.resolve(TransactionsRoute).getRoutesConfigByPath(),
+            ...this.app.resolve(ConsensusRoute).getRoutesConfigByPath(),
         };
         const peerProcessor = this.peerProcessor;
 

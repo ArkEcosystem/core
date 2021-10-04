@@ -10,6 +10,7 @@ import { RateLimitPlugin } from "./plugins/rate-limit";
 import { ValidatePlugin } from "./plugins/validate";
 import { WhitelistForgerPlugin } from "./plugins/whitelist-forger";
 import { BlocksRoute } from "./routes/blocks";
+import { ConsensusRoute } from "./routes/consensus";
 import { InternalRoute } from "./routes/internal";
 import { PeerRoute } from "./routes/peer";
 import { TransactionsRoute } from "./routes/transactions";
@@ -72,6 +73,7 @@ export class Server {
         this.app.resolve(PeerRoute).register(this.server);
         this.app.resolve(BlocksRoute).register(this.server);
         this.app.resolve(TransactionsRoute).register(this.server);
+        this.app.resolve(ConsensusRoute).register(this.server);
 
         // onPreAuth
         this.app.resolve(WhitelistForgerPlugin).register(this.server);
