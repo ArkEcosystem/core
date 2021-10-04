@@ -1,3 +1,4 @@
+import { createBlockProposal } from "../codecs/consensus";
 import { ConsensusController } from "../controllers/consensus";
 import { consensusSchemas } from "../schemas/consensus";
 import { Route, RouteConfig } from "./route";
@@ -10,7 +11,7 @@ export class ConsensusRoute extends Route {
                 id: "p2p.consensus.createBlockProposal",
                 handler: controller.createBlockProposal,
                 validation: consensusSchemas.createBlockProposal,
-                // codec: getBlocks,
+                codec: createBlockProposal,
                 maxBytes: 1024,
             },
         };
