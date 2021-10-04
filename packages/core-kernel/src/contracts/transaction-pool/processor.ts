@@ -14,7 +14,7 @@ export type ProcessorResult = {
     errors?: { [id: string]: ProcessorError };
 };
 
-injectable();
+@injectable()
 export abstract class ProcessorExtension {
     public async throwIfCannotBroadcast(transaction: Interfaces.ITransaction): Promise<void> {
         // override me
