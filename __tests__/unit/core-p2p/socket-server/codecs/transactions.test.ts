@@ -1,4 +1,4 @@
-import { postTransactions } from "@arkecosystem/core-p2p/src/socket-server/codecs/transactions";
+import { postTransactions } from "@packages/core-p2p/src/socket-server/codecs/transactions";
 
 describe("Transactions codec tests", () => {
     describe("postTransactions ser/deser", () => {
@@ -12,6 +12,6 @@ describe("Transactions codec tests", () => {
             const serDeser = postTransactions.request.deserialize(postTransactions.request.serialize(data));
 
             expect(serDeser).toEqual(data);
-        })
-    })
-})
+        });
+    });
+});
