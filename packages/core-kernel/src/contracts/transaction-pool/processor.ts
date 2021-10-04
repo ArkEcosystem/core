@@ -13,11 +13,11 @@ export type ProcessorResult = {
     errors?: { [id: string]: ProcessorError };
 };
 
-export interface ProcessorExtension {
-    throwIfCannotBroadcast(transaction: Interfaces.ITransaction): Promise<void>;
+export abstract class ProcessorExtension {
+    public async throwIfCannotBroadcast(transaction: Interfaces.ITransaction): Promise<void> {
+        // empty
+    }
 }
-
-export interface ProcessorDynamicFeeExtension extends ProcessorExtension {}
 
 export interface Processor {
     process(data: Interfaces.ITransactionData[] | Buffer[]): Promise<ProcessorResult>;
