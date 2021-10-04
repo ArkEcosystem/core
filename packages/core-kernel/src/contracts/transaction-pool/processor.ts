@@ -15,7 +15,7 @@ export type ProcessorResult = {
 
 export abstract class ProcessorExtension {
     public async throwIfCannotBroadcast(transaction: Interfaces.ITransaction): Promise<void> {
-        // empty
+        // override me
     }
 }
 
