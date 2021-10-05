@@ -7,9 +7,8 @@ message CreateBlockProposalRequest {
     uint32 height = 2;
     string generatorPublicKey = 3;
     string signature = 4;
-    string signature = 5;
-    uint32 timestamp = 6;
-    shared.Headers headers = 7;
+    uint32 timestamp = 5;
+    shared.Headers headers = 6;
 }
 
 message CreateBlockProposalResponse {

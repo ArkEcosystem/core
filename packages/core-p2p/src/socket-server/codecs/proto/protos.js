@@ -1459,6 +1459,508 @@ $root.blocks = (function() {
     return blocks;
 })();
 
+$root.consensus = (function() {
+
+    /**
+     * Namespace consensus.
+     * @exports consensus
+     * @namespace
+     */
+    var consensus = {};
+
+    consensus.CreateBlockProposalRequest = (function() {
+
+        /**
+         * Properties of a CreateBlockProposalRequest.
+         * @memberof consensus
+         * @interface ICreateBlockProposalRequest
+         * @property {string|null} [hash] CreateBlockProposalRequest hash
+         * @property {number|null} [height] CreateBlockProposalRequest height
+         * @property {string|null} [generatorPublicKey] CreateBlockProposalRequest generatorPublicKey
+         * @property {string|null} [signature] CreateBlockProposalRequest signature
+         * @property {number|null} [timestamp] CreateBlockProposalRequest timestamp
+         * @property {shared.IHeaders|null} [headers] CreateBlockProposalRequest headers
+         */
+
+        /**
+         * Constructs a new CreateBlockProposalRequest.
+         * @memberof consensus
+         * @classdesc Represents a CreateBlockProposalRequest.
+         * @implements ICreateBlockProposalRequest
+         * @constructor
+         * @param {consensus.ICreateBlockProposalRequest=} [properties] Properties to set
+         */
+        function CreateBlockProposalRequest(properties) {
+            if (properties)
+                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * CreateBlockProposalRequest hash.
+         * @member {string} hash
+         * @memberof consensus.CreateBlockProposalRequest
+         * @instance
+         */
+        CreateBlockProposalRequest.prototype.hash = "";
+
+        /**
+         * CreateBlockProposalRequest height.
+         * @member {number} height
+         * @memberof consensus.CreateBlockProposalRequest
+         * @instance
+         */
+        CreateBlockProposalRequest.prototype.height = 0;
+
+        /**
+         * CreateBlockProposalRequest generatorPublicKey.
+         * @member {string} generatorPublicKey
+         * @memberof consensus.CreateBlockProposalRequest
+         * @instance
+         */
+        CreateBlockProposalRequest.prototype.generatorPublicKey = "";
+
+        /**
+         * CreateBlockProposalRequest signature.
+         * @member {string} signature
+         * @memberof consensus.CreateBlockProposalRequest
+         * @instance
+         */
+        CreateBlockProposalRequest.prototype.signature = "";
+
+        /**
+         * CreateBlockProposalRequest timestamp.
+         * @member {number} timestamp
+         * @memberof consensus.CreateBlockProposalRequest
+         * @instance
+         */
+        CreateBlockProposalRequest.prototype.timestamp = 0;
+
+        /**
+         * CreateBlockProposalRequest headers.
+         * @member {shared.IHeaders|null|undefined} headers
+         * @memberof consensus.CreateBlockProposalRequest
+         * @instance
+         */
+        CreateBlockProposalRequest.prototype.headers = null;
+
+        /**
+         * Creates a new CreateBlockProposalRequest instance using the specified properties.
+         * @function create
+         * @memberof consensus.CreateBlockProposalRequest
+         * @static
+         * @param {consensus.ICreateBlockProposalRequest=} [properties] Properties to set
+         * @returns {consensus.CreateBlockProposalRequest} CreateBlockProposalRequest instance
+         */
+        CreateBlockProposalRequest.create = function create(properties) {
+            return new CreateBlockProposalRequest(properties);
+        };
+
+        /**
+         * Encodes the specified CreateBlockProposalRequest message. Does not implicitly {@link consensus.CreateBlockProposalRequest.verify|verify} messages.
+         * @function encode
+         * @memberof consensus.CreateBlockProposalRequest
+         * @static
+         * @param {consensus.ICreateBlockProposalRequest} message CreateBlockProposalRequest message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        CreateBlockProposalRequest.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            if (message.hash != null && Object.hasOwnProperty.call(message, "hash"))
+                writer.uint32(/* id 1, wireType 2 =*/10).string(message.hash);
+            if (message.height != null && Object.hasOwnProperty.call(message, "height"))
+                writer.uint32(/* id 2, wireType 0 =*/16).uint32(message.height);
+            if (message.generatorPublicKey != null && Object.hasOwnProperty.call(message, "generatorPublicKey"))
+                writer.uint32(/* id 3, wireType 2 =*/26).string(message.generatorPublicKey);
+            if (message.signature != null && Object.hasOwnProperty.call(message, "signature"))
+                writer.uint32(/* id 4, wireType 2 =*/34).string(message.signature);
+            if (message.timestamp != null && Object.hasOwnProperty.call(message, "timestamp"))
+                writer.uint32(/* id 5, wireType 0 =*/40).uint32(message.timestamp);
+            if (message.headers != null && Object.hasOwnProperty.call(message, "headers"))
+                $root.shared.Headers.encode(message.headers, writer.uint32(/* id 6, wireType 2 =*/50).fork()).ldelim();
+            return writer;
+        };
+
+        /**
+         * Encodes the specified CreateBlockProposalRequest message, length delimited. Does not implicitly {@link consensus.CreateBlockProposalRequest.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof consensus.CreateBlockProposalRequest
+         * @static
+         * @param {consensus.ICreateBlockProposalRequest} message CreateBlockProposalRequest message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        CreateBlockProposalRequest.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes a CreateBlockProposalRequest message from the specified reader or buffer.
+         * @function decode
+         * @memberof consensus.CreateBlockProposalRequest
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {consensus.CreateBlockProposalRequest} CreateBlockProposalRequest
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        CreateBlockProposalRequest.decode = function decode(reader, length) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.consensus.CreateBlockProposalRequest();
+            while (reader.pos < end) {
+                var tag = reader.uint32();
+                switch (tag >>> 3) {
+                case 1:
+                    message.hash = reader.string();
+                    break;
+                case 2:
+                    message.height = reader.uint32();
+                    break;
+                case 3:
+                    message.generatorPublicKey = reader.string();
+                    break;
+                case 4:
+                    message.signature = reader.string();
+                    break;
+                case 5:
+                    message.timestamp = reader.uint32();
+                    break;
+                case 6:
+                    message.headers = $root.shared.Headers.decode(reader, reader.uint32());
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Decodes a CreateBlockProposalRequest message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof consensus.CreateBlockProposalRequest
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {consensus.CreateBlockProposalRequest} CreateBlockProposalRequest
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        CreateBlockProposalRequest.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies a CreateBlockProposalRequest message.
+         * @function verify
+         * @memberof consensus.CreateBlockProposalRequest
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        CreateBlockProposalRequest.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            if (message.hash != null && message.hasOwnProperty("hash"))
+                if (!$util.isString(message.hash))
+                    return "hash: string expected";
+            if (message.height != null && message.hasOwnProperty("height"))
+                if (!$util.isInteger(message.height))
+                    return "height: integer expected";
+            if (message.generatorPublicKey != null && message.hasOwnProperty("generatorPublicKey"))
+                if (!$util.isString(message.generatorPublicKey))
+                    return "generatorPublicKey: string expected";
+            if (message.signature != null && message.hasOwnProperty("signature"))
+                if (!$util.isString(message.signature))
+                    return "signature: string expected";
+            if (message.timestamp != null && message.hasOwnProperty("timestamp"))
+                if (!$util.isInteger(message.timestamp))
+                    return "timestamp: integer expected";
+            if (message.headers != null && message.hasOwnProperty("headers")) {
+                var error = $root.shared.Headers.verify(message.headers);
+                if (error)
+                    return "headers." + error;
+            }
+            return null;
+        };
+
+        /**
+         * Creates a CreateBlockProposalRequest message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof consensus.CreateBlockProposalRequest
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {consensus.CreateBlockProposalRequest} CreateBlockProposalRequest
+         */
+        CreateBlockProposalRequest.fromObject = function fromObject(object) {
+            if (object instanceof $root.consensus.CreateBlockProposalRequest)
+                return object;
+            var message = new $root.consensus.CreateBlockProposalRequest();
+            if (object.hash != null)
+                message.hash = String(object.hash);
+            if (object.height != null)
+                message.height = object.height >>> 0;
+            if (object.generatorPublicKey != null)
+                message.generatorPublicKey = String(object.generatorPublicKey);
+            if (object.signature != null)
+                message.signature = String(object.signature);
+            if (object.timestamp != null)
+                message.timestamp = object.timestamp >>> 0;
+            if (object.headers != null) {
+                if (typeof object.headers !== "object")
+                    throw TypeError(".consensus.CreateBlockProposalRequest.headers: object expected");
+                message.headers = $root.shared.Headers.fromObject(object.headers);
+            }
+            return message;
+        };
+
+        /**
+         * Creates a plain object from a CreateBlockProposalRequest message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof consensus.CreateBlockProposalRequest
+         * @static
+         * @param {consensus.CreateBlockProposalRequest} message CreateBlockProposalRequest
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        CreateBlockProposalRequest.toObject = function toObject(message, options) {
+            if (!options)
+                options = {};
+            var object = {};
+            if (options.defaults) {
+                object.hash = "";
+                object.height = 0;
+                object.generatorPublicKey = "";
+                object.signature = "";
+                object.timestamp = 0;
+                object.headers = null;
+            }
+            if (message.hash != null && message.hasOwnProperty("hash"))
+                object.hash = message.hash;
+            if (message.height != null && message.hasOwnProperty("height"))
+                object.height = message.height;
+            if (message.generatorPublicKey != null && message.hasOwnProperty("generatorPublicKey"))
+                object.generatorPublicKey = message.generatorPublicKey;
+            if (message.signature != null && message.hasOwnProperty("signature"))
+                object.signature = message.signature;
+            if (message.timestamp != null && message.hasOwnProperty("timestamp"))
+                object.timestamp = message.timestamp;
+            if (message.headers != null && message.hasOwnProperty("headers"))
+                object.headers = $root.shared.Headers.toObject(message.headers, options);
+            return object;
+        };
+
+        /**
+         * Converts this CreateBlockProposalRequest to JSON.
+         * @function toJSON
+         * @memberof consensus.CreateBlockProposalRequest
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        CreateBlockProposalRequest.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        return CreateBlockProposalRequest;
+    })();
+
+    consensus.CreateBlockProposalResponse = (function() {
+
+        /**
+         * Properties of a CreateBlockProposalResponse.
+         * @memberof consensus
+         * @interface ICreateBlockProposalResponse
+         * @property {boolean|null} [status] CreateBlockProposalResponse status
+         */
+
+        /**
+         * Constructs a new CreateBlockProposalResponse.
+         * @memberof consensus
+         * @classdesc Represents a CreateBlockProposalResponse.
+         * @implements ICreateBlockProposalResponse
+         * @constructor
+         * @param {consensus.ICreateBlockProposalResponse=} [properties] Properties to set
+         */
+        function CreateBlockProposalResponse(properties) {
+            if (properties)
+                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * CreateBlockProposalResponse status.
+         * @member {boolean} status
+         * @memberof consensus.CreateBlockProposalResponse
+         * @instance
+         */
+        CreateBlockProposalResponse.prototype.status = false;
+
+        /**
+         * Creates a new CreateBlockProposalResponse instance using the specified properties.
+         * @function create
+         * @memberof consensus.CreateBlockProposalResponse
+         * @static
+         * @param {consensus.ICreateBlockProposalResponse=} [properties] Properties to set
+         * @returns {consensus.CreateBlockProposalResponse} CreateBlockProposalResponse instance
+         */
+        CreateBlockProposalResponse.create = function create(properties) {
+            return new CreateBlockProposalResponse(properties);
+        };
+
+        /**
+         * Encodes the specified CreateBlockProposalResponse message. Does not implicitly {@link consensus.CreateBlockProposalResponse.verify|verify} messages.
+         * @function encode
+         * @memberof consensus.CreateBlockProposalResponse
+         * @static
+         * @param {consensus.ICreateBlockProposalResponse} message CreateBlockProposalResponse message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        CreateBlockProposalResponse.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            if (message.status != null && Object.hasOwnProperty.call(message, "status"))
+                writer.uint32(/* id 1, wireType 0 =*/8).bool(message.status);
+            return writer;
+        };
+
+        /**
+         * Encodes the specified CreateBlockProposalResponse message, length delimited. Does not implicitly {@link consensus.CreateBlockProposalResponse.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof consensus.CreateBlockProposalResponse
+         * @static
+         * @param {consensus.ICreateBlockProposalResponse} message CreateBlockProposalResponse message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        CreateBlockProposalResponse.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes a CreateBlockProposalResponse message from the specified reader or buffer.
+         * @function decode
+         * @memberof consensus.CreateBlockProposalResponse
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {consensus.CreateBlockProposalResponse} CreateBlockProposalResponse
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        CreateBlockProposalResponse.decode = function decode(reader, length) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.consensus.CreateBlockProposalResponse();
+            while (reader.pos < end) {
+                var tag = reader.uint32();
+                switch (tag >>> 3) {
+                case 1:
+                    message.status = reader.bool();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Decodes a CreateBlockProposalResponse message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof consensus.CreateBlockProposalResponse
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {consensus.CreateBlockProposalResponse} CreateBlockProposalResponse
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        CreateBlockProposalResponse.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies a CreateBlockProposalResponse message.
+         * @function verify
+         * @memberof consensus.CreateBlockProposalResponse
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        CreateBlockProposalResponse.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            if (message.status != null && message.hasOwnProperty("status"))
+                if (typeof message.status !== "boolean")
+                    return "status: boolean expected";
+            return null;
+        };
+
+        /**
+         * Creates a CreateBlockProposalResponse message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof consensus.CreateBlockProposalResponse
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {consensus.CreateBlockProposalResponse} CreateBlockProposalResponse
+         */
+        CreateBlockProposalResponse.fromObject = function fromObject(object) {
+            if (object instanceof $root.consensus.CreateBlockProposalResponse)
+                return object;
+            var message = new $root.consensus.CreateBlockProposalResponse();
+            if (object.status != null)
+                message.status = Boolean(object.status);
+            return message;
+        };
+
+        /**
+         * Creates a plain object from a CreateBlockProposalResponse message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof consensus.CreateBlockProposalResponse
+         * @static
+         * @param {consensus.CreateBlockProposalResponse} message CreateBlockProposalResponse
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        CreateBlockProposalResponse.toObject = function toObject(message, options) {
+            if (!options)
+                options = {};
+            var object = {};
+            if (options.defaults)
+                object.status = false;
+            if (message.status != null && message.hasOwnProperty("status"))
+                object.status = message.status;
+            return object;
+        };
+
+        /**
+         * Converts this CreateBlockProposalResponse to JSON.
+         * @function toJSON
+         * @memberof consensus.CreateBlockProposalResponse
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        CreateBlockProposalResponse.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        return CreateBlockProposalResponse;
+    })();
+
+    return consensus;
+})();
+
 $root.peer = (function() {
 
     /**

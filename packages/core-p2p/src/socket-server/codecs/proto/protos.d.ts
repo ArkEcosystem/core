@@ -582,6 +582,220 @@ export namespace blocks {
     }
 }
 
+/** Namespace consensus. */
+export namespace consensus {
+
+    /** Properties of a CreateBlockProposalRequest. */
+    interface ICreateBlockProposalRequest {
+
+        /** CreateBlockProposalRequest hash */
+        hash?: (string|null);
+
+        /** CreateBlockProposalRequest height */
+        height?: (number|null);
+
+        /** CreateBlockProposalRequest generatorPublicKey */
+        generatorPublicKey?: (string|null);
+
+        /** CreateBlockProposalRequest signature */
+        signature?: (string|null);
+
+        /** CreateBlockProposalRequest timestamp */
+        timestamp?: (number|null);
+
+        /** CreateBlockProposalRequest headers */
+        headers?: (shared.IHeaders|null);
+    }
+
+    /** Represents a CreateBlockProposalRequest. */
+    class CreateBlockProposalRequest implements ICreateBlockProposalRequest {
+
+        /**
+         * Constructs a new CreateBlockProposalRequest.
+         * @param [properties] Properties to set
+         */
+        constructor(properties?: consensus.ICreateBlockProposalRequest);
+
+        /** CreateBlockProposalRequest hash. */
+        public hash: string;
+
+        /** CreateBlockProposalRequest height. */
+        public height: number;
+
+        /** CreateBlockProposalRequest generatorPublicKey. */
+        public generatorPublicKey: string;
+
+        /** CreateBlockProposalRequest signature. */
+        public signature: string;
+
+        /** CreateBlockProposalRequest timestamp. */
+        public timestamp: number;
+
+        /** CreateBlockProposalRequest headers. */
+        public headers?: (shared.IHeaders|null);
+
+        /**
+         * Creates a new CreateBlockProposalRequest instance using the specified properties.
+         * @param [properties] Properties to set
+         * @returns CreateBlockProposalRequest instance
+         */
+        public static create(properties?: consensus.ICreateBlockProposalRequest): consensus.CreateBlockProposalRequest;
+
+        /**
+         * Encodes the specified CreateBlockProposalRequest message. Does not implicitly {@link consensus.CreateBlockProposalRequest.verify|verify} messages.
+         * @param message CreateBlockProposalRequest message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encode(message: consensus.ICreateBlockProposalRequest, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Encodes the specified CreateBlockProposalRequest message, length delimited. Does not implicitly {@link consensus.CreateBlockProposalRequest.verify|verify} messages.
+         * @param message CreateBlockProposalRequest message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encodeDelimited(message: consensus.ICreateBlockProposalRequest, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Decodes a CreateBlockProposalRequest message from the specified reader or buffer.
+         * @param reader Reader or buffer to decode from
+         * @param [length] Message length if known beforehand
+         * @returns CreateBlockProposalRequest
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): consensus.CreateBlockProposalRequest;
+
+        /**
+         * Decodes a CreateBlockProposalRequest message from the specified reader or buffer, length delimited.
+         * @param reader Reader or buffer to decode from
+         * @returns CreateBlockProposalRequest
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): consensus.CreateBlockProposalRequest;
+
+        /**
+         * Verifies a CreateBlockProposalRequest message.
+         * @param message Plain object to verify
+         * @returns `null` if valid, otherwise the reason why it is not
+         */
+        public static verify(message: { [k: string]: any }): (string|null);
+
+        /**
+         * Creates a CreateBlockProposalRequest message from a plain object. Also converts values to their respective internal types.
+         * @param object Plain object
+         * @returns CreateBlockProposalRequest
+         */
+        public static fromObject(object: { [k: string]: any }): consensus.CreateBlockProposalRequest;
+
+        /**
+         * Creates a plain object from a CreateBlockProposalRequest message. Also converts values to other types if specified.
+         * @param message CreateBlockProposalRequest
+         * @param [options] Conversion options
+         * @returns Plain object
+         */
+        public static toObject(message: consensus.CreateBlockProposalRequest, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+        /**
+         * Converts this CreateBlockProposalRequest to JSON.
+         * @returns JSON object
+         */
+        public toJSON(): { [k: string]: any };
+    }
+
+    /** Properties of a CreateBlockProposalResponse. */
+    interface ICreateBlockProposalResponse {
+
+        /** CreateBlockProposalResponse status */
+        status?: (boolean|null);
+    }
+
+    /** Represents a CreateBlockProposalResponse. */
+    class CreateBlockProposalResponse implements ICreateBlockProposalResponse {
+
+        /**
+         * Constructs a new CreateBlockProposalResponse.
+         * @param [properties] Properties to set
+         */
+        constructor(properties?: consensus.ICreateBlockProposalResponse);
+
+        /** CreateBlockProposalResponse status. */
+        public status: boolean;
+
+        /**
+         * Creates a new CreateBlockProposalResponse instance using the specified properties.
+         * @param [properties] Properties to set
+         * @returns CreateBlockProposalResponse instance
+         */
+        public static create(properties?: consensus.ICreateBlockProposalResponse): consensus.CreateBlockProposalResponse;
+
+        /**
+         * Encodes the specified CreateBlockProposalResponse message. Does not implicitly {@link consensus.CreateBlockProposalResponse.verify|verify} messages.
+         * @param message CreateBlockProposalResponse message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encode(message: consensus.ICreateBlockProposalResponse, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Encodes the specified CreateBlockProposalResponse message, length delimited. Does not implicitly {@link consensus.CreateBlockProposalResponse.verify|verify} messages.
+         * @param message CreateBlockProposalResponse message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encodeDelimited(message: consensus.ICreateBlockProposalResponse, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Decodes a CreateBlockProposalResponse message from the specified reader or buffer.
+         * @param reader Reader or buffer to decode from
+         * @param [length] Message length if known beforehand
+         * @returns CreateBlockProposalResponse
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): consensus.CreateBlockProposalResponse;
+
+        /**
+         * Decodes a CreateBlockProposalResponse message from the specified reader or buffer, length delimited.
+         * @param reader Reader or buffer to decode from
+         * @returns CreateBlockProposalResponse
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): consensus.CreateBlockProposalResponse;
+
+        /**
+         * Verifies a CreateBlockProposalResponse message.
+         * @param message Plain object to verify
+         * @returns `null` if valid, otherwise the reason why it is not
+         */
+        public static verify(message: { [k: string]: any }): (string|null);
+
+        /**
+         * Creates a CreateBlockProposalResponse message from a plain object. Also converts values to their respective internal types.
+         * @param object Plain object
+         * @returns CreateBlockProposalResponse
+         */
+        public static fromObject(object: { [k: string]: any }): consensus.CreateBlockProposalResponse;
+
+        /**
+         * Creates a plain object from a CreateBlockProposalResponse message. Also converts values to other types if specified.
+         * @param message CreateBlockProposalResponse
+         * @param [options] Conversion options
+         * @returns Plain object
+         */
+        public static toObject(message: consensus.CreateBlockProposalResponse, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+        /**
+         * Converts this CreateBlockProposalResponse to JSON.
+         * @returns JSON object
+         */
+        public toJSON(): { [k: string]: any };
+    }
+}
+
 /** Namespace peer. */
 export namespace peer {
 
