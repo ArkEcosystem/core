@@ -6,11 +6,12 @@ import { InvalidTransactionDataError } from "./errors";
 
 @Container.injectable()
 export class Processor implements Contracts.TransactionPool.Processor {
+    @Container.multiInject(Container.Identifiers.TransactionPoolProcessorExtension)
+    @Container.optional()
+    private readonly extensions: Contracts.TransactionPool.ProcessorExtension[] = [];
+
     @Container.inject(Container.Identifiers.TransactionPoolService)
     private readonly pool!: Contracts.TransactionPool.Service;
-
-    @Container.inject(Container.Identifiers.TransactionPoolDynamicFeeMatcher)
-    private readonly dynamicFeeMatcher!: Contracts.TransactionPool.DynamicFeeMatcher;
 
     @Container.inject(Container.Identifiers.TransactionPoolWorkerPool)
     private readonly workerPool!: Contracts.TransactionPool.WorkerPool;
@@ -24,13 +25,7 @@ export class Processor implements Contracts.TransactionPool.Processor {
 
     public async process(
         data: Interfaces.ITransactionData[] | Buffer[],
-    ): Promise<{
-        accept: string[];
-        broadcast: string[];
-        invalid: string[];
-        excess: string[];
-        errors?: { [id: string]: Contracts.TransactionPool.ProcessorError };
-    }> {
+    ): Promise<Contracts.TransactionPool.ProcessorResult> {
         const accept: string[] = [];
         const broadcast: string[] = [];
         const invalid: string[] = [];
@@ -53,7 +48,7 @@ export class Processor implements Contracts.TransactionPool.Processor {
                     accept.push(entryId);
 
                     try {
-                        await this.dynamicFeeMatcher.throwIfCannotBroadcast(transaction);
+                        await Promise.all(this.extensions.map((e) => e.throwIfCannotBroadcast(transaction)));
                         broadcastTransactions.push(transaction);
                         broadcast.push(entryId);
                     } catch {}
