@@ -3,12 +3,29 @@ syntax = "proto3";
 package consensus;
 
 message CreateBlockProposalRequest {
-    string hash = 1;
+    message Payload {
+        uint32 version = 1;
+        string generatorPublicKey = 2;
+        uint32 timestamp = 3;
+        string previousBlock = 4;
+        uint32 height = 5;
+        uint32 numberOfTransactions = 6;
+        string totalAmount = 7; // bignumber in core
+        string totalFee = 8; // bignumber in core
+        string reward = 9; // bignumber in core
+        uint32 payloadLength = 10;
+        string payloadHash = 11;
+        repeated string signatures = 12;
+        // bytes transactions = 13; // custom ser/deser instead of repeated string
+    }
+
+    string blockHash = 1;
     uint32 height = 2;
     string generatorPublicKey = 3;
     string signature = 4;
     uint32 timestamp = 5;
-    shared.Headers headers = 6;
+    Payload payload = 6;
+    shared.Headers headers = 7;
 }
 
 message CreateBlockProposalResponse {

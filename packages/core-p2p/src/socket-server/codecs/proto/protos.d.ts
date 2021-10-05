@@ -588,8 +588,8 @@ export namespace consensus {
     /** Properties of a CreateBlockProposalRequest. */
     interface ICreateBlockProposalRequest {
 
-        /** CreateBlockProposalRequest hash */
-        hash?: (string|null);
+        /** CreateBlockProposalRequest blockHash */
+        blockHash?: (string|null);
 
         /** CreateBlockProposalRequest height */
         height?: (number|null);
@@ -602,6 +602,9 @@ export namespace consensus {
 
         /** CreateBlockProposalRequest timestamp */
         timestamp?: (number|null);
+
+        /** CreateBlockProposalRequest payload */
+        payload?: (consensus.CreateBlockProposalRequest.IPayload|null);
 
         /** CreateBlockProposalRequest headers */
         headers?: (shared.IHeaders|null);
@@ -616,8 +619,8 @@ export namespace consensus {
          */
         constructor(properties?: consensus.ICreateBlockProposalRequest);
 
-        /** CreateBlockProposalRequest hash. */
-        public hash: string;
+        /** CreateBlockProposalRequest blockHash. */
+        public blockHash: string;
 
         /** CreateBlockProposalRequest height. */
         public height: number;
@@ -630,6 +633,9 @@ export namespace consensus {
 
         /** CreateBlockProposalRequest timestamp. */
         public timestamp: number;
+
+        /** CreateBlockProposalRequest payload. */
+        public payload?: (consensus.CreateBlockProposalRequest.IPayload|null);
 
         /** CreateBlockProposalRequest headers. */
         public headers?: (shared.IHeaders|null);
@@ -703,6 +709,165 @@ export namespace consensus {
          * @returns JSON object
          */
         public toJSON(): { [k: string]: any };
+    }
+
+    namespace CreateBlockProposalRequest {
+
+        /** Properties of a Payload. */
+        interface IPayload {
+
+            /** Payload version */
+            version?: (number|null);
+
+            /** Payload generatorPublicKey */
+            generatorPublicKey?: (string|null);
+
+            /** Payload timestamp */
+            timestamp?: (number|null);
+
+            /** Payload previousBlock */
+            previousBlock?: (string|null);
+
+            /** Payload height */
+            height?: (number|null);
+
+            /** Payload numberOfTransactions */
+            numberOfTransactions?: (number|null);
+
+            /** Payload totalAmount */
+            totalAmount?: (string|null);
+
+            /** Payload totalFee */
+            totalFee?: (string|null);
+
+            /** Payload reward */
+            reward?: (string|null);
+
+            /** Payload payloadLength */
+            payloadLength?: (number|null);
+
+            /** Payload payloadHash */
+            payloadHash?: (string|null);
+
+            /** Payload signatures */
+            signatures?: (string[]|null);
+        }
+
+        /** Represents a Payload. */
+        class Payload implements IPayload {
+
+            /**
+             * Constructs a new Payload.
+             * @param [properties] Properties to set
+             */
+            constructor(properties?: consensus.CreateBlockProposalRequest.IPayload);
+
+            /** Payload version. */
+            public version: number;
+
+            /** Payload generatorPublicKey. */
+            public generatorPublicKey: string;
+
+            /** Payload timestamp. */
+            public timestamp: number;
+
+            /** Payload previousBlock. */
+            public previousBlock: string;
+
+            /** Payload height. */
+            public height: number;
+
+            /** Payload numberOfTransactions. */
+            public numberOfTransactions: number;
+
+            /** Payload totalAmount. */
+            public totalAmount: string;
+
+            /** Payload totalFee. */
+            public totalFee: string;
+
+            /** Payload reward. */
+            public reward: string;
+
+            /** Payload payloadLength. */
+            public payloadLength: number;
+
+            /** Payload payloadHash. */
+            public payloadHash: string;
+
+            /** Payload signatures. */
+            public signatures: string[];
+
+            /**
+             * Creates a new Payload instance using the specified properties.
+             * @param [properties] Properties to set
+             * @returns Payload instance
+             */
+            public static create(properties?: consensus.CreateBlockProposalRequest.IPayload): consensus.CreateBlockProposalRequest.Payload;
+
+            /**
+             * Encodes the specified Payload message. Does not implicitly {@link consensus.CreateBlockProposalRequest.Payload.verify|verify} messages.
+             * @param message Payload message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encode(message: consensus.CreateBlockProposalRequest.IPayload, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Encodes the specified Payload message, length delimited. Does not implicitly {@link consensus.CreateBlockProposalRequest.Payload.verify|verify} messages.
+             * @param message Payload message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encodeDelimited(message: consensus.CreateBlockProposalRequest.IPayload, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Decodes a Payload message from the specified reader or buffer.
+             * @param reader Reader or buffer to decode from
+             * @param [length] Message length if known beforehand
+             * @returns Payload
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): consensus.CreateBlockProposalRequest.Payload;
+
+            /**
+             * Decodes a Payload message from the specified reader or buffer, length delimited.
+             * @param reader Reader or buffer to decode from
+             * @returns Payload
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): consensus.CreateBlockProposalRequest.Payload;
+
+            /**
+             * Verifies a Payload message.
+             * @param message Plain object to verify
+             * @returns `null` if valid, otherwise the reason why it is not
+             */
+            public static verify(message: { [k: string]: any }): (string|null);
+
+            /**
+             * Creates a Payload message from a plain object. Also converts values to their respective internal types.
+             * @param object Plain object
+             * @returns Payload
+             */
+            public static fromObject(object: { [k: string]: any }): consensus.CreateBlockProposalRequest.Payload;
+
+            /**
+             * Creates a plain object from a Payload message. Also converts values to other types if specified.
+             * @param message Payload
+             * @param [options] Conversion options
+             * @returns Plain object
+             */
+            public static toObject(message: consensus.CreateBlockProposalRequest.Payload, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+            /**
+             * Converts this Payload to JSON.
+             * @returns JSON object
+             */
+            public toJSON(): { [k: string]: any };
+        }
     }
 
     /** Properties of a CreateBlockProposalResponse. */

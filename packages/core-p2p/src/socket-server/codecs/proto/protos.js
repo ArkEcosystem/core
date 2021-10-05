@@ -1474,11 +1474,12 @@ $root.consensus = (function() {
          * Properties of a CreateBlockProposalRequest.
          * @memberof consensus
          * @interface ICreateBlockProposalRequest
-         * @property {string|null} [hash] CreateBlockProposalRequest hash
+         * @property {string|null} [blockHash] CreateBlockProposalRequest blockHash
          * @property {number|null} [height] CreateBlockProposalRequest height
          * @property {string|null} [generatorPublicKey] CreateBlockProposalRequest generatorPublicKey
          * @property {string|null} [signature] CreateBlockProposalRequest signature
          * @property {number|null} [timestamp] CreateBlockProposalRequest timestamp
+         * @property {consensus.CreateBlockProposalRequest.IPayload|null} [payload] CreateBlockProposalRequest payload
          * @property {shared.IHeaders|null} [headers] CreateBlockProposalRequest headers
          */
 
@@ -1498,12 +1499,12 @@ $root.consensus = (function() {
         }
 
         /**
-         * CreateBlockProposalRequest hash.
-         * @member {string} hash
+         * CreateBlockProposalRequest blockHash.
+         * @member {string} blockHash
          * @memberof consensus.CreateBlockProposalRequest
          * @instance
          */
-        CreateBlockProposalRequest.prototype.hash = "";
+        CreateBlockProposalRequest.prototype.blockHash = "";
 
         /**
          * CreateBlockProposalRequest height.
@@ -1538,6 +1539,14 @@ $root.consensus = (function() {
         CreateBlockProposalRequest.prototype.timestamp = 0;
 
         /**
+         * CreateBlockProposalRequest payload.
+         * @member {consensus.CreateBlockProposalRequest.IPayload|null|undefined} payload
+         * @memberof consensus.CreateBlockProposalRequest
+         * @instance
+         */
+        CreateBlockProposalRequest.prototype.payload = null;
+
+        /**
          * CreateBlockProposalRequest headers.
          * @member {shared.IHeaders|null|undefined} headers
          * @memberof consensus.CreateBlockProposalRequest
@@ -1569,8 +1578,8 @@ $root.consensus = (function() {
         CreateBlockProposalRequest.encode = function encode(message, writer) {
             if (!writer)
                 writer = $Writer.create();
-            if (message.hash != null && Object.hasOwnProperty.call(message, "hash"))
-                writer.uint32(/* id 1, wireType 2 =*/10).string(message.hash);
+            if (message.blockHash != null && Object.hasOwnProperty.call(message, "blockHash"))
+                writer.uint32(/* id 1, wireType 2 =*/10).string(message.blockHash);
             if (message.height != null && Object.hasOwnProperty.call(message, "height"))
                 writer.uint32(/* id 2, wireType 0 =*/16).uint32(message.height);
             if (message.generatorPublicKey != null && Object.hasOwnProperty.call(message, "generatorPublicKey"))
@@ -1579,8 +1588,10 @@ $root.consensus = (function() {
                 writer.uint32(/* id 4, wireType 2 =*/34).string(message.signature);
             if (message.timestamp != null && Object.hasOwnProperty.call(message, "timestamp"))
                 writer.uint32(/* id 5, wireType 0 =*/40).uint32(message.timestamp);
+            if (message.payload != null && Object.hasOwnProperty.call(message, "payload"))
+                $root.consensus.CreateBlockProposalRequest.Payload.encode(message.payload, writer.uint32(/* id 6, wireType 2 =*/50).fork()).ldelim();
             if (message.headers != null && Object.hasOwnProperty.call(message, "headers"))
-                $root.shared.Headers.encode(message.headers, writer.uint32(/* id 6, wireType 2 =*/50).fork()).ldelim();
+                $root.shared.Headers.encode(message.headers, writer.uint32(/* id 7, wireType 2 =*/58).fork()).ldelim();
             return writer;
         };
 
@@ -1616,7 +1627,7 @@ $root.consensus = (function() {
                 var tag = reader.uint32();
                 switch (tag >>> 3) {
                 case 1:
-                    message.hash = reader.string();
+                    message.blockHash = reader.string();
                     break;
                 case 2:
                     message.height = reader.uint32();
@@ -1631,6 +1642,9 @@ $root.consensus = (function() {
                     message.timestamp = reader.uint32();
                     break;
                 case 6:
+                    message.payload = $root.consensus.CreateBlockProposalRequest.Payload.decode(reader, reader.uint32());
+                    break;
+                case 7:
                     message.headers = $root.shared.Headers.decode(reader, reader.uint32());
                     break;
                 default:
@@ -1668,9 +1682,9 @@ $root.consensus = (function() {
         CreateBlockProposalRequest.verify = function verify(message) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
-            if (message.hash != null && message.hasOwnProperty("hash"))
-                if (!$util.isString(message.hash))
-                    return "hash: string expected";
+            if (message.blockHash != null && message.hasOwnProperty("blockHash"))
+                if (!$util.isString(message.blockHash))
+                    return "blockHash: string expected";
             if (message.height != null && message.hasOwnProperty("height"))
                 if (!$util.isInteger(message.height))
                     return "height: integer expected";
@@ -1683,6 +1697,11 @@ $root.consensus = (function() {
             if (message.timestamp != null && message.hasOwnProperty("timestamp"))
                 if (!$util.isInteger(message.timestamp))
                     return "timestamp: integer expected";
+            if (message.payload != null && message.hasOwnProperty("payload")) {
+                var error = $root.consensus.CreateBlockProposalRequest.Payload.verify(message.payload);
+                if (error)
+                    return "payload." + error;
+            }
             if (message.headers != null && message.hasOwnProperty("headers")) {
                 var error = $root.shared.Headers.verify(message.headers);
                 if (error)
@@ -1703,8 +1722,8 @@ $root.consensus = (function() {
             if (object instanceof $root.consensus.CreateBlockProposalRequest)
                 return object;
             var message = new $root.consensus.CreateBlockProposalRequest();
-            if (object.hash != null)
-                message.hash = String(object.hash);
+            if (object.blockHash != null)
+                message.blockHash = String(object.blockHash);
             if (object.height != null)
                 message.height = object.height >>> 0;
             if (object.generatorPublicKey != null)
@@ -1713,6 +1732,11 @@ $root.consensus = (function() {
                 message.signature = String(object.signature);
             if (object.timestamp != null)
                 message.timestamp = object.timestamp >>> 0;
+            if (object.payload != null) {
+                if (typeof object.payload !== "object")
+                    throw TypeError(".consensus.CreateBlockProposalRequest.payload: object expected");
+                message.payload = $root.consensus.CreateBlockProposalRequest.Payload.fromObject(object.payload);
+            }
             if (object.headers != null) {
                 if (typeof object.headers !== "object")
                     throw TypeError(".consensus.CreateBlockProposalRequest.headers: object expected");
@@ -1735,15 +1759,16 @@ $root.consensus = (function() {
                 options = {};
             var object = {};
             if (options.defaults) {
-                object.hash = "";
+                object.blockHash = "";
                 object.height = 0;
                 object.generatorPublicKey = "";
                 object.signature = "";
                 object.timestamp = 0;
+                object.payload = null;
                 object.headers = null;
             }
-            if (message.hash != null && message.hasOwnProperty("hash"))
-                object.hash = message.hash;
+            if (message.blockHash != null && message.hasOwnProperty("blockHash"))
+                object.blockHash = message.blockHash;
             if (message.height != null && message.hasOwnProperty("height"))
                 object.height = message.height;
             if (message.generatorPublicKey != null && message.hasOwnProperty("generatorPublicKey"))
@@ -1752,6 +1777,8 @@ $root.consensus = (function() {
                 object.signature = message.signature;
             if (message.timestamp != null && message.hasOwnProperty("timestamp"))
                 object.timestamp = message.timestamp;
+            if (message.payload != null && message.hasOwnProperty("payload"))
+                object.payload = $root.consensus.CreateBlockProposalRequest.Payload.toObject(message.payload, options);
             if (message.headers != null && message.hasOwnProperty("headers"))
                 object.headers = $root.shared.Headers.toObject(message.headers, options);
             return object;
@@ -1767,6 +1794,453 @@ $root.consensus = (function() {
         CreateBlockProposalRequest.prototype.toJSON = function toJSON() {
             return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
         };
+
+        CreateBlockProposalRequest.Payload = (function() {
+
+            /**
+             * Properties of a Payload.
+             * @memberof consensus.CreateBlockProposalRequest
+             * @interface IPayload
+             * @property {number|null} [version] Payload version
+             * @property {string|null} [generatorPublicKey] Payload generatorPublicKey
+             * @property {number|null} [timestamp] Payload timestamp
+             * @property {string|null} [previousBlock] Payload previousBlock
+             * @property {number|null} [height] Payload height
+             * @property {number|null} [numberOfTransactions] Payload numberOfTransactions
+             * @property {string|null} [totalAmount] Payload totalAmount
+             * @property {string|null} [totalFee] Payload totalFee
+             * @property {string|null} [reward] Payload reward
+             * @property {number|null} [payloadLength] Payload payloadLength
+             * @property {string|null} [payloadHash] Payload payloadHash
+             * @property {Array.<string>|null} [signatures] Payload signatures
+             */
+
+            /**
+             * Constructs a new Payload.
+             * @memberof consensus.CreateBlockProposalRequest
+             * @classdesc Represents a Payload.
+             * @implements IPayload
+             * @constructor
+             * @param {consensus.CreateBlockProposalRequest.IPayload=} [properties] Properties to set
+             */
+            function Payload(properties) {
+                this.signatures = [];
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+
+            /**
+             * Payload version.
+             * @member {number} version
+             * @memberof consensus.CreateBlockProposalRequest.Payload
+             * @instance
+             */
+            Payload.prototype.version = 0;
+
+            /**
+             * Payload generatorPublicKey.
+             * @member {string} generatorPublicKey
+             * @memberof consensus.CreateBlockProposalRequest.Payload
+             * @instance
+             */
+            Payload.prototype.generatorPublicKey = "";
+
+            /**
+             * Payload timestamp.
+             * @member {number} timestamp
+             * @memberof consensus.CreateBlockProposalRequest.Payload
+             * @instance
+             */
+            Payload.prototype.timestamp = 0;
+
+            /**
+             * Payload previousBlock.
+             * @member {string} previousBlock
+             * @memberof consensus.CreateBlockProposalRequest.Payload
+             * @instance
+             */
+            Payload.prototype.previousBlock = "";
+
+            /**
+             * Payload height.
+             * @member {number} height
+             * @memberof consensus.CreateBlockProposalRequest.Payload
+             * @instance
+             */
+            Payload.prototype.height = 0;
+
+            /**
+             * Payload numberOfTransactions.
+             * @member {number} numberOfTransactions
+             * @memberof consensus.CreateBlockProposalRequest.Payload
+             * @instance
+             */
+            Payload.prototype.numberOfTransactions = 0;
+
+            /**
+             * Payload totalAmount.
+             * @member {string} totalAmount
+             * @memberof consensus.CreateBlockProposalRequest.Payload
+             * @instance
+             */
+            Payload.prototype.totalAmount = "";
+
+            /**
+             * Payload totalFee.
+             * @member {string} totalFee
+             * @memberof consensus.CreateBlockProposalRequest.Payload
+             * @instance
+             */
+            Payload.prototype.totalFee = "";
+
+            /**
+             * Payload reward.
+             * @member {string} reward
+             * @memberof consensus.CreateBlockProposalRequest.Payload
+             * @instance
+             */
+            Payload.prototype.reward = "";
+
+            /**
+             * Payload payloadLength.
+             * @member {number} payloadLength
+             * @memberof consensus.CreateBlockProposalRequest.Payload
+             * @instance
+             */
+            Payload.prototype.payloadLength = 0;
+
+            /**
+             * Payload payloadHash.
+             * @member {string} payloadHash
+             * @memberof consensus.CreateBlockProposalRequest.Payload
+             * @instance
+             */
+            Payload.prototype.payloadHash = "";
+
+            /**
+             * Payload signatures.
+             * @member {Array.<string>} signatures
+             * @memberof consensus.CreateBlockProposalRequest.Payload
+             * @instance
+             */
+            Payload.prototype.signatures = $util.emptyArray;
+
+            /**
+             * Creates a new Payload instance using the specified properties.
+             * @function create
+             * @memberof consensus.CreateBlockProposalRequest.Payload
+             * @static
+             * @param {consensus.CreateBlockProposalRequest.IPayload=} [properties] Properties to set
+             * @returns {consensus.CreateBlockProposalRequest.Payload} Payload instance
+             */
+            Payload.create = function create(properties) {
+                return new Payload(properties);
+            };
+
+            /**
+             * Encodes the specified Payload message. Does not implicitly {@link consensus.CreateBlockProposalRequest.Payload.verify|verify} messages.
+             * @function encode
+             * @memberof consensus.CreateBlockProposalRequest.Payload
+             * @static
+             * @param {consensus.CreateBlockProposalRequest.IPayload} message Payload message or plain object to encode
+             * @param {$protobuf.Writer} [writer] Writer to encode to
+             * @returns {$protobuf.Writer} Writer
+             */
+            Payload.encode = function encode(message, writer) {
+                if (!writer)
+                    writer = $Writer.create();
+                if (message.version != null && Object.hasOwnProperty.call(message, "version"))
+                    writer.uint32(/* id 1, wireType 0 =*/8).uint32(message.version);
+                if (message.generatorPublicKey != null && Object.hasOwnProperty.call(message, "generatorPublicKey"))
+                    writer.uint32(/* id 2, wireType 2 =*/18).string(message.generatorPublicKey);
+                if (message.timestamp != null && Object.hasOwnProperty.call(message, "timestamp"))
+                    writer.uint32(/* id 3, wireType 0 =*/24).uint32(message.timestamp);
+                if (message.previousBlock != null && Object.hasOwnProperty.call(message, "previousBlock"))
+                    writer.uint32(/* id 4, wireType 2 =*/34).string(message.previousBlock);
+                if (message.height != null && Object.hasOwnProperty.call(message, "height"))
+                    writer.uint32(/* id 5, wireType 0 =*/40).uint32(message.height);
+                if (message.numberOfTransactions != null && Object.hasOwnProperty.call(message, "numberOfTransactions"))
+                    writer.uint32(/* id 6, wireType 0 =*/48).uint32(message.numberOfTransactions);
+                if (message.totalAmount != null && Object.hasOwnProperty.call(message, "totalAmount"))
+                    writer.uint32(/* id 7, wireType 2 =*/58).string(message.totalAmount);
+                if (message.totalFee != null && Object.hasOwnProperty.call(message, "totalFee"))
+                    writer.uint32(/* id 8, wireType 2 =*/66).string(message.totalFee);
+                if (message.reward != null && Object.hasOwnProperty.call(message, "reward"))
+                    writer.uint32(/* id 9, wireType 2 =*/74).string(message.reward);
+                if (message.payloadLength != null && Object.hasOwnProperty.call(message, "payloadLength"))
+                    writer.uint32(/* id 10, wireType 0 =*/80).uint32(message.payloadLength);
+                if (message.payloadHash != null && Object.hasOwnProperty.call(message, "payloadHash"))
+                    writer.uint32(/* id 11, wireType 2 =*/90).string(message.payloadHash);
+                if (message.signatures != null && message.signatures.length)
+                    for (var i = 0; i < message.signatures.length; ++i)
+                        writer.uint32(/* id 12, wireType 2 =*/98).string(message.signatures[i]);
+                return writer;
+            };
+
+            /**
+             * Encodes the specified Payload message, length delimited. Does not implicitly {@link consensus.CreateBlockProposalRequest.Payload.verify|verify} messages.
+             * @function encodeDelimited
+             * @memberof consensus.CreateBlockProposalRequest.Payload
+             * @static
+             * @param {consensus.CreateBlockProposalRequest.IPayload} message Payload message or plain object to encode
+             * @param {$protobuf.Writer} [writer] Writer to encode to
+             * @returns {$protobuf.Writer} Writer
+             */
+            Payload.encodeDelimited = function encodeDelimited(message, writer) {
+                return this.encode(message, writer).ldelim();
+            };
+
+            /**
+             * Decodes a Payload message from the specified reader or buffer.
+             * @function decode
+             * @memberof consensus.CreateBlockProposalRequest.Payload
+             * @static
+             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+             * @param {number} [length] Message length if known beforehand
+             * @returns {consensus.CreateBlockProposalRequest.Payload} Payload
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            Payload.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.consensus.CreateBlockProposalRequest.Payload();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.version = reader.uint32();
+                        break;
+                    case 2:
+                        message.generatorPublicKey = reader.string();
+                        break;
+                    case 3:
+                        message.timestamp = reader.uint32();
+                        break;
+                    case 4:
+                        message.previousBlock = reader.string();
+                        break;
+                    case 5:
+                        message.height = reader.uint32();
+                        break;
+                    case 6:
+                        message.numberOfTransactions = reader.uint32();
+                        break;
+                    case 7:
+                        message.totalAmount = reader.string();
+                        break;
+                    case 8:
+                        message.totalFee = reader.string();
+                        break;
+                    case 9:
+                        message.reward = reader.string();
+                        break;
+                    case 10:
+                        message.payloadLength = reader.uint32();
+                        break;
+                    case 11:
+                        message.payloadHash = reader.string();
+                        break;
+                    case 12:
+                        if (!(message.signatures && message.signatures.length))
+                            message.signatures = [];
+                        message.signatures.push(reader.string());
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+
+            /**
+             * Decodes a Payload message from the specified reader or buffer, length delimited.
+             * @function decodeDelimited
+             * @memberof consensus.CreateBlockProposalRequest.Payload
+             * @static
+             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+             * @returns {consensus.CreateBlockProposalRequest.Payload} Payload
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            Payload.decodeDelimited = function decodeDelimited(reader) {
+                if (!(reader instanceof $Reader))
+                    reader = new $Reader(reader);
+                return this.decode(reader, reader.uint32());
+            };
+
+            /**
+             * Verifies a Payload message.
+             * @function verify
+             * @memberof consensus.CreateBlockProposalRequest.Payload
+             * @static
+             * @param {Object.<string,*>} message Plain object to verify
+             * @returns {string|null} `null` if valid, otherwise the reason why it is not
+             */
+            Payload.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.version != null && message.hasOwnProperty("version"))
+                    if (!$util.isInteger(message.version))
+                        return "version: integer expected";
+                if (message.generatorPublicKey != null && message.hasOwnProperty("generatorPublicKey"))
+                    if (!$util.isString(message.generatorPublicKey))
+                        return "generatorPublicKey: string expected";
+                if (message.timestamp != null && message.hasOwnProperty("timestamp"))
+                    if (!$util.isInteger(message.timestamp))
+                        return "timestamp: integer expected";
+                if (message.previousBlock != null && message.hasOwnProperty("previousBlock"))
+                    if (!$util.isString(message.previousBlock))
+                        return "previousBlock: string expected";
+                if (message.height != null && message.hasOwnProperty("height"))
+                    if (!$util.isInteger(message.height))
+                        return "height: integer expected";
+                if (message.numberOfTransactions != null && message.hasOwnProperty("numberOfTransactions"))
+                    if (!$util.isInteger(message.numberOfTransactions))
+                        return "numberOfTransactions: integer expected";
+                if (message.totalAmount != null && message.hasOwnProperty("totalAmount"))
+                    if (!$util.isString(message.totalAmount))
+                        return "totalAmount: string expected";
+                if (message.totalFee != null && message.hasOwnProperty("totalFee"))
+                    if (!$util.isString(message.totalFee))
+                        return "totalFee: string expected";
+                if (message.reward != null && message.hasOwnProperty("reward"))
+                    if (!$util.isString(message.reward))
+                        return "reward: string expected";
+                if (message.payloadLength != null && message.hasOwnProperty("payloadLength"))
+                    if (!$util.isInteger(message.payloadLength))
+                        return "payloadLength: integer expected";
+                if (message.payloadHash != null && message.hasOwnProperty("payloadHash"))
+                    if (!$util.isString(message.payloadHash))
+                        return "payloadHash: string expected";
+                if (message.signatures != null && message.hasOwnProperty("signatures")) {
+                    if (!Array.isArray(message.signatures))
+                        return "signatures: array expected";
+                    for (var i = 0; i < message.signatures.length; ++i)
+                        if (!$util.isString(message.signatures[i]))
+                            return "signatures: string[] expected";
+                }
+                return null;
+            };
+
+            /**
+             * Creates a Payload message from a plain object. Also converts values to their respective internal types.
+             * @function fromObject
+             * @memberof consensus.CreateBlockProposalRequest.Payload
+             * @static
+             * @param {Object.<string,*>} object Plain object
+             * @returns {consensus.CreateBlockProposalRequest.Payload} Payload
+             */
+            Payload.fromObject = function fromObject(object) {
+                if (object instanceof $root.consensus.CreateBlockProposalRequest.Payload)
+                    return object;
+                var message = new $root.consensus.CreateBlockProposalRequest.Payload();
+                if (object.version != null)
+                    message.version = object.version >>> 0;
+                if (object.generatorPublicKey != null)
+                    message.generatorPublicKey = String(object.generatorPublicKey);
+                if (object.timestamp != null)
+                    message.timestamp = object.timestamp >>> 0;
+                if (object.previousBlock != null)
+                    message.previousBlock = String(object.previousBlock);
+                if (object.height != null)
+                    message.height = object.height >>> 0;
+                if (object.numberOfTransactions != null)
+                    message.numberOfTransactions = object.numberOfTransactions >>> 0;
+                if (object.totalAmount != null)
+                    message.totalAmount = String(object.totalAmount);
+                if (object.totalFee != null)
+                    message.totalFee = String(object.totalFee);
+                if (object.reward != null)
+                    message.reward = String(object.reward);
+                if (object.payloadLength != null)
+                    message.payloadLength = object.payloadLength >>> 0;
+                if (object.payloadHash != null)
+                    message.payloadHash = String(object.payloadHash);
+                if (object.signatures) {
+                    if (!Array.isArray(object.signatures))
+                        throw TypeError(".consensus.CreateBlockProposalRequest.Payload.signatures: array expected");
+                    message.signatures = [];
+                    for (var i = 0; i < object.signatures.length; ++i)
+                        message.signatures[i] = String(object.signatures[i]);
+                }
+                return message;
+            };
+
+            /**
+             * Creates a plain object from a Payload message. Also converts values to other types if specified.
+             * @function toObject
+             * @memberof consensus.CreateBlockProposalRequest.Payload
+             * @static
+             * @param {consensus.CreateBlockProposalRequest.Payload} message Payload
+             * @param {$protobuf.IConversionOptions} [options] Conversion options
+             * @returns {Object.<string,*>} Plain object
+             */
+            Payload.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.arrays || options.defaults)
+                    object.signatures = [];
+                if (options.defaults) {
+                    object.version = 0;
+                    object.generatorPublicKey = "";
+                    object.timestamp = 0;
+                    object.previousBlock = "";
+                    object.height = 0;
+                    object.numberOfTransactions = 0;
+                    object.totalAmount = "";
+                    object.totalFee = "";
+                    object.reward = "";
+                    object.payloadLength = 0;
+                    object.payloadHash = "";
+                }
+                if (message.version != null && message.hasOwnProperty("version"))
+                    object.version = message.version;
+                if (message.generatorPublicKey != null && message.hasOwnProperty("generatorPublicKey"))
+                    object.generatorPublicKey = message.generatorPublicKey;
+                if (message.timestamp != null && message.hasOwnProperty("timestamp"))
+                    object.timestamp = message.timestamp;
+                if (message.previousBlock != null && message.hasOwnProperty("previousBlock"))
+                    object.previousBlock = message.previousBlock;
+                if (message.height != null && message.hasOwnProperty("height"))
+                    object.height = message.height;
+                if (message.numberOfTransactions != null && message.hasOwnProperty("numberOfTransactions"))
+                    object.numberOfTransactions = message.numberOfTransactions;
+                if (message.totalAmount != null && message.hasOwnProperty("totalAmount"))
+                    object.totalAmount = message.totalAmount;
+                if (message.totalFee != null && message.hasOwnProperty("totalFee"))
+                    object.totalFee = message.totalFee;
+                if (message.reward != null && message.hasOwnProperty("reward"))
+                    object.reward = message.reward;
+                if (message.payloadLength != null && message.hasOwnProperty("payloadLength"))
+                    object.payloadLength = message.payloadLength;
+                if (message.payloadHash != null && message.hasOwnProperty("payloadHash"))
+                    object.payloadHash = message.payloadHash;
+                if (message.signatures && message.signatures.length) {
+                    object.signatures = [];
+                    for (var j = 0; j < message.signatures.length; ++j)
+                        object.signatures[j] = message.signatures[j];
+                }
+                return object;
+            };
+
+            /**
+             * Converts this Payload to JSON.
+             * @function toJSON
+             * @memberof consensus.CreateBlockProposalRequest.Payload
+             * @instance
+             * @returns {Object.<string,*>} JSON object
+             */
+            Payload.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+
+            return Payload;
+        })();
 
         return CreateBlockProposalRequest;
     })();
