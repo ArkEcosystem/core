@@ -1,8 +1,9 @@
+import { Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Utils } from "@arkecosystem/crypto";
 
 import { consensus } from "./proto/protos";
 
-interface CreateBlockProposalData {
+export interface CreateBlockProposalData {
     blockHash: string;
     height: number;
     generatorPublicKey: string;
@@ -25,6 +26,8 @@ interface CreateBlockProposalData {
     };
     headers: any;
 }
+
+const hardLimitNumberOfTransactions = 500; // TODO: From setup
 
 export const createBlockProposal = {
     request: {
@@ -65,7 +68,9 @@ export const createBlockProposal = {
         deserialize: (payload: Buffer): CreateBlockProposalData => {
             const decoded = consensus.CreateBlockProposalRequest.decode(payload);
 
-            // TODO: Assert
+            AppUtils.assert.defined(decoded.payload);
+            AppUtils.assert.defined(decoded.payload!.transactions);
+
             const txsBuffer = Buffer.from(decoded.payload!.transactions!);
             const txs: Buffer[] = [];
             for (let offset = 0; offset < txsBuffer.byteLength - 4; ) {
@@ -73,10 +78,9 @@ export const createBlockProposal = {
                 txs.push(txsBuffer.slice(offset + 4, offset + 4 + txLength));
                 offset += 4 + txLength;
 
-                // TODO:
-                // if (txs.length > hardLimitNumberOfTransactions) {
-                //     break;
-                // }
+                if (txs.length >= hardLimitNumberOfTransactions) {
+                    break;
+                }
             }
 
             return {
