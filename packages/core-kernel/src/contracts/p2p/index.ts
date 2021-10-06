@@ -1,5 +1,6 @@
 export * from "./blocks";
 export * from "./chunk-cache";
+export * from "./consensus";
 export * from "./nes-client";
 export * from "./network-monitor";
 export * from "./network-state";
