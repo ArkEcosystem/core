@@ -8,16 +8,6 @@ export class ConsensusController extends Controller {
         request: Hapi.Request,
         h: Hapi.ResponseToolkit,
     ): Promise<Contracts.P2P.CreateBlockProposalResponse> {
-        // @ts-ignore
-        const {
-            height,
-            generatorPublicKey,
-            payload,
-            blockHash,
-            signature,
-            timestamp,
-        }: Contracts.P2P.CreateBlockProposalRequest = request.payload;
-
         return { status: true };
     }
 }
