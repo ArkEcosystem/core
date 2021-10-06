@@ -1,37 +1,13 @@
-import { Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Utils } from "@arkecosystem/crypto";
 
 import { consensus } from "./proto/protos";
-
-export interface CreateBlockProposalData {
-    blockHash: string;
-    height: number;
-    generatorPublicKey: string;
-    signature: string;
-    timestamp: number;
-    payload: {
-        version: number;
-        generatorPublicKey: string;
-        timestamp: number;
-        previousBlock: string;
-        height: number;
-        numberOfTransactions: number;
-        totalAmount: Utils.BigNumber;
-        totalFee: Utils.BigNumber;
-        reward: Utils.BigNumber;
-        payloadLength: number;
-        payloadHash: string;
-        transactions: Buffer[];
-        signatures: string[];
-    };
-    headers: any;
-}
 
 const hardLimitNumberOfTransactions = 500; // TODO: From setup
 
 export const createBlockProposal = {
     request: {
-        serialize: (data: CreateBlockProposalData): Buffer => {
+        serialize: (data: Contracts.P2P.CreateBlockProposalRequest): Buffer => {
             const txBuffers: Buffer[] = [];
             for (const txBuffer of data.payload.transactions) {
                 const txLengthBuffer = Buffer.alloc(4);
@@ -65,7 +41,7 @@ export const createBlockProposal = {
 
             return Buffer.from(consensus.CreateBlockProposalRequest.encode(obj).finish());
         },
-        deserialize: (payload: Buffer): CreateBlockProposalData => {
+        deserialize: (payload: Buffer): Contracts.P2P.CreateBlockProposalRequest => {
             const decoded = consensus.CreateBlockProposalRequest.decode(payload);
 
             AppUtils.assert.defined(decoded.payload);
@@ -109,9 +85,9 @@ export const createBlockProposal = {
         },
     },
     response: {
-        serialize: (obj: consensus.ICreateBlockProposalResponse): Buffer =>
+        serialize: (obj: Contracts.P2P.CreateBlockProposalResponse): Buffer =>
             Buffer.from(consensus.CreateBlockProposalResponse.encode(obj).finish()),
-        deserialize: (payload: Buffer): consensus.ICreateBlockProposalResponse =>
+        deserialize: (payload: Buffer): Contracts.P2P.CreateBlockProposalResponse =>
             consensus.CreateBlockProposalResponse.decode(payload),
     },
 };
