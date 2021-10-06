@@ -1,23 +1,14 @@
 import { consensusSchemas } from "@packages/core-p2p/src/socket-server/schemas/consensus";
+import clonedeep from "lodash.clonedeep";
+
+import { createBlockProposalRequest } from "../fixtures";
 
 describe("ConsensusSchema", () => {
     describe("createBlockProposal", () => {
-        const requestOriginal = {
-            hash: "d9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192",
-            height: 1,
-            generatorPublicKey: "03b47f6b6719c76bad46a302d9cff7be9b1c2b2a20602a0d880f139b5b8901f068",
-            signature:
-                "3045022100ec71805b816b2c09ae7689bef633d3a59a24a3a7516e55255abba9ad69ba15650220583550dd2bb2d76ed2519c8395a41c2e0fbbb287ff02d73452365b41e19889af",
-            timestamp: 1,
-            payload: {},
-        };
-
         let request;
 
         beforeEach(() => {
-            request = {
-                ...requestOriginal,
-            };
+            request = clonedeep(createBlockProposalRequest);
         });
 
         it("should pass", () => {
@@ -33,41 +24,41 @@ describe("ConsensusSchema", () => {
             expect(result.error!.message).toEqual('"value" is required');
         });
 
-        describe("hash", () => {
+        describe("blockHash", () => {
             it("should be required", () => {
-                delete request.hash;
+                delete request.blockHash;
 
                 const result = consensusSchemas.createBlockProposal.validate(request);
 
                 expect(result.error).toBeTruthy();
-                expect(result.error!.message).toEqual('"hash" is required');
+                expect(result.error!.message).toEqual('"blockHash" is required');
             });
 
             it("should be string", () => {
-                request.hash = 123;
+                request.blockHash = 123;
 
                 const result = consensusSchemas.createBlockProposal.validate(request);
 
                 expect(result.error).toBeTruthy();
-                expect(result.error!.message).toEqual('"hash" must be a string');
+                expect(result.error!.message).toEqual('"blockHash" must be a string');
             });
 
             it("should be hex", () => {
-                request.hash = "g".repeat(64);
+                request.blockHash = "g".repeat(64);
 
                 const result = consensusSchemas.createBlockProposal.validate(request);
 
                 expect(result.error).toBeTruthy();
-                expect(result.error!.message).toEqual('"hash" must only contain hexadecimal characters');
+                expect(result.error!.message).toEqual('"blockHash" must only contain hexadecimal characters');
             });
 
             it("should be of length 64", () => {
-                request.hash = "a";
+                request.blockHash = "a";
 
                 const result = consensusSchemas.createBlockProposal.validate(request);
 
                 expect(result.error).toBeTruthy();
-                expect(result.error!.message).toEqual('"hash" length must be 64 characters long');
+                expect(result.error!.message).toEqual('"blockHash" length must be 64 characters long');
             });
         });
 
@@ -223,6 +214,8 @@ describe("ConsensusSchema", () => {
                 expect(result.error).toBeTruthy();
                 expect(result.error!.message).toEqual('"payload" is required');
             });
+
+            // TODO: add tests for payload fields
         });
     });
 });
