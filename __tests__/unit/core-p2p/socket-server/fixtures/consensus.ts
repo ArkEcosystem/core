@@ -1,5 +1,5 @@
 import { BuilderFactory } from "@arkecosystem/crypto/dist/transactions";
-import { Utils } from "@packages/core-kernel";
+import { Contracts, Utils } from "@packages/core-kernel";
 import { Identities, Transactions } from "@packages/crypto";
 
 const recipientAddress = Identities.Address.fromPassphrase("recipient's secret");
@@ -11,7 +11,7 @@ const transaction = BuilderFactory.transfer()
     .build();
 const transactionSerialized = Transactions.Serializer.serialize(transaction);
 
-export const createBlockProposalRequest = {
+export const createBlockProposalRequest: Contracts.P2P.CreateBlockProposalRequest = {
     blockHash: "d9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192",
     height: 1,
     generatorPublicKey: "03b47f6b6719c76bad46a302d9cff7be9b1c2b2a20602a0d880f139b5b8901f068",
@@ -36,4 +36,8 @@ export const createBlockProposalRequest = {
         ],
     },
     headers: { version: "3.0.0-next.18" },
+};
+
+export const createBlockProposalResponse: Contracts.P2P.CreateBlockProposalResponse = {
+    status: true,
 };

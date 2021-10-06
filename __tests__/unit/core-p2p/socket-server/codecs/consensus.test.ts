@@ -3,7 +3,7 @@ import { createBlockProposal } from "@packages/core-p2p/src/socket-server/codecs
 import { Identities, Transactions } from "@packages/crypto";
 import clonedeep from "lodash.clonedeep";
 
-import { createBlockProposalRequest } from "../fixtures";
+import { createBlockProposalRequest, createBlockProposalResponse } from "../fixtures";
 
 const recipientAddress = Identities.Address.fromPassphrase("recipient's secret");
 const transaction = BuilderFactory.transfer()
@@ -38,13 +38,11 @@ describe("Consensus Codec", () => {
 
     describe("createBlockProposalResponse ser/deser", () => {
         it("should give back the same data after ser and deser", () => {
-            const data = {
-                status: true,
-            };
+            const serDeser = createBlockProposal.response.deserialize(
+                createBlockProposal.response.serialize(createBlockProposalResponse),
+            );
 
-            const serDeser = createBlockProposal.response.deserialize(createBlockProposal.response.serialize(data));
-
-            expect(serDeser).toEqual(data);
+            expect(serDeser).toEqual(createBlockProposalResponse);
         });
     });
 });
