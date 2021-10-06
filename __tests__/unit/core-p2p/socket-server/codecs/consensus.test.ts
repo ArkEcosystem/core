@@ -1,5 +1,15 @@
-import { createBlockProposal } from "@packages/core-p2p/src/socket-server/codecs/consensus";
 import { Utils } from "@packages/core-kernel";
+import { createBlockProposal } from "@packages/core-p2p/src/socket-server/codecs/consensus";
+import { Transactions, Identities } from "@packages/crypto";
+import { BuilderFactory } from "@arkecosystem/crypto/dist/transactions";
+
+const recipientAddress = Identities.Address.fromPassphrase("recipient's secret");
+const transaction = BuilderFactory.transfer()
+    .version(1)
+    .amount("100")
+    .recipientId(recipientAddress)
+    .sign("sender's secret")
+    .build();
 
 describe("Consensus Codec", () => {
     describe("createBlockProposalRequest ser/deser", () => {
@@ -23,7 +33,7 @@ describe("Consensus Codec", () => {
                     reward: Utils.BigNumber.ZERO,
                     payloadLength: 100,
                     payloadHash: "d9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192",
-                    // transactions: [],
+                    transactions: [Transactions.Serializer.serialize(transaction)],
                     signatures: [
                         "3045022100ec71805b816b2c09ae7689bef633d3a59a24a3a7516e55255abba9ad69ba15650220583550dd2bb2d76ed2519c8395a41c2e0fbbb287ff02d73452365b41e19889af",
                     ],

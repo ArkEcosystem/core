@@ -751,6 +751,9 @@ export namespace consensus {
 
             /** Payload signatures */
             signatures?: (string[]|null);
+
+            /** Payload transactions */
+            transactions?: (Uint8Array|null);
         }
 
         /** Represents a Payload. */
@@ -797,6 +800,9 @@ export namespace consensus {
 
             /** Payload signatures. */
             public signatures: string[];
+
+            /** Payload transactions. */
+            public transactions: Uint8Array;
 
             /**
              * Creates a new Payload instance using the specified properties.

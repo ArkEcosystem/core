@@ -16,7 +16,7 @@ message CreateBlockProposalRequest {
         uint32 payloadLength = 10;
         string payloadHash = 11;
         repeated string signatures = 12;
-        // bytes transactions = 13; // custom ser/deser instead of repeated string
+        bytes transactions = 13; // custom ser/deser instead of repeated string
     }
 
     string blockHash = 1;

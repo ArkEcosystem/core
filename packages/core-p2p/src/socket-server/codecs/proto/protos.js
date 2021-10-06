@@ -1813,6 +1813,7 @@ $root.consensus = (function() {
              * @property {number|null} [payloadLength] Payload payloadLength
              * @property {string|null} [payloadHash] Payload payloadHash
              * @property {Array.<string>|null} [signatures] Payload signatures
+             * @property {Uint8Array|null} [transactions] Payload transactions
              */
 
             /**
@@ -1928,6 +1929,14 @@ $root.consensus = (function() {
             Payload.prototype.signatures = $util.emptyArray;
 
             /**
+             * Payload transactions.
+             * @member {Uint8Array} transactions
+             * @memberof consensus.CreateBlockProposalRequest.Payload
+             * @instance
+             */
+            Payload.prototype.transactions = $util.newBuffer([]);
+
+            /**
              * Creates a new Payload instance using the specified properties.
              * @function create
              * @memberof consensus.CreateBlockProposalRequest.Payload
@@ -1976,6 +1985,8 @@ $root.consensus = (function() {
                 if (message.signatures != null && message.signatures.length)
                     for (var i = 0; i < message.signatures.length; ++i)
                         writer.uint32(/* id 12, wireType 2 =*/98).string(message.signatures[i]);
+                if (message.transactions != null && Object.hasOwnProperty.call(message, "transactions"))
+                    writer.uint32(/* id 13, wireType 2 =*/106).bytes(message.transactions);
                 return writer;
             };
 
@@ -2047,6 +2058,9 @@ $root.consensus = (function() {
                         if (!(message.signatures && message.signatures.length))
                             message.signatures = [];
                         message.signatures.push(reader.string());
+                        break;
+                    case 13:
+                        message.transactions = reader.bytes();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -2123,6 +2137,9 @@ $root.consensus = (function() {
                         if (!$util.isString(message.signatures[i]))
                             return "signatures: string[] expected";
                 }
+                if (message.transactions != null && message.hasOwnProperty("transactions"))
+                    if (!(message.transactions && typeof message.transactions.length === "number" || $util.isString(message.transactions)))
+                        return "transactions: buffer expected";
                 return null;
             };
 
@@ -2167,6 +2184,11 @@ $root.consensus = (function() {
                     for (var i = 0; i < object.signatures.length; ++i)
                         message.signatures[i] = String(object.signatures[i]);
                 }
+                if (object.transactions != null)
+                    if (typeof object.transactions === "string")
+                        $util.base64.decode(object.transactions, message.transactions = $util.newBuffer($util.base64.length(object.transactions)), 0);
+                    else if (object.transactions.length)
+                        message.transactions = object.transactions;
                 return message;
             };
 
@@ -2197,6 +2219,13 @@ $root.consensus = (function() {
                     object.reward = "";
                     object.payloadLength = 0;
                     object.payloadHash = "";
+                    if (options.bytes === String)
+                        object.transactions = "";
+                    else {
+                        object.transactions = [];
+                        if (options.bytes !== Array)
+                            object.transactions = $util.newBuffer(object.transactions);
+                    }
                 }
                 if (message.version != null && message.hasOwnProperty("version"))
                     object.version = message.version;
@@ -2225,6 +2254,8 @@ $root.consensus = (function() {
                     for (var j = 0; j < message.signatures.length; ++j)
                         object.signatures[j] = message.signatures[j];
                 }
+                if (message.transactions != null && message.hasOwnProperty("transactions"))
+                    object.transactions = options.bytes === String ? $util.base64.encode(message.transactions, 0, message.transactions.length) : options.bytes === Array ? Array.prototype.slice.call(message.transactions) : message.transactions;
                 return object;
             };
 

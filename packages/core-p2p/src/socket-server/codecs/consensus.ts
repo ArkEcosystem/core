@@ -20,7 +20,7 @@ interface CreateBlockProposalData {
         reward: Utils.BigNumber;
         payloadLength: number;
         payloadHash: string;
-        // transactions: string;
+        transactions: Buffer[];
         signatures: string[];
     };
     headers: any;
@@ -29,6 +29,13 @@ interface CreateBlockProposalData {
 export const createBlockProposal = {
     request: {
         serialize: (data: CreateBlockProposalData): Buffer => {
+            const txBuffers: Buffer[] = [];
+            for (const txBuffer of data.payload.transactions) {
+                const txLengthBuffer = Buffer.alloc(4);
+                txLengthBuffer.writeUInt32BE(txBuffer.byteLength);
+                txBuffers.push(txLengthBuffer, txBuffer);
+            }
+
             const obj = {
                 blockHash: data.blockHash,
                 height: data.height,
@@ -47,7 +54,7 @@ export const createBlockProposal = {
                     reward: data.payload.reward.toString(),
                     payloadLength: data.payload.payloadLength,
                     payloadHash: data.payload.payloadHash,
-                    // transactions: string;
+                    transactions: Buffer.concat(txBuffers),
                     signatures: data.payload.signatures,
                 },
                 headers: data.headers,
@@ -57,6 +64,20 @@ export const createBlockProposal = {
         },
         deserialize: (payload: Buffer): CreateBlockProposalData => {
             const decoded = consensus.CreateBlockProposalRequest.decode(payload);
+
+            // TODO: Assert
+            const txsBuffer = Buffer.from(decoded.payload!.transactions!);
+            const txs: Buffer[] = [];
+            for (let offset = 0; offset < txsBuffer.byteLength - 4; ) {
+                const txLength = txsBuffer.readUInt32BE(offset);
+                txs.push(txsBuffer.slice(offset + 4, offset + 4 + txLength));
+                offset += 4 + txLength;
+
+                // TODO:
+                // if (txs.length > hardLimitNumberOfTransactions) {
+                //     break;
+                // }
+            }
 
             return {
                 blockHash: decoded.blockHash,
@@ -76,7 +97,7 @@ export const createBlockProposal = {
                     reward: new Utils.BigNumber(decoded.payload?.reward as string),
                     payloadLength: decoded.payload!.payloadLength!,
                     payloadHash: decoded.payload!.payloadHash!,
-                    // transactions: string;
+                    transactions: txs,
                     signatures: decoded.payload!.signatures!,
                 },
                 headers: decoded.headers,
