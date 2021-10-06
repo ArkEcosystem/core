@@ -20,6 +20,7 @@ import { Service } from "./service";
 import { Storage } from "./storage";
 import { Worker } from "./worker";
 import { WorkerPool } from "./worker-pool";
+import { ProcessorDynamicFeeExtension } from "./processor-dynamic-fee-extension";
 
 /**
  * @export
@@ -123,6 +124,8 @@ export class ServiceProvider extends Providers.ServiceProvider {
                 return new AppUtils.IpcSubprocess<Contracts.TransactionPool.WorkerScriptHandler>(subprocess);
             };
         });
+
+        this.app.bind(Container.Identifiers.TransactionPoolProcessorExtension).to(ProcessorDynamicFeeExtension);
     }
 
     private registerActions(): void {
