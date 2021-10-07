@@ -25,6 +25,20 @@ describe("ProposalStorage", () => {
                 height: 1,
             });
         });
+
+        it("should throw if proposal is added multiple times", () => {
+            proposalStorage.boot();
+
+            proposalStorage.addProposal({
+                height: 1,
+            });
+
+            expect(() => {
+                proposalStorage.addProposal({
+                    height: 1,
+                });
+            }).toThrow();
+        });
     });
 
     describe("hasProposal", () => {
@@ -40,6 +54,42 @@ describe("ProposalStorage", () => {
 
         it("should not find proposal", () => {
             proposalStorage.boot();
+
+            expect(proposalStorage.hasProposal(1)).toEqual(false);
+        });
+    });
+
+    describe("getProposal", () => {
+        it("should return added proposal", () => {
+            proposalStorage.boot();
+
+            const data = {
+                height: 1,
+            };
+
+            proposalStorage.addProposal(data);
+
+            expect(proposalStorage.getProposal(1)).toEqual(data);
+        });
+
+        it("should not find proposal", () => {
+            proposalStorage.boot();
+
+            expect(proposalStorage.getProposal(1)).toEqual(undefined);
+        });
+    });
+
+    describe("removeProposal", () => {
+        it("should remove proposal", () => {
+            proposalStorage.boot();
+
+            proposalStorage.addProposal({
+                height: 1,
+            });
+
+            expect(proposalStorage.hasProposal(1)).toEqual(true);
+
+            proposalStorage.removeProposal(1);
 
             expect(proposalStorage.hasProposal(1)).toEqual(false);
         });
