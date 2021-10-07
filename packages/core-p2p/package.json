@@ -37,6 +37,7 @@
         "@hapi/hoek": "9.2.0",
         "@hapi/sntp": "4.0.0",
         "@hapi/teamwork": "5.1.0",
+        "better-sqlite3": "7.4.3",
         "dayjs": "1.10.7",
         "delay": "4.4.1",
         "ip": "1.1.5",
