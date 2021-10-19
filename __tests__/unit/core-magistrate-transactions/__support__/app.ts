@@ -5,6 +5,7 @@ import {
     bridgechainIndexer,
     businessIndexer,
     entityIndexer,
+    entityNameTypeIndexer,
     MagistrateIndex,
 } from "@packages/core-magistrate-transactions/src/wallet-indexes";
 import { Wallets } from "@packages/core-state";
@@ -38,6 +39,7 @@ import { TransactionHandlerProvider } from "@packages/core-transactions/src/hand
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
 import { Identities, Utils } from "@packages/crypto";
 import { IMultiSignatureAsset } from "@packages/crypto/src/interfaces";
+import { ServiceProvider } from "@packages/core-transactions/src/service-provider";
 
 const logger = {
     notice: jest.fn(),
@@ -100,7 +102,13 @@ export const initApp = (): Application => {
     app.bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex).toConstantValue({
         name: MagistrateIndex.Entities,
         indexer: entityIndexer,
-        autoIndex: true,
+        autoIndex: false,
+    });
+
+    app.bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex).toConstantValue({
+        name: MagistrateIndex.EntityNamesTypes,
+        indexer: entityNameTypeIndexer,
+        autoIndex: false,
     });
 
     app.bind(Identifiers.WalletFactory).toFactory<Contracts.State.Wallet>(
@@ -168,6 +176,9 @@ export const initApp = (): Application => {
 
     app.bind(Identifiers.TransactionHandlerProvider).to(TransactionHandlerProvider).inSingletonScope();
     app.bind(Identifiers.TransactionHandlerRegistry).to(TransactionHandlerRegistry).inSingletonScope();
+    app.bind(Identifiers.TransactionHandlerConstructors).toDynamicValue(
+        ServiceProvider.getTransactionHandlerConstructorsBinding(),
+    );
 
     app.bind(Container.Identifiers.TriggerService).to(Services.Triggers.Triggers).inSingletonScope();
 

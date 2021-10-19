@@ -77,7 +77,9 @@ export class DatabaseService {
             ({ serialized, id }) => Transactions.TransactionFactory.fromBytesUnsafe(serialized, id).data,
         );
 
-        return Blocks.BlockFactory.fromData(block);
+        return Blocks.BlockFactory.fromData(block, {
+            deserializeTransactionsUnchecked: true,
+        });
     }
 
     // ! three methods below (getBlocks, getBlocksForDownload, getBlocksByHeight) can be merged into one
@@ -134,7 +136,9 @@ export class DatabaseService {
             ({ serialized, id }) => Transactions.TransactionFactory.fromBytesUnsafe(serialized, id).data,
         );
 
-        const lastBlock: Interfaces.IBlock = Blocks.BlockFactory.fromData(block)!;
+        const lastBlock: Interfaces.IBlock = Blocks.BlockFactory.fromData(block, {
+            deserializeTransactionsUnchecked: true,
+        })!;
 
         return lastBlock;
     }

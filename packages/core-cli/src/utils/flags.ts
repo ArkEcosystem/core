@@ -8,7 +8,7 @@ export const castFlagsToString = (flags: AnyObject, ignoreKeys: string[] = []): 
             if (value === true) {
                 stringFlags.push(`--${key}`);
             } else if (typeof value === "string") {
-                stringFlags.push(value.includes(" ") ? `--${key}="${value}"` : `--${key}=${value}`);
+                stringFlags.push(`--${key}='${value}'`);
             } else {
                 stringFlags.push(`--${key}=${value}`);
             }

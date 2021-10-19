@@ -1,31 +1,17 @@
-import { existsSync } from "fs";
-import { ensureDirSync, removeSync } from "fs-extra";
-import { parse } from "path";
+import { existsSync } from "fs-extra";
 import { extract } from "tar";
 
-import { Source } from "./contracts";
+import { AbstractSource } from "./abstract-source";
+import { MissingPackageFolder } from "./errors";
 
 /**
  * @export
  * @class File
  * @implements {Source}
  */
-export class File implements Source {
-    /**
-     * @private
-     * @type {string}
-     * @memberof File
-     */
-    private readonly dataPath: string;
-
-    /**
-     * @param {{ data: string; temp?: string }} { data }
-     * @memberof File
-     */
-    public constructor({ data }: { data: string; temp?: string }) {
-        this.dataPath = `${data}/plugins`;
-
-        ensureDirSync(this.dataPath);
+export class File extends AbstractSource {
+    public constructor(paths: { data: string; temp: string }) {
+        super(paths);
     }
 
     /**
@@ -42,34 +28,22 @@ export class File implements Source {
      * @returns {Promise<void>}
      * @memberof File
      */
-    public async install(value: string): Promise<void> {
-        removeSync(this.getTargetPath(value));
-
-        await extract({
-            gzip: true,
-            file: value,
-            cwd: this.dataPath,
-        });
-
-        removeSync(value);
-    }
-
-    /**
-     * @param {string} value
-     * @returns {Promise<void>}
-     * @memberof File
-     */
     public async update(value: string): Promise<void> {
         await this.install(value);
     }
 
-    /**
-     * @private
-     * @param {string} value
-     * @returns {string}
-     * @memberof File
-     */
-    private getTargetPath(value: string): string {
-        return `${this.dataPath}/${parse(value).name.replace(":", "/")}`;
+    protected async preparePackage(value: string): Promise<void> {
+        await extract(
+            {
+                gzip: true,
+                file: value,
+                cwd: this.tempPath,
+            },
+            ["package"],
+        );
+
+        if (!existsSync(this.getOriginPath())) {
+            throw new MissingPackageFolder();
+        }
     }
 }

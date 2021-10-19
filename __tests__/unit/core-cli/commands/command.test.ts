@@ -1,6 +1,6 @@
 import { Container } from "@arkecosystem/core-cli";
 import { Console } from "@arkecosystem/core-test-framework";
-import { Command, DiscoverConfig } from "@packages/core-cli/src/commands";
+import { Command, DiscoverConfig, DiscoverNetwork } from "@packages/core-cli/src/commands";
 import Joi from "joi";
 import { setGracefulCleanup } from "tmp";
 
@@ -147,7 +147,11 @@ describe("Command", () => {
             cmd.input.setFlag("token", "ark");
             cmd.input.setFlag("network", undefined);
 
-            await expect(cmd.run()).rejects.toThrow();
+            const spyOnDiscover = jest.spyOn(DiscoverNetwork.prototype, "discover").mockImplementation();
+
+            await expect(cmd.run()).toResolve();
+
+            expect(spyOnDiscover).toHaveBeenCalled();
         });
 
         it("should run the command and throw an error", async () => {

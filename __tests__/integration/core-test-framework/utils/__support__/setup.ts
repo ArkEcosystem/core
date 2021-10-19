@@ -1,9 +1,13 @@
-import { Server, Identifiers as ApiIdentifiers } from "@arkecosystem/core-api";
+import { Identifiers as ApiIdentifiers, Server } from "@arkecosystem/core-api";
 import { Application, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Managers } from "@arkecosystem/crypto";
-import { Sandbox } from "@packages/core-test-framework/src";
-import { EchoController } from "./echo-controller";
 import Hapi from "@hapi/hapi";
+import { Sandbox } from "@packages/core-test-framework/src";
+import { EventEmitter } from "events";
+
+import { EchoController } from "./echo-controller";
+
+EventEmitter.prototype.constructor = Object.prototype.constructor;
 
 const sandbox: Sandbox = new Sandbox();
 

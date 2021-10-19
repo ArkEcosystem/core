@@ -1,6 +1,8 @@
 import { Utils } from "@arkecosystem/core-kernel";
 import Boom from "@hapi/boom";
 
+import { getIp } from "../utils";
+
 export const whitelist = {
     name: "whitelist",
     version: "0.1.0",
@@ -12,7 +14,7 @@ export const whitelist = {
                     return h.continue;
                 }
 
-                if (Utils.isWhitelisted(options.whitelist, request.info.remoteAddress)) {
+                if (Utils.isWhitelisted(options.whitelist, getIp(request, options.trustProxy))) {
                     return h.continue;
                 }
 

@@ -123,6 +123,7 @@ export class CryptoGenerator extends Generator {
                 vendorFieldLength: 64,
                 multiPaymentLimit: 256,
                 aip11: true,
+                aip37: true,
                 htlcEnabled: true,
             },
             {

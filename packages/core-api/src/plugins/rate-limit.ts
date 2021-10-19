@@ -1,7 +1,9 @@
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 import mm from "nanomatch";
-import { RateLimiterMemory, RLWrapperBlackAndWhite, RateLimiterRes } from "rate-limiter-flexible";
+import { RateLimiterMemory, RateLimiterRes, RLWrapperBlackAndWhite } from "rate-limiter-flexible";
+
+import { getIp } from "../utils";
 
 type RateLimitPluginData = {
     remaining: number;
@@ -28,7 +30,14 @@ export = {
     once: true,
     async register(
         server: Hapi.Server,
-        options: { enabled: boolean; points: number; duration: number; whitelist: string[]; blacklist: string[] },
+        options: {
+            enabled: boolean;
+            points: number;
+            duration: number;
+            whitelist: string[];
+            blacklist: string[];
+            trustProxy: boolean;
+        },
     ): Promise<void> {
         if (options.enabled === false) {
             return;
@@ -51,7 +60,10 @@ export = {
             type: "onPostAuth",
             async method(request, h) {
                 try {
-                    const rateLimitRes: RateLimiterRes = await rateLimiter.consume(request.info.remoteAddress, 1);
+                    const rateLimitRes: RateLimiterRes = await rateLimiter.consume(
+                        getIp(request, options.trustProxy),
+                        1,
+                    );
 
                     request.plugins["rate-limit"] = {
                         remaining: rateLimitRes.remainingPoints,

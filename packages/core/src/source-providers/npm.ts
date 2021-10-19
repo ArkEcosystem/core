@@ -1,50 +1,30 @@
-import { createWriteStream, ensureDirSync, ensureFileSync, moveSync, removeSync } from "fs-extra";
+import { createWriteStream, ensureFileSync, removeSync } from "fs-extra";
 import got from "got";
 import stream from "stream";
 import { extract } from "tar";
 import { promisify } from "util";
 
-import { Source } from "./contracts";
+import { AbstractSource } from "./abstract-source";
 
 /**
  * @export
  * @class NPM
  * @implements {Source}
  */
-export class NPM implements Source {
-    /**
-     * @private
-     * @type {string}
-     * @memberof NPM
-     */
-    private readonly dataPath: string;
-
-    /**
-     * @private
-     * @type {(string | undefined)}
-     * @memberof NPM
-     */
-    private readonly tempPath: string | undefined;
-
-    /**
-     * @param {{ data: string; temp?: string }} { data, temp }
-     * @memberof NPM
-     */
-    public constructor({ data, temp }: { data: string; temp?: string }) {
-        this.dataPath = `${data}/plugins`;
-        this.tempPath = temp;
-
-        ensureDirSync(this.dataPath);
+export class NPM extends AbstractSource {
+    public constructor(paths: { data: string; temp: string }) {
+        super(paths);
     }
 
     /**
      * @param {string} value
+     * @param version
      * @returns {Promise<boolean>}
      * @memberof NPM
      */
-    public async exists(value: string): Promise<boolean> {
+    public async exists(value: string, version?: string): Promise<boolean> {
         try {
-            await this.getPackage(value);
+            await this.getPackage(value, version);
 
             return true;
         } catch {
@@ -57,25 +37,18 @@ export class NPM implements Source {
      * @returns {Promise<void>}
      * @memberof NPM
      */
-    public async install(value: string): Promise<void> {
-        const { name, tarball }: { name: string; tarball: string } = await this.getPackage(value);
+    public async update(value: string): Promise<void> {
+        await this.install(value);
+    }
 
-        const tarballPath: string = `${this.tempPath}/plugins/${name}.tgz`;
+    protected async preparePackage(value: string, version?: string): Promise<void> {
+        const { name, tarball }: { name: string; tarball: string } = await this.getPackage(value, version);
+
+        const tarballPath: string = `${this.tempPath}/${name}.tgz`;
 
         await this.downloadPackage(tarball, tarballPath);
 
         await this.extractPackage(name, tarballPath);
-
-        removeSync(tarballPath);
-    }
-
-    /**
-     * @param {string} value
-     * @returns {Promise<void>}
-     * @memberof NPM
-     */
-    public async update(value: string): Promise<void> {
-        await this.install(value);
     }
 
     /**
@@ -84,15 +57,23 @@ export class NPM implements Source {
      * @returns {Promise<{ name: string; tarball: string }>}
      * @memberof NPM
      */
-    private async getPackage(value: string): Promise<{ name: string; tarball: string }> {
-        const { body } = await got(`https://registry.npmjs.org/${value}`);
+    private async getPackage(value: string, version?: string): Promise<{ name: string; tarball: string }> {
+        const registry = process.env.CORE_NPM_REGISTRY || "https://registry.npmjs.org";
+        const { body } = await got(`${registry}/${value}`);
 
         const response: {
             name: string;
             versions: Record<string, { tarball: string }>[];
         } = JSON.parse(body);
 
-        return { name: response.name, tarball: response.versions[response["dist-tags"].latest].dist.tarball };
+        if (version && !response.versions[version]) {
+            throw new Error("Invalid package version");
+        }
+
+        return {
+            name: response.name,
+            tarball: response.versions[version || response["dist-tags"].latest].dist.tarball,
+        };
     }
 
     /**
@@ -118,26 +99,12 @@ export class NPM implements Source {
      * @memberof NPM
      */
     private async extractPackage(name: string, file: string): Promise<void> {
-        removeSync(this.getTargetPath(name));
-
         await extract({
             gzip: true,
             file,
-            cwd: this.dataPath,
+            cwd: this.tempPath,
         });
 
-        moveSync(`${this.dataPath}/package`, this.getTargetPath(name));
-
         removeSync(file);
-    }
-
-    /**
-     * @private
-     * @param {string} value
-     * @returns {string}
-     * @memberof NPM
-     */
-    private getTargetPath(value: string): string {
-        return `${this.dataPath}/${value}`;
     }
 }

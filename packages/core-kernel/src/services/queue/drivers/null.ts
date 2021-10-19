@@ -1,11 +1,9 @@
-import {
-    Queue,
-    QueueJob,
-    QueueOnDataFunction,
-    QueueOnDrainFunction,
-    QueueOnErrorFunction,
-} from "../../../contracts/kernel/queue";
-import { injectable } from "../../../ioc";
+import { EventEmitter } from "events";
+
+import { Queue, QueueJob } from "../../../contracts/kernel/queue";
+import { decorateInjectable, injectable } from "../../../ioc";
+
+decorateInjectable(EventEmitter);
 
 /**
  * @export
@@ -13,7 +11,7 @@ import { injectable } from "../../../ioc";
  * @implements {Queue}
  */
 @injectable()
-export class NullQueue implements Queue {
+export class NullQueue extends EventEmitter implements Queue {
     /**
      * Create a new instance of the queue.
      *
@@ -127,10 +125,4 @@ export class NullQueue implements Queue {
     public isRunning(): boolean {
         return false;
     }
-
-    public onData(callback: QueueOnDataFunction): void {}
-
-    public onError(callback: QueueOnErrorFunction): void {}
-
-    public onDrain(callback: QueueOnDrainFunction): void {}
 }

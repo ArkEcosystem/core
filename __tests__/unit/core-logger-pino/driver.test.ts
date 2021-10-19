@@ -7,6 +7,7 @@ import { Container, Identifiers } from "@packages/core-kernel/src/ioc";
 import { PinoLogger } from "@packages/core-logger-pino/src/driver";
 import capcon from "capture-console";
 import { readdirSync } from "fs-extra";
+import { Writable } from "stream";
 import { dirSync, setGracefulCleanup } from "tmp";
 
 let logger: Logger;
@@ -16,6 +17,7 @@ let app: Application;
 
 beforeEach(async () => {
     app = new Application(new Container());
+    app.bind(Identifiers.ConfigFlags).toConstantValue("core");
     app.bind(Identifiers.ApplicationNamespace).toConstantValue("ark-unitnet");
     app.bind("path.log").toConstantValue(dirSync().name);
 
@@ -127,12 +129,44 @@ describe("Logger", () => {
         expect(message).toMatch(/non_silent_message/);
     });
 
-    // TODO: Re-enable tests
-    // this passes locally but fails on pipelines
-    it.skip("should rotate the log 3 times", async () => {
+    it("should log error if there is an error on file stream", async () => {
+        const logger = app.resolve<Logger>(PinoLogger);
+
+        const writableMock = new Writable({
+            write(chunk, enc, cb) {
+                throw new Error("Stream error");
+            },
+        });
+        // @ts-ignore
+        logger.getFileStream = () => {
+            return writableMock;
+        };
+
+        await logger.make({
+            levels: {
+                console: "invalid",
+                file: process.env.CORE_LOG_LEVEL_FILE || "debug",
+            },
+            fileRotator: {
+                interval: "1d",
+            },
+        });
+
+        writableMock.destroy(new Error("Test error"));
+
+        await sleep(100);
+
+        expect(message).toMatch("File stream closed due to an error: Error: Test error");
+    });
+
+    it("should rotate the log 3 times", async () => {
         const app = new Application(new Container());
+        app.bind(Identifiers.ConfigFlags).toConstantValue("core");
         app.bind(Identifiers.ApplicationNamespace).toConstantValue("ark-unitnet");
         app.useLogPath(dirSync().name);
+
+        const ms = new Date().getMilliseconds();
+        await sleep(1000 - ms + 400);
 
         const logger = await app.resolve(PinoLogger).make({
             levels: {
@@ -147,7 +181,7 @@ describe("Logger", () => {
         for (let i = 0; i < 3; i++) {
             logger.info(`Test ${i + 1}`);
 
-            await sleep(1000);
+            await sleep(900);
         }
 
         const files = readdirSync(app.logPath());

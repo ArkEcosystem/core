@@ -19,7 +19,10 @@ export class BlocksController extends Controller {
     @Container.inject(Container.Identifiers.DatabaseService)
     private readonly database!: DatabaseService;
 
-    public async postBlock(request: Hapi.Request, h: Hapi.ResponseToolkit): Promise<boolean> {
+    public async postBlock(
+        request: Hapi.Request,
+        h: Hapi.ResponseToolkit,
+    ): Promise<{ status: boolean; height: number }> {
         const blockBuffer: Buffer = request.payload.block;
 
         const deserializedHeader = Blocks.Deserializer.deserialize(blockBuffer, true);
@@ -47,7 +50,7 @@ export class BlocksController extends Controller {
 
         if (!fromForger) {
             if (this.blockchain.pingBlock(block)) {
-                return true;
+                return { status: true, height: this.blockchain.getLastHeight() };
             }
 
             const lastDownloadedBlock: Interfaces.IBlockData = this.blockchain.getLastDownloadedBlock();
@@ -55,15 +58,8 @@ export class BlocksController extends Controller {
             const blockTimeLookup = await Utils.forgingInfoCalculator.getBlockTimeLookup(this.app, block.height);
 
             if (!Utils.isBlockChained(lastDownloadedBlock, block, blockTimeLookup)) {
-                return false;
+                return { status: false, height: this.blockchain.getLastHeight() };
             }
-        }
-
-        if (
-            block.transactions &&
-            block.transactions.length > Managers.configManager.getMilestone().block.maxTransactions
-        ) {
-            throw new TooManyTransactionsError(block);
         }
 
         this.logger.info(
@@ -75,7 +71,8 @@ export class BlocksController extends Controller {
         );
 
         await this.blockchain.handleIncomingBlock(block, fromForger);
-        return true;
+
+        return { status: true, height: this.blockchain.getLastHeight() };
     }
 
     public async getBlocks(

@@ -17,6 +17,8 @@ import { Connection } from "typeorm";
 
 import { Assets } from "./__fixtures__";
 
+EventEmitter.prototype.constructor = Object.prototype.constructor;
+
 let sandbox: Sandbox;
 let database: SnapshotDatabaseService;
 let filesystem: Filesystem;

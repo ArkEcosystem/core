@@ -107,7 +107,10 @@ export class Service implements Contracts.TransactionPool.Service {
                 this.storage.removeTransaction(transaction.id);
                 this.logger.warning(`${transaction} failed to enter pool: ${error.message}`);
                 this.events.dispatch(Enums.TransactionEvent.RejectedByPool, transaction.data);
-                throw error;
+
+                throw error instanceof Contracts.TransactionPool.PoolError
+                    ? error
+                    : new Contracts.TransactionPool.PoolError(error.message, "ERR_OTHER");
             }
         });
     }
@@ -126,6 +129,8 @@ export class Service implements Contracts.TransactionPool.Service {
             let previouslyStoredExpirations = 0;
             let previouslyStoredFailures = 0;
 
+            const previouslyForgedStoredIds: string[] = [];
+
             for (const { id, serialized } of previouslyForgedTransactions) {
                 try {
                     const previouslyForgedTransaction = Transactions.TransactionFactory.fromBytes(serialized);
@@ -142,6 +147,8 @@ export class Service implements Contracts.TransactionPool.Service {
                         serialized: previouslyForgedTransaction.serialized,
                     });
 
+                    previouslyForgedStoredIds.push(previouslyForgedTransaction.id);
+
                     previouslyForgedSuccesses++;
                 } catch (error) {
                     this.logger.debug(`Failed to re-add previously forged transaction ${id}: ${error.message}`);
@@ -154,7 +161,7 @@ export class Service implements Contracts.TransactionPool.Service {
             const expiredHeight: number = lastHeight - maxTransactionAge;
 
             for (const { height, id, serialized } of this.storage.getAllTransactions()) {
-                if (previouslyForgedTransactions.find((t) => t.id === id)) {
+                if (previouslyForgedStoredIds.includes(id)) {
                     continue;
                 }
 

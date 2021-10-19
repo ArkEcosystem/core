@@ -28,25 +28,37 @@ export class RollbackDatabase implements Action {
     public async handle(): Promise<void> {
         this.logger.info("Trying to restore database integrity");
 
-        const maxBlockRewind = this.configuration.getRequired<number>("databaseRollback.maxBlockRewind");
-        const steps = this.configuration.getRequired<number>("databaseRollback.steps");
+        let maxBlockRewind = this.configuration.getRequired<number>("databaseRollback.maxBlockRewind");
+        let steps = this.configuration.getRequired<number>("databaseRollback.steps");
 
-        for (let i = maxBlockRewind; i >= 0; i -= steps) {
+        let lastBlock: Interfaces.IBlock = await this.databaseService.getLastBlock();
+        let lastBlockHeight = lastBlock.data.height;
+
+        let isVerified = false;
+
+        while (!isVerified && maxBlockRewind > 0 && lastBlockHeight > 1) {
+            if (lastBlockHeight - steps < 1) {
+                steps = lastBlockHeight - 1;
+            }
+            maxBlockRewind -= steps;
+            lastBlockHeight -= steps;
+
             await this.blockchain.removeTopBlocks(steps);
 
-            if (await this.databaseService.verifyBlockchain()) {
-                break;
-            }
+            isVerified = await this.databaseService.verifyBlockchain();
         }
 
-        if (!(await this.databaseService.verifyBlockchain())) {
+        if (!isVerified) {
             this.blockchain.dispatch("FAILURE");
             return;
         }
 
         this.stateStore.setRestoredDatabaseIntegrity(true);
 
-        const lastBlock: Interfaces.IBlock = await this.databaseService.getLastBlock();
+        lastBlock = await this.databaseService.getLastBlock();
+        this.stateStore.setLastBlock(lastBlock);
+        this.stateStore.setLastStoredBlockHeight(lastBlock.data.height);
+
         this.logger.info(
             `Database integrity verified again after rollback to height ${lastBlock.data.height.toLocaleString()}`,
         );

@@ -40,29 +40,10 @@ const getPluginsConfig = (plugins: PluginConfig[], app: Contracts.Kernel.Applica
 
         Utils.assert.defined<string>(serviceProviderName);
 
-        const hasDefaults: boolean = Object.keys(serviceProvider.configDefaults()).length > 0;
-
-        if (hasDefaults) {
-            const pluginConfig = {
-                package: plugin.package,
-                options: app
-                    .resolve(Providers.PluginConfiguration)
-                    .from(serviceProviderName, serviceProvider.configDefaults())
-                    .merge(plugin.options || {})
-                    .all(),
-            };
-            return pluginConfig;
-        }
-
-        const pluginConfig = {
+        return {
             package: plugin.package,
-            options: app
-                .resolve(Providers.PluginConfiguration)
-                .discover(serviceProviderName)
-                .merge(plugin.options || {})
-                .all(),
+            options: serviceProvider.config().all(),
         };
-        return pluginConfig;
     });
 };
 

@@ -33,6 +33,10 @@ export class DposPreviousRoundState implements Contracts.State.DposPreviousRound
         return this.dposState.getAllDelegates();
     }
 
+    public getActiveDelegates(): readonly Contracts.State.Wallet[] {
+        return this.dposState.getActiveDelegates();
+    }
+
     public getRoundDelegates(): readonly Contracts.State.Wallet[] {
         return this.dposState.getRoundDelegates();
     }

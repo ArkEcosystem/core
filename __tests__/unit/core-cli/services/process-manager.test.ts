@@ -187,7 +187,7 @@ describe("ProcessManager", () => {
 
             // Assert...
             expect(failed).toBeFalse();
-            expect(spySync).toHaveBeenCalledWith("pm2 start stub.js --name=stub", { shell: true });
+            expect(spySync).toHaveBeenCalledWith("pm2 start stub.js --name='stub'", { shell: true });
         });
 
         it("should respect the given node_args", () => {
@@ -210,7 +210,7 @@ describe("ProcessManager", () => {
             // Assert...
             expect(failed).toBeFalse();
             expect(spySync).toHaveBeenCalledWith(
-                'pm2 start stub.js --node-args="--max_old_space_size=500" --name=stub',
+                "pm2 start stub.js --node-args=\"--max_old_space_size=500\" --name='stub'",
                 { shell: true },
             );
         });
@@ -234,7 +234,7 @@ describe("ProcessManager", () => {
 
             // Assert...
             expect(failed).toBeFalse();
-            expect(spySync).toHaveBeenCalledWith("pm2 start stub.js --name=stub -- core:run --daemon", { shell: true });
+            expect(spySync).toHaveBeenCalledWith("pm2 start stub.js --name='stub' -- core:run --daemon", { shell: true });
         });
 
         it("should ignore the flags if they are undefined", () => {
@@ -289,7 +289,7 @@ describe("ProcessManager", () => {
 
             // Assert...
             expect(failed).toBeFalse();
-            expect(spySync).toHaveBeenCalledWith("pm2 stop stub --key=value", { shell: true });
+            expect(spySync).toHaveBeenCalledWith("pm2 stop stub --key='value'", { shell: true });
         });
     });
 
@@ -323,7 +323,7 @@ describe("ProcessManager", () => {
 
             // Assert...
             expect(failed).toBeFalse();
-            expect(spySync).toHaveBeenCalledWith("pm2 restart stub --key=value", { shell: true });
+            expect(spySync).toHaveBeenCalledWith("pm2 restart stub --key='value'", { shell: true });
         });
 
         it("should ignore the flags if they are empty", () => {

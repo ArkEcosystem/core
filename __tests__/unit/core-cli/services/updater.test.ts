@@ -109,17 +109,19 @@ describe("Updater", () => {
             });
             const spySpinner = jest.spyOn(cli.app.get(Container.Identifiers.Spinner), "render");
             const spyInstaller = jest.spyOn(cli.app.get(Container.Identifiers.Installer), "install");
+            const spyProcessManager = jest.spyOn(cli.app.get(Container.Identifiers.ProcessManager), "update");
 
             // Act...
             await updater.check();
 
-            const update = await updater.update(true);
+            const update = await updater.update(true, true);
 
             // Assert...
             expect(update).toBeTrue();
             expect(spySync).toHaveBeenCalled();
             expect(spySpinner).toHaveBeenCalled();
             expect(spyInstaller).toHaveBeenCalled();
+            expect(spyProcessManager).toHaveBeenCalled();
         });
 
         it("should update with a prompt if a new version is available", async () => {

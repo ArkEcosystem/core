@@ -33,9 +33,11 @@ expect.extend({
 
             error = JSON.stringify(parsedBody.errors);
         } catch (e) {
-            // console.error(e);
+            if (e.response.statusCode >= 500) {
+                throw e;
+            }
+
             error = e.message;
-            // console.error(error);
         }
 
         return {
@@ -61,8 +63,11 @@ expect.extend({
 
             error = JSON.stringify(parsedBody.errors);
         } catch (e) {
+            if (e.response.statusCode >= 500) {
+                throw e;
+            }
+
             error = e.message;
-            // console.error(error);
         }
 
         return {
@@ -91,9 +96,12 @@ expect.extend({
                 }
             }
         } catch (e) {
+            if (e.response.statusCode >= 500) {
+                throw e;
+            }
+
             pass = false;
             error = e.message;
-            // console.error(error);
         }
 
         return {

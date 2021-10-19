@@ -1,4 +1,4 @@
-import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { Enums, Interfaces, Transactions } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
 
@@ -6,11 +6,12 @@ import { InvalidTransactionDataError } from "./errors";
 
 @Container.injectable()
 export class Processor implements Contracts.TransactionPool.Processor {
+    @Container.multiInject(Container.Identifiers.TransactionPoolProcessorExtension)
+    @Container.optional()
+    private readonly extensions: Contracts.TransactionPool.ProcessorExtension[] = [];
+
     @Container.inject(Container.Identifiers.TransactionPoolService)
     private readonly pool!: Contracts.TransactionPool.Service;
-
-    @Container.inject(Container.Identifiers.TransactionPoolDynamicFeeMatcher)
-    private readonly dynamicFeeMatcher!: Contracts.TransactionPool.DynamicFeeMatcher;
 
     @Container.inject(Container.Identifiers.TransactionPoolWorkerPool)
     private readonly workerPool!: Contracts.TransactionPool.WorkerPool;
@@ -24,24 +25,19 @@ export class Processor implements Contracts.TransactionPool.Processor {
 
     public async process(
         data: Interfaces.ITransactionData[] | Buffer[],
-    ): Promise<{
-        accept: string[];
-        broadcast: string[];
-        invalid: string[];
-        excess: string[];
-        errors?: { [id: string]: Contracts.TransactionPool.ProcessorError };
-    }> {
+    ): Promise<Contracts.TransactionPool.ProcessorResult> {
         const accept: string[] = [];
         const broadcast: string[] = [];
         const invalid: string[] = [];
         const excess: string[] = [];
         let errors: { [id: string]: Contracts.TransactionPool.ProcessorError } | undefined = undefined;
 
-        const broadcastableTransactions: Interfaces.ITransaction[] = [];
+        const broadcastTransactions: Interfaces.ITransaction[] = [];
 
         try {
             for (let i = 0; i < data.length; i++) {
                 const transactionData = data[i];
+                const entryId = transactionData instanceof Buffer ? String(i) : transactionData.id ?? String(i);
 
                 try {
                     const transaction =
@@ -49,22 +45,23 @@ export class Processor implements Contracts.TransactionPool.Processor {
                             ? await this.getTransactionFromBuffer(transactionData)
                             : await this.getTransactionFromData(transactionData);
                     await this.pool.addTransaction(transaction);
-                    accept.push(transactionData instanceof Buffer ? `${i}` : transactionData.id ?? `${i}`);
+                    accept.push(entryId);
 
                     try {
-                        await this.dynamicFeeMatcher.throwIfCannotBroadcast(transaction);
-                        broadcastableTransactions.push(transaction);
+                        await Promise.all(this.extensions.map((e) => e.throwIfCannotBroadcast(transaction)));
+                        broadcastTransactions.push(transaction);
+                        broadcast.push(entryId);
                     } catch {}
                 } catch (error) {
-                    invalid.push(transactionData instanceof Buffer ? `${i}` : transactionData.id ?? `${i}`);
+                    invalid.push(entryId);
 
                     if (error instanceof Contracts.TransactionPool.PoolError) {
                         if (error.type === "ERR_EXCEEDS_MAX_COUNT") {
-                            excess.push(transactionData instanceof Buffer ? `${i}` : transactionData.id ?? `${i}`);
+                            excess.push(entryId);
                         }
 
                         if (!errors) errors = {};
-                        errors[transactionData instanceof Buffer ? i : transactionData.id ?? i] = {
+                        errors[entryId] = {
                             type: error.type,
                             message: error.message,
                         };
@@ -74,14 +71,10 @@ export class Processor implements Contracts.TransactionPool.Processor {
                 }
             }
         } finally {
-            if (this.transactionBroadcaster && broadcastableTransactions.length !== 0) {
+            if (this.transactionBroadcaster && broadcastTransactions.length !== 0) {
                 this.transactionBroadcaster
-                    .broadcastTransactions(broadcastableTransactions)
+                    .broadcastTransactions(broadcastTransactions)
                     .catch((error) => this.logger.error(error.stack));
-                for (const transaction of broadcastableTransactions) {
-                    AppUtils.assert.defined<string>(transaction.id);
-                    broadcast.push(transaction.id);
-                }
             }
         }
 

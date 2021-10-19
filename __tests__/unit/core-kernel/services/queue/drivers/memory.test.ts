@@ -4,7 +4,10 @@ import { sleep } from "@arkecosystem/utils";
 import { Container, Contracts, Enums } from "@packages/core-kernel";
 import { MemoryQueue } from "@packages/core-kernel/src/services/queue/drivers/memory";
 import { Sandbox } from "@packages/core-test-framework";
+import { EventEmitter } from "events";
 import { performance } from "perf_hooks";
+
+EventEmitter.prototype.constructor = Object.prototype.constructor;
 
 class DummyJob implements Contracts.Kernel.QueueJob {
     public constructor(private readonly method) {}
@@ -87,7 +90,7 @@ describe("MemoryQueue", () => {
             });
 
             const onDrain = jest.fn();
-            driver.onDrain(onDrain);
+            driver.on("drain", onDrain);
 
             await driver.push(new DummyJob(jobMethod1));
             await driver.push(new DummyJob(jobMethod2));
@@ -367,7 +370,7 @@ describe("MemoryQueue", () => {
             });
 
             const onDrain = jest.fn();
-            driver.onDrain(onDrain);
+            driver.on("drain", onDrain);
 
             await driver.push(new DummyJob(jobMethod1));
             await driver.push(new DummyJob(jobMethod2));
@@ -402,7 +405,7 @@ describe("MemoryQueue", () => {
             });
 
             const onDrain = jest.fn();
-            driver.onDrain(onDrain);
+            driver.on("drain", onDrain);
 
             await driver.push(new DummyJob(jobMethod1));
             await driver.push(new DummyJob(jobMethod2));
@@ -443,10 +446,10 @@ describe("MemoryQueue", () => {
         });
     });
 
-    describe("Callbacks", () => {
-        it("should call onData", async () => {
-            const onData = jest.fn();
-            driver.onData(onData);
+    describe("EventEmitter", () => {
+        it("should emit jobDone", async () => {
+            const onJobDone = jest.fn();
+            driver.on("jobDone", onJobDone);
 
             jobMethod.mockResolvedValue("dummy_data");
             const job1 = new DummyJob(jobMethod);
@@ -459,17 +462,17 @@ describe("MemoryQueue", () => {
             await sleep(10);
 
             expect(jobMethod).toHaveBeenCalledTimes(2);
-            expect(onData).toHaveBeenCalledTimes(2);
-            expect(onData).toHaveBeenCalledWith(job1, "dummy_data");
-            expect(onData).toHaveBeenCalledWith(job2, "dummy_data");
+            expect(onJobDone).toHaveBeenCalledTimes(2);
+            expect(onJobDone).toHaveBeenCalledWith(job1, "dummy_data");
+            expect(onJobDone).toHaveBeenCalledWith(job2, "dummy_data");
         });
 
-        it("should call onError and continue processing", async () => {
-            const onData = jest.fn();
-            driver.onData(onData);
+        it("should emit jobError and continue processing", async () => {
+            const onJobDone = jest.fn();
+            driver.on("jobDone", onJobDone);
 
-            const onError = jest.fn();
-            driver.onError(onError);
+            const onJobError = jest.fn();
+            driver.on("jobError", onJobError);
 
             jobMethod.mockResolvedValue("dummy_data");
 
@@ -490,16 +493,16 @@ describe("MemoryQueue", () => {
             expect(errorMethod).toHaveBeenCalledTimes(1);
             expect(jobMethod).toHaveBeenCalledTimes(1);
 
-            expect(onError).toHaveBeenCalledTimes(1);
-            expect(onError).toHaveBeenCalledWith(job1, error);
+            expect(onJobError).toHaveBeenCalledTimes(1);
+            expect(onJobError).toHaveBeenCalledWith(job1, error);
 
-            expect(onData).toHaveBeenCalledTimes(1);
-            expect(onData).toHaveBeenCalledWith(job2, "dummy_data");
+            expect(onJobDone).toHaveBeenCalledTimes(1);
+            expect(onJobDone).toHaveBeenCalledWith(job2, "dummy_data");
         });
 
-        it("should call onDrain", async () => {
+        it("should emit drain", async () => {
             const onDrain = jest.fn();
-            driver.onDrain(onDrain);
+            driver.on("drain", onDrain);
 
             await driver.push(new DummyJob(jobMethod));
             await driver.start();

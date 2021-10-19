@@ -36,7 +36,9 @@ export class Command extends Commands.Command {
     public configure(): void {
         this.definition
             .setFlag("token", "The name of the token.", Joi.string().default("ark"))
-            .setFlag("network", "The name of the network.", Joi.string().valid(...Object.keys(Networks)));
+            .setFlag("network", "The name of the network.", Joi.string().valid(...Object.keys(Networks)))
+            .setFlag("version", "The version of the package.", Joi.string())
+            .setArgument("package", "The name of the package.", Joi.string().required());
     }
 
     /**
@@ -47,9 +49,10 @@ export class Command extends Commands.Command {
      */
     public async execute(): Promise<void> {
         const pkg: string = this.getArgument("package");
+        const version: string | undefined = this.getFlag("version");
 
         try {
-            return await this.install(pkg);
+            return await this.install(pkg, version);
         } catch (error) {
             throw new Error(error.message);
         }
@@ -58,18 +61,19 @@ export class Command extends Commands.Command {
     /**
      * @private
      * @param {string} pkg
+     * @param version
      * @returns {Promise<void>}
      * @memberof Command
      */
-    private async install(pkg: string): Promise<void> {
+    private async install(pkg: string, version?: string): Promise<void> {
         for (const Instance of [File, Git, NPM]) {
             const source: Source = new Instance({
-                data: this.app.getCorePath("data"),
-                temp: this.app.getCorePath("temp"),
+                data: this.app.getCorePath("data", "plugins"),
+                temp: this.app.getCorePath("temp", "plugins"),
             });
 
-            if (await source.exists(pkg)) {
-                return source.install(pkg);
+            if (await source.exists(pkg, version)) {
+                return source.install(pkg, version);
             }
         }
 
