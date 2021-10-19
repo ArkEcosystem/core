@@ -48,6 +48,17 @@ export enum BlockEvent {
  * @export
  * @enum {number}
  */
+export enum DatabaseEvent {
+    PreConnect = "database.preConnect",
+    PostConnect = "database.postConnect",
+    PreDisconnect = "database.preDisconnect",
+    PostDisconnect = "database.postDisconnect",
+}
+
+/**
+ * @export
+ * @enum {number}
+ */
 export enum DelegateEvent {
     Registered = "delegate.registered",
     Resigned = "delegate.resigned",
