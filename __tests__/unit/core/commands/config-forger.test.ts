@@ -114,14 +114,6 @@ describe("ForgerCommand", () => {
 
             expect(require(`${process.env.CORE_PATH_CONFIG}/delegates.json`)).toEqual({ secrets: [bip39] });
         });
-
-        it("should fail to configure from a prompt if it doesn't receive a bip39", async () => {
-            prompts.inject(["bip39", null]);
-
-            await expect(cli.execute(Command)).rejects.toThrow(
-                "Failed to verify the given passphrase as BIP39 compliant.",
-            );
-        });
     });
 
     describe("BIP38Command", () => {

@@ -10,6 +10,16 @@ export class DatabaseInterceptor {
     @Container.inject(Container.Identifiers.DatabaseService)
     private readonly databaseService!: DatabaseService;
 
+    public async getBlock(id: string): Promise<Interfaces.IBlock | undefined> {
+        const block = this.stateStore.getLastBlocks().find((block) => block.data.id === id);
+
+        if (block) {
+            return block;
+        }
+
+        return this.databaseService.getBlock(id);
+    }
+
     public async getCommonBlocks(ids: string[]): Promise<Interfaces.IBlockData[]> {
         let commonBlocks: Interfaces.IBlockData[] = this.stateStore.getCommonBlocks(ids);
 

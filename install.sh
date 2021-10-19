@@ -110,13 +110,13 @@ sudo rm -rf ~/{.npm,.forever,.node*,.cache,.nvm}
 
 if [[ ! -z $DEB ]]; then
     sudo wget --quiet -O - https://deb.nodesource.com/gpgkey/nodesource.gpg.key | sudo apt-key add -
-    (echo "deb https://deb.nodesource.com/node_12.x ${DEB_ID} main" | sudo tee /etc/apt/sources.list.d/nodesource.list)
+    (echo "deb https://deb.nodesource.com/node_14.x ${DEB_ID} main" | sudo tee /etc/apt/sources.list.d/nodesource.list)
     sudo apt-get update
     sudo apt-get install nodejs -y
 
 elif [[ ! -z $RPM ]]; then
     sudo yum install gcc-c++ make -y
-    curl -sL https://rpm.nodesource.com/setup_12.x | sudo -E bash - > /dev/null 2>&1
+    curl -sL https://rpm.nodesource.com/setup_14.x | sudo -E bash - > /dev/null 2>&1
 fi
 
 success "Installed node.js & npm!"
@@ -169,7 +169,7 @@ elif [[ ! -z $RPM ]]; then
         sudo service postgresql initdb
         sudo service postgresql start
     else
-        sudo postgresql-setup initdb || true 
+        sudo postgresql-setup initdb || true
         sudo sed -i  '/^host    all             all             127.0.0.1\/32            ident/ s/ident/md5/' /var/lib/pgsql/data/pg_hba.conf > /dev/null 2>&1 || true
         sudo systemctl start postgresql
     fi
@@ -184,11 +184,11 @@ sudo timedatectl set-ntp off > /dev/null 2>&1 || true # disable the default syst
 if [[ ! -z $DEB ]]; then
     sudo apt-get install ntp -yyq
     if [ -z "$(sudo service ntp status |grep running)" ] ; then
-       sudo ntpd -gq 
+       sudo ntpd -gq
     fi
 
 elif [[ ! -z $RPM ]]; then
-    sudo yum install chrony -y -q  
+    sudo yum install chrony -y -q
 
     if [ -z "$(sudo service chronyd status |grep running)" ] ; then
        sudo chronyd -q

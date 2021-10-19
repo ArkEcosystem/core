@@ -37,7 +37,7 @@ describe("RunCommand", () => {
         await new Promise((resolve) => {
             setTimeout(() => {
                 resolve();
-            }, 50);
+            }, 200);
         });
 
         expect(spyBootstrap).toHaveBeenCalled();

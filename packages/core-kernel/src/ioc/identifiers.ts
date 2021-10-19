@@ -108,6 +108,7 @@ export const Identifiers = {
     TransactionPoolCollator: Symbol.for("TransactionPool<Collator>"),
     TransactionPoolQuery: Symbol.for("TransactionPool<Query>"),
     TransactionPoolDynamicFeeMatcher: Symbol.for("TransactionPool<DynamicFeeMatcher>"),
+    TransactionPoolProcessorExtension: Symbol.for("TransactionPool<ProcessorExtension>"),
     TransactionPoolProcessor: Symbol.for("TransactionPool<Processor>"),
     TransactionPoolProcessorFactory: Symbol.for("TransactionPool<ProcessorFactory>"),
     TransactionPoolSenderMempool: Symbol.for("TransactionPool<SenderMempool>"),
@@ -123,6 +124,7 @@ export const Identifiers = {
     WalletAttributes: Symbol.for("Wallet<Attributes>"),
     // TransactionHandler
     TransactionHandler: Symbol.for("TransactionHandler"),
+    TransactionHandlerConstructors: Symbol.for("TransactionHandlerConstructors"),
     // Registries
     TransactionHandlerRegistry: Symbol.for("Registry<TransactionHandler>"),
     TransactionHandlerProvider: Symbol.for("Provider<TransactionHandler>"),

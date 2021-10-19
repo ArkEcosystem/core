@@ -119,8 +119,8 @@ describe("UnchainedHandler", () => {
             });
         });
 
-        describe("when it is a ExceededNotReadyToAcceptNewHeightMaxAttempts case", () => {
-            it("should return DiscardedButCanBeBroadcasted 5 times then Rollback when height > lastBlock height +1", async () => {
+        describe("when it is a NotReadyToAcceptNewHeight case", () => {
+            it("should return Rejected when height > lastBlock height +1", async () => {
                 const unchainedHandler = sandbox.app.resolve<UnchainedHandler>(UnchainedHandler);
                 unchainedHandler.initialize(true);
 
@@ -136,14 +136,7 @@ describe("UnchainedHandler", () => {
                 blockchain.getLastBlock = jest.fn().mockReturnValue(lastBlock);
                 blockchain.getQueue = jest.fn().mockReturnValue({ size: jest.fn().mockReturnValueOnce(1) });
 
-                for (let i = 0; i < 5; i++) {
-                    expect(await unchainedHandler.execute(block as Interfaces.IBlock)).toBe(
-                        BlockProcessorResult.DiscardedButCanBeBroadcasted,
-                    );
-                }
-
-                expect(await unchainedHandler.execute(block as Interfaces.IBlock)).toBe(BlockProcessorResult.Rollback);
-                expect(stateStore.setNumberOfBlocksToRollback).toHaveBeenCalledWith(5000);
+                expect(await unchainedHandler.execute(block as Interfaces.IBlock)).toBe(BlockProcessorResult.Rejected);
             });
         });
 

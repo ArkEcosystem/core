@@ -2,7 +2,7 @@ import "jest-extended";
 
 import { Client } from "@arkecosystem/core-forger/src/client";
 import { Application, Container } from "@arkecosystem/core-kernel";
-import { NetworkStateStatus, Nes } from "@arkecosystem/core-p2p";
+import { NetworkStateStatus, Nes, Codecs } from "@arkecosystem/core-p2p";
 
 import { forgedBlockWithTransactions } from "./__utils__/create-block-with-transactions";
 
@@ -39,13 +39,21 @@ describe("Client", () => {
     describe("register", () => {
         it("should register hosts", async () => {
             client.register(hosts);
-            expect(Nes.Client).toHaveBeenCalledWith(`ws://${host.hostname}:${host.port}`);
+
+            const expectedUrl = `ws://${host.hostname}:${host.port}`;
+            const expectedOptions = { ws: { maxPayload: 20971520 } };
+
+            expect(Nes.Client).toHaveBeenCalledWith(expectedUrl, expectedOptions);
             expect(client.hosts).toEqual([{ ...host, socket: expect.anything() }]);
         });
 
         it("should register IPv6 hosts", async () => {
             client.register(hostsIPv6);
-            expect(Nes.Client).toHaveBeenCalledWith(`ws://[${hostIPv6.hostname}]:${hostIPv6.port}`);
+
+            const expectedUrl = `ws://[${hostIPv6.hostname}]:${hostIPv6.port}`;
+            const expectedOptions = { ws: { maxPayload: 20971520 } };
+
+            expect(Nes.Client).toHaveBeenCalledWith(expectedUrl, expectedOptions);
             expect(client.hosts).toEqual([{ ...hostIPv6, socket: expect.anything() }]);
         });
 
@@ -88,18 +96,24 @@ describe("Client", () => {
             await expect(client.broadcastBlock(forgedBlockWithTransactions)).toResolve();
 
             expect(logger.error).toHaveBeenCalledWith(
-                `Broadcast block failed: Request to ${host.hostname}:${host.port}<p2p.blocks.postBlock> failed, because of 'this.host.socket.setMaxPayload is not a function'.`,
+                `Broadcast block failed: Request to ${host.hostname}:${host.port}<p2p.blocks.postBlock> failed, because of 'this.host.socket.request is not a function'.`,
             );
         });
 
         it("should broadcast valid blocks without error", async () => {
             client.register([host]);
 
+            nesClient.request.mockResolvedValueOnce({
+                payload: Codecs.postBlock.response.serialize({ status: true, height: 100 }),
+            });
+
             await expect(client.broadcastBlock(forgedBlockWithTransactions)).toResolve();
+
             expect(nesClient.request).toHaveBeenCalledWith({
                 path: "p2p.blocks.postBlock",
                 payload: expect.any(Buffer),
             });
+
             expect(logger.error).not.toHaveBeenCalled();
         });
 

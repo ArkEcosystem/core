@@ -2,7 +2,10 @@ import { Application, Container, Contracts, Utils as AppUtils } from "@arkecosys
 import { Managers, Utils } from "@arkecosystem/crypto";
 import { ServiceProvider } from "@packages/core-api/src";
 import { Sandbox } from "@packages/core-test-framework/src";
+import { EventEmitter } from "events";
 import { resolve } from "path";
+
+EventEmitter.prototype.constructor = Object.prototype.constructor;
 
 const sandbox: Sandbox = new Sandbox();
 

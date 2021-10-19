@@ -9,50 +9,6 @@ on:
         types: [ready_for_review, synchronize, opened]
 
 jobs:
-    codecov:
-        needs:
-            - core
-            - core-api
-            - core-blockchain
-            - core-cli
-            - core-database
-            - core-forger
-            - core-kernel
-            - core-logger-pino
-            - core-magistrate-api
-            - core-magistrate-crypto
-            - core-magistrate-transactions
-            - core-manager
-            - core-p2p
-            - core-snapshots
-            - core-state
-            - core-test-framework
-            - core-transaction-pool
-            - core-transactions
-            - core-webhooks
-            - crypto
-
-        runs-on: ubuntu-latest
-
-        strategy:
-            matrix:
-                node-version: [12.x]
-
-        steps:
-            - uses: actions/checkout@v1
-
-            - name: Download code coverage
-              uses: actions/download-artifact@v2
-              with:
-                  path: .artifacts
-
-            - name: Upload code coverage to codecov.io
-              uses: codecov/codecov-action@v1
-              with:
-                  file: .artifacts/*-coverage/lcov.info
-                  flags: unit
-                  fail_ci_if_error: true
-
     core:
         runs-on: ubuntu-latest
 
@@ -61,7 +17,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
 
             - name: Cache node modules
               uses: actions/cache@v1
@@ -95,7 +51,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
 
             - name: Cache node modules
               uses: actions/cache@v1
@@ -129,7 +85,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
 
             - name: Cache node modules
               uses: actions/cache@v1
@@ -163,7 +119,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
 
             - name: Cache node modules
               uses: actions/cache@v1
@@ -197,7 +153,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
 
             - name: Cache node modules
               uses: actions/cache@v1
@@ -231,7 +187,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
 
             - name: Cache node modules
               uses: actions/cache@v1
@@ -265,7 +221,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
 
             - name: Cache node modules
               uses: actions/cache@v1
@@ -299,7 +255,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
 
             - name: Cache node modules
               uses: actions/cache@v1
@@ -333,7 +289,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
 
             - name: Cache node modules
               uses: actions/cache@v1
@@ -367,7 +323,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
 
             - name: Cache node modules
               uses: actions/cache@v1
@@ -401,7 +357,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
 
             - name: Cache node modules
               uses: actions/cache@v1
@@ -427,40 +383,6 @@ jobs:
                   name: ${{ github.job }}-coverage
                   path: .coverage/unit/${{ github.job }}/lcov.info
 
-    core-manager:
-        runs-on: ubuntu-latest
-
-        strategy:
-            matrix:
-                node-version: [12.x]
-
-        steps:
-            - uses: actions/checkout@v1
-
-            - name: Cache node modules
-              uses: actions/cache@v1
-              with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
-
-            - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v1
-              with:
-                  node-version: ${{ matrix.node-version }}
-
-            - name: Install & Build
-              run: yarn setup
-
-            - name: Test
-              run: yarn test:parallel __tests__/unit/core-manager/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
-
-            - name: Archive code coverage
-              uses: actions/upload-artifact@v2
-              with:
-                  name: ${{ github.job }}-coverage
-                  path: .coverage/unit/${{ github.job }}/lcov.info
-
     core-p2p:
         runs-on: ubuntu-latest
 
@@ -469,7 +391,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
 
             - name: Cache node modules
               uses: actions/cache@v1
@@ -503,7 +425,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
 
             - name: Cache node modules
               uses: actions/cache@v1
@@ -537,7 +459,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
 
             - name: Cache node modules
               uses: actions/cache@v1
@@ -571,7 +493,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
 
             - name: Cache node modules
               uses: actions/cache@v1
@@ -605,7 +527,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
 
             - name: Cache node modules
               uses: actions/cache@v1
@@ -639,7 +561,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
 
             - name: Cache node modules
               uses: actions/cache@v1
@@ -673,7 +595,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
 
             - name: Cache node modules
               uses: actions/cache@v1
@@ -707,7 +629,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
 
             - name: Cache node modules
               uses: actions/cache@v1

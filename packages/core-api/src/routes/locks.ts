@@ -46,8 +46,8 @@ export const register = (server: Hapi.Server): void => {
                     orderBy: server.app.schemas.orderBy,
                 }).concat(Schemas.pagination),
                 payload: Joi.object({
-                    ids: Joi.array().unique().min(1).max(25).items(Joi.string().hex().length(64)),
-                }),
+                    ids: Joi.array().unique().min(1).max(25).items(Joi.string().hex().length(64)).required(),
+                }).required(),
             },
             plugins: {
                 pagination: {

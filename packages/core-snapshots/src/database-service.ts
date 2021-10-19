@@ -190,11 +190,11 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
                 reject(err);
             };
 
-            transactionsQueue.onError((job, err) => {
+            transactionsQueue.on("jobError", (job, err) => {
                 handleError(err);
             });
 
-            roundsQueue.onError((job, err) => {
+            roundsQueue.on("jobError", (job, err) => {
                 handleError(err);
             });
 
@@ -244,7 +244,7 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
                         if (!transactionsQueue.isRunning()) {
                             resolve();
                         } else {
-                            transactionsQueue.onDrain(() => {
+                            transactionsQueue.on("drain", () => {
                                 resolve();
                             });
                         }
@@ -253,7 +253,7 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
                         if (!roundsQueue.isRunning()) {
                             resolve();
                         } else {
-                            roundsQueue.onDrain(() => {
+                            roundsQueue.on("drain", () => {
                                 resolve();
                             });
                         }

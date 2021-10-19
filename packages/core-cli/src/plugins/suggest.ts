@@ -53,7 +53,7 @@ export class SuggestCommand {
             return suggestion;
         }
 
-        this.app.get<any>(Identifiers.Info).render(`Run ${blue("ark --help")} for a list of available commands.`);
+        this.app.get<any>(Identifiers.Info).render(`Run ${blue("ark help")} for a list of available commands.`);
 
         return undefined;
     }

@@ -1,12 +1,9 @@
-import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
+import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { Interfaces, Managers } from "@arkecosystem/crypto";
+import { TransactionHasExpiredError } from "./errors";
 
 @Container.injectable()
 export class Collator implements Contracts.TransactionPool.Collator {
-    @Container.inject(Container.Identifiers.PluginConfiguration)
-    @Container.tagged("plugin", "@arkecosystem/core-transaction-pool")
-    private readonly configuration!: Providers.PluginConfiguration;
-
     @Container.inject(Container.Identifiers.TransactionValidatorFactory)
     private readonly createTransactionValidator!: Contracts.State.TransactionValidatorFactory;
 
@@ -26,11 +23,23 @@ export class Collator implements Contracts.TransactionPool.Collator {
     private readonly logger!: Contracts.Kernel.Logger;
 
     public async getBlockCandidateTransactions(): Promise<Interfaces.ITransaction[]> {
-        let bytesLeft: number | undefined = this.configuration.get<number>("maxTransactionBytes");
-        let bytesLeftNext: number | undefined;
-
         const height: number = this.blockchain.getLastBlock().data.height;
         const milestone = Managers.configManager.getMilestone(height);
+        const blockHeaderSize =
+            4 + // version
+            4 + // timestamp
+            4 + // height
+            (milestone.block.idFullSha256 ? 32 : 8) + // previousBlockId
+            4 + // numberOfTransactions
+            8 + // totalAmount
+            8 + // totalFee
+            8 + // reward
+            4 + // payloadLength
+            32 + // payloadHash
+            33; // generatorPublicKey
+
+        let bytesLeft: number = milestone.block.maxPayload - blockHeaderSize;
+
         const candidateTransactions: Interfaces.ITransaction[] = [];
         const validator: Contracts.State.TransactionValidator = this.createTransactionValidator();
         const failedTransactions: Interfaces.ITransaction[] = [];
@@ -44,23 +53,21 @@ export class Collator implements Contracts.TransactionPool.Collator {
                 continue;
             }
 
-            if (await this.expirationService.isExpired(transaction)) {
-                failedTransactions.push(transaction);
-                continue;
-            }
+            try {
+                if (await this.expirationService.isExpired(transaction)) {
+                    const expirationHeight: number = await this.expirationService.getExpirationHeight(transaction);
+                    throw new TransactionHasExpiredError(transaction, expirationHeight);
+                }
 
-            if (bytesLeft !== undefined) {
-                bytesLeftNext = bytesLeft - JSON.stringify(transaction.data).length;
-
-                if (bytesLeftNext < 0) {
+                if (bytesLeft - 4 - transaction.serialized.length < 0) {
                     break;
                 }
-            }
 
-            try {
                 await validator.validate(transaction);
                 candidateTransactions.push(transaction);
-                bytesLeft = bytesLeftNext;
+
+                bytesLeft -= 4;
+                bytesLeft -= transaction.serialized.length;
             } catch (error) {
                 this.logger.warning(`${transaction} failed to collate: ${error.message}`);
                 failedTransactions.push(transaction);

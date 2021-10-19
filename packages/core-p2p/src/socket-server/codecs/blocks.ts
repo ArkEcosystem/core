@@ -1,3 +1,4 @@
+import { Contracts } from "@arkecosystem/core-kernel";
 import { Utils } from "@arkecosystem/crypto";
 import { blocks } from "./proto/protos";
 
@@ -11,53 +12,59 @@ export const getBlocks = {
     },
     response: {
         serialize: (obj): Buffer => {
-            const blocksEncoded: Buffer[] = [];
+            const blockBuffers: Buffer[] = [];
+
             for (const block of obj) {
+                let txBuffers: Buffer[] = [];
+
+                if (block.transactions) {
+                    for (const transaction of block.transactions) {
+                        const txBuffer = Buffer.from(transaction, "hex");
+                        const txLengthBuffer = Buffer.alloc(4);
+                        txLengthBuffer.writeUInt32BE(txBuffer.byteLength);
+                        txBuffers.push(txLengthBuffer, txBuffer);
+                    }
+                }
+
                 const blockEncoded = blocks.GetBlocksResponse.BlockHeader.encode({
                     ...block,
                     totalAmount: block.totalAmount.toString(),
                     totalFee: block.totalFee.toString(),
                     reward: block.reward.toString(),
-                    transactions: block.transactions ? block.transactions.reduce(
-                        (acc, curr) => {
-                            const txBuffer = Buffer.from(curr, "hex");
-                            const txByteLength = Buffer.alloc(4);
-                            txByteLength.writeUInt32BE(txBuffer.byteLength);
-                            return Buffer.concat([acc, txByteLength, txBuffer]);
-                        },
-                        Buffer.alloc(0)
-                    ) : Buffer.alloc(0),
+                    transactions: Buffer.concat(txBuffers),
                 }).finish();
-                blocksEncoded.push(Buffer.from(blockEncoded));
+
+                const blockBuffer = Buffer.from(blockEncoded);
+                const blockLengthBuffer = Buffer.alloc(4);
+                blockLengthBuffer.writeUInt32BE(blockBuffer.length);
+                blockBuffers.push(blockLengthBuffer, blockBuffer);
             }
 
-            return blocksEncoded.reduce((acc, curr) => {
-                    const txByteLength = Buffer.alloc(4);
-                    txByteLength.writeUInt32BE(curr.byteLength);
-                    return Buffer.concat([acc, txByteLength, curr]);
-                },
-                Buffer.alloc(0)
-            );
+            return Buffer.concat(blockBuffers);
         },
         deserialize: (payload: Buffer) => {
             const blocksBuffer = Buffer.from(payload);
             const blocksBuffers: Buffer[] = [];
-            for (let offset = 0; offset < (blocksBuffer.byteLength - 4);) {
+            for (let offset = 0; offset < blocksBuffer.byteLength - 4; ) {
                 const blockLength = blocksBuffer.readUInt32BE(offset);
                 blocksBuffers.push(blocksBuffer.slice(offset + 4, offset + 4 + blockLength));
                 offset += 4 + blockLength;
-                if (blocksBuffers.length > hardLimitNumberOfBlocks) { break; }
+                if (blocksBuffers.length > hardLimitNumberOfBlocks) {
+                    break;
+                }
             }
 
-            return blocksBuffers.map(blockBuffer => {
+            return blocksBuffers.map((blockBuffer) => {
                 const blockWithTxBuffer = blocks.GetBlocksResponse.BlockHeader.decode(blockBuffer);
                 const txsBuffer = Buffer.from(blockWithTxBuffer.transactions);
                 const txs: string[] = [];
-                for (let offset = 0; offset < (txsBuffer.byteLength - 4);) {
+                for (let offset = 0; offset < txsBuffer.byteLength - 4; ) {
                     const txLength = txsBuffer.readUInt32BE(offset);
                     txs.push(txsBuffer.slice(offset + 4, offset + 4 + txLength).toString("hex"));
                     offset += 4 + txLength;
-                    if (txs.length > hardLimitNumberOfTransactions) { break; }
+                    if (txs.length > hardLimitNumberOfTransactions) {
+                        break;
+                    }
                 }
                 return {
                     ...blockWithTxBuffer,
@@ -65,8 +72,8 @@ export const getBlocks = {
                     totalFee: new Utils.BigNumber(blockWithTxBuffer.totalFee as string),
                     reward: new Utils.BigNumber(blockWithTxBuffer.reward as string),
                     transactions: txs,
-                }
-            })
+                };
+            });
         },
     },
 };
@@ -83,11 +90,11 @@ export const postBlock = {
         },
     },
     response: {
-        serialize: (status: boolean): Buffer => {
-            const buf = Buffer.alloc(1);
-            buf.writeUInt8(status ? 1 : 0);
-            return buf;
+        serialize: (obj: blocks.IPostBlockResponse): Buffer => {
+            return Buffer.from(blocks.PostBlockResponse.encode(obj).finish());
         },
-        deserialize: (payload: Buffer): boolean => !!payload.readUInt8(),
+        deserialize: (payload: Buffer): Contracts.P2P.PostBlockResponse => {
+            return blocks.PostBlockResponse.decode(payload);
+        },
     },
 };

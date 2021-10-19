@@ -70,7 +70,29 @@ describe("UpdateCommand", () => {
             exitCode: 0,
         });
 
-        await cli.withFlags({ force: true }).execute(Command);
+        await cli.withFlags({ force: true, updateProcessManager: true }).execute(Command);
+
+        // yarn info peerDependencies
+        // yarn global add
+        // pm2 update
+        expect(sync).toHaveBeenCalledTimes(3);
+    });
+
+    it("should update and reset without a prompt if the [--force --reset] flag is present", async () => {
+        const response = { ...versionNext };
+        response["dist-tags"].next = "4.0.0-next.0";
+        response.versions["4.0.0-next.0"] = { ...response.versions["2.5.0-next.10"] };
+        response.versions["4.0.0-next.0"] = { ...response.versions["2.5.0-next.10"], ...{ version: "4.0.0-next.0" } };
+
+        nock(/.*/).get("/@arkecosystem%2Fcore").reply(200, response);
+
+        const sync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
+            stdout: '"null"',
+            stderr: undefined,
+            exitCode: 0,
+        });
+
+        await cli.withFlags({ force: true, reset: true, updateProcessManager: true }).execute(Command);
 
         // yarn info peerDependencies
         // yarn global add
@@ -78,7 +100,7 @@ describe("UpdateCommand", () => {
         // restart core
         // restart relay
         // restart forger
-        expect(sync).toHaveBeenCalledTimes(6);
+        expect(sync).toHaveBeenCalledTimes(3);
     });
 
     it("should update with a prompt if the [--force] flag is not present", async () => {
@@ -118,7 +140,7 @@ describe("UpdateCommand", () => {
         });
         jest.spyOn(processManager, "restart").mockImplementation(undefined);
 
-        await cli.withFlags({ force: true, restart: true }).execute(Command);
+        await cli.withFlags({ force: true, restart: true, updateProcessManager: true }).execute(Command);
 
         // yarn info peerDependencies
         // yarn global add
@@ -144,7 +166,7 @@ describe("UpdateCommand", () => {
         const isOnline = jest.spyOn(processManager, "isOnline").mockReturnValue(true);
         const restart = jest.spyOn(processManager, "restart").mockImplementation(undefined);
 
-        await cli.withFlags({ force: true, restartCore: true }).execute(Command);
+        await cli.withFlags({ force: true, restartCore: true, updateProcessManager: true }).execute(Command);
 
         expect(sync).toHaveBeenCalledTimes(3);
         expect(isOnline).toHaveBeenCalled();
@@ -167,7 +189,7 @@ describe("UpdateCommand", () => {
         const isOnline = jest.spyOn(processManager, "isOnline").mockReturnValue(true);
         const restart = jest.spyOn(processManager, "restart").mockImplementation(undefined);
 
-        await cli.withFlags({ force: true, restartRelay: true }).execute(Command);
+        await cli.withFlags({ force: true, restartRelay: true, updateProcessManager: true }).execute(Command);
 
         expect(sync).toHaveBeenCalledTimes(3);
         expect(isOnline).toHaveBeenCalled();
@@ -190,7 +212,7 @@ describe("UpdateCommand", () => {
         const isOnline = jest.spyOn(processManager, "isOnline").mockReturnValue(true);
         const restart = jest.spyOn(processManager, "restart").mockImplementation(undefined);
 
-        await cli.withFlags({ force: true, restartForger: true }).execute(Command);
+        await cli.withFlags({ force: true, restartForger: true, updateProcessManager: true }).execute(Command);
 
         expect(sync).toHaveBeenCalledTimes(3);
         expect(isOnline).toHaveBeenCalled();
@@ -221,7 +243,7 @@ describe("UpdateCommand", () => {
 
         await cli.execute(Command);
 
-        expect(sync).toHaveBeenCalled();
+        expect(sync).toHaveBeenCalledTimes(2);
         expect(isOnline).toHaveBeenCalled();
         expect(restart).toHaveBeenCalledTimes(3);
     });

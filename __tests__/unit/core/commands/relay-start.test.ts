@@ -22,7 +22,7 @@ describe("StartCommand", () => {
 
         expect(spyStart).toHaveBeenCalledWith(
             {
-                args: "relay:run --token=ark --network=testnet --v=0 --env=production",
+                args: "relay:run --token='ark' --network='testnet' --v=0 --env='production'",
                 env: {
                     CORE_ENV: "production",
                     NODE_ENV: "production",

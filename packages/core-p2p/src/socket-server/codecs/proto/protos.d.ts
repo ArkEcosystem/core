@@ -98,6 +98,102 @@ export namespace blocks {
         public toJSON(): { [k: string]: any };
     }
 
+    /** Properties of a PostBlockResponse. */
+    interface IPostBlockResponse {
+
+        /** PostBlockResponse status */
+        status?: (boolean|null);
+
+        /** PostBlockResponse height */
+        height?: (number|null);
+    }
+
+    /** Represents a PostBlockResponse. */
+    class PostBlockResponse implements IPostBlockResponse {
+
+        /**
+         * Constructs a new PostBlockResponse.
+         * @param [properties] Properties to set
+         */
+        constructor(properties?: blocks.IPostBlockResponse);
+
+        /** PostBlockResponse status. */
+        public status: boolean;
+
+        /** PostBlockResponse height. */
+        public height: number;
+
+        /**
+         * Creates a new PostBlockResponse instance using the specified properties.
+         * @param [properties] Properties to set
+         * @returns PostBlockResponse instance
+         */
+        public static create(properties?: blocks.IPostBlockResponse): blocks.PostBlockResponse;
+
+        /**
+         * Encodes the specified PostBlockResponse message. Does not implicitly {@link blocks.PostBlockResponse.verify|verify} messages.
+         * @param message PostBlockResponse message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encode(message: blocks.IPostBlockResponse, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Encodes the specified PostBlockResponse message, length delimited. Does not implicitly {@link blocks.PostBlockResponse.verify|verify} messages.
+         * @param message PostBlockResponse message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encodeDelimited(message: blocks.IPostBlockResponse, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Decodes a PostBlockResponse message from the specified reader or buffer.
+         * @param reader Reader or buffer to decode from
+         * @param [length] Message length if known beforehand
+         * @returns PostBlockResponse
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): blocks.PostBlockResponse;
+
+        /**
+         * Decodes a PostBlockResponse message from the specified reader or buffer, length delimited.
+         * @param reader Reader or buffer to decode from
+         * @returns PostBlockResponse
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): blocks.PostBlockResponse;
+
+        /**
+         * Verifies a PostBlockResponse message.
+         * @param message Plain object to verify
+         * @returns `null` if valid, otherwise the reason why it is not
+         */
+        public static verify(message: { [k: string]: any }): (string|null);
+
+        /**
+         * Creates a PostBlockResponse message from a plain object. Also converts values to their respective internal types.
+         * @param object Plain object
+         * @returns PostBlockResponse
+         */
+        public static fromObject(object: { [k: string]: any }): blocks.PostBlockResponse;
+
+        /**
+         * Creates a plain object from a PostBlockResponse message. Also converts values to other types if specified.
+         * @param message PostBlockResponse
+         * @param [options] Conversion options
+         * @returns Plain object
+         */
+        public static toObject(message: blocks.PostBlockResponse, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+        /**
+         * Converts this PostBlockResponse to JSON.
+         * @returns JSON object
+         */
+        public toJSON(): { [k: string]: any };
+    }
+
     /** Properties of a GetBlocksRequest. */
     interface IGetBlocksRequest {
 

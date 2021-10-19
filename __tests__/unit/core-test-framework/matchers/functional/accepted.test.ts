@@ -41,7 +41,9 @@ describe("Accepted", () => {
         it("should not pass due thrown error", async () => {
             // @ts-ignore
             let spyOnPost = jest.spyOn(got, "post").mockImplementation((url: any) => {
-                throw new Error();
+                const error = new Error();
+                error["response"] = { statusCode: 400 };
+                throw error;
             });
 
             await expect(transactions[0]).not.toBeAccepted();
@@ -67,7 +69,9 @@ describe("Accepted", () => {
         it("should not pass due thrown error", async () => {
             // @ts-ignore
             let spyOnPost = jest.spyOn(got, "post").mockImplementation((url: any) => {
-                throw new Error();
+                const error = new Error();
+                error["response"] = { statusCode: 400 };
+                throw error;
             });
 
             await expect(transactions).not.toBeAllAccepted();
@@ -107,7 +111,9 @@ describe("Accepted", () => {
         it("should not pass due thrown error", async () => {
             // @ts-ignore
             let spyOnPost = jest.spyOn(got, "post").mockImplementation((url: any) => {
-                throw new Error();
+                const error = new Error();
+                error["response"] = { statusCode: 400 };
+                throw error;
             });
 
             await expect(transactions).not.toBeEachAccepted();

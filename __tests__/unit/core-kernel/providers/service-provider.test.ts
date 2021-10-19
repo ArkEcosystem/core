@@ -106,7 +106,7 @@ describe("ServiceProvider", () => {
 
         const pluginConfiguration: PluginConfiguration = app
             .resolve(PluginConfiguration)
-            .discover(resolve(__dirname, "../__stubs__/stub-plugin"));
+            .discover("stub-plugin", resolve(__dirname, "../__stubs__/stub-plugin"));
         serviceProvider.setConfig(pluginConfiguration);
 
         expect(serviceProvider.config()).toEqual(pluginConfiguration);

@@ -40,7 +40,7 @@ export class StateMachine {
 
         this.stateStore.setBlockchain(nextState);
 
-        for (const actionKey of nextState.actions) {
+        for (const actionKey of nextState.actions.map((action) => action.type)) {
             let action: Action;
             try {
                 action = this.app.resolve(actions[actionKey]);

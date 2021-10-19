@@ -1,6 +1,7 @@
 import { Container, Contracts, Enums, Services, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { NetworkStateStatus } from "@arkecosystem/core-p2p";
 import { Blocks, Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
+import { Handlers } from "@arkecosystem/core-transactions";
 
 import { Client } from "./client";
 import { HostNoResponseError, RelayCommunicationError } from "./errors";
@@ -24,6 +25,14 @@ export class ForgerService {
      */
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
+
+    /**
+     * @private
+     * @type {Handlers.TransactionHandlerProvider}
+     * @memberof ForgerService
+     */
+    @Container.inject(Container.Identifiers.TransactionHandlerProvider)
+    private readonly handlerProvider!: Handlers.TransactionHandlerProvider;
 
     /**
      * @private
@@ -108,6 +117,10 @@ export class ForgerService {
      * @memberof ForgerService
      */
     public async boot(delegates: Delegate[]): Promise<void> {
+        if (this.handlerProvider.isRegistrationRequired()) {
+            this.handlerProvider.registerHandlers();
+        }
+
         this.delegates = delegates;
 
         let timeout: number = 2000;
@@ -177,7 +190,9 @@ export class ForgerService {
 
             if (networkState.getNodeHeight() !== this.round.lastBlock.height) {
                 this.logger.warning(
-                    `The NetworkState height (${networkState.getNodeHeight()?.toLocaleString()}) and round height (${this.round.lastBlock.height.toLocaleString()}) are out of sync. This indicates delayed blocks on the network.`,
+                    `The NetworkState height (${networkState
+                        .getNodeHeight()
+                        ?.toLocaleString()}) and round height (${this.round.lastBlock.height.toLocaleString()}) are out of sync. This indicates delayed blocks on the network.`,
                 );
             }
 

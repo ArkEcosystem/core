@@ -5,11 +5,11 @@ import { Managers } from "@arkecosystem/crypto";
 let mockConfig;
 let version;
 let appPlugins;
+let coreApiServiceProviderConfiguration;
 let coreApiServiceProvider;
 let coreWebhooksServiceProvider;
 let coreP2PServiceProvider;
 let serviceProviders;
-let mergedConfiguration;
 let app;
 let result;
 
@@ -30,19 +30,31 @@ beforeEach(() => {
         { package: "@arkecosystem/core-webhooks" },
         { package: "@arkecosystem/core-p2p" },
     ];
+
     coreApiServiceProvider = {
         name: () => "core-api",
-        configDefaults: () => ({
-            server: { http: { port: 4003 } },
+        config: () => ({
+            all: () => coreApiServiceProviderConfiguration,
         }),
     };
     coreWebhooksServiceProvider = {
         name: () => "core-webhooks",
-        configDefaults: () => ({}),
+        config: () => ({
+            all: () => ({
+                enabled: true,
+                server: {
+                    http: {
+                        port: 4004,
+                    },
+                },
+            }),
+        }),
     };
     coreP2PServiceProvider = {
         name: () => "core-p2p",
-        configDefaults: () => ({}),
+        config: () => ({
+            all: () => ({}),
+        }),
     };
     serviceProviders = {
         "@arkecosystem/core-api": coreApiServiceProvider,
@@ -56,38 +68,9 @@ beforeEach(() => {
         [Container.Identifiers.ServiceProviderRepository]: serviceProviderRepository,
     };
 
-    mergedConfiguration = {
-        server: {
-            http: {
-                port: "4003",
-            },
-        },
-        options: {
-            estimateTotalCount: true,
-        },
-    };
-
     app = {
         version: () => version,
         get: (key) => appGet[key],
-        resolve: () => ({
-            from: () => ({
-                merge: () => ({
-                    all: () => mergedConfiguration,
-                }),
-            }),
-            discover: () => ({
-                merge: () => ({
-                    all: () => ({
-                        server: {
-                            http: {
-                                port: "4004",
-                            },
-                        },
-                    }),
-                }),
-            }),
-        }),
     };
 
     result = {
@@ -118,62 +101,85 @@ beforeEach(() => {
 
 describe("getPeerConfig", () => {
     it("should omit a plugin if it is storing the [port] at the root of the options", () => {
-        // @ts-ignore
-        mergedConfiguration = mergedConfiguration.server.http;
-        delete mergedConfiguration.server;
+        coreApiServiceProviderConfiguration = {
+            enabled: true,
+            port: 4003,
+        };
 
         delete result.plugins["@arkecosystem/core-api"];
-
         expect(getPeerConfig(app)).toEqual(result);
     });
 
     it("should omit a plugin if it is storing the [port] in the [options] key", () => {
-        // @ts-ignore
-        mergedConfiguration.options = mergedConfiguration.server.http;
-        delete mergedConfiguration.server;
+        coreApiServiceProviderConfiguration = {
+            enabled: true,
+            options: {
+                port: 4003,
+            },
+        };
 
         delete result.plugins["@arkecosystem/core-api"];
-
         expect(getPeerConfig(app)).toEqual(result);
     });
 
     it("should omit a plugin if it is storing the [port] in the [server] object", () => {
-        // @ts-ignore
-        mergedConfiguration.server = mergedConfiguration.server.http;
-        delete mergedConfiguration.server;
+        coreApiServiceProviderConfiguration = {
+            enabled: true,
+            server: {
+                port: 4003,
+            },
+        };
 
         delete result.plugins["@arkecosystem/core-api"];
-
         expect(getPeerConfig(app)).toEqual(result);
     });
 
     it("should accept a plugin if it is storing the [port] in the [server.http] object", () => {
+        coreApiServiceProviderConfiguration = {
+            enabled: true,
+            server: {
+                http: {
+                    port: 4003,
+                }
+            },
+            options: {
+                estimateTotalCount: true
+            }
+        };
+
         expect(getPeerConfig(app)).toEqual(result);
     });
 
     it("should accept a plugin if it is storing the [port] in the [server.https] object", () => {
-        // @ts-ignore
-        mergedConfiguration.server.https = mergedConfiguration.server.http;
-        delete mergedConfiguration.server.http;
+        coreApiServiceProviderConfiguration = {
+            enabled: true,
+            server: {
+                https: {
+                    port: 4003,
+                }
+            },
+            options: {
+                estimateTotalCount: true
+            }
+        };
 
         expect(getPeerConfig(app)).toEqual(result);
     });
 
     it("should return plugins enabled value if enabled property is listed in configuration", () => {
-        mergedConfiguration.enabled = false;
+        coreApiServiceProviderConfiguration = {
+            enabled: false,
+            server: {
+                http: {
+                    port: 4003,
+                }
+            },
+            options: {
+                estimateTotalCount: true
+            }
+        };
 
         result.plugins["@arkecosystem/core-api"].enabled = false;
-
-        expect(getPeerConfig(app)).toEqual(result);
-    });
-
-    it("should return own config from config manager without configuration", () => {
-        // @ts-ignore
-        mergedConfiguration = undefined;
-        appPlugins[0].options = undefined;
-
-        delete result.plugins["@arkecosystem/core-api"];
-
         expect(getPeerConfig(app)).toEqual(result);
     });
 });

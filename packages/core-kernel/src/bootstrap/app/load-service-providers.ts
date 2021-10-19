@@ -5,10 +5,19 @@ import { ConfigRepository } from "../../services/config";
 import { JsonObject } from "../../types";
 import { assert } from "../../utils";
 import { Bootstrapper } from "../interfaces";
+import { join } from "path";
+import { readJSONSync } from "fs-extra";
+import glob from "glob";
 
 interface PluginEntry {
     package: string;
     options: JsonObject;
+}
+
+interface Plugin {
+    path: string;
+    name: string;
+    version: string;
 }
 
 /**
@@ -53,10 +62,15 @@ export class LoadServiceProviders implements Bootstrapper {
 
         assert.defined<PluginEntry[]>(plugins);
 
+        const installedPlugins = await this.discoverPlugins(this.app.dataPath("plugins"));
+
         for (const plugin of plugins) {
-            const serviceProvider: ServiceProvider = this.app.resolve(require(plugin.package).ServiceProvider);
-            serviceProvider.setManifest(this.app.resolve(PluginManifest).discover(plugin.package));
-            serviceProvider.setConfig(this.discoverConfiguration(serviceProvider, plugin.options));
+            const installedPlugin = installedPlugins.find((installedPlugin) => installedPlugin.name === plugin.package);
+            const packageId = installedPlugin ? installedPlugin.path : plugin.package;
+
+            const serviceProvider: ServiceProvider = this.app.resolve(require(packageId).ServiceProvider);
+            serviceProvider.setManifest(this.app.resolve(PluginManifest).discover(packageId));
+            serviceProvider.setConfig(this.discoverConfiguration(serviceProvider, plugin.options, packageId));
 
             this.serviceProviderRepository.set(plugin.package, serviceProvider);
 
@@ -74,10 +88,15 @@ export class LoadServiceProviders implements Bootstrapper {
      * @private
      * @param {ServiceProvider} serviceProvider
      * @param {JsonObject} options
+     * @param packageId
      * @returns {PluginConfiguration}
      * @memberof LoadServiceProviders
      */
-    private discoverConfiguration(serviceProvider: ServiceProvider, options: JsonObject): PluginConfiguration {
+    private discoverConfiguration(
+        serviceProvider: ServiceProvider,
+        options: JsonObject,
+        packageId: string,
+    ): PluginConfiguration {
         const serviceProviderName: string | undefined = serviceProvider.name();
 
         assert.defined<string>(serviceProviderName);
@@ -91,6 +110,26 @@ export class LoadServiceProviders implements Bootstrapper {
                 .merge(options);
         }
 
-        return this.app.resolve(PluginConfiguration).discover(serviceProviderName).merge(options);
+        return this.app.resolve(PluginConfiguration).discover(serviceProviderName, packageId).merge(options);
+    }
+
+    private async discoverPlugins(path: string): Promise<Plugin[]> {
+        const plugins: Plugin[] = [];
+
+        const packagePaths = glob
+            .sync("{*/*/package.json,*/package.json}", { cwd: path })
+            .map((packagePath) => join(path, packagePath).slice(0, -"/package.json".length));
+
+        for (let packagePath of packagePaths) {
+            const packageJson = readJSONSync(join(packagePath, "package.json"));
+
+            plugins.push({
+                path: packagePath,
+                name: packageJson.name,
+                version: packageJson.version,
+            });
+        }
+
+        return plugins;
     }
 }

@@ -9,51 +9,6 @@ on:
         types: [ready_for_review, synchronize, opened]
 
 jobs:
-    codecov:
-        needs:
-            - core-database
-            - bridgechain-registration
-            - bridgechain-resignation
-            - bridgechain-update
-            - business-registration
-            - business-resignation
-            - business-update
-            - delegate-registration
-            - delegate-resignation
-            - htlc-claim
-            - htlc-lock
-            - htlc-refund
-            - ipfs
-            - multi-payment
-            - multi-signature-registration
-            - second-signature-registration
-            - transfer
-            - vote
-            - entity-register
-            - entity-resign
-            - entity-update
-
-        runs-on: ubuntu-latest
-
-        strategy:
-            matrix:
-                node-version: [12.x]
-
-        steps:
-            - uses: actions/checkout@v1
-
-            - name: Download code coverage
-              uses: actions/download-artifact@v2
-              with:
-                  path: .artifacts
-
-            - name: Upload code coverage to codecov.io
-              uses: codecov/codecov-action@v1
-              with:
-                  file: .artifacts/*-coverage/lcov.info
-                  flags: functional
-                  fail_ci_if_error: true
-
     core-database:
         runs-on: ubuntu-latest
 
@@ -81,6 +36,10 @@ jobs:
 
         steps:
             - uses: actions/checkout@v2
+            - name: Set up Python 2.7
+              uses: actions/setup-python@v2
+              with:
+                  python-version: "2.7"
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -133,6 +92,10 @@ jobs:
 
         steps:
             - uses: actions/checkout@v2
+            - name: Set up Python 2.7
+              uses: actions/setup-python@v2
+              with:
+                  python-version: "2.7"
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -188,6 +151,10 @@ jobs:
 
         steps:
             - uses: actions/checkout@v2
+            - name: Set up Python 2.7
+              uses: actions/setup-python@v2
+              with:
+                  python-version: "2.7"
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -243,6 +210,10 @@ jobs:
 
         steps:
             - uses: actions/checkout@v2
+            - name: Set up Python 2.7
+              uses: actions/setup-python@v2
+              with:
+                  python-version: "2.7"
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -298,6 +269,10 @@ jobs:
 
         steps:
             - uses: actions/checkout@v2
+            - name: Set up Python 2.7
+              uses: actions/setup-python@v2
+              with:
+                  python-version: "2.7"
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -353,6 +328,10 @@ jobs:
 
         steps:
             - uses: actions/checkout@v2
+            - name: Set up Python 2.7
+              uses: actions/setup-python@v2
+              with:
+                  python-version: "2.7"
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -408,6 +387,10 @@ jobs:
 
         steps:
             - uses: actions/checkout@v2
+            - name: Set up Python 2.7
+              uses: actions/setup-python@v2
+              with:
+                  python-version: "2.7"
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -463,6 +446,10 @@ jobs:
 
         steps:
             - uses: actions/checkout@v2
+            - name: Set up Python 2.7
+              uses: actions/setup-python@v2
+              with:
+                  python-version: "2.7"
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -518,6 +505,10 @@ jobs:
 
         steps:
             - uses: actions/checkout@v2
+            - name: Set up Python 2.7
+              uses: actions/setup-python@v2
+              with:
+                  python-version: "2.7"
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -573,6 +564,10 @@ jobs:
 
         steps:
             - uses: actions/checkout@v2
+            - name: Set up Python 2.7
+              uses: actions/setup-python@v2
+              with:
+                  python-version: "2.7"
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -628,6 +623,10 @@ jobs:
 
         steps:
             - uses: actions/checkout@v2
+            - name: Set up Python 2.7
+              uses: actions/setup-python@v2
+              with:
+                  python-version: "2.7"
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -683,6 +682,10 @@ jobs:
 
         steps:
             - uses: actions/checkout@v2
+            - name: Set up Python 2.7
+              uses: actions/setup-python@v2
+              with:
+                  python-version: "2.7"
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -738,6 +741,10 @@ jobs:
 
         steps:
             - uses: actions/checkout@v2
+            - name: Set up Python 2.7
+              uses: actions/setup-python@v2
+              with:
+                  python-version: "2.7"
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -793,6 +800,10 @@ jobs:
 
         steps:
             - uses: actions/checkout@v2
+            - name: Set up Python 2.7
+              uses: actions/setup-python@v2
+              with:
+                  python-version: "2.7"
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -848,6 +859,10 @@ jobs:
 
         steps:
             - uses: actions/checkout@v2
+            - name: Set up Python 2.7
+              uses: actions/setup-python@v2
+              with:
+                  python-version: "2.7"
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -877,12 +892,6 @@ jobs:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
 
-            - name: Archive code coverage
-              uses: actions/upload-artifact@v2
-              with:
-                  name: codecov-fun${{ github.job }}-ctional
-                  path: .coverage/functional/${{ github.job }}/lcov.info
-
     second-signature-registration:
         runs-on: ubuntu-latest
 
@@ -903,6 +912,10 @@ jobs:
 
         steps:
             - uses: actions/checkout@v2
+            - name: Set up Python 2.7
+              uses: actions/setup-python@v2
+              with:
+                  python-version: "2.7"
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -932,12 +945,6 @@ jobs:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
 
-            - name: Archive code coverage
-              uses: actions/upload-artifact@v2
-              with:
-                  name: codecov-fun${{ github.job }}-ctional
-                  path: .coverage/functional/${{ github.job }}/lcov.info
-
     transfer:
         runs-on: ubuntu-latest
 
@@ -958,6 +965,10 @@ jobs:
 
         steps:
             - uses: actions/checkout@v2
+            - name: Set up Python 2.7
+              uses: actions/setup-python@v2
+              with:
+                  python-version: "2.7"
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -986,12 +997,6 @@ jobs:
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
-
-            - name: Archive code coverage
-              uses: actions/upload-artifact@v2
-              with:
-                  name: codecov-fun${{ github.job }}-ctional
-                  path: .coverage/functional/${{ github.job }}/lcov.info
 
     vote:
         runs-on: ubuntu-latest
@@ -1042,12 +1047,6 @@ jobs:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
 
-            - name: Archive code coverage
-              uses: actions/upload-artifact@v2
-              with:
-                  name: codecov-fun${{ github.job }}-ctional
-                  path: .coverage/functional/${{ github.job }}/lcov.info
-
     entity-register:
         runs-on: ubuntu-latest
 
@@ -1096,12 +1095,6 @@ jobs:
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
-
-            - name: Archive code coverage
-              uses: actions/upload-artifact@v2
-              with:
-                  name: codecov-fun${{ github.job }}-ctional
-                  path: .coverage/functional/${{ github.job }}/lcov.info
 
     entity-resign:
         runs-on: ubuntu-latest
@@ -1152,12 +1145,6 @@ jobs:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
 
-            - name: Archive code coverage
-              uses: actions/upload-artifact@v2
-              with:
-                  name: codecov-fun${{ github.job }}-ctional
-                  path: .coverage/functional/${{ github.job }}/lcov.info
-
     entity-update:
         runs-on: ubuntu-latest
 
@@ -1177,7 +1164,11 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
+            - name: Set up Python 2.7
+              uses: actions/setup-python@v2
+              with:
+                  python-version: "2.7"
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -1206,9 +1197,3 @@ jobs:
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
-
-            - name: Archive code coverage
-              uses: actions/upload-artifact@v2
-              with:
-                  name: codecov-fun${{ github.job }}-ctional
-                  path: .coverage/functional/${{ github.job }}/lcov.info

@@ -242,6 +242,216 @@ $root.blocks = (function() {
         return PostBlockRequest;
     })();
 
+    blocks.PostBlockResponse = (function() {
+
+        /**
+         * Properties of a PostBlockResponse.
+         * @memberof blocks
+         * @interface IPostBlockResponse
+         * @property {boolean|null} [status] PostBlockResponse status
+         * @property {number|null} [height] PostBlockResponse height
+         */
+
+        /**
+         * Constructs a new PostBlockResponse.
+         * @memberof blocks
+         * @classdesc Represents a PostBlockResponse.
+         * @implements IPostBlockResponse
+         * @constructor
+         * @param {blocks.IPostBlockResponse=} [properties] Properties to set
+         */
+        function PostBlockResponse(properties) {
+            if (properties)
+                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * PostBlockResponse status.
+         * @member {boolean} status
+         * @memberof blocks.PostBlockResponse
+         * @instance
+         */
+        PostBlockResponse.prototype.status = false;
+
+        /**
+         * PostBlockResponse height.
+         * @member {number} height
+         * @memberof blocks.PostBlockResponse
+         * @instance
+         */
+        PostBlockResponse.prototype.height = 0;
+
+        /**
+         * Creates a new PostBlockResponse instance using the specified properties.
+         * @function create
+         * @memberof blocks.PostBlockResponse
+         * @static
+         * @param {blocks.IPostBlockResponse=} [properties] Properties to set
+         * @returns {blocks.PostBlockResponse} PostBlockResponse instance
+         */
+        PostBlockResponse.create = function create(properties) {
+            return new PostBlockResponse(properties);
+        };
+
+        /**
+         * Encodes the specified PostBlockResponse message. Does not implicitly {@link blocks.PostBlockResponse.verify|verify} messages.
+         * @function encode
+         * @memberof blocks.PostBlockResponse
+         * @static
+         * @param {blocks.IPostBlockResponse} message PostBlockResponse message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        PostBlockResponse.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            if (message.status != null && Object.hasOwnProperty.call(message, "status"))
+                writer.uint32(/* id 1, wireType 0 =*/8).bool(message.status);
+            if (message.height != null && Object.hasOwnProperty.call(message, "height"))
+                writer.uint32(/* id 2, wireType 0 =*/16).uint32(message.height);
+            return writer;
+        };
+
+        /**
+         * Encodes the specified PostBlockResponse message, length delimited. Does not implicitly {@link blocks.PostBlockResponse.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof blocks.PostBlockResponse
+         * @static
+         * @param {blocks.IPostBlockResponse} message PostBlockResponse message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        PostBlockResponse.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes a PostBlockResponse message from the specified reader or buffer.
+         * @function decode
+         * @memberof blocks.PostBlockResponse
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {blocks.PostBlockResponse} PostBlockResponse
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        PostBlockResponse.decode = function decode(reader, length) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.blocks.PostBlockResponse();
+            while (reader.pos < end) {
+                var tag = reader.uint32();
+                switch (tag >>> 3) {
+                case 1:
+                    message.status = reader.bool();
+                    break;
+                case 2:
+                    message.height = reader.uint32();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Decodes a PostBlockResponse message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof blocks.PostBlockResponse
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {blocks.PostBlockResponse} PostBlockResponse
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        PostBlockResponse.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies a PostBlockResponse message.
+         * @function verify
+         * @memberof blocks.PostBlockResponse
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        PostBlockResponse.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            if (message.status != null && message.hasOwnProperty("status"))
+                if (typeof message.status !== "boolean")
+                    return "status: boolean expected";
+            if (message.height != null && message.hasOwnProperty("height"))
+                if (!$util.isInteger(message.height))
+                    return "height: integer expected";
+            return null;
+        };
+
+        /**
+         * Creates a PostBlockResponse message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof blocks.PostBlockResponse
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {blocks.PostBlockResponse} PostBlockResponse
+         */
+        PostBlockResponse.fromObject = function fromObject(object) {
+            if (object instanceof $root.blocks.PostBlockResponse)
+                return object;
+            var message = new $root.blocks.PostBlockResponse();
+            if (object.status != null)
+                message.status = Boolean(object.status);
+            if (object.height != null)
+                message.height = object.height >>> 0;
+            return message;
+        };
+
+        /**
+         * Creates a plain object from a PostBlockResponse message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof blocks.PostBlockResponse
+         * @static
+         * @param {blocks.PostBlockResponse} message PostBlockResponse
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        PostBlockResponse.toObject = function toObject(message, options) {
+            if (!options)
+                options = {};
+            var object = {};
+            if (options.defaults) {
+                object.status = false;
+                object.height = 0;
+            }
+            if (message.status != null && message.hasOwnProperty("status"))
+                object.status = message.status;
+            if (message.height != null && message.hasOwnProperty("height"))
+                object.height = message.height;
+            return object;
+        };
+
+        /**
+         * Converts this PostBlockResponse to JSON.
+         * @function toJSON
+         * @memberof blocks.PostBlockResponse
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        PostBlockResponse.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        return PostBlockResponse;
+    })();
+
     blocks.GetBlocksRequest = (function() {
 
         /**

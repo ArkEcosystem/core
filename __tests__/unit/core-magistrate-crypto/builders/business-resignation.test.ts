@@ -1,7 +1,7 @@
 import "jest-extended";
 
-import { BusinessResignationTransaction } from "@arkecosystem/core-magistrate-crypto/dist/transactions";
 import { BusinessResignationBuilder } from "@packages/core-magistrate-crypto/src/builders";
+import { BusinessResignationTransaction } from "@packages/core-magistrate-crypto/src/transactions";
 import { Managers, Transactions } from "@packages/crypto";
 
 let builder: BusinessResignationBuilder;

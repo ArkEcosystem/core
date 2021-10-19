@@ -4,6 +4,7 @@ import { ApiInjectClient } from "@arkecosystem/core-test-framework";
 import { Managers } from "@arkecosystem/crypto";
 
 import { setUp, tearDown } from "../__support__/setup";
+import { setIndexes } from "../__support__/set-indexes";
 
 let app: Application;
 
@@ -45,7 +46,7 @@ beforeAll(async () => {
         };
 
         wallet.setAttribute("entities", walletEntities);
-        walletRepository.index(wallet);
+        setIndexes(walletRepository, wallet);
 
         entityType = ++entityType % 4;
         entitySubType = ++entitySubType % 3;

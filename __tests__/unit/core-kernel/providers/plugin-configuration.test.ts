@@ -26,7 +26,10 @@ describe("PluginConfiguration", () => {
     });
 
     it("should discover the defaults for the given plugin", () => {
-        pluginConfiguration.discover(resolve(__dirname, "../__stubs__/stub-plugin-with-defaults"));
+        pluginConfiguration.discover(
+            "stub-plugin-with-defaults",
+            resolve(__dirname, "../__stubs__/stub-plugin-with-defaults"),
+        );
 
         expect(pluginConfiguration.all()).toEqual({ defaultKey: "defaultValue" });
     });
