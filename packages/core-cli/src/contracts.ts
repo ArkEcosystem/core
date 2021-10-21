@@ -55,6 +55,16 @@ export interface Installer {
     installFromChannel(pkg: string, channel: string): void;
 }
 
+export interface Plugin {
+    path: string;
+    name: string;
+    version: string;
+}
+
+export interface PluginManager {
+    list(token: string, network: string): Promise<Plugin[]>;
+}
+
 export enum ProcessState {
     Online = "online",
     Stopped = "stopped",

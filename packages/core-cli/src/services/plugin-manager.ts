@@ -2,22 +2,17 @@ import { readJSONSync } from "fs-extra";
 import glob from "glob";
 import { join } from "path";
 
+import * as Contracts from "../contracts";
 import { Identifiers, inject, injectable } from "../ioc";
 import { Environment } from "./environment";
 
-interface Plugin {
-    path: string;
-    name: string;
-    version: string;
-}
-
 @injectable()
-export class PluginManager {
+export class PluginManager implements Contracts.PluginManager {
     @inject(Identifiers.Environment)
     private readonly environment!: Environment;
 
-    public async list(token: string, network: string): Promise<Plugin[]> {
-        const plugins: Plugin[] = [];
+    public async list(token: string, network: string): Promise<Contracts.Plugin[]> {
+        const plugins: Contracts.Plugin[] = [];
 
         const path = this.getPluginsPath(token, network);
 
