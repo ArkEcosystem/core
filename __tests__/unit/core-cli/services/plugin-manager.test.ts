@@ -133,4 +133,20 @@ describe("DiscoverPlugins", () => {
             expect(npmUpdateCalled).toEqual(true);
         });
     });
+
+    describe("remove", () => {
+        it("should throw when the plugin doesn't exist", async () => {
+            await expect(pluginManager.remove("ark", "testnet", packageName)).rejects.toThrow(
+                `The package [${packageName}] does not exist.`,
+            );
+        });
+
+        it("remove plugin if exist", async () => {
+            jest.spyOn(fs, "existsSync").mockReturnValue(true);
+            const removeSync = jest.spyOn(fs, "removeSync");
+
+            await expect(pluginManager.remove("ark", "testnet", packageName)).toResolve();
+            expect(removeSync).toHaveBeenCalled();
+        });
+    });
 });
