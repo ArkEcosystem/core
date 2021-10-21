@@ -125,6 +125,14 @@ export class MemoryLogger implements Logger {
     }
 
     /**
+     * Dispose logger.
+     *
+     * @returns {Promise<void>}
+     * @memberof MemoryLogger
+     */
+    public async dispose(): Promise<void> {}
+
+    /**
      * @private
      * @param {*} level
      * @param {*} message

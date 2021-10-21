@@ -157,6 +157,8 @@ describe("Logger", () => {
         await sleep(100);
 
         expect(message).toMatch("File stream closed due to an error: Error: Test error");
+
+        await expect(logger.dispose()).toResolve();
     });
 
     it("should rotate the log 3 times", async () => {
@@ -187,5 +189,39 @@ describe("Logger", () => {
         const files = readdirSync(app.logPath());
         expect(files.filter((file) => file.endsWith(".log.gz"))).toHaveLength(3);
         expect(files).toHaveLength(5);
+    });
+
+    describe("make", () => {
+        it("should create a file stream if level is valid", () => {
+            // @ts-ignore
+            expect(logger.combinedFileStream).toBeDefined();
+        });
+
+        it("should not create a file stream if level not is valid", async () => {
+            const logger = await app.resolve<PinoLogger>(PinoLogger).make({
+                levels: {
+                    console: process.env.CORE_LOG_LEVEL || "debug",
+                    file: "invalid",
+                },
+                fileRotator: {
+                    interval: "1d",
+                },
+            });
+
+            // @ts-ignore
+            expect(logger.combinedFileStream).not.toBeDefined();
+        });
+    });
+
+    describe("dispose", () => {
+        it("should dispose before make", async () => {
+            const logger = await app.resolve<PinoLogger>(PinoLogger);
+
+            await expect(logger.dispose()).toResolve();
+        });
+
+        it("should dispose after make", async () => {
+            await expect(logger.dispose()).toResolve();
+        });
     });
 });
