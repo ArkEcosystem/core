@@ -1,5 +1,6 @@
 import { Console } from "@arkecosystem/core-test-framework";
 import { PluginManager } from "@packages/core-cli/src/services";
+import fs from "fs-extra";
 import { join } from "path";
 import { setGracefulCleanup } from "tmp";
 
@@ -7,10 +8,16 @@ const packageName = "dummyPackageName";
 const install = jest.fn();
 const exists = jest.fn().mockReturnValue(false);
 
+let npmUpdateCalled = false;
+let gitUpdateCalled = false;
+const updateNPM = () => (npmUpdateCalled = true);
+const updateGIT = () => (gitUpdateCalled = true);
+
 jest.mock("@packages/core-cli/src/services/source-providers/npm", () => ({
     NPM: jest.fn().mockImplementation(() => ({
         exists,
         install,
+        update: updateNPM,
     })),
 }));
 
@@ -18,6 +25,7 @@ jest.mock("@packages/core-cli/src/services/source-providers/git", () => ({
     Git: jest.fn().mockImplementation(() => ({
         exists,
         install,
+        update: updateGIT,
     })),
 }));
 
@@ -34,6 +42,9 @@ let pluginManager;
 beforeAll(() => setGracefulCleanup());
 
 beforeEach(() => {
+    gitUpdateCalled = false;
+    npmUpdateCalled = false;
+
     cli = new Console();
 
     pluginManager = cli.app.resolve(PluginManager);
@@ -95,6 +106,31 @@ describe("DiscoverPlugins", () => {
 
             expect(exists).toHaveBeenCalledWith(packageName, version);
             expect(install).toHaveBeenCalledWith(packageName, version);
+        });
+    });
+
+    describe("update", () => {
+        it("should throw when the plugin doesn't exist", async () => {
+            await expect(pluginManager.update("ark", "testnet", packageName)).rejects.toThrow(
+                `The package [${packageName}] does not exist.`,
+            );
+        });
+
+        it("if the plugin is a git directory, it should be updated", async () => {
+            expect(gitUpdateCalled).toEqual(false);
+
+            jest.spyOn(fs, "existsSync").mockReturnValueOnce(true).mockReturnValueOnce(true);
+
+            await expect(pluginManager.update("ark", "testnet", packageName)).toResolve();
+            expect(gitUpdateCalled).toEqual(true);
+        });
+
+        it("if the plugin is a NPM package, it should be updated on default path", async () => {
+            expect(npmUpdateCalled).toEqual(false);
+            jest.spyOn(fs, "existsSync").mockReturnValueOnce(true).mockReturnValueOnce(false);
+
+            await expect(pluginManager.update("ark", "testnet", packageName)).toResolve();
+            expect(npmUpdateCalled).toEqual(true);
         });
     });
 });

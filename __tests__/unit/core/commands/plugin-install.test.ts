@@ -8,6 +8,7 @@ const packageName = "dummyPackageName";
 const install = jest.fn();
 const exists = jest.fn().mockReturnValue(false);
 
+
 jest.mock("@packages/core-cli/src/services/source-providers/npm", () => ({
     NPM: jest.fn().mockImplementation(() => ({
         exists,
