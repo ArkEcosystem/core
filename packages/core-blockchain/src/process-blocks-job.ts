@@ -1,4 +1,4 @@
-import { DatabaseService, Repositories } from "@arkecosystem/core-database";
+import { Repositories } from "@arkecosystem/core-database";
 import { Container, Contracts, Services, Utils } from "@arkecosystem/core-kernel";
 import { DatabaseInteraction } from "@arkecosystem/core-state";
 import { Blocks, Crypto, Interfaces, Utils as CryptoUtils } from "@arkecosystem/crypto";
@@ -20,9 +20,6 @@ export class ProcessBlocksJob implements Contracts.Kernel.QueueJob {
 
     @Container.inject(Container.Identifiers.StateStore)
     private readonly stateStore!: Contracts.State.StateStore;
-
-    @Container.inject(Container.Identifiers.DatabaseService)
-    private readonly database!: DatabaseService;
 
     @Container.inject(Container.Identifiers.DatabaseBlockRepository)
     private readonly blockRepository!: Repositories.BlockRepository;
@@ -180,9 +177,7 @@ export class ProcessBlocksJob implements Contracts.Kernel.QueueJob {
     private async revertBlocks(blocksToRevert: Interfaces.IBlock[]): Promise<void> {
         // Rounds are saved while blocks are being processed and may now be out of sync with the last
         // block that was written into the database.
-
         const lastHeight: number = blocksToRevert[0].data.height;
-        const deleteRoundsAfter: number = Utils.roundCalculator.calculateRound(lastHeight).round;
 
         this.logger.info(
             `Reverting ${Utils.pluralize(
@@ -201,8 +196,6 @@ export class ProcessBlocksJob implements Contracts.Kernel.QueueJob {
             }
         }
 
-        // TODO: Remove, because next rounds are deleted on restore
-        await this.database.deleteRound(deleteRoundsAfter + 1);
         await this.databaseInteraction.restoreCurrentRound();
 
         this.blockchain.clearQueue();
