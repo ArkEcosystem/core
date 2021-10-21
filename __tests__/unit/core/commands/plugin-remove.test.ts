@@ -23,7 +23,6 @@ afterEach(() => {
 
 describe("PluginRemoveCommand", () => {
     it("should throw when package name is not provided", async () => {
-        jest.spyOn(cli.app, "getCorePath").mockReturnValueOnce(null);
         await expect(cli.execute(Command)).rejects.toThrow(`"package" is required`);
 
         expect(spyOnRemove).not.toHaveBeenCalled();

@@ -24,8 +24,7 @@ afterEach(() => {
 
 describe("PluginInstallCommand", () => {
     it("should throw an error when package name is not provided", async () => {
-        const errorMessage = `"package" is required`;
-        await expect(cli.execute(Command)).rejects.toThrow(errorMessage);
+        await expect(cli.execute(Command)).rejects.toThrow(`"package" is required`);
 
         expect(spyOnInstall).not.toHaveBeenCalled();
     });
