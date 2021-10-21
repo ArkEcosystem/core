@@ -87,14 +87,6 @@ export class DatabaseInteraction {
         await this.roundState.restore();
     }
 
-    // TODO: Remove
-    public async getActiveDelegates(
-        roundInfo?: Contracts.Shared.RoundInfo,
-        delegates?: Contracts.State.Wallet[],
-    ): Promise<Contracts.State.Wallet[]> {
-        return this.roundState.getActiveDelegates(roundInfo, delegates);
-    }
-
     private async reset(): Promise<void> {
         await this.databaseService.reset();
         await this.createGenesisBlock();

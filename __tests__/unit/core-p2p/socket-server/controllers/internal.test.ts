@@ -15,10 +15,10 @@ describe("InternalController", () => {
     const networkMonitor = { getNetworkState: jest.fn() };
     const emitter = { dispatch: jest.fn() };
     const database = { getActiveDelegates: jest.fn() };
-    const databaseInteractions = { getActiveDelegates: jest.fn() };
     const poolCollator = { getBlockCandidateTransactions: jest.fn() };
     const poolService = { getPoolSize: jest.fn() };
     const blockchain = { getLastBlock: jest.fn(), forceWakeup: jest.fn() };
+    const triggers = { call: jest.fn() };
 
     beforeEach(() => {
         sandbox = new Sandbox();
@@ -28,10 +28,10 @@ describe("InternalController", () => {
         sandbox.app.bind(Container.Identifiers.PeerNetworkMonitor).toConstantValue(networkMonitor);
         sandbox.app.bind(Container.Identifiers.EventDispatcherService).toConstantValue(emitter);
         sandbox.app.bind(Container.Identifiers.DatabaseService).toConstantValue(database);
-        sandbox.app.bind(Container.Identifiers.DatabaseInteraction).toConstantValue(databaseInteractions);
         sandbox.app.bind(Container.Identifiers.BlockchainService).toConstantValue(blockchain);
         sandbox.app.bind(Container.Identifiers.TransactionPoolService).toConstantValue(poolService);
         sandbox.app.bind(Container.Identifiers.TransactionPoolCollator).toConstantValue(poolCollator);
+        sandbox.app.bind(Container.Identifiers.TriggerService).toConstantValue(triggers);
 
         internalController = sandbox.app.resolve<InternalController>(InternalController);
     });
@@ -124,7 +124,7 @@ describe("InternalController", () => {
                 },
             ];
 
-            databaseInteractions.getActiveDelegates = jest.fn().mockReturnValueOnce(delegates);
+            triggers.call = jest.fn().mockReturnValueOnce(delegates);
             const forgingInfo = {
                 blockTimestamp: 97456,
                 currentForger: 0,
