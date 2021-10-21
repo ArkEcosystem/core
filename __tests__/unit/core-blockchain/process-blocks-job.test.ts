@@ -207,7 +207,6 @@ describe("Blockchain", () => {
             blockchainService.clearQueue = jest.fn();
             blockchainService.resetLastDownloadedBlock = jest.fn();
             databaseInteraction.restoreCurrentRound = jest.fn();
-            databaseService.deleteRound = jest.fn();
             stateStore.setLastStoredBlockHeight = jest.fn();
 
             stateStore.setLastBlock = jest.fn();
@@ -218,7 +217,6 @@ describe("Blockchain", () => {
             expect(blockchainService.clearQueue).toBeCalledTimes(1);
             expect(blockchainService.resetLastDownloadedBlock).toBeCalledTimes(1);
             expect(databaseInteraction.restoreCurrentRound).toBeCalledTimes(1);
-            expect(databaseService.deleteRound).toBeCalledTimes(1);
             expect(stateStore.setLastStoredBlockHeight).not.toBeCalled();
         });
 
@@ -238,7 +236,6 @@ describe("Blockchain", () => {
             blockchainService.clearQueue = jest.fn();
             blockchainService.resetLastDownloadedBlock = jest.fn();
             databaseInteraction.restoreCurrentRound = jest.fn();
-            databaseService.deleteRound = jest.fn();
             stateStore.setLastStoredBlockHeight = jest.fn();
 
             stateStore.setLastBlock = jest.fn();
@@ -249,7 +246,6 @@ describe("Blockchain", () => {
             expect(blockchainService.clearQueue).toBeCalledTimes(1);
             expect(blockchainService.resetLastDownloadedBlock).toBeCalledTimes(1);
             expect(databaseInteraction.restoreCurrentRound).toBeCalledTimes(1);
-            expect(databaseService.deleteRound).toBeCalledTimes(1);
             expect(stateStore.setLastStoredBlockHeight).not.toHaveBeenCalled();
 
             expect(process.exit).toHaveBeenCalled();
