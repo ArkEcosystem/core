@@ -83,4 +83,14 @@ export class NullLogger implements Logger {
     public suppressConsoleOutput(suppress: boolean): void {
         //
     }
+
+    /**
+     * Dispose logger.
+     *
+     * @returns {Promise<void>}
+     * @memberof NullLogger
+     */
+    public async dispose(): Promise<void> {
+        //
+    }
 }

@@ -4,6 +4,7 @@ import * as console from "console";
 import pino, { PrettyOptions } from "pino";
 import PinoPretty from "pino-pretty";
 import pump from "pump";
+import pumpify from "pumpify";
 import { Transform } from "readable-stream";
 import { createStream } from "rotating-file-stream";
 import split from "split2";
@@ -46,10 +47,17 @@ export class PinoLogger implements Contracts.Kernel.Logger {
 
     /**
      * @private
+     * @type {PassThrough}
+     * @memberof PinoLogger
+     */
+    private stream!: PassThrough;
+
+    /**
+     * @private
      * @type {Writable}
      * @memberof PinoLogger
      */
-    private fileStream!: Writable;
+    private combinedFileStream?: Writable;
 
     /**
      * @private
@@ -71,7 +79,7 @@ export class PinoLogger implements Contracts.Kernel.Logger {
      * @memberof PinoLogger
      */
     public async make(options?: any): Promise<Contracts.Kernel.Logger> {
-        const stream = new PassThrough();
+        this.stream = new PassThrough();
         this.logger = pino(
             {
                 base: null,
@@ -95,14 +103,12 @@ export class PinoLogger implements Contracts.Kernel.Logger {
                 useOnlyCustomLevels: true,
                 safe: true,
             },
-            stream,
+            this.stream,
         );
-
-        this.fileStream = this.getFileStream(options.fileRotator);
 
         if (this.isValidLevel(options.levels.console)) {
             pump(
-                stream,
+                this.stream,
                 split(),
                 // @ts-ignore - Object literal may only specify known properties, and 'colorize' does not exist in type 'PrettyOptions'.
                 this.createPrettyTransport(options.levels.console, { colorize: true }),
@@ -115,16 +121,18 @@ export class PinoLogger implements Contracts.Kernel.Logger {
         }
 
         if (this.isValidLevel(options.levels.file)) {
-            pump(
-                stream,
+            this.combinedFileStream = pumpify(
                 split(),
                 // @ts-ignore - Object literal may only specify known properties, and 'colorize' does not exist in type 'PrettyOptions'.
                 this.createPrettyTransport(options.levels.file, { colorize: false }),
-                this.fileStream,
-                (err) => {
-                    console.error("File stream closed due to an error:", err);
-                },
+                this.getFileStream(options.fileRotator),
             );
+
+            this.combinedFileStream!.on("error", (err) => {
+                console.error("File stream closed due to an error:", err);
+            });
+
+            this.stream.pipe(this.combinedFileStream!);
         }
 
         return this;
@@ -200,6 +208,22 @@ export class PinoLogger implements Contracts.Kernel.Logger {
      */
     public suppressConsoleOutput(suppress: boolean): void {
         this.silentConsole = suppress;
+    }
+
+    public async dispose(): Promise<void> {
+        if (this.combinedFileStream) {
+            this.stream.unpipe(this.combinedFileStream);
+
+            if (!this.combinedFileStream.destroyed) {
+                this.combinedFileStream.end();
+
+                return new Promise((resolve) => {
+                    this.combinedFileStream!.on("finish", () => {
+                        resolve();
+                    });
+                });
+            }
+        }
     }
 
     /**
