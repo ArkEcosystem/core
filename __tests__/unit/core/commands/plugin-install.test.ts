@@ -2,44 +2,24 @@ import "jest-extended";
 
 import { Console } from "@packages/core-test-framework";
 import { Command } from "@packages/core/src/commands/plugin-install";
-import { setGracefulCleanup } from "tmp";
-
-const packageName = "dummyPackageName";
-const install = jest.fn();
-const exists = jest.fn().mockReturnValue(false);
-
-
-jest.mock("@packages/core-cli/src/services/source-providers/npm", () => ({
-    NPM: jest.fn().mockImplementation(() => ({
-        exists,
-        install,
-    })),
-}));
-
-jest.mock("@packages/core-cli/src/services/source-providers/git", () => ({
-    Git: jest.fn().mockImplementation(() => ({
-        exists,
-        install,
-    })),
-}));
-
-jest.mock("@packages/core-cli/src/services/source-providers/file", () => ({
-    File: jest.fn().mockImplementation(() => ({
-        exists,
-        install,
-    })),
-}));
+import { Container } from "@packages/core-cli";
 
 let cli;
+let spyOnInstall;
+const packageName = "dummyPackageName";
+const token = "ark";
+const network = "testnet";
+
 beforeEach(() => {
     process.argv = ["", "test"];
 
     cli = new Console();
+    const pluginManager = cli.app.get(Container.Identifiers.PluginManager);
+    spyOnInstall = jest.spyOn(pluginManager, "install").mockImplementation(async () => {});
 });
 
 afterEach(() => {
     jest.clearAllMocks();
-    setGracefulCleanup();
 });
 
 describe("PluginInstallCommand", () => {
@@ -47,44 +27,13 @@ describe("PluginInstallCommand", () => {
         const errorMessage = `"package" is required`;
         await expect(cli.execute(Command)).rejects.toThrow(errorMessage);
 
-        expect(exists).not.toHaveBeenCalled();
-        expect(install).not.toHaveBeenCalled();
+        expect(spyOnInstall).not.toHaveBeenCalled();
     });
 
-    it("should throw an error when package doesn't exist", async () => {
-        const errorMessage = `The given package [${packageName}] is neither a git nor a npm package.`;
-        await expect(cli.withArgs([packageName]).execute(Command)).rejects.toThrow(errorMessage);
-
-        expect(exists).toHaveBeenCalledWith(packageName, undefined);
-        expect(install).not.toHaveBeenCalled();
-    });
-
-    it("should throw any errors while installing", async () => {
-        exists.mockReturnValue(true);
-
-        jest.spyOn(cli.app, "getCorePath").mockImplementationOnce(() => {
-            throw Error("Fake Error");
-        });
-
-        await expect(cli.withArgs([packageName]).execute(Command)).rejects.toThrow("Fake Error");
-    });
-
-    it("should call install on existing packages", async () => {
-        exists.mockReturnValue(true);
-
-        await expect(cli.withArgs([packageName]).execute(Command)).toResolve();
-
-        expect(exists).toHaveBeenCalledWith(packageName, undefined);
-        expect(install).toHaveBeenCalledWith(packageName, undefined);
-    });
-
-    it("should call install on existing packages with --version flag", async () => {
-        exists.mockReturnValue(true);
-
+    it("should call install", async () => {
         const version = "3.0.0";
-        await expect(cli.withArgs([packageName]).withFlags({ version }).execute(Command)).toResolve();
+        await expect(cli.withArgs([packageName]).withFlags({ version, token, network }).execute(Command)).toResolve();
 
-        expect(exists).toHaveBeenCalledWith(packageName, version);
-        expect(install).toHaveBeenCalledWith(packageName, version);
+        expect(spyOnInstall).toHaveBeenCalledWith(token, network, packageName, version);
     });
 });
