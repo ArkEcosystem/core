@@ -4,6 +4,8 @@ import fs from "fs-extra";
 import { join } from "path";
 import { setGracefulCleanup } from "tmp";
 
+const token = "ark";
+const network = "testnet";
 const packageName = "dummyPackageName";
 const install = jest.fn();
 const exists = jest.fn().mockReturnValue(false);
@@ -57,7 +59,7 @@ describe("DiscoverPlugins", () => {
 
             jest.spyOn(pluginManager, "getPluginsPath").mockReturnValue(pluginsPath);
 
-            const plugins = await pluginManager.list("ark", "testnet");
+            const plugins = await pluginManager.list(token, network);
 
             expect(plugins).toEqual([
                 {
@@ -74,7 +76,7 @@ describe("DiscoverPlugins", () => {
         });
 
         it("should return empty array if path doesn't exist", async () => {
-            const plugins = await pluginManager.list("ark", "undefined");
+            const plugins = await pluginManager.list(token, "undefined");
 
             expect(plugins).toEqual([]);
         });
@@ -83,7 +85,7 @@ describe("DiscoverPlugins", () => {
     describe("install", () => {
         it("should throw an error when package doesn't exist", async () => {
             const errorMessage = `The given package [${packageName}] is neither a git nor a npm package.`;
-            await expect(pluginManager.install("ark", "testnet", packageName)).rejects.toThrow(errorMessage);
+            await expect(pluginManager.install(token, network, packageName)).rejects.toThrow(errorMessage);
 
             expect(exists).toHaveBeenCalledWith(packageName, undefined);
             expect(install).not.toHaveBeenCalled();
@@ -92,7 +94,7 @@ describe("DiscoverPlugins", () => {
         it("should call install on existing packages", async () => {
             exists.mockReturnValue(true);
 
-            await expect(pluginManager.install("ark", "testnet", packageName)).toResolve();
+            await expect(pluginManager.install(token, network, packageName)).toResolve();
 
             expect(exists).toHaveBeenCalledWith(packageName, undefined);
             expect(install).toHaveBeenCalledWith(packageName, undefined);
@@ -102,7 +104,7 @@ describe("DiscoverPlugins", () => {
             exists.mockReturnValue(true);
 
             const version = "3.0.0";
-            await expect(pluginManager.install("ark", "testnet", packageName, version)).toResolve();
+            await expect(pluginManager.install(token, network, packageName, version)).toResolve();
 
             expect(exists).toHaveBeenCalledWith(packageName, version);
             expect(install).toHaveBeenCalledWith(packageName, version);
@@ -111,7 +113,7 @@ describe("DiscoverPlugins", () => {
 
     describe("update", () => {
         it("should throw when the plugin doesn't exist", async () => {
-            await expect(pluginManager.update("ark", "testnet", packageName)).rejects.toThrow(
+            await expect(pluginManager.update(token, network, packageName)).rejects.toThrow(
                 `The package [${packageName}] does not exist.`,
             );
         });
@@ -121,7 +123,7 @@ describe("DiscoverPlugins", () => {
 
             jest.spyOn(fs, "existsSync").mockReturnValueOnce(true).mockReturnValueOnce(true);
 
-            await expect(pluginManager.update("ark", "testnet", packageName)).toResolve();
+            await expect(pluginManager.update(token, network, packageName)).toResolve();
             expect(gitUpdateCalled).toEqual(true);
         });
 
@@ -129,14 +131,14 @@ describe("DiscoverPlugins", () => {
             expect(npmUpdateCalled).toEqual(false);
             jest.spyOn(fs, "existsSync").mockReturnValueOnce(true).mockReturnValueOnce(false);
 
-            await expect(pluginManager.update("ark", "testnet", packageName)).toResolve();
+            await expect(pluginManager.update(token, network, packageName)).toResolve();
             expect(npmUpdateCalled).toEqual(true);
         });
     });
 
     describe("remove", () => {
         it("should throw when the plugin doesn't exist", async () => {
-            await expect(pluginManager.remove("ark", "testnet", packageName)).rejects.toThrow(
+            await expect(pluginManager.remove(token, network, packageName)).rejects.toThrow(
                 `The package [${packageName}] does not exist.`,
             );
         });
@@ -145,7 +147,7 @@ describe("DiscoverPlugins", () => {
             jest.spyOn(fs, "existsSync").mockReturnValue(true);
             const removeSync = jest.spyOn(fs, "removeSync");
 
-            await expect(pluginManager.remove("ark", "testnet", packageName)).toResolve();
+            await expect(pluginManager.remove(token, network, packageName)).toResolve();
             expect(removeSync).toHaveBeenCalled();
         });
     });
