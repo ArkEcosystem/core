@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { Console } from "@arkecosystem/core-test-framework";
+import { Console } from "@packages/core-test-framework";
 import { Command } from "@packages/core/src/commands/plugin-install";
 import { setGracefulCleanup } from "tmp";
 
@@ -8,21 +8,21 @@ const packageName = "dummyPackageName";
 const install = jest.fn();
 const exists = jest.fn().mockReturnValue(false);
 
-jest.mock("@packages/core/src/source-providers/npm", () => ({
+jest.mock("@packages/core-cli/src/services/source-providers/npm", () => ({
     NPM: jest.fn().mockImplementation(() => ({
         exists,
         install,
     })),
 }));
 
-jest.mock("@packages/core/src/source-providers/git", () => ({
+jest.mock("@packages/core-cli/src/services/source-providers/git", () => ({
     Git: jest.fn().mockImplementation(() => ({
         exists,
         install,
     })),
 }));
 
-jest.mock("@packages/core/src/source-providers/file", () => ({
+jest.mock("@packages/core-cli/src/services/source-providers/file", () => ({
     File: jest.fn().mockImplementation(() => ({
         exists,
         install,

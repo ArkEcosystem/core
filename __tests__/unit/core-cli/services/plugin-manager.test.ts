@@ -1,17 +1,17 @@
 import { Console } from "@arkecosystem/core-test-framework";
-import { DiscoverPlugins } from "@packages/core-cli/src/commands";
+import { PluginManager } from "@packages/core-cli/src/services";
 import { join } from "path";
 import { setGracefulCleanup } from "tmp";
 
 let cli;
-let cmd;
+let pluginManager;
 
 beforeAll(() => setGracefulCleanup());
 
 beforeEach(() => {
     cli = new Console();
 
-    cmd = cli.app.resolve(DiscoverPlugins);
+    pluginManager = cli.app.resolve(PluginManager);
 });
 
 describe("DiscoverPlugins", () => {
@@ -19,7 +19,9 @@ describe("DiscoverPlugins", () => {
         it("should discover packages containing package.json", async () => {
             const pluginsPath: string = join(__dirname, "./plugins");
 
-            const plugins = await cmd.discover(pluginsPath);
+            jest.spyOn(pluginManager, "getPluginsPath").mockReturnValue(pluginsPath);
+
+            const plugins = await pluginManager.list("ark", "testnet");
 
             expect(plugins).toEqual([
                 {
@@ -36,9 +38,9 @@ describe("DiscoverPlugins", () => {
         });
 
         it("should return empty array if path doesn't exist", async () => {
-            const plugins = await cmd.discover("invalid/path");
+            const plugins = await pluginManager.list("ark", "undefined");
 
             expect(plugins).toEqual([]);
-        })
+        });
     });
 });
