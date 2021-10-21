@@ -1,5 +1,4 @@
-import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
-import { DatabaseInteraction } from "@arkecosystem/core-state";
+import { Container, Contracts, Services, Utils } from "@arkecosystem/core-kernel";
 import { Crypto, Interfaces, Managers } from "@arkecosystem/crypto";
 import Hapi from "@hapi/hapi";
 
@@ -12,9 +11,6 @@ export class InternalController extends Controller {
     @Container.inject(Container.Identifiers.PeerNetworkMonitor)
     private readonly peerNetworkMonitor!: Contracts.P2P.NetworkMonitor;
 
-    @Container.inject(Container.Identifiers.DatabaseInteraction)
-    private readonly databaseInteraction!: DatabaseInteraction;
-
     @Container.inject(Container.Identifiers.EventDispatcherService)
     private readonly events!: Contracts.Kernel.EventDispatcher;
 
@@ -26,6 +22,9 @@ export class InternalController extends Controller {
 
     @Container.inject(Container.Identifiers.TransactionPoolCollator)
     private readonly collator!: Contracts.TransactionPool.Collator;
+
+    @Container.inject(Container.Identifiers.TriggerService)
+    private readonly triggers!: Services.Triggers.Triggers;
 
     public async acceptNewPeer(request: Hapi.Request, h: Hapi.ResponseToolkit): Promise<void> {
         return this.peerProcessor.validateAndAcceptPeer({
@@ -57,9 +56,9 @@ export class InternalController extends Controller {
         const roundInfo = Utils.roundCalculator.calculateRound(height);
 
         const reward = Managers.configManager.getMilestone(height).reward;
-        const delegates: Contracts.P2P.DelegateWallet[] = (
-            await this.databaseInteraction.getActiveDelegates(roundInfo)
-        ).map((wallet) => ({
+        const delegates: Contracts.P2P.DelegateWallet[] = ((await this.triggers.call("getActiveDelegates", {
+            roundInfo,
+        })) as Contracts.State.Wallet[]).map((wallet) => ({
             ...wallet.getData(),
             delegate: wallet.getAttribute("delegate"),
         }));
