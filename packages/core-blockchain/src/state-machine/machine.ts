@@ -6,12 +6,12 @@ export const blockchainMachine: any = Machine({
     states: {
         uninitialised: {
             on: {
-                START: "init",
+                START: "initialize",
                 STOP: "stopped",
             },
         },
-        init: {
-            onEntry: ["init"],
+        initialize: {
+            onEntry: ["initialize"],
             on: {
                 NETWORKSTART: "idle",
                 STARTED: "syncWithNetwork",
@@ -102,7 +102,7 @@ export const blockchainMachine: any = Machine({
         rollback: {
             onEntry: ["rollbackDatabase"],
             on: {
-                SUCCESS: "init",
+                SUCCESS: "initialize",
                 FAILURE: "exit",
                 STOP: "stopped",
             },
