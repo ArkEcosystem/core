@@ -1,11 +1,10 @@
-import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
-import { Connection, createConnection, getCustomRepository } from "typeorm";
+import { Container, Contracts, Enums, Providers } from "@arkecosystem/core-kernel";
 import Joi from "joi";
+import { Connection, createConnection, getCustomRepository } from "typeorm";
 
 import { BlockFilter } from "./block-filter";
 import { BlockHistoryService } from "./block-history-service";
 import { DatabaseService } from "./database-service";
-import { DatabaseEvent } from "./events";
 import { ModelConverter } from "./model-converter";
 import { BlockRepository, RoundRepository, TransactionRepository } from "./repositories";
 import { TransactionFilter } from "./transaction-filter";
@@ -56,7 +55,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
         const connection: Record<string, any> = this.config().all().connection as any;
         this.app
             .get<Contracts.Kernel.EventDispatcher>(Container.Identifiers.EventDispatcherService)
-            .dispatch(DatabaseEvent.PRE_CONNECT);
+            .dispatch(Enums.DatabaseEvent.PreConnect);
 
         if (this.app.isBound(Container.Identifiers.DatabaseLogger)) {
             connection.logging = "all";
