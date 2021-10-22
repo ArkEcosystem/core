@@ -75,7 +75,9 @@ export = {
                     }
 
                     request.plugins["rate-limit"] = {
+                        // @ts-ignore
                         remaining: rateLimitRes.remainingPoints,
+                        // @ts-ignore
                         reset: Date.now() + rateLimitRes.msBeforeNext,
                     } as RateLimitPluginData;
 
