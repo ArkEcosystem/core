@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { File, Errors } from "@packages/core/src/source-providers";
+import { File, Errors } from "@packages/core-cli/src/services/source-providers";
 import fs from "fs-extra";
 import { dirSync, fileSync, setGracefulCleanup } from "tmp";
 import { join } from "path";

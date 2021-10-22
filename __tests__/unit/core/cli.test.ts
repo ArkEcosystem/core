@@ -3,7 +3,6 @@ import "jest-extended";
 import { Commands, Services } from "@packages/core-cli";
 import { CommandLineInterface } from "@packages/core/src/cli";
 import envPaths from "env-paths";
-import { join } from "path";
 import prompts from "prompts";
 
 beforeEach(() => {
@@ -61,7 +60,7 @@ describe("CLI", () => {
 
     describe("discover plugins", () => {
         it("should load CLI plugins from folder using provided token and network", async () => {
-            const spyOnDiscover = jest.spyOn(Commands.DiscoverPlugins.prototype, "discover").mockResolvedValueOnce([
+            const spyOnList = jest.spyOn(Services.PluginManager.prototype, "list").mockResolvedValueOnce([
                 // @ts-ignore
                 {
                     path: "test/path",
@@ -79,32 +78,26 @@ describe("CLI", () => {
             const cli = new CommandLineInterface(["help", `--token=${token}`, `--network=${network}`]);
             await expect(cli.execute("./packages/core/dist")).toResolve();
 
-            expect(spyOnDiscover).toHaveBeenCalledWith(
-                join(envPaths(token, { suffix: "core" }).data, network, "plugins"),
-            );
+            expect(spyOnList).toHaveBeenCalledWith(token, network);
 
             expect(spyOnFrom).toHaveBeenCalled();
         });
 
         it("should load CLI plugins from folder using CORE_PATH_CONFIG", async () => {
-            const spyOnDiscover = jest.spyOn(Commands.DiscoverPlugins.prototype, "discover").mockResolvedValueOnce([]);
-
+            const spyOnList = jest.spyOn(Services.PluginManager.prototype, "list").mockResolvedValueOnce([]);
             process.env.CORE_PATH_CONFIG = __dirname;
 
             const cli = new CommandLineInterface(["help"]);
             await expect(cli.execute("./packages/core/dist")).toResolve();
 
-            expect(spyOnDiscover).toHaveBeenCalledWith(
-                join(envPaths("dummyToken", { suffix: "core" }).data, "testnet", "plugins"),
-            );
+            expect(spyOnList).toHaveBeenCalledWith("dummyToken", "testnet");
 
             delete process.env.CORE_PATH_CONFIG;
         });
 
         it("should load CLI plugins from folder using detected network folder", async () => {
-            const spyOnDiscoverPlugins = jest
-                .spyOn(Commands.DiscoverPlugins.prototype, "discover")
-                .mockResolvedValueOnce([]);
+            const spyOnList = jest.spyOn(Services.PluginManager.prototype, "list").mockResolvedValueOnce([]);
+
             const spyOnDiscoverNetwork = jest
                 .spyOn(Commands.DiscoverNetwork.prototype, "discover")
                 .mockResolvedValueOnce("testnet");
@@ -112,10 +105,19 @@ describe("CLI", () => {
             const cli = new CommandLineInterface(["help"]);
             await expect(cli.execute("./packages/core/dist")).toResolve();
 
-            expect(spyOnDiscoverPlugins).toHaveBeenCalledWith(
-                join(envPaths("ark", { suffix: "core" }).data, "testnet", "plugins"),
-            );
+            expect(spyOnList).toHaveBeenCalledWith("ark", "testnet");
             expect(spyOnDiscoverNetwork).toHaveBeenCalledWith(envPaths("ark", { suffix: "core" }).config);
+        });
+
+        it("should not load CLI plugins if network is not provided", async () => {
+            const spyOnList = jest.spyOn(Services.PluginManager.prototype, "list").mockResolvedValueOnce([]);
+
+            const token = "dummy";
+
+            const cli = new CommandLineInterface(["help", `--token=${token}`]);
+            await expect(cli.execute("./packages/core/dist")).toResolve();
+
+            expect(spyOnList).not.toHaveBeenCalled();
         });
     });
 });

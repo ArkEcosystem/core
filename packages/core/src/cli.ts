@@ -1,12 +1,4 @@
-import {
-    ApplicationFactory,
-    Commands,
-    Container,
-    Contracts,
-    InputParser,
-    Plugins,
-    Services,
-} from "@arkecosystem/core-cli";
+import { ApplicationFactory, Commands, Container, Contracts, InputParser, Plugins } from "@arkecosystem/core-cli";
 import envPaths from "env-paths";
 import { existsSync } from "fs-extra";
 import { platform } from "os";
@@ -161,22 +153,18 @@ export class CommandLineInterface {
         const commandsDiscoverer = this.app.resolve(Commands.DiscoverCommands);
         const commands: Contracts.CommandList = commandsDiscoverer.within(resolve(dirname, "./commands"));
 
-        const pluginsDiscoverer = this.app.resolve(Commands.DiscoverPlugins);
-
         const tempFlags = await this.detectNetworkAndToken(flags);
 
-        const path = join(
-            this.app
-                .get<Services.Environment>(Container.Identifiers.Environment)
-                .getPaths(tempFlags.token, tempFlags.network!).data,
-            "plugins",
-        );
-        const pluginPaths = (await pluginsDiscoverer.discover(path)).map((plugin) => plugin.path);
+        if (tempFlags.network) {
+            const plugins = await this.app
+                .get<Contracts.PluginManager>(Container.Identifiers.PluginManager)
+                .list(tempFlags.token, tempFlags.network);
 
-        const commandsFromPlugins = commandsDiscoverer.from(pluginPaths);
+            const commandsFromPlugins = commandsDiscoverer.from(plugins.map((plugin) => plugin.path));
 
-        for (const [key, value] of Object.entries(commandsFromPlugins)) {
-            commands[key] = value;
+            for (const [key, value] of Object.entries(commandsFromPlugins)) {
+                commands[key] = value;
+            }
         }
 
         this.app.bind(Container.Identifiers.Commands).toConstantValue(commands);

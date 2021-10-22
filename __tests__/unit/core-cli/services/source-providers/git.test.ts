@@ -1,11 +1,11 @@
 import "jest-extended";
 
-import { Git } from "@packages/core/src/source-providers";
+import { Git } from "@packages/core-cli/src/services/source-providers";
 import fs from "fs-extra";
 import { dirSync, setGracefulCleanup } from "tmp";
 import { join } from "path";
 
-import execa from "../../../../__mocks__/execa";
+import execa from "../../../../../__mocks__/execa";
 
 let dataPath: string;
 let tempPath: string;

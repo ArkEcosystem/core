@@ -2,37 +2,36 @@ import "jest-extended";
 
 import { Console } from "@packages/core-test-framework";
 import { Command } from "@packages/core/src/commands/plugin-remove";
-import fs from "fs-extra";
-
-const packageName = "dummyPackageName";
+import { Container } from "@arkecosystem/core-cli";
 
 let cli;
+let spyOnRemove;
+const packageName = "dummyPackageName";
+const token = "ark";
+const network = "testnet";
+
 beforeEach(() => {
     cli = new Console();
+
+    const pluginManager = cli.app.get(Container.Identifiers.PluginManager);
+    spyOnRemove = jest.spyOn(pluginManager, "remove").mockImplementation(async () => {});
 });
 
 afterEach(() => {
     jest.clearAllMocks();
-})
+});
 
 describe("PluginRemoveCommand", () => {
     it("should throw when package name is not provided", async () => {
-        jest.spyOn(cli.app, "getCorePath").mockReturnValueOnce(null);
         await expect(cli.execute(Command)).rejects.toThrow(`"package" is required`);
+
+        expect(spyOnRemove).not.toHaveBeenCalled();
     });
 
-    it("should throw when the plugin doesn't exist", async () => {
+    it("should call remove", async () => {
         jest.spyOn(cli.app, "getCorePath").mockReturnValueOnce(null);
-        await expect(cli.withArgs([packageName]).execute(Command)).rejects.toThrow(
-            `The package [${packageName}] does not exist.`,
-        );
-    });
+        await expect(cli.withArgs([packageName]).withFlags({ token, network }).execute(Command)).toResolve();
 
-    it("remove plugin if exist", async () => {
-        jest.spyOn(fs, "existsSync").mockReturnValue(true);
-        const removeSync = jest.spyOn(fs, "removeSync");
-
-        await expect(cli.withArgs([packageName]).execute(Command)).toResolve();
-        expect(removeSync).toHaveBeenCalled();
+        expect(spyOnRemove).toHaveBeenCalledWith(token, network, packageName);
     });
 });
