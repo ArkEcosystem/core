@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { NPM } from "@packages/core/src/source-providers";
+import { NPM } from "@packages/core-cli/src/services/source-providers";
 import execa from "execa";
 import fs from "fs-extra";
 import nock from "nock";

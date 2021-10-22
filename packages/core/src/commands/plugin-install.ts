@@ -1,8 +1,6 @@
-import { Commands, Container } from "@arkecosystem/core-cli";
+import { Commands, Container, Contracts } from "@arkecosystem/core-cli";
 import { Networks } from "@arkecosystem/crypto";
 import Joi from "joi";
-
-import { File, Git, NPM, Source } from "../source-providers";
 
 /**
  * @export
@@ -11,6 +9,9 @@ import { File, Git, NPM, Source } from "../source-providers";
  */
 @Container.injectable()
 export class Command extends Commands.Command {
+    @Container.inject(Container.Identifiers.PluginManager)
+    private readonly pluginManager!: Contracts.PluginManager;
+
     /**
      * The console command signature.
      *
@@ -48,35 +49,11 @@ export class Command extends Commands.Command {
      * @memberof Command
      */
     public async execute(): Promise<void> {
-        const pkg: string = this.getArgument("package");
-        const version: string | undefined = this.getFlag("version");
-
-        try {
-            return await this.install(pkg, version);
-        } catch (error: any) {
-            throw new Error(error.message);
-        }
-    }
-
-    /**
-     * @private
-     * @param {string} pkg
-     * @param version
-     * @returns {Promise<void>}
-     * @memberof Command
-     */
-    private async install(pkg: string, version?: string): Promise<void> {
-        for (const Instance of [File, Git, NPM]) {
-            const source: Source = new Instance({
-                data: this.app.getCorePath("data", "plugins"),
-                temp: this.app.getCorePath("temp", "plugins"),
-            });
-
-            if (await source.exists(pkg, version)) {
-                return source.install(pkg, version);
-            }
-        }
-
-        throw new Error(`The given package [${pkg}] is neither a git nor a npm package.`);
+        return await this.pluginManager.install(
+            this.getFlag("token"),
+            this.getFlag("network"),
+            this.getArgument("package"),
+            this.getFlag("version"),
+        );
     }
 }
