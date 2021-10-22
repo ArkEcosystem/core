@@ -25,7 +25,7 @@ expect.extend({
             pass = !!(parsedBody.data as any[]).find((tx) => tx.id === transaction.id);
 
             error = JSON.stringify(parsedBody.errors);
-        } catch (e) {
+        } catch (e: any) {
             error = e.message;
         }
 

@@ -32,7 +32,7 @@ expect.extend({
                 parsedBody.data.broadcast.includes(transaction.id);
 
             error = JSON.stringify(parsedBody.errors);
-        } catch (e) {
+        } catch (e: any) {
             if (e.response.statusCode >= 500) {
                 throw e;
             }
@@ -62,7 +62,7 @@ expect.extend({
             pass = parsedBody.errors === undefined;
 
             error = JSON.stringify(parsedBody.errors);
-        } catch (e) {
+        } catch (e: any) {
             if (e.response.statusCode >= 500) {
                 throw e;
             }
@@ -95,7 +95,7 @@ expect.extend({
                     pass = false;
                 }
             }
-        } catch (e) {
+        } catch (e: any) {
             if (e.response.statusCode >= 500) {
                 throw e;
             }

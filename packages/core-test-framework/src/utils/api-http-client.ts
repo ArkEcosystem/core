@@ -18,7 +18,7 @@ export class ApiHttpClient {
         try {
             const url = this.getUrl(path, params);
             response = await Utils.http.get(url);
-        } catch (error) {
+        } catch (error: any) {
             return this.getResponse(error.response);
         }
 
@@ -30,7 +30,7 @@ export class ApiHttpClient {
         try {
             const url = this.getUrl(path, params);
             response = await Utils.http.post(url, { body: body as any });
-        } catch (error) {
+        } catch (error: any) {
             return this.getResponse(error.response);
         }
 
