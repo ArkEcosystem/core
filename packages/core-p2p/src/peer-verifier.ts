@@ -163,7 +163,7 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
                 `Claimed block header ${blockHeader.height}:${blockHeader.id} failed signature verification`,
             );
             return false;
-        } catch (error) {
+        } catch (error: any) {
             this.log(
                 Severity.DEBUG_EXTRA,
                 `Claimed block header ${blockHeader.height}:${blockHeader.id} failed verification: ` + error.message,
@@ -179,7 +179,7 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
             height = this.app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore).getLastHeight();
 
             assert(Number.isInteger(height));
-        } catch (error) {
+        } catch {
             throw new Error(`Couldn't derive our chain height: ${height}`);
         }
 
@@ -456,7 +456,7 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
                 blockLimit: Math.max(Math.min(endHeight - height + 1, 400), 1),
                 headersOnly: true,
             });
-        } catch (err) {
+        } catch (err: any) {
             this.log(
                 Severity.DEBUG_EXTRA,
                 `failure: could not get blocks starting from height ${height} from peer: exception: ${err.message}`,

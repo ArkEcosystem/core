@@ -33,7 +33,7 @@ export class AwaitBlockPlugin {
                     return h.continue;
                 }
 
-                await new Promise((resolve) => {
+                await new Promise<void>((resolve) => {
                     queue.once("drain", () => {
                         resolve();
                     });

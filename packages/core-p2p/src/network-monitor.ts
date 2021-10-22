@@ -92,7 +92,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
             if (await this.discoverPeers(initialRun)) {
                 await this.cleansePeers();
             }
-        } catch (error) {
+        } catch (error: any) {
             this.logger.error(`Network Status: ${error.message}`);
         }
 
@@ -130,7 +130,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
 
         // we use Promise.race to cut loose in case some communicator.ping() does not resolve within the delay
         // in that case we want to keep on with our program execution while ping promises can finish in the background
-        await new Promise((resolve) => {
+        await new Promise<void>((resolve) => {
             let isResolved = false;
 
             // Simulates Promise.race, but doesn't cause "multipleResolvers" process error
@@ -145,7 +145,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
                 peers.map(async (peer) => {
                     try {
                         await this.communicator.ping(peer, pingDelay, forcePing);
-                    } catch (error) {
+                    } catch (error: any) {
                         unresponsivePeers++;
 
                         peerErrors[error] = peerErrors[error] || [];
@@ -186,7 +186,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
                             try {
                                 const hisPeers = await this.communicator.getPeers(peer);
                                 return hisPeers || [];
-                            } catch (error) {
+                            } catch (error: any) {
                                 this.logger.debug(`Failed to get peers from ${peer.ip}: ${error.message}`);
                                 return [];
                             }
@@ -408,7 +408,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
                         } else {
                             throw new Error("Peer did not return any block");
                         }
-                    } catch (error) {
+                    } catch (error: any) {
                         this.logger.info(
                             `Failed to download blocks ${blocksRange} from ${peerPrint}: ${error.message}`,
                         );
@@ -441,7 +441,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
             // Convert the array of AsyncFunction to an array of Promise by calling the functions.
             // @ts-ignore
             await Promise.all(downloadJobs.map((f) => f()));
-        } catch (error) {
+        } catch (error: any) {
             firstFailureMessage = error.message;
         }
 
@@ -531,7 +531,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
             const host = await checkDNS(this.app, options);
 
             this.logger.info(`Your network connectivity has been verified by ${host}`);
-        } catch (error) {
+        } catch (error: any) {
             this.logger.error(error.message);
         }
     }
@@ -543,7 +543,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
             this.logger.info(`Your NTP connectivity has been verified by ${host}`);
 
             this.logger.info(`Local clock is off by ${time.t < 0 ? "-" : ""}${prettyMs(Math.abs(time.t))} from NTP`);
-        } catch (error) {
+        } catch (error: any) {
             this.logger.error(error.message);
         }
     }

@@ -303,7 +303,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
                 validationError.name = SocketErrors.Validation;
                 throw validationError;
             }
-        } catch (e) {
+        } catch (e: any) {
             this.handleSocketError(peer, event, e, disconnectOnError);
             return undefined;
         }

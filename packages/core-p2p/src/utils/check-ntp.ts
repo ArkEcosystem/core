@@ -15,7 +15,7 @@ export const checkNTP = (
                 });
 
                 return resolve({ time, host });
-            } catch (err) {
+            } catch (err: any) {
                 app.get<Contracts.Kernel.Logger>(Container.Identifiers.LogService).error(
                     `Host ${host} responded with: ${err.message}`,
                 );
