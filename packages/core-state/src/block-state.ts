@@ -41,7 +41,7 @@ export class BlockState implements Contracts.State.BlockState {
             this.applyBlockToForger(forgerWallet, block.data);
 
             this.state.setLastBlock(block);
-        } catch (error) {
+        } catch (error: any) {
             this.logger.error(error.stack);
             this.logger.error("Failed to apply all transactions in block - reverting previous transactions");
             for (const transaction of appliedTransactions.reverse()) {
@@ -73,7 +73,7 @@ export class BlockState implements Contracts.State.BlockState {
                 await this.revertTransaction(transaction);
                 revertedTransactions.push(transaction);
             }
-        } catch (error) {
+        } catch (error: any) {
             this.logger.error(error.stack);
             this.logger.error("Failed to revert all transactions in block - applying previous transactions");
             for (const transaction of revertedTransactions.reverse()) {

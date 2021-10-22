@@ -71,7 +71,7 @@ export class StateBuilder {
             this.verifyWalletsConsistency();
 
             this.events.dispatch(Enums.StateEvent.BuilderFinished);
-        } catch (ex) {
+        } catch (ex: any) {
             this.logger.error(ex.stack);
         }
     }

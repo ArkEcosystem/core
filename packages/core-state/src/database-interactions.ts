@@ -53,7 +53,7 @@ export class DatabaseInteraction {
             }
 
             await this.initializeLastBlock();
-        } catch (error) {
+        } catch (error: any) {
             this.logger.error(error.stack);
             this.app.terminate("Failed to initialize database service.", error);
         }
@@ -111,7 +111,7 @@ export class DatabaseInteraction {
         const getLastBlock = async (): Promise<Interfaces.IBlock | undefined> => {
             try {
                 return await this.databaseService.getLastBlock();
-            } catch (error) {
+            } catch (error: any) {
                 this.logger.error(error.message);
 
                 if (tries > 0) {
