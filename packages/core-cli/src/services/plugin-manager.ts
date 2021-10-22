@@ -18,7 +18,7 @@ export class PluginManager implements Contracts.PluginManager {
         const path = this.getPluginsPath(token, network);
 
         const packagePaths = glob
-            .sync("{*/*/package.json,*/package.json}", { cwd: path })
+            .sync("{@*/*/package.json,*/package.json}", { cwd: path })
             .map((packagePath) => join(path, packagePath).slice(0, -"/package.json".length));
 
         for (const packagePath of packagePaths) {
