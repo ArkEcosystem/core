@@ -102,7 +102,7 @@ export class BlockProcessor {
                 }
 
                 block.verification = block.verify();
-            } catch (error) {
+            } catch (error: any) {
                 this.logger.warning(`Failed to verify block, because: ${error.message}`);
                 block.verification.verified = false;
             }

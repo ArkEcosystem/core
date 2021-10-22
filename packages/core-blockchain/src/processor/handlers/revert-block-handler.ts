@@ -52,7 +52,7 @@ export class RevertBlockHandler implements BlockHandler {
             this.state.setLastBlock(previousBlock);
 
             return BlockProcessorResult.Reverted;
-        } catch (error) {
+        } catch (error: any) {
             this.logger.error(
                 `Critical error occurs when reverting block at height ${block.data.height.toLocaleString()}. Possible state corruption. Message: ${
                     error.message

@@ -374,7 +374,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
                     })`,
                 );
             }
-        } catch (err) {
+        } catch (err: any) {
             this.logger.error(err.stack);
             this.logger.warning("Shutting down app, because state might be corrupted");
             process.exit(1);

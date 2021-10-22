@@ -56,7 +56,7 @@ export class AcceptBlockHandler implements BlockHandler {
             }
 
             return BlockProcessorResult.Accepted;
-        } catch (error) {
+        } catch (error: any) {
             this.logger.warning(`Refused new block ${JSON.stringify(block.data)}`);
             this.logger.debug(error.stack);
 

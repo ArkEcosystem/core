@@ -131,7 +131,7 @@ export class ProcessBlocksJob implements Contracts.Kernel.QueueJob {
                     break; // if one block is not accepted, the other ones won't be chained anyway
                 }
             }
-        } catch (error) {
+        } catch (error: any) {
             this.logger.error(
                 `Failed to process chunk of block chunk of blocks [${fromHeight.toLocaleString()}, ${toHeight.toLocaleString()}] on top of ${lastHeight.toLocaleString()}`,
             );
@@ -143,7 +143,7 @@ export class ProcessBlocksJob implements Contracts.Kernel.QueueJob {
             try {
                 await this.blockRepository.saveBlocks(acceptedBlocks);
                 this.stateStore.setLastStoredBlockHeight(acceptedBlocks[acceptedBlocks.length - 1].data.height);
-            } catch (error) {
+            } catch (error: any) {
                 this.logger.error(
                     `Could not save ${Utils.pluralize("block", acceptedBlocks.length, true)}) to database : ${
                         error.stack

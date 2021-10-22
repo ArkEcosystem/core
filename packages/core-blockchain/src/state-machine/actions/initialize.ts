@@ -99,7 +99,7 @@ export class Initialize implements Action {
             await this.networkMonitor.boot();
 
             return this.blockchain.dispatch("STARTED");
-        } catch (error) {
+        } catch (error: any) {
             this.logger.error(error.stack);
 
             return this.blockchain.dispatch("FAILURE");
