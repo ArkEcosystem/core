@@ -74,7 +74,7 @@ export class DaemonizeProcess {
                 },
                 flagsProcess,
             );
-        } catch (error) {
+        } catch (error: any) {
             throw new Error(error.stderr ? `${error.message}: ${error.stderr}` : error.message);
         } finally {
             spinner.stop();

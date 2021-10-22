@@ -36,7 +36,7 @@ export class RestartProcess {
             spinner = this.app.get<Spinner>(Identifiers.Spinner).render(`Restarting ${processName}`);
 
             this.processManager.restart(processName);
-        } catch (error) {
+        } catch (error: any) {
             throw new Error(error.stderr ? `${error.message}: ${error.stderr}` : error.message);
         } finally {
             spinner.stop();

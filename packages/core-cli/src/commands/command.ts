@@ -151,7 +151,7 @@ export abstract class Command {
             this.input.hasFlag("quiet")
                 ? this.output.setVerbosity(0)
                 : this.output.setVerbosity(this.input.getFlag("v") || 1);
-        } catch (error) {
+        } catch (error: any) {
             this.components.fatal(error.message);
         }
     }
@@ -206,7 +206,7 @@ export abstract class Command {
             }
 
             await this.execute();
-        } catch (error) {
+        } catch (error: any) {
             this.components.fatal(error.message);
         }
     }
@@ -326,5 +326,5 @@ export abstract class Command {
      * @returns {Promise<void>}
      * @memberof Command
      */
-    public abstract async execute(): Promise<void>;
+    public abstract execute(): Promise<void>;
 }
