@@ -36,7 +36,7 @@ export class DatabaseService {
             if (process.env.CORE_RESET_DATABASE) {
                 await this.reset();
             }
-        } catch (error) {
+        } catch (error: any) {
             this.logger.error(error.stack);
             this.app.terminate("Failed to initialize database service.", error);
         }
