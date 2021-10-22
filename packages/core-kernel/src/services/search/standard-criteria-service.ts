@@ -265,7 +265,7 @@ export class StandardCriteriaService {
         }
     }
 
-    private rethrowError(error: Error, key: string): never {
+    private rethrowError(error: any, key: string): never {
         if (error instanceof InvalidCriteria) {
             throw new InvalidCriteria(error.value, error.criteria, [key, ...error.path]);
         }

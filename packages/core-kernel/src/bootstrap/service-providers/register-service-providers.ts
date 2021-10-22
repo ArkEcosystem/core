@@ -63,7 +63,7 @@ export class RegisterServiceProviders implements Bootstrapper {
                 if (await this.satisfiesDependencies(serviceProvider)) {
                     await serviceProviders.register(name);
                 }
-            } catch (error) {
+            } catch (error: any) {
                 console.error(error.stack);
 
                 // Determine if the plugin is required to decide how to handle errors.

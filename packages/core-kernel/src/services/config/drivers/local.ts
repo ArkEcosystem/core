@@ -73,7 +73,7 @@ export class LocalConfigLoader implements ConfigLoader {
                     set(process.env, key, value);
                 }
             }
-        } catch (error) {
+        } catch (error: any) {
             throw new EnvironmentConfigurationCannotBeLoaded(error.message);
         }
     }
@@ -91,7 +91,7 @@ export class LocalConfigLoader implements ConfigLoader {
             this.loadDelegates();
 
             this.loadCryptography();
-        } catch (error) {
+        } catch (error: any) {
             throw new ApplicationConfigurationCannotBeLoaded(error.message);
         }
     }

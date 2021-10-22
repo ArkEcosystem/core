@@ -100,7 +100,7 @@ export class Triggers {
 
             stage = "after";
             await this.callAfterHooks<T>(name, args, result);
-        } catch (err) {
+        } catch (err: any) {
             // Handle errors inside error hooks. Rethrow error if there are no error hooks.
             if (this.get(name).hooks("error").size) {
                 await this.callErrorHooks(name, args, result, err, stage);
