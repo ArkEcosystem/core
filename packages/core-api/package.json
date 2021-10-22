@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-api",
-    "version": "4.0.0-next.0",
+    "version": "4.0.0-next-1",
     "description": "Public API for ARK Core",
     "license": "MIT",
     "contributors": [
@@ -22,10 +22,10 @@
         "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
-        "@arkecosystem/core-database": "4.0.0-next.0",
-        "@arkecosystem/core-kernel": "4.0.0-next.0",
-        "@arkecosystem/core-transactions": "4.0.0-next.0",
-        "@arkecosystem/crypto": "4.0.0-next.0",
+        "@arkecosystem/core-database": "4.0.0-next-1",
+        "@arkecosystem/core-kernel": "4.0.0-next-1",
+        "@arkecosystem/core-transactions": "4.0.0-next-1",
+        "@arkecosystem/crypto": "4.0.0-next-1",
         "@hapi/boom": "9.1.4",
         "@hapi/hapi": "20.1.5",
         "@hapi/hoek": "9.2.0",

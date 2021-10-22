@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-blockchain",
-    "version": "4.0.0-next.0",
+    "version": "4.0.0-next-1",
     "description": "Blockchain Manager for ARK Core",
     "license": "MIT",
     "contributors": [
@@ -23,11 +23,11 @@
         "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
-        "@arkecosystem/core-database": "4.0.0-next.0",
-        "@arkecosystem/core-kernel": "4.0.0-next.0",
-        "@arkecosystem/core-state": "4.0.0-next.0",
-        "@arkecosystem/core-transactions": "4.0.0-next.0",
-        "@arkecosystem/crypto": "4.0.0-next.0",
+        "@arkecosystem/core-database": "4.0.0-next-1",
+        "@arkecosystem/core-kernel": "4.0.0-next-1",
+        "@arkecosystem/core-state": "4.0.0-next-1",
+        "@arkecosystem/core-transactions": "4.0.0-next-1",
+        "@arkecosystem/crypto": "4.0.0-next-1",
         "joi": "17.4.2",
         "xstate": "4.23.4"
     },
