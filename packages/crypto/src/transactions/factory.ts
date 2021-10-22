@@ -42,7 +42,7 @@ export class TransactionFactory {
             transaction.isVerified = true;
 
             return transaction;
-        } catch (error) {
+        } catch (error: any) {
             throw new InvalidTransactionBytesError(error.message);
         }
     }
@@ -88,7 +88,7 @@ export class TransactionFactory {
             transaction.isVerified = transaction.verify(options);
 
             return transaction;
-        } catch (error) {
+        } catch (error: any) {
             if (
                 error instanceof TransactionVersionError ||
                 error instanceof TransactionSchemaError ||

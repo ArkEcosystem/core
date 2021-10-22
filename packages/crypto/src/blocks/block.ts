@@ -277,7 +277,9 @@ export class Block implements IBlock {
                 result.errors.push("Invalid payload hash");
             }
         } catch (error) {
-            result.errors.push(error);
+            if (error instanceof Error) {
+                result.errors.push(error.message);
+            }
         }
 
         result.verified = result.errors.length === 0;

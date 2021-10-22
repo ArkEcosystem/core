@@ -72,7 +72,7 @@ export class Validator {
             const error = ajv.errors ? ajv.errorsText() : undefined;
 
             return { value: data, error, errors: ajv.errors || undefined };
-        } catch (error) {
+        } catch (error: any) {
             return { value: undefined, error: error.stack, errors: [] };
         }
     }
