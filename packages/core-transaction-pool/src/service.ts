@@ -68,7 +68,7 @@ export class Service implements Contracts.TransactionPool.Service {
                     await this.cleanUp();
                     break;
             }
-        } catch (error) {
+        } catch (error: any) {
             this.logger.critical(error.stack);
             throw error;
         }
@@ -103,7 +103,7 @@ export class Service implements Contracts.TransactionPool.Service {
                 await this.addTransactionToMempool(transaction);
                 this.logger.debug(`${transaction} added to pool`);
                 this.events.dispatch(Enums.TransactionEvent.AddedToPool, transaction.data);
-            } catch (error) {
+            } catch (error: any) {
                 this.storage.removeTransaction(transaction.id);
                 this.logger.warning(`${transaction} failed to enter pool: ${error.message}`);
                 this.events.dispatch(Enums.TransactionEvent.RejectedByPool, transaction.data);
@@ -150,7 +150,7 @@ export class Service implements Contracts.TransactionPool.Service {
                     previouslyForgedStoredIds.push(previouslyForgedTransaction.id);
 
                     previouslyForgedSuccesses++;
-                } catch (error) {
+                } catch (error: any) {
                     this.logger.debug(`Failed to re-add previously forged transaction ${id}: ${error.message}`);
                     previouslyForgedFailures++;
                 }
@@ -170,7 +170,7 @@ export class Service implements Contracts.TransactionPool.Service {
                         const previouslyStoredTransaction = Transactions.TransactionFactory.fromBytes(serialized);
                         await this.addTransactionToMempool(previouslyStoredTransaction);
                         previouslyStoredSuccesses++;
-                    } catch (error) {
+                    } catch (error: any) {
                         this.storage.removeTransaction(id);
                         this.logger.debug(`Failed to re-add previously stored transaction ${id}: ${error.message}`);
                         previouslyStoredFailures++;

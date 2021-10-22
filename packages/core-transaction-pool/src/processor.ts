@@ -98,7 +98,7 @@ export class Processor implements Contracts.TransactionPool.Processor {
             } else {
                 return Transactions.TransactionFactory.fromBytes(transactionData);
             }
-        } catch (error) {
+        } catch (error: any) {
             throw new InvalidTransactionDataError(error.message);
         }
     }
@@ -112,7 +112,7 @@ export class Processor implements Contracts.TransactionPool.Processor {
             } else {
                 return Transactions.TransactionFactory.fromData(transactionData);
             }
-        } catch (error) {
+        } catch (error: any) {
             throw new InvalidTransactionDataError(error.message);
         }
     }

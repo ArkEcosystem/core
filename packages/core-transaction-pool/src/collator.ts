@@ -68,7 +68,7 @@ export class Collator implements Contracts.TransactionPool.Collator {
 
                 bytesLeft -= 4;
                 bytesLeft -= transaction.serialized.length;
-            } catch (error) {
+            } catch (error: any) {
                 this.logger.warning(`${transaction} failed to collate: ${error.message}`);
                 failedTransactions.push(transaction);
             }
