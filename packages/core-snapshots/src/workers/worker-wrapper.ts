@@ -46,7 +46,7 @@ export class WorkerWrapper extends EventEmitter {
     public sync(data: WorkerSyncData): Promise<any> {
         return new Promise((resolve, reject) => {
             if (this.isDone) {
-                resolve();
+                resolve(undefined);
                 return;
             }
 
@@ -54,7 +54,7 @@ export class WorkerWrapper extends EventEmitter {
                 if (data.name === "synchronized") {
                     resolve(data.data);
                 } else if (data.name === "exit") {
-                    resolve();
+                    resolve(undefined);
                 } else if (data.name === "exception" || data.name === "error") {
                     reject(data.data);
                 } else {

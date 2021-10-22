@@ -50,7 +50,7 @@ export class JSONCodec implements Codec {
             const blockStringified = JSONCodec.stringify(camelizeKeys(JSONCodec.removePrefix(block, "Block_")));
 
             return Buffer.from(blockStringified);
-        } catch (err) {
+        } catch (err: any) {
             throw new CodecException.BlockEncodeException(block.Block_id, err.message);
         }
     }
@@ -58,7 +58,7 @@ export class JSONCodec implements Codec {
     public decodeBlock(buffer: Buffer): Models.Block {
         try {
             return JSON.parse(buffer.toString());
-        } catch (err) {
+        } catch (err: any) {
             throw new CodecException.BlockDecodeException(undefined, err.message);
         }
     }
@@ -71,7 +71,7 @@ export class JSONCodec implements Codec {
             tmp = JSONCodec.stringify(tmp);
 
             return Buffer.from(tmp);
-        } catch (err) {
+        } catch (err: any) {
             throw new CodecException.TransactionEncodeException(transaction.Transaction_id, err.message);
         }
     }
@@ -89,7 +89,7 @@ export class JSONCodec implements Codec {
             tmp.serialized = Buffer.from(serialized);
 
             return tmp;
-        } catch (err) {
+        } catch (err: any) {
             throw new CodecException.TransactionDecodeException(undefined, err.message);
         }
     }
@@ -97,7 +97,7 @@ export class JSONCodec implements Codec {
     public encodeRound(round: any): Buffer {
         try {
             return Buffer.from(JSONCodec.stringify(camelizeKeys(JSONCodec.removePrefix(round, "Round_"))));
-        } catch (err) {
+        } catch (err: any) {
             throw new CodecException.RoundEncodeException(round.Round_round, err.message);
         }
     }
@@ -105,7 +105,7 @@ export class JSONCodec implements Codec {
     public decodeRound(buffer: Buffer): Models.Round {
         try {
             return JSON.parse(buffer.toString());
-        } catch (err) {
+        } catch (err: any) {
             throw new CodecException.RoundDecodeException(undefined, err.message);
         }
     }

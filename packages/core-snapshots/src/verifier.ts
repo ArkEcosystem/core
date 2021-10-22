@@ -42,7 +42,7 @@ export class Verifier {
             const hash = Crypto.HashAlgorithms.sha256(bytes);
 
             isVerified = Crypto.Hash.verifyECDSA(hash, blockEntity.blockSignature, blockEntity.generatorPublicKey);
-        } catch (err) {
+        } catch (err: any) {
             throw new Exceptions.BlockVerifyException(blockEntity.id, err.message);
         }
 
@@ -64,7 +64,7 @@ export class Verifier {
             } else {
                 isVerified = transactionDeserialized.isVerified;
             }
-        } catch (err) {
+        } catch (err: any) {
             throw new Exceptions.TransactionVerifyException(transaction.id, err.message);
         }
 

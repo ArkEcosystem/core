@@ -24,7 +24,7 @@ export class MessagePackCodec implements Codec {
             const blockCamelized = camelizeKeys(MessagePackCodec.removePrefix(block, "Block_"));
 
             return Blocks.Serializer.serialize(blockCamelized, true);
-        } catch (err) {
+        } catch (err: any) {
             throw new CodecException.BlockEncodeException(block.Block_id, err.message);
         }
     }
@@ -32,7 +32,7 @@ export class MessagePackCodec implements Codec {
     public decodeBlock(buffer: Buffer): Models.Block {
         try {
             return Blocks.Deserializer.deserialize(buffer, false).data as Models.Block;
-        } catch (err) {
+        } catch (err: any) {
             throw new CodecException.BlockDecodeException(undefined, err.message);
         }
     }
@@ -47,7 +47,7 @@ export class MessagePackCodec implements Codec {
                 transaction.Transaction_timestamp,
                 transaction.Transaction_serialized,
             ]);
-        } catch (err) {
+        } catch (err: any) {
             throw new CodecException.TransactionEncodeException(transaction.Transaction_id, err.message);
         }
     }
@@ -84,8 +84,8 @@ export class MessagePackCodec implements Codec {
                 // @ts-ignore
                 asset: transaction.data.asset,
             };
-        } catch (err) {
-            throw new CodecException.TransactionDecodeException((transactionId as unknown) as string, err.message);
+        } catch (err: any) {
+            throw new CodecException.TransactionDecodeException(transactionId as unknown as string, err.message);
         }
     }
 
@@ -94,7 +94,7 @@ export class MessagePackCodec implements Codec {
             const roundCamelized = camelizeKeys(MessagePackCodec.removePrefix(round, "Round_"));
 
             return encode([roundCamelized.publicKey, roundCamelized.balance, roundCamelized.round]);
-        } catch (err) {
+        } catch (err: any) {
             throw new CodecException.RoundEncodeException(round.Round_round, err.message);
         }
     }
@@ -108,7 +108,7 @@ export class MessagePackCodec implements Codec {
                 balance,
                 round,
             };
-        } catch (err) {
+        } catch (err: any) {
             throw new CodecException.RoundDecodeException(undefined, err.message);
         }
     }
