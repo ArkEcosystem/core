@@ -209,7 +209,7 @@ export class ForgerService {
             this.logAppReady = true;
 
             return this.checkLater(this.getRoundRemainingSlotTime(this.round));
-        } catch (error) {
+        } catch (error: any) {
             if (error instanceof HostNoResponseError || error instanceof RelayCommunicationError) {
                 if (error.message.includes("blockchain isn't ready") || error.message.includes("App is not ready")) {
                     /* istanbul ignore else */

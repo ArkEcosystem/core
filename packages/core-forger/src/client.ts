@@ -90,7 +90,7 @@ export class Client {
                     transactions: block.transactions.map((tx) => tx.data),
                 }),
             });
-        } catch (error) {
+        } catch (error: any) {
             this.logger.error(`Broadcast block failed: ${error.message}`);
         }
     }
@@ -106,7 +106,7 @@ export class Client {
 
         try {
             await this.emit("p2p.internal.syncBlockchain");
-        } catch (error) {
+        } catch (error: any) {
             this.logger.error(`Could not sync check: ${error.message}`);
         }
     }
@@ -219,7 +219,7 @@ export class Client {
             const response: any = await this.host.socket.request(options);
 
             return codec.response.deserialize(response.payload);
-        } catch (error) {
+        } catch (error: any) {
             throw new RelayCommunicationError(`${this.host.hostname}:${this.host.port}<${event}>`, error.message);
         }
     }
