@@ -64,7 +64,7 @@ describe("DiscoverPlugins", () => {
             expect(plugins).toEqual([
                 {
                     name: "@namespace/package2",
-                    path: join(pluginsPath, "/namespace/package2"),
+                    path: join(pluginsPath, "/@namespace/package2"),
                     version: "2.0.0",
                 },
                 {
