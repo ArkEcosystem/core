@@ -81,7 +81,7 @@ export class Server {
             await this.server.start();
 
             this.logger.info(`Webhook Server started at ${this.server.info.uri}`);
-        } catch (error) {
+        } catch (error: any) {
             await this.app.terminate(`Failed to start Webhook Server!`, error);
         }
     }
@@ -95,7 +95,7 @@ export class Server {
             await this.server.stop();
 
             this.logger.info(`Webhook Server stopped at ${this.server.info.uri}`);
-        } catch (error) {
+        } catch (error: any) {
             await this.app.terminate(`Failed to stop Webhook Server!`, error);
         }
     }
