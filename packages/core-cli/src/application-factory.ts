@@ -46,7 +46,7 @@ import {
 import { Input, InputValidator } from "./input";
 import { Container, Identifiers, interfaces } from "./ioc";
 import { Output } from "./output";
-import { Config, Environment, Installer, Logger, ProcessManager, Updater } from "./services";
+import { Config, Environment, Installer, Logger, PluginManager, ProcessManager, Updater } from "./services";
 import { Process } from "./utils";
 
 export class ApplicationFactory {
@@ -65,12 +65,13 @@ export class ApplicationFactory {
         app.bind(Identifiers.ComponentFactory).to(ComponentFactory).inSingletonScope();
 
         app.bind(Identifiers.ProcessFactory).toFactory(
-            (context: interfaces.Context) => (token: string, type: string): Process => {
-                const process: Process = context.container.resolve(Process);
-                process.initialize(token, type);
+            (context: interfaces.Context) =>
+                (token: string, type: string): Process => {
+                    const process: Process = context.container.resolve(Process);
+                    process.initialize(token, type);
 
-                return process;
-            },
+                    return process;
+                },
         );
 
         // Services
@@ -83,6 +84,8 @@ export class ApplicationFactory {
         app.bind(Identifiers.Updater).to(Updater).inSingletonScope();
 
         app.bind(Identifiers.ProcessManager).to(ProcessManager).inSingletonScope();
+
+        app.bind(Identifiers.PluginManager).to(PluginManager).inSingletonScope();
 
         app.bind(Identifiers.Installer).to(Installer).inSingletonScope();
 

@@ -1,7 +1,6 @@
-import { Commands, Container } from "@arkecosystem/core-cli";
+import { Commands, Container, Contracts } from "@arkecosystem/core-cli";
 import { Networks } from "@arkecosystem/crypto";
 import Joi from "joi";
-import { existsSync, removeSync } from "fs-extra";
 
 /**
  * @export
@@ -10,6 +9,9 @@ import { existsSync, removeSync } from "fs-extra";
  */
 @Container.injectable()
 export class Command extends Commands.Command {
+    @Container.inject(Container.Identifiers.PluginManager)
+    private readonly pluginManager!: Contracts.PluginManager;
+
     /**
      * The console command signature.
      *
@@ -46,14 +48,10 @@ export class Command extends Commands.Command {
      * @memberof Command
      */
     public async execute(): Promise<void> {
-        const pkg: string = this.getArgument("package");
-
-        let directory: string = this.app.getCorePath("data", `plugins/${pkg}`);
-
-        if (!existsSync(directory)) {
-            throw new Error(`The package [${pkg}] does not exist.`);
-        }
-
-        removeSync(directory);
+        return await this.pluginManager.remove(
+            this.getFlag("token"),
+            this.getFlag("network"),
+            this.getArgument("package"),
+        );
     }
 }
