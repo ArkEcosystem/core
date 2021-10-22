@@ -61,7 +61,7 @@ export class Command extends Commands.Command {
             ) {
                 this.removeFiles();
             }
-        } catch (err) {
+        } catch (err: any) {
             this.components.fatal(err.message);
         }
     }

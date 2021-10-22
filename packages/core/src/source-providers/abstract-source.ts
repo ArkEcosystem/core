@@ -57,9 +57,9 @@ export abstract class AbstractSource implements Source {
         removeSync(this.getDestPath(packageName));
     }
 
-    public abstract async exists(value: string, version?: string): Promise<boolean>;
+    public abstract exists(value: string, version?: string): Promise<boolean>;
 
-    public abstract async update(value: string): Promise<void>;
+    public abstract update(value: string): Promise<void>;
 
-    protected abstract async preparePackage(value: string, version?: string): Promise<void>;
+    protected abstract preparePackage(value: string, version?: string): Promise<void>;
 }

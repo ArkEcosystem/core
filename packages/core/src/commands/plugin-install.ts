@@ -53,7 +53,7 @@ export class Command extends Commands.Command {
 
         try {
             return await this.install(pkg, version);
-        } catch (error) {
+        } catch (error: any) {
             throw new Error(error.message);
         }
     }
