@@ -96,8 +96,8 @@ export class Client {
         options.ws = {
             maxPayload: DEFAULT_MAX_PAYLOAD_CLIENT,
             ...options.ws,
-            perMessageDeflate: false
-        }
+            perMessageDeflate: false,
+        };
 
         // Configuration
         this._url = url;
@@ -155,7 +155,7 @@ export class Client {
             this._reconnection = null;
         }
 
-        return new Promise((resolve, reject) => {
+        return new Promise<void>((resolve, reject) => {
             this._connect(options, true, (err) => {
                 if (err) {
                     return reject(err);
