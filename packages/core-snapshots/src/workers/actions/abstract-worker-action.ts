@@ -81,7 +81,7 @@ export abstract class AbstractWorkerAction implements Worker.WorkerAction {
         }
     }
 
-    public abstract async start(): Promise<void>;
+    public abstract start(): Promise<void>;
 
     public abstract sync(data: Worker.WorkerSyncData): void;
 }
