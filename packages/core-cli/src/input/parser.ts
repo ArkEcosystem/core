@@ -16,6 +16,7 @@ export class InputParser {
 
         const argv: string[] = parsed._;
 
+        // @ts-ignore
         delete parsed._;
 
         return { args: argv, flags: parsed };

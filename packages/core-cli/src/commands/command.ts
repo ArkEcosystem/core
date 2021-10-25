@@ -326,5 +326,5 @@ export abstract class Command {
      * @returns {Promise<void>}
      * @memberof Command
      */
-    public abstract async execute(): Promise<void>;
+    public abstract execute(): Promise<void>;
 }
