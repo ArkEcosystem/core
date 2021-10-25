@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-forger",
-    "version": "4.0.0-next.0",
+    "version": "4.0.0-next-1",
     "description": "Forger for ARK Core",
     "license": "MIT",
     "contributors": [
@@ -22,10 +22,10 @@
         "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
-        "@arkecosystem/core-kernel": "4.0.0-next.0",
-        "@arkecosystem/core-p2p": "4.0.0-next.0",
-        "@arkecosystem/core-transactions": "4.0.0-next.0",
-        "@arkecosystem/crypto": "4.0.0-next.0",
+        "@arkecosystem/core-kernel": "4.0.0-next-1",
+        "@arkecosystem/core-p2p": "4.0.0-next-1",
+        "@arkecosystem/core-transactions": "4.0.0-next-1",
+        "@arkecosystem/crypto": "4.0.0-next-1",
         "joi": "17.4.2",
         "node-forge": "0.10.0",
         "wif": "2.0.6"
