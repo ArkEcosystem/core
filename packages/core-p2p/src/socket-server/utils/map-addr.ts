@@ -1,3 +1,4 @@
-import { process } from "ipaddr.js";
+import { parse } from "ipaddr.js";
 
-export const mapAddr = (addr: string) => process(addr).toString();
+// TODO: Check why process from ipaddr.js doesn't work
+export const mapAddr = (addr: string) => parse(addr).toString();
