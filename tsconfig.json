@@ -28,7 +28,8 @@
         "strict": true,
         "stripInternal": true,
         "target": "es2019",
-        "typeRoots": ["reflect-metadata", "node_modules/@types"]
+        "typeRoots": ["reflect-metadata", "node_modules/@types"],
+        "useUnknownInCatchVariables": false
     },
     "exclude": ["node_modules", "**/*.spec.ts", "**/*.test.ts"]
 }
