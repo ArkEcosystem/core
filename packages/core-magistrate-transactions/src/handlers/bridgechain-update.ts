@@ -57,6 +57,7 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
 
             const shallowCloneBridgechainUpdate = { ...transaction.asset.bridgechainUpdate };
             const bridgechainId = shallowCloneBridgechainUpdate.bridgechainId;
+            // @ts-ignore
             delete shallowCloneBridgechainUpdate.bridgechainId; // we don't want id in wallet bridgechain asset
 
             businessAttributes.bridgechains![bridgechainId].bridgechainAsset = {
@@ -159,6 +160,7 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
             businessAttributes.bridgechains[bridgechainUpdate.bridgechainId];
 
         const shallowCloneBridgechainUpdate = { ...bridgechainUpdate };
+        // @ts-ignore
         delete shallowCloneBridgechainUpdate.bridgechainId; // we don't want id in wallet bridgechain asset
         bridgechainAttributes.bridgechainAsset = {
             ...bridgechainAttributes.bridgechainAsset,
