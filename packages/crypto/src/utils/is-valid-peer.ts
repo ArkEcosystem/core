@@ -1,10 +1,10 @@
-import { parse, process } from "ipaddr.js";
+import * as ipAdd from "ipaddr.js";
 import os from "os";
 
 // todo: review the implementation of all methods
 export const isLocalHost = (ip: string, includeNetworkInterfaces: boolean = true): boolean => {
     try {
-        const parsed = parse(ip);
+        const parsed = ipAdd.parse(ip);
         if (parsed.range() === "loopback" || ip.startsWith("0") || ["127.0.0.1", "::ffff:127.0.0.1"].includes(ip)) {
             return true;
         }
@@ -25,7 +25,7 @@ export const isLocalHost = (ip: string, includeNetworkInterfaces: boolean = true
 
 const sanitizeRemoteAddress = (ip: string): string | undefined => {
     try {
-        return process(ip).toString();
+        return ipAdd.process(ip).toString();
     } catch (error) {
         return undefined;
     }
