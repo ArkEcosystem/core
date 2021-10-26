@@ -3,6 +3,19 @@ import { Command } from "@packages/core/src/commands/snapshot-restore";
 import { Container } from "@arkecosystem/core-kernel";
 import { Utils } from "@arkecosystem/core-cli";
 
+jest.mock("@packages/core-cli", () => {
+    const originalModule = jest.requireActual("@packages/core-cli");
+
+    return {
+        __esModule: true,
+        ...originalModule,
+        Utils: {
+            ...originalModule.Utils,
+            buildApplication: jest.fn(),
+        },
+    };
+});
+
 let cli;
 let mockSnapshotService;
 let mockEventListener;
