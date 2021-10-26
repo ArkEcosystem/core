@@ -1,7 +1,8 @@
-import { Container, Enums } from "@arkecosystem/core-kernel";
+import "jest-extended";
 
-import { PeerProcessor } from "@arkecosystem/core-p2p/src/peer-processor";
+import { Container, Enums } from "@arkecosystem/core-kernel";
 import { Peer } from "@arkecosystem/core-p2p/src/peer";
+import { PeerProcessor } from "@arkecosystem/core-p2p/src/peer-processor";
 
 describe("PeerProcessor", () => {
     let peerProcessor: PeerProcessor;
