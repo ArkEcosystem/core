@@ -8,7 +8,7 @@
         "experimentalDecorators": true,
         "forceConsistentCasingInFileNames": true,
         "lib": ["es2019"],
-        "module": "commonjs",
+        "module": "CommonJS",
         "moduleResolution": "node",
         "newLine": "lf",
         "noEmitOnError": true,
