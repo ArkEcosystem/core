@@ -602,20 +602,24 @@ describe("State Storage", () => {
     describe("clearWakeUpTimeout", () => {
         it("should clear wake up timers", () => {
             jest.useFakeTimers();
+            const spyOnClearTimeout = jest.spyOn(global, "clearTimeout");
             // @ts-ignore
             stateStorage.wakeUpTimeout = 1;
 
             stateStorage.clearWakeUpTimeout();
 
-            expect(clearTimeout).toHaveBeenCalledWith(1);
+            expect(spyOnClearTimeout).toHaveBeenCalledWith(1);
+            spyOnClearTimeout.mockRestore();
         });
 
         it("should do nothing if a timer is not set", () => {
             jest.useFakeTimers();
+            const spyOnClearTimeout = jest.spyOn(global, "clearTimeout");
 
             stateStorage.clearWakeUpTimeout();
 
-            expect(clearTimeout).not.toHaveBeenCalled();
+            expect(spyOnClearTimeout).not.toHaveBeenCalled();
+            spyOnClearTimeout.mockRestore();
         });
     });
 });

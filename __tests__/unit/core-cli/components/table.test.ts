@@ -25,9 +25,9 @@ describe("Table", () => {
 
         expect(message).toContain("ID");
         expect(message).toContain("Name");
-        expect(message).toContain(1);
+        expect(message).toContain("1");
         expect(message).toContain("John Doe");
-        expect(message).toContain(2);
+        expect(message).toContain("2");
         expect(message).toContain("Jane Doe");
     });
 });
