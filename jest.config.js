@@ -32,7 +32,7 @@ module.exports = {
     //     },
     // },
     watchman: false,
-    setupFilesAfterEnv: ["jest-extended"],
+    setupFilesAfterEnv: ["jest-extended/all"],
     globals: {
         "ts-jest": {
             tsconfig: "tsconfig.test.json",
