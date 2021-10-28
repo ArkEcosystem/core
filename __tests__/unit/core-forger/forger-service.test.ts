@@ -255,6 +255,7 @@ describe("ForgerService", () => {
 
         it("should set correct timeout to check slots", async () => {
             jest.useFakeTimers();
+            const spyOnTimeout = jest.spyOn(global, "setTimeout");
 
             client.getRound.mockReturnValueOnce({
                 delegates,
@@ -267,7 +268,8 @@ describe("ForgerService", () => {
 
             jest.runAllTimers();
 
-            expect(setTimeout).toHaveBeenCalledWith(expect.any(Function), expect.toBeWithin(0, 2000));
+            expect(spyOnTimeout).toHaveBeenCalledWith(expect.any(Function), expect.toBeWithin(0, 2000));
+            spyOnTimeout.mockRestore();
         });
     });
 
@@ -475,6 +477,7 @@ describe("ForgerService", () => {
             expect(logger.info).not.toHaveBeenCalledWith(`Forger Manager started.`);
 
             jest.useFakeTimers();
+            const spyOnTimeout = jest.spyOn(global, "setTimeout");
 
             client.getRound.mockReturnValueOnce({
                 delegates,
@@ -482,13 +485,14 @@ describe("ForgerService", () => {
                 lastBlock: { height: 100 },
             });
             await expect(forgerService.checkSlot()).toResolve();
-            expect(setTimeout).toHaveBeenCalledWith(expect.any(Function), 200);
+            expect(spyOnTimeout).toHaveBeenCalledWith(expect.any(Function), 200);
 
             expect(logger.info).not.toHaveBeenCalled();
             expect(logger.warning).not.toHaveBeenCalled();
             expect(logger.error).not.toHaveBeenCalled();
             expect(logger.debug).not.toHaveBeenCalled();
 
+            spyOnTimeout.mockRestore();
             jest.useRealTimers();
         });
 
@@ -814,15 +818,17 @@ describe("ForgerService", () => {
 
             client.getRound.mockResolvedValueOnce(round.data as Contracts.P2P.CurrentRound);
             jest.useFakeTimers();
+            const spyOnTimeout = jest.spyOn(global, "setTimeout");
             // @ts-ignore
             await expect(forgerService.checkSlot()).toResolve();
 
-            expect(setTimeout).toHaveBeenCalledWith(expect.any(Function), 2000);
+            expect(spyOnTimeout).toHaveBeenCalledWith(expect.any(Function), 2000);
 
             expect(spyForgeNewBlock).not.toHaveBeenCalled();
 
             expect(logger.info).toHaveBeenCalledWith(`Waiting for relay to become ready.`);
 
+            spyOnTimeout.mockRestore();
             jest.useRealTimers();
         });
 
@@ -877,10 +883,11 @@ describe("ForgerService", () => {
 
             client.getRound.mockResolvedValueOnce(round.data as Contracts.P2P.CurrentRound);
             jest.useFakeTimers();
+            const spyOnTimeout = jest.spyOn(global, "setTimeout");
             // @ts-ignore
             await expect(forgerService.checkSlot()).toResolve();
 
-            expect(setTimeout).toHaveBeenCalledWith(expect.any(Function), 2000);
+            expect(spyOnTimeout).toHaveBeenCalledWith(expect.any(Function), 2000);
 
             expect(spyForgeNewBlock).not.toHaveBeenCalled();
 
@@ -888,6 +895,7 @@ describe("ForgerService", () => {
                 `Request to ${mockEndpoint} failed, because of '${mockError}'.`,
             );
 
+            spyOnTimeout.mockRestore();
             jest.useRealTimers();
         });
 
@@ -945,10 +953,11 @@ describe("ForgerService", () => {
 
             client.getRound.mockResolvedValueOnce(round.data as Contracts.P2P.CurrentRound);
             jest.useFakeTimers();
+            const spyOnTimeout = jest.spyOn(global, "setTimeout");
             // @ts-ignore
             await expect(forgerService.checkSlot()).toResolve();
 
-            expect(setTimeout).toHaveBeenCalledWith(expect.any(Function), 2000);
+            expect(spyOnTimeout).toHaveBeenCalledWith(expect.any(Function), 2000);
 
             expect(spyForgeNewBlock).not.toHaveBeenCalled();
 
@@ -958,6 +967,7 @@ describe("ForgerService", () => {
             const infoMessage = `Round: ${round.data.current.toLocaleString()}, height: ${round.data.lastBlock.height.toLocaleString()}`;
             expect(logger.info).toHaveBeenCalledWith(infoMessage);
 
+            spyOnTimeout.mockRestore();
             jest.useRealTimers();
         });
 
@@ -992,10 +1002,11 @@ describe("ForgerService", () => {
 
             client.getRound.mockResolvedValueOnce(round as Contracts.P2P.CurrentRound);
             jest.useFakeTimers();
+            const spyOnTimeout = jest.spyOn(global, "setTimeout");
             // @ts-ignore
             await expect(forgerService.checkSlot()).toResolve();
 
-            expect(setTimeout).toHaveBeenCalledWith(expect.any(Function), 2000);
+            expect(spyOnTimeout).toHaveBeenCalledWith(expect.any(Function), 2000);
 
             expect(spyForgeNewBlock).not.toHaveBeenCalled();
 
@@ -1004,6 +1015,7 @@ describe("ForgerService", () => {
             expect(spyClientEmitEvent).toHaveBeenCalledWith(Enums.ForgerEvent.Failed, { error: expect.any(String) });
             expect(logger.info).not.toHaveBeenCalled();
 
+            spyOnTimeout.mockRestore();
             jest.useRealTimers();
         });
     });

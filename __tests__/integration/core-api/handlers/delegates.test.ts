@@ -26,7 +26,7 @@ beforeAll(async () => {
     api = new ApiHelpers(app);
 
     await calculateRanks();
-});
+}, 10000);
 
 afterAll(async () => await tearDown());
 

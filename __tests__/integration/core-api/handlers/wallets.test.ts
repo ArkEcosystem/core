@@ -27,7 +27,7 @@ beforeAll(async () => {
     address = Identities.Address.fromPublicKey(publicKey);
 
     validIdentifiers.address = address;
-});
+}, 10000);
 
 afterAll(async () => await tearDown());
 
