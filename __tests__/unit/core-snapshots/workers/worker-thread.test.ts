@@ -149,7 +149,7 @@ describe("Worker", () => {
             data: {},
         };
 
-        await new Promise((resolve) => {
+        await new Promise<void>((resolve) => {
             worker.postMessage(message);
 
             worker.once("message", (data) => {

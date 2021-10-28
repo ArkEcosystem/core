@@ -300,11 +300,11 @@ export abstract class TransactionHandler {
      * Wallet logic
      */
 
-    public abstract async bootstrap(): Promise<void>;
+    public abstract bootstrap(): Promise<void>;
 
-    public abstract async applyToRecipient(transaction: Interfaces.ITransaction): Promise<void>;
+    public abstract applyToRecipient(transaction: Interfaces.ITransaction): Promise<void>;
 
-    public abstract async revertForRecipient(transaction: Interfaces.ITransaction): Promise<void>;
+    public abstract revertForRecipient(transaction: Interfaces.ITransaction): Promise<void>;
 }
 
 export type TransactionHandlerConstructor = new () => TransactionHandler;

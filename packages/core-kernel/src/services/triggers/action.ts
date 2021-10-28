@@ -69,6 +69,6 @@ export abstract class Action<T = any> {
      * @returns {T}
      * @memberof Action
      */
-    public abstract async execute<U>(args: ActionArguments): Promise<U>;
-    public abstract async execute<T>(args: ActionArguments): Promise<T>;
+    public abstract execute<U>(args: ActionArguments): Promise<U>;
+    public abstract execute<T>(args: ActionArguments): Promise<T>;
 }

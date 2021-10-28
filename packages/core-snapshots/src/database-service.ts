@@ -240,7 +240,7 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
                 }
 
                 await Promise.all([
-                    new Promise((resolve) => {
+                    new Promise<void>((resolve) => {
                         if (!transactionsQueue.isRunning()) {
                             resolve();
                         } else {
@@ -249,7 +249,7 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
                             });
                         }
                     }),
-                    new Promise((resolve) => {
+                    new Promise<void>((resolve) => {
                         if (!roundsQueue.isRunning()) {
                             resolve();
                         } else {

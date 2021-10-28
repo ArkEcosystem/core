@@ -1,3 +1,5 @@
+import "jest-extended";
+
 import { Container, Enums, Utils } from "@packages/core-kernel";
 import { ChunkCache } from "@packages/core-p2p/src/chunk-cache";
 import { NetworkMonitor } from "@packages/core-p2p/src/network-monitor";
@@ -9,7 +11,25 @@ import delay from "delay";
 import { cloneDeep } from "lodash";
 import path from "path";
 
+jest.mock("@packages/core-kernel", () => {
+    const originalModule = jest.requireActual("@packages/core-kernel");
+    const utilsModule = jest.requireActual("@packages/core-kernel/src/utils");
+
+    return {
+        __esModule: true,
+        ...originalModule,
+        Utils: {
+            ...originalModule.Utils,
+            sleep: utilsModule.sleep,
+        },
+    };
+});
+
 jest.setTimeout(60000);
+
+beforeEach(() => {
+    jest.resetAllMocks();
+});
 
 describe("NetworkMonitor", () => {
     let networkMonitor: NetworkMonitor;

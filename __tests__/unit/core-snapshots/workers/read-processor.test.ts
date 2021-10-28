@@ -69,7 +69,7 @@ describe("ReadProcessor", () => {
 
         await wait;
 
-        await new Promise((resolve) => {
+        await new Promise<void>((resolve) => {
             setTimeout(() => {
                 resolve();
             }, 1000);
@@ -83,7 +83,7 @@ describe("ReadProcessor", () => {
 
         await waitUntilSynchronized();
 
-        await new Promise((resolve) => {
+        await new Promise<void>((resolve) => {
             setTimeout(() => {
                 resolve();
             }, 1000);
