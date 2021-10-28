@@ -94,7 +94,7 @@ beforeAll(async () => {
     fee = +genesisTransaction.fee.toFixed();
     feeFrom = fee;
     feeTo = fee;
-});
+}, 10000);
 
 afterAll(async () => await tearDown());
 describe("API 2.0 - Transactions", () => {

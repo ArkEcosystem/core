@@ -16,7 +16,7 @@ beforeAll(async () => {
     api = new ApiHelpers(app);
 
     genesisBlock = Managers.configManager.get("genesisBlock");
-});
+}, 10000);
 
 afterAll(async () => await tearDown());
 

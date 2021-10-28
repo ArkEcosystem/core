@@ -11,7 +11,7 @@ let api: ApiHelpers;
 beforeAll(async () => {
     app = await setUp();
     api = new ApiHelpers(app);
-});
+}, 10000);
 
 afterAll(async () => await tearDown());
 

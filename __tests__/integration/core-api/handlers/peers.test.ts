@@ -47,7 +47,7 @@ beforeAll(async () => {
         // @ts-ignore
         app.get<Contracts.P2P.PeerRepository>(Container.Identifiers.PeerRepository).setPeer(peerMock);
     }
-});
+}, 10000);
 
 afterAll(async () => await tearDown());
 

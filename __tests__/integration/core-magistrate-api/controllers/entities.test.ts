@@ -53,7 +53,7 @@ beforeAll(async () => {
     }
 
     expect(walletRepository).toBeTruthy();
-});
+}, 10000);
 
 describe("/entities", () => {
     it("should return entities sorted by data.name:asc", async () => {

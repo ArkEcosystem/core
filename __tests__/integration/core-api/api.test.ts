@@ -8,7 +8,7 @@ let app: Application;
 
 beforeAll(async () => {
     app = await setUp();
-});
+}, 10000);
 
 afterAll(async () => {
     await tearDown();
