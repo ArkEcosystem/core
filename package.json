@@ -9,7 +9,7 @@
         "bootstrap": "yarn lerna bootstrap",
         "clean": "yarn lerna clean --yes",
         "build": "yarn lerna run build",
-        "lint": "./node_modules/eslint/bin/eslint.js packages --ext .ts --fix",
+        "lint": "./node_modules/eslint/bin/eslint.js packages/*/src --ext .ts --fix ",
         "lint:tests": "./node_modules/eslint/bin/eslint.js __tests__ --ext .ts --fix",
         "prettier": "prettier --write \"./*.{ts,js,json,md}\" \"./packages/**/*.{ts,js,json,md}\" \"./__tests__/**/*.{ts,js,json,md}\"",
         "format": "yarn lint && yarn prettier",
