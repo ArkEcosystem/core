@@ -5,7 +5,7 @@ import { Crypto, Enums, Identities } from "@arkecosystem/crypto";
 import secrets from "@packages/core-test-framework/src/internal/passphrases.json";
 import { snoozeForBlock, TransactionFactory } from "@packages/core-test-framework/src/utils";
 
-import { htlcSecretHashHex, htlcSecretHex } from "../../unit/crypto/transactions/__fixtures__/htlc";
+import { htlcSecretHashHex, htlcSecretHex } from "./__fixtures__/htlc";
 import * as support from "./__support__";
 
 const { passphrase, secondPassphrase } = support.passphrases;

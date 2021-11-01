@@ -51,7 +51,7 @@ package-lock.json
 bundle.min.js
 
 # Build
-packages/**/dist/
+packages/*/dist/
 
 # Microsoft Visual Studio settings
 .vs
