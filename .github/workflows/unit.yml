@@ -35,7 +35,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test __tests__/unit/core/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
+              run: yarn test packages/core/__tests__/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
@@ -69,7 +69,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core-api/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
+              run: yarn test:parallel packages/core-api/__tests__/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
@@ -103,7 +103,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core-blockchain/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
+              run: yarn test:parallel packages/core-blockchain/__tests__/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
@@ -137,7 +137,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core-cli/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
+              run: yarn test:parallel packages/core-cli/__tests__/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
@@ -171,7 +171,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core-database/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
+              run: yarn test:parallel packages/core-database/__tests__/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
@@ -205,7 +205,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core-forger/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
+              run: yarn test:parallel packages/core-forger/__tests__/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
@@ -239,7 +239,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core-kernel/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
+              run: yarn test:parallel packages/core-kernel/__tests__/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
@@ -273,7 +273,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core-logger-pino/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
+              run: yarn test:parallel packages/core-logger-pino/__tests__/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
@@ -307,7 +307,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core-magistrate-api/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
+              run: yarn test:parallel packages/core-magistrate-api/__tests__/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
@@ -341,7 +341,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core-magistrate-crypto/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
+              run: yarn test:parallel packages/core-magistrate-crypto/__tests__/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
@@ -375,7 +375,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core-magistrate-transactions/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
+              run: yarn test:parallel packages/core-magistrate-transactions/__tests__/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
@@ -409,7 +409,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test __tests__/unit/core-p2p/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
+              run: yarn test packages/core-p2p/__tests__/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
@@ -443,7 +443,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core-snapshots/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
+              run: yarn test:parallel packages/core-snapshots/__tests__/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
@@ -477,7 +477,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core-state/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
+              run: yarn test:parallel packages/core-state/__tests__/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
@@ -511,7 +511,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core-test-framework/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
+              run: yarn test:parallel packages/core-test-framework/__tests__/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
@@ -545,7 +545,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core-transaction-pool/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
+              run: yarn test:parallel packages/core-transaction-pool/__tests__/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
@@ -579,7 +579,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core-transactions/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
+              run: yarn test:parallel packages/core-transactions/__tests__/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
@@ -613,7 +613,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core-webhooks/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
+              run: yarn test:parallel packages/core-webhooks/__tests__/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
@@ -647,7 +647,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/crypto/ --coverage --coverage --coverageDirectory .coverage/unit/${{ github.job }}
+              run: yarn test:parallel packages/crypto/__tests__/ --coverage --coverage --coverageDirectory .coverage/unit/${{ github.job }}
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
               with:

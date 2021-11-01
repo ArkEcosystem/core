@@ -22,11 +22,16 @@ describe("ProcessManager", () => {
     describe(".list()", () => {
         it("should return an empty array if stdout is empty", () => {
             // Arrange...
-            const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-                stdout: null,
-                stderr: undefined,
-                failed: false,
-            });
+            const spySync: jest.SpyInstance = jest
+                .spyOn(execa, "sync")
+                // @ts-ignore
+                .mockImplementation((): Partial<execa.ExecaSyncReturnValue> => {
+                    return {
+                        stdout: "",
+                        stderr: "",
+                        failed: false,
+                    };
+                });
 
             // Act...
             const processes: Contracts.ProcessDescription[] | undefined = processManager.list();
@@ -39,11 +44,16 @@ describe("ProcessManager", () => {
 
         it("should return an empty array if stdout is empty after trimming", () => {
             // Arrange...
-            const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-                stdout: "\n",
-                stderr: undefined,
-                failed: false,
-            });
+            const spySync: jest.SpyInstance = jest
+                .spyOn(execa, "sync")
+                // @ts-ignore
+                .mockImplementation((): Partial<execa.ExecaSyncReturnValue> => {
+                    return {
+                        stdout: "\n",
+                        stderr: "",
+                        failed: false,
+                    };
+                });
 
             // Act...
             const processes: Contracts.ProcessDescription[] | undefined = processManager.list();
@@ -56,11 +66,16 @@ describe("ProcessManager", () => {
 
         it("should return an empty array if stdout is invalid JSON", () => {
             // Arrange...
-            const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-                stdout: "{",
-                stderr: undefined,
-                failed: false,
-            });
+            const spySync: jest.SpyInstance = jest
+                .spyOn(execa, "sync")
+                // @ts-ignore
+                .mockImplementation((): Partial<execa.ExecaSyncReturnValue> => {
+                    return {
+                        stdout: "{",
+                        stderr: "",
+                        failed: false,
+                    };
+                });
 
             // Act...
             const processes: Contracts.ProcessDescription[] | undefined = processManager.list();
@@ -88,11 +103,16 @@ describe("ProcessManager", () => {
 
         it("should return an array if stdout is valid JSON", () => {
             // Arrange...
-            const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-                stdout: '[{ "key": "value" }]',
-                stderr: undefined,
-                failed: false,
-            });
+            const spySync: jest.SpyInstance = jest
+                .spyOn(execa, "sync")
+                // @ts-ignore
+                .mockImplementation((): Partial<execa.ExecaSyncReturnValue> => {
+                    return {
+                        stdout: '[{ "key": "value" }]',
+                        stderr: "",
+                        failed: false,
+                    };
+                });
 
             // Act...
             const processes: Contracts.ProcessDescription[] | undefined = processManager.list();
@@ -107,11 +127,16 @@ describe("ProcessManager", () => {
     describe("#describe", () => {
         it("should return an object if the process exists", () => {
             // Arrange...
-            const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-                stdout: '[{ "id": "stub", "pm2_env": { "status": "unknown" } }]',
-                stderr: undefined,
-                failed: false,
-            });
+            const spySync: jest.SpyInstance = jest
+                .spyOn(execa, "sync")
+                // @ts-ignore
+                .mockImplementation((): Partial<execa.ExecaSyncReturnValue> => {
+                    return {
+                        stdout: '[{ "id": "stub", "pm2_env": { "status": "unknown" } }]',
+                        stderr: "",
+                        failed: false,
+                    };
+                });
 
             // Act...
             const process: Contracts.ProcessDescription | undefined = processManager.describe("stub");
@@ -123,11 +148,16 @@ describe("ProcessManager", () => {
 
         it("should return undefined if the process does not exist", () => {
             // Arrange...
-            const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-                stdout: '[{ "id": "stub-other", "pm2_env": { "status": "unknown" } }]',
-                stderr: undefined,
-                failed: false,
-            });
+            const spySync: jest.SpyInstance = jest
+                .spyOn(execa, "sync")
+                // @ts-ignore
+                .mockImplementation((): Partial<execa.ExecaSyncReturnValue> => {
+                    return {
+                        stdout: '[{ "id": "stub-other", "pm2_env": { "status": "unknown" } }]',
+                        stderr: "",
+                        failed: false,
+                    };
+                });
 
             // Act...
             const process: Contracts.ProcessDescription | undefined = processManager.describe("stub");
@@ -139,11 +169,16 @@ describe("ProcessManager", () => {
 
         it("should return undefined if stdout is an empty array", () => {
             // Arrange...
-            const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-                stdout: "[]",
-                stderr: undefined,
-                failed: false,
-            });
+            const spySync: jest.SpyInstance = jest
+                .spyOn(execa, "sync")
+                // @ts-ignore
+                .mockImplementation((): Partial<execa.ExecaSyncReturnValue> => {
+                    return {
+                        stdout: "[]",
+                        stderr: "",
+                        failed: false,
+                    };
+                });
 
             // Act...
             const process: Contracts.ProcessDescription | undefined = processManager.describe("stub");
@@ -171,11 +206,16 @@ describe("ProcessManager", () => {
     describe("#start", () => {
         it("should be OK if failed is false", () => {
             // Arrange...
-            const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-                stdout: null,
-                stderr: undefined,
-                failed: false,
-            });
+            const spySync: jest.SpyInstance = jest
+                .spyOn(execa, "sync")
+                // @ts-ignore
+                .mockImplementation((): Partial<execa.ExecaSyncReturnValue> => {
+                    return {
+                        stdout: "",
+                        stderr: "",
+                        failed: false,
+                    };
+                });
 
             // Act...
             const { failed } = processManager.start(
@@ -192,11 +232,16 @@ describe("ProcessManager", () => {
 
         it("should respect the given node_args", () => {
             // Arrange...
-            const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-                stdout: null,
-                stderr: undefined,
-                failed: false,
-            });
+            const spySync: jest.SpyInstance = jest
+                .spyOn(execa, "sync")
+                // @ts-ignore
+                .mockImplementation((): Partial<execa.ExecaSyncReturnValue> => {
+                    return {
+                        stdout: "",
+                        stderr: "",
+                        failed: false,
+                    };
+                });
 
             // Act...
             const { failed } = processManager.start(
@@ -217,11 +262,16 @@ describe("ProcessManager", () => {
 
         it("should respect the given args", () => {
             // Arrange...
-            const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-                stdout: null,
-                stderr: undefined,
-                failed: false,
-            });
+            const spySync: jest.SpyInstance = jest
+                .spyOn(execa, "sync")
+                // @ts-ignore
+                .mockImplementation((): Partial<execa.ExecaSyncReturnValue> => {
+                    return {
+                        stdout: "",
+                        stderr: "",
+                        failed: false,
+                    };
+                });
 
             // Act...
             const { failed } = processManager.start(
@@ -234,16 +284,23 @@ describe("ProcessManager", () => {
 
             // Assert...
             expect(failed).toBeFalse();
-            expect(spySync).toHaveBeenCalledWith("pm2 start stub.js --name='stub' -- core:run --daemon", { shell: true });
+            expect(spySync).toHaveBeenCalledWith("pm2 start stub.js --name='stub' -- core:run --daemon", {
+                shell: true,
+            });
         });
 
         it("should ignore the flags if they are undefined", () => {
             // Arrange...
-            const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-                stdout: null,
-                stderr: undefined,
-                failed: false,
-            });
+            const spySync: jest.SpyInstance = jest
+                .spyOn(execa, "sync")
+                // @ts-ignore
+                .mockImplementation((): Partial<execa.ExecaSyncReturnValue> => {
+                    return {
+                        stdout: "",
+                        stderr: "",
+                        failed: false,
+                    };
+                });
 
             // Act...
             const { failed } = processManager.start(
@@ -262,11 +319,16 @@ describe("ProcessManager", () => {
     describe("#stop", () => {
         it("should be OK if failed is false", () => {
             // Arrange...
-            const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-                stdout: null,
-                stderr: undefined,
-                failed: false,
-            });
+            const spySync: jest.SpyInstance = jest
+                .spyOn(execa, "sync")
+                // @ts-ignore
+                .mockImplementation((): Partial<execa.ExecaSyncReturnValue> => {
+                    return {
+                        stdout: "",
+                        stderr: "",
+                        failed: false,
+                    };
+                });
 
             // Act...
             const { failed } = processManager.stop("stub");
@@ -278,11 +340,16 @@ describe("ProcessManager", () => {
 
         it("should respect the given flags", () => {
             // Arrange...
-            const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-                stdout: null,
-                stderr: undefined,
-                failed: false,
-            });
+            const spySync: jest.SpyInstance = jest
+                .spyOn(execa, "sync")
+                // @ts-ignore
+                .mockImplementation((): Partial<execa.ExecaSyncReturnValue> => {
+                    return {
+                        stdout: "",
+                        stderr: "",
+                        failed: false,
+                    };
+                });
 
             // Act...
             const { failed } = processManager.stop("stub", { key: "value" });
@@ -296,11 +363,16 @@ describe("ProcessManager", () => {
     describe("#restart", () => {
         it("should be OK if failed is false", () => {
             // Arrange...
-            const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-                stdout: null,
-                stderr: undefined,
-                failed: false,
-            });
+            const spySync: jest.SpyInstance = jest
+                .spyOn(execa, "sync")
+                // @ts-ignore
+                .mockImplementation((): Partial<execa.ExecaSyncReturnValue> => {
+                    return {
+                        stdout: "",
+                        stderr: "",
+                        failed: false,
+                    };
+                });
 
             // Act...
             const { failed } = processManager.restart("stub");
@@ -312,11 +384,16 @@ describe("ProcessManager", () => {
 
         it("should respect the given flags", () => {
             // Arrange...
-            const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-                stdout: null,
-                stderr: undefined,
-                failed: false,
-            });
+            const spySync: jest.SpyInstance = jest
+                .spyOn(execa, "sync")
+                // @ts-ignore
+                .mockImplementation((): Partial<execa.ExecaSyncReturnValue> => {
+                    return {
+                        stdout: "",
+                        stderr: "",
+                        failed: false,
+                    };
+                });
 
             // Act...
             const { failed } = processManager.restart("stub", { key: "value" });
@@ -328,11 +405,16 @@ describe("ProcessManager", () => {
 
         it("should ignore the flags if they are empty", () => {
             // Arrange...
-            const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-                stdout: null,
-                stderr: undefined,
-                failed: false,
-            });
+            const spySync: jest.SpyInstance = jest
+                .spyOn(execa, "sync")
+                // @ts-ignore
+                .mockImplementation((): Partial<execa.ExecaSyncReturnValue> => {
+                    return {
+                        stdout: "",
+                        stderr: "",
+                        failed: false,
+                    };
+                });
 
             // Act...
             const { failed } = processManager.restart("stub", {});
@@ -346,11 +428,16 @@ describe("ProcessManager", () => {
     describe("#reload", () => {
         it(".reload()", () => {
             // Arrange...
-            const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-                stdout: null,
-                stderr: undefined,
-                failed: false,
-            });
+            const spySync: jest.SpyInstance = jest
+                .spyOn(execa, "sync")
+                // @ts-ignore
+                .mockImplementation((): Partial<execa.ExecaSyncReturnValue> => {
+                    return {
+                        stdout: "",
+                        stderr: "",
+                        failed: false,
+                    };
+                });
 
             // Act...
             const { failed } = processManager.reload("stub");
@@ -364,11 +451,16 @@ describe("ProcessManager", () => {
     describe("#reset", () => {
         it(".reset()", () => {
             // Arrange...
-            const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-                stdout: null,
-                stderr: undefined,
-                failed: false,
-            });
+            const spySync: jest.SpyInstance = jest
+                .spyOn(execa, "sync")
+                // @ts-ignore
+                .mockImplementation((): Partial<execa.ExecaSyncReturnValue> => {
+                    return {
+                        stdout: "",
+                        stderr: "",
+                        failed: false,
+                    };
+                });
 
             // Act...
             const { failed } = processManager.reset("stub");
@@ -382,11 +474,16 @@ describe("ProcessManager", () => {
     describe("#delete", () => {
         it(".delete()", () => {
             // Arrange...
-            const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-                stdout: null,
-                stderr: undefined,
-                failed: false,
-            });
+            const spySync: jest.SpyInstance = jest
+                .spyOn(execa, "sync")
+                // @ts-ignore
+                .mockImplementation((): Partial<execa.ExecaSyncReturnValue> => {
+                    return {
+                        stdout: "",
+                        stderr: "",
+                        failed: false,
+                    };
+                });
 
             // Act...
             const { failed } = processManager.delete("stub");
@@ -400,11 +497,16 @@ describe("ProcessManager", () => {
     describe("#flush", () => {
         it(".flush()", () => {
             // Arrange...
-            const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-                stdout: null,
-                stderr: undefined,
-                failed: false,
-            });
+            const spySync: jest.SpyInstance = jest
+                .spyOn(execa, "sync")
+                // @ts-ignore
+                .mockImplementation((): Partial<execa.ExecaSyncReturnValue> => {
+                    return {
+                        stdout: "",
+                        stderr: "",
+                        failed: false,
+                    };
+                });
 
             // Act...
             const { failed } = processManager.flush("stub");
@@ -418,11 +520,16 @@ describe("ProcessManager", () => {
     describe("#reloadLogs", () => {
         it(".reloadLogs()", () => {
             // Arrange...
-            const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-                stdout: null,
-                stderr: undefined,
-                failed: false,
-            });
+            const spySync: jest.SpyInstance = jest
+                .spyOn(execa, "sync")
+                // @ts-ignore
+                .mockImplementation((): Partial<execa.ExecaSyncReturnValue> => {
+                    return {
+                        stdout: "",
+                        stderr: "",
+                        failed: false,
+                    };
+                });
 
             // Act...
             const { failed } = processManager.reloadLogs();
@@ -436,11 +543,16 @@ describe("ProcessManager", () => {
     describe("#ping", () => {
         it(".ping()", () => {
             // Arrange...
-            const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-                stdout: null,
-                stderr: undefined,
-                failed: false,
-            });
+            const spySync: jest.SpyInstance = jest
+                .spyOn(execa, "sync")
+                // @ts-ignore
+                .mockImplementation((): Partial<execa.ExecaSyncReturnValue> => {
+                    return {
+                        stdout: "",
+                        stderr: "",
+                        failed: false,
+                    };
+                });
 
             // Act...
             const { failed } = processManager.ping();
@@ -454,11 +566,16 @@ describe("ProcessManager", () => {
     describe("#update", () => {
         it(".update()", () => {
             // Arrange...
-            const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-                stdout: null,
-                stderr: undefined,
-                failed: false,
-            });
+            const spySync: jest.SpyInstance = jest
+                .spyOn(execa, "sync")
+                // @ts-ignore
+                .mockImplementation((): Partial<execa.ExecaSyncReturnValue> => {
+                    return {
+                        stdout: "",
+                        stderr: "",
+                        failed: false,
+                    };
+                });
 
             // Act...
             const { failed } = processManager.update();
@@ -472,6 +589,7 @@ describe("ProcessManager", () => {
     describe("#trigger", () => {
         it(".trigger()", async () => {
             // Arrange...
+            // @ts-ignore
             execa.mockResolvedValue({
                 stdout: null,
                 stderr: undefined,
@@ -490,11 +608,16 @@ describe("ProcessManager", () => {
     describe("#status", () => {
         it("should return the status if the process exists", () => {
             // Arrange...
-            const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-                stdout: '[{ "id": "stub", "pm2_env": { "status": "online" } }]',
-                stderr: undefined,
-                failed: false,
-            });
+            const spySync: jest.SpyInstance = jest
+                .spyOn(execa, "sync")
+                // @ts-ignore
+                .mockImplementation((): Partial<execa.ExecaSyncReturnValue> => {
+                    return {
+                        stdout: '[{ "id": "stub", "pm2_env": { "status": "online" } }]',
+                        stderr: "",
+                        failed: false,
+                    };
+                });
 
             // Act...
             const status = processManager.status("stub");
@@ -522,11 +645,16 @@ describe("ProcessManager", () => {
     describe("#status", () => {
         it(".status()", () => {
             // Arrange...
-            const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-                stdout: '[{ "id": "stub-other", "pm2_env": { "status": "online" } }]',
-                stderr: undefined,
-                failed: false,
-            });
+            const spySync: jest.SpyInstance = jest
+                .spyOn(execa, "sync")
+                // @ts-ignore
+                .mockImplementation((): Partial<execa.ExecaSyncReturnValue> => {
+                    return {
+                        stdout: '[{ "id": "stub-other", "pm2_env": { "status": "online" } }]',
+                        stderr: "",
+                        failed: false,
+                    };
+                });
 
             // Act...
             const status = processManager.status("stub");
@@ -540,11 +668,16 @@ describe("ProcessManager", () => {
     describe("#isOnline", () => {
         it(".isOnline()", () => {
             // Arrange...
-            const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-                stdout: '[{ "id": "stub", "pm2_env": { "status": "online" } }]',
-                stderr: undefined,
-                failed: false,
-            });
+            const spySync: jest.SpyInstance = jest
+                .spyOn(execa, "sync")
+                // @ts-ignore
+                .mockImplementation((): Partial<execa.ExecaSyncReturnValue> => {
+                    return {
+                        stdout: '[{ "id": "stub", "pm2_env": { "status": "online" } }]',
+                        stderr: "",
+                        failed: false,
+                    };
+                });
 
             // Act...
             const status = processManager.isOnline("stub");
@@ -558,11 +691,16 @@ describe("ProcessManager", () => {
     describe("#isStopped", () => {
         it(".isStopped()", () => {
             // Arrange...
-            const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-                stdout: '[{ "id": "stub", "pm2_env": { "status": "stopped" } }]',
-                stderr: undefined,
-                failed: false,
-            });
+            const spySync: jest.SpyInstance = jest
+                .spyOn(execa, "sync")
+                // @ts-ignore
+                .mockImplementation((): Partial<execa.ExecaSyncReturnValue> => {
+                    return {
+                        stdout: '[{ "id": "stub", "pm2_env": { "status": "stopped" } }]',
+                        stderr: "",
+                        failed: false,
+                    };
+                });
 
             // Act...
             const status = processManager.isStopped("stub");
@@ -576,11 +714,16 @@ describe("ProcessManager", () => {
     describe("#isStopping", () => {
         it(".isStopping()", () => {
             // Arrange...
-            const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-                stdout: '[{ "id": "stub", "pm2_env": { "status": "stopping" } }]',
-                stderr: undefined,
-                failed: false,
-            });
+            const spySync: jest.SpyInstance = jest
+                .spyOn(execa, "sync")
+                // @ts-ignore
+                .mockImplementation((): Partial<execa.ExecaSyncReturnValue> => {
+                    return {
+                        stdout: '[{ "id": "stub", "pm2_env": { "status": "stopping" } }]',
+                        stderr: "",
+                        failed: false,
+                    };
+                });
 
             // Act...
             const status = processManager.isStopping("stub");
@@ -594,11 +737,16 @@ describe("ProcessManager", () => {
     describe("#isWaiting", () => {
         it(".isWaiting()", () => {
             // Arrange...
-            const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-                stdout: '[{ "id": "stub", "pm2_env": { "status": "waiting restart" } }]',
-                stderr: undefined,
-                failed: false,
-            });
+            const spySync: jest.SpyInstance = jest
+                .spyOn(execa, "sync")
+                // @ts-ignore
+                .mockImplementation((): Partial<execa.ExecaSyncReturnValue> => {
+                    return {
+                        stdout: '[{ "id": "stub", "pm2_env": { "status": "waiting restart" } }]',
+                        stderr: "",
+                        failed: false,
+                    };
+                });
 
             // Act...
             const status = processManager.isWaiting("stub");
@@ -612,11 +760,16 @@ describe("ProcessManager", () => {
     describe("#isLaunching", () => {
         it(".isLaunching()", () => {
             // Arrange...
-            const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-                stdout: '[{ "id": "stub", "pm2_env": { "status": "launching" } }]',
-                stderr: undefined,
-                failed: false,
-            });
+            const spySync: jest.SpyInstance = jest
+                .spyOn(execa, "sync")
+                // @ts-ignore
+                .mockImplementation((): Partial<execa.ExecaSyncReturnValue> => {
+                    return {
+                        stdout: '[{ "id": "stub", "pm2_env": { "status": "launching" } }]',
+                        stderr: "",
+                        failed: false,
+                    };
+                });
 
             // Act...
             const status = processManager.isLaunching("stub");
@@ -630,11 +783,16 @@ describe("ProcessManager", () => {
     describe("#isErrored", () => {
         it(".isErrored()", () => {
             // Arrange...
-            const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-                stdout: '[{ "id": "stub", "pm2_env": { "status": "errored" } }]',
-                stderr: undefined,
-                failed: false,
-            });
+            const spySync: jest.SpyInstance = jest
+                .spyOn(execa, "sync")
+                // @ts-ignore
+                .mockImplementation((): Partial<execa.ExecaSyncReturnValue> => {
+                    return {
+                        stdout: '[{ "id": "stub", "pm2_env": { "status": "errored" } }]',
+                        stderr: "",
+                        failed: false,
+                    };
+                });
 
             // Act...
             const status = processManager.isErrored("stub");
@@ -648,11 +806,16 @@ describe("ProcessManager", () => {
     describe("#isOneLaunch", () => {
         it(".isOneLaunch()", () => {
             // Arrange...
-            const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-                stdout: '[{ "id": "stub", "pm2_env": { "status": "one-launch-status" } }]',
-                stderr: undefined,
-                failed: false,
-            });
+            const spySync: jest.SpyInstance = jest
+                .spyOn(execa, "sync")
+                // @ts-ignore
+                .mockImplementation((): Partial<execa.ExecaSyncReturnValue> => {
+                    return {
+                        stdout: '[{ "id": "stub", "pm2_env": { "status": "one-launch-status" } }]',
+                        stderr: "",
+                        failed: false,
+                    };
+                });
 
             // Act...
             const status = processManager.isOneLaunch("stub");
@@ -666,11 +829,16 @@ describe("ProcessManager", () => {
     describe("#isUnknown", () => {
         it("should return true if the process has a status of [unknown]", () => {
             // Arrange...
-            const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-                stdout: '[{ "id": "stub", "pm2_env": { "status": "unknown" } }]',
-                stderr: undefined,
-                failed: false,
-            });
+            const spySync: jest.SpyInstance = jest
+                .spyOn(execa, "sync")
+                // @ts-ignore
+                .mockImplementation((): Partial<execa.ExecaSyncReturnValue> => {
+                    return {
+                        stdout: '[{ "id": "stub", "pm2_env": { "status": "unknown" } }]',
+                        stderr: "",
+                        failed: false,
+                    };
+                });
 
             // Act...
             const status = processManager.isUnknown("stub");
@@ -682,11 +850,16 @@ describe("ProcessManager", () => {
 
         it("should return false if the process has a status other than [unknown]", () => {
             // Arrange...
-            const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-                stdout: '[{ "id": "stub", "pm2_env": { "status": "online" } }]',
-                stderr: undefined,
-                failed: false,
-            });
+            const spySync: jest.SpyInstance = jest
+                .spyOn(execa, "sync")
+                // @ts-ignore
+                .mockImplementation((): Partial<execa.ExecaSyncReturnValue> => {
+                    return {
+                        stdout: '[{ "id": "stub", "pm2_env": { "status": "online" } }]',
+                        stderr: "",
+                        failed: false,
+                    };
+                });
 
             // Act...
             const status = processManager.isUnknown("stub");
@@ -714,11 +887,16 @@ describe("ProcessManager", () => {
     describe("#has", () => {
         it("should return true if the process ID is a number", () => {
             // Arrange...
-            const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-                stdout: 1,
-                stderr: undefined,
-                failed: false,
-            });
+            const spySync: jest.SpyInstance = jest
+                .spyOn(execa, "sync")
+                // @ts-ignore
+                .mockImplementation((): Partial<execa.ExecaSyncReturnValue> => {
+                    return {
+                        stdout: "1",
+                        stderr: "",
+                        failed: false,
+                    };
+                });
 
             // Act...
             const status = processManager.has("stub");
@@ -730,11 +908,16 @@ describe("ProcessManager", () => {
 
         it("return false if the process ID is not a number", () => {
             // Arrange...
-            const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-                stdout: "",
-                stderr: undefined,
-                failed: false,
-            });
+            const spySync: jest.SpyInstance = jest
+                .spyOn(execa, "sync")
+                // @ts-ignore
+                .mockImplementation((): Partial<execa.ExecaSyncReturnValue> => {
+                    return {
+                        stdout: "",
+                        stderr: "",
+                        failed: false,
+                    };
+                });
 
             // Act...
             const status = processManager.has("stub");
@@ -762,11 +945,16 @@ describe("ProcessManager", () => {
     describe("#missing", () => {
         it("return true if the process ID is not a number", () => {
             // Arrange...
-            const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-                stdout: "",
-                stderr: undefined,
-                failed: false,
-            });
+            const spySync: jest.SpyInstance = jest
+                .spyOn(execa, "sync")
+                // @ts-ignore
+                .mockImplementation((): Partial<execa.ExecaSyncReturnValue> => {
+                    return {
+                        stdout: "",
+                        stderr: "",
+                        failed: false,
+                    };
+                });
 
             // Act...
             const status = processManager.missing("stub");
@@ -778,11 +966,16 @@ describe("ProcessManager", () => {
 
         it("return false if the process ID is a number", () => {
             // Arrange...
-            const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-                stdout: 1,
-                stderr: undefined,
-                failed: false,
-            });
+            const spySync: jest.SpyInstance = jest
+                .spyOn(execa, "sync")
+                // @ts-ignore
+                .mockImplementation((): Partial<execa.ExecaSyncReturnValue> => {
+                    return {
+                        stdout: "1",
+                        stderr: "",
+                        failed: false,
+                    };
+                });
 
             // Act...
             const status = processManager.missing("stub");
