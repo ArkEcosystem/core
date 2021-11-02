@@ -14,7 +14,7 @@ export class IpcHandler<T> {
     }
 
     public handleAction<K extends Actions<T>>(method: K): void {
-        process.on("message", (message) => {
+        process.on("message", (message: { method: string; args: any }) => {
             /* istanbul ignore else */
             if (message.method === method) {
                 this.handler[method](...message.args);
@@ -23,7 +23,7 @@ export class IpcHandler<T> {
     }
 
     public handleRequest<K extends Requests<T>>(method: K): void {
-        process.on("message", async (message) => {
+        process.on("message", async (message: { method: string; id: string; args: any }) => {
             /* istanbul ignore else */
             if (message.method === method) {
                 try {
