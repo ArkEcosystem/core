@@ -31,6 +31,7 @@
         "@typescript-eslint/no-namespace": "off",
         "@typescript-eslint/no-non-null-assertion": "off",
         "@typescript-eslint/no-unsafe-assignment": "off",
+        "@typescript-eslint/no-unsafe-argument": "off",
         "@typescript-eslint/no-unsafe-call": "off",
         "@typescript-eslint/no-unsafe-member-access": "off",
         "@typescript-eslint/no-unsafe-return": "off",
@@ -54,6 +55,6 @@
         ],
         "prettier/prettier": "error",
         "require-atomic-updates": "off",
-        "simple-import-sort/sort": "error"
+        "simple-import-sort/imports": "error"
     }
 }
