@@ -6,10 +6,10 @@ import { PackageJson } from "type-fest";
 import { Application } from "../application";
 import { Confirm, Spinner, Warning } from "../components";
 import { Config } from "../contracts";
+import * as Contracts from "../contracts";
 import { Identifiers, inject, injectable } from "../ioc";
 import { Installer } from "./installer";
 import { ProcessManager } from "./process-manager";
-import * as Contracts from "../contracts";
 
 const ONE_DAY = 1000 * 60 * 60 * 24;
 
@@ -72,6 +72,18 @@ export class Updater implements Contracts.Updater {
      * @memberof Updater
      */
     private latestVersion: string | undefined;
+
+    private get packageName(): string {
+        return this.pkg.name!;
+    }
+
+    private get packageVersion(): string {
+        return this.pkg.version!;
+    }
+
+    private get packageChannel(): string {
+        return this.config.get("channel");
+    }
 
     /**
      * @returns {Promise<boolean>}
@@ -166,17 +178,5 @@ export class Updater implements Contracts.Updater {
 
             return undefined;
         }
-    }
-
-    private get packageName(): string {
-        return this.pkg.name!;
-    }
-
-    private get packageVersion(): string {
-        return this.pkg.version!;
-    }
-
-    private get packageChannel(): string {
-        return this.config.get("channel");
     }
 }
