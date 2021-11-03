@@ -1,8 +1,8 @@
 import "jest-extended";
 
-import { Container } from "@arkecosystem/core-cli";
-import { Console } from "@arkecosystem/core-test-framework";
+import { Container } from "@packages/core-cli";
 import { Updater } from "@packages/core-cli/src/services/updater";
+import { Console } from "@packages/core-test-framework";
 import nock from "nock";
 import prompts from "prompts";
 
