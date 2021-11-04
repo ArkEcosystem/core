@@ -22,11 +22,11 @@
         "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
-        "@arkecosystem/core-api": "4.0.0-next-1",
-        "@arkecosystem/core-kernel": "4.0.0-next-1",
-        "@arkecosystem/core-magistrate-crypto": "4.0.0-next-1",
-        "@arkecosystem/core-magistrate-transactions": "4.0.0-next-1",
-        "@arkecosystem/crypto": "4.0.0-next-1",
+        "@arkecosystem/core-api": "workspace:*",
+        "@arkecosystem/core-kernel": "workspace:*",
+        "@arkecosystem/core-magistrate-crypto": "workspace:*",
+        "@arkecosystem/core-magistrate-transactions": "workspace:*",
+        "@arkecosystem/crypto": "workspace:*",
         "@hapi/boom": "9.1.4",
         "@hapi/hapi": "20.1.5",
         "joi": "17.4.2"
