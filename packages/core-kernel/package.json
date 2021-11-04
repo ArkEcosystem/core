@@ -12,11 +12,11 @@
         "dist"
     ],
     "scripts": {
-        "prepublishOnly": "yarn build",
-        "pretest": "yarn lint && yarn build",
+        "prepublishOnly": "pnpm build",
+        "pretest": "pnpm lint && pnpm build",
         "compile": "node ../../node_modules/typescript/bin/tsc",
-        "build": "yarn clean && yarn compile",
-        "build:watch": "yarn clean && yarn compile -w",
+        "build": "pnpm clean && pnpm compile",
+        "build:watch": "pnpm clean && pnpm compile -w",
         "build:docs": "../../node_modules/typedoc/bin/typedoc --out docs src",
         "clean": "rimraf dist"
     },
