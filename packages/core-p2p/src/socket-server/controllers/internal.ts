@@ -56,9 +56,11 @@ export class InternalController extends Controller {
         const roundInfo = Utils.roundCalculator.calculateRound(height);
 
         const reward = Managers.configManager.getMilestone(height).reward;
-        const delegates: Contracts.P2P.DelegateWallet[] = ((await this.triggers.call("getActiveDelegates", {
-            roundInfo,
-        })) as Contracts.State.Wallet[]).map((wallet) => ({
+        const delegates: Contracts.P2P.DelegateWallet[] = (
+            (await this.triggers.call("getActiveDelegates", {
+                roundInfo,
+            })) as Contracts.State.Wallet[]
+        ).map((wallet) => ({
             ...wallet.getData(),
             delegate: wallet.getAttribute("delegate"),
         }));

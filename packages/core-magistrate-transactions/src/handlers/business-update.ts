@@ -45,9 +45,8 @@ export class BusinessUpdateTransactionHandler extends MagistrateTransactionHandl
 
             const wallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.senderPublicKey);
 
-            const businessWalletAsset: MagistrateInterfaces.IBusinessRegistrationAsset = wallet.getAttribute<
-                IBusinessWalletAttributes
-            >("business").businessAsset;
+            const businessWalletAsset: MagistrateInterfaces.IBusinessRegistrationAsset =
+                wallet.getAttribute<IBusinessWalletAttributes>("business").businessAsset;
             const businessUpdate: MagistrateInterfaces.IBusinessUpdateAsset = transaction.asset.businessUpdate;
 
             wallet.setAttribute("business.businessAsset", {
@@ -96,9 +95,8 @@ export class BusinessUpdateTransactionHandler extends MagistrateTransactionHandl
 
         const sender: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
-        const businessWalletAsset: MagistrateInterfaces.IBusinessRegistrationAsset = sender.getAttribute<
-            IBusinessWalletAttributes
-        >("business").businessAsset;
+        const businessWalletAsset: MagistrateInterfaces.IBusinessRegistrationAsset =
+            sender.getAttribute<IBusinessWalletAttributes>("business").businessAsset;
 
         AppUtils.assert.defined<MagistrateInterfaces.IBusinessUpdateAsset>(transaction.data.asset?.businessUpdate);
 

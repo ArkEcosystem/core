@@ -1,4 +1,5 @@
 import { Contracts } from "@arkecosystem/core-kernel";
+
 import { BlocksRoute } from "../routes/blocks";
 import { InternalRoute } from "../routes/internal";
 import { PeerRoute } from "../routes/peer";
@@ -19,4 +20,4 @@ export const getCodec = (app: Contracts.Kernel.Application, event: string): Code
     }
 
     return codecByEvent[event];
-}
+};

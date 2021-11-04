@@ -291,9 +291,10 @@ export class StateStore implements Contracts.State.StateStore {
     /**
      * Cache the ids of the given transactions.
      */
-    public cacheTransactions(
-        transactions: Interfaces.ITransactionData[],
-    ): { added: Interfaces.ITransactionData[]; notAdded: Interfaces.ITransactionData[] } {
+    public cacheTransactions(transactions: Interfaces.ITransactionData[]): {
+        added: Interfaces.ITransactionData[];
+        notAdded: Interfaces.ITransactionData[];
+    } {
         const notAdded: Interfaces.ITransactionData[] = [];
         const added: Interfaces.ITransactionData[] = transactions.filter((tx) => {
             Utils.assert.defined<string>(tx.id);

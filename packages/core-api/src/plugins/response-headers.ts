@@ -20,6 +20,6 @@ export const responseHeaders = {
             responsePropToUpdate.headers["X-Block-Height"] = blockHeight;
 
             return h.continue;
-        }
+        };
     },
 };

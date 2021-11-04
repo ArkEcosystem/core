@@ -1,5 +1,6 @@
 import { Contracts } from "@arkecosystem/core-kernel";
 import { Utils } from "@arkecosystem/crypto";
+
 import { peer } from "./proto/protos";
 
 export const getPeers = {
@@ -23,7 +24,7 @@ export const getCommonBlocks = {
             return Buffer.from(peer.GetCommonBlocksRequest.encode(obj).finish());
         },
         deserialize: (payload: Buffer): peer.IGetCommonBlocksRequest => {
-            return peer.GetCommonBlocksRequest.decode(payload)
+            return peer.GetCommonBlocksRequest.decode(payload);
         },
     },
     response: {
@@ -46,7 +47,7 @@ export const getStatus = {
             obj.state.header.totalAmount = obj.state.header.totalAmount.toString();
             obj.state.header.totalFee = obj.state.header.totalFee.toString();
             obj.state.header.reward = obj.state.header.reward.toString();
-            return Buffer.from(peer.GetStatusResponse.encode(obj).finish())
+            return Buffer.from(peer.GetStatusResponse.encode(obj).finish());
         },
         deserialize: (payload: Buffer): Contracts.P2P.PeerPingResponse => {
             const decoded = peer.GetStatusResponse.decode(payload);
@@ -63,9 +64,9 @@ export const getStatus = {
                         totalAmount,
                         totalFee,
                         reward,
-                    }
-                }
+                    },
+                },
             } as Contracts.P2P.PeerPingResponse;
         },
     },
-}
+};

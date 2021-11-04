@@ -1,7 +1,7 @@
 import { Container, Contracts, Enums, Services, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { NetworkStateStatus } from "@arkecosystem/core-p2p";
-import { Blocks, Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import { Handlers } from "@arkecosystem/core-transactions";
+import { Blocks, Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 
 import { Client } from "./client";
 import { HostNoResponseError, RelayCommunicationError } from "./errors";

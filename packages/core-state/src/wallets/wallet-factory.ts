@@ -1,4 +1,5 @@
 import { Contracts, Services } from "@arkecosystem/core-kernel";
+
 import { Wallet } from "./wallet";
 
 export const walletFactory = (

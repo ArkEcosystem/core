@@ -81,8 +81,8 @@ export class ReadProcessor {
             }
 
             if (this.isBlock) {
-                this.transactionsCount += ((entity as unknown) as Models.Block).numberOfTransactions;
-                this.height = ((entity as unknown) as Models.Block).height;
+                this.transactionsCount += (entity as unknown as Models.Block).numberOfTransactions;
+                this.height = (entity as unknown as Models.Block).height;
             }
 
             previousEntity = entity;

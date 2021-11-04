@@ -48,7 +48,7 @@ export class TransactionFactory {
     }
 
     public static fromJson(json: ITransactionJson): ITransaction {
-        const data: ITransactionData = ({ ...json } as unknown) as ITransactionData;
+        const data: ITransactionData = { ...json } as unknown as ITransactionData;
         data.amount = BigNumber.make(data.amount);
         data.fee = BigNumber.make(data.fee);
 

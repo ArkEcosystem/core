@@ -1,6 +1,6 @@
 import { Container, Providers, Services } from "@arkecosystem/core-kernel";
 
-import { One, Two, TransactionHandlerConstructor } from "./handlers";
+import { One, TransactionHandlerConstructor, Two } from "./handlers";
 import { TransactionHandlerProvider } from "./handlers/handler-provider";
 import { TransactionHandlerRegistry } from "./handlers/handler-registry";
 

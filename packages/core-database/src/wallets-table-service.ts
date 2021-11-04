@@ -1,4 +1,4 @@
-import { Contracts, Container } from "@arkecosystem/core-kernel";
+import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { Connection } from "typeorm";
 
 @Container.injectable()
@@ -38,7 +38,13 @@ export class WalletsTableService implements Contracts.Database.WalletsTableServi
                     const batchWallets = wallets.slice(i, i + batchSize);
 
                     const params = batchWallets
-                        .map((w) => [w.getAddress(), w.getPublicKey(), w.getBalance().toFixed(), w.getNonce().toFixed(), w.getAttributes()])
+                        .map((w) => [
+                            w.getAddress(),
+                            w.getPublicKey(),
+                            w.getBalance().toFixed(),
+                            w.getNonce().toFixed(),
+                            w.getAttributes(),
+                        ])
                         .flat();
 
                     const values = batchWallets

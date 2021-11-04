@@ -45,11 +45,9 @@ export class TransactionHandlerRegistry {
     }
 
     public async getActivatedHandlers(): Promise<TransactionHandler[]> {
-        const promises = this.handlers.map(
-            async (handler): Promise<[TransactionHandler, boolean]> => {
-                return [handler, await handler.isActivated()];
-            },
-        );
+        const promises = this.handlers.map(async (handler): Promise<[TransactionHandler, boolean]> => {
+            return [handler, await handler.isActivated()];
+        });
         const results = await Promise.all(promises);
         const activated = results.filter(([_, activated]) => activated);
         return activated.map(([handler, _]) => handler);
