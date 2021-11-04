@@ -267,6 +267,7 @@ importers:
       read-last-lines: 1.8.0
       reflect-metadata: 0.1.13
       semver: 6.3.0
+      tar: 6.1.11
       type-fest: 0.21.3
       yargs-parser: 20.2.9
     dependencies:
@@ -293,6 +294,7 @@ importers:
       read-last-lines: registry.npmjs.org/read-last-lines/1.8.0
       reflect-metadata: registry.npmjs.org/reflect-metadata/0.1.13
       semver: registry.npmjs.org/semver/6.3.0
+      tar: registry.npmjs.org/tar/6.1.11
       type-fest: registry.npmjs.org/type-fest/0.21.3
       yargs-parser: registry.npmjs.org/yargs-parser/20.2.9
     devDependencies:
