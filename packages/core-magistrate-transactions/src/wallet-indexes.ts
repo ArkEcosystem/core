@@ -1,5 +1,4 @@
 import { Contracts, Utils } from "@arkecosystem/core-kernel";
-import { Interfaces as MagistrateInterfaces } from "@arkecosystem/core-magistrate-crypto";
 
 export enum MagistrateIndex {
     Businesses = "businesses",
