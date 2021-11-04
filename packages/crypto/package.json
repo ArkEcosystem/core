@@ -22,13 +22,13 @@
     "jsdelivr": "dist/index.bundled.min.js",
     "types": "dist/index.d.ts",
     "scripts": {
-        "build": "yarn clean && tsc",
-        "build:rollup": "yarn clean && tsc && rollup -c",
-        "build:watch": "yarn clean && yarn compile -w",
+        "build": "pnpm clean && tsc",
+        "build:rollup": "pnpm clean && tsc && rollup -c",
+        "build:watch": "pnpm clean && pnpm compile -w",
         "build:docs": "../../node_modules/typedoc/bin/typedoc --out docs src",
         "clean": "rimraf dist",
         "compile": "node ../../node_modules/typescript/bin/tsc",
-        "prepublishOnly": "yarn build:rollup"
+        "prepublishOnly": "pnpm build:rollup"
     },
     "dependencies": {
         "@arkecosystem/crypto-identities": "1.2.0",
