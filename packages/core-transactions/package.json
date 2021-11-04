@@ -20,9 +20,9 @@
         "prepublishOnly": "yarn build"
     },
     "dependencies": {
-        "@arkecosystem/core-database": "4.0.0-next-1",
-        "@arkecosystem/core-kernel": "4.0.0-next-1",
-        "@arkecosystem/crypto": "4.0.0-next-1"
+        "@arkecosystem/core-database": "workspace:*",
+        "@arkecosystem/core-kernel": "workspace:*",
+        "@arkecosystem/crypto": "workspace:*"
     },
     "engines": {
         "node": ">=10.x"
