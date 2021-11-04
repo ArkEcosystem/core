@@ -8,7 +8,7 @@
         "setup:clean": "yarn && yarn clean && yarn bootstrap && yarn build",
         "bootstrap": "yarn lerna bootstrap",
         "clean": "yarn lerna clean --yes",
-        "build": "yarn lerna run build",
+        "build": "pnpm build -r",
         "lint": "eslint packages/*/src --ext .ts --fix ",
         "lint:tests": "eslint __tests__ packages/*/__tests__ --ext .ts --fix",
         "prettier": "prettier --write \"./*.{ts,js,json,md}\" \"./packages/**/*.{ts,js,json,md}\" \"./__tests__/**/*.{ts,js,json,md}\"",
