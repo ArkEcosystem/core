@@ -33,6 +33,7 @@ importers:
       eslint-plugin-jest: 25.2.2
       eslint-plugin-prettier: 4.0.0
       eslint-plugin-simple-import-sort: 7.0.0
+      fs-extra: 10.0.0
       get-port: 6.0.0
       husky: 7.0.4
       jest: 27.3.1
@@ -84,6 +85,7 @@ importers:
       eslint-plugin-jest: registry.npmjs.org/eslint-plugin-jest/25.2.2_8b83960a909347b56897443063930486
       eslint-plugin-prettier: registry.npmjs.org/eslint-plugin-prettier/4.0.0_850528f9ec3c0797b9b19a94a36b5ba3
       eslint-plugin-simple-import-sort: registry.npmjs.org/eslint-plugin-simple-import-sort/7.0.0_eslint@8.1.0
+      fs-extra: registry.npmjs.org/fs-extra/10.0.0
       get-port: registry.npmjs.org/get-port/6.0.0
       husky: registry.npmjs.org/husky/7.0.4
       jest: registry.npmjs.org/jest/27.3.1
