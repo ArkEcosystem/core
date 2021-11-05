@@ -8,9 +8,9 @@ import { AbstractRepository } from "./abstract-repository";
 @EntityRepository(Block)
 export class BlockRepository extends AbstractRepository<Block> {
     public async findLatest(): Promise<Interfaces.IBlockData | undefined> {
-        return (this.findOne({
+        return this.findOne({
             order: { height: "DESC" },
-        }) as unknown) as Interfaces.IBlockData; // TODO: refactor
+        }) as unknown as Interfaces.IBlockData; // TODO: refactor
     }
 
     public async findRecent(limit: number): Promise<{ id: string }[]> {

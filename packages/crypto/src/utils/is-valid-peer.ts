@@ -10,11 +10,9 @@ export const isLocalHost = (ip: string, includeNetworkInterfaces: boolean = true
         }
 
         if (includeNetworkInterfaces) {
-            const interfaces: {
-                [index: string]: os.NetworkInterfaceInfo[];
-            } = os.networkInterfaces();
+            const interfaces = os.networkInterfaces();
 
-            return Object.keys(interfaces).some((ifname) => interfaces[ifname].some((iface) => iface.address === ip));
+            return Object.keys(interfaces).some((ifname) => interfaces[ifname]!.some((iface) => iface.address === ip));
         }
 
         return false;

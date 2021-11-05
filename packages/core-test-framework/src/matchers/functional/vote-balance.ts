@@ -28,7 +28,7 @@ expect.extend({
             pass,
             message: /* istanbul ignore next */ () =>
                 `expected delegate ${publicKey} ${
-                    // @ts-ignore                    
+                    // @ts-ignore
                     this.isNot ? "not" : ""
                 } to have vote balance = ${voteBalance}, got ${fetchedVoteBalance}`,
         };

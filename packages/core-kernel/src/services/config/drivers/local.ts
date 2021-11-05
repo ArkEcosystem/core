@@ -1,7 +1,7 @@
 import { dotenv, get, set } from "@arkecosystem/utils";
-import Joi from "joi";
 import { existsSync, readFileSync } from "fs";
 import importFresh from "import-fresh";
+import Joi from "joi";
 import { extname } from "path";
 
 import { Application } from "../../../contracts/kernel";

@@ -1,1 +1,1 @@
-export * from "./get-ip"
+export * from "./get-ip";

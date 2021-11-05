@@ -1,4 +1,5 @@
 import { Container, Contracts, Services, Types } from "@arkecosystem/core-kernel";
+
 import { PeerProcessor } from "../peer-processor";
 
 export class ValidateAndAcceptPeerAction extends Services.Triggers.Action {

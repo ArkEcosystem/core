@@ -4,6 +4,7 @@ import Boom from "@hapi/boom";
 import Bounce from "@hapi/bounce";
 import Hoek from "@hapi/hoek";
 import Teamwork from "@hapi/teamwork";
+
 import { parseNesMessage, protocol, stringifyNesMessage } from "./utils";
 
 const internals = {
@@ -238,7 +239,7 @@ export class Socket {
         // Initialization and Authentication
 
         if (request.type === "ping") {
-            if (this._lastPinged && (Date.now() < this._lastPinged + 1000)) {
+            if (this._lastPinged && Date.now() < this._lastPinged + 1000) {
                 this._lastPinged = Date.now();
                 throw Boom.badRequest("Exceeded ping limit");
             }

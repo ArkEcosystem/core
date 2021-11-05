@@ -7,6 +7,7 @@
 */
 
 import WebSocket from "ws";
+
 import { parseNesMessage, stringifyNesMessage } from "./utils";
 
 /* eslint no-undef: 0 */

@@ -34,7 +34,7 @@ export class DiscoverNetwork {
         }
 
         if (!usePrompts) {
-            throw new Error(`Cannot determine network from directory [${path}]`)
+            throw new Error(`Cannot determine network from directory [${path}]`);
         }
 
         return this.discoverWithPrompt(folders);

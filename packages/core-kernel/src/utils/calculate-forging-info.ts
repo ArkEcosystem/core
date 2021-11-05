@@ -1,4 +1,5 @@
 import { Crypto, Managers } from "@arkecosystem/crypto";
+
 import { ForgingInfo } from "../contracts/shared";
 
 export interface MilestoneSearchResult {

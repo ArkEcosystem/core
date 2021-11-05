@@ -26,7 +26,7 @@ export class DatabaseInterceptor {
         if (commonBlocks.length < ids.length) {
             // ! do not query blocks that were found
             // ! why method is called commonBlocks, but is just findByIds?
-            commonBlocks = ((await this.databaseService.findBlockByID(ids)) as unknown) as Interfaces.IBlockData[];
+            commonBlocks = (await this.databaseService.findBlockByID(ids)) as unknown as Interfaces.IBlockData[];
         }
 
         return commonBlocks;

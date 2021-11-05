@@ -1,5 +1,6 @@
 import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { Interfaces, Managers } from "@arkecosystem/crypto";
+
 import { TransactionHasExpiredError } from "./errors";
 
 @Container.injectable()

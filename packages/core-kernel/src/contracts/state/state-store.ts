@@ -130,9 +130,9 @@ export interface StateStore {
     /**
      * Cache the ids of the given transactions.
      */
-    cacheTransactions(
-        transactions: Interfaces.ITransactionData[],
-    ): { [key in "added" | "notAdded"]: Interfaces.ITransactionData[] };
+    cacheTransactions(transactions: Interfaces.ITransactionData[]): {
+        [key in "added" | "notAdded"]: Interfaces.ITransactionData[];
+    };
 
     /**
      * Drop all cached transaction ids.

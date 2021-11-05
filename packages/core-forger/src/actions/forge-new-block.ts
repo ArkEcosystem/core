@@ -1,4 +1,5 @@
 import { Contracts, Services, Types } from "@arkecosystem/core-kernel";
+
 import { ForgerService } from "../forger-service";
 import { Delegate } from "../interfaces";
 

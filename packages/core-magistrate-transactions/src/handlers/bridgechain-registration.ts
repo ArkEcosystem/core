@@ -49,9 +49,8 @@ export class BridgechainRegistrationTransactionHandler extends MagistrateTransac
             );
 
             const wallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.senderPublicKey);
-            const businessAttributes: IBusinessWalletAttributes = wallet.getAttribute<IBusinessWalletAttributes>(
-                "business",
-            );
+            const businessAttributes: IBusinessWalletAttributes =
+                wallet.getAttribute<IBusinessWalletAttributes>("business");
             if (!businessAttributes.bridgechains) {
                 businessAttributes.bridgechains = {};
             }
@@ -84,9 +83,8 @@ export class BridgechainRegistrationTransactionHandler extends MagistrateTransac
 
         const { data }: Interfaces.ITransaction = transaction;
         if (wallet.hasAttribute("business.bridgechains")) {
-            const bridgechains: Record<string, IBridgechainWalletAttributes> = wallet.getAttribute(
-                "business.bridgechains",
-            );
+            const bridgechains: Record<string, IBridgechainWalletAttributes> =
+                wallet.getAttribute("business.bridgechains");
 
             if (
                 Object.values(bridgechains).some(
@@ -126,9 +124,8 @@ export class BridgechainRegistrationTransactionHandler extends MagistrateTransac
 
         const sender: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
-        const businessAttributes: IBusinessWalletAttributes = sender.getAttribute<IBusinessWalletAttributes>(
-            "business",
-        );
+        const businessAttributes: IBusinessWalletAttributes =
+            sender.getAttribute<IBusinessWalletAttributes>("business");
 
         if (!businessAttributes.bridgechains) {
             businessAttributes.bridgechains = {};
@@ -154,9 +151,8 @@ export class BridgechainRegistrationTransactionHandler extends MagistrateTransac
 
         const sender: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
-        const businessAttributes: IBusinessWalletAttributes = sender.getAttribute<IBusinessWalletAttributes>(
-            "business",
-        );
+        const businessAttributes: IBusinessWalletAttributes =
+            sender.getAttribute<IBusinessWalletAttributes>("business");
 
         AppUtils.assert.defined<Record<string, IBridgechainWalletAttributes>>(businessAttributes.bridgechains);
 

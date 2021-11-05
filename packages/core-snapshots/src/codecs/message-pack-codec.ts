@@ -85,7 +85,7 @@ export class MessagePackCodec implements Codec {
                 asset: transaction.data.asset,
             };
         } catch (err) {
-            throw new CodecException.TransactionDecodeException((transactionId as unknown) as string, err.message);
+            throw new CodecException.TransactionDecodeException(transactionId as unknown as string, err.message);
         }
     }
 
