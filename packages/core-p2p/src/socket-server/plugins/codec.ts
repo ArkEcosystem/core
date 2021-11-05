@@ -39,11 +39,16 @@ export class CodecPlugin {
             method: async (request, h) => {
                 try {
                     if (typeof request.response.source !== "undefined") {
-                        request.response.source = allRoutesConfigByPath[request.path].codec.response.serialize(request.response.source);
+                        request.response.source = allRoutesConfigByPath[request.path].codec.response.serialize(
+                            request.response.source,
+                        );
                     } else {
                         // if we're here it's because there was some error thrown, error description is in request.response.output.payload
                         // as response payload needs to be Buffer, we convert error message to Buffer
-                        const errorMessage = request.response.output?.payload?.message ?? request.response.output?.payload?.error ?? "Error";
+                        const errorMessage =
+                            request.response.output?.payload?.message ??
+                            request.response.output?.payload?.error ??
+                            "Error";
                         request.response.output.payload = Buffer.from(errorMessage, "utf-8");
                     }
                 } catch (e) {

@@ -1,7 +1,7 @@
 import { Container, Contracts } from "@arkecosystem/core-kernel";
 import Boom from "@hapi/boom";
-import { isValidVersion } from "../../utils";
 
+import { isValidVersion } from "../../utils";
 import { BlocksRoute } from "../routes/blocks";
 import { InternalRoute } from "../routes/internal";
 import { PeerRoute } from "../routes/peer";

@@ -1,4 +1,5 @@
 import { Interfaces } from "@arkecosystem/crypto";
+
 import { injectable } from "../../ioc";
 
 export type ProcessorError = {

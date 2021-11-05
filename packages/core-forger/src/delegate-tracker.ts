@@ -75,10 +75,9 @@ export class DelegateTracker {
             .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
             .call("getActiveDelegates", { roundInfo: round })) as Contracts.State.Wallet[];
 
-        const activeDelegatesPublicKeys: (
-            | string
-            | undefined
-        )[] = activeDelegates.map((delegate: Contracts.State.Wallet) => delegate.getPublicKey());
+        const activeDelegatesPublicKeys: (string | undefined)[] = activeDelegates.map(
+            (delegate: Contracts.State.Wallet) => delegate.getPublicKey(),
+        );
 
         const blockTimeLookup = await Utils.forgingInfoCalculator.getBlockTimeLookup(this.app, height);
 

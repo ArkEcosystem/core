@@ -8,11 +8,11 @@ const mapTypeIntToString = {
     9: "undefined",
 };
 const mapTypeStringToInt = {
-    "hello": 0,
-    "ping": 1,
-    "update": 2,
-    "request": 3,
-    "undefined": 9,
+    hello: 0,
+    ping: 1,
+    update: 2,
+    request: 3,
+    undefined: 9,
 };
 
 const HEADER_BYTE_LENGTH = 14;
@@ -71,7 +71,9 @@ export const parseNesMessage = (buf: Buffer): NesMessage => {
     if (socketLength > MAX_SOCKET_LENGTH || buf.byteLength < HEADER_BYTE_LENGTH + pathLength + socketLength) {
         throw new Error("Invalid socket length");
     }
-    const socket = buf.slice(HEADER_BYTE_LENGTH + pathLength, HEADER_BYTE_LENGTH + pathLength + socketLength).toString();
+    const socket = buf
+        .slice(HEADER_BYTE_LENGTH + pathLength, HEADER_BYTE_LENGTH + pathLength + socketLength)
+        .toString();
 
     const heartbeat = {
         interval: buf.readUInt16BE(OFFSETS.HEARTBEAT_INTERVAL),
@@ -88,7 +90,7 @@ export const parseNesMessage = (buf: Buffer): NesMessage => {
         path,
         payload,
         socket,
-        heartbeat
+        heartbeat,
     };
 };
 
@@ -100,7 +102,10 @@ export const stringifyNesMessage = (messageObj: NesMessage): Buffer => {
     const bufHeader = Buffer.alloc(HEADER_BYTE_LENGTH);
 
     bufHeader.writeUInt8(Number.parseInt(messageObj.version || "0"), OFFSETS.VERSION);
-    bufHeader.writeUInt8(mapTypeStringToInt[messageObj.type ?? "undefined"] ?? mapTypeStringToInt["undefined"], OFFSETS.TYPE);
+    bufHeader.writeUInt8(
+        mapTypeStringToInt[messageObj.type ?? "undefined"] ?? mapTypeStringToInt["undefined"],
+        OFFSETS.TYPE,
+    );
     bufHeader.writeUInt32BE(messageObj.id || 1, OFFSETS.ID);
     bufHeader.writeUInt16BE(messageObj.statusCode || 200, OFFSETS.STATUS_CODE);
     bufHeader.writeUInt8(pathBuf.byteLength, OFFSETS.PATH_LENGTH);
@@ -112,6 +117,6 @@ export const stringifyNesMessage = (messageObj: NesMessage): Buffer => {
 };
 
 export const protocol = {
-    gracefulErrorStatusCode: 499,   // custom status code to be used when we want to send back an explicit error (otherwise
-                                    // no error is sent back and the socket is disconnected)
+    gracefulErrorStatusCode: 499, // custom status code to be used when we want to send back an explicit error (otherwise
+    // no error is sent back and the socket is disconnected)
 };

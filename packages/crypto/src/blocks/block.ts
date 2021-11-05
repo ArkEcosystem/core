@@ -1,3 +1,4 @@
+import { Managers } from "..";
 import { Hash, HashAlgorithms, Slots } from "../crypto";
 import { BlockSchemaError } from "../errors";
 import { IBlock, IBlockData, IBlockJson, IBlockVerification, ITransaction, ITransactionData } from "../interfaces";
@@ -5,7 +6,6 @@ import { configManager } from "../managers/config";
 import { BigNumber, isException } from "../utils";
 import { validator } from "../validation";
 import { Serializer } from "./serializer";
-import { Managers } from "..";
 
 export class Block implements IBlock {
     // @ts-ignore - todo: this is public but not initialised on creation, either make it private or declare it as undefined

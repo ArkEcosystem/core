@@ -27,7 +27,8 @@ expect.extend({
 
             errors = parsedBody.errors;
 
-            const entityAsset: MagistrateInterfaces.IEntityAsset = transaction.asset as MagistrateInterfaces.IEntityAsset;
+            const entityAsset: MagistrateInterfaces.IEntityAsset =
+                transaction.asset as MagistrateInterfaces.IEntityAsset;
             pass =
                 parsedBody.errors === undefined &&
                 parsedBody.data.id === transaction.id &&
@@ -79,7 +80,8 @@ expect.extend({
 
         let errors;
         try {
-            const entityAsset: MagistrateInterfaces.IEntityAsset = updateTransaction.asset as MagistrateInterfaces.IEntityAsset;
+            const entityAsset: MagistrateInterfaces.IEntityAsset =
+                updateTransaction.asset as MagistrateInterfaces.IEntityAsset;
 
             const { body } = await got.get(`http://localhost:4003/api/entities/${entityAsset.registrationId}`);
 

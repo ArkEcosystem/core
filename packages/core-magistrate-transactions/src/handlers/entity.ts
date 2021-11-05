@@ -164,7 +164,7 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
 
         const entities = wallet.getAttribute("entities", {});
 
-        switch (transaction.data.asset!.action) {
+        switch (transaction.data.asset.action) {
             case Enums.EntityAction.Register:
                 delete entities[transaction.id!];
 
@@ -177,7 +177,7 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
             case Enums.EntityAction.Update:
                 return this.revertForSenderUpdate(transaction, this.walletRepository);
             case Enums.EntityAction.Resign:
-                delete entities[transaction.data.asset!.registrationId].resigned;
+                delete entities[transaction.data.asset.registrationId].resigned;
                 break;
         }
 
@@ -255,12 +255,12 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
 
         KernelUtils.assert.defined<object>(transaction.asset);
 
-        switch (transaction.asset!.action) {
+        switch (transaction.asset.action) {
             case Enums.EntityAction.Register:
                 entities[transaction.id!] = {
-                    type: transaction.asset!.type,
-                    subType: transaction.asset!.subType,
-                    data: transaction.asset!.data,
+                    type: transaction.asset.type,
+                    subType: transaction.asset.subType,
+                    data: transaction.asset.data,
                 };
 
                 this.walletRepository.setOnIndex(
@@ -271,15 +271,15 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
                 this.walletRepository.setOnIndex(MagistrateIndex.Entities, transaction.id!, wallet);
                 break;
             case Enums.EntityAction.Update:
-                entities[transaction.asset!.registrationId] = {
-                    type: entities[transaction.asset!.registrationId].type,
-                    subType: entities[transaction.asset!.registrationId].subType,
-                    data: { ...entities[transaction.asset!.registrationId].data, ...transaction.asset!.data },
+                entities[transaction.asset.registrationId] = {
+                    type: entities[transaction.asset.registrationId].type,
+                    subType: entities[transaction.asset.registrationId].subType,
+                    data: { ...entities[transaction.asset.registrationId].data, ...transaction.asset.data },
                 };
                 break;
             case Enums.EntityAction.Resign:
-                entities[transaction.asset!.registrationId] = {
-                    ...entities[transaction.asset!.registrationId],
+                entities[transaction.asset.registrationId] = {
+                    ...entities[transaction.asset.registrationId],
                     resigned: true,
                 };
                 break;

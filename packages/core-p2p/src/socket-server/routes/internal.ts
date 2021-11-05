@@ -1,4 +1,10 @@
-import { emitEvent, getCurrentRound, getNetworkState, getUnconfirmedTransactions, syncBlockchain } from "../codecs/internal";
+import {
+    emitEvent,
+    getCurrentRound,
+    getNetworkState,
+    getUnconfirmedTransactions,
+    syncBlockchain,
+} from "../codecs/internal";
 import { InternalController } from "../controllers/internal";
 import { internalSchemas } from "../schemas/internal";
 import { Route, RouteConfig } from "./route";

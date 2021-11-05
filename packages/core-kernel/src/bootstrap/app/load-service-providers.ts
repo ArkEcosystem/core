@@ -1,3 +1,7 @@
+import { readJSONSync } from "fs-extra";
+import glob from "glob";
+import { join } from "path";
+
 import { Application } from "../../contracts/kernel";
 import { Identifiers, inject, injectable } from "../../ioc";
 import { PluginConfiguration, PluginManifest, ServiceProvider, ServiceProviderRepository } from "../../providers";
@@ -5,9 +9,6 @@ import { ConfigRepository } from "../../services/config";
 import { JsonObject } from "../../types";
 import { assert } from "../../utils";
 import { Bootstrapper } from "../interfaces";
-import { join } from "path";
-import { readJSONSync } from "fs-extra";
-import glob from "glob";
 
 interface PluginEntry {
     package: string;
@@ -120,7 +121,7 @@ export class LoadServiceProviders implements Bootstrapper {
             .sync("{*/*/package.json,*/package.json}", { cwd: path })
             .map((packagePath) => join(path, packagePath).slice(0, -"/package.json".length));
 
-        for (let packagePath of packagePaths) {
+        for (const packagePath of packagePaths) {
             const packageJson = readJSONSync(join(packagePath, "package.json"));
 
             plugins.push({

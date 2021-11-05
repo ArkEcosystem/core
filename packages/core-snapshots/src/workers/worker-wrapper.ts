@@ -1,5 +1,6 @@
 import { EventEmitter } from "events";
 import { Worker } from "worker_threads";
+
 import { WorkerData, WorkerSyncData } from "../contracts/worker";
 
 export class WorkerWrapper extends EventEmitter {

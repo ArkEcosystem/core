@@ -1,7 +1,7 @@
 import { Commands, Container } from "@arkecosystem/core-cli";
 import { Networks } from "@arkecosystem/crypto";
-import Joi from "joi";
 import { removeSync } from "fs-extra";
+import Joi from "joi";
 
 /**
  * @export

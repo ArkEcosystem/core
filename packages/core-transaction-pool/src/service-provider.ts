@@ -13,6 +13,7 @@ import { DynamicFeeMatcher } from "./dynamic-fee-matcher";
 import { ExpirationService } from "./expiration-service";
 import { Mempool } from "./mempool";
 import { Processor } from "./processor";
+import { ProcessorDynamicFeeExtension } from "./processor-dynamic-fee-extension";
 import { Query } from "./query";
 import { SenderMempool } from "./sender-mempool";
 import { SenderState } from "./sender-state";
@@ -20,7 +21,6 @@ import { Service } from "./service";
 import { Storage } from "./storage";
 import { Worker } from "./worker";
 import { WorkerPool } from "./worker-pool";
-import { ProcessorDynamicFeeExtension } from "./processor-dynamic-fee-extension";
 
 /**
  * @export

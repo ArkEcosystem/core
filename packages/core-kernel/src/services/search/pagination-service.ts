@@ -1,10 +1,9 @@
 import { Utils } from "@arkecosystem/crypto";
+import createTree from "functional-red-black-tree";
 
 import { Pagination, ResultsPage, Sorting } from "../../contracts/search";
 import { injectable } from "../../ioc";
 import { get } from "../../utils";
-
-import createTree from "functional-red-black-tree";
 
 @injectable()
 export class PaginationService {

@@ -11,25 +11,23 @@ import {
 import { Factory } from "./factory";
 import { FactoryBuilder } from "./factory-builder";
 
-const createFactory = memoize(
-    (): FactoryBuilder => {
-        const factory: FactoryBuilder = new FactoryBuilder();
+const createFactory = memoize((): FactoryBuilder => {
+    const factory: FactoryBuilder = new FactoryBuilder();
 
-        registerBlockFactory(factory);
+    registerBlockFactory(factory);
 
-        registerIdentityFactory(factory);
+    registerIdentityFactory(factory);
 
-        registerPeerFactory(factory);
+    registerPeerFactory(factory);
 
-        registerRoundFactory(factory);
+    registerRoundFactory(factory);
 
-        registerTransactionFactory(factory);
+    registerTransactionFactory(factory);
 
-        registerWalletFactory(factory);
+    registerWalletFactory(factory);
 
-        return factory;
-    },
-);
+    return factory;
+});
 
 /**
  * This serves as a helper function to quickly access a factory

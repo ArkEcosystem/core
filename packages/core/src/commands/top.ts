@@ -1,7 +1,7 @@
 import { Commands, Container, Contracts, Services } from "@arkecosystem/core-cli";
 import { prettyBytes, prettyTime } from "@arkecosystem/utils";
-import Joi from "joi";
 import dayjs from "dayjs";
+import Joi from "joi";
 
 /**
  * @export
@@ -59,9 +59,9 @@ export class Command extends Commands.Command {
      * @memberof Command
      */
     public async execute(): Promise<void> {
-        const processes: Contracts.ProcessDescription[] = (
-            this.processManager.list() || []
-        ).filter((p: Contracts.ProcessDescription) => p.name.startsWith(this.getFlag("token")));
+        const processes: Contracts.ProcessDescription[] = (this.processManager.list() || []).filter(
+            (p: Contracts.ProcessDescription) => p.name.startsWith(this.getFlag("token")),
+        );
 
         if (!processes || !Object.keys(processes).length) {
             this.components.fatal("No processes are running.");

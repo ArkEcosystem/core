@@ -18,11 +18,11 @@ export const setProcessorState = (state: any): void => {
 
 class TransactionPoolProcessorMock implements Partial<Contracts.TransactionPool.Processor> {
     public async process(data: Interfaces.ITransactionData[] | Buffer[]): Promise<{
-        accept: string[],
-        broadcast: string[],
-        invalid: string[],
-        excess: string[],
-        errors?: { [id: string]: Contracts.TransactionPool.ProcessorError },
+        accept: string[];
+        broadcast: string[];
+        invalid: string[];
+        excess: string[];
+        errors?: { [id: string]: Contracts.TransactionPool.ProcessorError };
     }> {
         return {
             accept,
@@ -30,7 +30,7 @@ class TransactionPoolProcessorMock implements Partial<Contracts.TransactionPool.
             invalid,
             excess,
             errors,
-        }
+        };
     }
 }
 

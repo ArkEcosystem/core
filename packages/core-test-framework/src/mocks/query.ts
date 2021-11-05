@@ -35,7 +35,7 @@ export class CustomQueryIterable implements Partial<Contracts.TransactionPool.Qu
 
 class TransactionPoolQueryMock implements Partial<Contracts.TransactionPool.Query> {
     public getFromHighestPriority(): Contracts.TransactionPool.QueryIterable {
-        return (new CustomQueryIterable(mockTransactions) as unknown) as Contracts.TransactionPool.QueryIterable;
+        return new CustomQueryIterable(mockTransactions) as unknown as Contracts.TransactionPool.QueryIterable;
     }
 }
 
