@@ -1,8 +1,8 @@
-import { DelegateSearchService, Resources, WalletSearchService } from "@arkecosystem/core-api";
-import { DelegatesController } from "@arkecosystem/core-api/src/controllers/delegates";
-import { Identifiers } from "@arkecosystem/core-api/src/identifiers";
-import { Application, Container, Contracts, Providers } from "@arkecosystem/core-kernel";
-import { Enums, Utils } from "@arkecosystem/crypto";
+import { DelegateSearchService, Resources, WalletSearchService } from "@packages/core-api";
+import { DelegatesController } from "@packages/core-api/src/controllers/delegates";
+import { Identifiers } from "@packages/core-api/src/identifiers";
+import { Application, Container, Contracts, Providers } from "@packages/core-kernel";
+import { Enums, Utils } from "@packages/crypto";
 import { Boom } from "@hapi/boom";
 
 const jestfn = <T extends (...args: unknown[]) => unknown>(

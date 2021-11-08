@@ -1,4 +1,4 @@
-import { Container } from "@arkecosystem/core-kernel";
+import { Container } from "@packages/core-kernel";
 import { VotesController } from "@packages/core-api/src/controllers/votes";
 import { register } from "@packages/core-api/src/routes/votes";
 import { Server } from "@packages/core-api/src/server";

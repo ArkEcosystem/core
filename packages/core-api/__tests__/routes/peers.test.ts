@@ -1,4 +1,4 @@
-import { Container } from "@arkecosystem/core-kernel";
+import { Container } from "@packages/core-kernel";
 import { PeersController } from "@packages/core-api/src/controllers/peers";
 import { register } from "@packages/core-api/src/routes/peers";
 import { Server } from "@packages/core-api/src/server";

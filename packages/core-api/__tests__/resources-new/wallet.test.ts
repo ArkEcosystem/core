@@ -1,6 +1,6 @@
-import { Utils } from "@arkecosystem/crypto";
+import { Utils } from "@packages/crypto";
 
-import { walletCriteriaSchemaObject } from "../../../../packages/core-api/src/resources-new/wallet";
+import { walletCriteriaSchemaObject } from "@packages/core-api/src/resources-new/wallet";
 
 describe("walletCriteriaSchemaObject.address", () => {
     it("should allow correct address", () => {
