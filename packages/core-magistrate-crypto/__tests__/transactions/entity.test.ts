@@ -1,9 +1,9 @@
 import "jest-extended";
 
-import { Interfaces } from "@arkecosystem/core-magistrate-crypto";
-import { EntityBuilder } from "@arkecosystem/core-magistrate-crypto/src/builders";
-import { EntityTransaction } from "@arkecosystem/core-magistrate-crypto/src/transactions";
-import { Managers, Transactions, Validation } from "@arkecosystem/crypto";
+import { Interfaces } from "@packages/core-magistrate-crypto";
+import { EntityBuilder } from "@packages/core-magistrate-crypto/src/builders";
+import { EntityTransaction } from "@packages/core-magistrate-crypto/src/transactions";
+import { Managers, Transactions, Validation } from "@packages/crypto";
 
 import { generateAssets, generateSpecialAssets } from "../fixtures/entity/assets/generate";
 import { invalidRegisters, validRegisters } from "../fixtures/entity/schemas/register";

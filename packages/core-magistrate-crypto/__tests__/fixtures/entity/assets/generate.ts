@@ -1,5 +1,5 @@
-import { IEntityAsset } from "@arkecosystem/core-magistrate-crypto/dist/interfaces";
-import { EntityAction, EntityType } from "@arkecosystem/core-magistrate-crypto/src/enums";
+import { IEntityAsset } from "@packages/core-magistrate-crypto/dist/interfaces";
+import { EntityAction, EntityType } from "@packages/core-magistrate-crypto/src/enums";
 
 // valid types already assigned (in enum EntityType) + other "custom" but valid types (in range 0-255)
 const allTypes = [
