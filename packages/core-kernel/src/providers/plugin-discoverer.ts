@@ -2,18 +2,13 @@ import { existsSync, readJSONSync } from "fs-extra";
 import glob from "glob";
 import { join } from "path";
 
-import { Plugin } from "../contracts/kernel/application";
+import { Application, Plugin } from "../contracts/kernel/application";
 import { Identifiers, inject, injectable } from "../ioc";
 
 @injectable()
 export class PluginDiscoverer {
-    @inject(Identifiers.ApplicationToken)
-    // @ts-ignore
-    private readonly token!: string;
-
-    @inject(Identifiers.ApplicationNetwork)
-    // @ts-ignore
-    private readonly network!: string;
+    @inject(Identifiers.Application)
+    private readonly app!: Application;
 
     private plugins: Plugin[] = [];
 
@@ -27,6 +22,7 @@ export class PluginDiscoverer {
 
         await discoverOnPath("*/package.json", join(__dirname, "../../../../packages")); // Project packages
         await discoverOnPath("*/package.json", join(__dirname, "../../../../plugins")); // Project plugins
+        await discoverOnPath("*/package.json", this.app.dataPath("plugins")); // Installed plugins
     }
 
     public get(name: string): Plugin {
@@ -36,6 +32,8 @@ export class PluginDiscoverer {
             return plugin;
         }
 
+        // TODO: Support global packages
+
         throw new Error(`Package ${name} couldn't be located.`);
     }
 
@@ -43,7 +41,6 @@ export class PluginDiscoverer {
         const plugins: Plugin[] = [];
 
         const packagePaths = glob
-            // .sync("{*/*/package.json,*/package.json}", { cwd: path })
             .sync(pattern, { cwd: path })
             .map((packagePath) => join(path, packagePath).slice(0, -"/package.json".length));
 
