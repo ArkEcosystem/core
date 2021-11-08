@@ -4,7 +4,7 @@
     "description": "The packages that make up the ARK Core",
     "scripts": {
         "lerna": "node ./node_modules/lerna/cli.js",
-        "initialize": "pnpm install && pnpm build",
+        "setup": "pnpm install && pnpm build",
         "build": "pnpm build -r",
         "lint": "eslint packages/*/src --ext .ts --max-warnings 0",
         "lint:fix": "eslint packages/*/src --ext .ts --fix",
