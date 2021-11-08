@@ -11,7 +11,7 @@
         "lint:tests": "eslint __tests__ packages/*/__tests__ --ext .ts --max-warnings 0",
         "lint:tests:fix": "eslint __tests__ packages/*/__tests__ --ext .ts --fix",
         "prettier": "prettier --write \"./*.{ts,js,json,md}\" \"./packages/**/*.{ts,js,json,md}\" \"./__tests__/**/*.{ts,js,json,md}\"",
-        "format": "yarn lint && yarn prettier",
+        "format": "pnpm lint && pnpm prettier",
         "test": "cross-env CORE_ENV=test jest --runInBand --forceExit",
         "test:parallel": "cross-env CORE_ENV=test jest --forceExit",
         "test:coverage": "cross-env CORE_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.ts|index.ts)$' --runInBand --forceExit",
