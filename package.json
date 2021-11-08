@@ -4,7 +4,7 @@
     "description": "The packages that make up the ARK Core",
     "scripts": {
         "lerna": "node ./node_modules/lerna/cli.js",
-        "setup": "yarn && yarn bootstrap && yarn build",
+        "initialize": "pnpm install && pnpm build",
         "setup:clean": "yarn && yarn clean && yarn bootstrap && yarn build",
         "bootstrap": "yarn lerna bootstrap",
         "clean": "yarn lerna clean --yes",
