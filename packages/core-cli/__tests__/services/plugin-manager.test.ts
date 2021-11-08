@@ -1,4 +1,4 @@
-import { Console } from "@arkecosystem/core-test-framework";
+import { Console } from "@packages/core-test-framework";
 import { PluginManager } from "@packages/core-cli/src/services";
 import fs from "fs-extra";
 import { join } from "path";
