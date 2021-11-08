@@ -14,18 +14,21 @@ export class WorkerPool implements Contracts.TransactionPool.WorkerPool {
     @Container.tagged("plugin", "@arkecosystem/core-transaction-pool")
     private readonly pluginConfiguration!: Providers.PluginConfiguration;
 
+    @Container.inject(Container.Identifiers.PluginDiscoverer)
+    private readonly pluginDiscoverer!: Providers.PluginDiscoverer;
+
     private workers: Contracts.TransactionPool.Worker[] = [];
 
     @Container.postConstruct()
-    public initialize() {
+    public async initialize() {
         const workerCount: number = this.pluginConfiguration.getRequired("workerPool.workerCount");
         const cryptoPackages: CryptoPackagesConfig = this.pluginConfiguration.getRequired("workerPool.cryptoPackages");
 
         for (let i = 0; i < workerCount; i++) {
             const worker = this.createWorker();
-            const availableCryptoPackages = cryptoPackages.filter((p) => require.resolve(p.packageName));
-            for (const { packageName } of availableCryptoPackages) {
-                worker.loadCryptoPackage(packageName);
+            for (const { packageName } of cryptoPackages) {
+                const packageId = (await this.pluginDiscoverer.get(packageName)).packageId;
+                worker.loadCryptoPackage(packageId);
             }
             this.workers.push(worker);
         }
