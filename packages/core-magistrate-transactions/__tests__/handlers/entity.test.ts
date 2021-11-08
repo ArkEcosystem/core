@@ -27,7 +27,7 @@ import { walletRepository } from "./__mocks__/wallet-repository";
 
 // mocking the abstract TransactionHandler class
 // because I could not make it work using the real abstract class + custom ioc binding
-jest.mock("@arkecosystem/core-transactions", () => ({
+jest.mock("@packages/core-transactions", () => ({
     Handlers: {
         TransactionHandler: require("./__mocks__/transaction-handler").TransactionHandler,
     },

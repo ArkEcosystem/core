@@ -1,5 +1,5 @@
-import { Interfaces } from "@arkecosystem/core-magistrate-crypto/src";
-import { EntityAction, EntityType } from "@arkecosystem/core-magistrate-crypto/src/enums";
+import { Interfaces } from "@packages/core-magistrate-crypto/src";
+import { EntityAction, EntityType } from "@packages/core-magistrate-crypto/src/enums";
 export const validResigns: Interfaces.IEntityAsset[] = [
     // array of register assets
     // we expect to have the wallet with the entity removed after
