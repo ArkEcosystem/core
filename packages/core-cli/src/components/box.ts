@@ -23,6 +23,6 @@ export class Box {
      * @memberof Box
      */
     public render(message: string): void {
-        this.logger.log(boxen(message, { margin: 1, padding: 1, borderStyle: boxen.BorderStyle.Classic }));
+        this.logger.log(boxen(message, { margin: 1, padding: 1, borderStyle: "classic" }));
     }
 }

@@ -89,7 +89,7 @@ ${blue().bold("Available Commands")}
 ${commandsAsString.join("\n")}`,
                 {
                     padding: 1,
-                    borderStyle: boxen.BorderStyle.Classic,
+                    borderStyle: "classic",
                 },
             ),
         );
