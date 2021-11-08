@@ -1,7 +1,7 @@
-import { Utils } from "@arkecosystem/crypto";
+import { Utils } from "@packages/crypto";
 import { FindOperator } from "typeorm";
 
-import { transformBigInt, transformVendorField } from "../../../../packages/core-database/src/utils/transform";
+import { transformBigInt, transformVendorField } from "@packages/core-database/src/utils/transform";
 
 describe("transformBigInt.from", () => {
     it("should transform string value to BigNumber", () => {
