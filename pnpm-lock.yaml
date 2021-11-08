@@ -4,6 +4,7 @@ importers:
 
   .:
     specifiers:
+      '@arkecosystem/crypto': workspace:*
       '@babel/core': 7.16.0
       '@babel/preset-env': 7.16.0
       '@commitlint/cli': 14.1.0
@@ -56,6 +57,7 @@ importers:
       typesync: 0.8.0
       uuid: 8.3.2
     devDependencies:
+      '@arkecosystem/crypto': link:packages/crypto
       '@babel/core': registry.npmjs.org/@babel/core/7.16.0
       '@babel/preset-env': registry.npmjs.org/@babel/preset-env/7.16.0_@babel+core@7.16.0
       '@commitlint/cli': registry.npmjs.org/@commitlint/cli/14.1.0
