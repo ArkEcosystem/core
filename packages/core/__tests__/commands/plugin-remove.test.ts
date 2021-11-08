@@ -2,7 +2,7 @@ import "jest-extended";
 
 import { Console } from "@packages/core-test-framework";
 import { Command } from "@packages/core/src/commands/plugin-remove";
-import { Container } from "@arkecosystem/core-cli";
+import { Container } from "@packages/core-cli";
 
 let cli;
 let spyOnRemove;
