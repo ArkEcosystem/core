@@ -27,9 +27,8 @@ jobs:
               uses: actions/cache@v2
               with:
                   path: ~/.pnpm-store
-                  key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
-                  restore-keys: |
-                    ${{ runner.os }}-
+                  key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+                  restore-keys: ${{ runner.os }}-pnpm-
 
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v1
