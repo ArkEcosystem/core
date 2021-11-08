@@ -34,6 +34,11 @@ jobs:
               with:
                   node-version: ${{ matrix.node-version }}
 
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v2.0.1
+              with:
+                version: 6.20.4
+
             - name: Install & Build
               run: pnpm initialize
 
