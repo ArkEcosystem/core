@@ -22,12 +22,14 @@ jobs:
               uses: actions/setup-python@v2
               with:
                   python-version: '2.7'
-            - name: Cache node modules
-              uses: actions/cache@v1
+
+            - name: Cache pnpm modules
+              uses: actions/cache@v2
               with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/pnpm-lock.yaml') }}
-                  restore-keys: ${{ runner.os }}-node-
+                  path: ~/.pnpm-store
+                  key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+                  restore-keys: |
+                    ${{ runner.os }}-
 
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v1
