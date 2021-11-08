@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { Crypto, Interfaces } from "@arkecosystem/crypto";
+import { Crypto, Interfaces } from "@packages/crypto";
 import { getBlockNotChainedErrorMessage, isBlockChained } from "@packages/core-kernel/src/utils/is-block-chained";
 
 const mockGetBlockTimeLookup = (height: number) => {

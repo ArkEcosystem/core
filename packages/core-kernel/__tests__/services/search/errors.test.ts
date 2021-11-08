@@ -2,7 +2,7 @@ import {
     InvalidCriteria,
     UnexpectedError,
     UnsupportedValue,
-} from "@arkecosystem/core-kernel/src/services/search/errors";
+} from "@packages/core-kernel/src/services/search/errors";
 
 describe("InvalidCriteria", () => {
     it("should create", () => {
