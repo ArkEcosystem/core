@@ -6,7 +6,6 @@
         "lerna": "node ./node_modules/lerna/cli.js",
         "initialize": "pnpm install && pnpm build",
         "setup:clean": "yarn && yarn clean && yarn bootstrap && yarn build",
-        "bootstrap": "yarn lerna bootstrap",
         "clean": "yarn lerna clean --yes",
         "build": "pnpm build -r",
         "lint": "eslint packages/*/src --ext .ts --max-warnings 0",
