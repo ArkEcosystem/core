@@ -1,4 +1,4 @@
-import { readJSONSync } from "fs-extra";
+import { existsSync, readJSONSync } from "fs-extra";
 import glob from "glob";
 import { join } from "path";
 
@@ -15,21 +15,25 @@ export class PluginDiscoverer {
     // @ts-ignore
     private readonly network!: string;
 
-    public async get(name: string): Promise<Plugin> {
-        // Exist in project packages
-        const projectPackages = await this.discover("*/package.json", join(__dirname, "../../../../packages"));
-        const projectPackage = projectPackages.find((plugin) => plugin.name === name);
+    private plugins: Plugin[] = [];
 
-        if (projectPackage) {
-            return projectPackage;
-        }
+    public async initialize(): Promise<void> {
+        this.plugins = [];
 
-        // Exist in project plugins
-        const projectPlugins = await this.discover("*/package.json", join(__dirname, "../../../../plugins"));
-        const projectPlugin = projectPlugins.find((plugin) => plugin.name === name);
+        const discoverOnPath = async (patter: string, path: string): Promise<void> => {
+            existsSync(path);
+            this.plugins = this.plugins.concat(await this.discover(patter, path));
+        };
 
-        if (projectPlugin) {
-            return projectPlugin;
+        await discoverOnPath("*/package.json", join(__dirname, "../../../../packages")); // Project packages
+        await discoverOnPath("*/package.json", join(__dirname, "../../../../plugins")); // Project plugins
+    }
+
+    public get(name: string): Plugin {
+        const plugin = this.plugins.find((plugin) => plugin.name === name);
+
+        if (plugin) {
+            return plugin;
         }
 
         throw new Error(`Package ${name} couldn't be located.`);
