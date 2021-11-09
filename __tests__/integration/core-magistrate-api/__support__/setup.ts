@@ -1,5 +1,5 @@
-import { Application, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Managers } from "@arkecosystem/crypto";
+import { Application, Utils as AppUtils } from "@packages/core-kernel";
+import { Managers } from "@packages/crypto";
 import { ServiceProvider } from "@packages/core-magistrate-api/src";
 import { Sandbox } from "@packages/core-test-framework/src";
 import { EventEmitter } from "events";

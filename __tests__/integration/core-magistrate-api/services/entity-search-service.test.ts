@@ -1,10 +1,10 @@
-import { EntitySearchService, Identifiers as MagistrateApiIdentifiers } from "@arkecosystem/core-magistrate-api/src";
-import { Container, Contracts } from "@arkecosystem/core-kernel";
+import { EntitySearchService, Identifiers as MagistrateApiIdentifiers } from "@packages/core-magistrate-api";
+import { Container, Contracts } from "@packages/core-kernel";
 
 import { setUp } from "./__support__/setup";
 import { setIndexes } from "../__support__/set-indexes";
-import { Enums } from "@arkecosystem/core-magistrate-crypto";
-import { Identities } from "@arkecosystem/crypto";
+import { Enums } from "@packages/core-magistrate-crypto";
+import { Identities } from "@packages/crypto";
 
 const entityId1 = "2a2498072a798318f5e321b312dfc7dcb87f33e10a251baf07ed8f950bd499ec";
 const entityAttribute1 = {

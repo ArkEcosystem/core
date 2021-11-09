@@ -1,4 +1,4 @@
-import { Contracts } from "@arkecosystem/core-kernel";
+import { Contracts } from "@packages/core-kernel";
 import { Interfaces as MagistrateInterfaces } from "@packages/core-magistrate-crypto";
 
 export const setIndexes = (
