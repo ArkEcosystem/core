@@ -1,7 +1,7 @@
-import { Container, Contracts, Enums } from "@arkecosystem/core-kernel";
-import { Crypto, Interfaces, Managers } from "@arkecosystem/crypto";
+import { Container, Contracts, Enums } from "@packages/core-kernel";
+import { Crypto, Interfaces, Managers } from "@packages/crypto";
 
-import { SenderState } from "../../../packages/core-transaction-pool/src/sender-state";
+import { SenderState } from "@ackages/core-transaction-pool/src/sender-state";
 
 jest.mock("@packages/crypto");
 

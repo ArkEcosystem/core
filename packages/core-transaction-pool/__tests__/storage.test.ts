@@ -1,8 +1,8 @@
-import { Container } from "@arkecosystem/core-kernel";
-import { Identities, Managers, Transactions } from "@arkecosystem/crypto";
+import { Container } from "@packages/core-kernel";
+import { Identities, Managers, Transactions } from "@packages/crypto";
 import { ensureFileSync } from "fs-extra";
 
-import { Storage } from "../../../packages/core-transaction-pool/src/storage";
+import { Storage } from "@packages/core-transaction-pool/src/storage";
 
 jest.mock("fs-extra");
 

@@ -1,7 +1,7 @@
-import { Container, Contracts } from "@arkecosystem/core-kernel";
-import { Identities, Managers, Transactions } from "@arkecosystem/crypto";
+import { Container, Contracts } from "@packages/core-kernel";
+import { Identities, Managers, Transactions } from "@packages/crypto";
 
-import { SenderMempool } from "../../../packages/core-transaction-pool/src/sender-mempool";
+import { SenderMempool } from "@packages/core-transaction-pool/src/sender-mempool";
 
 const configuration = { getRequired: jest.fn(), getOptional: jest.fn() };
 const senderState = { apply: jest.fn(), revert: jest.fn() };
