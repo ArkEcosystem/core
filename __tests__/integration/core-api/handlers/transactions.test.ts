@@ -1,7 +1,7 @@
 import "@packages/core-test-framework/src/matchers";
 
-import { Contracts } from "@arkecosystem/core-kernel";
-import { Identities, Managers } from "@arkecosystem/crypto";
+import { Contracts } from "@packages/core-kernel";
+import { Identities, Managers } from "@packages/crypto";
 import { ApiHelpers, getWalletNonce } from "@packages/core-test-framework/src";
 import secrets from "@packages/core-test-framework/src/internal/passphrases.json";
 import { TransactionFactory } from "@packages/core-test-framework/src/utils/transaction-factory";

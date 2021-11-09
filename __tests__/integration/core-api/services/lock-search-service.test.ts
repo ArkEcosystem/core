@@ -1,6 +1,6 @@
-import { Identifiers as ApiIdentifiers, LockSearchService } from "@arkecosystem/core-api/src";
-import { Container, Contracts } from "@arkecosystem/core-kernel";
-import { Enums, Identities, Utils } from "@arkecosystem/crypto";
+import { Identifiers as ApiIdentifiers, LockSearchService } from "@packages/core-api/src";
+import { Container, Contracts } from "@packages/core-kernel";
+import { Enums, Identities, Utils } from "@packages/crypto";
 
 import { setUp } from "./__support__/setup";
 
