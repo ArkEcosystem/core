@@ -1,9 +1,9 @@
-import { Contracts } from "@arkecosystem/core-kernel";
-import { Utils } from "@arkecosystem/crypto";
+import { Contracts } from "@packages/core-kernel";
+import { Utils } from "@packages/crypto";
 import { Connection, getCustomRepository } from "typeorm";
 
 import { clearCoreDatabase, getCoreDatabaseConnection } from "../__support__";
-import { RoundRepository } from "../../../../packages/core-database/src/repositories/round-repository";
+import { RoundRepository } from "@packages/core-database/src/repositories/round-repository";
 
 class DelegateWalletMock {
     public readonly publicKey: string;
