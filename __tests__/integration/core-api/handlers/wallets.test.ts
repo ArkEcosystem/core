@@ -1,7 +1,7 @@
 import "@packages/core-test-framework/src/matchers";
 
-import { Contracts } from "@arkecosystem/core-kernel";
-import { Identities } from "@arkecosystem/crypto";
+import { Contracts } from "@packages/core-kernel";
+import { Identities } from "@packages/crypto";
 import { ApiHelpers } from "@packages/core-test-framework/src";
 
 import { setUp, tearDown } from "../__support__/setup";

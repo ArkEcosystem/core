@@ -1,6 +1,6 @@
-import { WalletSearchService } from "@arkecosystem/core-api/src/services/wallet-search-service";
-import { Container, Contracts, Services } from "@arkecosystem/core-kernel";
-import { Utils } from "@arkecosystem/crypto";
+import { WalletSearchService } from "@packages/core-api/src/services/wallet-search-service";
+import { Container, Contracts, Services } from "@packages/core-kernel";
+import { Utils } from "@packages/crypto";
 
 const jestfn = <T extends (...args: unknown[]) => unknown>(
     implementation?: (...args: Parameters<T>) => ReturnType<T>,

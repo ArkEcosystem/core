@@ -1,5 +1,5 @@
-import { Container } from "@arkecosystem/core-kernel";
-import { DownloadPaused } from "../../../../../packages/core-blockchain/src/state-machine/actions/download-paused";
+import { Container } from "@packages/core-kernel";
+import { DownloadPaused } from "@packages/core-blockchain/src/state-machine/actions/download-paused";
 
 describe("DownloadPaused", () => {
     const container = new Container.Container();

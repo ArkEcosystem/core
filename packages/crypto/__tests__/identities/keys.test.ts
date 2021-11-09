@@ -3,8 +3,8 @@ import "jest-extended";
 import { Errors } from "@arkecosystem/crypto-identities";
 import wif from "wif";
 
-import { Address } from "../../../../packages/crypto/src/identities/address";
-import { Keys } from "../../../../packages/crypto/src/identities/keys";
+import { Address } from "@packages/crypto/src/identities/address";
+import { Keys } from "@packages/crypto/src/identities/keys";
 import { data, passphrase } from "./fixture.json";
 
 describe("Identities - Keys", () => {

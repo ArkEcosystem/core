@@ -1,7 +1,7 @@
-import { Container, Utils } from "@arkecosystem/core-kernel";
-import { Crypto, Interfaces, Managers } from "@arkecosystem/crypto";
+import { Container, Utils } from "@packages/core-kernel";
+import { Crypto, Interfaces, Managers } from "@packages/crypto";
 
-import { ExpirationService } from "../../../packages/core-transaction-pool/src/expiration-service";
+import { ExpirationService } from "@packages/core-transaction-pool/src/expiration-service";
 
 const configuration = { getRequired: jest.fn() };
 const stateStore = { getLastHeight: jest.fn() };

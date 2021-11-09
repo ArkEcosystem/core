@@ -1,6 +1,6 @@
-import { Container, Contracts } from "@arkecosystem/core-kernel";
+import { Container, Contracts } from "@packages/core-kernel";
 
-import { BlockHistoryService } from "../../../packages/core-database/src/block-history-service";
+import { BlockHistoryService } from "@packages/core-database/src/block-history-service";
 
 const defaultBlockSorting: Contracts.Search.Sorting = [{ property: "height", direction: "asc" }];
 

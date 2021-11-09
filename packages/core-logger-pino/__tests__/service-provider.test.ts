@@ -5,8 +5,8 @@ import { ServiceProvider } from "@packages/core-logger-pino/src";
 import { defaults } from "@packages/core-logger-pino/src/defaults";
 import { AnySchema } from "joi";
 import { dirSync } from "tmp";
-import { Identifiers, interfaces } from "@arkecosystem/core-kernel/dist/ioc";
-import { LogManager } from "@arkecosystem/core-kernel/dist/services/log";
+import { Identifiers, interfaces } from "@packages/core-kernel/dist/ioc";
+import { LogManager } from "@packages/core-kernel/dist/services/log";
 
 let app: Application;
 

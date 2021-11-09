@@ -1,4 +1,4 @@
-import { Utils } from "@arkecosystem/crypto";
+import { Utils } from "@packages/crypto";
 
 export const transaction = {
     id: "0db225779a7da86bdeaf3a24494fcf3cae7bfe74451fdc3bcb866f62319badeb",

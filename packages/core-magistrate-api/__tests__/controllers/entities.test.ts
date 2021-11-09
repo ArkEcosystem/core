@@ -1,8 +1,8 @@
-import { Container, Contracts } from "@arkecosystem/core-kernel";
-import { EntitySearchService, Resources } from "@arkecosystem/core-magistrate-api";
-import { EntityController } from "@arkecosystem/core-magistrate-api/src/controllers/entities";
-import { Identifiers } from "@arkecosystem/core-magistrate-api/src/identifiers";
-import { Enums } from "@arkecosystem/core-magistrate-crypto";
+import { Container, Contracts } from "@packages/core-kernel";
+import { EntitySearchService, Resources } from "@packages/core-magistrate-api";
+import { EntityController } from "@packages/core-magistrate-api/src/controllers/entities";
+import { Identifiers } from "@packages/core-magistrate-api/src/identifiers";
+import { Enums } from "@packages/core-magistrate-crypto";
 import { Boom } from "@hapi/boom";
 
 const jestfn = <T extends (...args: unknown[]) => unknown>(

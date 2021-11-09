@@ -1,6 +1,6 @@
-import { Wallets } from "@arkecosystem/core-state";
+import { Wallets } from "@packages/core-state";
 
-import { BigNumber } from "../../../../../packages/crypto/src/utils";
+import { BigNumber } from "@packages/crypto/src/utils";
 
 export const wallet = {
     address: "DTRdbaUW3RQQSL5By4G43JVaeHiqfVp9oh",

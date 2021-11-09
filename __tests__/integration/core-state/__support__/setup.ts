@@ -1,6 +1,6 @@
-import { Application, Container, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Sandbox } from "@arkecosystem/core-test-framework";
-import { Managers } from "@arkecosystem/crypto";
+import { Application, Container, Utils as AppUtils } from "@packages/core-kernel";
+import { Sandbox } from "@packages/core-test-framework";
+import { Managers } from "@packages/crypto";
 import { EventEmitter } from "events";
 
 EventEmitter.prototype.constructor = Object.prototype.constructor;

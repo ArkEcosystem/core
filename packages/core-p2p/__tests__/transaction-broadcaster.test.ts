@@ -1,7 +1,7 @@
-import { Container } from "@arkecosystem/core-kernel";
-import { Interfaces, Transactions } from "@arkecosystem/crypto";
+import { Container } from "@packages/core-kernel";
+import { Interfaces, Transactions } from "@packages/crypto";
 
-import { TransactionBroadcaster } from "../../../packages/core-p2p/src/transaction-broadcaster";
+import { TransactionBroadcaster } from "@packages/core-p2p/src/transaction-broadcaster";
 
 describe("TransactionBroadcaster", () => {
     const container = new Container.Container();

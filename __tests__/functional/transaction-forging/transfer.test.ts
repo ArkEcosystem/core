@@ -1,7 +1,7 @@
 import "@packages/core-test-framework/src/matchers";
 
-import { Container, Contracts, Services } from "@arkecosystem/core-kernel";
-import { Identities, Interfaces, Managers } from "@arkecosystem/crypto";
+import { Container, Contracts, Services } from "@packages/core-kernel";
+import { Identities, Interfaces, Managers } from "@packages/crypto";
 import secrets from "@packages/core-test-framework/src/internal/passphrases.json";
 import {
     getLastHeight,

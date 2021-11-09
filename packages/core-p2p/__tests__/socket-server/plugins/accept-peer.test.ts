@@ -1,8 +1,8 @@
 import { Server } from "@hapi/hapi";
 import Joi from "joi";
-import { Container } from "@arkecosystem/core-kernel";
+import { Container } from "@packages/core-kernel";
 
-import { AcceptPeerPlugin } from "@arkecosystem/core-p2p/src/socket-server/plugins/accept-peer";
+import { AcceptPeerPlugin } from "@packages/core-p2p/src/socket-server/plugins/accept-peer";
 
 afterEach(() => {
     jest.clearAllMocks();

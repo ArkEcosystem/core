@@ -1,4 +1,4 @@
-import { Enums, Interfaces } from "@arkecosystem/core-magistrate-crypto/src";
+import { Enums, Interfaces } from "@packages/core-magistrate-crypto/src";
 import { invalidAssetData, validAssetData } from "./utils";
 
 export const validResigns: Interfaces.IEntityAsset[] = [

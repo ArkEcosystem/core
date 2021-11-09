@@ -1,9 +1,9 @@
 import "jest-extended";
 
-import { ProcessBlocksJob } from "@arkecosystem/core-blockchain/src/process-blocks-job";
-import { Queue } from "@arkecosystem/core-kernel/dist/contracts/kernel";
-import { Identifiers, interfaces } from "@arkecosystem/core-kernel/dist/ioc";
-import { MemoryQueue } from "@arkecosystem/core-kernel/src/services/queue/drivers/memory";
+import { ProcessBlocksJob } from "@packages/core-blockchain/src/process-blocks-job";
+import { Queue } from "@packages/core-kernel/dist/contracts/kernel";
+import { Identifiers, interfaces } from "@packages/core-kernel/dist/ioc";
+import { MemoryQueue } from "@packages/core-kernel/src/services/queue/drivers/memory";
 import { ProcessBlockAction } from "@packages/core-blockchain/src/actions";
 import { Blockchain } from "@packages/core-blockchain/src/blockchain";
 import { Container, Enums, Services, Utils as AppUtils } from "@packages/core-kernel";

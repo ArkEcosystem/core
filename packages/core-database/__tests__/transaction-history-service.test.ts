@@ -1,8 +1,8 @@
-import { Repositories } from "@arkecosystem/core-database";
-import { Container, Contracts } from "@arkecosystem/core-kernel";
-import { Interfaces } from "@arkecosystem/crypto";
+import { Repositories } from "@packages/core-database";
+import { Container, Contracts } from "@packages/core-kernel";
+import { Interfaces } from "@packages/crypto";
 
-import { TransactionHistoryService } from "../../../packages/core-database/src/transaction-history-service";
+import { TransactionHistoryService } from "@packages/core-database/src/transaction-history-service";
 
 const jestfn = <T extends (...args: unknown[]) => unknown>(
     implementation?: (...args: Parameters<T>) => ReturnType<T>,

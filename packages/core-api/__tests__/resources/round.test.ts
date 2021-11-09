@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { Utils } from "@arkecosystem/core-kernel";
+import { Utils } from "@packages/core-kernel";
 import { RoundResource } from "@packages/core-api/src/resources";
 
 let resource: RoundResource;

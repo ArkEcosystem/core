@@ -1,7 +1,7 @@
-import { ServiceProvider as ApiServiceProvider } from "@arkecosystem/core-api/src";
-import { Application, Container, Providers, Services } from "@arkecosystem/core-kernel";
-import { ServiceProvider as StateServiceProvider } from "@arkecosystem/core-state";
-import { ServiceProvider as TransactionsServiceProvider } from "@arkecosystem/core-transactions";
+import { ServiceProvider as ApiServiceProvider } from "@packages/core-api/src";
+import { Application, Container, Providers, Services } from "@packages/core-kernel";
+import { ServiceProvider as StateServiceProvider } from "@packages/core-state";
+import { ServiceProvider as TransactionsServiceProvider } from "@packages/core-transactions";
 
 export const setUp = async (): Promise<Application> => {
     const app = new Application(new Container.Container());

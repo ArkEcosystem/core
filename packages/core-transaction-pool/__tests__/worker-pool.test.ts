@@ -1,7 +1,7 @@
-import { Container } from "@arkecosystem/core-kernel";
-import { Enums } from "@arkecosystem/crypto";
+import { Container } from "@packages/core-kernel";
+import { Enums } from "@packages/crypto";
 
-import { WorkerPool } from "../../../packages/core-transaction-pool/src/worker-pool";
+import { WorkerPool } from "@packages/core-transaction-pool/src/worker-pool";
 
 const createWorker = jest.fn();
 const pluginConfiguration = { getRequired: jest.fn() };

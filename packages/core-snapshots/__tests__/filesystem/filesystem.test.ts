@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { Container } from "@arkecosystem/core-kernel";
+import { Container } from "@packages/core-kernel";
 import { LocalFilesystem } from "@packages/core-kernel/src/services/filesystem/drivers/local";
 import { Filesystem } from "@packages/core-snapshots/src/filesystem/filesystem";
 import { Identifiers } from "@packages/core-snapshots/src/ioc";

@@ -1,7 +1,7 @@
-import { Application, Container, Contracts } from "@arkecosystem/core-kernel";
-import { Utils, Transactions, Identities } from "@arkecosystem/crypto";
-import { delegates } from "@arkecosystem/core-test-framework";
-import { BIP39 } from "../../../../packages/core-forger/src/methods/bip39";
+import { Application, Container, Contracts } from "@packages/core-kernel";
+import { Utils, Transactions, Identities } from "@packages/crypto";
+import { delegates } from "@packages/core-test-framework";
+import { BIP39 } from "@packages/core-forger/src/methods/bip39";
 
 import { setUp, tearDown } from "../__support__/setup";
 import { getActualVoteBalances, getExpectedVoteBalances } from "../__support__/utils";

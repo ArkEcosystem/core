@@ -1,7 +1,6 @@
 import "jest-extended";
 
-import { sleep } from "@arkecosystem/utils";
-import { Application } from "@packages/core-kernel/src/application";
+import { Utils, Application } from "@packages/core-kernel";
 import { Logger } from "@packages/core-kernel/src/contracts/kernel/log";
 import { Container, Identifiers } from "@packages/core-kernel/src/ioc";
 import { PinoLogger } from "@packages/core-logger-pino/src/driver";
@@ -154,7 +153,7 @@ describe("Logger", () => {
 
         writableMock.destroy(new Error("Test error"));
 
-        await sleep(100);
+        await Utils.sleep(100);
 
         expect(message).toMatch("File stream closed due to an error: Error: Test error");
 
@@ -168,7 +167,7 @@ describe("Logger", () => {
         app.useLogPath(dirSync().name);
 
         const ms = new Date().getMilliseconds();
-        await sleep(1000 - ms + 400);
+        await Utils.sleep(1000 - ms + 400);
 
         const logger = await app.resolve(PinoLogger).make({
             levels: {
@@ -183,7 +182,7 @@ describe("Logger", () => {
         for (let i = 0; i < 3; i++) {
             logger.info(`Test ${i + 1}`);
 
-            await sleep(900);
+            await Utils.sleep(900);
         }
 
         const files = readdirSync(app.logPath());

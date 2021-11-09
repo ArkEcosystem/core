@@ -1,7 +1,7 @@
-import { Application, Container, Contracts } from "@arkecosystem/core-kernel";
-import { Enums } from "@arkecosystem/core-magistrate-crypto";
-import { ApiInjectClient } from "@arkecosystem/core-test-framework";
-import { Managers } from "@arkecosystem/crypto";
+import { Application, Container, Contracts } from "@packages/core-kernel";
+import { Enums } from "@packages/core-magistrate-crypto";
+import { ApiInjectClient } from "@packages/core-test-framework";
+import { Managers } from "@packages/crypto";
 
 import { setUp, tearDown } from "../__support__/setup";
 import { setIndexes } from "../__support__/set-indexes";

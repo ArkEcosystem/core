@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { Enums, Interfaces } from "@arkecosystem/crypto";
+import { Enums, Interfaces } from "@packages/crypto";
 import {
     calculateLockExpirationStatus,
     calculateTransactionExpiration,

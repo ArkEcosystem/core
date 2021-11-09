@@ -23,7 +23,7 @@ import { One, Two } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerProvider } from "@packages/core-transactions/src/handlers/handler-provider";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
 import { Identities, Utils } from "@packages/crypto";
-import { EntityTransactionHandler } from "@arkecosystem/core-magistrate-transactions/src/handlers/entity";
+import { EntityTransactionHandler } from "@packages/core-magistrate-transactions/src/handlers/entity";
 
 export type PaginatedResponse = {
     totalCount: number;

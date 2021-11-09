@@ -2,7 +2,7 @@ import "jest-extended";
 
 import { Errors } from "@arkecosystem/crypto-identities";
 
-import { PublicKey } from "../../../../packages/crypto/src/identities/public-key";
+import { PublicKey } from "@packages/crypto/src/identities/public-key";
 import { data, passphrase } from "./fixture.json";
 
 describe("Identities - Public Key", () => {

@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { Utils } from "@arkecosystem/crypto";
+import { Utils } from "@packages/crypto";
 import { Models } from "@packages/core-database";
 import { TransactionRepository } from "@packages/core-test-framework/src/mocks";
 

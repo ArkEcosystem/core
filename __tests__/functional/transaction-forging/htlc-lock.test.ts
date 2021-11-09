@@ -1,7 +1,7 @@
 import "@packages/core-test-framework/src/matchers";
 
-import { Contracts } from "@arkecosystem/core-kernel";
-import { Crypto, Enums, Identities, Utils } from "@arkecosystem/crypto";
+import { Contracts } from "@packages/core-kernel";
+import { Crypto, Enums, Identities, Utils } from "@packages/crypto";
 import secrets from "@packages/core-test-framework/src/internal/passphrases.json";
 import { ApiHelpers, snoozeForBlock, TransactionFactory } from "@packages/core-test-framework/src/utils";
 import got from "got";

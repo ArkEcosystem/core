@@ -1,4 +1,4 @@
-import { Console } from "@arkecosystem/core-test-framework";
+import { Console } from "@packages/core-test-framework";
 import { Command } from "@packages/core/src/commands/env-get";
 import { ensureDirSync, ensureFileSync, writeFileSync } from "fs-extra";
 import { dirSync, setGracefulCleanup } from "tmp";

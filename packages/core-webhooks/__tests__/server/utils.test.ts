@@ -1,7 +1,7 @@
 import "jest-extended";
 
-import { Enums } from "@arkecosystem/core-kernel";
-import { Webhook } from "@arkecosystem/core-webhooks/src/interfaces";
+import { Enums } from "@packages/core-kernel";
+import { Webhook } from "@packages/core-webhooks/src/interfaces";
 import { respondWithResource } from "@packages/core-webhooks/src/server/utils";
 
 const data: Webhook = {

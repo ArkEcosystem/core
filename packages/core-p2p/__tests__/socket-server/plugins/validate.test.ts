@@ -1,9 +1,9 @@
 import { Server } from "@hapi/hapi";
 import Joi from "joi";
-import { Container } from "@arkecosystem/core-kernel";
+import { Container } from "@packages/core-kernel";
 
-import { ValidatePlugin } from "@arkecosystem/core-p2p/src/socket-server/plugins/validate";
-import * as utils from "@arkecosystem/core-p2p/src/utils";
+import { ValidatePlugin } from "@packages/core-p2p/src/socket-server/plugins/validate";
+import * as utils from "@packages/core-p2p/src/utils";
 
 const spyIsValidVersion = jest.spyOn(utils, "isValidVersion").mockReturnValue(true);
 

@@ -1,14 +1,14 @@
 import "jest-extended";
 
-import { Identities } from "@arkecosystem/crypto";
-import { Hash } from "@arkecosystem/crypto/src/crypto";
-import { TransactionVersionError } from "@arkecosystem/crypto/src/errors";
-import { Keys } from "@arkecosystem/crypto/src/identities";
-import { BuilderFactory, Utils as TransactionUtils, Verifier } from "@arkecosystem/crypto/src/transactions";
+import { Identities } from "@packages/crypto";
+import { Hash } from "@packages/crypto/src/crypto";
+import { TransactionVersionError } from "@packages/crypto/src/errors";
+import { Keys } from "@packages/crypto/src/identities";
+import { BuilderFactory, Utils as TransactionUtils, Verifier } from "@packages/crypto/src/transactions";
 import { Generators } from "@packages/core-test-framework/src";
 import { TransactionFactory } from "@packages/core-test-framework/src/utils/transaction-factory";
 
-import { configManager } from "../../../../packages/crypto/src/managers";
+import { configManager } from "@packages/crypto/src/managers";
 import { createRandomTx } from "./__support__";
 
 beforeEach(() => {

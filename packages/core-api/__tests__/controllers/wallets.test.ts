@@ -1,8 +1,8 @@
-import { LockSearchService, Resources, WalletSearchService } from "@arkecosystem/core-api";
-import { WalletsController } from "@arkecosystem/core-api/src/controllers/wallets";
-import { Identifiers } from "@arkecosystem/core-api/src/identifiers";
-import { Application, Container, Contracts, Providers, Services } from "@arkecosystem/core-kernel";
-import { Enums, Utils } from "@arkecosystem/crypto";
+import { LockSearchService, Resources, WalletSearchService } from "@packages/core-api";
+import { WalletsController } from "@packages/core-api/src/controllers/wallets";
+import { Identifiers } from "@packages/core-api/src/identifiers";
+import { Application, Container, Contracts, Providers, Services } from "@packages/core-kernel";
+import { Enums, Utils } from "@packages/crypto";
 import { Boom } from "@hapi/boom";
 
 const jestfn = <T extends (...args: unknown[]) => unknown>(

@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { Application, Container, Contracts, Services } from "@arkecosystem/core-kernel";
+import { Application, Container, Contracts, Services } from "@packages/core-kernel";
 import { ServiceProvider } from "@packages/core-transaction-pool/src";
 import { fork } from "child_process";
 import { AnySchema } from "joi";

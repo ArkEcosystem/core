@@ -4,7 +4,7 @@ import { Sandbox } from "@packages/core-test-framework";
 import { Generators } from "@packages/core-test-framework/src";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
 import { TransactionFactory } from "@packages/core-test-framework/src/utils/transaction-factory";
-import { Identities, Managers, Utils } from "@arkecosystem/crypto";
+import { Identities, Managers, Utils } from "@packages/crypto";
 
 import {
     bridgechainRegistrationAsset,

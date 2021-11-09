@@ -1,7 +1,7 @@
-import { Container } from "@arkecosystem/core-kernel";
-import { Utils } from "@arkecosystem/crypto";
+import { Container } from "@packages/core-kernel";
+import { Utils } from "@packages/crypto";
 
-import { BlockFilter } from "../../../packages/core-database/src/block-filter";
+import { BlockFilter } from "@packages/core-database/src/block-filter";
 
 const container = new Container.Container();
 

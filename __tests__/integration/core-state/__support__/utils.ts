@@ -1,5 +1,5 @@
-import { Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Utils } from "@arkecosystem/crypto";
+import { Contracts, Utils as AppUtils } from "@packages/core-kernel";
+import { Utils } from "@packages/crypto";
 
 export const getExpectedVoteBalances = (
     walletRepository: Contracts.State.WalletRepository,

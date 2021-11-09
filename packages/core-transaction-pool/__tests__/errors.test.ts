@@ -1,5 +1,5 @@
-import { Contracts } from "@arkecosystem/core-kernel";
-import { Identities, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { Contracts } from "@packages/core-kernel";
+import { Identities, Managers, Transactions, Utils } from "@packages/crypto";
 
 import {
     InvalidTransactionDataError,
@@ -14,7 +14,7 @@ import {
     TransactionFromWrongNetworkError,
     TransactionHasExpiredError,
     TransactionPoolFullError,
-} from "../../../packages/core-transaction-pool/src/errors";
+} from "@packages/core-transaction-pool/src/errors";
 
 Managers.configManager.getMilestone().aip11 = true;
 const transaction = Transactions.BuilderFactory.transfer()

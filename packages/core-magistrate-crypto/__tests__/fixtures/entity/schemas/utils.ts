@@ -1,7 +1,7 @@
 // export valid and invalid asset data for registration and update
 // excluding `name` property as it is not allowed for update
 
-import { Interfaces } from "@arkecosystem/core-magistrate-crypto/src";
+import { Interfaces } from "@packages/core-magistrate-crypto/src";
 
 export const validAssetData: Interfaces.IEntityAssetData[] = [
     { ipfsData: "Qmbw6QmF6tuZpyV6WyEsTmExkEG3rW4khattQidPfbpmNZ" },

@@ -1,4 +1,4 @@
-import { Utils } from "@arkecosystem/crypto";
+import { Utils } from "@packages/crypto";
 
 export const dummyBlock = {
     id: "17605317082329008056",

@@ -32,7 +32,8 @@
         "xstate": "4.23.4"
     },
     "devDependencies": {
-        "@types/async": "3.2.7"
+        "@types/async": "3.2.7",
+        "delay": "5.0.0"
     },
     "engines": {
         "node": ">=10.x"

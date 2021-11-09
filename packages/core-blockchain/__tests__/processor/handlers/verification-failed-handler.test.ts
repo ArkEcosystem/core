@@ -1,7 +1,7 @@
-import { Container } from "@arkecosystem/core-kernel";
-import { VerificationFailedHandler } from "../../../../../packages/core-blockchain/src/processor/handlers/verification-failed-handler";
-import { BlockProcessorResult } from "../../../../../packages/core-blockchain/src/processor";
-import { Interfaces } from "@arkecosystem/crypto";
+import { Container } from "@packages/core-kernel";
+import { VerificationFailedHandler } from "@packages/core-blockchain/src/processor/handlers/verification-failed-handler";
+import { BlockProcessorResult } from "@packages/core-blockchain/src/processor";
+import { Interfaces } from "@packages/crypto";
 
 describe("VerificationFailedHandler", () => {
     const container = new Container.Container();

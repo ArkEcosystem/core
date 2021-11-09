@@ -1,4 +1,4 @@
-import { Container } from "@arkecosystem/core-kernel";
+import { Container } from "@packages/core-kernel";
 import { LocksController } from "@packages/core-api/src/controllers/locks";
 import { register } from "@packages/core-api/src/routes/locks";
 import { Server } from "@packages/core-api/src/server";

@@ -1,7 +1,7 @@
-import { Container } from "@arkecosystem/core-kernel";
-import { IncompatibleTransactionsHandler } from "../../../../../packages/core-blockchain/src/processor/handlers/incompatible-transactions-handler";
-import { BlockProcessorResult } from "../../../../../packages/core-blockchain/src/processor";
-import { Interfaces } from "@arkecosystem/crypto";
+import { Container } from "@packages/core-kernel";
+import { IncompatibleTransactionsHandler } from "@packages/core-blockchain/src/processor/handlers/incompatible-transactions-handler";
+import { BlockProcessorResult } from "@packages/core-blockchain/src/processor";
+import { Interfaces } from "@packages/crypto";
 
 describe("IncompatibleTransactionsHandler", () => {
     const container = new Container.Container();

@@ -1,7 +1,7 @@
 import "jest-extended";
 
-import { Contracts } from "@arkecosystem/core-cli";
-import { Console } from "@arkecosystem/core-test-framework";
+import { Contracts } from "@packages/core-cli";
+import { Console } from "@packages/core-test-framework";
 import { ProcessManager } from "@packages/core-cli/src/services";
 import execa from "execa";
 

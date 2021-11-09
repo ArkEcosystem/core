@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { Transactions } from "@arkecosystem/crypto";
+import { Transactions } from "@packages/crypto";
 import { ServiceProvider as CoreApiServiceProvider } from "@packages/core-api/src";
 import { defaults } from "@packages/core-api/src/defaults";
 import { PortsResource } from "@packages/core-api/src/resources";
