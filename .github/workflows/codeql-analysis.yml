@@ -33,8 +33,27 @@ jobs:
               with:
                   languages: javascript
 
-            - name: Install & Build
-              run: yarn setup
+            - name: Cache pnpm modules
+              uses: actions/cache@v2
+              with:
+                  path: ~/.pnpm-store
+                  key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+                  restore-keys: ${{ runner.os }}-pnpm-
+
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node-version }}
+
+
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v2.0.1
+              with:
+                  version: 6.20.4
+                  run_install: true
+
+            - name: Build
+              run: pnpm run build
 
             - name: Perform CodeQL Analysis
               uses: github/codeql-action/analyze@v1
