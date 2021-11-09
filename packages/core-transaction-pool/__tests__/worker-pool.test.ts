@@ -1,14 +1,21 @@
 import { Container } from "@arkecosystem/core-kernel";
 import { Enums } from "@arkecosystem/crypto";
-
-import { WorkerPool } from "../../../packages/core-transaction-pool/src/worker-pool";
+import { WorkerPool } from "@packages/core-transaction-pool/src/worker-pool";
 
 const createWorker = jest.fn();
 const pluginConfiguration = { getRequired: jest.fn() };
+const pluginDiscoverer = {
+    get: jest.fn().mockImplementation((name: string) => {
+        return {
+            packageId: name,
+        };
+    }),
+};
 
 const container = new Container.Container();
 container.bind(Container.Identifiers.TransactionPoolWorkerFactory).toConstantValue(createWorker);
 container.bind(Container.Identifiers.PluginConfiguration).toConstantValue(pluginConfiguration);
+container.bind(Container.Identifiers.PluginDiscoverer).toConstantValue(pluginDiscoverer);
 
 beforeEach(() => {
     createWorker.mockReset();
