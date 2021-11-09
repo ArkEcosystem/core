@@ -1,8 +1,8 @@
 import "jest-extended";
 
-import { Client } from "@arkecosystem/core-forger/src/client";
-import { Application, Container } from "@arkecosystem/core-kernel";
-import { NetworkStateStatus, Nes, Codecs } from "@arkecosystem/core-p2p";
+import { Client } from "@packages/core-forger/src/client";
+import { Application, Container } from "@packages/core-kernel";
+import { NetworkStateStatus, Nes, Codecs } from "@packages/core-p2p";
 
 import { forgedBlockWithTransactions } from "./__utils__/create-block-with-transactions";
 

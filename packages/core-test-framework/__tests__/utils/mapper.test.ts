@@ -1,7 +1,7 @@
 import "jest-extended";
 
-import { Models } from "@arkecosystem/core-database";
-import { Interfaces, Utils } from "@arkecosystem/crypto";
+import { Models } from "@packages/core-database";
+import { Interfaces, Utils } from "@packages/crypto";
 import { mapTransactionToModel } from "@packages/core-test-framework/src/utils/mapper";
 
 let transaction: Interfaces.ITransaction;

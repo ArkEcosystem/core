@@ -1,4 +1,4 @@
-import { Commands, Container } from "@arkecosystem/core-cli";
+import { Commands, Container } from "@packages/core-cli";
 import Joi from "joi";
 
 @Container.injectable()

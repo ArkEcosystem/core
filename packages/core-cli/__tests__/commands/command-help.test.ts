@@ -1,4 +1,4 @@
-import { Console } from "@arkecosystem/core-test-framework";
+import { Console } from "@packages/core-test-framework";
 import { CommandHelp } from "@packages/core-cli/src/commands";
 import { setGracefulCleanup } from "tmp";
 

@@ -1,6 +1,6 @@
 import "@packages/core-test-framework/src/matchers";
 
-import { Contracts } from "@arkecosystem/core-kernel";
+import { Contracts } from "@packages/core-kernel";
 import { ApiHelpers } from "@packages/core-test-framework/src";
 
 import { calculateRanks, setUp, tearDown } from "../__support__/setup";

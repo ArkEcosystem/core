@@ -1,5 +1,5 @@
-import { Container } from "@arkecosystem/core-kernel";
-import { checkNTP } from "@arkecosystem/core-p2p/src/utils/check-ntp";
+import { Container } from "@packages/core-kernel";
+import { checkNTP } from "@packages/core-p2p/src/utils/check-ntp";
 
 jest.mock("@hapi/sntp", () => {
     return {

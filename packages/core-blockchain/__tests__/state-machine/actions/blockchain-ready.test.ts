@@ -1,4 +1,4 @@
-import { Container, Enums } from "@arkecosystem/core-kernel";
+import { Container, Enums } from "@packages/core-kernel";
 import { BlockchainReady } from "@packages/core-blockchain/src/state-machine/actions/blockchain-ready";
 
 describe("BlockchainReady", () => {

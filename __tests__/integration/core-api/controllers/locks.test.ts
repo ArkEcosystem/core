@@ -1,6 +1,6 @@
-import { Application, Container, Contracts } from "@arkecosystem/core-kernel";
-import { ApiInjectClient } from "@arkecosystem/core-test-framework";
-import { Enums, Identities, Managers, Utils } from "@arkecosystem/crypto";
+import { Application, Container, Contracts } from "@packages/core-kernel";
+import { ApiInjectClient } from "@packages/core-test-framework";
+import { Enums, Identities, Managers, Utils } from "@packages/crypto";
 
 import { setUp, tearDown } from "../__support__/setup";
 

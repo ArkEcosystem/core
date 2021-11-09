@@ -1,10 +1,10 @@
-import { Container, Providers } from "@arkecosystem/core-kernel";
-import { Sandbox } from "@arkecosystem/core-test-framework";
-import { Interfaces, Transactions } from "@arkecosystem/crypto";
+import { Container, Providers } from "@packages/core-kernel";
+import { Sandbox } from "@packages/core-test-framework";
+import { Interfaces, Transactions } from "@packages/crypto";
 import { Connection, createConnection } from "typeorm";
 
-import { Block } from "../../../../packages/core-database/src/models/block";
-import { SnakeNamingStrategy } from "../../../../packages/core-database/src/utils/snake-naming-strategy";
+import { Block } from "@packages/core-database/src/models/block";
+import { SnakeNamingStrategy } from "@packages/core-database/src/utils/snake-naming-strategy";
 
 export const getCoreDatabasePluginConfiguration = async (): Promise<Providers.PluginConfiguration> => {
     const sandbox: Sandbox = new Sandbox();

@@ -1,5 +1,5 @@
-import { Container } from "@arkecosystem/core-kernel";
-import { Interfaces } from "@arkecosystem/crypto";
+import { Container } from "@packages/core-kernel";
+import { Interfaces } from "@packages/crypto";
 import { BlockProcessorResult } from "@packages/core-blockchain/src/processor";
 import { RevertBlockHandler } from "@packages/core-blockchain/src/processor/handlers/revert-block-handler";
 

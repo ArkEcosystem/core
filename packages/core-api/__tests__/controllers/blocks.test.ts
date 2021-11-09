@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { Contracts } from "@arkecosystem/core-kernel";
+import { Contracts } from "@packages/core-kernel";
 import Hapi from "@hapi/hapi";
 import { BlocksController } from "@packages/core-api/src/controllers/blocks";
 import { Block } from "@packages/core-database/src/models";

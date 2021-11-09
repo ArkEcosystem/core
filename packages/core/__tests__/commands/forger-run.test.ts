@@ -9,7 +9,7 @@ const app = {
     boot: jest.fn(),
 };
 
-jest.mock("@arkecosystem/core-kernel", () => ({
+jest.mock("@packages/core-kernel", () => ({
     __esModule: true,
     Application: jest.fn(() => app),
     Container: {

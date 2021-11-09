@@ -1,7 +1,7 @@
 import "jest-extended";
 
-import { Utils } from "@arkecosystem/core-kernel";
-import { Interfaces } from "@arkecosystem/crypto";
+import { Utils } from "@packages/core-kernel";
+import { Interfaces } from "@packages/crypto";
 import { BlockResource } from "@packages/core-api/src/resources";
 
 let resource: BlockResource;

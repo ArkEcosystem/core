@@ -1,6 +1,6 @@
-import { Container } from "@arkecosystem/core-kernel";
+import { Container } from "@packages/core-kernel";
 
-import { InternalRoute } from "@arkecosystem/core-p2p/src/socket-server/routes/internal";
+import { InternalRoute } from "@packages/core-p2p/src/socket-server/routes/internal";
 
 describe("InternalRoute", () => {
     let internalRoute: InternalRoute;

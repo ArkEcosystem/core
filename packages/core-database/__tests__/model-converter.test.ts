@@ -1,7 +1,7 @@
-import { Container } from "@arkecosystem/core-kernel";
-import { Blocks, Utils } from "@arkecosystem/crypto";
+import { Container } from "@packages/core-kernel";
+import { Blocks, Utils } from "@packages/crypto";
 
-import { ModelConverter } from "../../../packages/core-database/src/model-converter";
+import { ModelConverter } from "@packages/core-database/src/model-converter";
 import block1760000 from "./__fixtures__/block1760000";
 
 const container = new Container.Container();

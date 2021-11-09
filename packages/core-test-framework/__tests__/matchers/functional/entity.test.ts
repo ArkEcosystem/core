@@ -1,6 +1,6 @@
 import "@packages/core-test-framework/src/matchers/functional/entity";
 
-import { EntityType } from "@arkecosystem/core-magistrate-crypto/src/enums";
+import { EntityType } from "@packages/core-magistrate-crypto/src/enums";
 import got from "got";
 import _ from "lodash";
 

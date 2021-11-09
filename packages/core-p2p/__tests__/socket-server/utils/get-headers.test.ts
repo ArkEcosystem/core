@@ -1,5 +1,5 @@
-import { Container } from "@arkecosystem/core-kernel";
-import { getHeaders } from "@arkecosystem/core-p2p/src/socket-server/utils/get-headers";
+import { Container } from "@packages/core-kernel";
+import { getHeaders } from "@packages/core-p2p/src/socket-server/utils/get-headers";
 
 describe("getHeaders", () => {
     const version = "3.0.9";

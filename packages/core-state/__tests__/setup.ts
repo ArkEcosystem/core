@@ -16,7 +16,7 @@ import { registerIndexers } from "@packages/core-state/src/wallets/indexers";
 import { Sandbox } from "@packages/core-test-framework/src";
 import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
 import { Managers, Utils } from "@packages/crypto/src";
-import { walletFactory } from "@arkecosystem/core-state/src/wallets/wallet-factory";
+import { walletFactory } from "@packages/core-state/src/wallets/wallet-factory";
 
 export interface Spies {
     applySpy: jest.SpyInstance;

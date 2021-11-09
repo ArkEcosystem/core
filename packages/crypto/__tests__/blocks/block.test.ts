@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { Interfaces, Managers, Utils } from "@arkecosystem/crypto";
+import { Interfaces, Managers, Utils } from "@packages/crypto";
 import { BIP39 } from "@packages/core-forger/src/methods/bip39";
 import { TransactionFactory } from "@packages/core-test-framework/src/utils/transaction-factory";
 import { Block, BlockFactory, Deserializer, Serializer } from "@packages/crypto/src/blocks";

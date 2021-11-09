@@ -1,8 +1,8 @@
 import "jest-extended";
 
-import { isValidVersion } from "@arkecosystem/core-p2p/src/utils/is-valid-version";
-import { Peer } from "@arkecosystem/core-p2p/src/peer";
-import { Managers } from "@arkecosystem/crypto";
+import { isValidVersion } from "@packages/core-p2p/src/utils/is-valid-version";
+import { Peer } from "@packages/core-p2p/src/peer";
+import { Managers } from "@packages/crypto";
 
 let peerMock: Peer;
 const app = {
@@ -28,7 +28,7 @@ describe.each([[true], [false]])("isValidVersion", (withMilestones) => {
     afterEach(() => {
         spyGetMilestone.mockRestore();
     })
-    
+
     it.each([["2.6.0"], ["2.6.666"], ["2.7.0"], ["2.8.0"], ["2.9.0"], ["2.9.934"]])(
         "should be a valid version",
         (version) => {

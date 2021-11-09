@@ -1,5 +1,5 @@
-import { Container } from "@arkecosystem/core-cli";
-import { Console } from "@arkecosystem/core-test-framework";
+import { Container } from "@packages/core-cli";
+import { Console } from "@packages/core-test-framework";
 import { AppHeader } from "@packages/core-cli/src/components";
 import { red, white } from "kleur";
 import os from "os";

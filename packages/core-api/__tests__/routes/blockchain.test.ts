@@ -1,4 +1,4 @@
-import { Container } from "@arkecosystem/core-kernel";
+import { Container } from "@packages/core-kernel";
 import { BlockchainController } from "@packages/core-api/src/controllers/blockchain";
 import { register } from "@packages/core-api/src/routes/blockchain";
 import { Server } from "@packages/core-api/src/server";

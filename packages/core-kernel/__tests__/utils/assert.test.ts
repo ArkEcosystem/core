@@ -1,4 +1,4 @@
-import { Blocks, Interfaces, Managers } from "@arkecosystem/crypto";
+import { Blocks, Interfaces, Managers } from "@packages/crypto";
 import { assert } from "@packages/core-kernel/src/utils/assert";
 import { Generators } from "@packages/core-test-framework/src";
 

@@ -1,9 +1,9 @@
-import { ServiceProvider as ApiServiceProvider } from "@arkecosystem/core-api";
-import { ServiceProvider as MagistrateApiServiceProvider } from "@arkecosystem/core-magistrate-api/src";
-import { Application, Container, Providers, Services } from "@arkecosystem/core-kernel";
-import { ServiceProvider as StateServiceProvider } from "@arkecosystem/core-state";
-import { ServiceProvider as TransactionsServiceProvider } from "@arkecosystem/core-transactions";
-import { ServiceProvider as MagistrateTransactionsServiceProvider } from "@arkecosystem/core-magistrate-transactions";
+import { ServiceProvider as ApiServiceProvider } from "@packages/core-api";
+import { ServiceProvider as MagistrateApiServiceProvider } from "@packages/core-magistrate-api";
+import { Application, Container, Providers, Services } from "@packages/core-kernel";
+import { ServiceProvider as StateServiceProvider } from "@packages/core-state";
+import { ServiceProvider as TransactionsServiceProvider } from "@packages/core-transactions";
+import { ServiceProvider as MagistrateTransactionsServiceProvider } from "@packages/core-magistrate-transactions";
 
 export const setUp = async (): Promise<Application> => {
     const app = new Application(new Container.Container());

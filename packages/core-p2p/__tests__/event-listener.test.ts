@@ -1,7 +1,7 @@
-import { Container, Enums } from "@arkecosystem/core-kernel";
+import { Container, Enums } from "@packages/core-kernel";
 
-import { EventListener } from "@arkecosystem/core-p2p/src/event-listener";
-import { DisconnectPeer } from "@arkecosystem/core-p2p/src/listeners";
+import { EventListener } from "@packages/core-p2p/src/event-listener";
+import { DisconnectPeer } from "@packages/core-p2p/src/listeners";
 
 describe("EventListener", () => {
     let eventListener: EventListener;

@@ -1,4 +1,4 @@
-import { Models } from "@arkecosystem/core-database";
+import { Models } from "@packages/core-database";
 import { BigNumber } from "@arkecosystem/utils";
 import { Meta } from "@packages/core-snapshots/src/contracts";
 

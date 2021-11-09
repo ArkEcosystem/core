@@ -1,6 +1,6 @@
 const {
     Providers
-} = require("@arkecosystem/core-kernel");
+} = require("@packages/core-kernel");
 
 class ServiceProvider extends Providers.ServiceProvider {
     async register() {

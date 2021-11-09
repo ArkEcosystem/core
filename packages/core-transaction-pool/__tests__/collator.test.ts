@@ -1,9 +1,9 @@
-import { Container } from "@arkecosystem/core-kernel";
-import { Managers } from "@arkecosystem/crypto";
+import { Container } from "@packages/core-kernel";
+import { Managers } from "@packages/crypto";
 
-import { Collator } from "../../../packages/core-transaction-pool/src/collator";
+import { Collator } from "@packages/core-transaction-pool/src/collator";
 
-jest.mock("@arkecosystem/crypto");
+jest.mock("@packages/crypto");
 
 const validator = { validate: jest.fn() };
 const createTransactionValidator = jest.fn();

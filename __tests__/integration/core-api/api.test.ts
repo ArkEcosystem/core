@@ -1,6 +1,6 @@
-import { Application } from "@arkecosystem/core-kernel";
-import { ApiInjectClient } from "@arkecosystem/core-test-framework";
-import { Utils } from "@arkecosystem/crypto";
+import { Application } from "@packages/core-kernel";
+import { ApiInjectClient } from "@packages/core-test-framework";
+import { Utils } from "@packages/crypto";
 
 import { setUp, tearDown } from "./__support__/setup";
 

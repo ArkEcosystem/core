@@ -1,4 +1,4 @@
-import { Container, Services } from "@arkecosystem/core-kernel";
+import { Container, Services } from "@packages/core-kernel";
 import { BlockProcessorResult } from "@packages/core-blockchain/src/processor";
 import { UnchainedHandler } from "@packages/core-blockchain/src/processor/handlers/unchained-handler";
 import { GetActiveDelegatesAction } from "@packages/core-state/src/actions";

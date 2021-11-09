@@ -1,7 +1,7 @@
-import { Container } from "@arkecosystem/core-kernel";
-import { Blocks } from "@arkecosystem/crypto";
+import { Container } from "@packages/core-kernel";
+import { Blocks } from "@packages/crypto";
 
-import { DatabaseService } from "../../../packages/core-database/src/database-service";
+import { DatabaseService } from "@packages/core-database/src/database-service";
 import block1760000 from "./__fixtures__/block1760000";
 
 const app = {

@@ -1,11 +1,11 @@
 import "jest-extended";
 
-import { PublicKey } from "@arkecosystem/crypto/src/identities";
+import { PublicKey } from "@packages/crypto/src/identities";
 import { Errors } from "@arkecosystem/crypto-identities";
 
-import { Address } from "../../../../packages/crypto/src/identities/address";
-import { Keys } from "../../../../packages/crypto/src/identities/keys";
-import { configManager } from "../../../../packages/crypto/src/managers";
+import { Address } from "@packages/crypto/src/identities/address";
+import { Keys } from "@packages/crypto/src/identities/keys";
+import { configManager } from "@packages/crypto/src/managers";
 import { data, passphrase } from "./fixture.json";
 
 describe("Identities - Address", () => {

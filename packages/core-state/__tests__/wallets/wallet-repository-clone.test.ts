@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { Utils } from "@arkecosystem/crypto";
+import { Utils } from "@packages/crypto";
 import { Container, Contracts, Services } from "@packages/core-kernel";
 import {
     addressesIndexer,

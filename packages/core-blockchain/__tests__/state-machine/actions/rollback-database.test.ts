@@ -1,4 +1,4 @@
-import { Container } from "@arkecosystem/core-kernel";
+import { Container } from "@packages/core-kernel";
 import { RollbackDatabase } from "@packages/core-blockchain/src/state-machine/actions/rollback-database";
 
 describe("RollbackDatabase", () => {

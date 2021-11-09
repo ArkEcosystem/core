@@ -1,7 +1,7 @@
 import "@packages/core-test-framework/src/matchers";
 
-import { Container, Contracts } from "@arkecosystem/core-kernel";
-import { Peer } from "@arkecosystem/core-p2p/src/peer";
+import { Container, Contracts } from "@packages/core-kernel";
+import { Peer } from "@packages/core-p2p/src/peer";
 import { ApiHelpers } from "@packages/core-test-framework/src";
 
 import { setUp, tearDown } from "../__support__/setup";
