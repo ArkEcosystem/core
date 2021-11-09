@@ -1,7 +1,7 @@
-import { Container } from "@arkecosystem/core-kernel";
+import { Container } from "@packages/core-kernel";
 
-import { PeerRepository } from "@arkecosystem/core-p2p/src/peer-repository";
-import { Peer } from "@arkecosystem/core-p2p/src/peer";
+import { PeerRepository } from "@packages/core-p2p/src/peer-repository";
+import { Peer } from "@packages/core-p2p/src/peer";
 
 describe("PeerRepository", () => {
     let peerStorage: PeerRepository;

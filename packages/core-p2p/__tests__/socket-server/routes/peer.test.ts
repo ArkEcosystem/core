@@ -1,6 +1,6 @@
-import { Container } from "@arkecosystem/core-kernel";
+import { Container } from "@packages/core-kernel";
 
-import { PeerRoute } from "@arkecosystem/core-p2p/src/socket-server/routes/peer";
+import { PeerRoute } from "@packages/core-p2p/src/socket-server/routes/peer";
 
 describe("PeerRoute", () => {
     let peerRoute: PeerRoute;

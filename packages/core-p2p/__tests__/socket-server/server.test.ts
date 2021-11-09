@@ -1,6 +1,6 @@
-import { Container } from "@arkecosystem/core-kernel";
-import * as Nes from "@arkecosystem/core-p2p/src/hapi-nes";
-import { Server } from "@arkecosystem/core-p2p/src/socket-server/server";
+import { Container } from "@packages/core-kernel";
+import * as Nes from "@packages/core-p2p/src/hapi-nes";
+import { Server } from "@packages/core-p2p/src/socket-server/server";
 import hapi from "@hapi/hapi";
 
 import { NesClient } from "../mocks/nes";

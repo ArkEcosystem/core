@@ -1,4 +1,4 @@
-import { mapAddr } from "@arkecosystem/core-p2p/src/socket-server/utils/map-addr";
+import { mapAddr } from "@packages/core-p2p/src/socket-server/utils/map-addr";
 
 describe("mapAddr", () => {
     it("should map IP 'v6' to IP v4 counterpart", () => {

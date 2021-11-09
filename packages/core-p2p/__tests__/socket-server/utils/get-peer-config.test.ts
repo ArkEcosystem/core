@@ -1,6 +1,6 @@
-import { Container } from "@arkecosystem/core-kernel";
-import { getPeerConfig } from "@arkecosystem/core-p2p/src/socket-server/utils/get-peer-config";
-import { Managers } from "@arkecosystem/crypto";
+import { Container } from "@packages/core-kernel";
+import { getPeerConfig } from "@packages/core-p2p/src/socket-server/utils/get-peer-config";
+import { Managers } from "@packages/crypto";
 
 let mockConfig;
 let version;

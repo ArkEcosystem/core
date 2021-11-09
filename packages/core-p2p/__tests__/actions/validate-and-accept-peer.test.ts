@@ -1,4 +1,4 @@
-import { ValidateAndAcceptPeerAction } from "@arkecosystem/core-p2p/src/actions/validate-and-accept-peer";
+import { ValidateAndAcceptPeerAction } from "@packages/core-p2p/src/actions/validate-and-accept-peer";
 
 describe("ValidateAndAcceptPeerAction", () => {
     let validateAndAcceptPeerAction: ValidateAndAcceptPeerAction;
