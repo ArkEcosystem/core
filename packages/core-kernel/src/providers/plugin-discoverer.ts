@@ -32,9 +32,12 @@ export class PluginDiscoverer {
             return plugin;
         }
 
-        // TODO: Support global packages
-
-        throw new Error(`Package ${name} couldn't be located.`);
+        const packageJson = require(`${name}/package.json`);
+        return {
+            name,
+            version: packageJson.version,
+            packageId: name,
+        };
     }
 
     private async discover(pattern: string, path: string): Promise<Plugin[]> {
