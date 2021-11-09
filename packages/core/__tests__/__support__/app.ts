@@ -1,4 +1,4 @@
-import { ApplicationFactory, Commands, Container, Services } from "@arkecosystem/core-cli";
+import { ApplicationFactory, Commands, Container, Services } from "@packages/core-cli";
 
 export const executeCommand = async (command): Promise<void> => {
     const app = ApplicationFactory.make(new Container.Container(), {

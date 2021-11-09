@@ -1,4 +1,4 @@
-import { Container } from "@arkecosystem/core-kernel";
+import { Container } from "@packages/core-kernel";
 import { DelegatesController } from "@packages/core-api/src/controllers/delegates";
 import { register } from "@packages/core-api/src/routes/delegates";
 import { Server } from "@packages/core-api/src/server";

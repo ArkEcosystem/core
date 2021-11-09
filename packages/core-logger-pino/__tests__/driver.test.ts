@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { Utils, Application } from "@arkecosystem/core-kernel";
+import { Utils, Application } from "@packages/core-kernel";
 import { Logger } from "@packages/core-kernel/src/contracts/kernel/log";
 import { Container, Identifiers } from "@packages/core-kernel/src/ioc";
 import { PinoLogger } from "@packages/core-logger-pino/src/driver";
