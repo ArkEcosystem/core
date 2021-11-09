@@ -1,5 +1,5 @@
 import Hapi from "@hapi/hapi";
-import { Container } from "@arkecosystem/core-kernel";
+import { Container } from "@packages/core-kernel";
 
 @Container.injectable()
 export class EchoController {
