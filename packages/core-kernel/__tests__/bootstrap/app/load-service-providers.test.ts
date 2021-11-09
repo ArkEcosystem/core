@@ -54,18 +54,17 @@ describe("LoadServiceProviders", () => {
         });
 
         await expect(app.resolve<LoadServiceProviders>(LoadServiceProviders).bootstrap()).rejects.toThrowError(
-            "Cannot find module 'non-existing-plugin'",
+            `Plugin "non-existing-plugin" cannot be found.`,
         );
     });
 
     it("should bootstrap if plugins path doesn't exist", async () => {
         jest.spyOn(app, "dataPath").mockReturnValue("/invalid/path");
 
-
         configRepository.merge({
             app: { plugins: [] },
         });
 
         await app.resolve<LoadServiceProviders>(LoadServiceProviders).bootstrap();
-    })
+    });
 });
