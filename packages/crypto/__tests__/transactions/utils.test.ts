@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { Utils } from "@arkecosystem/crypto";
+import { Utils } from "@packages/crypto";
 import { Generators } from "@packages/core-test-framework/src";
 import { TransactionFactory as TestTransactionFactory } from "@packages/core-test-framework/src/utils/transaction-factory";
 
@@ -8,16 +8,16 @@ import {
     InvalidTransactionBytesError,
     TransactionTypeError,
     TransactionVersionError,
-} from "../../../../packages/crypto/src/errors";
-import { Keys } from "../../../../packages/crypto/src/identities";
-import { ITransaction, ITransactionData } from "../../../../packages/crypto/src/interfaces";
-import { configManager } from "../../../../packages/crypto/src/managers";
+} from "@packages/crypto/src/errors";
+import { Keys } from "@packages/crypto/src/identities";
+import { ITransaction, ITransactionData } from "@packages/crypto/src/interfaces";
+import { configManager } from "@packages/crypto/src/managers";
 import {
     BuilderFactory,
     Transaction,
     TransactionFactory,
     Utils as TransactionUtils,
-} from "../../../../packages/crypto/src/transactions";
+} from "@packages/crypto/src/transactions";
 import { transaction as transactionDataFixture } from "../fixtures/transaction";
 
 let transactionData: ITransactionData;

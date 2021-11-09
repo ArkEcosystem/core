@@ -1,10 +1,10 @@
 import "jest-extended";
 
-import { TransactionTypeError } from "@arkecosystem/crypto/src/errors";
-import { Keys } from "@arkecosystem/crypto/src/identities";
-import { ITransaction } from "@arkecosystem/crypto/src/interfaces";
-import { configManager } from "@arkecosystem/crypto/src/managers";
-import { BuilderFactory } from "@arkecosystem/crypto/src/transactions";
+import { TransactionTypeError } from "@packages/crypto/src/errors";
+import { Keys } from "@packages/crypto/src/identities";
+import { ITransaction } from "@packages/crypto/src/interfaces";
+import { configManager } from "@packages/crypto/src/managers";
+import { BuilderFactory } from "@packages/crypto/src/transactions";
 
 export const createRandomTx = (type) => {
     let transaction: ITransaction;

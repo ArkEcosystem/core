@@ -1,4 +1,4 @@
-import { Utils } from "@arkecosystem/crypto";
+import { Utils } from "@packages/crypto";
 
 export const transaction = {
     version: 1,
