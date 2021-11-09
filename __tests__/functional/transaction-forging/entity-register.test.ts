@@ -1,10 +1,10 @@
-import "@arkecosystem/core-test-framework/src/matchers";
+import "@packages/core-test-framework/src/matchers";
 
-import { Contracts } from "@arkecosystem/core-kernel";
-import { Enums } from "@arkecosystem/core-magistrate-crypto";
-import secrets from "@arkecosystem/core-test-framework/src/internal/passphrases.json";
-import { snoozeForBlock, TransactionFactory } from "@arkecosystem/core-test-framework/src/utils";
-import { Identities, Utils } from "@arkecosystem/crypto";
+import { Contracts } from "@packages/core-kernel";
+import { Enums } from "@packages/core-magistrate-crypto";
+import secrets from "@packages/core-test-framework/src/internal/passphrases.json";
+import { snoozeForBlock, TransactionFactory } from "@packages/core-test-framework/src/utils";
+import { Identities, Utils } from "@packages/crypto";
 import { generateMnemonic } from "bip39";
 
 import * as support from "./__support__";

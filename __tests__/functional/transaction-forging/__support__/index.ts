@@ -1,7 +1,7 @@
 import "jest-extended";
 
-import { Container, Contracts } from "@arkecosystem/core-kernel";
-import { Managers } from "@arkecosystem/crypto";
+import { Container, Contracts } from "@packages/core-kernel";
+import { Managers } from "@packages/crypto";
 import delay from "delay";
 import { EventEmitter } from "events";
 
@@ -9,8 +9,8 @@ EventEmitter.prototype.constructor = Object.prototype.constructor;
 
 jest.setTimeout(1200000);
 
-import { StateBuilder } from "@arkecosystem/core-state/src/state-builder";
-import { Sandbox } from "@packages/core-test-framework/src";
+import { StateBuilder } from "@packages/core-state/src/state-builder";
+import { Sandbox } from "@packages/core-test-framework";
 
 const sandbox: Sandbox = new Sandbox();
 
