@@ -176,6 +176,28 @@ export interface Application {
 
 /**
  * @export
+ * @interface Plugin
+ */
+export interface Plugin {
+    /**
+     * @type {string}
+     * @memberof Plugin
+     */
+    name: string;
+    /**
+     * @type {string}
+     * @memberof Plugin
+     */
+    version: string;
+    /**
+     * @type {string}
+     * @memberof Plugin
+     */
+    packageId: string;
+}
+
+/**
+ * @export
  * @interface PluginDependency
  */
 export interface PluginDependency {

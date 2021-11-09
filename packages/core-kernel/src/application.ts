@@ -7,7 +7,7 @@ import * as Contracts from "./contracts";
 import { KernelEvent } from "./enums";
 import { DirectoryCannotBeFound } from "./exceptions/filesystem";
 import { Identifiers } from "./ioc";
-import { ServiceProvider, ServiceProviderRepository } from "./providers";
+import { PluginDiscoverer, ServiceProvider, ServiceProviderRepository } from "./providers";
 // import { ShutdownSignal } from "./enums/process";
 import { ConfigRepository } from "./services/config";
 import { ServiceProvider as EventServiceProvider } from "./services/events/service-provider";
@@ -45,6 +45,8 @@ export class Application implements Contracts.Kernel.Application {
         this.bind<ServiceProviderRepository>(Identifiers.ServiceProviderRepository)
             .to(ServiceProviderRepository)
             .inSingletonScope();
+
+        this.bind<PluginDiscoverer>(Identifiers.PluginDiscoverer).to(PluginDiscoverer).inSingletonScope();
     }
 
     /**

@@ -135,3 +135,9 @@ export class UnsupportedVersionConstraint extends RuntimeException {
         );
     }
 }
+
+export class PluginCannotBeFound extends RuntimeException {
+    public constructor(name: string) {
+        super(`Plugin "${name}" cannot be found.`);
+    }
+}
