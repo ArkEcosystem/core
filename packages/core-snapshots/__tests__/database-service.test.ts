@@ -51,7 +51,7 @@ const configuration = {
     chunkSize: 50000,
     dispatchUpdateStep: 1000,
     connection: {},
-    cryptoPackages: [],
+    cryptoPackages: ["@arkecosystem/core-magistrate-crypto"],
 };
 
 let logger;
