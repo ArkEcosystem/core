@@ -16,8 +16,9 @@ export class PluginDiscoverer {
         this.plugins = [];
 
         const discoverOnPath = async (patter: string, path: string): Promise<void> => {
-            existsSync(path);
-            this.plugins = this.plugins.concat(await this.discover(patter, path));
+            if (existsSync(path)) {
+                this.plugins = this.plugins.concat(await this.discover(patter, path));
+            }
         };
 
         await discoverOnPath("*/package.json", join(__dirname, "../../../../packages")); // Project packages
