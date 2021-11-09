@@ -1,10 +1,9 @@
 import "jest-extended";
 
-import { Container } from "@packages/core-kernel/src";
+import { Container, Utils } from "@packages/core-kernel";
 import { StateStore } from "@packages/core-state/src/stores/state";
 import { FactoryBuilder } from "@packages/core-test-framework/src/factories";
 import { IBlock, IBlockData, ITransactionData } from "@packages/crypto/src/interfaces";
-import delay from "delay";
 
 import { makeChainedBlocks } from "../__utils__/make-chained-block";
 import { setUp } from "../setup";
@@ -485,7 +484,7 @@ describe("State Storage", () => {
                 last: currentTime,
                 block: blocks[5].data,
             };
-            await delay(20);
+            await Utils.sleep(20);
 
             expect(stateStorage.pingBlock(blocks[5].data)).toBeTrue();
 
@@ -579,7 +578,7 @@ describe("State Storage", () => {
 
             expect(stateStorage.isWakeUpTimeoutSet()).toBeTrue();
 
-            await delay(200);
+            await Utils.sleep(200);
 
             expect(stateStorage.isWakeUpTimeoutSet()).toBeFalse();
         });
@@ -592,7 +591,7 @@ describe("State Storage", () => {
 
             stateStorage.setWakeUpTimeout(callbackFn, 100);
 
-            await delay(200);
+            await Utils.sleep(200);
 
             expect(callbackFn).toHaveBeenCalled();
             expect(spyOnClearWakeUpTimeout).toHaveBeenCalled();
