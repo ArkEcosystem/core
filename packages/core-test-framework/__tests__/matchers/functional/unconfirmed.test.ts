@@ -1,6 +1,6 @@
 import "@packages/core-test-framework/src/matchers/functional/unconfirmed";
 
-import { Interfaces } from "@arkecosystem/crypto";
+import { Interfaces } from "@packages/crypto";
 import got from "got";
 
 let transactions: Partial<Interfaces.ITransactionData>[];
