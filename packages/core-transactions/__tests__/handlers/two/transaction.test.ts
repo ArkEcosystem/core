@@ -1,7 +1,7 @@
 import "jest-extended";
 
-import { TransactionTypeGroup } from "@arkecosystem/crypto/dist/enums";
-import { TransactionSchema } from "@arkecosystem/crypto/dist/transactions/types/schemas";
+import { TransactionTypeGroup } from "@packages/crypto/dist/enums";
+import { TransactionSchema } from "@packages/crypto/dist/transactions/types/schemas";
 import { Application, Contracts } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Wallets } from "@packages/core-state";
