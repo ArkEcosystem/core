@@ -62,7 +62,7 @@ describe("PluginConfiguration", () => {
         it("should throw error if plugin is not found", () => {
             expect(() => {
                 pluginDiscoverer.get("@arkecosystem/invalid");
-            }).toThrowError("Cannot find module '@arkecosystem/invalid/package.json'");
+            }).toThrowError(`Plugin "@arkecosystem/invalid" cannot be found.`);
         });
     });
 });

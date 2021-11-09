@@ -3,6 +3,7 @@ import glob from "glob";
 import { join } from "path";
 
 import { Application, Plugin } from "../contracts/kernel/application";
+import { PluginCannotBeFound } from "../exceptions/plugins";
 import { Identifiers, inject, injectable } from "../ioc";
 
 @injectable()
@@ -33,12 +34,16 @@ export class PluginDiscoverer {
             return plugin;
         }
 
-        const packageJson = require(`${name}/package.json`);
-        return {
-            name,
-            version: packageJson.version,
-            packageId: name,
-        };
+        try {
+            const packageJson = require(`${name}/package.json`);
+            return {
+                name,
+                version: packageJson.version,
+                packageId: name,
+            };
+        } catch {
+            throw new PluginCannotBeFound(name);
+        }
     }
 
     private async discover(pattern: string, path: string): Promise<Plugin[]> {
