@@ -24,7 +24,7 @@ export class PluginDiscoverer {
 
         await discoverOnPath("*/package.json", join(__dirname, "../../../../packages")); // Project packages
         await discoverOnPath("*/package.json", join(__dirname, "../../../../plugins")); // Project plugins
-        await discoverOnPath("*/package.json", this.app.dataPath("plugins")); // Installed plugins
+        await discoverOnPath("{*/*/package.json,*/package.json}", this.app.dataPath("plugins")); // Installed plugins
     }
 
     public get(name: string): Plugin {
