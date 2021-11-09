@@ -4,11 +4,8 @@
     "description": "The packages that make up the ARK Core",
     "scripts": {
         "lerna": "node ./node_modules/lerna/cli.js",
-        "setup": "yarn && yarn bootstrap && yarn build",
-        "setup:clean": "yarn && yarn clean && yarn bootstrap && yarn build",
-        "bootstrap": "yarn lerna bootstrap",
-        "clean": "yarn lerna clean --yes",
-        "build": "yarn lerna run build",
+        "setup": "pnpm install && pnpm build",
+        "build": "pnpm build -r",
         "lint": "eslint packages/*/src --ext .ts --max-warnings 0",
         "lint:fix": "eslint packages/*/src --ext .ts --fix",
         "lint:tests": "eslint __tests__ packages/*/__tests__ --ext .ts --max-warnings 0",
