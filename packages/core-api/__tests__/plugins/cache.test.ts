@@ -56,7 +56,7 @@ describe("Cache", () => {
         const server = await initServer(app, defaults, customRoute);
 
         let response = await server.inject(injectOptions);
-        let payload = JSON.parse(response.payload || {});
+        let payload = JSON.parse(response.payload);
         expect(payload.data).toBe("ok");
 
         customResponse = {
@@ -64,7 +64,7 @@ describe("Cache", () => {
         };
 
         response = await server.inject(injectOptions);
-        payload = JSON.parse(response.payload || {});
+        payload = JSON.parse(response.payload);
         expect(payload.data).toBe("dummy");
     });
 
@@ -72,7 +72,7 @@ describe("Cache", () => {
         const server = await initServer(app, defaults, customRoute);
 
         const response = await server.inject(injectOptions);
-        const payload = JSON.parse(response.payload || {});
+        const payload = JSON.parse(response.payload);
         expect(payload.data).toBe("ok");
     });
 
@@ -80,7 +80,7 @@ describe("Cache", () => {
         const server = await initServer(app, defaults, customRoute);
 
         let response = await server.inject(injectOptions);
-        let payload = JSON.parse(response.payload || {});
+        let payload = JSON.parse(response.payload);
         expect(payload.data).toBe("ok");
 
         customResponse = {
@@ -88,7 +88,7 @@ describe("Cache", () => {
         };
 
         response = await server.inject(injectOptions);
-        payload = JSON.parse(response.payload || {});
+        payload = JSON.parse(response.payload);
         expect(payload.data).toBe("ok");
     });
 
@@ -98,13 +98,13 @@ describe("Cache", () => {
         customResponse = Boom.badData("Bad data");
 
         let response = await server.inject(injectOptions);
-        let payload = JSON.parse(response.payload || {});
+        let payload = JSON.parse(response.payload);
         expect(payload.message).toBe("Bad data");
 
         customResponse = Boom.badData("Dummy Bad data");
 
         response = await server.inject(injectOptions);
-        payload = JSON.parse(response.payload || {});
+        payload = JSON.parse(response.payload);
         expect(payload.message).toBe("Bad data");
     });
 
@@ -116,7 +116,7 @@ describe("Cache", () => {
         const server = await initServer(app, defaults, customRoute);
 
         let response = await server.inject(injectOptions);
-        let payload = JSON.parse(response.payload || {});
+        let payload = JSON.parse(response.payload);
         expect(payload.data).toBe("ok");
 
         customResponse = {
@@ -124,7 +124,7 @@ describe("Cache", () => {
         };
 
         response = await server.inject(injectOptions);
-        payload = JSON.parse(response.payload || {});
+        payload = JSON.parse(response.payload);
         expect(payload.data).toBe("dummy");
     });
 });
