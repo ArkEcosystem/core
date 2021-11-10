@@ -1,7 +1,6 @@
 import "jest-extended";
 
 import { Contracts } from "@packages/core-kernel";
-import Hapi from "@hapi/hapi";
 import { BlocksController } from "@packages/core-api/src/controllers/blocks";
 import { Block } from "@packages/core-database/src/models";
 import { Application, Container } from "@packages/core-kernel";
@@ -25,6 +24,7 @@ const jestfn = <T extends (...args: unknown[]) => unknown>(
 let app: Application;
 let controller: BlocksController;
 let walletRepository: Wallets.WalletRepository;
+const h: any = {};
 
 const blockHistoryService = {
     findOneByCriteria: jestfn<Contracts.Shared.BlockHistoryService["findOneByCriteria"]>(),
@@ -149,7 +149,7 @@ describe("BlocksController", () => {
                 meta: { totalCountIsEstimate: false },
             });
 
-            const request: Hapi.Request = {
+            const request: any = {
                 query: {
                     page: 1,
                     limit: 100,
@@ -157,7 +157,7 @@ describe("BlocksController", () => {
                 },
             };
 
-            const response = (await controller.index(request, undefined)) as PaginatedResponse;
+            const response = (await controller.index(request, h)) as PaginatedResponse;
 
             expect(response.totalCount).toBeDefined();
             expect(response.meta).toBeDefined();
@@ -172,7 +172,7 @@ describe("BlocksController", () => {
                 meta: { totalCountIsEstimate: false },
             });
 
-            const request: Hapi.Request = {
+            const request: any = {
                 query: {
                     page: 1,
                     limit: 100,
@@ -180,7 +180,7 @@ describe("BlocksController", () => {
                 },
             };
 
-            const response = (await controller.index(request, undefined)) as PaginatedResponse;
+            const response = (await controller.index(request, h)) as PaginatedResponse;
 
             expect(response.totalCount).toBeDefined();
             expect(response.meta).toBeDefined();
@@ -221,7 +221,7 @@ describe("BlocksController", () => {
         it("should return first block from store", async () => {
             Mocks.StateStore.setBlock({ data: mockBlock } as Partial<Interfaces.IBlock>);
 
-            const request: Hapi.Request = {
+            const request: any = {
                 query: {
                     page: 1,
                     limit: 100,
@@ -229,7 +229,7 @@ describe("BlocksController", () => {
                 },
             };
 
-            const response = (await controller.first(request, undefined)) as ItemResponse;
+            const response = (await controller.first(request, h)) as ItemResponse;
 
             expect(response.data).toBeDefined();
             expect(response.data).toEqual(mockBlockJson);
@@ -238,13 +238,13 @@ describe("BlocksController", () => {
         it("should return first block from store using transform option", async () => {
             Mocks.StateStore.setBlock({ data: mockBlock, transactions: [] } as Partial<Interfaces.IBlock>);
 
-            const request: Hapi.Request = {
+            const request: any = {
                 query: {
                     transform: true,
                 },
             };
 
-            const response = (await controller.first(request, undefined)) as ItemResponse;
+            const response = (await controller.first(request, h)) as ItemResponse;
 
             expect(response.data).toBeDefined();
             expect(response.data).toEqual(mockBlockTransformed);
@@ -255,13 +255,13 @@ describe("BlocksController", () => {
         it("should return last block from store", async () => {
             Mocks.Blockchain.setBlock({ data: mockBlock } as Partial<Interfaces.IBlock>);
 
-            const request: Hapi.Request = {
+            const request: any = {
                 query: {
                     transform: false,
                 },
             };
 
-            const response = (await controller.last(request, undefined)) as ItemResponse;
+            const response = (await controller.last(request, h)) as ItemResponse;
 
             expect(response.data).toBeDefined();
             expect(response.data).toEqual(mockBlockJson);
@@ -270,13 +270,13 @@ describe("BlocksController", () => {
         it("should return last block from store using transform option", async () => {
             Mocks.Blockchain.setBlock({ data: mockBlock, transactions: [] } as Partial<Interfaces.IBlock>);
 
-            const request: Hapi.Request = {
+            const request: any = {
                 query: {
                     transform: true,
                 },
             };
 
-            const response = (await controller.last(request, undefined)) as ItemResponse;
+            const response = (await controller.last(request, h)) as ItemResponse;
 
             expect(response.data).toBeDefined();
             expect(response.data).toEqual(mockBlockTransformed);
@@ -287,7 +287,7 @@ describe("BlocksController", () => {
         it("should return found block from store", async () => {
             blockHistoryService.findOneByCriteria.mockResolvedValueOnce(mockBlock as any);
 
-            const request: Hapi.Request = {
+            const request: any = {
                 params: {
                     id: mockBlock.id,
                 },
@@ -296,7 +296,7 @@ describe("BlocksController", () => {
                 },
             };
 
-            const response = (await controller.show(request, undefined)) as ItemResponse;
+            const response = (await controller.show(request, h)) as ItemResponse;
 
             expect(response.data).toBeDefined();
             expect(response.data).toEqual(mockBlockJson);
@@ -309,7 +309,7 @@ describe("BlocksController", () => {
             // @ts-ignore
             mockBlockchain.getLastHeight = jest.fn().mockReturnValue(17184958558311102010);
 
-            const request: Hapi.Request = {
+            const request: any = {
                 params: {
                     id: mockBlock.id,
                 },
@@ -318,14 +318,14 @@ describe("BlocksController", () => {
                 },
             };
 
-            const response = (await controller.show(request, undefined)) as ItemResponse;
+            const response = (await controller.show(request, h)) as ItemResponse;
 
             expect(response.data).toBeDefined();
             expect(response.data).toEqual(mockBlockJson);
         });
 
         it("should return error if block not found", async () => {
-            const request: Hapi.Request = {
+            const request: any = {
                 params: {
                     id: mockBlock.id,
                 },
@@ -334,7 +334,7 @@ describe("BlocksController", () => {
                 },
             };
 
-            await expect(controller.show(request, undefined)).resolves.toThrowError("Block not found");
+            await expect(controller.show(request, h)).resolves.toThrowError("Block not found");
         });
 
         it("should return found block from store using transform option", async () => {
@@ -343,7 +343,7 @@ describe("BlocksController", () => {
                 transactions: [],
             });
 
-            const request: Hapi.Request = {
+            const request: any = {
                 params: {
                     id: mockBlock.id,
                 },
@@ -352,14 +352,14 @@ describe("BlocksController", () => {
                 },
             };
 
-            const response = (await controller.show(request, undefined)) as ItemResponse;
+            const response = (await controller.show(request, h)) as ItemResponse;
 
             expect(response.data).toBeDefined();
             expect(response.data).toEqual(mockBlockTransformed);
         });
 
         it("should return error if block not found using transform option", async () => {
-            const request: Hapi.Request = {
+            const request: any = {
                 params: {
                     id: mockBlock.id,
                 },
@@ -368,7 +368,7 @@ describe("BlocksController", () => {
                 },
             };
 
-            await expect(controller.show(request, undefined)).resolves.toThrowError("Block not found");
+            await expect(controller.show(request, h)).resolves.toThrowError("Block not found");
         });
     });
 
@@ -388,7 +388,7 @@ describe("BlocksController", () => {
                 meta: { totalCountIsEstimate: false },
             });
 
-            const request: Hapi.Request = {
+            const request: any = {
                 params: {
                     id: mockBlock.id,
                 },
@@ -397,7 +397,7 @@ describe("BlocksController", () => {
                 },
             };
 
-            const response = (await controller.transactions(request, undefined)) as PaginatedResponse;
+            const response = (await controller.transactions(request, h)) as PaginatedResponse;
 
             expect(response.totalCount).toBeDefined();
             expect(response.meta).toBeDefined();
@@ -410,7 +410,7 @@ describe("BlocksController", () => {
         });
 
         it("should return error if block not found", async () => {
-            const request: Hapi.Request = {
+            const request: any = {
                 params: {
                     id: mockBlock.id,
                 },
@@ -419,7 +419,7 @@ describe("BlocksController", () => {
                 },
             };
 
-            await expect(controller.transactions(request, undefined)).resolves.toThrowError("Block not found");
+            await expect(controller.transactions(request, h)).resolves.toThrowError("Block not found");
         });
 
         it("should return error if block does not have an id", async () => {
@@ -428,7 +428,7 @@ describe("BlocksController", () => {
 
             Mocks.Blockchain.setBlock({ data: mockBlockWithoutId } as Partial<Interfaces.IBlock>);
 
-            const request: Hapi.Request = {
+            const request: any = {
                 params: {
                     id: mockBlock.id,
                 },
@@ -437,7 +437,7 @@ describe("BlocksController", () => {
                 },
             };
 
-            await expect(controller.transactions(request, undefined)).resolves.toThrowError("Block not found");
+            await expect(controller.transactions(request, h)).resolves.toThrowError("Block not found");
         });
     });
 });
