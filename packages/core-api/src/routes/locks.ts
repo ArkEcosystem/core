@@ -1,7 +1,7 @@
 import Hapi from "@hapi/hapi";
 import Joi from "joi";
 
-import { LocksController } from "../controllers/locks";
+import { LocksController, UnlockedRequest } from "../controllers/locks";
 import { lockCriteriaSchema, lockParamSchema, lockSortingSchema } from "../resources-new";
 import * as Schemas from "../schemas";
 
@@ -39,7 +39,7 @@ export const register = (server: Hapi.Server): void => {
     server.route({
         method: "POST",
         path: "/locks/unlocked",
-        handler: (request: Hapi.Request, h: Hapi.ResponseToolkit) => controller.unlocked(request, h),
+        handler: (request: UnlockedRequest, h: Hapi.ResponseToolkit) => controller.unlocked(request, h),
         options: {
             validate: {
                 query: Joi.object({

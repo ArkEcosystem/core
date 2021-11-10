@@ -2,7 +2,7 @@ import { Container, Providers } from "@arkecosystem/core-kernel";
 import Hapi from "@hapi/hapi";
 import Joi from "joi";
 
-import { TransactionsController } from "../controllers/transactions";
+import { StoreRequest, TransactionsController } from "../controllers/transactions";
 import * as Schemas from "../schemas";
 
 export const register = (server: Hapi.Server): void => {
@@ -32,7 +32,7 @@ export const register = (server: Hapi.Server): void => {
     server.route({
         method: "POST",
         path: "/transactions",
-        handler: (request: Hapi.Request, h: Hapi.ResponseToolkit) => controller.store(request, h),
+        handler: (request: StoreRequest, h: Hapi.ResponseToolkit) => controller.store(request, h),
         options: {
             plugins: {
                 "hapi-ajv": {
