@@ -16,7 +16,7 @@ export const hapiAjv = {
         server.ext({
             type: "onPreHandler",
             method: (request, h) => {
-                const config = request.route.settings.plugins[name] || {};
+                const config = request.route.settings.plugins?.[name] || {};
 
                 if (config.payloadSchema) {
                     const { error, errors } = Validation.validator.validate(config.payloadSchema, request.payload);
