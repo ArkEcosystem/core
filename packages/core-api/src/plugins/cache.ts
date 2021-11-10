@@ -1,11 +1,12 @@
 import { Crypto } from "@arkecosystem/crypto";
+import { isBoom } from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 import NodeCache from "node-cache";
 
 type CachedResponse = {
     code: number;
     headers: Record<string, string>;
-    payload: Hapi.ResponseValue;
+    payload: any;
 };
 
 const generateCacheKey = (request: Hapi.Request): string =>
@@ -62,10 +63,10 @@ export = {
                 const cacheKey: string = generateCacheKey(request);
 
                 let code: number;
-                let headers: Record<string, string>;
-                let payload: Hapi.ResponseValue;
+                let headers: any;
+                let payload: any;
 
-                if (request.response.isBoom) {
+                if (isBoom(request.response)) {
                     code = request.response.output.statusCode;
                     headers = request.response.output.headers;
                     payload = request.response.output.payload;
@@ -78,7 +79,7 @@ export = {
                 const cachedResponse: CachedResponse = {
                     code,
                     headers: {},
-                    payload,
+                    payload: payload,
                 };
 
                 if (code >= 300 && code < 400 && "location" in headers) {
