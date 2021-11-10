@@ -3,7 +3,7 @@ import { getIp } from "@packages/core-api/src/utils/get-ip";
 const clientIp = "127.0.0.1";
 const proxyIp = "127.0.0.2";
 
-const request = {
+const request: any = {
     info: {
         remoteAddress: proxyIp,
     },
@@ -22,7 +22,7 @@ describe("getIp", () => {
     });
 
     it("should return IP remoteAddress if trustProxy = true and x-forwarded-for headers are not set", () => {
-        const requestWithoutHeaders = {
+        const requestWithoutHeaders: any = {
             info: {
                 remoteAddress: clientIp,
             },
