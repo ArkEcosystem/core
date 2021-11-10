@@ -2,7 +2,7 @@ import { dotSeparatedQuery } from "@packages/core-api/src/plugins/dot-separated-
 
 describe("dotSeparatedQuery.register", () => {
     it("should register onRequest extension", () => {
-        const server = {
+        const server: any = {
             ext: jest.fn(),
         };
 
@@ -14,14 +14,14 @@ describe("dotSeparatedQuery.register", () => {
 
 describe("dotSeparatedQuery.onRequest", () => {
     it("should replace query object", () => {
-        const request = {
+        const request: any = {
             query: {
                 "balance.from": "100",
                 "balance.to": "200",
             },
         };
 
-        const h = {
+        const h: any = {
             continue: Symbol,
         };
 
