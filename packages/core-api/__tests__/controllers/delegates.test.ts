@@ -1,9 +1,9 @@
+import { Boom } from "@hapi/boom";
 import { DelegateSearchService, Resources, WalletSearchService } from "@packages/core-api";
 import { DelegatesController } from "@packages/core-api/src/controllers/delegates";
 import { Identifiers } from "@packages/core-api/src/identifiers";
 import { Application, Container, Contracts, Providers } from "@packages/core-kernel";
 import { Enums, Utils } from "@packages/crypto";
-import { Boom } from "@hapi/boom";
 
 const jestfn = <T extends (...args: unknown[]) => unknown>(
     implementation?: (...args: Parameters<T>) => ReturnType<T>,
@@ -33,6 +33,8 @@ const blockHistoryService = {
     listByCriteriaJoinTransactions: jestfn<Contracts.Shared.BlockHistoryService["listByCriteriaJoinTransactions"]>(),
     listByCriteria: jestfn<Contracts.Shared.BlockHistoryService["listByCriteria"]>(),
 };
+
+const h: any = {};
 
 const container = new Container.Container();
 container.bind(Container.Identifiers.Application).toConstantValue(app);
@@ -106,14 +108,17 @@ describe("DelegatesController", () => {
             delegateSearchService.getDelegatesPage.mockReturnValueOnce(delegatesPage);
 
             const delegatesController = container.resolve(DelegatesController);
-            const result = delegatesController.index({
-                query: {
-                    page: 1,
-                    limit: 100,
-                    orderBy: ["production.approval:desc", "rank:asc"],
-                    isResigned: false,
-                },
-            });
+            const result = delegatesController.index(
+                {
+                    query: {
+                        page: 1,
+                        limit: 100,
+                        orderBy: ["production.approval:desc", "rank:asc"],
+                        isResigned: false,
+                    },
+                } as any,
+                h,
+            );
 
             expect(delegateSearchService.getDelegatesPage).toBeCalledWith(
                 { offset: 0, limit: 100 },
@@ -131,11 +136,14 @@ describe("DelegatesController", () => {
             delegateSearchService.getDelegate.mockReturnValueOnce(delegateResource);
 
             const delegatesController = container.resolve(DelegatesController);
-            const result = delegatesController.show({
-                params: {
-                    id: "AKdr5d9AMEnsKYxpDcoHdyyjSCKVx3r9Nj",
-                },
-            });
+            const result = delegatesController.show(
+                {
+                    params: {
+                        id: "AKdr5d9AMEnsKYxpDcoHdyyjSCKVx3r9Nj",
+                    },
+                } as any,
+                h,
+            );
 
             expect(walletSearchService.getWallet).toBeCalledWith("AKdr5d9AMEnsKYxpDcoHdyyjSCKVx3r9Nj");
             expect(delegateSearchService.getDelegate).toBeCalledWith(delegateWalletResource.address);
@@ -146,11 +154,14 @@ describe("DelegatesController", () => {
             walletSearchService.getWallet.mockReturnValue(undefined);
 
             const delegatesController = container.resolve(DelegatesController);
-            const result = delegatesController.show({
-                params: {
-                    id: "non-existing-wallet-id",
-                },
-            });
+            const result = delegatesController.show(
+                {
+                    params: {
+                        id: "non-existing-wallet-id",
+                    },
+                } as any,
+                h,
+            );
 
             expect(walletSearchService.getWallet).toBeCalledWith("non-existing-wallet-id");
             expect(result).toBeInstanceOf(Boom);
@@ -161,11 +172,14 @@ describe("DelegatesController", () => {
             delegateSearchService.getDelegate.mockReturnValueOnce(undefined);
 
             const delegatesController = container.resolve(DelegatesController);
-            const result = delegatesController.show({
-                params: {
-                    id: "ATL9kyo71wjPPXqvGMUD89t5RazmQfQMc6",
-                },
-            });
+            const result = delegatesController.show(
+                {
+                    params: {
+                        id: "ATL9kyo71wjPPXqvGMUD89t5RazmQfQMc6",
+                    },
+                } as any,
+                h,
+            );
 
             expect(walletSearchService.getWallet).toBeCalledWith("ATL9kyo71wjPPXqvGMUD89t5RazmQfQMc6");
             expect(delegateSearchService.getDelegate).toBeCalledWith(voterWalletResource.address);
@@ -186,17 +200,20 @@ describe("DelegatesController", () => {
             walletSearchService.getActiveWalletsPage.mockReturnValueOnce(voterWalletsPage);
 
             const delegatesController = container.resolve(DelegatesController);
-            const result = delegatesController.voters({
-                params: {
-                    id: "biz_classic",
-                },
-                query: {
-                    page: 1,
-                    limit: 100,
-                    orderBy: ["balance:desc", "address:asc"],
-                    balance: { from: 300 },
-                },
-            });
+            const result = delegatesController.voters(
+                {
+                    params: {
+                        id: "biz_classic",
+                    },
+                    query: {
+                        page: 1,
+                        limit: 100,
+                        orderBy: ["balance:desc", "address:asc"],
+                        balance: { from: 300 },
+                    },
+                } as any,
+                h,
+            );
 
             expect(walletSearchService.getWallet).toBeCalledWith("biz_classic");
             expect(delegateSearchService.getDelegate).toBeCalledWith(delegateWalletResource.address);
@@ -215,17 +232,20 @@ describe("DelegatesController", () => {
             walletSearchService.getWallet.mockReturnValueOnce(undefined);
 
             const delegatesController = container.resolve(DelegatesController);
-            const result = delegatesController.voters({
-                params: {
-                    id: "non-existing-wallet-id",
-                },
-                query: {
-                    page: 1,
-                    limit: 100,
-                    orderBy: ["balance:desc", "address:asc"],
-                    balance: { from: 300 },
-                },
-            });
+            const result = delegatesController.voters(
+                {
+                    params: {
+                        id: "non-existing-wallet-id",
+                    },
+                    query: {
+                        page: 1,
+                        limit: 100,
+                        orderBy: ["balance:desc", "address:asc"],
+                        balance: { from: 300 },
+                    },
+                } as any,
+                h,
+            );
 
             expect(walletSearchService.getWallet).toBeCalledWith("non-existing-wallet-id");
             expect(result).toBeInstanceOf(Boom);
@@ -236,17 +256,20 @@ describe("DelegatesController", () => {
             delegateSearchService.getDelegate.mockReturnValueOnce(undefined);
 
             const delegatesController = container.resolve(DelegatesController);
-            const result = delegatesController.voters({
-                params: {
-                    id: "ATL9kyo71wjPPXqvGMUD89t5RazmQfQMc6",
-                },
-                query: {
-                    page: 1,
-                    limit: 100,
-                    orderBy: ["balance:desc", "address:asc"],
-                    balance: { from: 300 },
-                },
-            });
+            const result = delegatesController.voters(
+                {
+                    params: {
+                        id: "ATL9kyo71wjPPXqvGMUD89t5RazmQfQMc6",
+                    },
+                    query: {
+                        page: 1,
+                        limit: 100,
+                        orderBy: ["balance:desc", "address:asc"],
+                        balance: { from: 300 },
+                    },
+                } as any,
+                h,
+            );
 
             expect(walletSearchService.getWallet).toBeCalledWith("ATL9kyo71wjPPXqvGMUD89t5RazmQfQMc6");
             expect(delegateSearchService.getDelegate).toBeCalledWith(voterWalletResource.address);
@@ -287,8 +310,8 @@ describe("DelegatesController", () => {
                         orderBy: "height:desc",
                         transform: false,
                     },
-                },
-                undefined,
+                } as any,
+                h,
             );
 
             expect(walletSearchService.getWallet).toBeCalledWith("biz_classic");
@@ -340,8 +363,8 @@ describe("DelegatesController", () => {
                         orderBy: "height:desc",
                         transform: true,
                     },
-                },
-                undefined,
+                } as any,
+                h,
             );
 
             expect(walletSearchService.getWallet).toBeCalledWith("biz_classic");
@@ -376,8 +399,8 @@ describe("DelegatesController", () => {
                         limit: 100,
                         orderBy: "height:desc",
                     },
-                },
-                undefined,
+                } as any,
+                h,
             );
 
             expect(walletSearchService.getWallet).toBeCalledWith("non-existing-wallet-id");
@@ -399,8 +422,8 @@ describe("DelegatesController", () => {
                         limit: 100,
                         orderBy: "height:desc",
                     },
-                },
-                undefined,
+                } as any,
+                h,
             );
 
             expect(walletSearchService.getWallet).toBeCalledWith("ATL9kyo71wjPPXqvGMUD89t5RazmQfQMc6");
