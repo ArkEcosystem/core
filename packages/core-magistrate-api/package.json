@@ -28,7 +28,7 @@
         "@arkecosystem/core-magistrate-transactions": "4.0.0-next-1",
         "@arkecosystem/crypto": "4.0.0-next-1",
         "@hapi/boom": "9.1.4",
-        "@hapi/hapi": "20.1.5",
+        "@hapi/hapi": "20.2.1",
         "joi": "17.4.2"
     },
     "devDependencies": {

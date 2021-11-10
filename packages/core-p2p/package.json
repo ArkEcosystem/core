@@ -33,7 +33,7 @@
         "@arkecosystem/crypto": "4.0.0-next-1",
         "@hapi/boom": "9.0.0",
         "@hapi/bounce": "2.0.0",
-        "@hapi/hapi": "20.1.5",
+        "@hapi/hapi": "20.2.1",
         "@hapi/hoek": "9.2.0",
         "@hapi/sntp": "4.0.0",
         "@hapi/teamwork": "5.1.0",
