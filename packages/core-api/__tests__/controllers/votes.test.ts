@@ -1,6 +1,5 @@
 import "jest-extended";
 
-import Hapi from "@hapi/hapi";
 import { VotesController } from "@packages/core-api/src/controllers/votes";
 import { Application } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
@@ -65,7 +64,7 @@ describe("VotesController", () => {
                 meta: { totalCountIsEstimate: false },
             });
 
-            const request: Hapi.Request = {
+            const request: any = {
                 query: {
                     page: 1,
                     limit: 100,
@@ -90,7 +89,7 @@ describe("VotesController", () => {
         it("should return vote", async () => {
             transactionHistoryService.findOneByCriteria.mockResolvedValue(voteTransaction.data);
 
-            const request: Hapi.Request = {
+            const request: any = {
                 params: {
                     id: voteTransaction.id,
                 },
@@ -111,7 +110,7 @@ describe("VotesController", () => {
         it("should return error if vote transaction does not exists", async () => {
             transactionHistoryService.findOneByCriteria.mockResolvedValue(undefined);
 
-            const request: Hapi.Request = {
+            const request: any = {
                 params: {
                     id: "unknown_transaction_id",
                 },
