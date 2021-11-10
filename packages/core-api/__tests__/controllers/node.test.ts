@@ -1,6 +1,5 @@
 import "jest-extended";
 
-import Hapi from "@hapi/hapi";
 import { NodeController } from "@packages/core-api/src/controllers/node";
 import { Application, Container, Providers } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
@@ -14,6 +13,8 @@ import { initApp, ItemResponse } from "../__support__";
 
 let app: Application;
 let controller: NodeController;
+let request: any = {};
+let h: any = {};
 
 beforeEach(() => {
     const config = Generators.generateCryptoConfigRaw();
@@ -192,7 +193,7 @@ describe("NodeController", () => {
 
     describe("configurationCrypto", () => {
         it("should return all configurations", async () => {
-            const response = await controller.configurationCrypto();
+            const response = await controller.configurationCrypto(request, h);
 
             expect(response.data.network).toBeDefined();
             expect(response.data.exceptions).toBeDefined();
@@ -214,13 +215,13 @@ describe("NodeController", () => {
 
             Mocks.TransactionRepository.setFeeStatistics([feeStatistics, feeStatistics]);
 
-            const request: Hapi.Request = {
+            const request: any = {
                 query: {
                     days: 5,
                 },
             };
 
-            const response = await controller.fees(request);
+            const response = await controller.fees(request, h);
 
             expect(response.data[feeStatistics.type.toString()]).toBeDefined();
         });
