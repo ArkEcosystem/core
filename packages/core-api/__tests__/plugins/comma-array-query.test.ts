@@ -2,7 +2,7 @@ import { commaArrayQuery } from "@packages/core-api/src/plugins/comma-array-quer
 
 describe("commaArrayQuery.register", () => {
     it("should register onRequest extension", () => {
-        const server = {
+        const server: any = {
             ext: jest.fn(),
         };
 
@@ -19,13 +19,13 @@ describe("commaArrayQuery.onRequest", () => {
             "AQvWbCAXbBnY9fHpgNrcLZ99hYfDifH4Hs",
             "ATKegneyu9Fkoj5FxiJ3biup8xv8zM34M3",
         ];
-        const request = {
+        const request: any = {
             query: {
                 address: addresses.join(","),
             },
         };
 
-        const h = {
+        const h: any = {
             continue: Symbol,
         };
 
@@ -40,13 +40,13 @@ describe("commaArrayQuery.onRequest", () => {
 
     it("should leave as-is query parameter without comma", () => {
         const address = "AXGc1bgU3v3rHmx9WVkUUHLA6gbzh8La7V";
-        const request = {
+        const request: any = {
             query: {
                 address,
             },
         };
 
-        const h = {
+        const h: any = {
             continue: Symbol,
         };
 
