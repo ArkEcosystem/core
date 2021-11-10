@@ -1,6 +1,5 @@
 import "jest-extended";
 
-import Hapi from "@hapi/hapi";
 import { RoundsController } from "@packages/core-api/src/controllers/rounds";
 import { Application } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
@@ -49,7 +48,7 @@ describe("RoundsController", () => {
 
             Mocks.RoundRepository.setRounds([round]);
 
-            const request: Hapi.Request = {
+            const request: any = {
                 params: {
                     id: "12",
                 },
@@ -65,7 +64,7 @@ describe("RoundsController", () => {
         });
 
         it("should return error if round does not exist", async () => {
-            const request: Hapi.Request = {
+            const request: any = {
                 params: {
                     id: "12",
                 },
