@@ -65,7 +65,7 @@ describe("Server", () => {
             };
 
             const response = await server.inject(injectOptions);
-            const payload = JSON.parse(response.payload || {});
+            const payload = JSON.parse(response.payload);
 
             expect(payload.data).toBe("Hello World!");
         });
@@ -140,7 +140,7 @@ describe("Server", () => {
 
             expect(response.payload).toBe("ok");
 
-            const returnedRoute = server.getRoute("GET", "/test");
+            const returnedRoute: any = server.getRoute("GET", "/test");
             returnedRoute.settings.handler = () => "override";
 
             const anotherResponse = await server.inject(injectOptions);
@@ -176,9 +176,9 @@ describe("Server", () => {
                 }),
             );
 
-            const returnedRoute = server.getRoute("GET", "/test");
+            const returnedRoute: any = server.getRoute("GET", "/test");
 
-            const originalHandler = returnedRoute.settings.handler;
+            const originalHandler: any = returnedRoute.settings.handler;
             returnedRoute.settings.handler = () => {
                 const item = originalHandler();
                 item.data2 = "data2";
