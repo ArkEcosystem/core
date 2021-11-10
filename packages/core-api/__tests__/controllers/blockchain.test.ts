@@ -9,6 +9,8 @@ import { initApp, ItemResponse } from "../__support__";
 
 let app: Application;
 let controller: BlockchainController;
+const request: any = {};
+const h: any = {};
 
 beforeEach(() => {
     app = initApp();
@@ -44,7 +46,7 @@ describe("BlockchainController", () => {
                 };
             };
 
-            const response = (await controller.index()) as BlockItemResponse;
+            const response = (await controller.index(request, h)) as BlockItemResponse;
 
             expect(response.data.supply).toBeDefined();
             expect(response.data.block).toEqual(mockBlockData);
