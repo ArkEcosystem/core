@@ -1,7 +1,6 @@
 import "jest-extended";
 
 import { Contracts } from "@packages/core-kernel";
-import Hapi from "@hapi/hapi";
 import { TransactionsController } from "@packages/core-api/src/controllers/transactions";
 import { Application, Utils } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
@@ -25,6 +24,7 @@ const jestfn = <T extends (...args: unknown[]) => unknown>(
 
 let app: Application;
 let controller: TransactionsController;
+const h: any = {};
 
 const transactionHistoryService = {
     findOneByCriteria: jestfn<Contracts.Shared.TransactionHistoryService["findOneByCriteria"]>(),
@@ -107,7 +107,7 @@ describe("TransactionsController", () => {
                 meta: { totalCountIsEstimate: false },
             });
 
-            const request: Hapi.Request = {
+            const request: any = {
                 query: {
                     page: 1,
                     limit: 100,
@@ -134,7 +134,7 @@ describe("TransactionsController", () => {
                 meta: { totalCountIsEstimate: false },
             });
 
-            const request: Hapi.Request = {
+            const request: any = {
                 query: {
                     page: 1,
                     limit: 100,
@@ -142,7 +142,7 @@ describe("TransactionsController", () => {
                 },
             };
 
-            const response = (await controller.index(request, undefined)) as PaginatedResponse;
+            const response = (await controller.index(request, h)) as PaginatedResponse;
 
             expect(response.totalCount).toBeDefined();
             expect(response.meta).toBeDefined();
@@ -166,13 +166,13 @@ describe("TransactionsController", () => {
 
             Mocks.TransactionPoolProcessor.setProcessorState(processorState);
 
-            const request: Hapi.Request = {
+            const request: any = {
                 payload: {
                     transactions: [transferTransaction],
                 },
             };
 
-            const response = (await controller.store(request, undefined)) as ItemResponse;
+            const response = (await controller.store(request, h)) as ItemResponse;
 
             expect(response.data).toEqual(expect.objectContaining(processorState));
         });
@@ -182,7 +182,7 @@ describe("TransactionsController", () => {
         it("should return transaction", async () => {
             transactionHistoryService.findOneByCriteria.mockResolvedValue(transferTransaction.data);
 
-            const request: Hapi.Request = {
+            const request: any = {
                 params: {
                     id: transferTransaction.id,
                 },
@@ -191,7 +191,7 @@ describe("TransactionsController", () => {
                 },
             };
 
-            const response = (await controller.show(request, undefined)) as ItemResponse;
+            const response = (await controller.show(request, h)) as ItemResponse;
 
             expect(response.data).toEqual(
                 expect.objectContaining({
@@ -204,7 +204,7 @@ describe("TransactionsController", () => {
             transactionHistoryService.findOneByCriteria.mockResolvedValue(transferTransaction.data);
             blockHistoryService.findOneByCriteria.mockResolvedValue(block);
 
-            const request: Hapi.Request = {
+            const request: any = {
                 params: {
                     id: transferTransaction.id,
                 },
@@ -213,7 +213,7 @@ describe("TransactionsController", () => {
                 },
             };
 
-            const response = (await controller.show(request, undefined)) as ItemResponse;
+            const response = (await controller.show(request, h)) as ItemResponse;
 
             expect(response.data).toEqual(
                 expect.objectContaining({
@@ -223,7 +223,7 @@ describe("TransactionsController", () => {
         });
 
         it("should return error if transaction does not exist", async () => {
-            const request: Hapi.Request = {
+            const request: any = {
                 params: {
                     id: transferTransaction.id,
                 },
@@ -232,7 +232,7 @@ describe("TransactionsController", () => {
                 },
             };
 
-            await expect(controller.show(request, undefined)).resolves.toThrowError("Transaction not found");
+            await expect(controller.show(request, h)).resolves.toThrowError("Transaction not found");
         });
     });
 
@@ -240,7 +240,7 @@ describe("TransactionsController", () => {
         it("should return transactions", async () => {
             Mocks.TransactionPoolQuery.setTransactions([transferTransaction]);
 
-            const request: Hapi.Request = {
+            const request: any = {
                 query: {
                     page: 1,
                     limit: 100,
@@ -248,7 +248,7 @@ describe("TransactionsController", () => {
                 },
             };
 
-            const response = (await controller.unconfirmed(request, undefined)) as PaginatedResponse;
+            const response = (await controller.unconfirmed(request, h)) as PaginatedResponse;
 
             expect(response.totalCount).toBeDefined();
             expect(response.meta).toBeDefined();
@@ -265,7 +265,7 @@ describe("TransactionsController", () => {
         it("should return transactions", async () => {
             Mocks.TransactionPoolQuery.setTransactions([transferTransaction]);
 
-            const request: Hapi.Request = {
+            const request: any = {
                 params: {
                     id: transferTransaction.id,
                 },
@@ -274,7 +274,7 @@ describe("TransactionsController", () => {
                 },
             };
 
-            const response = (await controller.showUnconfirmed(request, undefined)) as ItemResponse;
+            const response = (await controller.showUnconfirmed(request, h)) as ItemResponse;
 
             expect(response.data).toEqual(
                 expect.objectContaining({
@@ -284,7 +284,7 @@ describe("TransactionsController", () => {
         });
 
         it("should return error if transaction does not exist", async () => {
-            const request: Hapi.Request = {
+            const request: any = {
                 params: {
                     id: transferTransaction.id,
                 },
@@ -293,7 +293,7 @@ describe("TransactionsController", () => {
                 },
             };
 
-            await expect(controller.showUnconfirmed(request, undefined)).resolves.toThrowError("Transaction not found");
+            await expect(controller.showUnconfirmed(request, h)).resolves.toThrowError("Transaction not found");
         });
     });
 
