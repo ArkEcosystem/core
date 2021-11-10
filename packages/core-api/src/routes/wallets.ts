@@ -18,7 +18,7 @@ export const register = (server: Hapi.Server): void => {
     server.route({
         method: "GET",
         path: "/wallets",
-        handler: (request: Hapi.Request) => controller.index(request),
+        handler: (request: Hapi.Request, h: Hapi.ResponseToolkit) => controller.index(request, h),
         options: {
             validate: {
                 query: Joi.object().concat(walletCriteriaSchema).concat(walletSortingSchema).concat(Schemas.pagination),
@@ -32,7 +32,7 @@ export const register = (server: Hapi.Server): void => {
     server.route({
         method: "GET",
         path: "/wallets/top",
-        handler: (request: Hapi.Request) => controller.top(request),
+        handler: (request: Hapi.Request, h: Hapi.ResponseToolkit) => controller.top(request, h),
         options: {
             validate: {
                 query: Joi.object().concat(walletCriteriaSchema).concat(walletSortingSchema).concat(Schemas.pagination),
@@ -46,7 +46,7 @@ export const register = (server: Hapi.Server): void => {
     server.route({
         method: "GET",
         path: "/wallets/{id}",
-        handler: (request: Hapi.Request) => controller.show(request),
+        handler: (request: Hapi.Request, h: Hapi.ResponseToolkit) => controller.show(request, h),
         options: {
             validate: {
                 params: Joi.object({
@@ -59,7 +59,7 @@ export const register = (server: Hapi.Server): void => {
     server.route({
         method: "GET",
         path: "/wallets/{id}/locks",
-        handler: (request: Hapi.Request) => controller.locks(request),
+        handler: (request: Hapi.Request, h: Hapi.ResponseToolkit) => controller.locks(request, h),
         options: {
             validate: {
                 params: Joi.object({
