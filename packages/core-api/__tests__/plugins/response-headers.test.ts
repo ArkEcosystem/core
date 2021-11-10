@@ -1,3 +1,4 @@
+import Boom from "@hapi/boom";
 import { responseHeaders } from "@packages/core-api/src/plugins/response-headers";
 
 const getLastHeight = jest.fn();
@@ -5,7 +6,7 @@ const app = { get: (id) => ({ getLastHeight }) };
 
 describe("responseHeaders.register", () => {
     it("should register onPreResponse extension", () => {
-        const server = {
+        const server: any = {
             ext: jest.fn(),
             app: { app },
         };
@@ -22,12 +23,11 @@ describe("responseHeaders.getOnPreResponse", () => {
         const height = 2346;
         getLastHeight.mockReturnValueOnce(height);
 
-        const request = {
-            query: {},
+        const request: any = {
             response: { headers: {} },
         };
 
-        const h = {
+        const h: any = {
             continue: Symbol,
         };
 
@@ -43,12 +43,11 @@ describe("responseHeaders.getOnPreResponse", () => {
         const height = 2346;
         getLastHeight.mockReturnValueOnce(height);
 
-        const request = {
-            query: {},
-            response: { headers: {}, isBoom: true, output: { headers: undefined } },
+        const request: any = {
+            response: Boom.badData("Bad data"),
         };
 
-        const h = {
+        const h: any = {
             continue: Symbol,
         };
 
