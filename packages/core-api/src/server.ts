@@ -5,6 +5,19 @@ import { readFileSync } from "fs";
 
 import * as Schemas from "./schemas";
 
+declare module "@hapi/hapi" {
+    interface ServerApplicationState {
+        app: Contracts.Kernel.Application;
+        schemas: typeof Schemas;
+    }
+
+    interface ResponseObject {
+        isBoom: any;
+        isServer: any;
+        stack: any;
+    }
+}
+
 // todo: review the implementation
 @Container.injectable()
 export class Server {
@@ -38,7 +51,7 @@ export class Server {
      * @type {HapiServer}
      * @memberof Server
      */
-    private server: HapiServer;
+    private server!: HapiServer;
 
     /**
      * @private
