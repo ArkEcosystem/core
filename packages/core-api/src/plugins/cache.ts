@@ -4,8 +4,8 @@ import NodeCache from "node-cache";
 
 type CachedResponse = {
     code: number;
-    headers: Record<string, string | string[]>;
-    payload: unknown;
+    headers: Record<string, string>;
+    payload: Hapi.ResponseValue;
 };
 
 const generateCacheKey = (request: Hapi.Request): string =>
@@ -27,7 +27,7 @@ export = {
         server: Hapi.Server,
         options: { enabled: boolean; stdTTL: number; checkperiod: number },
     ): Promise<void> {
-        if (options.enabled === false) {
+        if (!options.enabled) {
             return;
         }
 
@@ -62,8 +62,8 @@ export = {
                 const cacheKey: string = generateCacheKey(request);
 
                 let code: number;
-                let headers: Record<string, string | string[]>;
-                let payload: unknown;
+                let headers: Record<string, string>;
+                let payload: Hapi.ResponseValue;
 
                 if (request.response.isBoom) {
                     code = request.response.output.statusCode;
