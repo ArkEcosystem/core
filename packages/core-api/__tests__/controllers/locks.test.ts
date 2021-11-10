@@ -1,9 +1,9 @@
+import { Boom } from "@hapi/boom";
 import { LockSearchService, Resources } from "@packages/core-api";
 import { LocksController } from "@packages/core-api/src/controllers/locks";
 import { Identifiers } from "@packages/core-api/src/identifiers";
 import { Application, Container, Contracts, Providers } from "@packages/core-kernel";
 import { Enums, Utils } from "@packages/crypto";
-import { Boom } from "@hapi/boom";
 
 const jestfn = <T extends (...args: unknown[]) => unknown>(
     implementation?: (...args: Parameters<T>) => ReturnType<T>,
@@ -33,6 +33,8 @@ container.bind(Container.Identifiers.Application).toConstantValue(app);
 container.bind(Container.Identifiers.PluginConfiguration).toConstantValue(apiConfiguration);
 container.bind(Identifiers.LockSearchService).toConstantValue(lockSearchService);
 container.bind(Container.Identifiers.TransactionHistoryService).toConstantValue(transactionHistoryService);
+
+const h: any = {};
 
 beforeEach(() => {
     jest.resetAllMocks();
@@ -66,14 +68,17 @@ describe("LocksController", () => {
             lockSearchService.getLocksPage.mockReturnValueOnce(locksPage);
 
             const locksController = container.resolve(LocksController);
-            const result = locksController.index({
-                query: {
-                    page: 1,
-                    limit: 100,
-                    orderBy: ["amount:desc", "timestamp.epoch:desc"],
-                    senderPublicKey: "02fd0f9eb5ce005710616258c6742f372577698f172fdca0418c5cd1e9698fc002",
-                },
-            });
+            const result = locksController.index(
+                {
+                    query: {
+                        page: 1,
+                        limit: 100,
+                        orderBy: ["amount:desc", "timestamp.epoch:desc"],
+                        senderPublicKey: "02fd0f9eb5ce005710616258c6742f372577698f172fdca0418c5cd1e9698fc002",
+                    },
+                } as any,
+                h,
+            );
 
             expect(lockSearchService.getLocksPage).toBeCalledWith(
                 { offset: 0, limit: 100 },
@@ -90,11 +95,14 @@ describe("LocksController", () => {
             lockSearchService.getLock.mockReturnValueOnce(lockResource1);
 
             const locksController = container.resolve(LocksController);
-            const result = locksController.show({
-                params: {
-                    id: lockResource1.lockId,
-                },
-            });
+            const result = locksController.show(
+                {
+                    params: {
+                        id: lockResource1.lockId,
+                    },
+                } as any,
+                h,
+            );
 
             expect(lockSearchService.getLock).toBeCalledWith(lockResource1.lockId);
             expect(result).toEqual({ data: lockResource1 });
@@ -104,11 +112,14 @@ describe("LocksController", () => {
             lockSearchService.getLock.mockReturnValueOnce(undefined);
 
             const locksController = container.resolve(LocksController);
-            const result = locksController.show({
-                params: {
-                    id: "non-existing-lock-id",
-                },
-            });
+            const result = locksController.show(
+                {
+                    params: {
+                        id: "non-existing-lock-id",
+                    },
+                } as any,
+                h,
+            );
 
             expect(lockSearchService.getLock).toBeCalledWith("non-existing-lock-id");
             expect(result).toBeInstanceOf(Boom);
@@ -148,8 +159,8 @@ describe("LocksController", () => {
                     payload: {
                         ids: [lock1Id, lock2Id],
                     },
-                },
-                undefined,
+                } as any,
+                h,
             );
 
             expect(apiConfiguration.getOptional).toBeCalledWith("options.estimateTotalCount", true);
