@@ -76,7 +76,7 @@ export const register = (server: Hapi.Server): void => {
     server.route({
         method: "GET",
         path: "/wallets/{id}/transactions",
-        handler: (request: Hapi.Request) => controller.transactions(request),
+        handler: (request: Hapi.Request, h: Hapi.ResponseToolkit) => controller.transactions(request, h),
         options: {
             validate: {
                 params: Joi.object({
@@ -99,7 +99,7 @@ export const register = (server: Hapi.Server): void => {
     server.route({
         method: "GET",
         path: "/wallets/{id}/transactions/sent",
-        handler: (request: Hapi.Request) => controller.transactionsSent(request),
+        handler: (request: Hapi.Request, h: Hapi.ResponseToolkit) => controller.transactionsSent(request, h),
         options: {
             validate: {
                 params: Joi.object({
@@ -122,7 +122,7 @@ export const register = (server: Hapi.Server): void => {
     server.route({
         method: "GET",
         path: "/wallets/{id}/transactions/received",
-        handler: (request: Hapi.Request) => controller.transactionsReceived(request),
+        handler: (request: Hapi.Request, h: Hapi.ResponseToolkit) => controller.transactionsReceived(request, h),
         options: {
             validate: {
                 params: Joi.object({
@@ -145,7 +145,7 @@ export const register = (server: Hapi.Server): void => {
     server.route({
         method: "GET",
         path: "/wallets/{id}/votes",
-        handler: (request: Hapi.Request) => controller.votes(request),
+        handler: (request: Hapi.Request, h: Hapi.ResponseToolkit) => controller.votes(request, h),
         options: {
             validate: {
                 params: Joi.object({
