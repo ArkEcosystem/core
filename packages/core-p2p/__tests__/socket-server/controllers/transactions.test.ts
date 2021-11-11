@@ -28,9 +28,9 @@ describe("TransactionsController", () => {
             const transactions = Networks.testnet.genesisBlock.transactions;
             processor.process.mockReturnValueOnce({ accept: [transactions[0].id] });
 
-            expect(await transactionsController.postTransactions({ payload: { transactions } }, {})).toEqual([
-                transactions[0].id,
-            ]);
+            expect(
+                await transactionsController.postTransactions({ payload: { transactions } } as any, {} as any),
+            ).toEqual([transactions[0].id]);
 
             expect(processor.process).toBeCalledTimes(1);
             expect(processor.process).toBeCalledWith(transactions);
