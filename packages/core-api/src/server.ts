@@ -1,6 +1,6 @@
 import { Container, Contracts, Providers, Types, Utils } from "@arkecosystem/core-kernel";
 import { badData } from "@hapi/boom";
-import { Server as HapiServer, ServerInjectOptions, ServerInjectResponse, ServerRoute } from "@hapi/hapi";
+import { Server as HapiServer, ServerInjectOptions, ServerInjectResponse, ServerRoute, RequestRoute } from "@hapi/hapi";
 import { readFileSync } from "fs";
 
 import * as Schemas from "./schemas";
@@ -154,7 +154,7 @@ export class Server {
         return this.server.route(routes);
     }
 
-    public getRoute(method: string, path: string): ServerRoute | undefined {
+    public getRoute(method: string, path: string): RequestRoute | undefined {
         return this.server.table().find((route) => route.method === method.toLowerCase() && route.path === path);
     }
 
