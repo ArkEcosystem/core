@@ -1,5 +1,4 @@
 import { Container } from "@packages/core-kernel";
-
 import { InternalRoute } from "@packages/core-p2p/src/socket-server/routes/internal";
 
 describe("InternalRoute", () => {
@@ -10,7 +9,7 @@ describe("InternalRoute", () => {
     const logger = { warning: jest.fn(), debug: jest.fn() };
     const controller = { getCurrentRound: jest.fn() }; // a mock internal controller
     const app = { resolve: jest.fn().mockReturnValue(controller) };
-    const server = { bind: jest.fn(), route: jest.fn() };
+    const server: any = { bind: jest.fn(), route: jest.fn() };
 
     beforeAll(() => {
         container.unbindAll();

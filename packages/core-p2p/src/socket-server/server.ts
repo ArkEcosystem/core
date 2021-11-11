@@ -60,7 +60,8 @@ export class Server {
         const port = Number(optionsServer.port);
 
         this.server = new HapiServer({ address, port });
-        this.server.app = this.app;
+        // @ts-ignore
+        this.server.app = this.app; // TODO: Move app under app
         await this.server.register({
             plugin: hapiNesPlugin,
             options: {

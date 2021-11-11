@@ -7,6 +7,8 @@ import { Blocks, Identities, Managers, Networks, Transactions, Utils } from "@pa
 
 Managers.configManager.getMilestone().aip11 = true; // for creating aip11 v2 transactions
 
+const h: any = {};
+
 describe("BlocksController", () => {
     let sandbox: Sandbox;
     let blocksController: BlocksController;
@@ -77,7 +79,7 @@ describe("BlocksController", () => {
                 });
 
                 await expect(
-                    blocksController.postBlock({ payload: { block: blockSerialized } }, {}),
+                    blocksController.postBlock({ payload: { block: blockSerialized } } as any, h),
                 ).rejects.toBeInstanceOf(TooManyTransactionsError);
             });
         });
@@ -101,8 +103,8 @@ describe("BlocksController", () => {
                             {
                                 payload: { block: blockSerialized },
                                 info: { remoteAddress: "187.55.33.22" },
-                            },
-                            {},
+                            } as any,
+                            h,
                         ),
                     ).toResolve();
                     expect(blockchain.handleIncomingBlock).toBeCalledTimes(0);
@@ -112,8 +114,8 @@ describe("BlocksController", () => {
                             {
                                 payload: { block: blockSerialized },
                                 info: { remoteAddress: "187.55.33.22" },
-                            },
-                            {},
+                            } as any,
+                            h,
                         ),
                     ).resolves.toEqual({ status: false, height: 100 });
                 }
@@ -136,8 +138,8 @@ describe("BlocksController", () => {
                     {
                         payload: { block: blockSerialized },
                         info: { remoteAddress: ip },
-                    },
-                    {},
+                    } as any,
+                    h,
                 );
 
                 expect(blockchain.handleIncomingBlock).toBeCalledTimes(1);
@@ -162,8 +164,8 @@ describe("BlocksController", () => {
                     {
                         payload: { block: blockSerialized },
                         info: { remoteAddress: ip },
-                    },
-                    {},
+                    } as any,
+                    h,
                 );
 
                 expect(blockchain.handleIncomingBlock).toBeCalledTimes(1);
@@ -184,7 +186,7 @@ describe("BlocksController", () => {
             };
             const ip = "187.55.33.22";
 
-            const blocks = await blocksController.getBlocks({ payload, info: { remoteAddress: ip } }, {});
+            const blocks = await blocksController.getBlocks({ payload, info: { remoteAddress: ip } } as any, h);
 
             expect(blocks).toEqual(mockBlocks);
             expect(database.getBlocksForDownload).toBeCalledTimes(1);
@@ -206,7 +208,7 @@ describe("BlocksController", () => {
             };
             const ip = "187.55.33.22";
 
-            const blocks = await blocksController.getBlocks({ payload, info: { remoteAddress: ip } }, {});
+            const blocks = await blocksController.getBlocks({ payload, info: { remoteAddress: ip } } as any, h);
 
             expect(blocks).toEqual(mockBlocks);
             expect(database.getBlocksForDownload).toBeCalledTimes(1);
