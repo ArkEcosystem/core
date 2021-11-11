@@ -1,5 +1,4 @@
 import { Container } from "@packages/core-kernel";
-
 import { BlocksRoute } from "@packages/core-p2p/src/socket-server/routes/blocks";
 
 describe("BlocksRoute", () => {
@@ -10,7 +9,7 @@ describe("BlocksRoute", () => {
     const logger = { warning: jest.fn(), debug: jest.fn() };
     const controller = { getPeers: jest.fn() }; // a mock peer controller
     const app = { resolve: jest.fn().mockReturnValue(controller) };
-    const server = { bind: jest.fn(), route: jest.fn() };
+    const server: any = { bind: jest.fn(), route: jest.fn() };
 
     beforeAll(() => {
         container.unbindAll();
