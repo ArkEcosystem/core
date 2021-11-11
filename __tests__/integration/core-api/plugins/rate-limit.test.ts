@@ -1,5 +1,5 @@
 import Hapi from "@hapi/hapi";
-import plugin from "@packages/core-api/src/plugins/rate-limit";
+import { rateLimit as plugin } from "@packages/core-api/src/plugins/rate-limit";
 
 let server: Hapi.Server;
 
