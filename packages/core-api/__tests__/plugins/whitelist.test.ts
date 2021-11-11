@@ -57,8 +57,8 @@ describe("Whitelist", () => {
         defaults.plugins.whitelist = ["128.0.0.1"];
         const server = await initServer(app, defaults, customRoute);
 
-        const response: any = await server.inject(injectOptions);
-        const payload = JSON.parse(response.payload || {});
+        const response = await server.inject(injectOptions);
+        const payload = JSON.parse(response.payload);
         expect(payload.statusCode).toBe(403);
     });
 });
