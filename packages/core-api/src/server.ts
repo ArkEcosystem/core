@@ -1,6 +1,6 @@
 import { Container, Contracts, Providers, Types, Utils } from "@arkecosystem/core-kernel";
 import { badData } from "@hapi/boom";
-import { Server as HapiServer, ServerInjectOptions, ServerInjectResponse, ServerRoute, RequestRoute } from "@hapi/hapi";
+import { RequestRoute, Server as HapiServer, ServerInjectOptions, ServerInjectResponse, ServerRoute } from "@hapi/hapi";
 import { readFileSync } from "fs";
 
 import * as Schemas from "./schemas";
