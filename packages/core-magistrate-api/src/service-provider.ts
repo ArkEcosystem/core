@@ -36,7 +36,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
     }
 
     private extendApiNodeFees(server: Server): void {
-        const nodeFeesRoute = server.getRoute("GET", "/api/node/fees");
+        const nodeFeesRoute: any = server.getRoute("GET", "/api/node/fees");
         const originalNodeFeesHandler = nodeFeesRoute.settings.handler;
         nodeFeesRoute.settings.handler = async (request) => {
             const originalResponse = await originalNodeFeesHandler(request);
@@ -75,7 +75,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
     }
 
     private extendApiTransactionsFees(server: Server): void {
-        const transactionsFeesRoute = server.getRoute("GET", "/api/transactions/fees");
+        const transactionsFeesRoute: any = server.getRoute("GET", "/api/transactions/fees");
         const originalTransactionsFeesHandler = transactionsFeesRoute.settings.handler;
         transactionsFeesRoute.settings.handler = async (request) => {
             const originalResponse = await originalTransactionsFeesHandler(request);
