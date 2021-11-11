@@ -26,6 +26,9 @@
         "@arkecosystem/core-transactions": "workspace:*",
         "@arkecosystem/crypto": "workspace:*"
     },
+    "devDependencies": {
+        "lodash.clonedeep": "4.5.0"
+    },
     "publishConfig": {
         "access": "public"
     }

@@ -506,11 +506,14 @@ importers:
       '@arkecosystem/core-magistrate-crypto': workspace:*
       '@arkecosystem/core-transactions': workspace:*
       '@arkecosystem/crypto': workspace:*
+      lodash.clonedeep: 4.5.0
     dependencies:
       '@arkecosystem/core-kernel': link:../core-kernel
       '@arkecosystem/core-magistrate-crypto': link:../core-magistrate-crypto
       '@arkecosystem/core-transactions': link:../core-transactions
       '@arkecosystem/crypto': link:../crypto
+    devDependencies:
+      lodash.clonedeep: registry.npmjs.org/lodash.clonedeep/4.5.0
 
   packages/core-p2p:
     specifiers:
