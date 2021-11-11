@@ -75,6 +75,9 @@
         "type-fest": "0.21.3",
         "wif": "2.0.6"
     },
+    "devDependencies": {
+        "cross-env": "7.0.3"
+    },
     "peerDependencies": {
         "pm2": "^4.5.0"
     },
