@@ -33,6 +33,7 @@
     },
     "devDependencies": {
         "@types/hapi__boom": "7.4.1",
+        "@types/hapi__hapi": "20.0.9",
         "@types/hapi__joi": "17.1.7"
     },
     "engines": {
