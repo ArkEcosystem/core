@@ -1,4 +1,4 @@
-import { Container, Contracts, Types } from "@arkecosystem/core-kernel";
+import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { Server as HapiServer, ServerInjectOptions, ServerInjectResponse, ServerRoute } from "@hapi/hapi";
 
 import { plugin as hapiNesPlugin } from "../hapi-nes";
@@ -53,7 +53,7 @@ export class Server {
      * @returns {Promise<void>}
      * @memberof Server
      */
-    public async initialize(name: string, optionsServer: Types.JsonObject): Promise<void> {
+    public async initialize(name: string, optionsServer: { hostname: string; port: number }): Promise<void> {
         this.name = name;
 
         const address = optionsServer.hostname;
@@ -138,6 +138,6 @@ export class Server {
      * @memberof Server
      */
     public async inject(options: string | ServerInjectOptions): Promise<ServerInjectResponse> {
-        await this.server.inject(options);
+        return this.server.inject(options);
     }
 }
