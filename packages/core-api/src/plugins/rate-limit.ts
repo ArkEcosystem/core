@@ -24,7 +24,7 @@ const isListed = (ip: string, patterns: string[]): boolean => {
     return false;
 };
 
-export = {
+export const rateLimit: Hapi.Plugin<any> = {
     name: "rate-limit",
     version: "1.0.0",
     once: true,
@@ -39,7 +39,7 @@ export = {
             trustProxy: boolean;
         },
     ): Promise<void> {
-        if (options.enabled === false) {
+        if (!options.enabled) {
             return;
         }
 

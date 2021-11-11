@@ -20,7 +20,7 @@ const generateCacheKey = (request: Hapi.Request): string =>
         }),
     ).toString("hex");
 
-export = {
+export const cache: Hapi.Plugin<any> = {
     name: "node-cache",
     version: "1.0.0",
     once: true,

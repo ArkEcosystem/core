@@ -5,7 +5,7 @@ import Hapi from "@hapi/hapi";
 const name = "hapi-ajv";
 
 // todo: review implementation - still needed?
-export const hapiAjv = {
+export const hapiAjv: Hapi.Plugin<any> = {
     name,
     version: "1.0.0",
     register: async (server: Hapi.Server, options: any): Promise<void> => {
