@@ -1,9 +1,9 @@
+import { Boom } from "@hapi/boom";
 import { Container, Contracts } from "@packages/core-kernel";
 import { EntitySearchService, Resources } from "@packages/core-magistrate-api";
 import { EntityController } from "@packages/core-magistrate-api/src/controllers/entities";
 import { Identifiers } from "@packages/core-magistrate-api/src/identifiers";
 import { Enums } from "@packages/core-magistrate-crypto";
-import { Boom } from "@hapi/boom";
 
 const jestfn = <T extends (...args: unknown[]) => unknown>(
     implementation?: (...args: Parameters<T>) => ReturnType<T>,
@@ -56,7 +56,7 @@ describe("EntityController.index", () => {
                 limit: 100,
                 orderBy: ["data.name", "address"],
             },
-        });
+        } as any);
 
         expect(entitySearchService.getEntitiesPage).toBeCalledWith(
             { offset: 0, limit: 100 },
@@ -77,7 +77,7 @@ describe("EntityController.show", () => {
             params: {
                 id: entityResource1.id,
             },
-        });
+        } as any);
 
         expect(entitySearchService.getEntity).toBeCalledWith(entityResource1.id);
         expect(result).toEqual({ data: entityResource1 });
@@ -91,7 +91,7 @@ describe("EntityController.show", () => {
             params: {
                 id: entityResource1.id,
             },
-        });
+        } as any);
 
         expect(entitySearchService.getEntity).toBeCalledWith(entityResource1.id);
         expect(result).toBeInstanceOf(Boom);
