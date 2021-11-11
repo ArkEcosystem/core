@@ -44,7 +44,7 @@ export abstract class Route {
                     },
                     isInternal: true,
                 },
-            });
+            } as any); // TODO Use types
         }
     }
 
