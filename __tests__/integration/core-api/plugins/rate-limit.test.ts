@@ -15,7 +15,7 @@ beforeEach(() => {
 
 describe("Rate Limiter", () => {
     it("should receive status code 200 (OK)", async () => {
-        await server.register({ plugin, options: { points: 5, duration: 30 } });
+        await server.register({ plugin, options: { points: 5, duration: 30, enabled: true } });
 
         const response = await server.inject({ method: "GET", url: "/" });
 
@@ -23,7 +23,7 @@ describe("Rate Limiter", () => {
     });
 
     it("should receive status code 429 (Too Many Requests)", async () => {
-        await server.register({ plugin, options: { points: 1, duration: 5, whitelist: [] } });
+        await server.register({ plugin, options: { points: 1, duration: 5, whitelist: [], enabled: true } });
 
         await server.inject({ method: "GET", url: "/" });
         const response = await server.inject({ method: "GET", url: "/" });
@@ -32,7 +32,10 @@ describe("Rate Limiter", () => {
     });
 
     it("should received status code 200 for whitelisted IPs (OK)", async () => {
-        await server.register({ plugin, options: { points: 5, duration: 30, whitelist: ["127.*"], blacklist: [] } });
+        await server.register({
+            plugin,
+            options: { points: 5, duration: 30, whitelist: ["127.*"], blacklist: [], enabled: true },
+        });
 
         const response = await server.inject({ method: "GET", url: "/" });
 
@@ -40,7 +43,10 @@ describe("Rate Limiter", () => {
     });
 
     it("should received status code 429 for blacklisted IPs (Forbidden)", async () => {
-        await server.register({ plugin, options: { points: 5, duration: 30, whitelist: [], blacklist: ["127.*"] } });
+        await server.register({
+            plugin,
+            options: { points: 5, duration: 30, whitelist: [], blacklist: ["127.*"], enabled: true },
+        });
 
         const response = await server.inject({ method: "GET", url: "/" });
 
