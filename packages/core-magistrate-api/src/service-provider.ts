@@ -1,7 +1,8 @@
 import { Identifiers as ApiIdentifiers, Server } from "@arkecosystem/core-api";
-import { Providers } from "@arkecosystem/core-kernel";
+import { Providers, Utils } from "@arkecosystem/core-kernel";
 import { Enums } from "@arkecosystem/core-magistrate-crypto";
 import { Managers } from "@arkecosystem/crypto";
+import Hapi from "@hapi/hapi";
 
 import Handlers from "./handlers";
 import { Identifiers } from "./identifiers";
@@ -36,10 +37,12 @@ export class ServiceProvider extends Providers.ServiceProvider {
     }
 
     private extendApiNodeFees(server: Server): void {
-        const nodeFeesRoute: any = server.getRoute("GET", "/api/node/fees");
-        const originalNodeFeesHandler = nodeFeesRoute.settings.handler;
-        nodeFeesRoute.settings.handler = async (request) => {
-            const originalResponse = await originalNodeFeesHandler(request);
+        const nodeFeesRoute = server.getRoute("GET", "/api/node/fees");
+        Utils.assert.defined<Hapi.RequestRoute>(nodeFeesRoute);
+
+        const originalNodeFeesHandler = nodeFeesRoute.settings.handler as Hapi.Lifecycle.Method;
+        nodeFeesRoute.settings.handler = async (request, h) => {
+            const originalResponse: any = await originalNodeFeesHandler(request, h);
 
             if (Managers.configManager.getMilestone().aip36 !== true) {
                 return originalResponse;
