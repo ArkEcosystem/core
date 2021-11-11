@@ -5,8 +5,8 @@ import * as Hoek from "@hapi/hoek";
 import * as Teamwork from "@hapi/teamwork";
 import { Client, plugin } from "@packages/core-p2p/src/hapi-nes";
 import { stringifyNesMessage } from "@packages/core-p2p/src/hapi-nes/utils";
-import { default as Ws } from "ws";
 import delay from "delay";
+import { default as Ws } from "ws";
 
 describe("Socket", () => {
     it("exposes app namespace", async () => {
@@ -22,7 +22,7 @@ describe("Socket", () => {
         server.route({
             method: "POST",
             path: "/",
-            handler: (request) => {
+            handler: (request: any) => {
                 expect(request.socket.server).toBeDefined();
                 return request.socket.app.x;
             },
@@ -65,7 +65,7 @@ describe("Socket", () => {
 
     describe("_send()", () => {
         it("errors on invalid message", async () => {
-            const server = Hapi.server();
+            const server: any = Hapi.server();
             await server.register({ plugin: plugin, options: {} });
 
             const log = server.events.once("log");
@@ -78,7 +78,9 @@ describe("Socket", () => {
             const a = { payload: 11111111, type: "other" };
 
             server.plugins.nes._listener._sockets._forEach(async (socket) => {
-                try { await socket._send(a, null, Hoek.ignore) } catch {};
+                try {
+                    await socket._send(a, null, Hoek.ignore);
+                } catch {}
             });
 
             const [event] = await log;
@@ -148,7 +150,7 @@ describe("Socket", () => {
                     id: "resource",
                     handler: () => bufHello,
                 },
-            });
+            } as any);
 
             await server.start();
             const client = new Client("http://localhost:" + server.info.port);
@@ -174,7 +176,7 @@ describe("Socket", () => {
                     id: "resource",
                     handler: () => "hello",
                 },
-            });
+            } as any);
 
             await server.start();
             const client = new Client("http://localhost:" + server.info.port);
@@ -197,7 +199,7 @@ describe("Socket", () => {
                     id: "resource",
                     handler: () => "hello",
                 },
-            });
+            } as any);
 
             await server.start();
             const client = new Client("http://localhost:" + server.info.port);
@@ -223,11 +225,12 @@ describe("Socket", () => {
             const client = new Ws("http://localhost:" + server.info.port);
             client.onerror = Hoek.ignore;
 
-            const sendInvalid = async () => new Promise<void>((resolve, reject) => {
-                client.on("open", () => {
-                    client.send("{", {} as any, () => resolve());
+            const sendInvalid = async () =>
+                new Promise<void>((resolve, reject) => {
+                    client.on("open", () => {
+                        client.send("{", {} as any, () => resolve());
+                    });
                 });
-            })
 
             await sendInvalid();
             await delay(1000);
@@ -252,7 +255,9 @@ describe("Socket", () => {
             const client = new Ws("http://localhost:" + server.info.port);
             client.onerror = Hoek.ignore;
 
-            client.on("open", () => client.send(stringifyNesMessage({ id: 1, type: "request", path: "/" }), Hoek.ignore));
+            client.on("open", () =>
+                client.send(stringifyNesMessage({ id: 1, type: "request", path: "/" }), Hoek.ignore),
+            );
 
             await delay(1000);
 
@@ -276,7 +281,9 @@ describe("Socket", () => {
             const client = new Ws("http://localhost:" + server.info.port);
             client.onerror = Hoek.ignore;
 
-            client.on("open", () => client.send(stringifyNesMessage({ id: 1, type: "request", version: "2" }), Hoek.ignore));
+            client.on("open", () =>
+                client.send(stringifyNesMessage({ id: 1, type: "request", version: "2" }), Hoek.ignore),
+            );
 
             await delay(1000);
 
@@ -318,7 +325,9 @@ describe("Socket", () => {
             const client = new Ws("http://localhost:" + server.info.port);
             client.onerror = Hoek.ignore;
 
-            client.on("open", () => client.send(stringifyNesMessage({ id: 1, type: "hello", version: "1" }), Hoek.ignore));
+            client.on("open", () =>
+                client.send(stringifyNesMessage({ id: 1, type: "hello", version: "1" }), Hoek.ignore),
+            );
 
             await delay(1000);
 
@@ -359,11 +368,12 @@ describe("Socket", () => {
             const client = new Ws("http://localhost:" + server.info.port);
             client.onerror = Hoek.ignore;
 
-            const sendPingOrPong = async () => new Promise<void>((resolve, reject) => {
-                client.on("open", () => {
-                    client[method]("", true, () => resolve());
+            const sendPingOrPong = async () =>
+                new Promise<void>((resolve, reject) => {
+                    client.on("open", () => {
+                        client[method]("", true, () => resolve());
+                    });
                 });
-            })
 
             await sendPingOrPong();
             await delay(1000);
@@ -383,7 +393,7 @@ describe("Socket", () => {
             server.route({
                 method: "POST",
                 path: "/",
-                handler: (request) => request.socket.id,
+                handler: (request: any) => request.socket.id,
             });
 
             await server.start();
