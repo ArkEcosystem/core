@@ -47,7 +47,7 @@ export class BlockFactory {
         const block: IBlockData | undefined = Block.applySchema(data);
 
         if (block) {
-            const serialized: Buffer = Serializer.serializeWithTransactions(data);
+            const serialized: Buffer = Serializer.serialize(data);
             const deserialized = Deserializer.deserialize(serialized, false, options);
             const block: IBlock = new Block(deserialized.data, deserialized.transactions);
 

@@ -1,6 +1,5 @@
 import { Types } from "@arkecosystem/core-kernel";
-import { Crypto, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
-import ByteBuffer from "bytebuffer";
+import { Blocks, Crypto, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import { ensureDirSync, existsSync, writeJSONSync } from "fs-extra";
 import { resolve } from "path";
 import { dirSync } from "tmp";
@@ -278,69 +277,14 @@ export class CryptoGenerator extends Generator {
             blockSignature: undefined,
         };
 
-        block.id = this.getBlockId(block);
-
+        block.id = Blocks.Serializer.getId(block);
         block.blockSignature = this.signBlock(block, keys);
 
         return block;
     }
 
-    private getBlockId(block): string {
-        const hash: Buffer = this.getHash(block);
-        const blockBuffer: Buffer = Buffer.alloc(8);
-
-        for (let i = 0; i < 8; i++) {
-            blockBuffer[i] = hash[7 - i];
-        }
-
-        return Utils.BigNumber.make(`0x${blockBuffer.toString("hex")}`).toString();
-    }
-
     private signBlock(block, keys: Interfaces.IKeyPair): string {
-        return Crypto.Hash.signECDSA(this.getHash(block), keys);
-    }
-
-    private getHash(block): Buffer {
-        return Crypto.HashAlgorithms.sha256(this.getBytes(block));
-    }
-
-    private getBytes(genesisBlock): Buffer {
-        const size = 4 + 4 + 4 + 8 + 4 + 4 + 8 + 8 + 4 + 4 + 4 + 32 + 32 + 64;
-
-        const byteBuffer = new ByteBuffer(size, true);
-        byteBuffer.writeInt(genesisBlock.version);
-        byteBuffer.writeInt(genesisBlock.timestamp);
-        byteBuffer.writeInt(genesisBlock.height);
-
-        for (let i = 0; i < 8; i++) {
-            byteBuffer.writeByte(0); // no previous block
-        }
-
-        byteBuffer.writeInt(genesisBlock.numberOfTransactions);
-        byteBuffer.writeLong(genesisBlock.totalAmount);
-        byteBuffer.writeLong(genesisBlock.totalFee);
-        byteBuffer.writeLong(genesisBlock.reward);
-
-        byteBuffer.writeInt(genesisBlock.payloadLength);
-
-        for (const payloadHashByte of Buffer.from(genesisBlock.payloadHash, "hex")) {
-            byteBuffer.writeByte(payloadHashByte);
-        }
-
-        for (const generatorByte of Buffer.from(genesisBlock.generatorPublicKey, "hex")) {
-            byteBuffer.writeByte(generatorByte);
-        }
-
-        // Unreachable
-        // if (genesisBlock.blockSignature) {
-        //     for (const blockSignatureByte of Buffer.from(genesisBlock.blockSignature, "hex")) {
-        //         byteBuffer.writeByte(blockSignatureByte);
-        //     }
-        // }
-
-        byteBuffer.flip();
-
-        return byteBuffer.toBuffer();
+        return Crypto.Hash.signECDSA(Blocks.Serializer.getSignedHash(block), keys);
     }
 
     /**

@@ -60,12 +60,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
         const response = await this.emit(
             peer,
             "p2p.blocks.postBlock",
-            {
-                block: Blocks.Serializer.serializeWithTransactions({
-                    ...block.data,
-                    transactions: block.transactions.map((tx) => tx.data),
-                }),
-            },
+            { block: Blocks.Serializer.serialize(block.data) },
             postBlockTimeout,
         );
 

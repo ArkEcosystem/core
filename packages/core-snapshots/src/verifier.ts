@@ -37,9 +37,7 @@ export class Verifier {
         try {
             /* istanbul ignore next */
             const block = Blocks.BlockFactory.fromData(blockEntity as Interfaces.IBlockData)!;
-
-            const bytes = Blocks.Serializer.serialize(block.data, false);
-            const hash = Crypto.HashAlgorithms.sha256(bytes);
+            const hash = Blocks.Serializer.getSignedHash(block.data);
 
             isVerified = Crypto.Hash.verifyECDSA(hash, blockEntity.blockSignature, blockEntity.generatorPublicKey);
         } catch (err) {

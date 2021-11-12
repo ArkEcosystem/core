@@ -8,22 +8,26 @@ export class Serializer {
     private static cachedIds = new WeakMap<IBlockData, string>();
 
     public static getId(data: IBlockData): string {
-        let id = this.cachedIds.get(data);
+        try {
+            let id = this.cachedIds.get(data);
 
-        if (!id) {
-            const serializedHeader = Serializer.serializeHeader(data);
-            const hash = HashAlgorithms.sha256(serializedHeader);
-            const constants = configManager.getMilestone(data.height);
-            const computedId = constants.block.idFullSha256
-                ? hash.toString("hex")
-                : hash.readBigUInt64LE().toString(10);
+            if (!id) {
+                const serializedHeader = Serializer.serializeHeader(data);
+                const hash = HashAlgorithms.sha256(serializedHeader);
+                const constants = configManager.getMilestone(data.height);
+                const computedId = constants.block.idFullSha256
+                    ? hash.toString("hex")
+                    : hash.readBigUInt64LE().toString(10);
 
-            const outlookTable: Record<string, string> = configManager.get("exceptions").outlookTable ?? {};
-            id = outlookTable[computedId] ?? computedId;
-            this.cachedIds.set(data, id);
+                const outlookTable: Record<string, string> = configManager.get("exceptions").outlookTable ?? {};
+                id = outlookTable[computedId] ?? computedId;
+                this.cachedIds.set(data, id);
+            }
+
+            return id;
+        } catch (error) {
+            throw new Error(`Cannot calculate block id. ${error.message}`);
         }
-
-        return id;
     }
 
     public static getIdHex(id: string): string {
@@ -35,14 +39,17 @@ export class Serializer {
     }
 
     public static getSignedHash(data: IBlockData): Buffer {
-        const constants = configManager.getMilestone(data.height);
-        const buffer = Buffer.alloc(constants.block.maxPayload);
-        const writer = SerdeFactory.createWriter(buffer);
+        try {
+            const constants = configManager.getMilestone(data.height);
+            const buffer = Buffer.alloc(constants.block.maxPayload);
+            const writer = SerdeFactory.createWriter(buffer);
 
-        this.writeSignedSection(writer, data);
-        const serialized = writer.buffer.slice(0, writer.offset);
+            this.writeSignedSection(writer, data);
 
-        return HashAlgorithms.sha256(serialized);
+            return HashAlgorithms.sha256(writer.getResult());
+        } catch (error) {
+            throw new Error(`Cannot calculate block signed hash. ${error.message}`);
+        }
     }
 
     public static serialize(data: IBlockData): Buffer {
@@ -55,9 +62,9 @@ export class Serializer {
             this.writeBlockSignature(writer, data);
             this.writeTransactions(writer, data);
 
-            return writer.buffer.slice(0, writer.offset);
+            return writer.getResult();
         } catch (error) {
-            throw new Error(`Failed to serialize block. ${error.message}`);
+            throw new Error(`Cannot serialize block. ${error.message}`);
         }
     }
 
@@ -70,9 +77,9 @@ export class Serializer {
             this.writeSignedSection(writer, data);
             this.writeBlockSignature(writer, data);
 
-            return writer.buffer.slice(0, writer.offset);
+            return writer.getResult();
         } catch (error) {
-            throw new Error(`Failed to serialize block header. ${error.message}`);
+            throw new Error(`Cannot serialize block header. ${error.message}`);
         }
     }
 
@@ -107,7 +114,7 @@ export class Serializer {
     public static writeBlockSignature(writer: IWriter, data: IBlockData): void {
         if (data.height !== 1) {
             if (!data.blockSignature) {
-                throw new Error("Block signature is missing.");
+                throw new Error("No block signature.");
             }
 
             writer.writeEcdsaSignature(Buffer.from(data.blockSignature, "hex"));
@@ -116,7 +123,7 @@ export class Serializer {
 
     public static writeTransactions(writer: IWriter, data: IBlockData): void {
         if (!data.transactions) {
-            throw new Error("Block has no transactions.");
+            throw new Error("No transactions.");
         }
 
         const buffers = data.transactions.map((tx) => TransactionUtils.toBytes(tx));

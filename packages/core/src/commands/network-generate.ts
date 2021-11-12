@@ -954,11 +954,7 @@ export class Command extends Commands.Command {
         return block;
     }
 
-    private signBlock(block, keys: Interfaces.IKeyPair): string {
-        return Crypto.Hash.signECDSA(this.getHash(block), keys);
-    }
-
-    private getHash(block): Buffer {
-        return Crypto.HashAlgorithms.sha256(Blocks.Serializer.serialize(block, false));
+    private signBlock(block: Interfaces.IBlockData, keys: Interfaces.IKeyPair): string {
+        return Crypto.Hash.signECDSA(Blocks.Serializer.getSignedHash(block), keys);
     }
 }

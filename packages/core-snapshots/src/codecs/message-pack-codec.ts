@@ -23,7 +23,7 @@ export class MessagePackCodec implements Codec {
         try {
             const blockCamelized = camelizeKeys(MessagePackCodec.removePrefix(block, "Block_"));
 
-            return Blocks.Serializer.serialize(blockCamelized, true);
+            return Blocks.Serializer.serializeHeader(blockCamelized);
         } catch (err) {
             throw new CodecException.BlockEncodeException(block.Block_id, err.message);
         }

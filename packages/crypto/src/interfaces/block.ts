@@ -11,9 +11,10 @@ export interface IBlockVerification {
 export interface IBlock {
     readonly id: string;
     readonly idHex: string;
-    readonly serialized: string;
+    readonly serialized: Buffer;
     readonly data: IBlockData;
     readonly transactions: ITransaction[];
+
     verification: IBlockVerification;
 
     getHeader(): IBlockData;

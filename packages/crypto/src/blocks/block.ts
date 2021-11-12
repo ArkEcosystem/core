@@ -10,7 +10,7 @@ import { Serializer } from "./serializer";
 export class Block implements IBlock {
     public readonly id: string;
     public readonly idHex: string;
-    public readonly serialized: string;
+    public readonly serialized: Buffer;
     public readonly data: IBlockData;
     public readonly transactions: ITransaction[];
     public verification: IBlockVerification;
@@ -18,7 +18,7 @@ export class Block implements IBlock {
     public constructor(data: IBlockData, transactions: ITransaction[]) {
         this.id = Serializer.getId(data);
         this.idHex = Serializer.getIdHex(this.id);
-        this.serialized = Serializer.serialize(data).toString("hex");
+        this.serialized = Serializer.serialize(data);
         this.data = data;
 
         // TODO: do this on database layer
@@ -32,8 +32,6 @@ export class Block implements IBlock {
             transaction.timestamp = this.data.timestamp;
             return transaction;
         });
-
-        delete this.data.transactions;
 
         this.verification = this.verify();
 
@@ -101,14 +99,15 @@ export class Block implements IBlock {
     }
 
     public verifySignature(): boolean {
-        const bytes: Buffer = Serializer.serialize(this.data, false);
-        const hash: Buffer = HashAlgorithms.sha256(bytes);
-
         if (!this.data.blockSignature) {
             throw new Error();
         }
 
-        return Hash.verifyECDSA(hash, this.data.blockSignature, this.data.generatorPublicKey);
+        return Hash.verifyECDSA(
+            Serializer.getSignedHash(this.data),
+            this.data.blockSignature,
+            this.data.generatorPublicKey,
+        );
     }
 
     public toJson(): IBlockJson {
@@ -154,11 +153,6 @@ export class Block implements IBlock {
 
             if (block.timestamp > Slots.getTime() + Managers.configManager.getMilestone(block.height).blocktime) {
                 result.errors.push("Invalid block timestamp");
-            }
-
-            const size: number = Serializer.size(this);
-            if (size > constants.block.maxPayload) {
-                result.errors.push(`Payload is too large: ${size} > ${constants.block.maxPayload}`);
             }
 
             const invalidTransactions: ITransaction[] = this.transactions.filter((tx) => !tx.verified);

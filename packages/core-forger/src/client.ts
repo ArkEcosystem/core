@@ -85,10 +85,7 @@ export class Client {
 
         try {
             await this.emit("p2p.blocks.postBlock", {
-                block: Blocks.Serializer.serializeWithTransactions({
-                    ...block.data,
-                    transactions: block.transactions.map((tx) => tx.data),
-                }),
+                block: Blocks.Serializer.serialize(block.data),
             });
         } catch (error) {
             this.logger.error(`Broadcast block failed: ${error.message}`);
