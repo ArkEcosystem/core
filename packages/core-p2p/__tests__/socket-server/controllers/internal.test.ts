@@ -7,8 +7,8 @@ import { Sandbox } from "@packages/core-test-framework";
 import { Blocks, Networks, Utils } from "@packages/crypto";
 import { TransactionFactory } from "@packages/crypto/src/transactions";
 
-const request = {} as unknown as Hapi.Request;
-const h = {} as unknown as Hapi.ResponseToolkit;
+const request = {} as Hapi.Request;
+const h = {} as Hapi.ResponseToolkit;
 
 describe("InternalController", () => {
     let sandbox: Sandbox;

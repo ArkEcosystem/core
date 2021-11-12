@@ -1,3 +1,4 @@
+import Hapi from "@hapi/hapi";
 import { Container } from "@packages/core-kernel";
 import { TransactionsRoute } from "@packages/core-p2p/src/socket-server/routes/transactions";
 
@@ -14,7 +15,7 @@ describe("BlocksRoute", () => {
             getOptional: jest.fn().mockReturnValue(40),
         }),
     };
-    const server: any = { bind: jest.fn(), route: jest.fn() };
+    const server: Partial<Hapi.Server> = { bind: jest.fn(), route: jest.fn() };
 
     beforeAll(() => {
         container.unbindAll();
@@ -41,7 +42,7 @@ describe("BlocksRoute", () => {
             },
         }));
 
-        transactionsRoute.register(server);
+        transactionsRoute.register(server as Hapi.Server);
 
         expect(server.bind).toBeCalledTimes(1);
         expect(server.bind).toBeCalledWith(controller);

@@ -31,8 +31,8 @@ describe("TransactionsController", () => {
 
             expect(
                 await transactionsController.postTransactions(
-                    { payload: { transactions } } as any,
-                    {} as unknown as Hapi.ResponseToolkit,
+                    { payload: { transactions } } as Hapi.Request,
+                    {} as Hapi.ResponseToolkit,
                 ),
             ).toEqual([transactions[0].id]);
 

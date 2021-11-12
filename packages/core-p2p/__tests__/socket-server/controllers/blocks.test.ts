@@ -1,7 +1,7 @@
 import Hapi from "@hapi/hapi";
 import { Container } from "@packages/core-kernel";
 import { PluginConfiguration } from "@packages/core-kernel/src/providers";
-import { BlocksController } from "@packages/core-p2p/src/socket-server/controllers/blocks";
+import { BlockRequest, BlocksController } from "@packages/core-p2p/src/socket-server/controllers/blocks";
 import { TooManyTransactionsError } from "@packages/core-p2p/src/socket-server/errors";
 import { Sandbox } from "@packages/core-test-framework";
 import { Blocks, Identities, Managers, Networks, Transactions, Utils } from "@packages/crypto";
@@ -80,7 +80,7 @@ describe("BlocksController", () => {
                 });
 
                 await expect(
-                    blocksController.postBlock({ payload: { block: blockSerialized } } as any, h),
+                    blocksController.postBlock({ payload: { block: blockSerialized } } as BlockRequest, h),
                 ).rejects.toBeInstanceOf(TooManyTransactionsError);
             });
         });
@@ -104,7 +104,7 @@ describe("BlocksController", () => {
                             {
                                 payload: { block: blockSerialized },
                                 info: { remoteAddress: "187.55.33.22" },
-                            } as any,
+                            } as BlockRequest,
                             h,
                         ),
                     ).toResolve();
@@ -115,7 +115,7 @@ describe("BlocksController", () => {
                             {
                                 payload: { block: blockSerialized },
                                 info: { remoteAddress: "187.55.33.22" },
-                            } as any,
+                            } as BlockRequest,
                             h,
                         ),
                     ).resolves.toEqual({ status: false, height: 100 });
@@ -139,7 +139,7 @@ describe("BlocksController", () => {
                     {
                         payload: { block: blockSerialized },
                         info: { remoteAddress: ip },
-                    } as any,
+                    } as BlockRequest,
                     h,
                 );
 
@@ -165,7 +165,7 @@ describe("BlocksController", () => {
                     {
                         payload: { block: blockSerialized },
                         info: { remoteAddress: ip },
-                    } as any,
+                    } as BlockRequest,
                     h,
                 );
 
@@ -187,7 +187,10 @@ describe("BlocksController", () => {
             };
             const ip = "187.55.33.22";
 
-            const blocks = await blocksController.getBlocks({ payload, info: { remoteAddress: ip } } as any, h);
+            const blocks = await blocksController.getBlocks(
+                { payload, info: { remoteAddress: ip } } as Hapi.Request,
+                h,
+            );
 
             expect(blocks).toEqual(mockBlocks);
             expect(database.getBlocksForDownload).toBeCalledTimes(1);
@@ -209,7 +212,10 @@ describe("BlocksController", () => {
             };
             const ip = "187.55.33.22";
 
-            const blocks = await blocksController.getBlocks({ payload, info: { remoteAddress: ip } } as any, h);
+            const blocks = await blocksController.getBlocks(
+                { payload, info: { remoteAddress: ip } } as Hapi.Request,
+                h,
+            );
 
             expect(blocks).toEqual(mockBlocks);
             expect(database.getBlocksForDownload).toBeCalledTimes(1);

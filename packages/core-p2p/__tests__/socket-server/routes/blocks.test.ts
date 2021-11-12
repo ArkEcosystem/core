@@ -1,5 +1,6 @@
 import { Container } from "@packages/core-kernel";
 import { BlocksRoute } from "@packages/core-p2p/src/socket-server/routes/blocks";
+import Hapi from "@hapi/hapi";
 
 describe("BlocksRoute", () => {
     let blocksRoute: BlocksRoute;
@@ -9,7 +10,7 @@ describe("BlocksRoute", () => {
     const logger = { warning: jest.fn(), debug: jest.fn() };
     const controller = { getPeers: jest.fn() }; // a mock peer controller
     const app = { resolve: jest.fn().mockReturnValue(controller) };
-    const server: any = { bind: jest.fn(), route: jest.fn() };
+    const server: Partial<Hapi.Server> = { bind: jest.fn(), route: jest.fn() };
 
     beforeAll(() => {
         container.unbindAll();
@@ -36,7 +37,7 @@ describe("BlocksRoute", () => {
             },
         }));
 
-        blocksRoute.register(server);
+        blocksRoute.register(server as Hapi.Server);
 
         expect(server.bind).toBeCalledTimes(1);
         expect(server.bind).toBeCalledWith(controller);

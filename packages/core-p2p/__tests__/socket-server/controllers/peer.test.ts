@@ -9,7 +9,7 @@ import { Crypto, Managers } from "@packages/crypto";
 
 Managers.configManager.getMilestone().aip11 = true; // for creating aip11 v2 transactions
 
-const h = {} as unknown as Hapi.ResponseToolkit;
+const h = {} as Hapi.ResponseToolkit;
 
 describe("PeerController", () => {
     let sandbox: Sandbox;

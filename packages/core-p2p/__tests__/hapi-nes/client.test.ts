@@ -15,7 +15,8 @@ const createServerWithPlugin = async (pluginOptions = {}, serverOptions = {}, wi
 
     server.ext({
         type: "onPostAuth",
-        async method(request: any, h) {
+        async method(request: Hapi.Request, h) {
+            // @ts-ignore
             request.payload = (request.payload || Buffer.from("")).toString();
             return h.continue;
         },
