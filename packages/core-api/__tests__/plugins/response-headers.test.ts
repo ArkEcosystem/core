@@ -9,7 +9,7 @@ describe("responseHeaders.register", () => {
     it("should register onPreResponse extension", () => {
         const server: Partial<Hapi.Server> = {
             ext: jest.fn(),
-            app: { app },
+            app: { app } as any,
         };
 
         responseHeaders.register(server as Hapi.Server);
