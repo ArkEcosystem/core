@@ -1,5 +1,5 @@
 import { Container, Contracts, Providers, Types, Utils } from "@arkecosystem/core-kernel";
-import { badData } from "@hapi/boom";
+import { badData, isBoom } from "@hapi/boom";
 import { RequestRoute, Server as HapiServer, ServerInjectOptions, ServerInjectResponse, ServerRoute } from "@hapi/hapi";
 import { readFileSync } from "fs";
 
@@ -9,12 +9,6 @@ declare module "@hapi/hapi" {
     interface ServerApplicationState {
         app: Contracts.Kernel.Application;
         schemas: typeof Schemas;
-    }
-
-    interface ResponseObject {
-        isBoom: any;
-        isServer: any;
-        stack: any;
     }
 }
 
@@ -92,7 +86,7 @@ export class Server {
         });
 
         this.server.ext("onPreResponse", (request, h) => {
-            if (request.response.isBoom && request.response.isServer) {
+            if (isBoom(request.response) && request.response.isServer) {
                 this.logger.error(request.response.stack);
             }
             return h.continue;
