@@ -1,5 +1,6 @@
 import "jest-extended";
 
+import Hapi from "@hapi/hapi";
 import { PeersController } from "@packages/core-api/src/controllers/peers";
 import { Application, Contracts } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
@@ -12,7 +13,7 @@ import { initApp, ItemResponse, PaginatedResponse } from "../__support__";
 
 let app: Application;
 let controller: PeersController;
-const h: any = {};
+const h = {} as unknown as Hapi.ResponseToolkit;
 
 beforeEach(() => {
     app = initApp();
@@ -79,7 +80,7 @@ describe("PeersController", () => {
         it("should return list of peers", async () => {
             Mocks.PeerRepository.setPeers([peer, anotherPeer]);
 
-            const request: any = {
+            const request: Partial<Hapi.Request> = {
                 query: {
                     version: "2.6",
                     page: 1,
@@ -88,7 +89,7 @@ describe("PeersController", () => {
                 },
             };
 
-            const response = (await controller.index(request, h)) as PaginatedResponse;
+            const response = (await controller.index(request as Hapi.Request, h)) as PaginatedResponse;
 
             expect(response.totalCount).toBeDefined();
             expect(response.meta).toBeDefined();
@@ -103,7 +104,7 @@ describe("PeersController", () => {
         it("should return list of peers if version in request is not set", async () => {
             Mocks.PeerRepository.setPeers([peer, anotherPeer]);
 
-            const request: any = {
+            const request: Partial<Hapi.Request> = {
                 query: {
                     page: 1,
                     limit: 100,
@@ -111,7 +112,7 @@ describe("PeersController", () => {
                 },
             };
 
-            const response = (await controller.index(request, h)) as PaginatedResponse;
+            const response = (await controller.index(request as Hapi.Request, h)) as PaginatedResponse;
 
             expect(response.totalCount).toBeDefined();
             expect(response.meta).toBeDefined();
@@ -124,7 +125,7 @@ describe("PeersController", () => {
         });
 
         it("should return error if version in request is invalid", async () => {
-            const request: any = {
+            const request: Partial<Hapi.Request> = {
                 query: {
                     version: "invalid_version",
                     page: 1,
@@ -133,13 +134,15 @@ describe("PeersController", () => {
                 },
             };
 
-            await expect(controller.index(request, h)).resolves.toThrowError("Invalid version range provided");
+            await expect(controller.index(request as Hapi.Request, h)).resolves.toThrowError(
+                "Invalid version range provided",
+            );
         });
 
         it("should return error when offset is negative", async () => {
             Mocks.PeerRepository.setPeers([peer]);
 
-            const request: any = {
+            const request: Partial<Hapi.Request> = {
                 query: {
                     version: "2.6.0",
                     page: 2,
@@ -149,7 +152,7 @@ describe("PeersController", () => {
                 },
             };
 
-            const response = (await controller.index(request, h)) as PaginatedResponse;
+            const response = (await controller.index(request as Hapi.Request, h)) as PaginatedResponse;
 
             expect(response.totalCount).toBeDefined();
             expect(response.meta).toBeDefined();
@@ -159,7 +162,7 @@ describe("PeersController", () => {
         it("should return paginated response when offset is not a number", async () => {
             Mocks.PeerRepository.setPeers([peer]);
 
-            const request: any = {
+            const request: Partial<Hapi.Request> = {
                 query: {
                     version: "2.6.0",
                     page: 2,
@@ -169,7 +172,7 @@ describe("PeersController", () => {
                 },
             };
 
-            const response = (await controller.index(request, h)) as PaginatedResponse;
+            const response = (await controller.index(request as Hapi.Request, h)) as PaginatedResponse;
 
             expect(response.totalCount).toBeDefined();
             expect(response.meta).toBeDefined();
@@ -179,7 +182,7 @@ describe("PeersController", () => {
         it("should return paginated response when limit is not defined", async () => {
             Mocks.PeerRepository.setPeers([peer]);
 
-            const request: any = {
+            const request: Partial<Hapi.Request> = {
                 query: {
                     version: "2.6.0",
                     page: 2,
@@ -188,7 +191,7 @@ describe("PeersController", () => {
                 },
             };
 
-            const response = (await controller.index(request, h)) as PaginatedResponse;
+            const response = (await controller.index(request as Hapi.Request, h)) as PaginatedResponse;
 
             expect(response.totalCount).toBeDefined();
             expect(response.meta).toBeDefined();
@@ -198,7 +201,7 @@ describe("PeersController", () => {
         it("should return list of peers ordered by version ascending", async () => {
             Mocks.PeerRepository.setPeers([peer, anotherPeer]);
 
-            const request: any = {
+            const request: Partial<Hapi.Request> = {
                 query: {
                     version: "2.6",
                     page: 1,
@@ -208,7 +211,7 @@ describe("PeersController", () => {
                 },
             };
 
-            const response = (await controller.index(request, h)) as PaginatedResponse;
+            const response = (await controller.index(request as Hapi.Request, h)) as PaginatedResponse;
 
             expect(response.totalCount).toBeDefined();
             expect(response.meta).toBeDefined();
@@ -228,7 +231,7 @@ describe("PeersController", () => {
         it("should return list of peers ordered by version descending", async () => {
             Mocks.PeerRepository.setPeers([peer, anotherPeer]);
 
-            const request: any = {
+            const request: Partial<Hapi.Request> = {
                 query: {
                     version: "2.6",
                     page: 1,
@@ -238,7 +241,7 @@ describe("PeersController", () => {
                 },
             };
 
-            const response = (await controller.index(request, h)) as PaginatedResponse;
+            const response = (await controller.index(request as Hapi.Request, h)) as PaginatedResponse;
 
             expect(response.totalCount).toBeDefined();
             expect(response.meta).toBeDefined();
@@ -258,7 +261,7 @@ describe("PeersController", () => {
         it("should return list of peers ordered by height ascending", async () => {
             Mocks.PeerRepository.setPeers([peer, anotherPeer]);
 
-            const request: any = {
+            const request: Partial<Hapi.Request> = {
                 query: {
                     version: "2.6",
                     page: 1,
@@ -268,7 +271,7 @@ describe("PeersController", () => {
                 },
             };
 
-            const response = (await controller.index(request, h)) as PaginatedResponse;
+            const response = (await controller.index(request as Hapi.Request, h)) as PaginatedResponse;
 
             expect(response.totalCount).toBeDefined();
             expect(response.meta).toBeDefined();
@@ -288,7 +291,7 @@ describe("PeersController", () => {
         it("should return list of peers ordered by height descending", async () => {
             Mocks.PeerRepository.setPeers([peer, anotherPeer]);
 
-            const request: any = {
+            const request: Partial<Hapi.Request> = {
                 query: {
                     version: "2.6",
                     page: 1,
@@ -298,7 +301,7 @@ describe("PeersController", () => {
                 },
             };
 
-            const response = (await controller.index(request, h)) as PaginatedResponse;
+            const response = (await controller.index(request as Hapi.Request, h)) as PaginatedResponse;
 
             expect(response.totalCount).toBeDefined();
             expect(response.meta).toBeDefined();
@@ -318,7 +321,7 @@ describe("PeersController", () => {
         it("should return list of peers ordered by latency ascending", async () => {
             Mocks.PeerRepository.setPeers([peer, anotherPeer]);
 
-            const request: any = {
+            const request: Partial<Hapi.Request> = {
                 query: {
                     version: "2.6",
                     page: 1,
@@ -328,7 +331,7 @@ describe("PeersController", () => {
                 },
             };
 
-            const response = (await controller.index(request, h)) as PaginatedResponse;
+            const response = (await controller.index(request as Hapi.Request, h)) as PaginatedResponse;
 
             expect(response.totalCount).toBeDefined();
             expect(response.meta).toBeDefined();
@@ -348,7 +351,7 @@ describe("PeersController", () => {
         it("should return list of peers ordered by latency descending", async () => {
             Mocks.PeerRepository.setPeers([peer, anotherPeer]);
 
-            const request: any = {
+            const request: Partial<Hapi.Request> = {
                 query: {
                     version: "2.6",
                     page: 1,
@@ -358,7 +361,7 @@ describe("PeersController", () => {
                 },
             };
 
-            const response = (await controller.index(request, h)) as PaginatedResponse;
+            const response = (await controller.index(request as Hapi.Request, h)) as PaginatedResponse;
 
             expect(response.totalCount).toBeDefined();
             expect(response.meta).toBeDefined();
@@ -378,7 +381,7 @@ describe("PeersController", () => {
         it("should return list of peers ordered by other descending", async () => {
             Mocks.PeerRepository.setPeers([peer, anotherPeer]);
 
-            const request: any = {
+            const request: Partial<Hapi.Request> = {
                 query: {
                     version: "2.6",
                     page: 1,
@@ -388,7 +391,7 @@ describe("PeersController", () => {
                 },
             };
 
-            const response = (await controller.index(request, h)) as PaginatedResponse;
+            const response = (await controller.index(request as Hapi.Request, h)) as PaginatedResponse;
 
             expect(response.totalCount).toBeDefined();
             expect(response.meta).toBeDefined();
@@ -410,13 +413,13 @@ describe("PeersController", () => {
         it("should return peer", async () => {
             Mocks.PeerRepository.setPeers([peer]);
 
-            const request: any = {
+            const request: Partial<Hapi.Request> = {
                 params: {
                     id: peer.ip,
                 },
             };
 
-            const response = (await controller.show(request, h)) as ItemResponse;
+            const response = (await controller.show(request as Hapi.Request, h)) as ItemResponse;
 
             expect(response.data).toEqual(
                 expect.objectContaining({
@@ -426,13 +429,13 @@ describe("PeersController", () => {
         });
 
         it("should return error if peer does not exists", async () => {
-            const request: any = {
+            const request: Partial<Hapi.Request> = {
                 params: {
                     id: peer.ip,
                 },
             };
 
-            await expect(controller.show(request, h)).resolves.toThrowError("Peer not found");
+            await expect(controller.show(request as Hapi.Request, h)).resolves.toThrowError("Peer not found");
         });
     });
 });

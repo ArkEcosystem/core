@@ -1,4 +1,5 @@
 import { Boom } from "@hapi/boom";
+import Hapi from "@hapi/hapi";
 import { LockSearchService, Resources, WalletSearchService } from "@packages/core-api";
 import { WalletsController } from "@packages/core-api/src/controllers/wallets";
 import { Identifiers } from "@packages/core-api/src/identifiers";
@@ -37,7 +38,7 @@ const paginationService = {
     getEmptyPage: jestfn<Services.Search.PaginationService["getEmptyPage"]>(),
 };
 
-const h: any = {};
+const h = {} as unknown as Hapi.ResponseToolkit;
 
 const container = new Container.Container();
 container.bind(Container.Identifiers.Application).toConstantValue(app);
@@ -102,7 +103,7 @@ describe("WalletsController", () => {
                         orderBy: ["balance:desc", "address:asc"],
                         address: "ATrkBiUXGDKduaSjqez2Ar7T9rQW6cnaeu",
                     },
-                } as any,
+                } as unknown as Hapi.Request,
                 h,
             );
 
@@ -136,7 +137,7 @@ describe("WalletsController", () => {
                         orderBy: ["balance:desc", "address:asc"],
                         address: "ATrkBiUXGDKduaSjqez2Ar7T9rQW6cnaeu",
                     },
-                } as any,
+                } as unknown as Hapi.Request,
                 h,
             );
 
@@ -160,7 +161,7 @@ describe("WalletsController", () => {
                     params: {
                         id: walletResource1.address,
                     },
-                } as any,
+                } as unknown as Hapi.Request,
                 h,
             );
 
@@ -177,7 +178,7 @@ describe("WalletsController", () => {
                     params: {
                         id: "non-existing-wallet-id",
                     },
-                } as any,
+                } as unknown as Hapi.Request,
                 h,
             );
 
@@ -209,7 +210,7 @@ describe("WalletsController", () => {
                         orderBy: ["timestamp.unix:desc"],
                         isExpired: false,
                     },
-                } as any,
+                } as unknown as Hapi.Request,
                 h,
             );
 
@@ -234,7 +235,7 @@ describe("WalletsController", () => {
                     params: {
                         id: "non-existing-wallet-id",
                     },
-                } as any,
+                } as unknown as Hapi.Request,
                 h,
             );
 
@@ -276,7 +277,7 @@ describe("WalletsController", () => {
                         transform: false,
                         type: Enums.TransactionType.MultiPayment,
                     },
-                } as any,
+                } as unknown as Hapi.Request,
                 h,
             );
 
@@ -340,7 +341,7 @@ describe("WalletsController", () => {
                         transform: true,
                         type: Enums.TransactionType.MultiPayment,
                     },
-                } as any,
+                } as unknown as Hapi.Request,
                 h,
             );
 
@@ -380,7 +381,7 @@ describe("WalletsController", () => {
                     params: {
                         id: "non-existing-wallet-id",
                     },
-                } as any,
+                } as unknown as Hapi.Request,
                 h,
             );
 
@@ -422,7 +423,7 @@ describe("WalletsController", () => {
                         transform: false,
                         type: Enums.TransactionType.MultiPayment,
                     },
-                } as any,
+                } as unknown as Hapi.Request,
                 h,
             );
 
@@ -486,7 +487,7 @@ describe("WalletsController", () => {
                         transform: true,
                         type: Enums.TransactionType.MultiPayment,
                     },
-                } as any,
+                } as Partial<Hapi.Request> as Hapi.Request,
                 h,
             );
 
@@ -526,7 +527,7 @@ describe("WalletsController", () => {
                     params: {
                         id: "non-existing-wallet-id",
                     },
-                } as any,
+                } as Partial<Hapi.Request> as Hapi.Request,
                 h,
             );
 
@@ -546,7 +547,7 @@ describe("WalletsController", () => {
                     params: {
                         id: walletResource2Cold.address,
                     },
-                } as any,
+                } as Partial<Hapi.Request> as Hapi.Request,
                 h,
             );
 
@@ -589,7 +590,7 @@ describe("WalletsController", () => {
                         transform: false,
                         type: Enums.TransactionType.MultiPayment,
                     },
-                } as any,
+                } as Partial<Hapi.Request> as Hapi.Request,
                 h,
             );
 
@@ -653,7 +654,7 @@ describe("WalletsController", () => {
                         transform: true,
                         type: Enums.TransactionType.MultiPayment,
                     },
-                } as any,
+                } as Partial<Hapi.Request> as Hapi.Request,
                 h,
             );
 
@@ -693,7 +694,7 @@ describe("WalletsController", () => {
                     params: {
                         id: "non-existing-wallet-id",
                     },
-                } as any,
+                } as Partial<Hapi.Request> as Hapi.Request,
                 h,
             );
 
@@ -734,7 +735,7 @@ describe("WalletsController", () => {
                         orderBy: "amount:desc",
                         transform: false,
                     },
-                } as any,
+                } as Partial<Hapi.Request> as Hapi.Request,
                 h,
             );
 
@@ -798,7 +799,7 @@ describe("WalletsController", () => {
                         orderBy: "amount:desc",
                         transform: true,
                     },
-                } as any,
+                } as Partial<Hapi.Request> as Hapi.Request,
                 h,
             );
 
@@ -839,7 +840,7 @@ describe("WalletsController", () => {
                     params: {
                         id: "non-existing-wallet-id",
                     },
-                } as any,
+                } as Partial<Hapi.Request> as Hapi.Request,
                 h,
             );
 
@@ -863,7 +864,7 @@ describe("WalletsController", () => {
                     params: {
                         id: walletResource2Cold.address,
                     },
-                } as any,
+                } as Partial<Hapi.Request> as Hapi.Request,
                 h,
             );
 

@@ -1,5 +1,6 @@
 import "jest-extended";
 
+import Hapi from "@hapi/hapi";
 import { RoundsController } from "@packages/core-api/src/controllers/rounds";
 import { Application } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
@@ -13,6 +14,7 @@ import { initApp, ItemResponse } from "../__support__";
 
 let app: Application;
 let controller: RoundsController;
+const h = {} as unknown as Hapi.ResponseToolkit;
 
 beforeEach(() => {
     app = initApp();
@@ -48,13 +50,13 @@ describe("RoundsController", () => {
 
             Mocks.RoundRepository.setRounds([round]);
 
-            const request: any = {
+            const request: Partial<Hapi.Request> = {
                 params: {
                     id: "12",
                 },
             };
 
-            const response = (await controller.delegates(request, undefined)) as ItemResponse;
+            const response = (await controller.delegates(request as Hapi.Request, h)) as ItemResponse;
 
             expect(response.data[0]).toEqual(
                 expect.objectContaining({
@@ -64,13 +66,13 @@ describe("RoundsController", () => {
         });
 
         it("should return error if round does not exist", async () => {
-            const request: any = {
+            const request: Partial<Hapi.Request> = {
                 params: {
                     id: "12",
                 },
             };
 
-            await expect(controller.delegates(request, undefined)).resolves.toThrowError("Round not found");
+            await expect(controller.delegates(request as Hapi.Request, h)).resolves.toThrowError("Round not found");
         });
     });
 });

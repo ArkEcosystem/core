@@ -1,5 +1,6 @@
 import "jest-extended";
 
+import Hapi from "@hapi/hapi";
 import { BlockchainController } from "@packages/core-api/src/controllers/blockchain";
 import { Application } from "@packages/core-kernel";
 import { Mocks } from "@packages/core-test-framework";
@@ -9,8 +10,8 @@ import { initApp, ItemResponse } from "../__support__";
 
 let app: Application;
 let controller: BlockchainController;
-const request: any = {};
-const h: any = {};
+const request = {} as unknown as Hapi.Request;
+const h = {} as unknown as Hapi.ResponseToolkit;
 
 beforeEach(() => {
     app = initApp();

@@ -1,6 +1,7 @@
 import { Boom } from "@hapi/boom";
+import Hapi from "@hapi/hapi";
 import { LockSearchService, Resources } from "@packages/core-api";
-import { LocksController } from "@packages/core-api/src/controllers/locks";
+import { LocksController, UnlockedRequest } from "@packages/core-api/src/controllers/locks";
 import { Identifiers } from "@packages/core-api/src/identifiers";
 import { Application, Container, Contracts, Providers } from "@packages/core-kernel";
 import { Enums, Utils } from "@packages/crypto";
@@ -34,7 +35,7 @@ container.bind(Container.Identifiers.PluginConfiguration).toConstantValue(apiCon
 container.bind(Identifiers.LockSearchService).toConstantValue(lockSearchService);
 container.bind(Container.Identifiers.TransactionHistoryService).toConstantValue(transactionHistoryService);
 
-const h: any = {};
+const h = {} as unknown as Hapi.ResponseToolkit;
 
 beforeEach(() => {
     jest.resetAllMocks();
@@ -76,7 +77,7 @@ describe("LocksController", () => {
                         orderBy: ["amount:desc", "timestamp.epoch:desc"],
                         senderPublicKey: "02fd0f9eb5ce005710616258c6742f372577698f172fdca0418c5cd1e9698fc002",
                     },
-                } as any,
+                } as unknown as Hapi.Request,
                 h,
             );
 
@@ -100,7 +101,7 @@ describe("LocksController", () => {
                     params: {
                         id: lockResource1.lockId,
                     },
-                } as any,
+                } as unknown as Hapi.Request,
                 h,
             );
 
@@ -117,7 +118,7 @@ describe("LocksController", () => {
                     params: {
                         id: "non-existing-lock-id",
                     },
-                } as any,
+                } as unknown as Hapi.Request,
                 h,
             );
 
@@ -159,7 +160,7 @@ describe("LocksController", () => {
                     payload: {
                         ids: [lock1Id, lock2Id],
                     },
-                } as any,
+                } as unknown as UnlockedRequest,
                 h,
             );
 

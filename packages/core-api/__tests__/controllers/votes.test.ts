@@ -1,5 +1,6 @@
 import "jest-extended";
 
+import Hapi from "@hapi/hapi";
 import { VotesController } from "@packages/core-api/src/controllers/votes";
 import { Application } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
@@ -14,6 +15,7 @@ import { initApp, ItemResponse, PaginatedResponse } from "../__support__";
 
 let app: Application;
 let controller: VotesController;
+const h = {} as unknown as Hapi.ResponseToolkit;
 
 const transactionHistoryService = {
     findOneByCriteria: jest.fn(),
@@ -64,7 +66,7 @@ describe("VotesController", () => {
                 meta: { totalCountIsEstimate: false },
             });
 
-            const request: any = {
+            const request: Partial<Hapi.Request> = {
                 query: {
                     page: 1,
                     limit: 100,
@@ -72,7 +74,7 @@ describe("VotesController", () => {
                 },
             };
 
-            const response = (await controller.index(request, undefined)) as PaginatedResponse;
+            const response = (await controller.index(request as Hapi.Request, h)) as PaginatedResponse;
 
             expect(response.totalCount).toBeDefined();
             expect(response.meta).toBeDefined();
@@ -89,7 +91,7 @@ describe("VotesController", () => {
         it("should return vote", async () => {
             transactionHistoryService.findOneByCriteria.mockResolvedValue(voteTransaction.data);
 
-            const request: any = {
+            const request: Partial<Hapi.Request> = {
                 params: {
                     id: voteTransaction.id,
                 },
@@ -98,7 +100,7 @@ describe("VotesController", () => {
                 },
             };
 
-            const response = (await controller.show(request, undefined)) as ItemResponse;
+            const response = (await controller.show(request as Hapi.Request, h)) as ItemResponse;
 
             expect(response.data).toEqual(
                 expect.objectContaining({
@@ -110,13 +112,13 @@ describe("VotesController", () => {
         it("should return error if vote transaction does not exists", async () => {
             transactionHistoryService.findOneByCriteria.mockResolvedValue(undefined);
 
-            const request: any = {
+            const request: Partial<Hapi.Request> = {
                 params: {
                     id: "unknown_transaction_id",
                 },
             };
 
-            await expect(controller.show(request, undefined)).resolves.toThrowError("Vote not found");
+            await expect(controller.show(request as Hapi.Request, h)).resolves.toThrowError("Vote not found");
         });
     });
 });

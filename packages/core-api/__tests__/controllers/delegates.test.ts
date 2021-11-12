@@ -1,4 +1,5 @@
 import { Boom } from "@hapi/boom";
+import Hapi from "@hapi/hapi";
 import { DelegateSearchService, Resources, WalletSearchService } from "@packages/core-api";
 import { DelegatesController } from "@packages/core-api/src/controllers/delegates";
 import { Identifiers } from "@packages/core-api/src/identifiers";
@@ -34,7 +35,7 @@ const blockHistoryService = {
     listByCriteria: jestfn<Contracts.Shared.BlockHistoryService["listByCriteria"]>(),
 };
 
-const h: any = {};
+const h = {} as unknown as Hapi.ResponseToolkit;
 
 const container = new Container.Container();
 container.bind(Container.Identifiers.Application).toConstantValue(app);
@@ -116,7 +117,7 @@ describe("DelegatesController", () => {
                         orderBy: ["production.approval:desc", "rank:asc"],
                         isResigned: false,
                     },
-                } as any,
+                } as unknown as Hapi.Request,
                 h,
             );
 
@@ -141,7 +142,7 @@ describe("DelegatesController", () => {
                     params: {
                         id: "AKdr5d9AMEnsKYxpDcoHdyyjSCKVx3r9Nj",
                     },
-                } as any,
+                } as unknown as Hapi.Request,
                 h,
             );
 
@@ -159,7 +160,7 @@ describe("DelegatesController", () => {
                     params: {
                         id: "non-existing-wallet-id",
                     },
-                } as any,
+                } as unknown as Hapi.Request,
                 h,
             );
 
@@ -177,7 +178,7 @@ describe("DelegatesController", () => {
                     params: {
                         id: "ATL9kyo71wjPPXqvGMUD89t5RazmQfQMc6",
                     },
-                } as any,
+                } as unknown as Hapi.Request,
                 h,
             );
 
@@ -211,7 +212,7 @@ describe("DelegatesController", () => {
                         orderBy: ["balance:desc", "address:asc"],
                         balance: { from: 300 },
                     },
-                } as any,
+                } as unknown as Hapi.Request,
                 h,
             );
 
@@ -243,7 +244,7 @@ describe("DelegatesController", () => {
                         orderBy: ["balance:desc", "address:asc"],
                         balance: { from: 300 },
                     },
-                } as any,
+                } as unknown as Hapi.Request,
                 h,
             );
 
@@ -267,7 +268,7 @@ describe("DelegatesController", () => {
                         orderBy: ["balance:desc", "address:asc"],
                         balance: { from: 300 },
                     },
-                } as any,
+                } as unknown as Hapi.Request,
                 h,
             );
 
@@ -310,7 +311,7 @@ describe("DelegatesController", () => {
                         orderBy: "height:desc",
                         transform: false,
                     },
-                } as any,
+                } as unknown as Hapi.Request,
                 h,
             );
 
@@ -363,7 +364,7 @@ describe("DelegatesController", () => {
                         orderBy: "height:desc",
                         transform: true,
                     },
-                } as any,
+                } as unknown as Hapi.Request,
                 h,
             );
 
@@ -399,7 +400,7 @@ describe("DelegatesController", () => {
                         limit: 100,
                         orderBy: "height:desc",
                     },
-                } as any,
+                } as unknown as Hapi.Request,
                 h,
             );
 
@@ -422,7 +423,7 @@ describe("DelegatesController", () => {
                         limit: 100,
                         orderBy: "height:desc",
                     },
-                } as any,
+                } as unknown as Hapi.Request,
                 h,
             );
 
