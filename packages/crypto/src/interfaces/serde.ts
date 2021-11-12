@@ -38,6 +38,8 @@ export interface IReader {
 
     readWithByteBufferBE<T>(cb: (byteBuffer: ByteBuffer) => T): T;
     readWithByteBufferLE<T>(cb: (byteBuffer: ByteBuffer) => T): T;
+
+    getRemainder(): Buffer;
 }
 
 export interface IWriter {
@@ -70,4 +72,6 @@ export interface IWriter {
 
     writeWithByteBufferBE<T>(cb: (byteBuffer: ByteBuffer) => T): T;
     writeWithByteBufferLE<T>(cb: (byteBuffer: ByteBuffer) => T): T;
+
+    getResult(): Buffer;
 }
