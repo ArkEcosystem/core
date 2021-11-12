@@ -1,4 +1,5 @@
 import Boom from "@hapi/boom";
+import Hapi from "@hapi/hapi";
 import { responseHeaders } from "@packages/core-api/src/plugins/response-headers";
 
 const getLastHeight = jest.fn();
@@ -6,12 +7,12 @@ const app = { get: (id) => ({ getLastHeight }) };
 
 describe("responseHeaders.register", () => {
     it("should register onPreResponse extension", () => {
-        const server: any = {
+        const server: Partial<Hapi.Server> = {
             ext: jest.fn(),
             app: { app },
         };
 
-        responseHeaders.register(server);
+        responseHeaders.register(server as Hapi.Server);
 
         expect(server.ext).toBeCalledWith("onPreResponse", expect.any(Function));
     });

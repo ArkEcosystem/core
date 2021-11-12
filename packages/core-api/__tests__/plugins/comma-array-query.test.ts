@@ -1,12 +1,13 @@
+import Hapi from "@hapi/hapi";
 import { commaArrayQuery } from "@packages/core-api/src/plugins/comma-array-query";
 
 describe("commaArrayQuery.register", () => {
     it("should register onRequest extension", () => {
-        const server: any = {
+        const server: Partial<Hapi.Server> = {
             ext: jest.fn(),
         };
 
-        commaArrayQuery.register(server);
+        commaArrayQuery.register(server as Hapi.Server);
 
         expect(server.ext).toBeCalledWith("onRequest", commaArrayQuery.onRequest);
     });

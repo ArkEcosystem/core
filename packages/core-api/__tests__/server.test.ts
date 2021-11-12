@@ -1,5 +1,6 @@
 import "jest-extended";
 
+import Hapi from "@hapi/hapi";
 import { preparePlugins } from "@packages/core-api/src/plugins";
 import { Server } from "@packages/core-api/src/server";
 import { Application, Container, Providers } from "@packages/core-kernel";
@@ -114,7 +115,7 @@ describe("Server", () => {
 
             await expect(server.route(testRoute)).toResolve();
 
-            const returnedRoute = server.getRoute("GET", "/test");
+            const returnedRoute = server.getRoute("GET", "/test")!;
 
             expect(returnedRoute.method).toEqual("get");
             expect(returnedRoute.path).toEqual("/test");
@@ -140,7 +141,8 @@ describe("Server", () => {
 
             expect(response.payload).toBe("ok");
 
-            const returnedRoute: any = server.getRoute("GET", "/test");
+            const returnedRoute = server.getRoute("GET", "/test")!;
+
             returnedRoute.settings.handler = () => "override";
 
             const anotherResponse = await server.inject(injectOptions);
@@ -176,11 +178,14 @@ describe("Server", () => {
                 }),
             );
 
-            const returnedRoute: any = server.getRoute("GET", "/test");
+            const returnedRoute = server.getRoute("GET", "/test")!;
 
-            const originalHandler: any = returnedRoute.settings.handler;
+            const originalHandler = returnedRoute.settings.handler as Hapi.Lifecycle.Method;
             returnedRoute.settings.handler = () => {
-                const item = originalHandler();
+                const item: any = originalHandler(
+                    {} as Partial<Hapi.Request> as Hapi.Request,
+                    {} as unknown as Hapi.ResponseToolkit,
+                );
                 item.data2 = "data2";
 
                 return item;
