@@ -1,33 +1,37 @@
 import { Crypto } from "@arkecosystem/crypto";
-import { isBoom } from "@hapi/boom";
+import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 import NodeCache from "node-cache";
 
 type CachedResponse = {
     code: number;
     headers: Record<string, string>;
-    payload: any;
+    payload: Hapi.ResponseValue | undefined;
 };
 
-const generateCacheKey = (request: Hapi.Request): string =>
-    Crypto.HashAlgorithms.sha256(
-        JSON.stringify({
-            pathname: request.url.pathname,
-            params: request.params || {},
-            payload: request.payload || {},
-            query: request.query,
-            method: request.method,
-        }),
-    ).toString("hex");
+const generateCacheKey = (request: Hapi.Request): string => {
+    const json = JSON.stringify({
+        pathname: request.url.pathname,
+        params: request.params || {},
+        payload: request.payload || {},
+        query: request.query,
+        method: request.method,
+    });
 
-export const cache: Hapi.Plugin<any> = {
+    return Crypto.HashAlgorithms.sha256(json).toString("hex");
+};
+
+export type CacheOptions = {
+    enabled: boolean;
+    stdTTL: number;
+    checkperiod: number;
+};
+
+export const cache: Hapi.Plugin<CacheOptions> = {
     name: "node-cache",
     version: "1.0.0",
     once: true,
-    async register(
-        server: Hapi.Server,
-        options: { enabled: boolean; stdTTL: number; checkperiod: number },
-    ): Promise<void> {
+    async register(server: Hapi.Server, options: CacheOptions): Promise<void> {
         if (!options.enabled) {
             return;
         }
@@ -60,13 +64,11 @@ export const cache: Hapi.Plugin<any> = {
         server.ext({
             type: "onPreResponse",
             async method(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-                const cacheKey: string = generateCacheKey(request);
-
                 let code: number;
-                let headers: any;
-                let payload: any;
+                let headers: Boom.Output["headers"] | Hapi.ResponseObject["headers"];
+                let payload: Boom.Payload | Hapi.Lifecycle.ReturnValue;
 
-                if (isBoom(request.response)) {
+                if (Boom.isBoom(request.response)) {
                     code = request.response.output.statusCode;
                     headers = request.response.output.headers;
                     payload = request.response.output.payload;
@@ -76,21 +78,26 @@ export const cache: Hapi.Plugin<any> = {
                     payload = request.response.source;
                 }
 
+                // https://github.com/hapijs/hapi/blob/v20/lib/toolkit.js#L190-L192
+                if (payload && typeof payload === "object" && typeof payload["then"] === "function") return h.continue;
+                if (payload instanceof Error) return h.continue;
+                if (typeof payload === "symbol") return h.continue;
+
                 const cachedResponse: CachedResponse = {
                     code,
                     headers: {},
-                    payload: payload,
+                    payload: payload as Hapi.ResponseValue, // checks above
                 };
 
-                if (code >= 300 && code < 400 && "location" in headers) {
+                if (code >= 300 && code < 400 && typeof headers["location"] === "string") {
                     cachedResponse.headers["location"] = headers["location"];
                 }
 
-                if ("content-type" in headers) {
-                    cachedResponse["content-type"] = headers["content-type"];
+                if (typeof headers["content-type"] === "string") {
+                    cachedResponse.headers["content-type"] = headers["content-type"];
                 }
 
-                cache.set(cacheKey, cachedResponse);
+                cache.set(generateCacheKey(request), cachedResponse);
 
                 return h.continue;
             },
