@@ -1,3 +1,4 @@
+import Hapi from "@hapi/hapi";
 import { Container } from "@packages/core-kernel";
 import { PluginConfiguration } from "@packages/core-kernel/src/providers";
 import { BlocksController } from "@packages/core-p2p/src/socket-server/controllers/blocks";
@@ -7,7 +8,7 @@ import { Blocks, Identities, Managers, Networks, Transactions, Utils } from "@pa
 
 Managers.configManager.getMilestone().aip11 = true; // for creating aip11 v2 transactions
 
-const h: any = {};
+const h = {} as unknown as Hapi.ResponseToolkit;
 
 describe("BlocksController", () => {
     let sandbox: Sandbox;

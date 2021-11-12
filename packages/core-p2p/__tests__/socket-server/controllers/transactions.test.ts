@@ -1,3 +1,4 @@
+import Hapi from "@hapi/hapi";
 import { Container } from "@packages/core-kernel";
 import { TransactionsController } from "@packages/core-p2p/src/socket-server/controllers/transactions";
 import { Sandbox } from "@packages/core-test-framework";
@@ -29,7 +30,10 @@ describe("TransactionsController", () => {
             processor.process.mockReturnValueOnce({ accept: [transactions[0].id] });
 
             expect(
-                await transactionsController.postTransactions({ payload: { transactions } } as any, {} as any),
+                await transactionsController.postTransactions(
+                    { payload: { transactions } } as any,
+                    {} as unknown as Hapi.ResponseToolkit,
+                ),
             ).toEqual([transactions[0].id]);
 
             expect(processor.process).toBeCalledTimes(1);

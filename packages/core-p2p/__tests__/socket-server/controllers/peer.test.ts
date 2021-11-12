@@ -1,3 +1,4 @@
+import Hapi from "@hapi/hapi";
 import { Container } from "@packages/core-kernel";
 import { MissingCommonBlockError } from "@packages/core-p2p/src/errors";
 import { Peer } from "@packages/core-p2p/src/peer";
@@ -8,7 +9,7 @@ import { Crypto, Managers } from "@packages/crypto";
 
 Managers.configManager.getMilestone().aip11 = true; // for creating aip11 v2 transactions
 
-const h: any = {};
+const h = {} as unknown as Hapi.ResponseToolkit;
 
 describe("PeerController", () => {
     let sandbox: Sandbox;
@@ -139,7 +140,7 @@ describe("PeerController", () => {
             };
             jest.spyOn(Crypto.Slots, "getSlotInfo").mockReturnValueOnce(slotInfo);
 
-            const status = await peerController.getStatus({} as any, h);
+            const status = await peerController.getStatus({} as Partial<Hapi.Request> as Hapi.Request, h);
 
             expect(getPeerConfig).toHaveBeenCalledTimes(1);
             expect(status).toEqual({

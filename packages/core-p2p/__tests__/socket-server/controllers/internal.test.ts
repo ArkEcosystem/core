@@ -1,3 +1,4 @@
+import Hapi from "@hapi/hapi";
 import { Container, Utils as KernelUtils } from "@packages/core-kernel";
 import { NetworkStateStatus } from "@packages/core-p2p/src/enums";
 import { NetworkState } from "@packages/core-p2p/src/network-state";
@@ -6,8 +7,8 @@ import { Sandbox } from "@packages/core-test-framework";
 import { Blocks, Networks, Utils } from "@packages/crypto";
 import { TransactionFactory } from "@packages/crypto/src/transactions";
 
-const request: any = {};
-const h: any = {};
+const request = {} as unknown as Hapi.Request;
+const h = {} as unknown as Hapi.ResponseToolkit;
 
 describe("InternalController", () => {
     let sandbox: Sandbox;
@@ -42,7 +43,7 @@ describe("InternalController", () => {
     describe("acceptNewPeer", () => {
         it("should call peerProcessor.validateAndAcceptPeer with the ip from payload", async () => {
             const ip = "187.155.66.33";
-            await internalController.acceptNewPeer({ payload: { ip } } as any, h);
+            await internalController.acceptNewPeer({ payload: { ip } } as Partial<Hapi.Request> as Hapi.Request, h);
 
             expect(peerProcessor.validateAndAcceptPeer).toBeCalledTimes(1);
             expect(peerProcessor.validateAndAcceptPeer).toBeCalledWith({ ip });
@@ -53,7 +54,7 @@ describe("InternalController", () => {
         it("should call eventDispatcher.dispatch with {event, body} from payload", () => {
             const event = "test event";
             const body = { stuff: "thing" };
-            internalController.emitEvent({ payload: { event, body } } as any, h);
+            internalController.emitEvent({ payload: { event, body } } as Partial<Hapi.Request> as Hapi.Request, h);
 
             expect(emitter.dispatch).toBeCalledTimes(1);
             expect(emitter.dispatch).toBeCalledWith(event, body);
