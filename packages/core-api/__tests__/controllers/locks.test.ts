@@ -77,7 +77,7 @@ describe("LocksController", () => {
                         orderBy: ["amount:desc", "timestamp.epoch:desc"],
                         senderPublicKey: "02fd0f9eb5ce005710616258c6742f372577698f172fdca0418c5cd1e9698fc002",
                     },
-                } as unknown as Hapi.Request,
+                } as Partial<Hapi.Request> as Hapi.Request,
                 h,
             );
 
@@ -101,7 +101,7 @@ describe("LocksController", () => {
                     params: {
                         id: lockResource1.lockId,
                     },
-                } as unknown as Hapi.Request,
+                } as Partial<Hapi.Request> as Hapi.Request,
                 h,
             );
 
@@ -118,7 +118,7 @@ describe("LocksController", () => {
                     params: {
                         id: "non-existing-lock-id",
                     },
-                } as unknown as Hapi.Request,
+                } as Partial<Hapi.Request> as Hapi.Request,
                 h,
             );
 
@@ -160,7 +160,7 @@ describe("LocksController", () => {
                     payload: {
                         ids: [lock1Id, lock2Id],
                     },
-                } as unknown as UnlockedRequest,
+                } as Partial<Hapi.Request> as UnlockedRequest,
                 h,
             );
 

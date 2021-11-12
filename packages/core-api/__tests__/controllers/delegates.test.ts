@@ -117,7 +117,7 @@ describe("DelegatesController", () => {
                         orderBy: ["production.approval:desc", "rank:asc"],
                         isResigned: false,
                     },
-                } as unknown as Hapi.Request,
+                } as Partial<Hapi.Request> as Hapi.Request,
                 h,
             );
 
@@ -142,7 +142,7 @@ describe("DelegatesController", () => {
                     params: {
                         id: "AKdr5d9AMEnsKYxpDcoHdyyjSCKVx3r9Nj",
                     },
-                } as unknown as Hapi.Request,
+                } as Partial<Hapi.Request> as Hapi.Request,
                 h,
             );
 
@@ -160,7 +160,7 @@ describe("DelegatesController", () => {
                     params: {
                         id: "non-existing-wallet-id",
                     },
-                } as unknown as Hapi.Request,
+                } as Partial<Hapi.Request> as Hapi.Request,
                 h,
             );
 
@@ -178,7 +178,7 @@ describe("DelegatesController", () => {
                     params: {
                         id: "ATL9kyo71wjPPXqvGMUD89t5RazmQfQMc6",
                     },
-                } as unknown as Hapi.Request,
+                } as Partial<Hapi.Request> as Hapi.Request,
                 h,
             );
 
@@ -212,7 +212,7 @@ describe("DelegatesController", () => {
                         orderBy: ["balance:desc", "address:asc"],
                         balance: { from: 300 },
                     },
-                } as unknown as Hapi.Request,
+                } as Partial<Hapi.Request> as Hapi.Request,
                 h,
             );
 
@@ -244,7 +244,7 @@ describe("DelegatesController", () => {
                         orderBy: ["balance:desc", "address:asc"],
                         balance: { from: 300 },
                     },
-                } as unknown as Hapi.Request,
+                } as Partial<Hapi.Request> as Hapi.Request,
                 h,
             );
 
@@ -268,7 +268,7 @@ describe("DelegatesController", () => {
                         orderBy: ["balance:desc", "address:asc"],
                         balance: { from: 300 },
                     },
-                } as unknown as Hapi.Request,
+                } as Partial<Hapi.Request> as Hapi.Request,
                 h,
             );
 
@@ -311,7 +311,7 @@ describe("DelegatesController", () => {
                         orderBy: "height:desc",
                         transform: false,
                     },
-                } as unknown as Hapi.Request,
+                } as Partial<Hapi.Request> as Hapi.Request,
                 h,
             );
 
@@ -364,7 +364,7 @@ describe("DelegatesController", () => {
                         orderBy: "height:desc",
                         transform: true,
                     },
-                } as unknown as Hapi.Request,
+                } as Partial<Hapi.Request> as Hapi.Request,
                 h,
             );
 
@@ -400,7 +400,7 @@ describe("DelegatesController", () => {
                         limit: 100,
                         orderBy: "height:desc",
                     },
-                } as unknown as Hapi.Request,
+                } as Partial<Hapi.Request> as Hapi.Request,
                 h,
             );
 
@@ -423,7 +423,7 @@ describe("DelegatesController", () => {
                         limit: 100,
                         orderBy: "height:desc",
                     },
-                } as unknown as Hapi.Request,
+                } as Partial<Hapi.Request> as Hapi.Request,
                 h,
             );
 
