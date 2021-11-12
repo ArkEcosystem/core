@@ -8,24 +8,20 @@ import { validator } from "../validation";
 import { Serializer } from "./serializer";
 
 export class Block implements IBlock {
-    // @ts-ignore - todo: this is public but not initialised on creation, either make it private or declare it as undefined
-    public serialized: string;
-    public data: IBlockData;
-    public transactions: ITransaction[];
+    public readonly id: string;
+    public readonly idHex: string;
+    public readonly serialized: string;
+    public readonly data: IBlockData;
+    public readonly transactions: ITransaction[];
     public verification: IBlockVerification;
 
-    public constructor({ data, transactions, id }: { data: IBlockData; transactions: ITransaction[]; id?: string }) {
+    public constructor(data: IBlockData, transactions: ITransaction[]) {
+        this.id = Serializer.getId(data);
+        this.idHex = Serializer.getIdHex(this.id);
+        this.serialized = Serializer.serialize(data).toString("hex");
         this.data = data;
 
-        // TODO genesis block calculated id is wrong for some reason
-        if (this.data.height === 1) {
-            if (id) {
-                this.applyGenesisBlockFix(id);
-            } else if (data.id) {
-                this.applyGenesisBlockFix(data.id);
-            }
-        }
-
+        // TODO: do this on database layer
         // fix on real timestamp, this is overloading transaction
         // timestamp with block timestamp for storage only
         // also add sequence to keep database sequence
@@ -95,38 +91,6 @@ export class Block implements IBlock {
         }
 
         return result.value;
-    }
-
-    public static getIdHex(data: IBlockData): string {
-        const constants = configManager.getMilestone(data.height);
-        const payloadHash: Buffer = Serializer.serialize(data);
-
-        const hash: Buffer = HashAlgorithms.sha256(payloadHash);
-
-        if (constants.block.idFullSha256) {
-            return hash.toString("hex");
-        }
-
-        const temp: Buffer = Buffer.alloc(8);
-
-        for (let i = 0; i < 8; i++) {
-            temp[i] = hash[7 - i];
-        }
-
-        return temp.toString("hex");
-    }
-
-    public static toBytesHex(data): string {
-        const temp: string = data ? BigNumber.make(data).toString(16) : "";
-
-        return "0".repeat(16 - temp.length) + temp;
-    }
-
-    public static getId(data: IBlockData): string {
-        const constants = configManager.getMilestone(data.height);
-        const idHex: string = Block.getIdHex(data);
-
-        return constants.block.idFullSha256 ? idHex : BigNumber.make(`0x${idHex}`).toString();
     }
 
     public getHeader(): IBlockData {
@@ -283,10 +247,5 @@ export class Block implements IBlock {
         result.verified = result.errors.length === 0;
 
         return result;
-    }
-
-    private applyGenesisBlockFix(id: string): void {
-        this.data.id = id;
-        this.data.idHex = id.length === 64 ? id : Block.toBytesHex(id); // if id.length is 64 it's already hex
     }
 }

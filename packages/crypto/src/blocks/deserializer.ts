@@ -4,7 +4,7 @@ import { IBlockData, ITransaction } from "../interfaces";
 import { configManager } from "../managers";
 import { TransactionFactory } from "../transactions";
 import { BigNumber } from "../utils";
-import { Block } from "./block";
+import { Serializer } from "./serializer";
 
 export class Deserializer {
     public static deserialize(
@@ -26,22 +26,8 @@ export class Deserializer {
             transactions = this.deserializeTransactions(block, buf, options.deserializeTransactionsUnchecked);
         }
 
-        block.idHex = Block.getIdHex(block);
-        block.id = Block.getId(block);
-
-        const { outlookTable } = configManager.get("exceptions");
-
-        if (outlookTable && outlookTable[block.id]) {
-            const constants = configManager.getMilestone(block.height);
-
-            if (constants.block.idFullSha256) {
-                block.id = outlookTable[block.id];
-                block.idHex = block.id;
-            } else {
-                block.id = outlookTable[block.id];
-                block.idHex = Block.toBytesHex(block.id);
-            }
-        }
+        block.id = Serializer.getId(block);
+        block.idHex = Serializer.getIdHex(block.id!);
 
         return { data: block, transactions };
     }

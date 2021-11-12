@@ -1,5 +1,5 @@
-import { Hash, HashAlgorithms } from "../crypto";
-import { IBlock, IBlockData, IBlockJson, IKeyPair, ITransaction } from "../interfaces";
+import { Hash } from "../crypto";
+import { IBlock, IBlockData, IBlockJson, IKeyPair } from "../interfaces";
 import { BigNumber } from "../utils";
 import { Block } from "./block";
 import { Deserializer } from "./deserializer";
@@ -8,15 +8,11 @@ import { Serializer } from "./serializer";
 export class BlockFactory {
     // @todo: add a proper type hint for data
     public static make(data: any, keys: IKeyPair): IBlock | undefined {
-        data.generatorPublicKey = keys.publicKey;
+        const generatorPublicKey: string = keys.publicKey;
+        const signedHash: Buffer = Serializer.getSignedHash({ ...data, generatorPublicKey });
+        const blockSignature: string = Hash.signECDSA(signedHash, keys);
 
-        const payloadHash: Buffer = Serializer.serialize(data, false);
-        const hash: Buffer = HashAlgorithms.sha256(payloadHash);
-
-        data.blockSignature = Hash.signECDSA(hash, keys);
-        data.id = Block.getId(data);
-
-        return this.fromData(data);
+        return this.fromData({ ...data, generatorPublicKey, blockSignature });
     }
 
     public static fromHex(hex: string): IBlock {
@@ -52,11 +48,8 @@ export class BlockFactory {
 
         if (block) {
             const serialized: Buffer = Serializer.serializeWithTransactions(data);
-            const block: IBlock = new Block({
-                ...Deserializer.deserialize(serialized, false, options),
-                id: data.id,
-            });
-            block.serialized = serialized.toString("hex");
+            const deserialized = Deserializer.deserialize(serialized, false, options);
+            const block: IBlock = new Block(deserialized.data, deserialized.transactions);
 
             return block;
         }
@@ -65,7 +58,7 @@ export class BlockFactory {
     }
 
     private static fromSerialized(serialized: Buffer): IBlock {
-        const deserialized: { data: IBlockData; transactions: ITransaction[] } = Deserializer.deserialize(serialized);
+        const deserialized = Deserializer.deserialize(serialized);
 
         const validated: IBlockData | undefined = Block.applySchema(deserialized.data);
 
@@ -73,8 +66,7 @@ export class BlockFactory {
             deserialized.data = validated;
         }
 
-        const block: IBlock = new Block(deserialized);
-        block.serialized = serialized.toString("hex");
+        const block: IBlock = new Block(deserialized.data, deserialized.transactions);
 
         return block;
     }

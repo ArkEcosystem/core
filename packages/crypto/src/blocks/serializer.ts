@@ -6,7 +6,6 @@ import { PreviousBlockIdFormatError } from "../errors";
 import { IBlock, IBlockData, ITransactionData } from "../interfaces";
 import { configManager } from "../managers/config";
 import { Utils } from "../transactions";
-import { Block } from "./block";
 
 export class Serializer {
     private static cachedIds = new WeakMap<IBlockData, string>();
@@ -36,6 +35,15 @@ export class Serializer {
         } else {
             return BigInt(id).toString(16).padStart(16, "0");
         }
+    }
+
+    public static getSignedHash(data: IBlockData): Buffer {
+        const constants = configManager.getMilestone(data.height);
+        const buffer = new ByteBuffer(constants.block.maxPayload);
+        this.writeSignedSection(buffer, data);
+        const serialized = buffer.flip().toBuffer();
+
+        return HashAlgorithms.sha256(serialized);
     }
 
     public static serializeHeader(data: IBlockData): Buffer {
@@ -156,7 +164,7 @@ export class Serializer {
 
             block.previousBlockHex = block.previousBlock;
         } else {
-            block.previousBlockHex = Block.toBytesHex(block.previousBlock);
+            block.previousBlockHex = this.getIdHex(block.previousBlock);
         }
 
         buffer.writeUint32(block.version);

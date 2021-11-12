@@ -254,13 +254,17 @@ export class ForgerService {
 
         const transactions: Interfaces.ITransactionData[] = await this.getTransactionsForForging();
 
+        const lastHeight: number | undefined = networkState.getNodeHeight();
+        const lastBlockId: string | undefined = networkState.getLastBlockId();
+
+        AppUtils.assert.defined<number>(lastHeight);
+        AppUtils.assert.defined<string>(lastBlockId);
+
         const block: Interfaces.IBlock | undefined = delegate.forge(transactions, {
             previousBlock: {
-                id: networkState.getLastBlockId(),
-                idHex: Managers.configManager.getMilestone().block.idFullSha256
-                    ? networkState.getLastBlockId()
-                    : Blocks.Block.toBytesHex(networkState.getLastBlockId()),
-                height: networkState.getNodeHeight(),
+                height: lastHeight,
+                id: lastBlockId,
+                idHex: Blocks.Serializer.getIdHex(lastBlockId),
             },
             timestamp: round.timestamp,
             reward: round.reward,

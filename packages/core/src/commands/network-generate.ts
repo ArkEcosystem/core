@@ -948,8 +948,7 @@ export class Command extends Commands.Command {
             blockSignature: undefined,
         };
 
-        block.id = Blocks.Block.getId(block);
-
+        block.id = Blocks.Serializer.getId(block);
         block.blockSignature = this.signBlock(block, keys);
 
         return block;
