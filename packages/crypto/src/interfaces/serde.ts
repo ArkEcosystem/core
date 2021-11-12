@@ -5,6 +5,7 @@ export interface IAddress {
     readonly network: number;
 
     toString(format?: "base58" | "base58c"): string;
+    toJSON(): string;
 }
 
 export interface IReader {

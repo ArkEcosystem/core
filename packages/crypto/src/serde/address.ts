@@ -16,7 +16,7 @@ export class Address {
         this.network = serialized.readUInt8(0);
     }
 
-    public toString(format: "base58" | "base58c" = "base58c"): string {
+    public toString(format: "base58" | "base58c" = "base58"): string {
         if (format === "base58") {
             return base58.encode(this.serialized);
         }
@@ -31,5 +31,9 @@ export class Address {
         }
 
         throw new Error("Unknown format.");
+    }
+
+    public toJSON(): string {
+        return this.toString("base58c");
     }
 }
