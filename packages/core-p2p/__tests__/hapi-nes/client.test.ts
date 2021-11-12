@@ -1,8 +1,9 @@
 import "jest-extended";
 
-import * as Hapi from "@hapi/hapi";
-import * as Hoek from "@hapi/hoek";
-import * as Teamwork from "@hapi/teamwork";
+import { isBoom } from "@hapi/boom";
+import Hapi from "@hapi/hapi";
+import Hoek from "@hapi/hoek";
+import Teamwork from "@hapi/teamwork";
 import { Client, plugin } from "@packages/core-p2p/src/hapi-nes";
 import { stringifyNesMessage } from "@packages/core-p2p/src/hapi-nes/utils";
 
@@ -23,24 +24,15 @@ const createServerWithPlugin = async (pluginOptions = {}, serverOptions = {}, wi
     if (withPreResponseHandler) {
         server.ext({
             type: "onPreResponse",
-            method: async (request: any, h) => {
-                try {
-                    if (request.response.source) {
-                        request.response.source = Buffer.from(request.response.source);
-                    } else {
-                        const errorMessage =
-                            request.response.output?.payload?.message ??
-                            request.response.output?.payload?.error ??
-                            "Error";
-                        request.response.output.payload = Buffer.from(errorMessage, "utf-8");
-                    }
-                } catch (e) {
-                    request.response.statusCode = 500; // Internal server error (serializing failed)
-                    request.response.output = {
-                        statusCode: 500,
-                        payload: Buffer.from("Internal server error"),
-                        headers: {},
-                    };
+            method: async (request: Hapi.Request, h: Hapi.ResponseToolkit) => {
+                if (!isBoom(request.response)) {
+                    // @ts-ignore
+                    request.response.source = Buffer.from(request.response.source);
+                } else {
+                    const errorMessage =
+                        request.response.output?.payload?.message ?? request.response.output?.payload?.error ?? "Error";
+                    // @ts-ignore
+                    request.response.output.payload = Buffer.from(errorMessage, "utf-8");
                 }
                 return h.continue;
             },
