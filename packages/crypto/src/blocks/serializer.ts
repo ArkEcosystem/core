@@ -3,15 +3,15 @@ import ByteBuffer from "bytebuffer";
 
 import { HashAlgorithms } from "../crypto";
 import { PreviousBlockIdFormatError } from "../errors";
-import { IBlock, IBlockData, IGenesisBlockData, ITransactionData } from "../interfaces";
+import { IBlock, IBlockData, ITransactionData } from "../interfaces";
 import { configManager } from "../managers/config";
 import { Utils } from "../transactions";
 import { Block } from "./block";
 
 export class Serializer {
-    private static cachedIds = new WeakMap<IBlockData | IGenesisBlockData, string>();
+    private static cachedIds = new WeakMap<IBlockData, string>();
 
-    public static getId(data: IBlockData | IGenesisBlockData): string {
+    public static getId(data: IBlockData): string {
         let id = this.cachedIds.get(data);
 
         if (!id) {
@@ -38,7 +38,7 @@ export class Serializer {
         }
     }
 
-    public static serializeHeader(data: IBlockData | IGenesisBlockData): Buffer {
+    public static serializeHeader(data: IBlockData): Buffer {
         const constants = configManager.getMilestone(data.height);
         const buffer = new ByteBuffer(constants.block.maxPayload, true);
 
@@ -55,7 +55,7 @@ export class Serializer {
         return buffer.flip().toBuffer();
     }
 
-    public static writeSignedSection(buffer: ByteBuffer, data: IBlockData | IGenesisBlockData): void {
+    public static writeSignedSection(buffer: ByteBuffer, data: IBlockData): void {
         if (data.height === 1) {
             buffer.writeInt32(data.version);
             buffer.writeInt32(data.timestamp);
