@@ -15,7 +15,7 @@ import { initApp, ItemResponse, PaginatedResponse } from "../__support__";
 
 let app: Application;
 let controller: VotesController;
-const h = {} as unknown as Hapi.ResponseToolkit;
+const h = {} as Hapi.ResponseToolkit;
 
 const transactionHistoryService = {
     findOneByCriteria: jest.fn(),

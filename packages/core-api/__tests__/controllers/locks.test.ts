@@ -35,7 +35,7 @@ container.bind(Container.Identifiers.PluginConfiguration).toConstantValue(apiCon
 container.bind(Identifiers.LockSearchService).toConstantValue(lockSearchService);
 container.bind(Container.Identifiers.TransactionHistoryService).toConstantValue(transactionHistoryService);
 
-const h = {} as unknown as Hapi.ResponseToolkit;
+const h = {} as Hapi.ResponseToolkit;
 
 beforeEach(() => {
     jest.resetAllMocks();

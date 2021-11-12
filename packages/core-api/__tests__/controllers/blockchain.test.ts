@@ -10,8 +10,8 @@ import { initApp, ItemResponse } from "../__support__";
 
 let app: Application;
 let controller: BlockchainController;
-const request = {} as unknown as Hapi.Request;
-const h = {} as unknown as Hapi.ResponseToolkit;
+const request = {} as Hapi.Request;
+const h = {} as Hapi.ResponseToolkit;
 
 beforeEach(() => {
     app = initApp();

@@ -14,8 +14,8 @@ import { initApp, ItemResponse } from "../__support__";
 
 let app: Application;
 let controller: NodeController;
-const request = {} as unknown as Hapi.Request;
-const h = {} as unknown as Hapi.ResponseToolkit;
+const request = {} as Hapi.Request;
+const h = {} as Hapi.ResponseToolkit;
 
 beforeEach(() => {
     const config = Generators.generateCryptoConfigRaw();

@@ -35,7 +35,7 @@ const blockHistoryService = {
     listByCriteria: jestfn<Contracts.Shared.BlockHistoryService["listByCriteria"]>(),
 };
 
-const h = {} as unknown as Hapi.ResponseToolkit;
+const h = {} as Hapi.ResponseToolkit;
 
 const container = new Container.Container();
 container.bind(Container.Identifiers.Application).toConstantValue(app);

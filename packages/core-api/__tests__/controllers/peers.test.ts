@@ -13,7 +13,7 @@ import { initApp, ItemResponse, PaginatedResponse } from "../__support__";
 
 let app: Application;
 let controller: PeersController;
-const h = {} as unknown as Hapi.ResponseToolkit;
+const h = {} as Hapi.ResponseToolkit;
 
 beforeEach(() => {
     app = initApp();

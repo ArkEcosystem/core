@@ -184,7 +184,7 @@ describe("Server", () => {
             returnedRoute.settings.handler = () => {
                 const item: any = originalHandler(
                     {} as Partial<Hapi.Request> as Hapi.Request,
-                    {} as unknown as Hapi.ResponseToolkit,
+                    {} as Partial<Hapi.ResponseToolkit> as Hapi.ResponseToolkit,
                 );
                 item.data2 = "data2";
 

@@ -25,7 +25,7 @@ const jestfn = <T extends (...args: unknown[]) => unknown>(
 let app: Application;
 let controller: BlocksController;
 let walletRepository: Wallets.WalletRepository;
-const h = {} as unknown as Hapi.ResponseToolkit;
+const h = {} as Hapi.ResponseToolkit;
 
 const blockHistoryService = {
     findOneByCriteria: jestfn<Contracts.Shared.BlockHistoryService["findOneByCriteria"]>(),

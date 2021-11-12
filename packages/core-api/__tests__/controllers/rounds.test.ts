@@ -14,7 +14,7 @@ import { initApp, ItemResponse } from "../__support__";
 
 let app: Application;
 let controller: RoundsController;
-const h = {} as unknown as Hapi.ResponseToolkit;
+const h = {} as Hapi.ResponseToolkit;
 
 beforeEach(() => {
     app = initApp();

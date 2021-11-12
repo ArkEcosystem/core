@@ -24,17 +24,17 @@ describe("responseHeaders.getOnPreResponse", () => {
         const height = 2346;
         getLastHeight.mockReturnValueOnce(height);
 
-        const request: any = {
-            response: { headers: {} },
+        const request: Partial<Hapi.Request> = {
+            response: { headers: {} } as Partial<Hapi.ResponseObject> as Hapi.ResponseObject,
         };
 
-        const h: any = {
-            continue: Symbol,
+        const h: Partial<Hapi.ResponseToolkit> = {
+            continue: Symbol(),
         };
 
-        const ret = onPreResponse(request, h);
+        const ret = onPreResponse(request as Hapi.Request, h as Hapi.ResponseToolkit);
 
-        expect(request.response.headers["X-Block-Height"]).toEqual(height);
+        expect((request.response as Hapi.ResponseObject).headers["X-Block-Height"]).toEqual(height);
 
         expect(ret).toBe(h.continue);
     });
@@ -44,17 +44,17 @@ describe("responseHeaders.getOnPreResponse", () => {
         const height = 2346;
         getLastHeight.mockReturnValueOnce(height);
 
-        const request: any = {
+        const request: Partial<Hapi.Request> = {
             response: Boom.badData("Bad data"),
         };
 
-        const h: any = {
-            continue: Symbol,
+        const h: Partial<Hapi.ResponseToolkit> = {
+            continue: Symbol(),
         };
 
-        const ret = onPreResponse(request, h);
+        const ret = onPreResponse(request as Hapi.Request, h as Hapi.ResponseToolkit);
 
-        expect(request.response.output.headers["X-Block-Height"]).toEqual(height);
+        expect((request.response as Boom.Boom).output.headers["X-Block-Height"]).toEqual(height);
 
         expect(ret).toBe(h.continue);
     });

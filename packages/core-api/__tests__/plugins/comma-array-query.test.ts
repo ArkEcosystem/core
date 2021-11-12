@@ -20,17 +20,17 @@ describe("commaArrayQuery.onRequest", () => {
             "AQvWbCAXbBnY9fHpgNrcLZ99hYfDifH4Hs",
             "ATKegneyu9Fkoj5FxiJ3biup8xv8zM34M3",
         ];
-        const request: any = {
+        const request: Partial<Hapi.Request> = {
             query: {
                 address: addresses.join(","),
             },
         };
 
-        const h: any = {
-            continue: Symbol,
+        const h: Partial<Hapi.ResponseToolkit> = {
+            continue: Symbol(),
         };
 
-        const ret = commaArrayQuery.onRequest(request, h);
+        const ret = commaArrayQuery.onRequest(request as Hapi.Request, h as Hapi.ResponseToolkit);
 
         expect(request.query).toEqual({
             address: addresses,
@@ -41,17 +41,17 @@ describe("commaArrayQuery.onRequest", () => {
 
     it("should leave as-is query parameter without comma", () => {
         const address = "AXGc1bgU3v3rHmx9WVkUUHLA6gbzh8La7V";
-        const request: any = {
+        const request: Partial<Hapi.Request> = {
             query: {
                 address,
             },
         };
 
-        const h: any = {
-            continue: Symbol,
+        const h: Partial<Hapi.ResponseToolkit> = {
+            continue: Symbol(),
         };
 
-        const ret = commaArrayQuery.onRequest(request, h);
+        const ret = commaArrayQuery.onRequest(request as Hapi.Request, h as Hapi.ResponseToolkit);
 
         expect(request.query).toEqual({
             address,

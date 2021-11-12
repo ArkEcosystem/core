@@ -25,8 +25,8 @@ const jestfn = <T extends (...args: unknown[]) => unknown>(
 
 let app: Application;
 let controller: TransactionsController;
-const request = {} as unknown as Hapi.Request;
-const h = {} as unknown as Hapi.ResponseToolkit;
+const request = {} as Hapi.Request;
+const h = {} as Hapi.ResponseToolkit;
 
 const transactionHistoryService = {
     findOneByCriteria: jestfn<Contracts.Shared.TransactionHistoryService["findOneByCriteria"]>(),

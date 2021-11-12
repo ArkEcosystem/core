@@ -15,18 +15,18 @@ describe("dotSeparatedQuery.register", () => {
 
 describe("dotSeparatedQuery.onRequest", () => {
     it("should replace query object", () => {
-        const request: any = {
+        const request: Partial<Hapi.Request> = {
             query: {
                 "balance.from": "100",
                 "balance.to": "200",
             },
         };
 
-        const h: any = {
-            continue: Symbol,
+        const h: Partial<Hapi.ResponseToolkit> = {
+            continue: Symbol(),
         };
 
-        const ret = dotSeparatedQuery.onRequest(request, h);
+        const ret = dotSeparatedQuery.onRequest(request as Hapi.Request, h as Hapi.ResponseToolkit);
 
         expect(request.query).toEqual({
             balance: { from: "100", to: "200" },
