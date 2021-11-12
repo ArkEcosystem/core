@@ -6,7 +6,7 @@ import * as Teamwork from "@hapi/teamwork";
 import { Client, plugin } from "@packages/core-p2p/src/hapi-nes";
 import { stringifyNesMessage } from "@packages/core-p2p/src/hapi-nes/utils";
 import delay from "delay";
-import { default as Ws } from "ws";
+import Ws from "ws";
 
 describe("Socket", () => {
     it("exposes app namespace", async () => {
