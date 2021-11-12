@@ -69,12 +69,10 @@ export class Serializer {
             buffer.append(data.payloadHash, "hex");
             buffer.append(data.generatorPublicKey, "hex");
         } else {
-            const previousBlockHex = this.getIdHex(data.previousBlock!);
-
             buffer.writeUint8(data.version);
             buffer.writeUint32(data.timestamp);
             buffer.writeUint32(data.height);
-            buffer.append(previousBlockHex, "hex");
+            buffer.append(this.getIdHex(data.previousBlock), "hex");
             buffer.writeUint32(data.numberOfTransactions);
             buffer.writeUint64(data.totalAmount.toString() as any);
             buffer.writeUint64(data.totalFee.toString() as any);
