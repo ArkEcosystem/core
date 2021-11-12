@@ -162,4 +162,8 @@ export class Reader implements IReader {
         this.offset += byteBuffer.offset;
         return result;
     }
+
+    public getRemainder(): Buffer {
+        return this.buffer.slice(this.offset);
+    }
 }

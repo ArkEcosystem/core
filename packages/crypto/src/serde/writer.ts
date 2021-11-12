@@ -143,4 +143,8 @@ export class Writer implements IWriter {
         this.offset += byteBuffer.offset;
         return result;
     }
+
+    public getResult(): Buffer {
+        return this.buffer.slice(0, this.offset);
+    }
 }
