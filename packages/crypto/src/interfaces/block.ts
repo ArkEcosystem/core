@@ -44,6 +44,21 @@ export interface IBlockData {
     transactions?: ITransactionData[];
 }
 
+export interface IGenesisBlockData {
+    timestamp: number;
+    version: number;
+    height: number;
+    previousBlock: null;
+    numberOfTransactions: number;
+    totalAmount: string;
+    totalFee: string;
+    reward: string;
+    payloadLength: number;
+    payloadHash: string;
+    generatorPublicKey: string;
+    blockSignature: string;
+}
+
 export interface IBlockJson {
     id?: string;
     idHex?: string;
