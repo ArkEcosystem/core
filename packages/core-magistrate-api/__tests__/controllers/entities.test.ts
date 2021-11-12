@@ -1,4 +1,5 @@
 import { Boom } from "@hapi/boom";
+import Hapi from "@hapi/hapi";
 import { Container, Contracts } from "@packages/core-kernel";
 import { EntitySearchService, Resources } from "@packages/core-magistrate-api";
 import { EntityController } from "@packages/core-magistrate-api/src/controllers/entities";
@@ -56,7 +57,7 @@ describe("EntityController.index", () => {
                 limit: 100,
                 orderBy: ["data.name", "address"],
             },
-        } as any);
+        } as Partial<Hapi.Request> as Hapi.Request);
 
         expect(entitySearchService.getEntitiesPage).toBeCalledWith(
             { offset: 0, limit: 100 },
@@ -77,7 +78,7 @@ describe("EntityController.show", () => {
             params: {
                 id: entityResource1.id,
             },
-        } as any);
+        } as Partial<Hapi.Request> as Hapi.Request);
 
         expect(entitySearchService.getEntity).toBeCalledWith(entityResource1.id);
         expect(result).toEqual({ data: entityResource1 });
@@ -91,7 +92,7 @@ describe("EntityController.show", () => {
             params: {
                 id: entityResource1.id,
             },
-        } as any);
+        } as Partial<Hapi.Request> as Hapi.Request);
 
         expect(entitySearchService.getEntity).toBeCalledWith(entityResource1.id);
         expect(result).toBeInstanceOf(Boom);
