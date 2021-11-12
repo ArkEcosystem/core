@@ -42,7 +42,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
         const originalNodeFeesHandler = nodeFeesRoute.settings.handler as Hapi.Lifecycle.Method;
         nodeFeesRoute.settings.handler = async (request, h) => {
-            const originalResponse: any = await originalNodeFeesHandler(request, h);
+            const originalResponse = await originalNodeFeesHandler(request, h) as { data: any };
 
             if (Managers.configManager.getMilestone().aip36 !== true) {
                 return originalResponse;
@@ -78,10 +78,12 @@ export class ServiceProvider extends Providers.ServiceProvider {
     }
 
     private extendApiTransactionsFees(server: Server): void {
-        const transactionsFeesRoute: any = server.getRoute("GET", "/api/transactions/fees");
-        const originalTransactionsFeesHandler = transactionsFeesRoute.settings.handler;
-        transactionsFeesRoute.settings.handler = async (request) => {
-            const originalResponse = await originalTransactionsFeesHandler(request);
+        const transactionsFeesRoute = server.getRoute("GET", "/api/transactions/fees");
+        Utils.assert.defined<Hapi.RequestRoute>(transactionsFeesRoute);
+
+        const originalTransactionsFeesHandler = transactionsFeesRoute.settings.handler as Hapi.Lifecycle.Method;
+        transactionsFeesRoute.settings.handler = async (request, h) => {
+            const originalResponse = (await originalTransactionsFeesHandler(request, h)) as { data: any };
 
             if (Managers.configManager.getMilestone().aip36 !== true) {
                 return originalResponse;
