@@ -25,8 +25,8 @@ export class Serializer {
             }
 
             return id;
-        } catch (error) {
-            throw new Error(`Cannot calculate block id. ${error.message}`);
+        } catch (cause) {
+            throw new Error(`Cannot calculate block id. ${cause.message}`);
         }
     }
 
@@ -47,8 +47,8 @@ export class Serializer {
             this.writeSignedSection(writer, data);
 
             return HashAlgorithms.sha256(writer.getResult());
-        } catch (error) {
-            throw new Error(`Cannot calculate block signed hash. ${error.message}`);
+        } catch (cause) {
+            throw new Error(`Cannot calculate block signed hash. ${cause.message}`);
         }
     }
 
@@ -63,8 +63,8 @@ export class Serializer {
             this.writeTransactions(writer, data);
 
             return writer.getResult();
-        } catch (error) {
-            throw new Error(`Cannot serialize block. ${error.message}`);
+        } catch (cause) {
+            throw new Error(`Cannot serialize block. ${cause.message}`);
         }
     }
 
@@ -78,8 +78,8 @@ export class Serializer {
             this.writeBlockSignature(writer, data);
 
             return writer.getResult();
-        } catch (error) {
-            throw new Error(`Cannot serialize block header. ${error.message}`);
+        } catch (cause) {
+            throw new Error(`Cannot serialize block header. ${cause.message}`);
         }
     }
 
@@ -97,10 +97,18 @@ export class Serializer {
             writer.writeBuffer(Buffer.from(data.payloadHash, "hex"));
             writer.writePublicKey(Buffer.from(data.generatorPublicKey, "hex"));
         } else {
-            writer.writeUInt8(data.version);
+            const previousConstants = configManager.getMilestone(data.height - 1);
+
+            writer.writeUInt32LE(data.version);
             writer.writeUInt32LE(data.timestamp);
             writer.writeUInt32LE(data.height);
-            writer.writeBuffer(Buffer.from(this.getIdHex(data.previousBlock), "hex"));
+
+            if (previousConstants.block.idFullSha256) {
+                writer.writeBuffer(Buffer.from(data.previousBlock, "hex"));
+            } else {
+                writer.writeBigUInt64BE(BigInt(data.previousBlock));
+            }
+
             writer.writeUInt32LE(data.numberOfTransactions);
             writer.writeBigUInt64LE(BigInt(data.totalAmount.toString()));
             writer.writeBigUInt64LE(BigInt(data.totalFee.toString()));
