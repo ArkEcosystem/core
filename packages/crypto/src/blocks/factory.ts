@@ -11,8 +11,9 @@ export class BlockFactory {
         const generatorPublicKey: string = keys.publicKey;
         const signedHash: Buffer = Serializer.getSignedHash({ ...data, generatorPublicKey });
         const blockSignature: string = Hash.signECDSA(signedHash, keys);
+        const id: string = Serializer.getId({ ...data, generatorPublicKey, blockSignature });
 
-        return this.fromData({ ...data, generatorPublicKey, blockSignature });
+        return this.fromData({ id, ...data, generatorPublicKey, blockSignature });
     }
 
     public static fromHex(hex: string): IBlock {
@@ -44,10 +45,10 @@ export class BlockFactory {
         data: IBlockData,
         options: { deserializeTransactionsUnchecked?: boolean } = {},
     ): IBlock | undefined {
-        const block: IBlockData | undefined = Block.applySchema(data);
+        const data2: IBlockData | undefined = Block.applySchema(data);
 
-        if (block) {
-            const serialized: Buffer = Serializer.serialize(data);
+        if (data2) {
+            const serialized: Buffer = Serializer.serialize(data2);
             const deserialized = Deserializer.deserialize(serialized, false, options);
             const block: IBlock = new Block(deserialized.data, deserialized.transactions);
 
