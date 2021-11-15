@@ -18,7 +18,7 @@ export class Block implements IBlock {
     public constructor(data: IBlockData, transactions: ITransaction[]) {
         this.id = Serializer.getId(data);
         this.idHex = Serializer.getIdHex(this.id);
-        this.serialized = Serializer.serialize(data);
+        this.serialized = Serializer.serialize({ ...data, transactions: transactions.map((tx) => tx.data) });
         this.data = data;
 
         // TODO: do this on database layer
@@ -82,8 +82,7 @@ export class Block implements IBlock {
             if (fatal) {
                 throw new BlockSchemaError(
                     data.height,
-                    `Invalid data${err.dataPath ? " at " + err.dataPath : ""}: ` +
-                        `${err.message}: ${JSON.stringify(err.data)}`,
+                    `Invalid data${err.dataPath ? " at " + err.dataPath : ""}: ${err.message}`,
                 );
             }
         }
@@ -94,7 +93,6 @@ export class Block implements IBlock {
     public getHeader(): IBlockData {
         const header: IBlockData = Object.assign({}, this.data);
         delete header.transactions;
-
         return header;
     }
 
