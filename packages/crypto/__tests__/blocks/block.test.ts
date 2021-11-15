@@ -1,15 +1,14 @@
 import "jest-extended";
 
-import { Interfaces, Managers, Utils } from "@packages/crypto";
 import { BIP39 } from "@packages/core-forger/src/methods/bip39";
 import { TransactionFactory } from "@packages/core-test-framework/src/utils/transaction-factory";
+import { Interfaces, Managers, Utils } from "@packages/crypto";
 import { Block, BlockFactory, Deserializer, Serializer } from "@packages/crypto/src/blocks";
 import { Slots } from "@packages/crypto/src/crypto";
 import { IBlock } from "@packages/crypto/src/interfaces";
 import { configManager } from "@packages/crypto/src/managers";
 import * as networks from "@packages/crypto/src/networks";
 import { NetworkName } from "@packages/crypto/src/types";
-import ByteBuffer from "bytebuffer";
 
 import { dummyBlock, dummyBlock2, dummyBlockSize } from "../fixtures/block";
 
@@ -42,15 +41,17 @@ describe("Block", () => {
         it("should store the data", () => {
             const block = BlockFactory.fromData(dummyBlock);
 
-            expect(block.data.blockSignature).toBe(dummyBlock.blockSignature);
-            expect(block.data.generatorPublicKey).toBe(dummyBlock.generatorPublicKey);
-            expect(block.data.height).toBe(dummyBlock.height);
-            expect(block.data.numberOfTransactions).toBe(dummyBlock.numberOfTransactions);
-            expect(block.data.payloadLength).toBe(dummyBlock.payloadLength);
-            expect(block.data.reward).toEqual(dummyBlock.reward);
-            expect(block.data.timestamp).toBe(dummyBlock.timestamp);
-            expect(block.data.totalFee).toEqual(dummyBlock.totalFee);
+            expect(block.id).toBe(dummyBlock.id);
             expect(block.data.version).toBe(dummyBlock.version);
+            expect(block.data.timestamp).toBe(dummyBlock.timestamp);
+            expect(block.data.height).toBe(dummyBlock.height);
+            expect(block.data.previousBlock).toBe(dummyBlock.previousBlock);
+            expect(block.data.numberOfTransactions).toBe(dummyBlock.numberOfTransactions);
+            expect(block.data.totalAmount).toEqual(dummyBlock.totalAmount);
+            expect(block.data.totalFee).toEqual(dummyBlock.totalFee);
+            expect(block.data.reward).toEqual(dummyBlock.reward);
+            expect(block.data.payloadHash).toBe(dummyBlock.payloadHash);
+            expect(block.data.payloadLength).toBe(dummyBlock.payloadLength);
         });
 
         it("should verify the block", () => {
@@ -59,7 +60,7 @@ describe("Block", () => {
             expect(block.verification.verified).toBeTrue();
         });
 
-        it("should fail to verify the block ", () => {
+        it("should fail to verify the block", () => {
             const block = BlockFactory.fromData(data);
 
             expect(block.verification.verified).toBeFalse();
@@ -584,45 +585,27 @@ describe("Block", () => {
             // Ignore the verification for testing purposes
             jest.spyOn(Block.prototype as any, "verify").mockImplementation(() => ({ verified: true }));
 
-            const data2 = { ...data };
-            const header = BlockFactory.fromData(data2).getHeader();
-            const bignumProperties = ["reward", "totalAmount", "totalFee"];
+            const header = BlockFactory.fromData(data).getHeader();
+            const expected = { ...data };
+            delete expected.transactions;
 
-            for (const key of Object.keys(data)) {
-                if (key !== "transactions") {
-                    if (bignumProperties.includes(key)) {
-                        expect(header[key]).toEqual(Utils.BigNumber.make(data2[key]));
-                    } else {
-                        expect(header[key]).toEqual(data2[key]);
-                    }
-                }
-            }
-
-            expect(header).not.toHaveProperty("transactions");
+            expect(header).toEqual(expected);
 
             jest.restoreAllMocks();
         });
     });
 
-    describe("serialize", () => {
-        const serialize = (object, includeSignature?: any) => {
-            const serialized = Serializer.serialize(object, includeSignature);
-            const buffer = new ByteBuffer(1024, true);
-            buffer.append(serialized);
-            buffer.flip();
-            return buffer;
-        };
-
+    describe("Serializer.serializeHeader", () => {
         it("version is serialized as a TODO", () => {
-            expect(serialize(data).readUint32(0)).toEqual(data.version);
+            expect(Serializer.serializeHeader(data).readUInt32LE(0)).toEqual(data.version);
         });
 
         it("timestamp is serialized as a UInt32", () => {
-            expect(serialize(data).readUint32(4)).toEqual(data.timestamp);
+            expect(Serializer.serializeHeader(data).readUInt32LE(4)).toEqual(data.timestamp);
         });
 
         it("height is serialized as a UInt32", () => {
-            expect(serialize(data).readUint32(8)).toEqual(data.height);
+            expect(Serializer.serializeHeader(data).readUInt32LE(8)).toEqual(data.height);
         });
 
         describe("if `previousBlock` exists", () => {
@@ -630,7 +613,8 @@ describe("Block", () => {
                 const dataWithPreviousBlock: any = Object.assign({}, data, {
                     previousBlock: "1234",
                 });
-                expect(serialize(dataWithPreviousBlock).slice(12, 20).toString("hex")).toEqual(
+
+                expect(Serializer.serializeHeader(data).slice(12, 20).toString("hex")).toEqual(
                     dataWithPreviousBlock.previousBlockHex,
                 );
             });
@@ -640,33 +624,35 @@ describe("Block", () => {
             it("8 bytes are added, as padding", () => {
                 const dataWithoutPreviousBlock = Object.assign({}, data);
                 delete dataWithoutPreviousBlock.previousBlock;
-                expect(serialize(dataWithoutPreviousBlock).slice(12, 20).toString("hex")).toEqual("0000000000000000");
+                expect(Serializer.serializeHeader(data).slice(12, 20).toString("hex")).toEqual("0000000000000000");
             });
         });
 
         it("number of transactions is serialized as a UInt32", () => {
-            expect(serialize(data).readUint32(20)).toEqual(data.numberOfTransactions);
+            expect(Serializer.serializeHeader(data).readUInt32LE(20)).toEqual(data.numberOfTransactions);
         });
 
         it("`totalAmount` of transactions is serialized as a UInt64", () => {
-            expect(serialize(data).readUint64(24).toNumber()).toEqual(+data.totalAmount);
+            expect(Serializer.serializeHeader(data).readBigUInt64LE(24).toString()).toEqual(
+                data.totalAmount.toString(),
+            );
         });
 
         it("`totalFee` of transactions is serialized as a UInt64", () => {
-            expect(serialize(data).readUint64(32).toNumber()).toEqual(+data.totalFee);
+            expect(Serializer.serializeHeader(data).readBigUInt64LE(32).toString()).toEqual(data.totalFee.toString());
         });
 
         it("`reward` of transactions is serialized as a UInt64", () => {
-            expect(serialize(data).readUint64(40).toNumber()).toEqual(+data.reward);
+            expect(Serializer.serializeHeader(data).readBigUInt64LE(40).toString()).toEqual(data.reward.toString());
         });
 
         it("`payloadLength` of transactions is serialized as a UInt32", () => {
-            expect(serialize(data).readUint32(48)).toEqual(data.payloadLength);
+            expect(Serializer.serializeHeader(data).readUInt32LE(48)).toEqual(data.payloadLength);
         });
 
         it("`payloadHash` of transactions is appended, using 32 bytes, as hexadecimal", () => {
             expect(
-                serialize(data)
+                Serializer.serializeHeader(data)
                     .slice(52, 52 + 32)
                     .toString("hex"),
             ).toEqual(data.payloadHash);
@@ -674,34 +660,14 @@ describe("Block", () => {
 
         it("`generatorPublicKey` of transactions is appended, using 33 bytes, as hexadecimal", () => {
             expect(
-                serialize(data)
+                Serializer.serializeHeader(data)
                     .slice(84, 84 + 33)
                     .toString("hex"),
             ).toEqual(data.generatorPublicKey);
         });
 
-        describe("if the `blockSignature` is not included", () => {
-            it("is not serialized", () => {
-                const data2 = { ...data };
-                delete data2.blockSignature;
-                expect(serialize(data2).limit).toEqual(117);
-            });
-
-            it("is not serialized, even when the `includeSignature` parameter is true", () => {
-                const data2 = { ...data };
-                delete data2.blockSignature;
-                expect(serialize(data2, true).limit).toEqual(117);
-            });
-        });
-
-        describe("if the `blockSignature` is included", () => {
-            it("is serialized", () => {
-                expect(serialize(data).slice(117, 188).toString("hex")).toEqual(data.blockSignature);
-            });
-
-            it("is serialized unless the `includeSignature` parameter is false", () => {
-                expect(serialize(data, false).limit).toEqual(117);
-            });
+        it("serializes blockSignature", () => {
+            expect(Serializer.serializeHeader(data).slice(117, 188).toString("hex")).toEqual(data.blockSignature);
         });
     });
 
