@@ -46,7 +46,8 @@
         "xstate": "4.23.4"
     },
     "devDependencies": {
-        "@types/got": "9.6.12"
+        "@types/got": "9.6.12",
+        "joi": "17.4.2"
     },
     "engines": {
         "node": ">=10.x"
