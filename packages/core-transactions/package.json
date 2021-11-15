@@ -24,6 +24,9 @@
         "@arkecosystem/core-kernel": "workspace:*",
         "@arkecosystem/crypto": "workspace:*"
     },
+    "devDependencies": {
+        "bytebuffer": "5.0.1"
+    },
     "engines": {
         "node": ">=10.x"
     },

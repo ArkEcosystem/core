@@ -706,10 +706,13 @@ importers:
       '@arkecosystem/core-database': workspace:*
       '@arkecosystem/core-kernel': workspace:*
       '@arkecosystem/crypto': workspace:*
+      bytebuffer: 5.0.1
     dependencies:
       '@arkecosystem/core-database': link:../core-database
       '@arkecosystem/core-kernel': link:../core-kernel
       '@arkecosystem/crypto': link:../crypto
+    devDependencies:
+      bytebuffer: registry.npmjs.org/bytebuffer/5.0.1
 
   packages/core-webhooks:
     specifiers:
@@ -6873,7 +6876,6 @@ packages:
     engines: {node: '>=0.8'}
     dependencies:
       long: registry.npmjs.org/long/3.2.0
-    dev: false
 
   registry.npmjs.org/bytes/3.1.0:
     resolution: {integrity: sha512-zauLjrfCG+xvoyaqLoV8bLVXXNGC4JqlxFCutSDWA6fJrTo2ZuvLYTqZ7aHBLZSMOopbzwv8f+wZcVzfVTI2Dg==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.org/bytes/-/bytes-3.1.0.tgz}
@@ -12958,7 +12960,6 @@ packages:
     name: long
     version: 3.2.0
     engines: {node: '>=0.6'}
-    dev: false
 
   registry.npmjs.org/long/4.0.0:
     resolution: {integrity: sha512-XsP+KhQif4bjX1kbuSiySJFNAehNxgLb6hPRGJ9QsUr8ajHkuXGdrHmFUTUUXhDwVX2R5bY4JNZEwbUiMhV+MA==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.org/long/-/long-4.0.0.tgz}
