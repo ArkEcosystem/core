@@ -71,7 +71,7 @@ describe("BlocksController", () => {
             it("should throw TooManyTransactionsError when numberOfTransactions is too much", async () => {
                 const blockTooManyTxs = deepClone(block);
                 blockTooManyTxs.data.numberOfTransactions = 350;
-                const blockSerialized = Blocks.Serializer.serializeWithTransactions({
+                const blockSerialized = Blocks.Serializer.serialize({
                     ...blockTooManyTxs.data,
                     transactions: blockTooManyTxs.transactions.map((tx) => tx.data),
                 });
@@ -89,7 +89,7 @@ describe("BlocksController", () => {
 
                 const blockUnchained = deepClone(block);
                 blockUnchained.data.height = 9;
-                const blockSerialized = Blocks.Serializer.serializeWithTransactions({
+                const blockSerialized = Blocks.Serializer.serialize({
                     ...blockUnchained.data,
                     transactions: blockUnchained.transactions.map((tx) => tx.data),
                 });
@@ -128,7 +128,7 @@ describe("BlocksController", () => {
                     .get<PluginConfiguration>(Container.Identifiers.PluginConfiguration)
                     .set("remoteAccess", [ip]);
 
-                const blockSerialized = Blocks.Serializer.serializeWithTransactions({
+                const blockSerialized = Blocks.Serializer.serialize({
                     ...block.data,
                     transactions: block.transactions.map((tx) => tx.data),
                 });
@@ -154,7 +154,7 @@ describe("BlocksController", () => {
                     .get<PluginConfiguration>(Container.Identifiers.PluginConfiguration)
                     .set("remoteAccess", ["188.66.55.44"]);
 
-                const blockSerialized = Blocks.Serializer.serializeWithTransactions({
+                const blockSerialized = Blocks.Serializer.serialize({
                     ...block.data,
                     transactions: block.transactions.map((tx) => tx.data),
                 });

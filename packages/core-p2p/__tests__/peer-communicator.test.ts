@@ -87,22 +87,21 @@ describe("PeerCommunicator", () => {
                     generatorPublicKey: "026c598170201caf0357f202ff14f365a3b09322071e347873869f58d776bfc565",
                     blockSignature:
                         "3045022100e7385c6ea42bd950f7f6ab8c8619cf2f66a41d8f8f185b0bc99af032cb25f30d02200b6210176a6cedfdcbe483167fd91c21d740e0e4011d24d679c601fdd46b0de9",
+                    transactions: [
+                        Transactions.BuilderFactory.transfer()
+                            .version(2)
+                            .amount("100")
+                            .recipientId(Identities.Address.fromPassphrase("recipient's secret"))
+                            .nonce("1")
+                            .fee("100")
+                            .sign("sender's secret")
+                            .build().data,
+                    ],
                 },
-                transactions: [
-                    Transactions.BuilderFactory.transfer()
-                        .version(2)
-                        .amount("100")
-                        .recipientId(Identities.Address.fromPassphrase("recipient's secret"))
-                        .nonce("1")
-                        .fee("100")
-                        .sign("sender's secret")
-                        .build(),
-                ],
             } as Blocks.Block;
-            const payload = { block };
             const peer = new Peer("187.168.65.65", 4000);
 
-            await peerCommunicator.postBlock(peer, payload.block);
+            await peerCommunicator.postBlock(peer, block);
 
             expect(connector.emit).toBeCalledTimes(1);
             expect(connector.emit).toBeCalledWith(peer, event, { block: expect.any(Buffer), headers }, 10000);
