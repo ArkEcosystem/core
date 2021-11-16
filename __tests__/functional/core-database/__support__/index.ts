@@ -1,10 +1,9 @@
+import { Block } from "@packages/core-database/src/models/block";
+import { SnakeNamingStrategy } from "@packages/core-database/src/utils/snake-naming-strategy";
 import { Container, Providers } from "@packages/core-kernel";
 import { Sandbox } from "@packages/core-test-framework";
 import { Interfaces, Transactions } from "@packages/crypto";
 import { Connection, createConnection } from "typeorm";
-
-import { Block } from "@packages/core-database/src/models/block";
-import { SnakeNamingStrategy } from "@packages/core-database/src/utils/snake-naming-strategy";
 
 export const getCoreDatabasePluginConfiguration = async (): Promise<Providers.PluginConfiguration> => {
     const sandbox: Sandbox = new Sandbox();
@@ -50,6 +49,7 @@ export const toBlockModel = (block: Interfaces.IBlock): Block => {
     const blockDataClone = Object.assign({}, block.data);
     delete blockDataClone.idHex;
     delete blockDataClone.previousBlockHex;
+    delete blockDataClone.transactions;
     const model = new Block();
     Object.assign(model, blockDataClone);
     return model;

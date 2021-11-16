@@ -1,3 +1,5 @@
+import { BlockRepository } from "@packages/core-database/src/repositories/block-repository";
+import { BIP39 } from "@packages/core-forger/src/methods/bip39";
 import { Blocks, Managers, Utils } from "@packages/crypto";
 import { Connection } from "typeorm";
 import { getCustomRepository } from "typeorm";
@@ -8,8 +10,6 @@ import {
     toBlockModel,
     toBlockModelWithTransactions,
 } from "../__support__";
-import { BlockRepository } from "@packages/core-database/src/repositories/block-repository";
-import { BIP39 } from "@packages/core-forger/src/methods/bip39";
 
 let connection: Connection | undefined;
 

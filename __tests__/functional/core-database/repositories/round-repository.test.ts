@@ -1,9 +1,9 @@
+import { RoundRepository } from "@packages/core-database/src/repositories/round-repository";
 import { Contracts } from "@packages/core-kernel";
 import { Utils } from "@packages/crypto";
 import { Connection, getCustomRepository } from "typeorm";
 
 import { clearCoreDatabase, getCoreDatabaseConnection } from "../__support__";
-import { RoundRepository } from "@packages/core-database/src/repositories/round-repository";
 
 class DelegateWalletMock {
     public readonly publicKey: string;
@@ -46,11 +46,11 @@ beforeEach(async () => {
 describe("RoundRepository.findById", () => {
     it("should return delegate vote balances by round", async () => {
         const roundRepository = getCustomRepository(RoundRepository);
-        await roundRepository.save(([
+        await roundRepository.save([
             new DelegateWalletMock("delegate1 public key", 1, Utils.BigNumber.make("100")),
             new DelegateWalletMock("delegate2 public key", 1, Utils.BigNumber.make("200")),
             new DelegateWalletMock("delegate3 public key", 1, Utils.BigNumber.make("200")),
-        ] as unknown) as Contracts.State.Wallet[]);
+        ] as unknown as Contracts.State.Wallet[]);
 
         const round1Delegates = await roundRepository.getRound(1);
 
@@ -79,11 +79,11 @@ describe("RoundRepository.deleteFrom", () => {
     it("should delete many rounds", async () => {
         const roundRepository = getCustomRepository(RoundRepository);
 
-        await roundRepository.save(([
+        await roundRepository.save([
             new DelegateWalletMock("delegate1 public key", 1, Utils.BigNumber.make("100")),
             new DelegateWalletMock("delegate1 public key", 2, Utils.BigNumber.make("100")),
             new DelegateWalletMock("delegate1 public key", 3, Utils.BigNumber.make("100")),
-        ] as unknown) as Contracts.State.Wallet[]);
+        ] as unknown as Contracts.State.Wallet[]);
 
         await roundRepository.deleteFrom(2);
 
