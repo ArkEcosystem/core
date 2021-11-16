@@ -97,11 +97,6 @@ export class Serializer {
             writer.writeInt32LE(data.version);
             writer.writeInt32LE(data.timestamp);
             writer.writeInt32LE(data.height);
-
-            // if (data.previousBlock !== "0") {
-            //     throw new CryptoError(`Invalid genesis block.`);
-            // }
-
             writer.jump(8);
             writer.writeInt32LE(data.numberOfTransactions);
             writer.writeBigInt64LE(BigInt(data.totalAmount.toString()));
