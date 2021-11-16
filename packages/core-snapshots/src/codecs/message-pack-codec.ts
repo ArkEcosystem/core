@@ -1,7 +1,6 @@
 import { Models } from "@arkecosystem/core-database";
 import { Container } from "@arkecosystem/core-kernel";
 import { Blocks, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
-import { IBlockData } from "@packages/crypto/src/interfaces";
 import { decode, encode } from "msgpack-lite";
 import { camelize } from "xcase";
 
@@ -19,7 +18,7 @@ export class MessagePackCodec implements Codec {
                 newBlock[newKey] = block[key];
             }
 
-            return Blocks.Serializer.serializeHeader(newBlock as IBlockData);
+            return Blocks.Serializer.serializeHeader(newBlock as Interfaces.IBlockData);
         } catch (err) {
             throw new CodecException.BlockEncodeException(block.Block_id, err.message);
         }
