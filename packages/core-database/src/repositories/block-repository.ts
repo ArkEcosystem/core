@@ -158,9 +158,7 @@ export class BlockRepository extends AbstractRepository<Block> {
             const transactionEntities: Transaction[] = [];
 
             for (const block of blocks) {
-                const blockEntity = Object.assign(new Block(), {
-                    ...block.data,
-                });
+                const blockEntity = Object.assign(new Block(), block.getHeader());
 
                 if (block.transactions.length > 0) {
                     const transactions = block.transactions
