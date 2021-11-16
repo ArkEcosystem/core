@@ -14,7 +14,6 @@ export class Serializer {
 
             if (!id) {
                 const constants = configManager.getMilestone(data.height);
-                console.log(constants);
                 const buffer = Buffer.alloc(constants.block.maxPayload);
                 const writer = SerdeFactory.createWriter(buffer);
 
