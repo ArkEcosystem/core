@@ -13,9 +13,16 @@ export class Serializer {
             let id = this.cachedIds.get(data);
 
             if (!id) {
-                const serializedHeader = Serializer.serializeHeader(data);
-                const hash = HashAlgorithms.sha256(serializedHeader);
                 const constants = configManager.getMilestone(data.height);
+                const buffer = Buffer.alloc(constants.block.maxPayload);
+                const writer = SerdeFactory.createWriter(buffer);
+
+                this.writeSignedSection(writer, data);
+                if (data.height !== 1) {
+                    this.writeBlockSignature(writer, data);
+                }
+
+                const hash = HashAlgorithms.sha256(writer.getResult());
                 const computedId = constants.block.idFullSha256
                     ? hash.toString("hex")
                     : hash.readBigUInt64LE().toString(10);
