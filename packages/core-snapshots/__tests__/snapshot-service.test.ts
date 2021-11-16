@@ -28,8 +28,8 @@ beforeEach(() => {
         dump: jest.fn().mockResolvedValue({}),
         restore: jest.fn().mockResolvedValue({}),
         verify: jest.fn().mockResolvedValue({}),
-        rollback: jest.fn().mockResolvedValue({ data: Assets.blocksBigNumber[1] }),
-        getLastBlock: jest.fn().mockResolvedValue({ data: Assets.blocksBigNumber[1] }),
+        rollback: jest.fn().mockResolvedValue(Assets.blocksBigNumber[1]),
+        getLastBlock: jest.fn().mockResolvedValue(Assets.blocksBigNumber[1]),
     };
 
     filesystem = {

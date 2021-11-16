@@ -2,7 +2,7 @@ import { Container, Contracts, Enums } from "@arkecosystem/core-kernel";
 import { Blocks, Interfaces, Transactions } from "@arkecosystem/crypto";
 import { Connection } from "typeorm";
 
-import { Round } from "./models";
+import { Round, Transaction } from "./models";
 import { BlockRepository } from "./repositories/block-repository";
 import { RoundRepository } from "./repositories/round-repository";
 import { TransactionRepository } from "./repositories/transaction-repository";
@@ -67,13 +67,10 @@ export class DatabaseService {
             return undefined;
         }
 
-        const transactions: Array<{
-            serialized: Buffer;
-            id: string;
-        }> = await this.transactionRepository.find({ blockId: block.id });
+        const transactions: Transaction[] = await this.transactionRepository.find({ blockId: block.id });
 
         block.transactions = transactions.map(
-            ({ serialized, id }) => Transactions.TransactionFactory.fromBytesUnsafe(serialized, id).data,
+            (tx) => Transactions.TransactionFactory.fromBytesUnsafe(tx.serialized, tx.id).data,
         );
 
         return Blocks.BlockFactory.fromData(block, {

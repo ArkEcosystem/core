@@ -135,11 +135,11 @@ beforeEach(() => {
 
     sandbox.app.bind(Container.Identifiers.EventDispatcherService).toConstantValue(eventDispatcher);
 
-    sandbox.app
-        .bind(Container.Identifiers.QueueFactory)
-        .toFactory((context: interfaces.Context) => async <K, T>(name?: string): Promise<Queue> =>
-            sandbox.app.resolve<Queue>(MemoryQueue).make(),
-        );
+    sandbox.app.bind(Container.Identifiers.QueueFactory).toFactory(
+        (context: interfaces.Context) =>
+            async <K, T>(name?: string): Promise<Queue> =>
+                sandbox.app.resolve<Queue>(MemoryQueue).make(),
+    );
 
     sandbox.app.bind(Identifiers.SnapshotDatabaseService).to(SnapshotDatabaseService).inSingletonScope();
 

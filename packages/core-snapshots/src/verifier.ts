@@ -1,5 +1,5 @@
 import { Models } from "@arkecosystem/core-database";
-import { Blocks, Crypto, Interfaces, Transactions } from "@arkecosystem/crypto";
+import { Blocks, Crypto, Transactions } from "@arkecosystem/crypto";
 
 import * as Exceptions from "./exceptions/verifier";
 
@@ -36,8 +36,7 @@ export class Verifier {
 
         try {
             /* istanbul ignore next */
-            const block = Blocks.BlockFactory.fromData(blockEntity as Interfaces.IBlockData)!;
-            const hash = Blocks.Serializer.getSignedHash(block.data);
+            const hash = Blocks.Serializer.getSignedHash(blockEntity);
 
             isVerified = Crypto.Hash.verifyECDSA(hash, blockEntity.blockSignature, blockEntity.generatorPublicKey);
         } catch (err) {

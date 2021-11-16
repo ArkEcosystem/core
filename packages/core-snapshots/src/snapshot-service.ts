@@ -1,5 +1,4 @@
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
-import { Interfaces } from "@arkecosystem/crypto";
 
 import { Database, Meta } from "./contracts";
 import { Filesystem } from "./filesystem/filesystem";
@@ -116,10 +115,7 @@ export class SnapshotService implements Contracts.Snapshot.SnapshotService {
             }
 
             const lastBlock = await this.database.getLastBlock();
-
-            Utils.assert.defined<Interfaces.IBlock>(lastBlock);
-
-            const currentHeight = lastBlock.data.height;
+            const currentHeight = lastBlock.height;
 
             if (height >= currentHeight) {
                 this.logger.error(
@@ -129,11 +125,11 @@ export class SnapshotService implements Contracts.Snapshot.SnapshotService {
             }
 
             const roundInfo = Utils.roundCalculator.calculateRound(height);
-
-            const newLastBlock = await this.database.rollback(roundInfo);
+            await this.database.rollback(roundInfo);
+            const newLastBlock = await this.database.getLastBlock();
 
             this.logger.info(
-                `Rolling back chain to last finished round ${roundInfo.round.toLocaleString()} with last block height ${newLastBlock.data.height.toLocaleString()}`,
+                `Rolling back chain to last finished round ${roundInfo.round.toLocaleString()} with last block height ${newLastBlock.height.toLocaleString()}`,
             );
         } catch (err) {
             this.logger.error("ROLLBACK failed");
@@ -146,7 +142,7 @@ export class SnapshotService implements Contracts.Snapshot.SnapshotService {
 
         const lastBlock = await this.database.getLastBlock();
 
-        return this.rollbackByHeight(lastBlock.data.height - number);
+        return this.rollbackByHeight(lastBlock.height - number);
     }
 
     public async truncate(): Promise<void> {

@@ -1,6 +1,6 @@
 import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts, Providers, Types, Utils } from "@arkecosystem/core-kernel";
-import { Blocks, Interfaces, Managers } from "@arkecosystem/crypto";
+import { Managers } from "@arkecosystem/crypto";
 
 import { Database, Meta, Options, Worker } from "./contracts";
 import { Filesystem } from "./filesystem/filesystem";
@@ -62,7 +62,7 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
         await this.blockRepository.truncate();
     }
 
-    public async rollback(roundInfo: Contracts.Shared.RoundInfo): Promise<Interfaces.IBlock> {
+    public async rollback(roundInfo: Contracts.Shared.RoundInfo): Promise<void> {
         const lastBlock = await this.blockRepository.findLast();
 
         Utils.assert.defined<Models.Block>(lastBlock);
@@ -70,8 +70,6 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
         this.logger.info(`Last block height is: ${lastBlock.height.toLocaleString()}`);
 
         await this.blockRepository.rollback(roundInfo);
-
-        return this.getLastBlock();
     }
 
     public async dump(options: Options.DumpOptions): Promise<void> {
@@ -142,12 +140,10 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
         await this.runSynchronizedAction("verify", meta);
     }
 
-    public async getLastBlock(): Promise<Interfaces.IBlock> {
-        const block: Interfaces.IBlockData | undefined = await this.blockRepository.findLast();
-
-        Utils.assert.defined<Interfaces.IBlockData>(block);
-
-        return Blocks.BlockFactory.fromData(block)!;
+    public async getLastBlock(): Promise<Models.Block> {
+        const block: Models.Block | undefined = await this.blockRepository.findLast();
+        Utils.assert.defined<Models.Block>(block);
+        return block;
     }
 
     private runSynchronizedAction(action: string, meta: Meta.MetaData): Promise<void> {
