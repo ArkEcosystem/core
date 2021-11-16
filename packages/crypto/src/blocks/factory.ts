@@ -6,8 +6,7 @@ import { Deserializer } from "./deserializer";
 import { Serializer } from "./serializer";
 
 export class BlockFactory {
-    // @todo: add a proper type hint for data
-    public static make(data: any, keys: IKeyPair): IBlock {
+    public static make(data: Omit<IBlockData, "generatorPublicKey" | "blockSignature">, keys: IKeyPair): IBlock {
         const generatorPublicKey: string = keys.publicKey;
         const signedHash: Buffer = Serializer.getSignedHash({ ...data, generatorPublicKey });
         const blockSignature: string = Hash.signECDSA(signedHash, keys);
