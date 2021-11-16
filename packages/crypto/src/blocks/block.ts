@@ -15,9 +15,9 @@ export class Block implements IBlock {
     public verification: IBlockVerification;
 
     public constructor(data: IBlockData, transactions: ITransaction[]) {
-        this.id = Serializer.getId(data);
-        this.serialized = Serializer.serialize({ ...data, transactions: transactions.map((tx) => tx.data) });
-        this.data = data;
+        this.data = { ...data, transactions: transactions.map((tx) => tx.data) };
+        this.id = Serializer.getId(this.data);
+        this.serialized = Serializer.serialize(this.data);
 
         // TODO: do this on database layer
         // fix on real timestamp, this is overloading transaction
