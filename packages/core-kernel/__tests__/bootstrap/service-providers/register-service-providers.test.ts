@@ -20,14 +20,14 @@ import {
     InvalidConfigurationServiceProvider,
     OptionalDependencyCannotBeFoundServiceProvider,
     OptionalDependencyVersionCannotBeSatisfiedServiceProvider,
+    RequiredDependencyCanBeFoundServiceProvider,
     RequiredDependencyCannotBeFoundAsyncServiceProvider,
     RequiredDependencyCannotBeFoundServiceProvider,
+    RequiredDependencyVersionCanBeSatisfiedServiceProvider,
     RequiredDependencyVersionCannotBeSatisfiedServiceProvider,
     RequiredInvalidConfigurationServiceProvider,
     StubServiceProvider,
     ValidConfigurationServiceProvider,
-    RequiredDependencyVersionCanBeSatisfiedServiceProvider,
-    RequiredDependencyCanBeFoundServiceProvider,
 } from "./__stubs__/service-providers";
 
 let app: Application;
@@ -48,6 +48,7 @@ beforeEach(() => {
     logger = {
         notice: jest.fn(),
         warning: jest.fn(),
+        error: jest.fn(),
     };
 
     app.bind(Identifiers.LogService).toConstantValue(logger);
