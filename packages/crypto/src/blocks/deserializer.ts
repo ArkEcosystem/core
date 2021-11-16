@@ -36,8 +36,10 @@ export class Deserializer {
     private static deserializeHeader(block: IBlockData, buf: ByteBuffer): void {
         // uint32 and int32 are equal up to 2**31−1
         const height = buf.readUint32(8);
+        const previousConstants = configManager.getMilestone(Math.max(height - 1, 1));
+        const legacyGenesis = height === 1 && !previousConstants.block.idFullSha256;
 
-        if (height === 1) {
+        if (legacyGenesis) {
             block.version = buf.readInt32();
             block.timestamp = buf.readInt32();
             block.height = buf.readInt32();
@@ -54,8 +56,6 @@ export class Deserializer {
             block.reward = BigNumber.make(buf.readInt64().toString());
             block.payloadLength = buf.readInt32();
         } else {
-            const previousConstants = configManager.getMilestone(height - 1);
-
             block.version = buf.readUint32();
             block.timestamp = buf.readUint32();
             block.height = buf.readUint32();

@@ -14,6 +14,7 @@ export class Serializer {
 
             if (!id) {
                 const constants = configManager.getMilestone(data.height);
+                console.log(constants);
                 const buffer = Buffer.alloc(constants.block.maxPayload);
                 const writer = SerdeFactory.createWriter(buffer);
 
@@ -90,7 +91,10 @@ export class Serializer {
     }
 
     public static writeSignedSection(writer: IWriter, data: IBlockData): void {
-        if (data.height === 1) {
+        const previousConstants = configManager.getMilestone(Math.max(data.height - 1, 1));
+        const legacyGenesis = data.height === 1 && !previousConstants.block.idFullSha256;
+
+        if (legacyGenesis) {
             writer.writeInt32LE(data.version);
             writer.writeInt32LE(data.timestamp);
             writer.writeInt32LE(data.height);
@@ -108,8 +112,6 @@ export class Serializer {
             writer.writeBuffer(Buffer.from(data.payloadHash, "hex"));
             writer.writePublicKey(Buffer.from(data.generatorPublicKey, "hex"));
         } else {
-            const previousConstants = configManager.getMilestone(data.height - 1);
-
             writer.writeUInt32LE(data.version);
             writer.writeUInt32LE(data.timestamp);
             writer.writeUInt32LE(data.height);
@@ -144,6 +146,12 @@ export class Serializer {
         }
 
         const buffers = data.transactions.map((tx) => TransactionUtils.toBytes(tx));
+        const length = buffers.reduce((sum, buffer) => sum + 4 + buffer.length, 0);
+
+        if (length < writer.buffer.length - writer.offset) {
+            throw new CryptoError("Out of space for transactions.");
+        }
+
         buffers.forEach((buffer) => writer.writeUInt32LE(buffer.length));
         buffers.forEach((buffer) => writer.writeBuffer(buffer));
     }
