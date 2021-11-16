@@ -1,7 +1,7 @@
 import "jest-extended";
 
-import { Console } from "@packages/core-test-framework";
 import { Command } from "@packages/core/src/commands/network-generate";
+import { Console } from "@packages/core-test-framework";
 import envPaths from "env-paths";
 import fs from "fs-extra";
 import { join } from "path";

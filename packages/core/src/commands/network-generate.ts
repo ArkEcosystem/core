@@ -442,15 +442,16 @@ export class Command extends Commands.Command {
         const response = await prompts(
             this.flagSettings
                 .filter((flag) => flag.promptType) // Show prompt only for flags with defined promptType
-                .map(
-                    (flag) =>
-                        ({
-                            type: flag.promptType,
-                            name: flag.name,
-                            message: flag.description,
-                            initial: flags[flag.name] ? `${flags[flag.name]}` : flag.default || "undefined",
-                        } as prompts.PromptObject<string>),
-                )
+                .map((flag) => {
+                    const type = flag.promptType;
+                    const name = flag.name;
+                    const message = flag.description;
+                    const initial = flags[flag.name] ?? flag.default;
+                    const validate = (value) => flag.schema.validate(value).error?.message ?? true;
+                    const format = (value) => flag.schema.validate(value).value;
+
+                    return { type, name, message, initial, validate, format } as prompts.PromptObject<string>;
+                })
                 .concat({
                     type: "confirm",
                     name: "confirm",
@@ -644,7 +645,7 @@ export class Command extends Commands.Command {
         // we need to set aip11 and network.pubKeyHash for tx builder to build v2 txs without issue
         Managers.configManager.getMilestone().aip11 = true;
         Managers.configManager.set("network.pubKeyHash", options.pubKeyHash);
-        Managers.configManager.getMilestone().block = { idFullSha256: true }; // so that generated block has full sha256 id
+        Managers.configManager.getMilestone().block = { idFullSha256: true, maxPayload: options.maxBlockPayload };
 
         const premineWallet: Wallet = this.createWallet(options.pubKeyHash);
 
