@@ -9,7 +9,6 @@ import { Serializer } from "./serializer";
 
 export class Block implements IBlock {
     public readonly id: string;
-    public readonly idHex: string;
     public readonly serialized: Buffer;
     public readonly data: IBlockData;
     public readonly transactions: ITransaction[];
@@ -17,7 +16,6 @@ export class Block implements IBlock {
 
     public constructor(data: IBlockData, transactions: ITransaction[]) {
         this.id = Serializer.getId(data);
-        this.idHex = Serializer.getIdHex(this.id);
         this.serialized = Serializer.serialize({ ...data, transactions: transactions.map((tx) => tx.data) });
         this.data = data;
 
