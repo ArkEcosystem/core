@@ -1,18 +1,32 @@
 export class CryptoError extends Error {
-    public constructor(message: string) {
+    public constructor(message: string, options?: { cause?: Error }) {
         super(message);
-
-        Object.defineProperty(this, "message", {
-            enumerable: false,
-            value: message,
-        });
 
         Object.defineProperty(this, "name", {
             enumerable: false,
             value: this.constructor.name,
         });
 
-        Error.captureStackTrace(this, this.constructor);
+        if (options?.cause) {
+            // Error causes are available starting from node v16.9.0
+            // - TypeScript Error.constructor definition doesn't yet include it.
+            // - Jest doesn't print error.cause stack trace (new stack-tools package is in development).
+            // - Contracts.ILogger needs to treat error and error.cause specially.
+            //
+            // Until then message and stack have to be manipulated instead of simply:
+            //   super(message, options)
+
+            this.message = `${message} ${options.cause.message}`;
+
+            if (options.cause.stack) {
+                this.stack = [`${this.name}: ${this.message}`, ...options.cause.stack.split("\n").slice(1)].join("\n");
+            }
+
+            Object.defineProperty(this, "cause", {
+                enumerable: false,
+                value: options.cause,
+            });
+        }
     }
 }
 

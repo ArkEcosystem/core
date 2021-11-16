@@ -1,4 +1,5 @@
 import { HashAlgorithms } from "../crypto";
+import { CryptoError } from "../errors";
 import { IBlockData, IWriter } from "../interfaces";
 import { configManager } from "../managers/config";
 import { Factory as SerdeFactory } from "../serde";
@@ -26,7 +27,7 @@ export class Serializer {
 
             return id;
         } catch (cause) {
-            throw new Error(`Cannot calculate block id. ${cause.message}`);
+            throw new CryptoError(`Cannot calculate block id.`, { cause });
         }
     }
 
@@ -48,7 +49,7 @@ export class Serializer {
 
             return HashAlgorithms.sha256(writer.getResult());
         } catch (cause) {
-            throw new Error(`Cannot calculate block signed hash. ${cause.message}`);
+            throw new CryptoError(`Cannot calculate block signed hash.`, { cause });
         }
     }
 
@@ -64,7 +65,7 @@ export class Serializer {
 
             return writer.getResult();
         } catch (cause) {
-            throw new Error(`Cannot serialize block. ${cause.message}`);
+            throw new CryptoError(`Cannot serialize block.`, { cause });
         }
     }
 
@@ -79,7 +80,7 @@ export class Serializer {
 
             return writer.getResult();
         } catch (cause) {
-            throw new Error(`Cannot serialize block header. ${cause.message}`);
+            throw new CryptoError(`Cannot serialize block header.`, { cause });
         }
     }
 
@@ -122,7 +123,7 @@ export class Serializer {
     public static writeBlockSignature(writer: IWriter, data: IBlockData): void {
         if (data.height !== 1) {
             if (!data.blockSignature) {
-                throw new Error("No block signature.");
+                throw new CryptoError("No block signature.");
             }
 
             writer.writeEcdsaSignature(Buffer.from(data.blockSignature, "hex"));
@@ -131,7 +132,7 @@ export class Serializer {
 
     public static writeTransactions(writer: IWriter, data: IBlockData): void {
         if (!data.transactions) {
-            throw new Error("No transactions.");
+            throw new CryptoError("No transactions.");
         }
 
         const buffers = data.transactions.map((tx) => TransactionUtils.toBytes(tx));
