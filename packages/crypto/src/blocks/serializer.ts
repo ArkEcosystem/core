@@ -121,13 +121,11 @@ export class Serializer {
     }
 
     public static writeBlockSignature(writer: IWriter, data: IBlockData): void {
-        if (data.height !== 1) {
-            if (!data.blockSignature) {
-                throw new CryptoError("No block signature.");
-            }
-
-            writer.writeEcdsaSignature(Buffer.from(data.blockSignature, "hex"));
+        if (!data.blockSignature) {
+            throw new CryptoError("No block signature.");
         }
+
+        writer.writeEcdsaSignature(Buffer.from(data.blockSignature, "hex"));
     }
 
     public static writeTransactions(writer: IWriter, data: IBlockData): void {

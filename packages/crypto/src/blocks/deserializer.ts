@@ -1,5 +1,6 @@
 import ByteBuffer from "bytebuffer";
 
+import { CryptoError } from "../errors";
 import { IBlockData, ITransaction } from "../interfaces";
 import { configManager } from "../managers";
 import { TransactionFactory } from "../transactions";
@@ -33,40 +34,47 @@ export class Deserializer {
     }
 
     private static deserializeHeader(block: IBlockData, buf: ByteBuffer): void {
-        block.version = buf.readUint32();
-        block.timestamp = buf.readUint32();
-        block.height = buf.readUint32();
+        // uint32 and int32 are equal up to 2**31−1
+        const height = buf.readUint32(8);
 
-        const constants = configManager.getMilestone(block.height - 1 || 1);
+        if (height === 1) {
+            block.version = buf.readInt32();
+            block.timestamp = buf.readInt32();
+            block.height = buf.readInt32();
 
-        if (constants.block.idFullSha256) {
-            const previousBlockFullSha256 = buf.readBytes(32).toString("hex");
-            block.previousBlockHex = previousBlockFullSha256;
-            block.previousBlock = previousBlockFullSha256;
+            if (buf.readBytes(8).toString("hex") !== "0000000000000000") {
+                throw new CryptoError("Invalid genesis block.");
+            }
+
+            block.numberOfTransactions = buf.readInt32();
+            block.totalAmount = BigNumber.make(buf.readInt64().toString());
+            block.totalFee = BigNumber.make(buf.readInt64().toString());
+            block.reward = BigNumber.make(buf.readInt64().toString());
+            block.payloadLength = buf.readInt32();
         } else {
-            block.previousBlockHex = buf.readBytes(8).toString("hex");
-            block.previousBlock = BigNumber.make(`0x${block.previousBlockHex}`).toString();
+            const previousConstants = configManager.getMilestone(height - 1);
+
+            block.version = buf.readUint32();
+            block.timestamp = buf.readUint32();
+            block.height = buf.readUint32();
+
+            block.previousBlock = previousConstants.block.idFullSha256
+                ? buf.readBytes(32).toString("hex")
+                : buf.readBytes(8).BE().readUint64().toString();
+
+            block.previousBlockHex = Serializer.getIdHex(block.previousBlock);
+            block.numberOfTransactions = buf.readUint32();
+            block.totalAmount = BigNumber.make(buf.readUint64().toString());
+            block.totalFee = BigNumber.make(buf.readUint64().toString());
+            block.reward = BigNumber.make(buf.readUint64().toString());
+            block.payloadLength = buf.readUint32();
         }
 
-        block.numberOfTransactions = buf.readUint32();
-        block.totalAmount = BigNumber.make(buf.readUint64().toString());
-        block.totalFee = BigNumber.make(buf.readUint64().toString());
-        block.reward = BigNumber.make(buf.readUint64().toString());
-        block.payloadLength = buf.readUint32();
         block.payloadHash = buf.readBytes(32).toString("hex");
         block.generatorPublicKey = buf.readBytes(33).toString("hex");
+        block.blockSignature = buf.readBytes(2 + buf.readUint8(buf.offset + 1)).toString("hex");
 
-        const signatureLength = (): number => {
-            buf.mark();
-
-            const lengthHex: string = buf.skip(1).readBytes(1).toString("hex");
-
-            buf.reset();
-
-            return parseInt(lengthHex, 16) + 2;
-        };
-
-        block.blockSignature = buf.readBytes(signatureLength()).toString("hex");
+        console.log(block);
     }
 
     private static deserializeTransactions(

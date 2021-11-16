@@ -665,8 +665,7 @@ describe("Block", () => {
     });
 
     describe("Serializer.serialize", () => {
-        // TODO enable it once deserializing genesis is fixed
-        describe.skip("genesis block", () => {
+        describe("genesis block", () => {
             it.each([
                 ["mainnet", 468048],
                 ["devnet", 14492],
@@ -677,7 +676,7 @@ describe("Block", () => {
 
                 const block: Interfaces.IBlock = BlockFactory.fromJson(networks[network].genesisBlock);
 
-                expect(block.serialized).toHaveLength(length);
+                expect(block.serialized).toHaveLength(length / 2);
                 expect(block.verifySignature()).toBeTrue();
                 configManager.getMilestone().aip11 = network === "testnet";
             });
