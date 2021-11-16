@@ -51,6 +51,6 @@ export abstract class Method {
                 transactions,
             },
             keys,
-        );
+        )!; // todo: this method should never return undefined
     }
 }

@@ -1,4 +1,4 @@
-import ajv from "ajv";
+import { ErrorObject } from "ajv";
 import ByteBuffer from "bytebuffer";
 
 import { HtlcLockExpirationType } from "../enums";
@@ -110,9 +110,11 @@ export interface ITransactionJson {
     ipfsHash?: string;
 }
 
-export type ISchemaValidationResult<T = any> =
-    | { value: undefined; error: string; errors: ajv.ErrorObject[] }
-    | { value: T; error: undefined; errors: undefined };
+export interface ISchemaValidationResult<T = any> {
+    value: T | undefined;
+    error: any;
+    errors?: ErrorObject[] | undefined;
+}
 
 export interface IMultiPaymentItem {
     amount: BigNumber;

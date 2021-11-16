@@ -6,7 +6,10 @@ import { Deserializer } from "./deserializer";
 import { Serializer } from "./serializer";
 
 export class BlockFactory {
-    public static make(data: Omit<IBlockData, "generatorPublicKey" | "blockSignature">, keys: IKeyPair): IBlock {
+    public static make(
+        data: Omit<IBlockData, "generatorPublicKey" | "blockSignature">,
+        keys: IKeyPair,
+    ): IBlock | undefined {
         const generatorPublicKey: string = keys.publicKey;
         const signedHash: Buffer = Serializer.getSignedHash({ ...data, generatorPublicKey });
         const blockSignature: string = Hash.signECDSA(signedHash, keys);
@@ -47,13 +50,21 @@ export class BlockFactory {
         return this.fromData(data as IBlockData);
     }
 
-    public static fromData(data: IBlockData, options: { deserializeTransactionsUnchecked?: boolean } = {}): IBlock {
-        data = Block.applySchema(data);
-        const serialized: Buffer = Serializer.serialize(data);
-        const deserialized = Deserializer.deserialize(serialized, false, options);
-        const block: IBlock = new Block(deserialized.data, deserialized.transactions);
+    public static fromData(
+        data: IBlockData,
+        options: { deserializeTransactionsUnchecked?: boolean } = {},
+    ): IBlock | undefined {
+        const data2: IBlockData | undefined = Block.applySchema(data);
 
-        return block;
+        if (data2) {
+            const serialized: Buffer = Serializer.serialize(data2);
+            const deserialized = Deserializer.deserialize(serialized, false, options);
+            const block: IBlock = new Block(deserialized.data, deserialized.transactions);
+
+            return block;
+        }
+
+        return undefined;
     }
 
     private static fromSerialized(serialized: Buffer): IBlock {

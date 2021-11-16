@@ -44,22 +44,21 @@ export class Block implements IBlock {
         }
     }
 
-    public static applySchema(data: IBlockData): IBlockData {
+    public static applySchema(data: IBlockData): IBlockData | undefined {
         let result = validator.validate("block", data);
 
-        if (result.value) {
+        if (!result.error) {
             return result.value;
         }
 
         result = validator.validateException("block", data);
 
-        if (result.value) {
+        if (!result.errors) {
             return result.value;
         }
 
         for (const err of result.errors) {
             let fatal = false;
-
             const match = err.dataPath.match(/\.transactions\[([0-9]+)\]/);
             if (match === null) {
                 if (!isException(data)) {
@@ -67,16 +66,13 @@ export class Block implements IBlock {
                 }
             } else {
                 const txIndex = match[1];
-
                 if (data.transactions) {
                     const tx = data.transactions[txIndex];
-
                     if (tx.id === undefined || !isException(tx)) {
                         fatal = true;
                     }
                 }
             }
-
             if (fatal) {
                 throw new BlockSchemaError(
                     data.height,
@@ -85,7 +81,7 @@ export class Block implements IBlock {
             }
         }
 
-        return data;
+        return result.value;
     }
 
     public getHeader(): IBlockData {
