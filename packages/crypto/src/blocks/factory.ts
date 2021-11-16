@@ -1,5 +1,5 @@
 import { Hash } from "../crypto";
-import { IBlock, IBlockData, IBlockJson, IKeyPair } from "../interfaces";
+import { IBlock, IBlockData, IBlockJson, IKeyPair, ITransactionData } from "../interfaces";
 import { BigNumber } from "../utils";
 import { Block } from "./block";
 import { Deserializer } from "./deserializer";
@@ -25,18 +25,22 @@ export class BlockFactory {
     }
 
     public static fromJson(json: IBlockJson): IBlock | undefined {
-        // @ts-ignore
-        const data: IBlockData = { ...json };
-        data.totalAmount = BigNumber.make(data.totalAmount);
-        data.totalFee = BigNumber.make(data.totalFee);
-        data.reward = BigNumber.make(data.reward);
+        const data = {
+            ...json,
 
-        if (data.transactions) {
-            for (const transaction of data.transactions) {
-                transaction.amount = BigNumber.make(transaction.amount);
-                transaction.fee = BigNumber.make(transaction.fee);
-            }
-        }
+            totalAmount: BigNumber.make(json.totalAmount),
+            totalFee: BigNumber.make(json.totalFee),
+            reward: BigNumber.make(json.reward),
+
+            transactions: json.transactions?.map((tx) => {
+                return {
+                    ...tx,
+                    nonce: tx.nonce ? BigNumber.make(tx.nonce) : undefined,
+                    amount: BigNumber.make(tx.amount),
+                    fee: BigNumber.make(tx.fee),
+                } as ITransactionData;
+            }),
+        } as IBlockData;
 
         return this.fromData(data);
     }
