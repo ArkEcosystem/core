@@ -38,7 +38,6 @@ export abstract class Method {
         return Blocks.BlockFactory.make(
             {
                 version: 0,
-                generatorPublicKey: keys.publicKey,
                 timestamp: options.timestamp,
                 previousBlock: options.previousBlock.id,
                 previousBlockHex: options.previousBlock.idHex,
@@ -52,6 +51,6 @@ export abstract class Method {
                 transactions,
             },
             keys,
-        )!; // todo: this method should never return undefined
+        );
     }
 }

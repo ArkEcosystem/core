@@ -44,16 +44,16 @@ export class Block implements IBlock {
         }
     }
 
-    public static applySchema(data: IBlockData): IBlockData | undefined {
+    public static applySchema(data: IBlockData): IBlockData {
         let result = validator.validate("block", data);
 
-        if (!result.error) {
+        if (result.value) {
             return result.value;
         }
 
         result = validator.validateException("block", data);
 
-        if (!result.errors) {
+        if (result.value) {
             return result.value;
         }
 
@@ -85,7 +85,7 @@ export class Block implements IBlock {
             }
         }
 
-        return result.value;
+        return data;
     }
 
     public getHeader(): IBlockData {

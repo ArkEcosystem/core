@@ -66,15 +66,9 @@ export class Validator {
         schemaKeyRef: string | boolean | object,
         data: T,
     ): ISchemaValidationResult<T> {
-        try {
-            ajv.validate(schemaKeyRef, data);
-
-            const error = ajv.errors ? ajv.errorsText() : undefined;
-
-            return { value: data, error, errors: ajv.errors || undefined };
-        } catch (error) {
-            return { value: undefined, error: error.stack, errors: [] };
-        }
+        return ajv.validate(schemaKeyRef, data)
+            ? { value: data, error: undefined, errors: undefined }
+            : { value: undefined, error: ajv.errorsText(), errors: ajv.errors! };
     }
 
     private instantiateAjv(options: Record<string, any>) {

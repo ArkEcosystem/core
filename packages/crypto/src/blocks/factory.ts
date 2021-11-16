@@ -7,7 +7,7 @@ import { Serializer } from "./serializer";
 
 export class BlockFactory {
     // @todo: add a proper type hint for data
-    public static make(data: any, keys: IKeyPair): IBlock | undefined {
+    public static make(data: any, keys: IKeyPair): IBlock {
         const generatorPublicKey: string = keys.publicKey;
         const signedHash: Buffer = Serializer.getSignedHash({ ...data, generatorPublicKey });
         const blockSignature: string = Hash.signECDSA(signedHash, keys);
@@ -48,21 +48,13 @@ export class BlockFactory {
         return this.fromData(data as IBlockData);
     }
 
-    public static fromData(
-        data: IBlockData,
-        options: { deserializeTransactionsUnchecked?: boolean } = {},
-    ): IBlock | undefined {
-        const data2: IBlockData | undefined = Block.applySchema(data);
+    public static fromData(data: IBlockData, options: { deserializeTransactionsUnchecked?: boolean } = {}): IBlock {
+        data = Block.applySchema(data);
+        const serialized: Buffer = Serializer.serialize(data);
+        const deserialized = Deserializer.deserialize(serialized, false, options);
+        const block: IBlock = new Block(deserialized.data, deserialized.transactions);
 
-        if (data2) {
-            const serialized: Buffer = Serializer.serialize(data2);
-            const deserialized = Deserializer.deserialize(serialized, false, options);
-            const block: IBlock = new Block(deserialized.data, deserialized.transactions);
-
-            return block;
-        }
-
-        return undefined;
+        return block;
     }
 
     private static fromSerialized(serialized: Buffer): IBlock {
