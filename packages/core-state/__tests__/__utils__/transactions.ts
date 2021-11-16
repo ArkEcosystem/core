@@ -8,5 +8,6 @@ export const addTransactionsToBlock = (txs: ITransaction[], block: IBlock) => {
     data.transactions.push(txs[1].data);
     data.transactions.push(txs[2].data);
     data.numberOfTransactions = txs.length; // NOTE: if transactions are added to a fixture the NoT needs to be increased
+    // @ts-ignore
     block.transactions = txs;
 };
