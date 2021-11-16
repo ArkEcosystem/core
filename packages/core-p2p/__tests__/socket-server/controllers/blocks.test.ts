@@ -55,15 +55,15 @@ describe("BlocksController", () => {
                 generatorPublicKey: "026c598170201caf0357f202ff14f365a3b09322071e347873869f58d776bfc565",
                 blockSignature:
                     "3045022100e7385c6ea42bd950f7f6ab8c8619cf2f66a41d8f8f185b0bc99af032cb25f30d02200b6210176a6cedfdcbe483167fd91c21d740e0e4011d24d679c601fdd46b0de9",
+                transactions: [
+                    Transactions.BuilderFactory.transfer()
+                        .amount("100")
+                        .recipientId(Identities.Address.fromPassphrase("recipient's secret"))
+                        .fee("100")
+                        .sign("sender's secret")
+                        .build().data,
+                ],
             },
-            transactions: [
-                Transactions.BuilderFactory.transfer()
-                    .amount("100")
-                    .recipientId(Identities.Address.fromPassphrase("recipient's secret"))
-                    .fee("100")
-                    .sign("sender's secret")
-                    .build(),
-            ],
         } as Blocks.Block;
         const deepClone = (obj) => JSON.parse(JSON.stringify(obj));
 
@@ -71,10 +71,7 @@ describe("BlocksController", () => {
             it("should throw TooManyTransactionsError when numberOfTransactions is too much", async () => {
                 const blockTooManyTxs = deepClone(block);
                 blockTooManyTxs.data.numberOfTransactions = 350;
-                const blockSerialized = Blocks.Serializer.serialize({
-                    ...blockTooManyTxs.data,
-                    transactions: blockTooManyTxs.transactions.map((tx) => tx.data),
-                });
+                const blockSerialized = Blocks.Serializer.serialize(blockTooManyTxs.data);
 
                 await expect(
                     blocksController.postBlock({ payload: { block: blockSerialized } }, {}),
@@ -89,10 +86,7 @@ describe("BlocksController", () => {
 
                 const blockUnchained = deepClone(block);
                 blockUnchained.data.height = 9;
-                const blockSerialized = Blocks.Serializer.serialize({
-                    ...blockUnchained.data,
-                    transactions: blockUnchained.transactions.map((tx) => tx.data),
-                });
+                const blockSerialized = Blocks.Serializer.serialize(blockUnchained.data);
 
                 if (blockPing) {
                     blockchain.pingBlock.mockReturnValueOnce(true);
@@ -128,10 +122,7 @@ describe("BlocksController", () => {
                     .get<PluginConfiguration>(Container.Identifiers.PluginConfiguration)
                     .set("remoteAccess", [ip]);
 
-                const blockSerialized = Blocks.Serializer.serialize({
-                    ...block.data,
-                    transactions: block.transactions.map((tx) => tx.data),
-                });
+                const blockSerialized = Blocks.Serializer.serialize(block.data);
                 await blocksController.postBlock(
                     {
                         payload: { block: blockSerialized },
@@ -154,10 +145,7 @@ describe("BlocksController", () => {
                     .get<PluginConfiguration>(Container.Identifiers.PluginConfiguration)
                     .set("remoteAccess", ["188.66.55.44"]);
 
-                const blockSerialized = Blocks.Serializer.serialize({
-                    ...block.data,
-                    transactions: block.transactions.map((tx) => tx.data),
-                });
+                const blockSerialized = Blocks.Serializer.serialize(block.data);
                 await blocksController.postBlock(
                     {
                         payload: { block: blockSerialized },
