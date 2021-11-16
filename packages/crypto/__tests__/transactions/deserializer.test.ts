@@ -497,8 +497,10 @@ describe("Transaction serializer / deserializer", () => {
                 buffer.writeByte(transaction.network);
                 buffer.writeUint32(Enums.TransactionTypeGroup.Core);
                 buffer.writeUint16(transaction.type);
+                // @ts-ignore
                 buffer.writeUint64(transaction.nonce.toFixed());
                 buffer.append(transaction.senderPublicKey, "hex");
+                // @ts-ignore
                 buffer.writeUint64(Utils.BigNumber.make(transaction.fee).toFixed());
                 buffer.writeByte(0x00);
 
