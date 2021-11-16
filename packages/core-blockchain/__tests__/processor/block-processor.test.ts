@@ -84,6 +84,7 @@ describe("BlockProcessor", () => {
     });
 
     const baseBlock = {
+        id: "17882607875259085966",
         data: {
             id: "17882607875259085966",
             version: 0,
@@ -101,7 +102,7 @@ describe("BlockProcessor", () => {
                 "3045022100e7385c6ea42bd950f7f6ab8c8619cf2f66a41d8f8f185b0bc99af032cb25f30d02200b6210176a6cedfdcbe483167fd91c21d740e0e4011d24d679c601fdd46b0de9",
             createdAt: "2018-09-11T16:48:50.550Z",
         },
-        serialized: "",
+        serialized: Buffer.alloc(0),
         verification: { verified: true, errors: [], containsMultiSignatures: false },
         getHeader: jest.fn(),
         verify: jest.fn(),
@@ -276,6 +277,8 @@ describe("BlockProcessor", () => {
     });
 
     const chainedBlock = {
+        id: "7242383292164246617",
+
         data: {
             id: "7242383292164246617",
             version: 0,
@@ -293,7 +296,7 @@ describe("BlockProcessor", () => {
                 "304402204087bb1d2c82b9178b02b9b3f285de260cdf0778643064fe6c7aef27321d49520220594c57009c1fca543350126d277c6adeb674c00685a464c3e4bf0d634dc37e39",
             createdAt: "2018-09-11T16:48:58.431Z",
         },
-        serialized: "",
+        serialized: Buffer.alloc(0),
         verification: { verified: true, errors: [], containsMultiSignatures: false },
         getHeader: jest.fn(),
         verify: jest.fn(),
