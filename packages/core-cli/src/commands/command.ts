@@ -207,7 +207,6 @@ export abstract class Command {
 
             await this.execute();
         } catch (error) {
-            console.error(error.stack);
             this.components.fatal(error.message);
         }
     }
