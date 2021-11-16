@@ -34,7 +34,7 @@ describe("BlockFactory", () => {
         expect(entity.data.totalFee).toBeInstanceOf(Utils.BigNumber);
         expect(entity.data.version).toBeNumber();
 
-        expect(entity.serialized).toBeString();
+        expect(entity.serialized).toBeInstanceOf(Buffer);
         expect(entity.transactions).toBeArray();
     });
 
@@ -66,7 +66,7 @@ describe("BlockFactory", () => {
         expect(entity.data.totalFee).toBeInstanceOf(Utils.BigNumber);
         expect(entity.data.version).toBeNumber();
 
-        expect(entity.serialized).toBeString();
+        expect(entity.serialized).toBeInstanceOf(Buffer);
         expect(entity.transactions).toBeArray();
     });
 
@@ -98,7 +98,7 @@ describe("BlockFactory", () => {
         expect(entity.data.totalFee).toBeInstanceOf(Utils.BigNumber);
         expect(entity.data.version).toBeNumber();
 
-        expect(entity.serialized).toBeString();
+        expect(entity.serialized).toBeInstanceOf(Buffer);
         expect(entity.transactions).toBeArray();
     });
 
@@ -129,7 +129,7 @@ describe("BlockFactory", () => {
         expect(entity.data.totalFee).toBeInstanceOf(Utils.BigNumber);
         expect(entity.data.version).toBeNumber();
 
-        expect(entity.serialized).toBeString();
+        expect(entity.serialized).toBeInstanceOf(Buffer);
         expect(entity.transactions).toBeArray();
     });
 });
