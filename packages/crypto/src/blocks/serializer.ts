@@ -148,7 +148,7 @@ export class Serializer {
         const buffers = data.transactions.map((tx) => TransactionUtils.toBytes(tx));
         const length = buffers.reduce((sum, buffer) => sum + 4 + buffer.length, 0);
 
-        if (length < writer.buffer.length - writer.offset) {
+        if (length > writer.buffer.length - writer.offset) {
             throw new CryptoError("Out of space for transactions.");
         }
 
