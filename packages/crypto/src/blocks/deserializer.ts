@@ -41,17 +41,13 @@ export class Deserializer {
             block.version = buf.readInt32();
             block.timestamp = buf.readInt32();
             block.height = buf.readInt32();
+            block.previousBlock = buf.readBytes(8).BE().readUint64().toString();
 
-            if (buf.readBytes(8).toString("hex") !== "0000000000000000") {
+            if (block.previousBlock !== "0") {
                 throw new CryptoError("Invalid genesis block.");
             }
 
-            // block.previousBlock = buf.readBytes(8).BE().readUint64().toString();
-            // if (block.previousBlock !== "0") {
-            //     throw new CryptoError("Invalid genesis block.");
-            // }
-            // block.previousBlockHex = Serializer.getIdHex(block.previousBlock);
-
+            block.previousBlockHex = Serializer.getIdHex(block.previousBlock);
             block.numberOfTransactions = buf.readInt32();
             block.totalAmount = BigNumber.make(buf.readInt64().toString());
             block.totalFee = BigNumber.make(buf.readInt64().toString());

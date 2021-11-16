@@ -18,9 +18,7 @@ export class Serializer {
                 const writer = SerdeFactory.createWriter(buffer);
 
                 this.writeSignedSection(writer, data);
-                if (data.height !== 1) {
-                    this.writeBlockSignature(writer, data);
-                }
+                if (data.height !== 1) this.writeBlockSignature(writer, data);
 
                 const hash = HashAlgorithms.sha256(writer.getResult());
                 const computedId = constants.block.idFullSha256
