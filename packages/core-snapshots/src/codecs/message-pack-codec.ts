@@ -1,29 +1,25 @@
 import { Models } from "@arkecosystem/core-database";
 import { Container } from "@arkecosystem/core-kernel";
 import { Blocks, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
+import { IBlockData } from "@packages/crypto/src/interfaces";
 import { decode, encode } from "msgpack-lite";
-import { camelizeKeys } from "xcase";
+import { camelize } from "xcase";
 
 import { Codec } from "../contracts";
 import { Codec as CodecException } from "../exceptions";
 
 @Container.injectable()
 export class MessagePackCodec implements Codec {
-    private static removePrefix(item: Record<string, any>, prefix: string): Record<string, any> {
-        const itemToReturn = {};
-
-        for (const key of Object.keys(item)) {
-            itemToReturn[key.replace(prefix, "")] = item[key];
-        }
-
-        return itemToReturn;
-    }
-
     public encodeBlock(block: any): Buffer {
         try {
-            const blockCamelized = camelizeKeys(MessagePackCodec.removePrefix(block, "Block_"));
+            const newBlock = {};
+            for (const key of Object.keys(block)) {
+                if (!key.startsWith("Block_")) throw new Error("Invalid block.");
+                const newKey = camelize(key.slice("Block_".length));
+                newBlock[newKey] = block[key];
+            }
 
-            return Blocks.Serializer.serializeHeader(blockCamelized);
+            return Blocks.Serializer.serializeHeader(newBlock as IBlockData);
         } catch (err) {
             throw new CodecException.BlockEncodeException(block.Block_id, err.message);
         }
@@ -91,9 +87,7 @@ export class MessagePackCodec implements Codec {
 
     public encodeRound(round: any): Buffer {
         try {
-            const roundCamelized = camelizeKeys(MessagePackCodec.removePrefix(round, "Round_"));
-
-            return encode([roundCamelized.publicKey, roundCamelized.balance, roundCamelized.round]);
+            return encode([round.Round_public_key, round.Round_balance, round.Round_round]);
         } catch (err) {
             throw new CodecException.RoundEncodeException(round.Round_round, err.message);
         }
