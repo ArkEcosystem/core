@@ -46,6 +46,12 @@ export class Deserializer {
                 throw new CryptoError("Invalid genesis block.");
             }
 
+            // block.previousBlock = buf.readBytes(8).BE().readUint64().toString();
+            // if (block.previousBlock !== "0") {
+            //     throw new CryptoError("Invalid genesis block.");
+            // }
+            // block.previousBlockHex = Serializer.getIdHex(block.previousBlock);
+
             block.numberOfTransactions = buf.readInt32();
             block.totalAmount = BigNumber.make(buf.readInt64().toString());
             block.totalFee = BigNumber.make(buf.readInt64().toString());
@@ -73,8 +79,6 @@ export class Deserializer {
         block.payloadHash = buf.readBytes(32).toString("hex");
         block.generatorPublicKey = buf.readBytes(33).toString("hex");
         block.blockSignature = buf.readBytes(2 + buf.readUint8(buf.offset + 1)).toString("hex");
-
-        console.log(block);
     }
 
     private static deserializeTransactions(
