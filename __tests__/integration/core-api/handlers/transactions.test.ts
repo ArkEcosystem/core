@@ -1,10 +1,10 @@
 import "@packages/core-test-framework/src/matchers";
 
 import { Contracts } from "@packages/core-kernel";
-import { Identities, Managers } from "@packages/crypto";
 import { ApiHelpers, getWalletNonce } from "@packages/core-test-framework/src";
 import secrets from "@packages/core-test-framework/src/internal/passphrases.json";
 import { TransactionFactory } from "@packages/core-test-framework/src/utils/transaction-factory";
+import { Identities, Managers } from "@packages/crypto";
 import { generateMnemonic } from "bip39";
 
 import { setUp, tearDown } from "../__support__/setup";
@@ -88,10 +88,10 @@ beforeAll(async () => {
     timestamp = genesisTransaction.timestamp;
     timestampFrom = timestamp;
     timestampTo = timestamp;
-    amount = +genesisTransaction.amount.toFixed();
+    amount = +genesisTransaction.amount;
     amountFrom = amount;
     amountTo = amount;
-    fee = +genesisTransaction.fee.toFixed();
+    fee = +genesisTransaction.fee;
     feeFrom = fee;
     feeTo = fee;
 }, 10000);
