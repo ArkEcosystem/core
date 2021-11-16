@@ -384,9 +384,6 @@ export class StateStore implements Contracts.State.StateStore {
         blocks: Seq<number, Interfaces.IBlock>,
         headersOnly?: boolean,
     ): Seq<number, Interfaces.IBlockData> {
-        return blocks.map((block) => ({
-            ...block.data,
-            transactions: headersOnly ? undefined : block.transactions.map((tx) => tx.data),
-        }));
+        return blocks.map((block) => (headersOnly ? block.getHeader() : block.data));
     }
 }

@@ -48,7 +48,7 @@ export class BlockProcessor {
     private readonly triggers!: Services.Triggers.Triggers;
 
     public async process(block: Interfaces.IBlock): Promise<BlockProcessorResult> {
-        if (Utils.isException({ ...block.data, transactions: block.transactions.map((tx) => tx.data) })) {
+        if (Utils.isException(block.data)) {
             return this.app.resolve<ExceptionHandler>(ExceptionHandler).execute(block);
         }
 
