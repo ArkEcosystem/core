@@ -1,5 +1,5 @@
 import { Types } from "@arkecosystem/core-kernel";
-import { Blocks, Crypto, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
+import { Blocks, Crypto, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import { ensureDirSync, existsSync, writeJSONSync } from "fs-extra";
 import { resolve } from "path";
 import { dirSync } from "tmp";
@@ -234,6 +234,8 @@ export class CryptoGenerator extends Generator {
     }
 
     private createGenesisBlock(keys: Interfaces.IKeyPair, transactions, timestamp: number) {
+        Managers.configManager.getMilestone().block = { maxPayload: this.options.crypto.flags.maxBlockPayload };
+
         transactions = transactions.sort((a, b) => {
             if (a.type === b.type) {
                 return a.amount - b.amount;
