@@ -90,40 +90,23 @@ export class Serializer {
     }
 
     public static writeSignedSection(writer: IWriter, data: IBlockData): void {
-        const previousConstants = configManager.getMilestone(Math.max(data.height - 1, 1));
-        const legacyGenesis = data.height === 1 && !previousConstants.block.idFullSha256;
+        const previousConstants = configManager.getMilestone(data.height - 1 || 1);
 
-        if (legacyGenesis) {
-            writer.writeInt32LE(data.version);
-            writer.writeInt32LE(data.timestamp);
-            writer.writeInt32LE(data.height);
-            writer.jump(8);
-            writer.writeInt32LE(data.numberOfTransactions);
-            writer.writeBigInt64LE(BigInt(data.totalAmount.toString()));
-            writer.writeBigInt64LE(BigInt(data.totalFee.toString()));
-            writer.writeBigInt64LE(BigInt(data.reward.toString()));
-            writer.writeInt32LE(data.payloadLength);
-            writer.writeBuffer(Buffer.from(data.payloadHash, "hex"));
-            writer.writePublicKey(Buffer.from(data.generatorPublicKey, "hex"));
-        } else {
-            writer.writeUInt32LE(data.version);
-            writer.writeUInt32LE(data.timestamp);
-            writer.writeUInt32LE(data.height);
+        writer.writeUInt32LE(data.version);
+        writer.writeUInt32LE(data.timestamp);
+        writer.writeUInt32LE(data.height);
 
-            if (previousConstants.block.idFullSha256) {
-                writer.writeBuffer(Buffer.from(data.previousBlock, "hex"));
-            } else {
-                writer.writeBigUInt64BE(BigInt(data.previousBlock));
-            }
+        previousConstants.block.idFullSha256
+            ? writer.writeBuffer(Buffer.from(data.previousBlock ?? "0".repeat(64), "hex"))
+            : writer.writeBigUInt64BE(BigInt(data.previousBlock ?? 0));
 
-            writer.writeUInt32LE(data.numberOfTransactions);
-            writer.writeBigUInt64LE(BigInt(data.totalAmount.toString()));
-            writer.writeBigUInt64LE(BigInt(data.totalFee.toString()));
-            writer.writeBigUInt64LE(BigInt(data.reward.toString()));
-            writer.writeUInt32LE(data.payloadLength);
-            writer.writeBuffer(Buffer.from(data.payloadHash, "hex"));
-            writer.writePublicKey(Buffer.from(data.generatorPublicKey, "hex"));
-        }
+        writer.writeUInt32LE(data.numberOfTransactions);
+        writer.writeBigUInt64LE(BigInt(data.totalAmount.toString()));
+        writer.writeBigUInt64LE(BigInt(data.totalFee.toString()));
+        writer.writeBigUInt64LE(BigInt(data.reward.toString()));
+        writer.writeUInt32LE(data.payloadLength);
+        writer.writeBuffer(Buffer.from(data.payloadHash, "hex"));
+        writer.writePublicKey(Buffer.from(data.generatorPublicKey, "hex"));
     }
 
     public static writeBlockSignature(writer: IWriter, data: IBlockData): void {
