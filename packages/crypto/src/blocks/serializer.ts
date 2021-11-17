@@ -14,7 +14,8 @@ export class Serializer {
 
             if (!id) {
                 const constants = configManager.getMilestone(data.height);
-                const buffer = Buffer.alloc(constants.block.maxPayload);
+                const size = constants.block?.maxPayload ?? 2 * 1024 ** 2;
+                const buffer = Buffer.alloc(size);
                 const writer = SerdeFactory.createWriter(buffer);
 
                 this.writeSignedSection(writer, data);
@@ -47,7 +48,8 @@ export class Serializer {
     public static getSignedHash(data: IBlockData): Buffer {
         try {
             const constants = configManager.getMilestone(data.height);
-            const buffer = Buffer.alloc(constants.block.maxPayload);
+            const size = constants.block?.maxPayload ?? 2 * 1024 ** 2;
+            const buffer = Buffer.alloc(size);
             const writer = SerdeFactory.createWriter(buffer);
 
             this.writeSignedSection(writer, data);
@@ -61,14 +63,15 @@ export class Serializer {
     public static serialize(data: IBlockData): Buffer {
         try {
             const constants = configManager.getMilestone(data.height);
-            const buffer = Buffer.alloc(constants.block.maxPayload);
+            const size = constants.block?.maxPayload ?? 2 * 1024 ** 2;
+            const buffer = Buffer.alloc(size);
             const writer = SerdeFactory.createWriter(buffer);
 
             this.writeSignedSection(writer, data);
             this.writeBlockSignature(writer, data);
             this.writeTransactions(writer, data);
 
-            return writer.getResult();
+            return Buffer.from(writer.getResult());
         } catch (cause) {
             throw new CryptoError(`Cannot serialize block.`, { cause });
         }
@@ -77,25 +80,25 @@ export class Serializer {
     public static serializeHeader(data: IBlockData): Buffer {
         try {
             const constants = configManager.getMilestone(data.height);
-            const buffer = Buffer.alloc(constants.block.maxPayload);
+            const size = constants.block?.maxPayload ?? 2 * 1024 ** 2;
+            const buffer = Buffer.alloc(size);
             const writer = SerdeFactory.createWriter(buffer);
 
             this.writeSignedSection(writer, data);
             this.writeBlockSignature(writer, data);
 
-            return writer.getResult();
+            return Buffer.from(writer.getResult());
         } catch (cause) {
             throw new CryptoError(`Cannot serialize block header.`, { cause });
         }
     }
 
     public static writeSignedSection(writer: IWriter, data: IBlockData): void {
-        const previousConstants = configManager.getMilestone(data.height - 1 || 1);
-
         writer.writeUInt32LE(data.version);
         writer.writeUInt32LE(data.timestamp);
         writer.writeUInt32LE(data.height);
 
+        const previousConstants = configManager.getMilestone(data.height - 1 || 1);
         previousConstants.block.idFullSha256
             ? writer.writeBuffer(Buffer.from(data.previousBlock ?? "0".repeat(64), "hex"))
             : writer.writeBigUInt64BE(BigInt(data.previousBlock ?? 0));
@@ -123,12 +126,6 @@ export class Serializer {
         }
 
         const buffers = data.transactions.map((tx) => TransactionUtils.toBytes(tx));
-        const length = buffers.reduce((sum, buffer) => sum + 4 + buffer.length, 0);
-
-        if (length > writer.buffer.length - writer.offset) {
-            throw new CryptoError("Out of space for transactions.");
-        }
-
         buffers.forEach((buffer) => writer.writeUInt32LE(buffer.length));
         buffers.forEach((buffer) => writer.writeBuffer(buffer));
     }

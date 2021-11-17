@@ -645,7 +645,7 @@ export class Command extends Commands.Command {
         // we need to set aip11 and network.pubKeyHash for tx builder to build v2 txs without issue
         Managers.configManager.getMilestone().aip11 = true;
         Managers.configManager.set("network.pubKeyHash", options.pubKeyHash);
-        Managers.configManager.getMilestone().block = { idFullSha256: true, maxPayload: options.maxBlockPayload };
+        Managers.configManager.getMilestone().block = { idFullSha256: true };
 
         const premineWallet: Wallet = this.createWallet(options.pubKeyHash);
 

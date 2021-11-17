@@ -234,8 +234,6 @@ export class CryptoGenerator extends Generator {
     }
 
     private createGenesisBlock(keys: Interfaces.IKeyPair, transactions, timestamp: number) {
-        Managers.configManager.getMilestone().block = { maxPayload: this.options.crypto.flags.maxBlockPayload };
-
         transactions = transactions.sort((a, b) => {
             if (a.type === b.type) {
                 return a.amount - b.amount;
