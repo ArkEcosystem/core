@@ -1,32 +1,70 @@
+import { Serde } from "..";
 import { HashAlgorithms } from "../crypto";
 import { CryptoError } from "../errors";
 import { IBlockData, IWriter } from "../interfaces";
-import { configManager } from "../managers/config";
-import { Factory as SerdeFactory } from "../serde";
+import { configManager } from "../managers";
 import { Utils as TransactionUtils } from "../transactions";
 
 export class Serializer {
     private static cachedIds = new WeakMap<IBlockData, string>();
+
+    public static getSignedSectionSize(data: IBlockData): number {
+        const previousConstants = configManager.getMilestone(data.height - 1 || 1);
+        const previousBlockSize = previousConstants.block.idFullSha256 ? 32 : 8;
+
+        let size = 0;
+        size += 4; // version
+        size += 4; // timestamp
+        size += 4; // height
+        size += previousBlockSize;
+        size += 4; // numberOfTransactions
+        size += 8; // totalAmount
+        size += 8; // totalFee
+        size += 8; // reward
+        size += 4; // payloadLength
+        size += data.payloadHash.length / 2;
+        size += data.generatorPublicKey.length / 2;
+
+        return size;
+    }
+
+    public static getHeaderSize(data: IBlockData): number {
+        if (!data.blockSignature) {
+            throw new CryptoError("No block signature.");
+        }
+
+        return this.getSignedSectionSize(data) + data.blockSignature.length / 2;
+    }
+
+    public static getDataSize(data: IBlockData): number {
+        if (!data.transactions) {
+            throw new CryptoError("No transactions.");
+        }
+
+        const buffers = data.transactions.map((tx) => TransactionUtils.toBytes(tx));
+        const length = buffers.reduce((sum, buffer) => sum + 4 + buffer.length, 0);
+
+        return this.getSignedSectionSize(data) + length;
+    }
 
     public static getId(data: IBlockData): string {
         try {
             let id = this.cachedIds.get(data);
 
             if (!id) {
-                const constants = configManager.getMilestone(data.height);
-                const size = constants.block?.maxPayload ?? 2 * 1024 ** 2;
-                const buffer = Buffer.alloc(size);
-                const writer = SerdeFactory.createWriter(buffer);
+                const size = data.height === 1 ? this.getSignedSectionSize(data) : this.getHeaderSize(data);
+                const writer = Serde.Factory.createWriter(Buffer.alloc(size));
 
                 this.writeSignedSection(writer, data);
                 if (data.height !== 1) this.writeBlockSignature(writer, data);
-
                 const hash = HashAlgorithms.sha256(writer.getResult());
+
+                const constants = configManager.getMilestone(data.height);
                 const computedId = constants.block.idFullSha256
                     ? hash.toString("hex")
                     : hash.readBigUInt64LE().toString(10);
 
-                const outlookTable: Record<string, string> = configManager.get("exceptions").outlookTable ?? {};
+                const outlookTable = configManager.get<Record<string, string>>("exceptions.outlookTable") ?? {};
                 id = outlookTable[computedId] ?? computedId;
                 this.cachedIds.set(data, id);
             }
@@ -47,10 +85,8 @@ export class Serializer {
 
     public static getSignedHash(data: IBlockData): Buffer {
         try {
-            const constants = configManager.getMilestone(data.height);
-            const size = constants.block?.maxPayload ?? 2 * 1024 ** 2;
-            const buffer = Buffer.alloc(size);
-            const writer = SerdeFactory.createWriter(buffer);
+            const size = this.getSignedSectionSize(data);
+            const writer = Serde.Factory.createWriter(Buffer.alloc(size));
 
             this.writeSignedSection(writer, data);
 
@@ -62,10 +98,8 @@ export class Serializer {
 
     public static serialize(data: IBlockData): Buffer {
         try {
-            const constants = configManager.getMilestone(data.height);
-            const size = constants.block?.maxPayload ?? 2 * 1024 ** 2;
-            const buffer = Buffer.alloc(size);
-            const writer = SerdeFactory.createWriter(buffer);
+            const size = this.getDataSize(data);
+            const writer = Serde.Factory.createWriter(Buffer.alloc(size));
 
             this.writeSignedSection(writer, data);
             this.writeBlockSignature(writer, data);
@@ -79,10 +113,8 @@ export class Serializer {
 
     public static serializeHeader(data: IBlockData): Buffer {
         try {
-            const constants = configManager.getMilestone(data.height);
-            const size = constants.block?.maxPayload ?? 2 * 1024 ** 2;
-            const buffer = Buffer.alloc(size);
-            const writer = SerdeFactory.createWriter(buffer);
+            const size = this.getHeaderSize(data);
+            const writer = Serde.Factory.createWriter(Buffer.alloc(size));
 
             this.writeSignedSection(writer, data);
             this.writeBlockSignature(writer, data);

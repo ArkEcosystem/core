@@ -16,8 +16,6 @@ export class Block implements IBlock {
 
     public constructor(data: IBlockData, transactions: ITransaction[]) {
         this.data = { ...data, transactions: transactions.map((tx) => tx.data) };
-        this.id = Serializer.getId(this.data);
-        this.serialized = Serializer.serialize(this.data);
 
         // TODO: do this on database layer
         // fix on real timestamp, this is overloading transaction
@@ -32,6 +30,9 @@ export class Block implements IBlock {
         });
 
         this.verification = this.verify();
+
+        this.id = Serializer.getId(this.data);
+        this.serialized = Serializer.serialize(this.data);
 
         // Order of transactions messed up in mainnet V1
         const { wrongTransactionOrder } = configManager.get("exceptions");
@@ -145,6 +146,11 @@ export class Block implements IBlock {
 
             if (block.timestamp > Slots.getTime() + Managers.configManager.getMilestone(block.height).blocktime) {
                 result.errors.push("Invalid block timestamp");
+            }
+
+            const size: number = Serializer.getDataSize(this.data);
+            if (size > constants.block.maxPayload) {
+                result.errors.push(`Payload is too large: ${size} > ${constants.block.maxPayload}`);
             }
 
             const invalidTransactions: ITransaction[] = this.transactions.filter((tx) => !tx.verified);
