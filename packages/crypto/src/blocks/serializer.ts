@@ -10,7 +10,10 @@ export class Serializer {
 
     public static getSignedSectionSize(data: IBlockData): number {
         const previousConstants = configManager.getMilestone(data.height - 1 || 1);
+
         const previousBlockSize = previousConstants.block.idFullSha256 ? 32 : 8;
+        const payloadHashSize = data.payloadHash.length / 2;
+        const generatorPublicKeySize = data.generatorPublicKey.length / 2;
 
         let size = 0;
         size += 4; // version
@@ -22,8 +25,8 @@ export class Serializer {
         size += 8; // totalFee
         size += 8; // reward
         size += 4; // payloadLength
-        size += data.payloadHash.length / 2;
-        size += data.generatorPublicKey.length / 2;
+        size += payloadHashSize;
+        size += generatorPublicKeySize;
 
         return size;
     }
@@ -33,7 +36,8 @@ export class Serializer {
             throw new CryptoError("No block signature.");
         }
 
-        return this.getSignedSectionSize(data) + data.blockSignature.length / 2;
+        const blockSignatureSize = data.blockSignature.length / 2;
+        return this.getSignedSectionSize(data) + blockSignatureSize;
     }
 
     public static getDataSize(data: IBlockData): number {
@@ -42,9 +46,9 @@ export class Serializer {
         }
 
         const buffers = data.transactions.map((tx) => TransactionUtils.toBytes(tx));
-        const length = buffers.reduce((sum, buffer) => sum + 4 + buffer.length, 0);
+        const transactionsSize = buffers.reduce((sum, buffer) => sum + 4 + buffer.length, 0);
 
-        return this.getSignedSectionSize(data) + length;
+        return this.getHeaderSize(data) + transactionsSize;
     }
 
     public static getId(data: IBlockData): string {
