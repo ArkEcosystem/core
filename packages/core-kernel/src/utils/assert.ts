@@ -1,4 +1,4 @@
-import { Blocks, Transactions } from "@arkecosystem/crypto";
+import { Transactions } from "@arkecosystem/crypto";
 
 import { AssertionException } from "../exceptions/runtime";
 
@@ -19,7 +19,6 @@ interface Assert {
 
     array: <T>(value: unknown) => asserts value is Array<T>;
     bigint: (value: unknown) => asserts value is bigint;
-    block(value: unknown): asserts value is Blocks.Block;
     defined<T>(value: unknown): asserts value is NonNullable<T>;
     transaction(value: unknown): asserts value is Transactions.Transaction;
 }
@@ -33,9 +32,6 @@ export const assert: Assert = {
     },
     bigint: (value: unknown): asserts value is bigint => {
         return assertType(typeof value === "bigint", "bigint");
-    },
-    block: (value: unknown): asserts value is Blocks.Block => {
-        return assertType(value instanceof Blocks.Block, "Crypto.Blocks.Block");
     },
     boolean: (value: unknown): asserts value is boolean => {
         return assertType(typeof value === "boolean", "boolean");

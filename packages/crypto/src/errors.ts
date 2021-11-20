@@ -1,31 +1,31 @@
+// Error.cause is available starting from node v16.9.0
+// - TypeScript Error.constructor definition doesn't yet include it.
+// - Jest doesn't print error.cause stack trace (new stack-tools package is in development).
+// - Contracts.ILogger needs to treat error and error.cause specially.
+//
+// Until then message and stack have to be manipulated instead of simply:
+//   super(message, options)
+
 export class CryptoError extends Error {
+    public readonly name: string;
+    public readonly cause?: Error;
+
     public constructor(message: string, options?: { cause?: Error }) {
         super(message);
 
-        Object.defineProperty(this, "name", {
-            enumerable: false,
-            value: this.constructor.name,
-        });
+        this.name = this.constructor.name;
+        this.cause = options?.cause;
 
-        if (options?.cause) {
-            // Error causes are available starting from node v16.9.0
-            // - TypeScript Error.constructor definition doesn't yet include it.
-            // - Jest doesn't print error.cause stack trace (new stack-tools package is in development).
-            // - Contracts.ILogger needs to treat error and error.cause specially.
-            //
-            // Until then message and stack have to be manipulated instead of simply:
-            //   super(message, options)
+        Object.defineProperty(this, "name", { enumerable: false });
+        Object.defineProperty(this, "cause", { enumerable: false });
 
-            this.message = `${message} ${options.cause.message}`;
+        if (this.cause) {
+            this.message = `${message} ${this.cause.message}`;
 
-            if (options.cause.stack) {
-                this.stack = [`${this.name}: ${this.message}`, ...options.cause.stack.split("\n").slice(1)].join("\n");
+            if (this.cause.stack) {
+                const stack = this.cause.stack.split("\n").slice(1).join("\n");
+                this.stack = `${this.name}: ${this.message}\n${stack}`;
             }
-
-            Object.defineProperty(this, "cause", {
-                enumerable: false,
-                value: options.cause,
-            });
         }
     }
 }
@@ -199,5 +199,43 @@ export class InvalidMultiSignatureAssetError extends CryptoError {
 export class DuplicateParticipantInMultiSignatureError extends CryptoError {
     public constructor() {
         super(`Invalid multi signature, because duplicate participant found.`);
+    }
+}
+
+export class VerificationError extends CryptoError {
+    // distinguished from unexpected errors
+}
+
+export class VerificationAggregateError extends VerificationError {
+    public readonly errors: VerificationError[];
+    public readonly reason?: string;
+
+    public constructor(errors: VerificationError[], message?: string) {
+        const messages = errors.map((e) => e.message).join(" ");
+        super(message ? `${message} ${messages}` : messages);
+
+        this.errors = errors;
+        this.reason = message;
+
+        Object.defineProperty(this, "errors", { enumerable: false });
+        Object.defineProperty(this, "reason", { enumerable: false });
+    }
+
+    public static aggregate(fns: Function[]): VerificationError[] {
+        const errors: VerificationError[] = [];
+
+        for (const fn of fns) {
+            try {
+                fn();
+            } catch (error) {
+                if (error instanceof VerificationError) {
+                    errors.push(error);
+                } else {
+                    throw error;
+                }
+            }
+        }
+
+        return errors;
     }
 }

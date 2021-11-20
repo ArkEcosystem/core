@@ -1,4 +1,4 @@
-import { Crypto, Interfaces } from "@arkecosystem/crypto";
+import { Blocks, Crypto, Interfaces } from "@arkecosystem/crypto";
 
 type BlockChainedDetails = {
     followsPrevious: boolean;
@@ -10,11 +10,11 @@ type BlockChainedDetails = {
 };
 
 const getBlockChainedDetails = (
-    previousBlock: Interfaces.IBlockData,
-    nextBlock: Interfaces.IBlockData,
+    previousBlock: Interfaces.IBlockHeader,
+    nextBlock: Interfaces.IBlockHeader,
     getTimeStampForBlock: (blockheight: number) => number,
 ): BlockChainedDetails => {
-    const followsPrevious: boolean = nextBlock.previousBlock === previousBlock.id;
+    const followsPrevious: boolean = nextBlock.previousBlock === Blocks.Serializer.getId(previousBlock);
     const isPlusOne: boolean = nextBlock.height === previousBlock.height + 1;
 
     const previousSlot: number = Crypto.Slots.getSlotNumber(getTimeStampForBlock, previousBlock.timestamp);
@@ -27,8 +27,8 @@ const getBlockChainedDetails = (
 };
 
 export const isBlockChained = (
-    previousBlock: Interfaces.IBlockData,
-    nextBlock: Interfaces.IBlockData,
+    previousBlock: Interfaces.IBlockHeader,
+    nextBlock: Interfaces.IBlockHeader,
     getTimeStampForBlock: (blockheight: number) => number,
 ): boolean => {
     const details: BlockChainedDetails = getBlockChainedDetails(previousBlock, nextBlock, getTimeStampForBlock);
@@ -36,8 +36,8 @@ export const isBlockChained = (
 };
 
 export const getBlockNotChainedErrorMessage = (
-    previousBlock: Interfaces.IBlockData,
-    nextBlock: Interfaces.IBlockData,
+    previousBlock: Interfaces.IBlockHeader,
+    nextBlock: Interfaces.IBlockHeader,
     getTimeStampForBlock: (blockheight: number) => number,
 ): string => {
     const details: BlockChainedDetails = getBlockChainedDetails(previousBlock, nextBlock, getTimeStampForBlock);
@@ -47,9 +47,9 @@ export const getBlockNotChainedErrorMessage = (
     }
 
     const messagePrefix: string =
-        `Block { height: ${nextBlock.height}, id: ${nextBlock.id}, ` +
+        `Block { height: ${nextBlock.height}, id: ${Blocks.Serializer.getId(nextBlock)}, ` +
         `previousBlock: ${nextBlock.previousBlock} } is not chained to the ` +
-        `previous block { height: ${previousBlock.height}, id: ${previousBlock.id} }`;
+        `previous block { height: ${previousBlock.height}, id: ${Blocks.Serializer.getId(previousBlock)} }`;
 
     let messageDetail: string | undefined;
 

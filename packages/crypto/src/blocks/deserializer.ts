@@ -1,102 +1,83 @@
-import ByteBuffer from "bytebuffer";
-
 import { CryptoError } from "../errors";
-import { IBlockData, ITransaction } from "../interfaces";
+import { IBlockData, IBlockSignedData, IReader } from "../interfaces";
 import { configManager } from "../managers";
-import { TransactionFactory } from "../transactions";
+import { SerdeFactory } from "../serde";
 import { BigNumber } from "../utils";
-import { Serializer } from "./serializer";
 
 export class Deserializer {
-    public static deserialize(
-        serialized: Buffer,
-        headerOnly: boolean = false,
-        options: { deserializeTransactionsUnchecked?: boolean } = {},
-    ): { data: IBlockData; transactions: ITransaction[] } {
-        const block = {} as IBlockData;
-        let transactions: ITransaction[] = [];
+    public static deserialize(serialized: Buffer): IBlockData {
+        try {
+            const reader = SerdeFactory.createReader(serialized);
+            const signedData = this.readSignedData(reader);
+            const blockSignature = reader.readEcdsaSignature().toString("hex");
+            const transactions = this.readTransactions(reader, signedData.numberOfTransactions);
 
-        const buf: ByteBuffer = new ByteBuffer(serialized.length, true);
-        buf.append(serialized);
-        buf.reset();
-
-        this.deserializeHeader(block, buf);
-
-        headerOnly = headerOnly || buf.remaining() === 0;
-        if (!headerOnly) {
-            transactions = this.deserializeTransactions(block, buf, options.deserializeTransactionsUnchecked);
-        }
-
-        block.id = Serializer.getId(block);
-        block.idHex = Serializer.getIdHex(block.id!);
-
-        return { data: block, transactions };
-    }
-
-    private static deserializeHeader(block: IBlockData, buf: ByteBuffer): void {
-        // uint32 and int32 are equal up to 2**31−1
-        const height = buf.readUint32(8);
-        const previousConstants = configManager.getMilestone(Math.max(height - 1, 1));
-        const legacyGenesis = height === 1 && !previousConstants.block.idFullSha256;
-
-        if (legacyGenesis) {
-            block.version = buf.readInt32();
-            block.timestamp = buf.readInt32();
-            block.height = buf.readInt32();
-            block.previousBlock = buf.readBytes(8).BE().readUint64().toString();
-
-            if (block.previousBlock !== "0") {
-                throw new CryptoError("Invalid genesis block.");
+            if (reader.getRemainderLength() !== 0) {
+                throw new CryptoError("Buffer has space leftover.");
             }
 
-            block.previousBlockHex = Serializer.getIdHex(block.previousBlock);
-            block.numberOfTransactions = buf.readInt32();
-            block.totalAmount = BigNumber.make(buf.readInt64().toString());
-            block.totalFee = BigNumber.make(buf.readInt64().toString());
-            block.reward = BigNumber.make(buf.readInt64().toString());
-            block.payloadLength = buf.readInt32();
-        } else {
-            block.version = buf.readUint32();
-            block.timestamp = buf.readUint32();
-            block.height = buf.readUint32();
-
-            block.previousBlock = previousConstants.block.idFullSha256
-                ? buf.readBytes(32).toString("hex")
-                : buf.readBytes(8).BE().readUint64().toString();
-
-            block.previousBlockHex = Serializer.getIdHex(block.previousBlock);
-            block.numberOfTransactions = buf.readUint32();
-            block.totalAmount = BigNumber.make(buf.readUint64().toString());
-            block.totalFee = BigNumber.make(buf.readUint64().toString());
-            block.reward = BigNumber.make(buf.readUint64().toString());
-            block.payloadLength = buf.readUint32();
+            return { ...signedData, blockSignature, transactions };
+        } catch (cause) {
+            throw new CryptoError(`Cannot deserialize block.`, { cause });
         }
-
-        block.payloadHash = buf.readBytes(32).toString("hex");
-        block.generatorPublicKey = buf.readBytes(33).toString("hex");
-        block.blockSignature = buf.readBytes(2 + buf.readUint8(buf.offset + 1)).toString("hex");
     }
 
-    private static deserializeTransactions(
-        block: IBlockData,
-        buf: ByteBuffer,
-        deserializeTransactionsUnchecked: boolean = false,
-    ): ITransaction[] {
-        const transactionLengths: number[] = [];
+    public static readSignedData(reader: IReader): IBlockSignedData {
+        const version = reader.readUInt32LE();
 
-        for (let i = 0; i < block.numberOfTransactions; i++) {
-            transactionLengths.push(buf.readUint32());
+        if (version !== 0 && version !== 1) {
+            throw new CryptoError("Unexpected block version.");
         }
 
-        const transactions: ITransaction[] = [];
-        block.transactions = [];
-        for (const length of transactionLengths) {
-            const transactionBytes = buf.readBytes(length).toBuffer();
-            const transaction = deserializeTransactionsUnchecked
-                ? TransactionFactory.fromBytesUnsafe(transactionBytes)
-                : TransactionFactory.fromBytes(transactionBytes);
-            transactions.push(transaction);
-            block.transactions.push(transaction.data);
+        const timestamp = reader.readUInt32LE();
+        const height = reader.readUInt32LE();
+
+        const previousMilestone = configManager.getMilestone(height - 1 || 1);
+        const previousBlock = previousMilestone.block.idFullSha256
+            ? reader.readBuffer(32).toString("hex")
+            : reader.readBigUInt64BE().toString();
+
+        const numberOfTransactions = reader.readUInt32LE();
+        const totalAmount = BigNumber.make(reader.readBigUInt64LE());
+        const totalFee = BigNumber.make(reader.readBigUInt64LE());
+        const reward = BigNumber.make(reader.readBigUInt64LE());
+        const payloadLength = reader.readUInt32LE();
+        const payloadHash = reader.readBuffer(32).toString("hex");
+        const generatorPublicKey = reader.readPublicKey().toString("hex");
+
+        const common = {
+            timestamp,
+            height,
+            previousBlock,
+            numberOfTransactions,
+            totalAmount,
+            totalFee,
+            reward,
+            payloadLength,
+            payloadHash,
+            generatorPublicKey,
+        };
+
+        if (version === 0) {
+            return { version, ...common };
+        }
+
+        const previousBlockVotesLength = reader.readUInt8();
+        const previousBlockVotes = reader.readSchnorrMultiSignature(previousBlockVotesLength);
+
+        return { version, ...common, previousBlockVotes };
+    }
+
+    public static readTransactions(reader: IReader, numberOfTransactions: number): Buffer[] {
+        const lengths: number[] = [];
+        const transactions: Buffer[] = [];
+
+        for (let i = 0; i < numberOfTransactions; i++) {
+            lengths.push(reader.readUInt32LE());
+        }
+
+        for (const length of lengths) {
+            transactions.push(reader.readBuffer(length));
         }
 
         return transactions;

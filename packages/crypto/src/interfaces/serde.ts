@@ -1,16 +1,16 @@
 import ByteBuffer from "bytebuffer";
 
-export interface IAddress {
-    readonly serialized: Buffer;
-    readonly network: number;
-
-    toString(format?: "base58" | "base58c"): string;
-    toJSON(): string;
-}
+export type ISchnorrMultiSignature = {
+    readonly index: number;
+    readonly signature: Buffer;
+};
 
 export interface IReader {
     readonly buffer: Buffer;
     readonly offset: number;
+
+    getRemainder(): Buffer;
+    getRemainderLength(): number;
 
     jump(length: number): void;
 
@@ -34,17 +34,18 @@ export interface IReader {
     readPublicKey(): Buffer;
     readEcdsaSignature(): Buffer;
     readSchnorrSignature(): Buffer;
-    readAddress(): IAddress;
-
-    readWithByteBufferBE<T>(cb: (byteBuffer: ByteBuffer) => T): T;
-    readWithByteBufferLE<T>(cb: (byteBuffer: ByteBuffer) => T): T;
-
-    getRemainder(): Buffer;
+    readSchnorrMultiSignature(signatureCount: number): ISchnorrMultiSignature[];
+    readWithByteBuffer<T>(cb: (byteBuffer: ByteBuffer) => T): T;
 }
 
 export interface IWriter {
     readonly buffer: Buffer;
     readonly offset: number;
+
+    getRemainder(): Buffer;
+    getRemainderLength(): number;
+    getResult(): Buffer;
+    getResultLength(): number;
 
     jump(length: number): void;
 
@@ -68,10 +69,6 @@ export interface IWriter {
     writePublicKey(value: Buffer): void;
     writeEcdsaSignature(value: Buffer): void;
     writeSchnorrSignature(value: Buffer): void;
-    writeAddress(value: IAddress): void;
-
-    writeWithByteBufferBE<T>(cb: (byteBuffer: ByteBuffer) => T): T;
-    writeWithByteBufferLE<T>(cb: (byteBuffer: ByteBuffer) => T): T;
-
-    getResult(): Buffer;
+    writeSchnorrMultiSignature(value: readonly ISchnorrMultiSignature[]): void;
+    writeWithByteBuffer<T>(cb: (byteBuffer: ByteBuffer) => T): T;
 }

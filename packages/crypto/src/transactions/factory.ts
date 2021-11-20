@@ -1,4 +1,5 @@
 import {
+    CryptoError,
     DuplicateParticipantInMultiSignatureError,
     InvalidTransactionBytesError,
     TransactionSchemaError,
@@ -53,6 +54,23 @@ export class TransactionFactory {
         data.fee = BigNumber.make(data.fee);
 
         return this.fromData(data);
+    }
+
+    public static fromGenesisJson(json: ITransactionJson): ITransaction {
+        const amount = BigNumber.make(json.amount);
+        const fee = BigNumber.make(json.fee);
+        const nonce = json.nonce ? BigNumber.make(json.nonce) : undefined;
+        const data = { ...json, amount, fee, nonce };
+
+        const transaction = TransactionTypeFactory.create(data as ITransactionData);
+        if (transaction.data.version === 1) Deserializer.applyV1Compatibility(transaction.data);
+        Serializer.serialize(transaction);
+
+        if (transaction.id !== json.id) {
+            throw new CryptoError("Bad transaction id.");
+        }
+
+        return transaction;
     }
 
     public static fromData(data: ITransactionData, strict = true, options: IDeserializeOptions = {}): ITransaction {

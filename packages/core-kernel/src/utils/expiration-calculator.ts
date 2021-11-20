@@ -41,8 +41,8 @@ export const calculateTransactionExpiration = (
 };
 
 export const calculateLockExpirationStatus = (
-    lastBlock: Interfaces.IBlock,
+    lastBlock: Interfaces.IBlockHeader,
     expiration: Interfaces.IHtlcExpiration,
 ): boolean =>
-    (expiration.type === Enums.HtlcLockExpirationType.EpochTimestamp && expiration.value <= lastBlock.data.timestamp) ||
-    (expiration.type === Enums.HtlcLockExpirationType.BlockHeight && expiration.value <= lastBlock.data.height);
+    (expiration.type === Enums.HtlcLockExpirationType.EpochTimestamp && expiration.value <= lastBlock.timestamp) ||
+    (expiration.type === Enums.HtlcLockExpirationType.BlockHeight && expiration.value <= lastBlock.height);

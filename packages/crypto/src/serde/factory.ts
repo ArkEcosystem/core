@@ -1,13 +1,8 @@
-import { IAddress, IReader, IWriter } from "../interfaces";
-import { Address } from "./address";
+import { IReader, IWriter } from "../interfaces";
 import { Reader } from "./reader";
 import { Writer } from "./writer";
 
-export class Factory {
-    public static createAddress(serialized: Buffer): IAddress {
-        return new Address(serialized);
-    }
-
+export class SerdeFactory {
     public static createReader(buffer: Buffer): IReader {
         return new Reader(buffer);
     }

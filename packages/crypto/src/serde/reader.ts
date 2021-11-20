@@ -1,7 +1,7 @@
 import ByteBuffer from "bytebuffer";
 
-import { IAddress, IReader } from "../interfaces";
-import { Factory } from "./factory";
+import { CryptoError } from "../errors";
+import { IReader, ISchnorrMultiSignature } from "../interfaces";
 
 export class Reader implements IReader {
     public readonly buffer: Buffer;
@@ -11,9 +11,17 @@ export class Reader implements IReader {
         this.buffer = buffer;
     }
 
+    public getRemainder(): Buffer {
+        return this.buffer.slice(this.offset);
+    }
+
+    public getRemainderLength(): number {
+        return this.buffer.length - this.offset;
+    }
+
     public jump(length: number): void {
-        if (length < -this.offset || length > this.buffer.length - this.offset) {
-            throw new RangeError("Jump over buffer boundary.");
+        if (length < -this.offset || length > this.getRemainderLength()) {
+            throw new CryptoError("Jump over buffer boundary.");
         }
 
         this.offset += length;
@@ -104,8 +112,8 @@ export class Reader implements IReader {
     }
 
     public readBuffer(length: number): Buffer {
-        if (length > this.buffer.length - this.offset) {
-            throw new Error("Read over buffer boundary.");
+        if (length > this.getRemainderLength()) {
+            throw new CryptoError("Read over buffer boundary.");
         }
 
         const value = this.buffer.slice(this.offset, this.offset + length);
@@ -116,54 +124,47 @@ export class Reader implements IReader {
     public readPublicKey(): Buffer {
         try {
             return this.readBuffer(33);
-        } catch (error) {
-            throw new Error(`Cannot read public key. ${error.message}`);
+        } catch (cause) {
+            throw new CryptoError("Cannot read public key.", { cause });
         }
     }
 
     public readEcdsaSignature(): Buffer {
         try {
             if (this.buffer.readUInt8(this.offset + 0) !== 0x30) {
-                throw new Error("Invalid marker.");
+                throw new CryptoError("Invalid marker.");
             }
 
             return this.readBuffer(2 + this.buffer.readUInt8(this.offset + 1));
-        } catch (error) {
-            throw new Error(`Cannot read ECDSA signature. ${error.message}`);
+        } catch (cause) {
+            throw new CryptoError("Cannot read ECDSA signature.", { cause });
         }
     }
 
     public readSchnorrSignature(): Buffer {
         try {
             return this.readBuffer(64);
-        } catch (error) {
-            throw new Error(`Cannot read Schnorr signature. ${error.message}`);
+        } catch (cause) {
+            throw new CryptoError("Cannot read Schnorr signature.", { cause });
         }
     }
 
-    public readAddress(): IAddress {
-        try {
-            return Factory.createAddress(this.readBuffer(21));
-        } catch (error) {
-            throw new Error(`Cannot read address. ${error.message}`);
+    public readSchnorrMultiSignature(signatureCount: number): ISchnorrMultiSignature[] {
+        const items: ISchnorrMultiSignature[] = [];
+
+        for (let i = 0; i < signatureCount; i++) {
+            const index = this.readUInt8();
+            const signature = this.readSchnorrSignature();
+            items.push({ index, signature });
         }
+
+        return items;
     }
 
-    public readWithByteBufferBE<T>(cb: (byteBuffer: ByteBuffer) => T): T {
-        const byteBuffer = ByteBuffer.wrap(this.buffer.slice(this.offset), undefined, false);
+    public readWithByteBuffer<T>(cb: (byteBuffer: ByteBuffer) => T): T {
+        const byteBuffer = ByteBuffer.wrap(this.buffer.slice(this.offset));
         const result = cb(byteBuffer);
         this.offset += byteBuffer.offset;
         return result;
-    }
-
-    public readWithByteBufferLE<T>(cb: (byteBuffer: ByteBuffer) => T): T {
-        const byteBuffer = ByteBuffer.wrap(this.buffer.slice(this.offset), undefined, true);
-        const result = cb(byteBuffer);
-        this.offset += byteBuffer.offset;
-        return result;
-    }
-
-    public getRemainder(): Buffer {
-        return this.buffer.slice(this.offset);
     }
 }

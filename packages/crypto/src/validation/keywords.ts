@@ -151,8 +151,8 @@ const blockId = (ajv: Ajv) => {
 
                 if (parentObject && parentObject.height) {
                     const height = schema.isPreviousBlock ? parentObject.height - 1 : parentObject.height;
-                    const constants = configManager.getMilestone(height ?? 1); // if height === 0 set it to 1
-                    return constants.block.idFullSha256 ? isFullSha256 : isPartial;
+                    const milestone = configManager.getMilestone(height ?? 1); // if height === 0 set it to 1
+                    return milestone.block.idFullSha256 ? isFullSha256 : isPartial;
                 }
 
                 return isPartial || isFullSha256;

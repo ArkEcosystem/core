@@ -1,83 +1,106 @@
-import { Hash } from "../crypto";
-import { IBlock, IBlockData, IBlockJson, IKeyPair } from "../interfaces";
+import { CryptoError } from "../errors";
+import { IBlock, IBlockData, IBlockHeader, IBlockHeaderData, IBlockJson, ITransaction } from "../interfaces";
+import { configManager } from "../managers";
+import { TransactionFactory } from "../transactions";
 import { BigNumber } from "../utils";
-import { Block } from "./block";
 import { Deserializer } from "./deserializer";
 import { Serializer } from "./serializer";
+import { Verifier } from "./verifier";
 
 export class BlockFactory {
-    public static make(
-        data: Omit<IBlockData, "generatorPublicKey" | "blockSignature">,
-        keys: IKeyPair,
-    ): IBlock | undefined {
-        const generatorPublicKey: string = keys.publicKey;
-        const signedHash: Buffer = Serializer.getSignedHash({ ...data, generatorPublicKey });
-        const blockSignature: string = Hash.signECDSA(signedHash, keys);
-        const id: string = Serializer.getId({ ...data, generatorPublicKey, blockSignature });
+    public static createHeaderFromData(data: IBlockHeaderData): IBlockHeader {
+        try {
+            Verifier.verifyHeader(data);
+            const id = Serializer.getId(data);
 
-        return this.fromData({ id, ...data, generatorPublicKey, blockSignature });
-    }
-
-    public static fromHex(hex: string): IBlock {
-        return this.fromSerialized(Buffer.from(hex, "hex"));
-    }
-
-    public static fromBytes(buffer: Buffer): IBlock {
-        return this.fromSerialized(buffer);
-    }
-
-    public static fromJson(json: IBlockJson): IBlock | undefined {
-        const data = {
-            ...json,
-
-            totalAmount: BigNumber.make(json.totalAmount),
-            totalFee: BigNumber.make(json.totalFee),
-            reward: BigNumber.make(json.reward),
-
-            transactions:
-                json.transactions?.map((tx) => {
-                    const amount = BigNumber.make(tx.amount);
-                    const fee = BigNumber.make(tx.fee);
-
-                    if (tx.nonce) {
-                        return { ...tx, amount, fee, nonce: BigNumber.make(tx.nonce) };
-                    } else {
-                        return { ...tx, amount, fee };
-                    }
-                }) ?? [],
-        };
-
-        return this.fromData(data as IBlockData);
-    }
-
-    public static fromData(
-        data: IBlockData,
-        options: { deserializeTransactionsUnchecked?: boolean } = {},
-    ): IBlock | undefined {
-        const data2: IBlockData | undefined = Block.applySchema(data);
-
-        if (data2) {
-            const serialized: Buffer = Serializer.serialize(data2);
-            const deserialized = Deserializer.deserialize(serialized, false, options);
-            const block: IBlock = new Block(deserialized.data, deserialized.transactions);
-
-            return block;
+            return { ...data, id };
+        } catch (cause) {
+            throw new CryptoError(`Cannot create header (height=${data.height}).`, { cause });
         }
-
-        return undefined;
     }
 
-    private static fromSerialized(serialized: Buffer): IBlock {
-        const deserialized = Deserializer.deserialize(serialized);
+    public static createBlockFromTransactions(header: IBlockHeader, transactions: readonly ITransaction[]): IBlock {
+        try {
+            Verifier.verifyBlock(header, transactions);
 
-        const validated: IBlockData | undefined = Block.applySchema(deserialized.data);
-
-        if (validated) {
-            deserialized.data = validated;
+            return { ...header, transactions };
+        } catch (cause) {
+            throw new CryptoError(`Cannot create block (height=${header.height}).`, { cause });
         }
+    }
 
-        const block: IBlock = new Block(deserialized.data, deserialized.transactions);
+    public static createBlockFromSerializedTransactions(header: IBlockHeader, serialized: readonly Buffer[]): IBlock {
+        try {
+            const transactions = serialized.map((s) => TransactionFactory.fromBytesUnsafe(s));
+            Verifier.verifyBlock(header, transactions);
 
-        return block;
+            return { ...header, transactions };
+        } catch (cause) {
+            const msg = `Cannot create block (height=${header.height}) from header and serialized transactions.`;
+            throw new CryptoError(msg, { cause });
+        }
+    }
+
+    public static createBlockFromData(data: IBlockData): IBlock {
+        try {
+            Verifier.verifyData(data);
+            const id = Serializer.getId(data);
+            const transactions = data.transactions.map((tx) => TransactionFactory.fromBytesUnsafe(tx));
+            Verifier.verifyBlock({ ...data, id }, transactions);
+
+            return { ...data, id, transactions };
+        } catch (cause) {
+            throw new CryptoError(`Cannot create block (height=${data.height}) from data.`, { cause });
+        }
+    }
+
+    public static createBlockFromBuffer(buffer: Buffer): IBlock {
+        try {
+            const data = Deserializer.deserialize(buffer);
+            Verifier.verifyData(data);
+            const id = Serializer.getId(data);
+            const transactions = data.transactions.map((tx) => TransactionFactory.fromBytesUnsafe(tx));
+            Verifier.verifyBlock({ ...data, id }, transactions);
+
+            return { ...data, id, transactions };
+        } catch (cause) {
+            throw new CryptoError("Cannot create block from buffer.", { cause });
+        }
+    }
+
+    public static createGenesisBlockFromJson(json: IBlockJson): IBlock {
+        try {
+            if (json.version !== 0 && json.version !== 1) throw new CryptoError("Bad version.");
+            if (json.height !== 1) throw new CryptoError("Bad height.");
+            if (json.previousBlock !== null) throw new CryptoError("Bad previous block.");
+
+            const milestone = configManager.getMilestone(1);
+            const version = json.version;
+            const transactions = json.transactions.map((txj) => TransactionFactory.fromGenesisJson(txj));
+
+            const common = {
+                id: json.id,
+                timestamp: json.timestamp,
+                height: json.height,
+                previousBlock: milestone.idFullSha256 ? "0".repeat(64) : "0",
+                numberOfTransactions: json.numberOfTransactions,
+                totalAmount: BigNumber.make(json.totalAmount),
+                totalFee: BigNumber.make(json.totalFee),
+                reward: BigNumber.make(json.reward),
+                payloadLength: json.payloadLength,
+                payloadHash: json.payloadHash,
+                generatorPublicKey: json.generatorPublicKey,
+                blockSignature: json.blockSignature,
+                transactions,
+            };
+
+            if (version === 0) {
+                return { version, ...common };
+            }
+
+            return { version, ...common, previousBlockVotes: [] };
+        } catch (cause) {
+            throw new CryptoError("Cannot create genesis block.", { cause });
+        }
     }
 }

@@ -1,69 +1,11 @@
-import { ITransactionData } from "../interfaces";
-import { BigNumber } from "../utils";
-import { ITransaction, ITransactionJson } from "./transactions";
+import * as Block0 from "./block0";
+import * as Block1 from "./block1";
 
-export interface IBlockVerification {
-    verified: boolean;
-    errors: string[];
-    containsMultiSignatures: boolean;
-}
+export type IBlockJson = Block0.IBlockJson0 | Block1.IBlockJson1;
 
-export interface IBlock {
-    readonly id: string;
-    readonly serialized: Buffer;
-    readonly data: IBlockData;
-    readonly transactions: ITransaction[];
+export type IBlockSignedData = Block0.IBlockSignedData0 | Block1.IBlockSignedData1;
+export type IBlockHeaderData = Block0.IBlockHeaderData0 | Block1.IBlockHeaderData1;
+export type IBlockData = Block0.IBlockData0 | Block1.IBlockData1;
 
-    verification: IBlockVerification;
-
-    getHeader(): IBlockData;
-    verifySignature(): boolean;
-    verify(): IBlockVerification;
-
-    toString(): string;
-    toJson(): IBlockJson;
-}
-
-export interface IBlockData {
-    id?: string;
-    idHex?: string;
-
-    timestamp: number;
-    version: number;
-    height: number;
-    previousBlockHex?: string;
-    previousBlock: string;
-    numberOfTransactions: number;
-    totalAmount: BigNumber;
-    totalFee: BigNumber;
-    reward: BigNumber;
-    payloadLength: number;
-    payloadHash: string;
-    generatorPublicKey: string;
-
-    blockSignature?: string;
-    serialized?: string;
-    transactions?: ITransactionData[];
-}
-
-export interface IBlockJson {
-    id?: string;
-    idHex?: string;
-
-    timestamp: number;
-    version: number;
-    height: number;
-    previousBlockHex?: string;
-    previousBlock: string;
-    numberOfTransactions: number;
-    totalAmount: string;
-    totalFee: string;
-    reward: string;
-    payloadLength: number;
-    payloadHash: string;
-    generatorPublicKey: string;
-
-    blockSignature?: string;
-    serialized?: string;
-    transactions?: ITransactionJson[];
-}
+export type IBlockHeader = Block0.IBlockHeader0 | Block1.IBlockHeader1;
+export type IBlock = Block0.IBlock0 | Block1.IBlock1;

@@ -1,6 +1,7 @@
 import ByteBuffer from "bytebuffer";
 
-import { IAddress, IWriter } from "../interfaces";
+import { CryptoError } from "../errors";
+import { ISchnorrMultiSignature, IWriter } from "../interfaces";
 
 export class Writer implements IWriter {
     public readonly buffer: Buffer;
@@ -10,9 +11,25 @@ export class Writer implements IWriter {
         this.buffer = buffer;
     }
 
+    public getRemainder(): Buffer {
+        return this.buffer.slice(this.offset);
+    }
+
+    public getRemainderLength(): number {
+        return this.buffer.length - this.offset;
+    }
+
+    public getResult(): Buffer {
+        return this.buffer.slice(0, this.offset);
+    }
+
+    public getResultLength(): number {
+        return this.offset;
+    }
+
     public jump(length: number): void {
-        if (length < -this.offset || length > this.buffer.length - this.offset) {
-            throw new RangeError("Jump over buffer boundary.");
+        if (length < -this.offset || length > this.getRemainderLength()) {
+            throw new CryptoError("Jump over buffer boundary.");
         }
 
         this.offset += length;
@@ -75,8 +92,8 @@ export class Writer implements IWriter {
     }
 
     public writeBuffer(value: Buffer): void {
-        if (value.length > this.buffer.length - this.offset) {
-            throw new Error("Write over buffer boundary.");
+        if (value.length > this.getRemainderLength()) {
+            throw new CryptoError("Write over buffer boundary.");
         }
 
         this.offset += value.copy(this.buffer, this.offset);
@@ -85,66 +102,54 @@ export class Writer implements IWriter {
     public writePublicKey(value: Buffer): void {
         try {
             if (value.length !== 33) {
-                throw new Error("Invalid length.");
+                throw new CryptoError("Invalid length.");
             }
 
             this.writeBuffer(value);
-        } catch (error) {
-            throw new Error(`Cannot write public key. ${error.message}`);
+        } catch (cause) {
+            throw new CryptoError("Cannot write public key.", { cause });
         }
     }
 
     public writeEcdsaSignature(value: Buffer): void {
         try {
             if (value.readUInt8(0) !== 0x30) {
-                throw new Error("Invalid marker.");
+                throw new CryptoError("Invalid marker.");
             }
 
             if (value.readUInt8(1) !== value.length - 2) {
-                throw new Error("Invalid length.");
+                throw new CryptoError("Invalid length.");
             }
 
             this.writeBuffer(value);
-        } catch (error) {
-            throw new Error(`Cannot write ECDSA signature. ${error.message}`);
+        } catch (cause) {
+            throw new CryptoError("Cannot write ECDSA signature.", { cause });
         }
     }
 
     public writeSchnorrSignature(value: Buffer): void {
         try {
             if (value.length !== 64) {
-                throw new Error("Invalid length.");
+                throw new CryptoError("Invalid length.");
             }
 
             this.writeBuffer(value);
-        } catch (error) {
-            throw new Error(`Cannot write Schnorr signature. ${error.message}`);
+        } catch (cause) {
+            throw new CryptoError("Cannot write Schnorr signature.", { cause });
         }
     }
 
-    public writeAddress(value: IAddress): void {
-        try {
-            this.writeBuffer(value.serialized);
-        } catch (error) {
-            throw new Error(`Cannot write address. ${error.message}`);
+    public writeSchnorrMultiSignature(value: readonly ISchnorrMultiSignature[]): void {
+        for (const item of value) {
+            this.writeUInt8(item.index);
+            this.writeSchnorrSignature(item.signature);
         }
     }
 
-    public writeWithByteBufferBE<T>(cb: (byteBuffer: ByteBuffer) => T): T {
-        const byteBuffer = ByteBuffer.wrap(this.buffer.slice(this.offset), undefined, false);
+    public writeWithByteBuffer<T>(cb: (byteBuffer: ByteBuffer) => T): T {
+        const byteBuffer = ByteBuffer.wrap(this.buffer.slice(this.offset));
         const result = cb(byteBuffer);
         this.offset += byteBuffer.offset;
         return result;
-    }
-
-    public writeWithByteBufferLE<T>(cb: (byteBuffer: ByteBuffer) => T): T {
-        const byteBuffer = ByteBuffer.wrap(this.buffer.slice(this.offset), undefined, true);
-        const result = cb(byteBuffer);
-        this.offset += byteBuffer.offset;
-        return result;
-    }
-
-    public getResult(): Buffer {
-        return this.buffer.slice(0, this.offset);
     }
 }
