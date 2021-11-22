@@ -30,17 +30,20 @@ importers:
       cross-env: 7.0.3
       del-cli: 4.0.1
       depcheck: 1.4.2
+      env-paths: 2.2.0
       eslint: 8.1.0
       eslint-config-prettier: 8.3.0
       eslint-plugin-jest: 25.2.2
       eslint-plugin-prettier: 4.0.0
       eslint-plugin-simple-import-sort: 7.0.0
+      expand-home-dir: 0.0.3
       fs-extra: 10.0.0
       get-port: 6.0.0
       glob: 7.2.0
       husky: 7.0.4
       jest: 27.3.1
       jest-extended: 1.1.0
+      joi: 17.4.2
       js-yaml: 4.1.0
       lint-staged: 11.2.6
       madge: 5.0.1
@@ -49,6 +52,7 @@ importers:
       nock: 13.1.4
       npm-check-updates: 11.8.5
       prettier: 2.4.1
+      prompts: 2.4.0
       rimraf: 3.0.2
       sinon: 11.1.2
       tmp: 0.2.1
@@ -84,17 +88,20 @@ importers:
       cross-env: registry.npmjs.org/cross-env/7.0.3
       del-cli: registry.npmjs.org/del-cli/4.0.1
       depcheck: registry.npmjs.org/depcheck/1.4.2
+      env-paths: 2.2.0
       eslint: registry.npmjs.org/eslint/8.1.0
       eslint-config-prettier: registry.npmjs.org/eslint-config-prettier/8.3.0_eslint@8.1.0
       eslint-plugin-jest: registry.npmjs.org/eslint-plugin-jest/25.2.2_8b83960a909347b56897443063930486
       eslint-plugin-prettier: registry.npmjs.org/eslint-plugin-prettier/4.0.0_850528f9ec3c0797b9b19a94a36b5ba3
       eslint-plugin-simple-import-sort: registry.npmjs.org/eslint-plugin-simple-import-sort/7.0.0_eslint@8.1.0
+      expand-home-dir: 0.0.3
       fs-extra: 10.0.0
       get-port: registry.npmjs.org/get-port/6.0.0
       glob: 7.2.0
       husky: registry.npmjs.org/husky/7.0.4
       jest: registry.npmjs.org/jest/27.3.1
       jest-extended: registry.npmjs.org/jest-extended/1.1.0
+      joi: 17.4.2
       js-yaml: registry.npmjs.org/js-yaml/4.1.0
       lint-staged: registry.npmjs.org/lint-staged/11.2.6
       madge: registry.npmjs.org/madge/5.0.1
@@ -103,6 +110,7 @@ importers:
       nock: registry.npmjs.org/nock/13.1.4
       npm-check-updates: registry.npmjs.org/npm-check-updates/11.8.5
       prettier: registry.npmjs.org/prettier/2.4.1
+      prompts: 2.4.0
       rimraf: registry.npmjs.org/rimraf/3.0.2
       sinon: registry.npmjs.org/sinon/11.1.2
       tmp: registry.npmjs.org/tmp/0.2.1
@@ -838,6 +846,30 @@ importers:
 
 packages:
 
+  /@hapi/hoek/9.2.1:
+    resolution: {integrity: sha512-gfta+H8aziZsm8pZa0vj04KO6biEiisppNgA1kbJvFrrWu9Vm7eaUEy76DIxsuTaWvti5fkJVhllWc6ZTE+Mdw==}
+    dev: true
+
+  /@hapi/topo/5.1.0:
+    resolution: {integrity: sha512-foQZKJig7Ob0BMAYBfcJk8d77QtOe7Wo4ox7ff1lQYoNNAb6jwcY1ncdoy2e9wQZzvNy7ODZCYJkK8kzmcAnAg==}
+    dependencies:
+      '@hapi/hoek': 9.2.1
+    dev: true
+
+  /@sideway/address/4.1.2:
+    resolution: {integrity: sha512-idTz8ibqWFrPU8kMirL0CoPH/A29XOzzAzpyN3zQ4kAWnzmNfFmRaoMNN6VI8ske5M73HZyhIaW4OuSFIdM4oA==}
+    dependencies:
+      '@hapi/hoek': 9.2.1
+    dev: true
+
+  /@sideway/formula/3.0.0:
+    resolution: {integrity: sha512-vHe7wZ4NOXVfkoRb8T5otiENVlT7a3IAiw7H5M2+GO+9CDgcVUUsX1zalAztCmwyOr2RUTGJdgB+ZvSVqmdHmg==}
+    dev: true
+
+  /@sideway/pinpoint/2.0.0:
+    resolution: {integrity: sha512-RNiOoTPkptFtSVzQevY/yWtZwf/RxyVnPy/OcA9HBM3MlGDnBEYL5B41H0MTn0Uec8Hi+2qUtTfG2WWZBmMejQ==}
+    dev: true
+
   /balanced-match/1.0.2:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
 
@@ -864,6 +896,20 @@ packages:
       iconv-lite: registry.npmjs.org/iconv-lite/0.6.3
     dev: true
     optional: true
+
+  /env-paths/2.2.0:
+    resolution: {integrity: sha512-6u0VYSCo/OW6IoD5WCLLy9JUGARbamfSavcNXry/eu8aHVFei6CD3Sw+VGX5alea1i9pgPHW0mbu6Xj0uBh7gA==}
+    engines: {node: '>=6'}
+    dev: true
+
+  /env-paths/2.2.1:
+    resolution: {integrity: sha512-+h1lkLKhZMTYjog1VEpJNG7NZJWcuc2DDk/qsqSTRRCOXiLjeQ1d1/udrUGhqMxUgAlwKNZ0cf2uqan5GLuS2A==}
+    engines: {node: '>=6'}
+    dev: true
+
+  /expand-home-dir/0.0.3:
+    resolution: {integrity: sha1-ct6KBIbMKKO71wRjU5iCW1tign0=}
+    dev: true
 
   /fs-extra/10.0.0:
     resolution: {integrity: sha512-C5owb14u9eJwizKGdchcDUQeFtlSHHthBk8pbX9Vc1PFZrLombudjDnNns88aYslCyF6IY5SUw3Roz6xShcEIQ==}
@@ -932,6 +978,16 @@ packages:
   /inherits/2.0.4:
     resolution: {integrity: sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==}
 
+  /joi/17.4.2:
+    resolution: {integrity: sha512-Lm56PP+n0+Z2A2rfRvsfWVDXGEWjXxatPopkQ8qQ5mxCEhwHG+Ettgg5o98FFaxilOxozoa14cFhrE/hOzh/Nw==}
+    dependencies:
+      '@hapi/hoek': 9.2.1
+      '@hapi/topo': 5.1.0
+      '@sideway/address': 4.1.2
+      '@sideway/formula': 3.0.0
+      '@sideway/pinpoint': 2.0.0
+    dev: true
+
   /jsonfile/4.0.0:
     resolution: {integrity: sha1-h3Gq4HmbZAdrdmQPygWPnBDjPss=}
     optionalDependencies:
@@ -944,6 +1000,11 @@ packages:
       universalify: 2.0.0
     optionalDependencies:
       graceful-fs: 4.2.8
+    dev: true
+
+  /kleur/3.0.3:
+    resolution: {integrity: sha512-eTIzlVOSUR+JxdDFepEYcBMtZ9Qqdef+rnzWdRZuMbOywu5tO2w2N7rqjoANZ5k9vywhL6Br1VRjUIgTQx4E8w==}
+    engines: {node: '>=6'}
     dev: true
 
   /minimatch/3.0.4:
@@ -959,6 +1020,26 @@ packages:
   /path-is-absolute/1.0.1:
     resolution: {integrity: sha1-F0uSaHNVNP+8es5r9TpanhtcX18=}
     engines: {node: '>=0.10.0'}
+
+  /prompts/2.4.0:
+    resolution: {integrity: sha512-awZAKrk3vN6CroQukBL+R9051a4R3zCZBlJm/HBfrSZ8iTpYix3VX1vU4mveiLpiwmOJT4wokTF9m6HUk4KqWQ==}
+    engines: {node: '>= 6'}
+    dependencies:
+      kleur: 3.0.3
+      sisteransi: 1.0.5
+    dev: true
+
+  /prompts/2.4.2:
+    resolution: {integrity: sha512-NxNv/kLguCA7p3jE8oL2aEBsrJWgAakBpgmgK6lpPWV+WuOmY6r2/zbAVnP+T8bQlA0nzHXSJSJW0Hq7ylaD2Q==}
+    engines: {node: '>= 6'}
+    dependencies:
+      kleur: 3.0.3
+      sisteransi: 1.0.5
+    dev: true
+
+  /sisteransi/1.0.5:
+    resolution: {integrity: sha512-bLGGlR1QxBcynn2d5YmDX4MGjlZvy2MRBDRNHLJ8VI6l6+9FUiyTFNJ0IveOSP0bcXgVDPRcfGqA0pjaqUpfVg==}
+    dev: true
 
   /source-map/0.6.1:
     resolution: {integrity: sha512-UjgapumWlbMhkBgzT7Ykc5YXUT46F0iKu8SGXq0bcwP5dz/h0Plj6enJqjz1Zbq2l5WaqYnrVbwWOWMyF3F47g==}
@@ -7722,6 +7803,7 @@ packages:
     name: env-paths
     version: 2.2.1
     engines: {node: '>=6'}
+    dev: false
 
   registry.npmjs.org/envfile/5.2.0:
     resolution: {integrity: sha512-AvFbXqYw/zZCQLSt3KisBTf42nNAgZ9mkewvTfoPtYuBeIld7UMmNvVQewVu4c0w93STUAfyZZf8DS4jD7JTag==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.org/envfile/-/envfile-5.2.0.tgz}
@@ -10386,7 +10468,7 @@ packages:
       jest-config: registry.npmjs.org/jest-config/27.3.1
       jest-util: registry.npmjs.org/jest-util/27.3.1
       jest-validate: registry.npmjs.org/jest-validate/27.3.1
-      prompts: registry.npmjs.org/prompts/2.4.2
+      prompts: 2.4.2
       yargs: registry.npmjs.org/yargs/16.2.0
     transitivePeerDependencies:
       - bufferutil
@@ -11313,6 +11395,7 @@ packages:
     name: kleur
     version: 3.0.3
     engines: {node: '>=6'}
+    dev: false
 
   registry.npmjs.org/kleur/4.0.0:
     resolution: {integrity: sha512-D8qk4wvB8ofBeLAsRNwnCkjbwdrcKYsMC/56pFQMOSfmmYJkG1O9/oBgXzD05K7biYAwnHjMI2abZ3YiuMY0Pg==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.org/kleur/-/kleur-4.0.0.tgz}
@@ -12495,7 +12578,7 @@ packages:
     engines: {node: '>= 10.12.0'}
     hasBin: true
     dependencies:
-      env-paths: registry.npmjs.org/env-paths/2.2.1
+      env-paths: 2.2.1
       glob: 7.2.0
       graceful-fs: 4.2.8
       nopt: registry.npmjs.org/nopt/5.0.0
@@ -12652,7 +12735,7 @@ packages:
       pacote: registry.npmjs.org/pacote/11.3.5
       parse-github-url: registry.npmjs.org/parse-github-url/1.0.2
       progress: registry.npmjs.org/progress/2.0.3
-      prompts: registry.npmjs.org/prompts/2.4.2
+      prompts: 2.4.2
       rc-config-loader: registry.npmjs.org/rc-config-loader/4.0.0
       remote-git-tags: registry.npmjs.org/remote-git-tags/3.0.0
       rimraf: registry.npmjs.org/rimraf/3.0.2
@@ -13818,16 +13901,6 @@ packages:
       sisteransi: registry.npmjs.org/sisteransi/1.0.5
     dev: false
 
-  registry.npmjs.org/prompts/2.4.2:
-    resolution: {integrity: sha512-NxNv/kLguCA7p3jE8oL2aEBsrJWgAakBpgmgK6lpPWV+WuOmY6r2/zbAVnP+T8bQlA0nzHXSJSJW0Hq7ylaD2Q==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.org/prompts/-/prompts-2.4.2.tgz}
-    name: prompts
-    version: 2.4.2
-    engines: {node: '>= 6'}
-    dependencies:
-      kleur: registry.npmjs.org/kleur/3.0.3
-      sisteransi: registry.npmjs.org/sisteransi/1.0.5
-    dev: true
-
   registry.npmjs.org/propagate/2.0.1:
     resolution: {integrity: sha512-vGrhOavPSTz4QVNuBNdcNXePNdNMaO1xj9yBeH1ScQPjk/rhg9sSlCXPhMkFuaNNW/syTvYqsnbIJxMBfRbbag==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.org/propagate/-/propagate-2.0.1.tgz}
     name: propagate
@@ -14988,6 +15061,7 @@ packages:
     resolution: {integrity: sha512-bLGGlR1QxBcynn2d5YmDX4MGjlZvy2MRBDRNHLJ8VI6l6+9FUiyTFNJ0IveOSP0bcXgVDPRcfGqA0pjaqUpfVg==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.org/sisteransi/-/sisteransi-1.0.5.tgz}
     name: sisteransi
     version: 1.0.5
+    dev: false
 
   registry.npmjs.org/slash/2.0.0:
     resolution: {integrity: sha512-ZYKh3Wh2z1PpEXWr0MpSBZ0V6mZHAQfYevttO11c51CaWjGTaadiKZ+wVt1PbMlDV5qhMFslpZCemhwOK7C89A==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.org/slash/-/slash-2.0.0.tgz}
