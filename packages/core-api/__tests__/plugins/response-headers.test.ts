@@ -22,10 +22,11 @@ describe("responseHeaders.getOnPreResponse", () => {
     it("should add header X-Block-Height with last block height from app blockchain getLastHeight()", () => {
         const onPreResponse = responseHeaders.getOnPreResponseHandler(app as any);
         const height = 2346;
+        const headers: Hapi.Util.Dictionary<string | string[]> = {};
         getLastHeight.mockReturnValueOnce(height);
 
         const request: Partial<Hapi.Request> = {
-            response: { headers: {} } as Partial<Hapi.ResponseObject> as Hapi.ResponseObject,
+            response: { headers } as Hapi.ResponseObject,
         };
 
         const h: Partial<Hapi.ResponseToolkit> = {
@@ -34,7 +35,7 @@ describe("responseHeaders.getOnPreResponse", () => {
 
         const ret = onPreResponse(request as Hapi.Request, h as Hapi.ResponseToolkit);
 
-        expect((request.response as Hapi.ResponseObject).headers["X-Block-Height"]).toEqual(height);
+        expect(headers["X-Block-Height"]).toEqual(height);
 
         expect(ret).toBe(h.continue);
     });
