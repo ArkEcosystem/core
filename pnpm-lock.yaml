@@ -25,6 +25,7 @@ importers:
       '@typescript-eslint/parser': 5.3.0
       babel-loader: 8.2.3
       capture-console: 1.0.1
+      chalk: 4.1.2
       cpy-cli: 3.1.1
       create-hash: 1.2.0
       cross-env: 7.0.3
@@ -83,6 +84,7 @@ importers:
       '@typescript-eslint/parser': registry.npmjs.org/@typescript-eslint/parser/5.3.0_eslint@8.1.0+typescript@4.4.4
       babel-loader: registry.npmjs.org/babel-loader/8.2.3_@babel+core@7.16.0
       capture-console: registry.npmjs.org/capture-console/1.0.1
+      chalk: 4.1.2
       cpy-cli: registry.npmjs.org/cpy-cli/3.1.1
       create-hash: registry.npmjs.org/create-hash/1.2.0
       cross-env: registry.npmjs.org/cross-env/7.0.3
@@ -870,6 +872,24 @@ packages:
     resolution: {integrity: sha512-RNiOoTPkptFtSVzQevY/yWtZwf/RxyVnPy/OcA9HBM3MlGDnBEYL5B41H0MTn0Uec8Hi+2qUtTfG2WWZBmMejQ==}
     dev: true
 
+  /ansi-styles/3.2.1:
+    resolution: {integrity: sha512-VT0ZI6kZRdTh8YyJw3SMbYm/u+NqfsAxEpWO0Pf9sq8/e94WxxOpPKx9FR1FlyCtOVDNOQ+8ntlqFxiRc+r5qA==}
+    engines: {node: '>=4'}
+    dependencies:
+      color-convert: 1.9.3
+    dev: true
+
+  /ansi-styles/4.3.0:
+    resolution: {integrity: sha512-zbB9rCJAT1rbjiVDb2hqKFHNYLxgtk8NURxZ3IZwD3F6NtxbXZQCnnSi1Lkx+IDohdPlFp222wVALIheZJQSEg==}
+    engines: {node: '>=8'}
+    dependencies:
+      color-convert: 2.0.1
+
+  /ansi-styles/5.2.0:
+    resolution: {integrity: sha512-Cxwpt2SfTzTtXcfOlzGEee8O+c+MmUgGrNiBcXnuWxuFJHe6a5Hz7qwhwe5OgaSYI0IJvkLqWX1ASG+cJOkEiA==}
+    engines: {node: '>=10'}
+    dev: true
+
   /balanced-match/1.0.2:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
 
@@ -878,6 +898,42 @@ packages:
     dependencies:
       balanced-match: 1.0.2
       concat-map: 0.0.1
+
+  /chalk/2.4.2:
+    resolution: {integrity: sha512-Mti+f9lpJNcwF4tWV8/OrTTtF1gZi+f8FqlyAdouralcFWFQWF2+NgCHShjkCb+IFBLq9buZwE1xckQU4peSuQ==}
+    engines: {node: '>=4'}
+    dependencies:
+      ansi-styles: 3.2.1
+      escape-string-regexp: registry.npmjs.org/escape-string-regexp/1.0.5
+      supports-color: 5.5.0
+    dev: true
+
+  /chalk/4.1.2:
+    resolution: {integrity: sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==}
+    engines: {node: '>=10'}
+    dependencies:
+      ansi-styles: 4.3.0
+      supports-color: 7.2.0
+    dev: true
+
+  /color-convert/1.9.3:
+    resolution: {integrity: sha512-QfAUtd+vFdAtFQcC8CCyYt1fYWxSqAiK2cSD6zDB8N3cpsEBAvRxp9zOGg6G/SHHJYAT88/az/IuDGALsNVbGg==}
+    dependencies:
+      color-name: 1.1.3
+    dev: true
+
+  /color-convert/2.0.1:
+    resolution: {integrity: sha512-RRECPsj7iu/xb5oKYcsFHSppFNnsj/52OVTRKb4zP5onXwVF3zVmmToNcOfGC+CRDpfK/U584fMg38ZHCaElKQ==}
+    engines: {node: '>=7.0.0'}
+    dependencies:
+      color-name: 1.1.4
+
+  /color-name/1.1.3:
+    resolution: {integrity: sha1-p9BVi9icQveV3UIyj3QIMcpTvCU=}
+    dev: true
+
+  /color-name/1.1.4:
+    resolution: {integrity: sha512-dOy+3AuW3a2wNbZHIuMZpTcgjGuLU/uBL/ubcZF9OXbDo8ff4O8yVp5Bf0efS8uEoYo5q4Fx7dY9OgQGXgAsQA==}
 
   /colors/1.4.0:
     resolution: {integrity: sha512-a+UqTh4kgZg/SlGvfbzDHpgRu7AAQOmmqRHJnxhRZICKFUT91brVhNNt58CMWU9PsBbv3PDCZUHbVxuDiH2mtA==}
@@ -969,6 +1025,15 @@ packages:
   /graceful-fs/4.2.8:
     resolution: {integrity: sha512-qkIilPUYcNhJpd33n0GBXTB1MMPp14TxEsEs0pTrsSVucApsYzW5V+Q8Qxhik6KU3evy+qkAAowTByymK0avdg==}
 
+  /has-flag/3.0.0:
+    resolution: {integrity: sha1-tdRU3CGZriJWmfNGfloH87lVuv0=}
+    engines: {node: '>=4'}
+    dev: true
+
+  /has-flag/4.0.0:
+    resolution: {integrity: sha512-EykJT/Q1KjTWctppgIAgfSO0tKVuZUjhgMr17kqTumMl6Afv3EISleU7qZUzoXDFTAHTDC4NOoG/ZxU3EvlMPQ==}
+    engines: {node: '>=8'}
+
   /inflight/1.0.6:
     resolution: {integrity: sha1-Sb1jMdfQLQwJvJEKEHW6gWW1bfk=}
     dependencies:
@@ -1045,6 +1110,27 @@ packages:
     resolution: {integrity: sha512-UjgapumWlbMhkBgzT7Ykc5YXUT46F0iKu8SGXq0bcwP5dz/h0Plj6enJqjz1Zbq2l5WaqYnrVbwWOWMyF3F47g==}
     engines: {node: '>=0.10.0'}
     optional: true
+
+  /supports-color/5.5.0:
+    resolution: {integrity: sha512-QjVjwdXIt408MIiAqCX4oUKsgU2EqAGzs2Ppkm4aQYbjm+ZEWEcW4SfFNTr4uMNZma0ey4f5lgLrkB0aX0QMow==}
+    engines: {node: '>=4'}
+    dependencies:
+      has-flag: 3.0.0
+    dev: true
+
+  /supports-color/7.2.0:
+    resolution: {integrity: sha512-qpCAvRl9stuOHveKsn7HncJRvv501qIacKzQlO/+Lwxc9+0q2wLyv4Dfvt80/DPn2pqOBsJdDiogXGR9+OvwRw==}
+    engines: {node: '>=8'}
+    dependencies:
+      has-flag: 4.0.0
+    dev: true
+
+  /supports-color/8.1.1:
+    resolution: {integrity: sha512-MpUEN2OodtUzxvKQl72cUF7RQ5EiHsGvSsVG0ia9c5RbWGL2CI4C7EpPS8UTBIplnlzZiNuV56w+FuNxy3ty2Q==}
+    engines: {node: '>=10'}
+    dependencies:
+      has-flag: 4.0.0
+    dev: true
 
   /universalify/0.1.2:
     resolution: {integrity: sha512-rBJeI5CXAlmy1pV+617WB9J63U6XcazHHF2f2dbJix4XzpUF0RS3Zbj0FGIOCAva5P/d/GBOYaACQ1w+0azUkg==}
@@ -2580,7 +2666,7 @@ packages:
     engines: {node: '>=v12'}
     dependencies:
       '@commitlint/types': registry.npmjs.org/@commitlint/types/14.0.0
-      chalk: registry.npmjs.org/chalk/4.1.2
+      chalk: 4.1.2
     dev: true
 
   registry.npmjs.org/@commitlint/is-ignored/14.0.0:
@@ -2615,7 +2701,7 @@ packages:
       '@commitlint/resolve-extends': registry.npmjs.org/@commitlint/resolve-extends/14.1.0
       '@commitlint/types': registry.npmjs.org/@commitlint/types/14.0.0
       '@endemolshinegroup/cosmiconfig-typescript-loader': registry.npmjs.org/@endemolshinegroup/cosmiconfig-typescript-loader/3.0.2_3fdcc7bc724bd900a681b5e9457ed94a
-      chalk: registry.npmjs.org/chalk/4.1.2
+      chalk: 4.1.2
       cosmiconfig: registry.npmjs.org/cosmiconfig/7.0.1
       lodash: registry.npmjs.org/lodash/4.17.21
       resolve-from: registry.npmjs.org/resolve-from/5.0.0
@@ -2699,7 +2785,7 @@ packages:
     version: 14.0.0
     engines: {node: '>=v12'}
     dependencies:
-      chalk: registry.npmjs.org/chalk/4.1.2
+      chalk: 4.1.2
     dev: true
 
   registry.npmjs.org/@endemolshinegroup/cosmiconfig-typescript-loader/3.0.2_3fdcc7bc724bd900a681b5e9457ed94a:
@@ -3096,7 +3182,7 @@ packages:
     dependencies:
       '@jest/types': registry.npmjs.org/@jest/types/27.2.5
       '@types/node': registry.npmjs.org/@types/node/16.11.6
-      chalk: registry.npmjs.org/chalk/4.1.2
+      chalk: 4.1.2
       jest-message-util: registry.npmjs.org/jest-message-util/27.3.1
       jest-util: registry.npmjs.org/jest-util/27.3.1
       slash: registry.npmjs.org/slash/3.0.0
@@ -3120,7 +3206,7 @@ packages:
       '@jest/types': registry.npmjs.org/@jest/types/27.2.5
       '@types/node': registry.npmjs.org/@types/node/16.11.6
       ansi-escapes: registry.npmjs.org/ansi-escapes/4.3.2
-      chalk: registry.npmjs.org/chalk/4.1.2
+      chalk: 4.1.2
       emittery: registry.npmjs.org/emittery/0.8.1
       exit: registry.npmjs.org/exit/0.1.2
       graceful-fs: registry.npmjs.org/graceful-fs/4.2.8
@@ -3203,7 +3289,7 @@ packages:
       '@jest/transform': registry.npmjs.org/@jest/transform/27.3.1
       '@jest/types': registry.npmjs.org/@jest/types/27.2.5
       '@types/node': registry.npmjs.org/@types/node/16.11.6
-      chalk: registry.npmjs.org/chalk/4.1.2
+      chalk: 4.1.2
       collect-v8-coverage: registry.npmjs.org/collect-v8-coverage/1.0.1
       exit: registry.npmjs.org/exit/0.1.2
       glob: 7.2.0
@@ -3294,7 +3380,7 @@ packages:
       '@babel/core': registry.npmjs.org/@babel/core/7.16.0
       '@jest/types': registry.npmjs.org/@jest/types/27.2.5
       babel-plugin-istanbul: registry.npmjs.org/babel-plugin-istanbul/6.1.1
-      chalk: registry.npmjs.org/chalk/4.1.2
+      chalk: 4.1.2
       convert-source-map: registry.npmjs.org/convert-source-map/1.8.0
       fast-json-stable-stringify: registry.npmjs.org/fast-json-stable-stringify/2.1.0
       graceful-fs: 4.2.8
@@ -3331,7 +3417,7 @@ packages:
       '@types/istanbul-reports': registry.npmjs.org/@types/istanbul-reports/3.0.1
       '@types/node': registry.npmjs.org/@types/node/16.11.6
       '@types/yargs': registry.npmjs.org/@types/yargs/15.0.14
-      chalk: registry.npmjs.org/chalk/4.1.2
+      chalk: 4.1.2
     dev: true
 
   registry.npmjs.org/@jest/types/27.2.5:
@@ -3344,7 +3430,7 @@ packages:
       '@types/istanbul-reports': registry.npmjs.org/@types/istanbul-reports/3.0.1
       '@types/node': registry.npmjs.org/@types/node/16.11.6
       '@types/yargs': registry.npmjs.org/@types/yargs/16.0.4
-      chalk: registry.npmjs.org/chalk/4.1.2
+      chalk: 4.1.2
     dev: true
 
   registry.npmjs.org/@mapbox/node-pre-gyp/1.0.6:
@@ -3603,7 +3689,7 @@ packages:
     dependencies:
       '@oclif/errors': registry.npmjs.org/@oclif/errors/1.3.5
       '@oclif/linewrap': registry.npmjs.org/@oclif/linewrap/1.0.0
-      chalk: registry.npmjs.org/chalk/2.4.2
+      chalk: 2.4.2
       tslib: registry.npmjs.org/tslib/1.14.1
     dev: true
 
@@ -3616,7 +3702,7 @@ packages:
       '@oclif/command': registry.npmjs.org/@oclif/command/1.8.0
       '@oclif/config': registry.npmjs.org/@oclif/config/1.17.0
       '@oclif/errors': registry.npmjs.org/@oclif/errors/1.3.5
-      chalk: registry.npmjs.org/chalk/4.1.2
+      chalk: 4.1.2
       indent-string: registry.npmjs.org/indent-string/4.0.0
       lodash: registry.npmjs.org/lodash/4.17.21
       string-width: registry.npmjs.org/string-width/4.2.3
@@ -3637,7 +3723,7 @@ packages:
       '@oclif/command': registry.npmjs.org/@oclif/command/1.8.0_supports-color@8.1.1
       '@oclif/config': registry.npmjs.org/@oclif/config/1.17.0_supports-color@8.1.1
       '@oclif/errors': registry.npmjs.org/@oclif/errors/1.3.5
-      chalk: registry.npmjs.org/chalk/4.1.2
+      chalk: 4.1.2
       indent-string: registry.npmjs.org/indent-string/4.0.0
       lodash: registry.npmjs.org/lodash/4.17.21
       string-width: registry.npmjs.org/string-width/4.2.3
@@ -5212,13 +5298,6 @@ packages:
     dependencies:
       color-convert: registry.npmjs.org/color-convert/2.0.1
 
-  registry.npmjs.org/ansi-styles/5.2.0:
-    resolution: {integrity: sha512-Cxwpt2SfTzTtXcfOlzGEee8O+c+MmUgGrNiBcXnuWxuFJHe6a5Hz7qwhwe5OgaSYI0IJvkLqWX1ASG+cJOkEiA==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.org/ansi-styles/-/ansi-styles-5.2.0.tgz}
-    name: ansi-styles
-    version: 5.2.0
-    engines: {node: '>=10'}
-    dev: true
-
   registry.npmjs.org/ansicolors/0.3.2:
     resolution: {integrity: sha1-ZlWX3oap/+Oqm/vmyuXG6kJrSXk=, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.org/ansicolors/-/ansicolors-0.3.2.tgz}
     name: ansicolors
@@ -5564,7 +5643,7 @@ packages:
       '@types/babel__core': registry.npmjs.org/@types/babel__core/7.1.16
       babel-plugin-istanbul: registry.npmjs.org/babel-plugin-istanbul/6.1.1
       babel-preset-jest: registry.npmjs.org/babel-preset-jest/27.2.0_@babel+core@7.16.0
-      chalk: registry.npmjs.org/chalk/4.1.2
+      chalk: 4.1.2
       graceful-fs: 4.2.8
       slash: registry.npmjs.org/slash/3.0.0
     transitivePeerDependencies:
@@ -6539,9 +6618,9 @@ packages:
       '@oclif/linewrap': registry.npmjs.org/@oclif/linewrap/1.0.0
       '@oclif/screen': registry.npmjs.org/@oclif/screen/1.0.4
       ansi-escapes: registry.npmjs.org/ansi-escapes/4.3.2
-      ansi-styles: registry.npmjs.org/ansi-styles/4.3.0
+      ansi-styles: 4.3.0
       cardinal: registry.npmjs.org/cardinal/2.1.1
-      chalk: registry.npmjs.org/chalk/4.1.2
+      chalk: 4.1.2
       clean-stack: registry.npmjs.org/clean-stack/3.0.1
       cli-progress: registry.npmjs.org/cli-progress/3.9.1
       extract-stack: registry.npmjs.org/extract-stack/2.0.0
@@ -6557,7 +6636,7 @@ packages:
       semver: registry.npmjs.org/semver/7.3.5
       string-width: registry.npmjs.org/string-width/4.2.3
       strip-ansi: registry.npmjs.org/strip-ansi/6.0.1
-      supports-color: registry.npmjs.org/supports-color/8.1.1
+      supports-color: 8.1.1
       supports-hyperlinks: registry.npmjs.org/supports-hyperlinks/2.2.0
       tslib: registry.npmjs.org/tslib/2.3.1
     dev: true
@@ -8080,7 +8159,7 @@ packages:
       '@eslint/eslintrc': registry.npmjs.org/@eslint/eslintrc/1.0.4
       '@humanwhocodes/config-array': registry.npmjs.org/@humanwhocodes/config-array/0.6.0
       ajv: registry.npmjs.org/ajv/6.12.6
-      chalk: registry.npmjs.org/chalk/4.1.2
+      chalk: 4.1.2
       cross-spawn: registry.npmjs.org/cross-spawn/7.0.3
       debug: registry.npmjs.org/debug/4.3.2
       doctrine: registry.npmjs.org/doctrine/3.0.0
@@ -8333,7 +8412,7 @@ packages:
     engines: {node: '>= 10.14.2'}
     dependencies:
       '@jest/types': registry.npmjs.org/@jest/types/26.6.2
-      ansi-styles: registry.npmjs.org/ansi-styles/4.3.0
+      ansi-styles: 4.3.0
       jest-get-type: registry.npmjs.org/jest-get-type/26.3.0
       jest-matcher-utils: registry.npmjs.org/jest-matcher-utils/26.6.2
       jest-message-util: registry.npmjs.org/jest-message-util/26.6.2
@@ -8347,7 +8426,7 @@ packages:
     engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
     dependencies:
       '@jest/types': registry.npmjs.org/@jest/types/27.2.5
-      ansi-styles: registry.npmjs.org/ansi-styles/5.2.0
+      ansi-styles: 5.2.0
       jest-get-type: registry.npmjs.org/jest-get-type/27.3.1
       jest-matcher-utils: registry.npmjs.org/jest-matcher-utils/27.3.1
       jest-message-util: registry.npmjs.org/jest-message-util/27.3.1
@@ -9308,12 +9387,6 @@ packages:
     name: has-flag
     version: 3.0.0
     engines: {node: '>=4'}
-
-  registry.npmjs.org/has-flag/4.0.0:
-    resolution: {integrity: sha512-EykJT/Q1KjTWctppgIAgfSO0tKVuZUjhgMr17kqTumMl6Afv3EISleU7qZUzoXDFTAHTDC4NOoG/ZxU3EvlMPQ==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.org/has-flag/-/has-flag-4.0.0.tgz}
-    name: has-flag
-    version: 4.0.0
-    engines: {node: '>=8'}
 
   registry.npmjs.org/has-glob/1.0.0:
     resolution: {integrity: sha1-mqqe7b/7G6OZCnsAEPtnjuAIEgc=, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.org/has-glob/-/has-glob-1.0.0.tgz}
@@ -10380,7 +10453,7 @@ packages:
     dependencies:
       istanbul-lib-coverage: registry.npmjs.org/istanbul-lib-coverage/3.2.0
       make-dir: registry.npmjs.org/make-dir/3.1.0
-      supports-color: registry.npmjs.org/supports-color/7.2.0
+      supports-color: 7.2.0
     dev: true
 
   registry.npmjs.org/istanbul-lib-source-maps/4.0.1:
@@ -10427,7 +10500,7 @@ packages:
       '@jest/test-result': registry.npmjs.org/@jest/test-result/27.3.1
       '@jest/types': registry.npmjs.org/@jest/types/27.2.5
       '@types/node': registry.npmjs.org/@types/node/16.11.6
-      chalk: registry.npmjs.org/chalk/4.1.2
+      chalk: 4.1.2
       co: registry.npmjs.org/co/4.6.0
       dedent: registry.npmjs.org/dedent/0.7.0
       expect: registry.npmjs.org/expect/27.3.1
@@ -10461,7 +10534,7 @@ packages:
       '@jest/core': registry.npmjs.org/@jest/core/27.3.1
       '@jest/test-result': registry.npmjs.org/@jest/test-result/27.3.1
       '@jest/types': registry.npmjs.org/@jest/types/27.2.5
-      chalk: registry.npmjs.org/chalk/4.1.2
+      chalk: 4.1.2
       exit: registry.npmjs.org/exit/0.1.2
       graceful-fs: registry.npmjs.org/graceful-fs/4.2.8
       import-local: registry.npmjs.org/import-local/3.0.3
@@ -10493,7 +10566,7 @@ packages:
       '@jest/test-sequencer': registry.npmjs.org/@jest/test-sequencer/27.3.1
       '@jest/types': registry.npmjs.org/@jest/types/27.2.5
       babel-jest: registry.npmjs.org/babel-jest/27.3.1_@babel+core@7.16.0
-      chalk: registry.npmjs.org/chalk/4.1.2
+      chalk: 4.1.2
       ci-info: registry.npmjs.org/ci-info/3.2.0
       deepmerge: registry.npmjs.org/deepmerge/4.2.2
       glob: 7.2.0
@@ -10535,7 +10608,7 @@ packages:
     version: 26.6.2
     engines: {node: '>= 10.14.2'}
     dependencies:
-      chalk: registry.npmjs.org/chalk/4.1.2
+      chalk: 4.1.2
       diff-sequences: registry.npmjs.org/diff-sequences/26.6.2
       jest-get-type: registry.npmjs.org/jest-get-type/26.3.0
       pretty-format: registry.npmjs.org/pretty-format/26.6.2
@@ -10547,7 +10620,7 @@ packages:
     version: 27.3.1
     engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
     dependencies:
-      chalk: registry.npmjs.org/chalk/4.1.2
+      chalk: 4.1.2
       diff-sequences: registry.npmjs.org/diff-sequences/27.0.6
       jest-get-type: registry.npmjs.org/jest-get-type/27.3.1
       pretty-format: registry.npmjs.org/pretty-format/27.3.1
@@ -10569,7 +10642,7 @@ packages:
     engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
     dependencies:
       '@jest/types': registry.npmjs.org/@jest/types/27.2.5
-      chalk: registry.npmjs.org/chalk/4.1.2
+      chalk: 4.1.2
       jest-get-type: registry.npmjs.org/jest-get-type/27.3.1
       jest-util: registry.npmjs.org/jest-util/27.3.1
       pretty-format: registry.npmjs.org/pretty-format/27.3.1
@@ -10692,7 +10765,7 @@ packages:
       '@jest/test-result': registry.npmjs.org/@jest/test-result/27.3.1
       '@jest/types': registry.npmjs.org/@jest/types/27.2.5
       '@types/node': registry.npmjs.org/@types/node/16.11.6
-      chalk: registry.npmjs.org/chalk/4.1.2
+      chalk: 4.1.2
       co: registry.npmjs.org/co/4.6.0
       expect: registry.npmjs.org/expect/27.3.1
       is-generator-fn: registry.npmjs.org/is-generator-fn/2.1.0
@@ -10746,7 +10819,7 @@ packages:
     version: 26.6.2
     engines: {node: '>= 10.14.2'}
     dependencies:
-      chalk: registry.npmjs.org/chalk/4.1.2
+      chalk: 4.1.2
       jest-diff: registry.npmjs.org/jest-diff/26.6.2
       jest-get-type: registry.npmjs.org/jest-get-type/26.3.0
       pretty-format: registry.npmjs.org/pretty-format/26.6.2
@@ -10758,7 +10831,7 @@ packages:
     version: 27.3.1
     engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
     dependencies:
-      chalk: registry.npmjs.org/chalk/4.1.2
+      chalk: 4.1.2
       jest-diff: registry.npmjs.org/jest-diff/27.3.1
       jest-get-type: registry.npmjs.org/jest-get-type/27.3.1
       pretty-format: registry.npmjs.org/pretty-format/27.3.1
@@ -10789,7 +10862,7 @@ packages:
       '@babel/code-frame': registry.npmjs.org/@babel/code-frame/7.16.0
       '@jest/types': registry.npmjs.org/@jest/types/26.6.2
       '@types/stack-utils': registry.npmjs.org/@types/stack-utils/2.0.1
-      chalk: registry.npmjs.org/chalk/4.1.2
+      chalk: 4.1.2
       graceful-fs: 4.2.8
       micromatch: registry.npmjs.org/micromatch/4.0.4
       pretty-format: registry.npmjs.org/pretty-format/26.6.2
@@ -10806,7 +10879,7 @@ packages:
       '@babel/code-frame': registry.npmjs.org/@babel/code-frame/7.16.0
       '@jest/types': registry.npmjs.org/@jest/types/27.2.5
       '@types/stack-utils': registry.npmjs.org/@types/stack-utils/2.0.1
-      chalk: registry.npmjs.org/chalk/4.1.2
+      chalk: 4.1.2
       graceful-fs: 4.2.8
       micromatch: registry.npmjs.org/micromatch/4.0.4
       pretty-format: registry.npmjs.org/pretty-format/27.3.1
@@ -10880,7 +10953,7 @@ packages:
     engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
     dependencies:
       '@jest/types': registry.npmjs.org/@jest/types/27.2.5
-      chalk: registry.npmjs.org/chalk/4.1.2
+      chalk: 4.1.2
       graceful-fs: 4.2.8
       jest-haste-map: registry.npmjs.org/jest-haste-map/27.3.1
       jest-pnp-resolver: registry.npmjs.org/jest-pnp-resolver/1.2.2_jest-resolve@27.3.1
@@ -10903,7 +10976,7 @@ packages:
       '@jest/transform': registry.npmjs.org/@jest/transform/27.3.1
       '@jest/types': registry.npmjs.org/@jest/types/27.2.5
       '@types/node': registry.npmjs.org/@types/node/16.11.6
-      chalk: registry.npmjs.org/chalk/4.1.2
+      chalk: 4.1.2
       emittery: registry.npmjs.org/emittery/0.8.1
       exit: registry.npmjs.org/exit/0.1.2
       graceful-fs: 4.2.8
@@ -10940,7 +11013,7 @@ packages:
       '@jest/transform': registry.npmjs.org/@jest/transform/27.3.1
       '@jest/types': registry.npmjs.org/@jest/types/27.2.5
       '@types/yargs': registry.npmjs.org/@types/yargs/16.0.4
-      chalk: registry.npmjs.org/chalk/4.1.2
+      chalk: 4.1.2
       cjs-module-lexer: registry.npmjs.org/cjs-module-lexer/1.2.2
       collect-v8-coverage: registry.npmjs.org/collect-v8-coverage/1.0.1
       execa: registry.npmjs.org/execa/5.1.1
@@ -10989,7 +11062,7 @@ packages:
       '@types/babel__traverse': registry.npmjs.org/@types/babel__traverse/7.14.2
       '@types/prettier': registry.npmjs.org/@types/prettier/2.4.1
       babel-preset-current-node-syntax: registry.npmjs.org/babel-preset-current-node-syntax/1.0.1_@babel+core@7.16.0
-      chalk: registry.npmjs.org/chalk/4.1.2
+      chalk: 4.1.2
       expect: registry.npmjs.org/expect/27.3.1
       graceful-fs: 4.2.8
       jest-diff: registry.npmjs.org/jest-diff/27.3.1
@@ -11014,7 +11087,7 @@ packages:
     dependencies:
       '@jest/types': registry.npmjs.org/@jest/types/27.2.5
       '@types/node': registry.npmjs.org/@types/node/16.11.6
-      chalk: registry.npmjs.org/chalk/4.1.2
+      chalk: 4.1.2
       ci-info: registry.npmjs.org/ci-info/3.2.0
       graceful-fs: 4.2.8
       picomatch: registry.npmjs.org/picomatch/2.3.0
@@ -11042,7 +11115,7 @@ packages:
     dependencies:
       '@jest/types': registry.npmjs.org/@jest/types/27.2.5
       camelcase: registry.npmjs.org/camelcase/6.2.0
-      chalk: registry.npmjs.org/chalk/4.1.2
+      chalk: 4.1.2
       jest-get-type: registry.npmjs.org/jest-get-type/27.3.1
       leven: registry.npmjs.org/leven/3.1.0
       pretty-format: registry.npmjs.org/pretty-format/27.3.1
@@ -11058,7 +11131,7 @@ packages:
       '@jest/types': registry.npmjs.org/@jest/types/27.2.5
       '@types/node': registry.npmjs.org/@types/node/16.11.6
       ansi-escapes: registry.npmjs.org/ansi-escapes/4.3.2
-      chalk: registry.npmjs.org/chalk/4.1.2
+      chalk: 4.1.2
       jest-util: registry.npmjs.org/jest-util/27.3.1
       string-length: registry.npmjs.org/string-length/4.0.2
     dev: true
@@ -11082,7 +11155,7 @@ packages:
     dependencies:
       '@types/node': registry.npmjs.org/@types/node/16.11.6
       merge-stream: registry.npmjs.org/merge-stream/2.0.0
-      supports-color: registry.npmjs.org/supports-color/8.1.1
+      supports-color: 8.1.1
     dev: true
 
   registry.npmjs.org/jest/27.3.1:
@@ -11720,7 +11793,7 @@ packages:
     version: 4.1.0
     engines: {node: '>=10'}
     dependencies:
-      chalk: registry.npmjs.org/chalk/4.1.2
+      chalk: 4.1.2
       is-unicode-supported: registry.npmjs.org/is-unicode-supported/0.1.0
     dev: true
 
@@ -11829,7 +11902,7 @@ packages:
     engines: {node: ^10.13 || ^12 || >=14}
     hasBin: true
     dependencies:
-      chalk: registry.npmjs.org/chalk/4.1.2
+      chalk: 4.1.2
       commander: registry.npmjs.org/commander/7.2.0
       commondir: registry.npmjs.org/commondir/1.0.1
       debug: registry.npmjs.org/debug/4.3.2
@@ -12716,7 +12789,7 @@ packages:
     engines: {node: '>=10.17'}
     hasBin: true
     dependencies:
-      chalk: registry.npmjs.org/chalk/4.1.2
+      chalk: 4.1.2
       cint: registry.npmjs.org/cint/8.2.1
       cli-table: registry.npmjs.org/cli-table/0.3.6
       commander: registry.npmjs.org/commander/6.2.1
@@ -13047,7 +13120,7 @@ packages:
     engines: {node: '>=10'}
     dependencies:
       bl: registry.npmjs.org/bl/4.1.0
-      chalk: registry.npmjs.org/chalk/4.1.2
+      chalk: 4.1.2
       cli-cursor: registry.npmjs.org/cli-cursor/3.1.0
       cli-spinners: registry.npmjs.org/cli-spinners/2.6.1
       is-interactive: registry.npmjs.org/is-interactive/1.0.0
@@ -13675,7 +13748,7 @@ packages:
     peerDependencies:
       postcss: ^8.0.9
     dependencies:
-      color-name: registry.npmjs.org/color-name/1.1.4
+      color-name: 1.1.4
       is-url-superb: registry.npmjs.org/is-url-superb/4.0.0
       postcss: registry.npmjs.org/postcss/8.3.11
       quote-unquote: registry.npmjs.org/quote-unquote/1.0.0
@@ -13833,7 +13906,7 @@ packages:
     dependencies:
       '@jest/types': registry.npmjs.org/@jest/types/26.6.2
       ansi-regex: registry.npmjs.org/ansi-regex/5.0.1
-      ansi-styles: registry.npmjs.org/ansi-styles/4.3.0
+      ansi-styles: 4.3.0
       react-is: registry.npmjs.org/react-is/17.0.2
     dev: true
 
@@ -13845,7 +13918,7 @@ packages:
     dependencies:
       '@jest/types': registry.npmjs.org/@jest/types/27.2.5
       ansi-regex: registry.npmjs.org/ansi-regex/5.0.1
-      ansi-styles: registry.npmjs.org/ansi-styles/5.2.0
+      ansi-styles: 5.2.0
       react-is: registry.npmjs.org/react-is/17.0.2
     dev: true
 
@@ -14012,7 +14085,7 @@ packages:
     version: 0.3.11
     engines: {node: '>=8.0.0'}
     dependencies:
-      chalk: registry.npmjs.org/chalk/2.4.2
+      chalk: 2.4.2
       debug: registry.npmjs.org/debug/4.3.2
       execa: registry.npmjs.org/execa/0.10.0
       fs-extra: 6.0.1
@@ -15089,7 +15162,7 @@ packages:
     version: 3.0.0
     engines: {node: '>=8'}
     dependencies:
-      ansi-styles: registry.npmjs.org/ansi-styles/4.3.0
+      ansi-styles: 4.3.0
       astral-regex: registry.npmjs.org/astral-regex/2.0.0
       is-fullwidth-code-point: registry.npmjs.org/is-fullwidth-code-point/3.0.0
     dev: true
@@ -15100,7 +15173,7 @@ packages:
     version: 4.0.0
     engines: {node: '>=10'}
     dependencies:
-      ansi-styles: registry.npmjs.org/ansi-styles/4.3.0
+      ansi-styles: 4.3.0
       astral-regex: registry.npmjs.org/astral-regex/2.0.0
       is-fullwidth-code-point: registry.npmjs.org/is-fullwidth-code-point/3.0.0
     dev: true
@@ -15628,7 +15701,7 @@ packages:
     version: 7.2.0
     engines: {node: '>=8'}
     dependencies:
-      has-flag: registry.npmjs.org/has-flag/4.0.0
+      has-flag: 4.0.0
 
   registry.npmjs.org/supports-color/8.1.1:
     resolution: {integrity: sha512-MpUEN2OodtUzxvKQl72cUF7RQ5EiHsGvSsVG0ia9c5RbWGL2CI4C7EpPS8UTBIplnlzZiNuV56w+FuNxy3ty2Q==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.org/supports-color/-/supports-color-8.1.1.tgz}
@@ -15636,7 +15709,7 @@ packages:
     version: 8.1.1
     engines: {node: '>=10'}
     dependencies:
-      has-flag: registry.npmjs.org/has-flag/4.0.0
+      has-flag: 4.0.0
     dev: true
 
   registry.npmjs.org/supports-hyperlinks/2.2.0:
@@ -15645,8 +15718,8 @@ packages:
     version: 2.2.0
     engines: {node: '>=8'}
     dependencies:
-      has-flag: registry.npmjs.org/has-flag/4.0.0
-      supports-color: registry.npmjs.org/supports-color/7.2.0
+      has-flag: 4.0.0
+      supports-color: 7.2.0
     dev: true
 
   registry.npmjs.org/symbol-observable/1.2.0:
@@ -16249,7 +16322,7 @@ packages:
     dependencies:
       awilix: registry.npmjs.org/awilix/4.3.4
       axios: registry.npmjs.org/axios/0.21.4
-      chalk: registry.npmjs.org/chalk/4.1.2
+      chalk: 4.1.2
       cosmiconfig: registry.npmjs.org/cosmiconfig/7.0.1
       detect-indent: registry.npmjs.org/detect-indent/6.1.0
       glob: 7.2.0
@@ -16378,7 +16451,7 @@ packages:
     engines: {node: '>=10'}
     dependencies:
       boxen: registry.npmjs.org/boxen/5.1.2
-      chalk: registry.npmjs.org/chalk/4.1.2
+      chalk: 4.1.2
       configstore: registry.npmjs.org/configstore/5.0.1
       has-yarn: registry.npmjs.org/has-yarn/2.1.0
       import-lazy: registry.npmjs.org/import-lazy/2.1.0
@@ -16701,7 +16774,7 @@ packages:
     version: 4.0.0
     engines: {node: '>=6'}
     dependencies:
-      ansi-styles: registry.npmjs.org/ansi-styles/3.2.1
+      ansi-styles: 3.2.1
       string-width: registry.npmjs.org/string-width/2.1.1
       strip-ansi: registry.npmjs.org/strip-ansi/4.0.0
     dev: true
@@ -16722,7 +16795,7 @@ packages:
     version: 6.2.0
     engines: {node: '>=8'}
     dependencies:
-      ansi-styles: registry.npmjs.org/ansi-styles/4.3.0
+      ansi-styles: 4.3.0
       string-width: registry.npmjs.org/string-width/4.2.3
       strip-ansi: registry.npmjs.org/strip-ansi/6.0.1
     dev: true
@@ -16733,7 +16806,7 @@ packages:
     version: 7.0.0
     engines: {node: '>=10'}
     dependencies:
-      ansi-styles: registry.npmjs.org/ansi-styles/4.3.0
+      ansi-styles: 4.3.0
       string-width: registry.npmjs.org/string-width/4.2.3
       strip-ansi: registry.npmjs.org/strip-ansi/6.0.1
 
