@@ -36,16 +36,19 @@ jobs:
 
         steps:
             - uses: actions/checkout@v2
+
             - name: Set up Python 2.7
               uses: actions/setup-python@v2
               with:
                   python-version: "2.7"
-            - name: Cache node modules
-              uses: actions/cache@v1
+
+            - name: Cache pnpm modules
+              uses: actions/cache@v2
               with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
+                  path: ~/.pnpm-store
+                  key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+                  restore-keys: ${{ runner.os }}-pnpm-
+
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v1
               with:
@@ -57,14 +60,20 @@ jobs:
             - name: Install xsel & postgresql-client
               run: sudo apt-get install -q xsel postgresql-client
 
-            - name: Install and build packages
-              run: yarn setup
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v2.0.1
+              with:
+                  version: 6.20.4
+                  run_install: true
+
+            - name: Build
+              run: pnpm run build
 
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
 
             - name: Functional tests
-              run: yarn test __tests__/functional/core-database/ --coverage --coverageDirectory .coverage/functional/${{ github.job }}
+              run: pnpm run test __tests__/functional/core-database/ -- --coverage --coverageDirectory .coverage/functional/${{ github.job }}
 
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
@@ -92,16 +101,19 @@ jobs:
 
         steps:
             - uses: actions/checkout@v2
+
             - name: Set up Python 2.7
               uses: actions/setup-python@v2
               with:
                   python-version: "2.7"
-            - name: Cache node modules
-              uses: actions/cache@v1
+
+            - name: Cache pnpm modules
+              uses: actions/cache@v2
               with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
+                  path: ~/.pnpm-store
+                  key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+                  restore-keys: ${{ runner.os }}-pnpm-
+
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v1
               with:
@@ -113,14 +125,20 @@ jobs:
             - name: Install xsel & postgresql-client
               run: sudo apt-get install -q xsel postgresql-client
 
-            - name: Install and build packages
-              run: yarn setup
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v2.0.1
+              with:
+                  version: 6.20.4
+                  run_install: true
+
+            - name: Build
+              run: pnpm run build
 
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
 
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/bridgechain-registration.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
+              run: pnpm run test __tests__/functional/transaction-forging/bridgechain-registration.test.ts -- --coverage --coverageDirectory .coverage/functional/${{ github.job }}
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
@@ -151,16 +169,19 @@ jobs:
 
         steps:
             - uses: actions/checkout@v2
+
             - name: Set up Python 2.7
               uses: actions/setup-python@v2
               with:
                   python-version: "2.7"
-            - name: Cache node modules
-              uses: actions/cache@v1
+
+            - name: Cache pnpm modules
+              uses: actions/cache@v2
               with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
+                  path: ~/.pnpm-store
+                  key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+                  restore-keys: ${{ runner.os }}-pnpm-
+
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v1
               with:
@@ -172,14 +193,20 @@ jobs:
             - name: Install xsel & postgresql-client
               run: sudo apt-get install -q xsel postgresql-client
 
-            - name: Install and build packages
-              run: yarn setup
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v2.0.1
+              with:
+                  version: 6.20.4
+                  run_install: true
+
+            - name: Build
+              run: pnpm run build
 
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
 
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/bridgechain-resignation.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
+              run: pnpm run test __tests__/functional/transaction-forging/bridgechain-resignation.test.ts -- --coverage --coverageDirectory .coverage/functional/${{ github.job }}
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
@@ -210,16 +237,19 @@ jobs:
 
         steps:
             - uses: actions/checkout@v2
+
             - name: Set up Python 2.7
               uses: actions/setup-python@v2
               with:
                   python-version: "2.7"
-            - name: Cache node modules
-              uses: actions/cache@v1
+
+            - name: Cache pnpm modules
+              uses: actions/cache@v2
               with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
+                  path: ~/.pnpm-store
+                  key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+                  restore-keys: ${{ runner.os }}-pnpm-
+
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v1
               with:
@@ -231,14 +261,20 @@ jobs:
             - name: Install xsel & postgresql-client
               run: sudo apt-get install -q xsel postgresql-client
 
-            - name: Install and build packages
-              run: yarn setup
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v2.0.1
+              with:
+                  version: 6.20.4
+                  run_install: true
+
+            - name: Build
+              run: pnpm run build
 
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
 
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/bridgechain-update.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
+              run: pnpm run test __tests__/functional/transaction-forging/bridgechain-update.test.ts -- --coverage --coverageDirectory .coverage/functional/${{ github.job }}
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
@@ -269,16 +305,19 @@ jobs:
 
         steps:
             - uses: actions/checkout@v2
+
             - name: Set up Python 2.7
               uses: actions/setup-python@v2
               with:
                   python-version: "2.7"
-            - name: Cache node modules
-              uses: actions/cache@v1
+
+            - name: Cache pnpm modules
+              uses: actions/cache@v2
               with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
+                  path: ~/.pnpm-store
+                  key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+                  restore-keys: ${{ runner.os }}-pnpm-
+
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v1
               with:
@@ -290,14 +329,20 @@ jobs:
             - name: Install xsel & postgresql-client
               run: sudo apt-get install -q xsel postgresql-client
 
-            - name: Install and build packages
-              run: yarn setup
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v2.0.1
+              with:
+                  version: 6.20.4
+                  run_install: true
+
+            - name: Build
+              run: pnpm run build
 
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
 
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/business-registration.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
+              run: pnpm run test __tests__/functional/transaction-forging/business-registration.test.ts -- --coverage --coverageDirectory .coverage/functional/${{ github.job }}
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
@@ -328,16 +373,19 @@ jobs:
 
         steps:
             - uses: actions/checkout@v2
+
             - name: Set up Python 2.7
               uses: actions/setup-python@v2
               with:
                   python-version: "2.7"
-            - name: Cache node modules
-              uses: actions/cache@v1
+
+            - name: Cache pnpm modules
+              uses: actions/cache@v2
               with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
+                  path: ~/.pnpm-store
+                  key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+                  restore-keys: ${{ runner.os }}-pnpm-
+
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v1
               with:
@@ -349,14 +397,20 @@ jobs:
             - name: Install xsel & postgresql-client
               run: sudo apt-get install -q xsel postgresql-client
 
-            - name: Install and build packages
-              run: yarn setup
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v2.0.1
+              with:
+                  version: 6.20.4
+                  run_install: true
+
+            - name: Build
+              run: pnpm run build
 
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
 
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/business-resignation.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
+              run: pnpm run test __tests__/functional/transaction-forging/business-resignation.test.ts -- --coverage --coverageDirectory .coverage/functional/${{ github.job }}
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
@@ -387,16 +441,19 @@ jobs:
 
         steps:
             - uses: actions/checkout@v2
+
             - name: Set up Python 2.7
               uses: actions/setup-python@v2
               with:
                   python-version: "2.7"
-            - name: Cache node modules
-              uses: actions/cache@v1
+
+            - name: Cache pnpm modules
+              uses: actions/cache@v2
               with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
+                  path: ~/.pnpm-store
+                  key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+                  restore-keys: ${{ runner.os }}-pnpm-
+
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v1
               with:
@@ -408,14 +465,20 @@ jobs:
             - name: Install xsel & postgresql-client
               run: sudo apt-get install -q xsel postgresql-client
 
-            - name: Install and build packages
-              run: yarn setup
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v2.0.1
+              with:
+                  version: 6.20.4
+                  run_install: true
+
+            - name: Build
+              run: pnpm run build
 
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
 
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/business-update.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
+              run: pnpm run test __tests__/functional/transaction-forging/business-update.test.ts -- --coverage --coverageDirectory .coverage/functional/${{ github.job }}
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
@@ -446,16 +509,19 @@ jobs:
 
         steps:
             - uses: actions/checkout@v2
+
             - name: Set up Python 2.7
               uses: actions/setup-python@v2
               with:
                   python-version: "2.7"
-            - name: Cache node modules
-              uses: actions/cache@v1
+
+            - name: Cache pnpm modules
+              uses: actions/cache@v2
               with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
+                  path: ~/.pnpm-store
+                  key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+                  restore-keys: ${{ runner.os }}-pnpm-
+
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v1
               with:
@@ -467,14 +533,20 @@ jobs:
             - name: Install xsel & postgresql-client
               run: sudo apt-get install -q xsel postgresql-client
 
-            - name: Install and build packages
-              run: yarn setup
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v2.0.1
+              with:
+                  version: 6.20.4
+                  run_install: true
+
+            - name: Build
+              run: pnpm run build
 
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
 
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/delegate-registration.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
+              run: pnpm run test __tests__/functional/transaction-forging/delegate-registration.test.ts -- --coverage --coverageDirectory .coverage/functional/${{ github.job }}
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
@@ -505,16 +577,19 @@ jobs:
 
         steps:
             - uses: actions/checkout@v2
+
             - name: Set up Python 2.7
               uses: actions/setup-python@v2
               with:
                   python-version: "2.7"
-            - name: Cache node modules
-              uses: actions/cache@v1
+
+            - name: Cache pnpm modules
+              uses: actions/cache@v2
               with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
+                  path: ~/.pnpm-store
+                  key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+                  restore-keys: ${{ runner.os }}-pnpm-
+
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v1
               with:
@@ -526,14 +601,20 @@ jobs:
             - name: Install xsel & postgresql-client
               run: sudo apt-get install -q xsel postgresql-client
 
-            - name: Install and build packages
-              run: yarn setup
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v2.0.1
+              with:
+                  version: 6.20.4
+                  run_install: true
+
+            - name: Build
+              run: pnpm run build
 
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
 
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/delegate-resignation.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
+              run: pnpm run test __tests__/functional/transaction-forging/delegate-resignation.test.ts -- --coverage --coverageDirectory .coverage/functional/${{ github.job }}
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
@@ -564,16 +645,19 @@ jobs:
 
         steps:
             - uses: actions/checkout@v2
+
             - name: Set up Python 2.7
               uses: actions/setup-python@v2
               with:
                   python-version: "2.7"
-            - name: Cache node modules
-              uses: actions/cache@v1
+
+            - name: Cache pnpm modules
+              uses: actions/cache@v2
               with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
+                  path: ~/.pnpm-store
+                  key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+                  restore-keys: ${{ runner.os }}-pnpm-
+
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v1
               with:
@@ -585,14 +669,20 @@ jobs:
             - name: Install xsel & postgresql-client
               run: sudo apt-get install -q xsel postgresql-client
 
-            - name: Install and build packages
-              run: yarn setup
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v2.0.1
+              with:
+                  version: 6.20.4
+                  run_install: true
+
+            - name: Build
+              run: pnpm run build
 
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
 
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/htlc-claim.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
+              run: pnpm run test __tests__/functional/transaction-forging/htlc-claim.test.ts -- --coverage --coverageDirectory .coverage/functional/${{ github.job }}
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
@@ -623,16 +713,19 @@ jobs:
 
         steps:
             - uses: actions/checkout@v2
+
             - name: Set up Python 2.7
               uses: actions/setup-python@v2
               with:
                   python-version: "2.7"
-            - name: Cache node modules
-              uses: actions/cache@v1
+
+            - name: Cache pnpm modules
+              uses: actions/cache@v2
               with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
+                  path: ~/.pnpm-store
+                  key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+                  restore-keys: ${{ runner.os }}-pnpm-
+
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v1
               with:
@@ -644,14 +737,20 @@ jobs:
             - name: Install xsel & postgresql-client
               run: sudo apt-get install -q xsel postgresql-client
 
-            - name: Install and build packages
-              run: yarn setup
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v2.0.1
+              with:
+                  version: 6.20.4
+                  run_install: true
+
+            - name: Build
+              run: pnpm run build
 
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
 
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/htlc-lock.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
+              run: pnpm run test __tests__/functional/transaction-forging/htlc-lock.test.ts -- --coverage --coverageDirectory .coverage/functional/${{ github.job }}
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
@@ -682,16 +781,19 @@ jobs:
 
         steps:
             - uses: actions/checkout@v2
+
             - name: Set up Python 2.7
               uses: actions/setup-python@v2
               with:
                   python-version: "2.7"
-            - name: Cache node modules
-              uses: actions/cache@v1
+
+            - name: Cache pnpm modules
+              uses: actions/cache@v2
               with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
+                  path: ~/.pnpm-store
+                  key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+                  restore-keys: ${{ runner.os }}-pnpm-
+
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v1
               with:
@@ -703,14 +805,20 @@ jobs:
             - name: Install xsel & postgresql-client
               run: sudo apt-get install -q xsel postgresql-client
 
-            - name: Install and build packages
-              run: yarn setup
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v2.0.1
+              with:
+                  version: 6.20.4
+                  run_install: true
+
+            - name: Build
+              run: pnpm run build
 
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
 
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/htlc-refund.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
+              run: pnpm run test __tests__/functional/transaction-forging/htlc-refund.test.ts -- --coverage --coverageDirectory .coverage/functional/${{ github.job }}
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
@@ -741,16 +849,19 @@ jobs:
 
         steps:
             - uses: actions/checkout@v2
+
             - name: Set up Python 2.7
               uses: actions/setup-python@v2
               with:
                   python-version: "2.7"
-            - name: Cache node modules
-              uses: actions/cache@v1
+
+            - name: Cache pnpm modules
+              uses: actions/cache@v2
               with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
+                  path: ~/.pnpm-store
+                  key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+                  restore-keys: ${{ runner.os }}-pnpm-
+
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v1
               with:
@@ -762,14 +873,20 @@ jobs:
             - name: Install xsel & postgresql-client
               run: sudo apt-get install -q xsel postgresql-client
 
-            - name: Install and build packages
-              run: yarn setup
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v2.0.1
+              with:
+                  version: 6.20.4
+                  run_install: true
+
+            - name: Build
+              run: pnpm run build
 
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
 
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/ipfs.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
+              run: pnpm run test __tests__/functional/transaction-forging/ipfs.test.ts -- --coverage --coverageDirectory .coverage/functional/${{ github.job }}
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
@@ -800,16 +917,19 @@ jobs:
 
         steps:
             - uses: actions/checkout@v2
+
             - name: Set up Python 2.7
               uses: actions/setup-python@v2
               with:
                   python-version: "2.7"
-            - name: Cache node modules
-              uses: actions/cache@v1
+
+            - name: Cache pnpm modules
+              uses: actions/cache@v2
               with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
+                  path: ~/.pnpm-store
+                  key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+                  restore-keys: ${{ runner.os }}-pnpm-
+
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v1
               with:
@@ -821,14 +941,20 @@ jobs:
             - name: Install xsel & postgresql-client
               run: sudo apt-get install -q xsel postgresql-client
 
-            - name: Install and build packages
-              run: yarn setup
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v2.0.1
+              with:
+                  version: 6.20.4
+                  run_install: true
+
+            - name: Build
+              run: pnpm run build
 
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
 
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/multi-payment.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
+              run: pnpm run test __tests__/functional/transaction-forging/multi-payment.test.ts -- --coverage --coverageDirectory .coverage/functional/${{ github.job }}
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
@@ -859,16 +985,19 @@ jobs:
 
         steps:
             - uses: actions/checkout@v2
+
             - name: Set up Python 2.7
               uses: actions/setup-python@v2
               with:
                   python-version: "2.7"
-            - name: Cache node modules
-              uses: actions/cache@v1
+
+            - name: Cache pnpm modules
+              uses: actions/cache@v2
               with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
+                  path: ~/.pnpm-store
+                  key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+                  restore-keys: ${{ runner.os }}-pnpm-
+
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v1
               with:
@@ -880,14 +1009,20 @@ jobs:
             - name: Install xsel & postgresql-client
               run: sudo apt-get install -q xsel postgresql-client
 
-            - name: Install and build packages
-              run: yarn setup
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v2.0.1
+              with:
+                  version: 6.20.4
+                  run_install: true
+
+            - name: Build
+              run: pnpm run build
 
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
 
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/multi-signature-registration.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
+              run: pnpm run test __tests__/functional/transaction-forging/multi-signature-registration.test.ts -- --coverage --coverageDirectory .coverage/functional/${{ github.job }}
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
@@ -912,16 +1047,19 @@ jobs:
 
         steps:
             - uses: actions/checkout@v2
+
             - name: Set up Python 2.7
               uses: actions/setup-python@v2
               with:
                   python-version: "2.7"
-            - name: Cache node modules
-              uses: actions/cache@v1
+
+            - name: Cache pnpm modules
+              uses: actions/cache@v2
               with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
+                  path: ~/.pnpm-store
+                  key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+                  restore-keys: ${{ runner.os }}-pnpm-
+
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v1
               with:
@@ -933,14 +1071,20 @@ jobs:
             - name: Install xsel & postgresql-client
               run: sudo apt-get install -q xsel postgresql-client
 
-            - name: Install and build packages
-              run: yarn setup
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v2.0.1
+              with:
+                  version: 6.20.4
+                  run_install: true
+
+            - name: Build
+              run: pnpm run build
 
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
 
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/second-signature-registration.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
+              run: pnpm run test __tests__/functional/transaction-forging/second-signature-registration.test.ts -- --coverage --coverageDirectory .coverage/functional/${{ github.job }}
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
@@ -965,16 +1109,19 @@ jobs:
 
         steps:
             - uses: actions/checkout@v2
+
             - name: Set up Python 2.7
               uses: actions/setup-python@v2
               with:
                   python-version: "2.7"
-            - name: Cache node modules
-              uses: actions/cache@v1
+
+            - name: Cache pnpm modules
+              uses: actions/cache@v2
               with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
+                  path: ~/.pnpm-store
+                  key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+                  restore-keys: ${{ runner.os }}-pnpm-
+
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v1
               with:
@@ -986,14 +1133,20 @@ jobs:
             - name: Install xsel & postgresql-client
               run: sudo apt-get install -q xsel postgresql-client
 
-            - name: Install and build packages
-              run: yarn setup
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v2.0.1
+              with:
+                  version: 6.20.4
+                  run_install: true
+
+            - name: Build
+              run: pnpm run build
 
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
 
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/transfer.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
+              run: pnpm run test __tests__/functional/transaction-forging/transfer.test.ts -- --coverage --coverageDirectory .coverage/functional/${{ github.job }}
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
@@ -1018,12 +1171,14 @@ jobs:
 
         steps:
             - uses: actions/checkout@v2
-            - name: Cache node modules
-              uses: actions/cache@v1
+
+            - name: Cache pnpm modules
+              uses: actions/cache@v2
               with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
+                  path: ~/.pnpm-store
+                  key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+                  restore-keys: ${{ runner.os }}-pnpm-
+
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v1
               with:
@@ -1035,14 +1190,20 @@ jobs:
             - name: Install xsel & postgresql-client
               run: sudo apt-get install -q xsel postgresql-client
 
-            - name: Install and build packages
-              run: yarn setup
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v2.0.1
+              with:
+                  version: 6.20.4
+                  run_install: true
+
+            - name: Build
+              run: pnpm run build
 
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
 
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/vote.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
+              run: pnpm run test __tests__/functional/transaction-forging/vote.test.ts -- --coverage --coverageDirectory .coverage/functional/${{ github.job }}
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
@@ -1067,12 +1228,14 @@ jobs:
 
         steps:
             - uses: actions/checkout@v2
-            - name: Cache node modules
-              uses: actions/cache@v1
+
+            - name: Cache pnpm modules
+              uses: actions/cache@v2
               with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
+                  path: ~/.pnpm-store
+                  key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+                  restore-keys: ${{ runner.os }}-pnpm-
+
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v1
               with:
@@ -1084,14 +1247,20 @@ jobs:
             - name: Install xsel & postgresql-client
               run: sudo apt-get install -q xsel postgresql-client
 
-            - name: Install and build packages
-              run: yarn setup
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v2.0.1
+              with:
+                  version: 6.20.4
+                  run_install: true
+
+            - name: Build
+              run: pnpm run build
 
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
 
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/entity-register.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
+              run: pnpm run test __tests__/functional/transaction-forging/entity-register.test.ts -- --coverage --coverageDirectory .coverage/functional/${{ github.job }}
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
@@ -1116,12 +1285,14 @@ jobs:
 
         steps:
             - uses: actions/checkout@v2
-            - name: Cache node modules
-              uses: actions/cache@v1
+
+            - name: Cache pnpm modules
+              uses: actions/cache@v2
               with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
+                  path: ~/.pnpm-store
+                  key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+                  restore-keys: ${{ runner.os }}-pnpm-
+
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v1
               with:
@@ -1133,14 +1304,20 @@ jobs:
             - name: Install xsel & postgresql-client
               run: sudo apt-get install -q xsel postgresql-client
 
-            - name: Install and build packages
-              run: yarn setup
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v2.0.1
+              with:
+                  version: 6.20.4
+                  run_install: true
+
+            - name: Build
+              run: pnpm run build
 
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
 
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/entity-resign.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
+              run: pnpm run test __tests__/functional/transaction-forging/entity-resign.test.ts -- --coverage --coverageDirectory .coverage/functional/${{ github.job }}
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
@@ -1165,16 +1342,19 @@ jobs:
 
         steps:
             - uses: actions/checkout@v2
+
             - name: Set up Python 2.7
               uses: actions/setup-python@v2
               with:
                   python-version: "2.7"
-            - name: Cache node modules
-              uses: actions/cache@v1
+
+            - name: Cache pnpm modules
+              uses: actions/cache@v2
               with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
+                  path: ~/.pnpm-store
+                  key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+                  restore-keys: ${{ runner.os }}-pnpm-
+
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v1
               with:
@@ -1186,14 +1366,20 @@ jobs:
             - name: Install xsel & postgresql-client
               run: sudo apt-get install -q xsel postgresql-client
 
-            - name: Install and build packages
-              run: yarn setup
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v2.0.1
+              with:
+                  version: 6.20.4
+                  run_install: true
+
+            - name: Build
+              run: pnpm run build
 
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
 
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/entity-update.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
+              run: pnpm run test __tests__/functional/transaction-forging/entity-update.test.ts -- --coverage --coverageDirectory .coverage/functional/${{ github.job }}
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
