@@ -24,31 +24,37 @@ jobs:
                   node-version: 12
                   registry-url: https://registry.npmjs.org/
 
-            - name: Install & Build
-              run: yarn setup
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v2.0.1
+              with:
+                  version: 6.20.4
+                  run_install: true
+
+            -   name: Build
+                run: pnpm run build
 
             - name: Publish to NPM
               run: |
                   cd packages
-                  cd crypto && npm publish --access public && cd ..
-                  cd core-api && npm publish --access public && cd ..
-                  cd core-blockchain && npm publish --access public && cd ..
-                  cd core-cli && npm publish --access public && cd ..
-                  cd core-database && npm publish --access public && cd ..
-                  cd core-forger && npm publish --access public && cd ..
-                  cd core-kernel && npm publish --access public && cd ..
-                  cd core-logger-pino && npm publish --access public && cd ..
-                  cd core-magistrate-api && npm publish --access public && cd ..
-                  cd core-magistrate-crypto && npm publish --access public && cd ..
-                  cd core-magistrate-transactions && npm publish --access public && cd ..
-                  cd core-manager && npm publish --access public && cd ..
-                  cd core-p2p && npm publish --access public && cd ..
-                  cd core-snapshots && npm publish --access public && cd ..
-                  cd core-state && npm publish --access public && cd ..
-                  cd core-test-framework && npm publish --access public && cd ..
-                  cd core-transaction-pool && npm publish --access public && cd ..
-                  cd core-transactions && npm publish --access public && cd ..
-                  cd core-webhooks && npm publish --access public && cd ..
-                  cd core && npm publish --access public && cd ..
+                  cd crypto && pnpm publish --access public && cd ..
+                  cd core-api && pnpm publish --access public && cd ..
+                  cd core-blockchain && pnpm publish --access public && cd ..
+                  cd core-cli && pnpm publish --access public && cd ..
+                  cd core-database && pnpm publish --access public && cd ..
+                  cd core-forger && pnpm publish --access public && cd ..
+                  cd core-kernel && pnpm publish --access public && cd ..
+                  cd core-logger-pino && pnpm publish --access public && cd ..
+                  cd core-magistrate-api && pnpm publish --access public && cd ..
+                  cd core-magistrate-crypto && pnpm publish --access public && cd ..
+                  cd core-magistrate-transactions && pnpm publish --access public && cd ..
+                  cd core-manager && pnpm publish --access public && cd ..
+                  cd core-p2p && pnpm publish --access public && cd ..
+                  cd core-snapshots && pnpm publish --access public && cd ..
+                  cd core-state && pnpm publish --access public && cd ..
+                  cd core-test-framework && pnpm publish --access public && cd ..
+                  cd core-transaction-pool && pnpm publish --access public && cd ..
+                  cd core-transactions && pnpm publish --access public && cd ..
+                  cd core-webhooks && pnpm publish --access public && cd ..
+                  cd core && pnpm publish --access public && cd ..
               env:
                   NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
