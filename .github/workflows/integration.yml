@@ -37,12 +37,12 @@ jobs:
         steps:
             - uses: actions/checkout@v2
 
-            - name: Cache node modules
-              uses: actions/cache@v1
+            - name: Cache pnpm modules
+              uses: actions/cache@v2
               with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
+                  path: ~/.pnpm-store
+                  key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+                  restore-keys: ${{ runner.os }}-pnpm-
 
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v1
@@ -55,11 +55,17 @@ jobs:
             - name: Install xsel & postgresql-client
               run: sudo apt-get install -q xsel postgresql-client
 
-            - name: Install and build packages
-              run: yarn setup
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v2.0.1
+              with:
+                  version: 6.20.4
+                  run_install: true
+
+            - name: Build
+              run: pnpm run build
 
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
 
             - name: Integration tests
-              run: yarn test:integration --coverage --coverageDirectory .coverage/integration/
+              run: pnpm run test:integration -- --coverage --coverageDirectory .coverage/integration/
