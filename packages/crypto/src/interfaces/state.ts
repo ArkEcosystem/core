@@ -1,53 +1,37 @@
 import { IBlockHeader } from "./block";
 
+export type IRound = {
+    readonly no: number;
+    readonly height: number;
+    readonly delegates: readonly string[];
+};
+
 export type ISlot = {
     readonly no: number;
+    readonly height: number;
     readonly timestamp: number;
 };
 
 export type IStateNext = {
+    readonly round: IRound;
     readonly forgers: readonly string[];
     readonly validators: readonly string[];
 };
 
-export type IStateData = {
+export type IStateData<B extends IBlockHeader> = {
     readonly finalizedTransactionCount: number;
-    readonly justifiedTransactionCount: number;
     readonly forgedTransactionCount: number;
-
-    readonly finalizedHeight: number;
-    readonly finalizedBlockId: string;
-    readonly finalizedDelegates: readonly string[];
-
-    readonly justifiedHeight: number;
-    readonly justifiedBlockId: string;
-    readonly justifiedDelegates: readonly string[];
-
+    readonly lastRound: IRound;
     readonly lastSlot: ISlot;
-    readonly lastHeight: number;
-    readonly lastBlockId: string;
-    readonly lastDelegates: readonly string[];
-
+    readonly lastBlock: B;
+    readonly justifiedBlock: B;
+    readonly finalizedBlock: B;
+    readonly finalizedRound: IRound;
     readonly next?: IStateNext;
 };
 
-export type IState = {
-    readonly finalizedTransactionCount: number;
-    readonly forgedTransactionCount: number;
-
-    readonly finalizedHeight: number;
-    readonly finalizedBlockId: string;
-
-    readonly justifiedHeight: number;
-    readonly justifiedBlockId: string;
-
-    readonly lastSlot: ISlot;
-    readonly lastHeight: number;
-    readonly lastBlockId: string;
-
-    readonly next?: IStateNext;
-
-    chainNewBlock(header: IBlockHeader): void;
+export type IState<B extends IBlockHeader> = IStateData<B> & {
+    chainNewBlock(block: B): void;
     applyNextRound(delegates: readonly string[]): void;
-    clone(): IState;
+    clone(): IState<B>;
 };

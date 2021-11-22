@@ -1,88 +1,88 @@
-import { IBlockHeader, ISlot, IState, IStateData, IStateNext } from "../interfaces";
+import { CryptoError } from "../errors";
+import { IBlockHeader, IRound, ISlot, IState, IStateData, IStateNext } from "../interfaces";
+import { configManager } from "../managers";
+import { Utils } from "./utils";
 
-export class State implements IState {
-    private data: IStateData;
+export class State<B extends IBlockHeader> implements IState<B> {
+    public finalizedTransactionCount: number;
+    public forgedTransactionCount: number;
+    public lastRound: IRound;
+    public lastSlot: ISlot;
+    public lastBlock: B;
+    public justifiedBlock: B;
+    public finalizedBlock: B;
+    public finalizedRound: IRound;
+    public next?: IStateNext | undefined;
 
-    public constructor(data: IStateData) {
-        this.data = data;
+    public constructor(data: IStateData<B>) {
+        this.finalizedTransactionCount = data.finalizedTransactionCount;
+        this.forgedTransactionCount = data.forgedTransactionCount;
+        this.lastRound = data.lastRound;
+        this.lastSlot = data.lastSlot;
+        this.lastBlock = data.lastBlock;
+        this.justifiedBlock = data.justifiedBlock;
+        this.finalizedBlock = data.justifiedBlock;
+        this.finalizedRound = data.finalizedRound;
+        this.next = data.next;
     }
 
-    public get finalizedTransactionCount(): number {
-        return this.data.finalizedTransactionCount;
-    }
+    public chainNewBlock(newBlock: B): void {
+        try {
+            if (!this.next) {
+                throw new CryptoError("No next round.");
+            }
 
-    public get forgedTransactionCount(): number {
-        return this.data.forgedTransactionCount;
-    }
+            const newMilestone = configManager.getMilestone(newBlock.height);
+            const newSlot = Utils.getNewSlot(this.lastSlot, newBlock.height, newBlock.timestamp);
+            const newRound = this.next.round;
+            const forgerIndex = newSlot.no % newMilestone.activeDelegates;
 
-    public get finalizedHeight(): number {
-        return this.data.finalizedHeight;
-    }
+            if (newBlock.generatorPublicKey !== this.next.forgers[forgerIndex]) {
+                throw new CryptoError("Wrong forger.");
+            }
 
-    public get finalizedBlockId(): string {
-        return this.data.finalizedBlockId;
-    }
+            this.forgedTransactionCount += newBlock.numberOfTransactions;
+            this.lastBlock = newBlock;
+            this.lastRound = newRound;
+            this.lastSlot = newSlot;
 
-    public get justifiedHeight(): number {
-        return this.data.justifiedHeight;
-    }
+            const nextRoundHeight = newRound.height + newRound.delegates.length;
+            const nextHeight = newBlock.height + 1;
 
-    public get justifiedBlockId(): string {
-        return this.data.justifiedBlockId;
-    }
-
-    public get lastSlot(): ISlot {
-        return this.data.lastSlot;
-    }
-
-    public get lastHeight(): number {
-        return this.data.lastHeight;
-    }
-
-    public get lastBlockId(): string {
-        return this.data.lastBlockId;
-    }
-
-    public get next(): IStateNext | undefined {
-        return this.data.next;
-    }
-
-    public chainNewBlock(header: IBlockHeader): void {
-        // const nextData = { ...this.data };
-        // const milestone = configManager.getMilestone(this.data.lastBlockRound.height);
-        // const nextRoundHeight = this.data.lastBlockRound.height + milestone.activeDelegates;
-        // nextData.forgedTransactionCount += header.numberOfTransactions;
-        // this.data = nextData;
-        // if (this.lastHeight === nextRoundHeight - 1) {
-        //     // this.next = undefined;
-        // }
+            if (nextHeight === nextRoundHeight) {
+                this.next = undefined;
+            }
+        } catch (cause) {
+            const msg = `Cannot chain new block (height=${newBlock.height}, id=${newBlock.id}).`;
+            throw new CryptoError(msg, { cause });
+        }
     }
 
     public applyNextRound(delegates: readonly string[]): void {
-        throw new Error("Method not implemented.");
+        if (this.next) {
+            throw new CryptoError("Cannot apply next round.");
+        }
+
+        const nextHeight = this.lastBlock.height + 1;
+        const nextMilestone = configManager.getMilestone(nextHeight);
+        const nextRoundNo = this.lastRound.no + 1;
+
+        if (delegates.length !== nextMilestone.activeDelegates) {
+            throw new CryptoError("Invalid delegates count.");
+        }
+
+        const nextRound = { no: nextRoundNo, height: nextHeight, delegates };
+        const nextForgers = Utils.getRoundForgers(nextRound);
+        const nextValidators = Utils.getValidators(this.finalizedRound, nextRound);
+
+        this.next = {
+            round: nextRound,
+            forgers: nextForgers,
+            validators: nextValidators,
+        };
     }
 
-    public clone(): IState {
-        return new State({ ...this.data });
+    public clone(): IState<B> {
+        return new State(this);
     }
-
-    // private updateNext(): void {
-    //     const milestone = configManager.getMilestone(this.lastBlockRound.height);
-    //     const nextRoundHeight = this.lastBlockRound.height + milestone.activeDelegates;
-
-    //     if (this.lastHeight === nextRoundHeight - 1) {
-    //         this.next = undefined;
-    //     }
-
-    //     if (!this.next) {
-    //         // const forgers =
-
-    //         const trustedValidators = this.finalizedRound.delegates.slice().sort();
-    //         const pendingValidators = this.lastBlockRound.delegates
-    //             .filter((delegate) => trustedValidators.includes(delegate) === false)
-    //             .sort();
-
-    //         const validators = [...trustedValidators, ...pendingValidators];
-    //     }
-    // }
 }

@@ -8,6 +8,7 @@ export * as Interfaces from "./interfaces";
 export * as Managers from "./managers";
 export * as Networks from "./networks";
 export * as Serde from "./serde";
+export * as State from "./state";
 export * as Transactions from "./transactions";
 export * as Types from "./types";
 export * as Utils from "./utils";
