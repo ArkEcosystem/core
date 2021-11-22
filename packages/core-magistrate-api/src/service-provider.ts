@@ -83,7 +83,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
         const originalTransactionsFeesHandler = transactionsFeesRoute.settings.handler as Hapi.Lifecycle.Method;
         transactionsFeesRoute.settings.handler = async (request, h) => {
-            const originalResponse = (await originalTransactionsFeesHandler(request, h)) as { data: any };
+            const originalResponse = (await originalTransactionsFeesHandler(request, h)) as { data: object };
 
             if (Managers.configManager.getMilestone().aip36 !== true) {
                 return originalResponse;
