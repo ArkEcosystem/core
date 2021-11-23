@@ -1,8 +1,7 @@
 import { ApplicationFactory, Commands, Container, Contracts, InputParser, Plugins } from "@arkecosystem/core-cli";
 import envPaths from "env-paths";
-import { existsSync } from "fs-extra";
-import { platform } from "os";
-import { join, resolve } from "path";
+import moduleAlias from "module-alias";
+import { basename, join, resolve } from "path";
 import { PackageJson } from "type-fest";
 
 /**
@@ -39,8 +38,8 @@ export class CommandLineInterface {
      * @memberof CommandLineInterface
      */
     public async execute(dirname = __dirname): Promise<void> {
-        // Set NODE_PATHS. Only required for plugins that uses @arkecosystem as peer dependencies.
-        this.setNodePath();
+        // Only required for plugins that uses @arkecosystem as peer dependencies on local setup
+        this.setAliases();
 
         // Load the package information. Only needed for updates and installations.
         const pkg: PackageJson = require("../package.json");
@@ -99,25 +98,11 @@ export class CommandLineInterface {
         await commandInstance.run();
     }
 
-    private setNodePath(): void {
-        /* istanbul ignore next */
-        const delimiter = platform() === "win32" ? ";" : ":";
-
-        if (!process.env.NODE_PATH) {
-            process.env.NODE_PATH = "";
+    private setAliases(): void {
+        if (basename(join(__dirname, "../..")) === "packages") {
+            moduleAlias.addAlias("@arkecosystem/core", join(__dirname, "../../core"));
+            moduleAlias.addPath(join(__dirname, "../../core/node_modules"));
         }
-
-        const setPathIfExists = (path: string) => {
-            /* istanbul ignore else */
-            if (existsSync(path)) {
-                process.env.NODE_PATH += `${delimiter}${path}`;
-            }
-        };
-
-        setPathIfExists(join(__dirname, "../../../"));
-        setPathIfExists(join(__dirname, "../../../node_modules"));
-
-        require("module").Module._initPaths();
     }
 
     private async detectNetworkAndToken(flags: any): Promise<{ token: string; network?: string }> {
