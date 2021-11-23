@@ -121,24 +121,25 @@ fi
 
 success "Installed node.js & npm!"
 
-heading "Installing Yarn..."
+heading "Installing pnpm..."
 
-if [[ ! -z $DEB ]]; then
-    curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
-    (echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list)
+# Prepare npm global dir
+mkdir ~/.npm-global
+npm config set prefix '~/.npm-global'
 
-    sudo apt-get update
-    sudo apt-get install -y yarn
-elif [[ ! -z $RPM ]]; then
-    curl -sL https://dl.yarnpkg.com/rpm/yarn.repo | sudo tee /etc/yum.repos.d/yarn.repo
-    sudo yum install yarn -y
-fi
+# Setting the current shell pnpm path
+export PATH=~/.npm-global/bin:$PATH
 
-success "Installed Yarn!"
+# Setting the pnpm path
+echo "export PATH=~/.npm-global/bin:$PATH" >> "$HOME/.bashrc"
+
+npm install -g pnpm
+
+success "Installed pnpm!"
 
 heading "Installing PM2..."
 
-sudo yarn global add pm2
+pnpm install -g pm2
 pm2 install pm2-logrotate
 pm2 set pm2-logrotate:max_size 500M
 pm2 set pm2-logrotate:compress true
@@ -214,15 +215,13 @@ success "Installed system updates!"
 
 heading "Installing ARK Core..."
 
-while ! yarn global add @arkecosystem/core ; do
+while ! pnpm install -g @arkecosystem/core ; do
     read -p "Installing ARK Core failed, do you want to retry? [y/N]: " choice
     if [[ ! "$choice" =~ ^(yes|y|Y) ]] ; then
         exit 1
     fi
 done
 
-echo 'export PATH=$(yarn global bin):$PATH' >> ~/.bashrc
-export PATH=$(yarn global bin):$PATH
 ark config:publish
 
 success "Installed ARK Core!"
