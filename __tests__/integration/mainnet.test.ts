@@ -127,11 +127,12 @@ test("BlockFactory.createBlockFromData", async () => {
 
 test.only("StateFactory.createGenesisState", async () => {
     const start = Date.now();
+    let threshold = 750 + Math.random() * 500;
     let last = start;
     let n = 0;
 
-    const genesisBlockJson0 = Networks.mainnet.genesisBlock as Interfaces.IBlockJson0;
-    const genesisBlock = Blocks.BlockFactory.createGenesisBlockFromJson(genesisBlockJson0);
+    const genesisBlockJson = Networks.mainnet.genesisBlock as Interfaces.IBlockJson;
+    const genesisBlock = Blocks.BlockFactory.createGenesisBlockFromJson(genesisBlockJson);
     const state = State.StateFactory.createGenesisState<Interfaces.IBlockHeader>(genesisBlock);
 
     for await (const { header } of getBlocks({ from: 2 })) {
@@ -145,8 +146,10 @@ test.only("StateFactory.createGenesisState", async () => {
         expect(() => state.chainNewBlock(header)).not.toThrow();
 
         const now = Date.now();
-        if (now - last > 1000) {
+        if (now - last > threshold) {
+            threshold = 750 + Math.random() * 500;
             last = now;
+
             const rate = (1000 * n) / (now - start);
             const seconds = (now - start) / 1000;
             console.log(`${n} blocks in ${seconds.toFixed(1)}s, ${rate.toFixed(0)} blocks/s`);

@@ -161,7 +161,7 @@ export class Verifier {
     public static verifyPreviousBlockVotes(header: IBlockHeaderData): void {
         if (header.version === 0) return;
 
-        const voteIndexes = header.previousBlockVotes.map((v) => v.index);
+        const voteIndexes = header.previousBlockVotes.map((v) => parseInt(v.slice(0, 2), 16));
         const uniqIndexes = uniq(voteIndexes);
 
         if (voteIndexes.length !== uniqIndexes.length) {
@@ -170,7 +170,7 @@ export class Verifier {
     }
 
     public static verifyBlockSignature(header: IBlockHeaderData): void {
-        if (!Hash.verifyECDSA(Serializer.getSignedHash(header), header.blockSignature, header.generatorPublicKey)) {
+        if (!Hash.verifyECDSA(Serializer.getSignedDataHash(header), header.blockSignature, header.generatorPublicKey)) {
             throw new VerificationError("Invalid signature.");
         }
     }
@@ -183,7 +183,7 @@ export class Verifier {
 
     public static verifySize(data: IBlockData): void {
         const milestone = configManager.getMilestone(data.height);
-        const size = Serializer.getSize(data);
+        const size = Serializer.getDataSize(data);
 
         if (size > milestone.block.maxPayload) {
             throw new VerificationError(`Invalid size: ${size} (max: ${milestone.block.maxPayload}).`);
