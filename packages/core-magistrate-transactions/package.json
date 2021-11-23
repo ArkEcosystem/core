@@ -18,7 +18,9 @@
         "build:watch": "pnpm clean && pnpm compile -w",
         "clean": "rimraf dist",
         "compile": "node ../../node_modules/typescript/bin/tsc",
-        "prepublishOnly": "pnpm build"
+        "prepublishOnly": "pnpm build",
+        "publish:next": "pnpm publish --access public --tag next --git-checks=false",
+        "publish:latest": "pnpm publish --access public --git-checks=false"
     },
     "dependencies": {
         "@arkecosystem/core-kernel": "workspace:*",

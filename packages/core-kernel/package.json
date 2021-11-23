@@ -18,7 +18,9 @@
         "build": "pnpm clean && pnpm compile",
         "build:watch": "pnpm clean && pnpm compile -w",
         "build:docs": "../../node_modules/typedoc/bin/typedoc --out docs src",
-        "clean": "rimraf dist"
+        "clean": "rimraf dist",
+        "publish:next": "pnpm publish --access public --tag next --git-checks=false",
+        "publish:latest": "pnpm publish --access public --git-checks=false"
     },
     "dependencies": {
         "@arkecosystem/crypto": "workspace:*",

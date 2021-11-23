@@ -38,7 +38,9 @@
         "forger:mainnet": "cross-env CORE_PATH_CONFIG=./bin/config/mainnet pnpm ark forger:run",
         "forger:testnet": "cross-env CORE_PATH_CONFIG=./bin/config/testnet pnpm ark forger:run -- --env=test",
         "full:testnet": "cross-env CORE_PATH_CONFIG=./bin/config/testnet pnpm ark core:run -- --networkStart --env=test",
-        "prepublishOnly": "pnpm build"
+        "prepublishOnly": "pnpm build",
+        "publish:next": "pnpm publish --access public --tag next --git-checks=false",
+        "publish:latest": "pnpm publish --access public --git-checks=false"
     },
     "dependencies": {
         "@arkecosystem/core-api": "workspace:*",

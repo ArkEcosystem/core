@@ -18,7 +18,9 @@
         "build:docs": "../../node_modules/typedoc/bin/typedoc --out docs src",
         "clean": "rimraf dist",
         "compile": "node ../../node_modules/typescript/bin/tsc",
-        "prepublishOnly": "pnpm build"
+        "prepublishOnly": "pnpm build",
+        "publish:next": "pnpm publish --access public --tag next --git-checks=false",
+        "publish:latest": "pnpm publish --access public --git-checks=false"
     },
     "dependencies": {
         "@arkecosystem/core-kernel": "workspace:*",
