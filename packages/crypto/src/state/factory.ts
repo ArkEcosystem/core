@@ -1,5 +1,5 @@
 import { TransactionType, TransactionTypeGroup } from "../enums";
-import { IBlock, IBlockHeader, IState } from "../interfaces";
+import { IBlock, IState } from "../interfaces";
 import { configManager } from "../managers";
 import { Rounds } from "./rounds";
 import { Slots } from "./slots";
