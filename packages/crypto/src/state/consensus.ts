@@ -1,7 +1,6 @@
 import { Hash, HashAlgorithms } from "../crypto";
 import { CryptoError } from "../errors";
 import { IState } from "../interfaces";
-import { configManager } from "../managers";
 
 export class Consensus {
     public static getAllDelegatePublicKeys(state: IState): string[] {
@@ -128,28 +127,13 @@ export class Consensus {
             verifiedKeys.add(publicKey);
         }
 
-        const finalizedDelegateVotes = state.finalizedDelegates.filter((key) => verifiedKeys.has(key));
-        const finalizedMilestone = configManager.getMilestone(state.finalizedBlock.height + 1);
-        const finalizedThreshold = (finalizedMilestone.activeDelegates * 2) / 3;
+        for (const delegates of [state.finalizedDelegates, state.lastDelegates, state.nextDelegates]) {
+            const voteCount = delegates.filter((key) => verifiedKeys.has(key)).length;
+            const threshold = (delegates.length * 2) / 3;
 
-        if (finalizedDelegateVotes.length < finalizedThreshold) {
-            return false;
-        }
-
-        const lastDelegateVotes = state.lastDelegates.filter((key) => verifiedKeys.has(key));
-        const lastMilestone = configManager.getMilestone(state.lastBlock.height);
-        const lastThreshold = (lastMilestone.activeDelegates * 2) / 3;
-
-        if (lastDelegateVotes.length < lastThreshold) {
-            return false;
-        }
-
-        const nextDelegateVotes = state.nextDelegates.filter((key) => verifiedKeys.has(key));
-        const nextMilestone = configManager.getMilestone(state.lastBlock.height + 1);
-        const nextThreshold = (nextMilestone.activeDelegates * 2) / 3;
-
-        if (nextDelegateVotes.length < nextThreshold) {
-            return false;
+            if (voteCount < threshold) {
+                return false;
+            }
         }
 
         return true;
