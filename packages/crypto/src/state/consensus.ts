@@ -27,31 +27,26 @@ export class Consensus {
 
     public static getVoteSignedHash(state: IState): Buffer {
         let size = 0;
-        size += 4; // justifiedBlock.height
-        size += 4; // lastBlock.height
-        size += state.justifiedBlock.id.length === 64 ? 32 : 8; // justifiedBlock.id
-        size += state.lastBlock.id.length === 64 ? 32 : 8; // lastBlock.id
-
-        const buffer = Buffer.alloc(size);
+        // justifiedBlock.height
+        size += 4;
+        // justifiedBlock.id
+        size += state.justifiedBlock.id.length === 64 ? 32 : 8;
+        // lastBlock.height
+        size += 4;
+        // lastBlock.id
+        size += state.lastBlock.id.length === 64 ? 32 : 8;
 
         let offset = 0;
-        offset = buffer.writeUInt32LE(state.justifiedBlock.height, offset);
-        offset = buffer.writeUInt32LE(state.lastBlock.height, offset);
+        const buffer = Buffer.alloc(4 + 32 + 4 + 32);
 
-        if (state.justifiedBlock.id.length === 64) {
-            const id = Buffer.from(state.justifiedBlock.id, "hex");
-            offset += id.copy(buffer, offset);
-        } else {
-            const id = BigInt(state.justifiedBlock.id);
-            offset = buffer.writeBigUInt64BE(id, offset);
-        }
+        for (const block of [state.justifiedBlock, state.lastBlock]) {
+            offset = buffer.writeUInt32LE(block.height, offset);
 
-        if (state.lastBlock.id.length === 64) {
-            const id = Buffer.from(state.lastBlock.id, "hex");
-            offset += id.copy(buffer, offset);
-        } else {
-            const id = BigInt(state.lastBlock.id);
-            offset = buffer.writeBigUInt64BE(id, offset);
+            if (block.id.length === 64) {
+                offset += Buffer.from(block.id, "hex").copy(buffer, offset);
+            } else {
+                offset = buffer.writeBigUInt64BE(BigInt(block.id), offset);
+            }
         }
 
         return HashAlgorithms.sha256(buffer);
