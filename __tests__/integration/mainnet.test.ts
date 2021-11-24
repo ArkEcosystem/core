@@ -135,26 +135,33 @@ test("replay", async () => {
     const genesisBlockJson = Networks.mainnet.genesisBlock as Interfaces.IBlockJson;
     const genesisBlock = Blocks.BlockFactory.createGenesisBlockFromJson(genesisBlockJson);
 
-    let state = State.StateFactory.createGenesisState(genesisBlock) as IState<IBlockHeader>;
+    const state = State.StateFactory.createGenesisState(genesisBlock) as IState<IBlockHeader>;
 
     for await (const { blockHeader, transactions } of getBlocks({ start: 2 })) {
         n++;
 
-        const block = Blocks.BlockFactory.createBlockFromData({ ...blockHeader, transactions });
+        // const header = Blocks.BlockFactory.createHeaderFromData(blockHeader);
+        const originalData = { ...blockHeader, transactions };
+        delete originalData.id;
+        const resultData = Blocks.Deserializer.deserialize(Blocks.Serializer.serialize(originalData));
 
-        expect(block.id).toBe(blockHeader.id);
-        expect(() => {
-            state = state.createNextState(block);
-        }).not.toThrow();
+        expect(resultData).toEqual(originalData);
 
-        if (!state.nextDelegates) {
-            const nextRound = State.Rounds.getRound(state.lastBlock.height + 1);
-            const delegates = await getRoundDelegates(nextRound);
+        // const block = Blocks.BlockFactory.createBlockFromData({ ...blockHeader, transactions });
 
-            expect(() => {
-                state.applyRound(delegates);
-            }).not.toThrow();
-        }
+        // expect(block.id).toBe(blockHeader.id);
+        // expect(() => {
+        //     state = state.createNextState(block);
+        // }).not.toThrow();
+
+        // if (!state.nextDelegates) {
+        //     const nextRound = State.Rounds.getRound(state.lastBlock.height + 1);
+        //     const delegates = await getRoundDelegates(nextRound);
+
+        //     expect(() => {
+        //         state.applyRound(delegates);
+        //     }).not.toThrow();
+        // }
 
         const now = Date.now();
         if (now - last > 1000) {
