@@ -9,12 +9,6 @@ type OutlookTable = {
     [id: string]: string | undefined;
 };
 
-declare global {
-    class ByteBuffer {
-        public writeUint64(value: string, offset?: number): this;
-    }
-}
-
 export class Serializer {
     public static getSignedDataSize(data: IBlockSignedData): number {
         const previousMilestone = configManager.getMilestone(data.height - 1 || 1);
@@ -120,16 +114,22 @@ export class Serializer {
 
         const previousMilestone = configManager.getMilestone(data.height - 1 || 1);
         previousMilestone.block.idFullSha256
-            ? buffer.writeBytes(data.previousBlock, "hex")
-            : buffer.BE().writeUint64(data.previousBlock).LE();
+            ? buffer.append(data.previousBlock, "hex")
+            : // @ts-ignore
+              buffer.BE().writeUint64(data.previousBlock).LE();
 
         buffer.writeUint32(data.numberOfTransactions);
+
+        // @ts-ignore
         buffer.writeUint64(data.totalAmount.toString());
+        // @ts-ignore
         buffer.writeUint64(data.totalFee.toString());
+        // @ts-ignore
         buffer.writeUint64(data.reward.toString());
+
         buffer.writeUint32(data.payloadLength);
-        buffer.writeBytes(data.payloadHash, "hex");
-        buffer.writeBytes(data.generatorPublicKey, "hex");
+        buffer.append(data.payloadHash, "hex");
+        buffer.append(data.generatorPublicKey, "hex");
 
         if (data.version === 1) {
             this.writePreviousBlockVotes(buffer, data.previousBlockVotes);
@@ -137,19 +137,19 @@ export class Serializer {
     }
 
     public static writePreviousBlockVotes(buffer: ByteBuffer, previousBlockVotes: readonly string[]): void {
-        buffer.readUint8(previousBlockVotes.length);
+        buffer.writeUint8(previousBlockVotes.length);
 
         for (const previousBlockVote of previousBlockVotes) {
-            buffer.writeBytes(previousBlockVote, "hex");
+            buffer.append(previousBlockVote, "hex");
         }
     }
 
     public static writeBlockSignature(buffer: ByteBuffer, blockSignature: string): void {
-        buffer.writeBytes(blockSignature, "hex");
+        buffer.append(blockSignature, "hex");
     }
 
     public static writeTransactions(buffer: ByteBuffer, transactions: readonly Buffer[]): void {
         for (const transaction of transactions) buffer.writeUint32(transaction.length);
-        for (const transaction of transactions) buffer.writeBytes(transaction);
+        for (const transaction of transactions) buffer.append(transaction);
     }
 }
