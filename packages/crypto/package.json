@@ -50,8 +50,7 @@
         "fast-memoize": "2.5.2",
         "ipaddr.js": "2.0.1",
         "lodash.get": "4.4.2",
-        "lodash.set": "4.3.2",
-        "memoize-one": "6.0.0"
+        "lodash.set": "4.3.2"
     },
     "devDependencies": {
         "@rollup/plugin-babel": "5.3.0",
