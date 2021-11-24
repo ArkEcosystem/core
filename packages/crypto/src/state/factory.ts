@@ -1,16 +1,19 @@
 import { TransactionType, TransactionTypeGroup } from "../enums";
 import { IBlock, IBlockHeader, IState } from "../interfaces";
 import { configManager } from "../managers";
-import { Utils } from ".";
+import { Rounds } from "./rounds";
+import { Slots } from "./slots";
 import { State } from "./state";
 
 export class StateFactory {
-    public static createGenesisState<B extends IBlockHeader>(genesisBlock: B & IBlock): IState<B> {
+    public static createGenesisState(genesisBlock: IBlock): IState<IBlock> {
         if (genesisBlock.height !== 1) {
             throw new Error("Not a genesis block.");
         }
 
-        const genesisMilestone = configManager.getMilestone(1);
+        const genesisRound = Rounds.getRound(genesisBlock.height);
+        const genesisSlot = Slots.getGenesisSlot();
+        const genesisMilestone = configManager.getMilestone(genesisBlock.height);
         const genesisDelegates = genesisBlock.transactions
             .filter((t) => t.typeGroup === TransactionTypeGroup.Core)
             .filter((t) => t.type === TransactionType.DelegateRegistration)
@@ -21,29 +24,22 @@ export class StateFactory {
             throw new Error("Invalid genesis block.");
         }
 
-        const genesisRound = { no: 1, height: 1, delegates: genesisDelegates };
-        const genesisSlot = { no: 0, timestamp: 0, height: 1 };
-
-        const nextRound = genesisRound;
-        const nextForgers = Utils.getRoundForgers(nextRound);
-        const nextValidators = Utils.getValidators(genesisRound, nextRound);
-
-        const data = {
+        const shuffledGenesisDelegates = Rounds.getRoundForgers(genesisRound, genesisDelegates);
+        const stateData = {
             finalizedTransactionCount: genesisBlock.numberOfTransactions,
             forgedTransactionCount: genesisBlock.numberOfTransactions,
-            lastRound: genesisRound,
-            lastSlot: genesisSlot,
-            lastBlock: genesisBlock,
-            justifiedBlock: genesisBlock,
             finalizedBlock: genesisBlock,
-            finalizedRound: genesisRound,
-            next: {
-                round: nextRound,
-                forgers: nextForgers,
-                validators: nextValidators,
-            },
+            justifiedBlock: genesisBlock,
+            lastBlock: genesisBlock,
+            lastSlot: genesisSlot,
+            finalizedDelegates: shuffledGenesisDelegates,
+            lastDelegates: shuffledGenesisDelegates,
         };
 
-        return new State<B>(data);
+        if (Rounds.getRound(genesisBlock.height) === Rounds.getRound(genesisBlock.height + 1)) {
+            return new State(stateData, shuffledGenesisDelegates);
+        }
+
+        return new State(stateData);
     }
 }

@@ -1,9 +1,11 @@
+/* eslint-disable jest/expect-expect */
 /* eslint-disable require-yield */
 import "jest-extended";
 
 import { Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
 import { Blocks, Interfaces, Managers, Networks, State, Transactions, Utils } from "@packages/crypto";
-import { IBlockHeader } from "@packages/crypto/dist/interfaces";
+import { IBlockHeader, IState } from "@packages/crypto/dist/interfaces";
+import assert from "assert";
 import { Client } from "pg";
 
 Managers.configManager.setFromPreset("mainnet");
@@ -35,66 +37,65 @@ afterAll(async () => {
 
 type Range = { from?: number; to?: number };
 
-async function* getBlocks(range?: Range): AsyncIterable<{ header: IBlockHeader; transactions: readonly Buffer[] }> {
-    const limit = 100000;
+async function* getBlocks(range?: Range): AsyncIterable<{ block: IBlockHeader; transactions: readonly Buffer[] }> {
+    const limit = 50000;
 
     for (let height = range?.from ?? 2; ; height += limit) {
-        const blocksQuery = `
-            select
-                id, version, timestamp, previous_block, height, number_of_transactions,
-                total_amount, total_fee, reward, payload_length, payload_hash, generator_public_key,
-                block_signature
-            from blocks
-            where height >= ${height} ${range?.to ? `and height <= ${range.to}` : ""}
-            order by height
-            limit ${limit}
-        `;
+        const blocksQuery = {
+            rowMode: "array",
+            text: `
+                select
+                    id, version, timestamp, previous_block, height, number_of_transactions,
+                    total_amount, total_fee, reward, payload_length, payload_hash, generator_public_key,
+                    block_signature
+                from blocks
+                where height >= ${height} ${range?.to ? `and height <= ${range.to}` : ""}
+                order by height
+                limit ${limit}
+            `,
+        };
 
-        const blocksResult = await client.query({ text: blocksQuery, rowMode: "array" });
-        if (blocksResult.rows.length === 0) break;
+        const blocksResult = await client.query(blocksQuery);
+        const blocks = blocksResult.rows.map((row) => ({
+            id: row[0],
+            version: row[1],
+            timestamp: row[2],
+            previousBlock: row[3],
+            height: row[4],
+            numberOfTransactions: row[5],
+            totalAmount: row[6],
+            totalFee: row[7],
+            reward: row[8],
+            payloadLength: row[9],
+            payloadHash: row[10],
+            generatorPublicKey: row[11],
+            blockSignature: row[12],
+        })) as IBlockHeader[];
 
-        for (const blocksRow of blocksResult.rows) {
-            const [
-                id,
-                version,
-                timestamp,
-                previousBlock,
-                height,
-                numberOfTransactions,
-                totalAmount,
-                totalFee,
-                reward,
-                payloadLength,
-                payloadHash,
-                generatorPublicKey,
-                blockSignature,
-            ] = blocksRow;
+        const transactionsQuery = {
+            rowMode: "array",
+            text: `select block_height, serialized from transactions where block_id IN ($1) order by block_height, sequence`,
+            values: [blocks.map((block) => block.id)],
+        };
 
-            let transactions: Buffer[] = [];
+        const transactionsResult = await client.query(transactionsQuery);
+        const transactionsRows = transactionsResult.rows.slice() as [number, Buffer][];
 
-            if (numberOfTransactions !== 0) {
-                const transactionsQuery = `select serialized from transactions where block_id = '${id}' order by sequence`;
-                const transactionsResult = await client.query({ text: transactionsQuery, rowMode: "array" });
-                transactions = transactionsResult.rows.map(([serialized]) => serialized as Buffer);
+        for (const block of blocks) {
+            const transactions: Buffer[] = [];
+
+            for (const [i, [blockHeight, transaction]] of transactionsRows.entries()) {
+                if (blockHeight === block.height) {
+                    transactions.push(transaction);
+                }
+
+                if (blockHeight > block.height) {
+                    transactions.splice(0, i);
+                    break;
+                }
             }
 
-            const header = {
-                id,
-                version,
-                timestamp,
-                previousBlock,
-                height,
-                numberOfTransactions,
-                totalAmount: Utils.BigNumber.make(totalAmount),
-                totalFee: Utils.BigNumber.make(totalFee),
-                reward: Utils.BigNumber.make(reward),
-                payloadLength,
-                payloadHash,
-                generatorPublicKey,
-                blockSignature,
-            };
-
-            yield { header, transactions };
+            yield { block, transactions };
         }
     }
 }
@@ -110,10 +111,10 @@ test("BlockFactory.createBlockFromData", async () => {
     let last = start;
     let n = 0;
 
-    for await (const { header, transactions } of getBlocks({ from: 2 })) {
+    for await (const { block, transactions } of getBlocks({ from: 2 })) {
         n++;
 
-        expect(() => Blocks.BlockFactory.createBlockFromSerializedTransactions(header, transactions)).not.toThrow();
+        expect(() => Blocks.BlockFactory.createBlockFromSerializedTransactions(block, transactions)).not.toThrow();
 
         const now = Date.now();
         if (now - last > 1000) {
@@ -133,17 +134,19 @@ test.only("StateFactory.createGenesisState", async () => {
 
     const genesisBlockJson = Networks.mainnet.genesisBlock as Interfaces.IBlockJson;
     const genesisBlock = Blocks.BlockFactory.createGenesisBlockFromJson(genesisBlockJson);
-    const state = State.StateFactory.createGenesisState<Interfaces.IBlockHeader>(genesisBlock);
 
-    for await (const { header } of getBlocks({ from: 2 })) {
+    let state = State.StateFactory.createGenesisState(genesisBlock) as IState<IBlockHeader>;
+
+    for await (const { block } of getBlocks({ from: 2 })) {
         n++;
 
-        if (!state.next) {
-            const delegates = await getRoundDelegates(state.lastRound.no + 1);
-            state.applyNextRound(delegates);
-        }
+        state = state.createNewState(block);
 
-        expect(() => state.chainNewBlock(header)).not.toThrow();
+        if (!state.nextDelegates) {
+            const nextRound = State.Rounds.getRound(state.lastBlock.height + 1);
+            const delegates = await getRoundDelegates(nextRound);
+            state.applyRound(delegates);
+        }
 
         const now = Date.now();
         if (now - last > threshold) {
