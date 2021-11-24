@@ -47,66 +47,66 @@ export class State<B extends IBlockHeader> implements IState<B> {
         return this.data.lastDelegates;
     }
 
-    public createNewState(newBlock: B): State<B> {
+    public createNextState(nextBlock: B): State<B> {
         if (!this.nextDelegates) {
             throw new CryptoError("Next round not applied.");
         }
 
         try {
-            if (newBlock.previousBlock !== this.lastBlock.id) {
+            if (nextBlock.previousBlock !== this.lastBlock.id) {
                 throw new CryptoError("Invalid previous block.");
             }
 
-            if (newBlock.height !== this.lastBlock.height + 1) {
+            if (nextBlock.height !== this.lastBlock.height + 1) {
                 throw new CryptoError("Invalid height.");
             }
 
-            const newBlockSlot = Slots.getFutureSlot(this.lastSlot, newBlock);
-            const newBlockMilestone = configManager.getMilestone(newBlock.height);
-            const newBlockForgerIndex = newBlockSlot.no % newBlockMilestone.activeDelegates;
+            const nextBlockSlot = Slots.getFutureSlot(this.lastSlot, nextBlock);
+            const nextBlockMilestone = configManager.getMilestone(nextBlock.height);
+            const nextBlockForgerIndex = nextBlockSlot.no % nextBlockMilestone.activeDelegates;
 
-            if (newBlockSlot.no <= this.lastSlot.no) {
+            if (nextBlockSlot.no <= this.lastSlot.no) {
                 throw new CryptoError("Invalid timestamp.");
             }
 
             // TODO: future timestamp check
 
-            if (newBlock.generatorPublicKey !== this.nextDelegates[newBlockForgerIndex]) {
+            if (nextBlock.generatorPublicKey !== this.nextDelegates[nextBlockForgerIndex]) {
                 throw new CryptoError("Invalid generator public key.");
             }
 
-            const newData = { ...this.data };
-            newData.lastBlock = newBlock;
-            newData.lastSlot = newBlockSlot;
-            newData.lastDelegates = this.nextDelegates;
-            newData.forgedTransactionCount = this.forgedTransactionCount + newBlock.numberOfTransactions;
+            const nextData = { ...this.data };
+            nextData.lastBlock = nextBlock;
+            nextData.lastSlot = nextBlockSlot;
+            nextData.lastDelegates = this.nextDelegates;
+            nextData.forgedTransactionCount = this.forgedTransactionCount + nextBlock.numberOfTransactions;
 
-            if (newBlock.version === 1 && Consensus.hasSupermajorityVote(this, newBlock.previousBlockVotes)) {
-                newData.justifiedBlock = this.lastBlock;
+            if (nextBlock.version === 1 && Consensus.hasSupermajorityVote(this, nextBlock.previousBlockVotes)) {
+                nextData.justifiedBlock = this.lastBlock;
 
-                if (newData.justifiedBlock.height === this.justifiedBlock.height + 1) {
-                    newData.finalizedDelegates = this.lastDelegates;
-                    newData.finalizedBlock = this.justifiedBlock;
-                    newData.finalizedTransactionCount =
+                if (nextData.justifiedBlock.height === this.justifiedBlock.height + 1) {
+                    nextData.finalizedDelegates = this.lastDelegates;
+                    nextData.finalizedBlock = this.justifiedBlock;
+                    nextData.finalizedTransactionCount =
                         this.forgedTransactionCount - this.lastBlock.numberOfTransactions;
                 }
             }
 
-            if (newBlockMilestone.height === newBlock.height && newBlockMilestone.finalizedDelegates) {
-                const prevBlockMilestone = configManager.getMilestone(newBlock.height - 1);
+            if (nextBlockMilestone.height === nextBlock.height && nextBlockMilestone.finalizedDelegates) {
+                const prevBlockMilestone = configManager.getMilestone(nextBlock.height - 1);
 
-                if (prevBlockMilestone.finalizedDelegates !== newBlockMilestone.finalizedDelegates) {
-                    newData.finalizedDelegates = newBlockMilestone.finalizedDelegates;
+                if (prevBlockMilestone.finalizedDelegates !== nextBlockMilestone.finalizedDelegates) {
+                    nextData.finalizedDelegates = nextBlockMilestone.finalizedDelegates;
                 }
             }
 
-            if (Rounds.getRound(newBlock.height + 1) === Rounds.getRound(newBlock.height)) {
-                return new State(newData, this.nextDelegates);
+            if (Rounds.getRound(nextBlock.height + 1) === Rounds.getRound(nextBlock.height)) {
+                return new State(nextData, this.nextDelegates);
             } else {
-                return new State(newData);
+                return new State(nextData);
             }
         } catch (cause) {
-            const msg = `Cannot chain new block (height=${newBlock.height}, id=${newBlock.id}).`;
+            const msg = `Cannot chain new block (height=${nextBlock.height}, id=${nextBlock.id}).`;
             throw new CryptoError(msg, { cause });
         }
     }

@@ -37,7 +37,7 @@ export class Consensus {
         size += state.lastBlock.id.length === 64 ? 32 : 8;
 
         let offset = 0;
-        const buffer = Buffer.alloc(4 + 32 + 4 + 32);
+        const buffer = Buffer.alloc(size);
 
         for (const block of [state.justifiedBlock, state.lastBlock]) {
             offset = buffer.writeUInt32LE(block.height, offset);
