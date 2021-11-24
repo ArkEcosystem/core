@@ -1,4 +1,5 @@
 import { BigNumber } from "../utils";
+import { ISchnorrMultiSignature } from "./serde";
 import { ITransaction, ITransactionJson } from "./transactions";
 
 export type IBlockSignedData1 = {
@@ -13,7 +14,7 @@ export type IBlockSignedData1 = {
     readonly payloadLength: number;
     readonly payloadHash: string;
     readonly generatorPublicKey: string;
-    readonly previousBlockVotes: readonly string[];
+    readonly previousBlockVotes: readonly ISchnorrMultiSignature[];
 };
 
 export type IBlockHeaderData1 = IBlockSignedData1 & { readonly blockSignature: string };

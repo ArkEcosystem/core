@@ -1,18 +1,16 @@
-import ByteBuffer from "bytebuffer";
-import Long from "long";
-
 import { HashAlgorithms } from "../crypto";
 import { CryptoError } from "../errors";
-import { IBlockData, IBlockHeaderData, IBlockSignedData } from "../interfaces";
+import { IBlockData, IBlockHeaderData, IBlockSignedData, IWriter } from "../interfaces";
 import { configManager } from "../managers";
+import { SerdeFactory } from "../serde";
 
 type OutlookTable = {
     [id: string]: string | undefined;
 };
 
 export class Serializer {
-    public static getSignedDataSize(data: IBlockSignedData): number {
-        const previousMilestone = configManager.getMilestone(data.height - 1 || 1);
+    public static getSignedSize(signed: IBlockSignedData): number {
+        const previousMilestone = configManager.getMilestone(signed.height - 1 || 1);
 
         let size = 0;
         size += 4; // version
@@ -27,57 +25,59 @@ export class Serializer {
         size += 32; // payloadHash
         size += 33; // generatorPublicKey
 
-        if (data.version === 1) {
+        if (signed.version === 1) {
             size += 1; // previousBlockVotes.length
-            size += data.previousBlockVotes.length * 65;
+            size += signed.previousBlockVotes.length * 65;
         }
 
         return size;
     }
 
-    public static getHeaderDataSize(data: IBlockHeaderData): number {
-        return this.getSignedDataSize(data) + data.blockSignature.length / 2;
+    public static getHeaderSize(header: IBlockHeaderData): number {
+        return this.getSignedSize(header) + header.blockSignature.length / 2;
     }
 
-    public static getDataSize(data: IBlockData): number {
-        return this.getHeaderDataSize(data) + data.transactions.reduce((sum, b) => sum + 4 + b.length, 0);
+    public static getSize(data: IBlockData): number {
+        return this.getHeaderSize(data) + data.transactions.reduce((sum, b) => sum + 4 + b.length, 0);
     }
 
-    public static getSignedDataHash(data: IBlockSignedData): Buffer {
+    public static getSignedHash(signed: IBlockSignedData): Buffer {
         try {
-            const buffer = new ByteBuffer(this.getSignedDataSize(data)).LE();
-            this.writeSignedData(buffer, data);
+            const size = this.getSignedSize(signed);
+            const writer = SerdeFactory.createWriter(Buffer.alloc(size));
+            this.writeSignedData(writer, signed);
 
-            if (buffer.remaining() !== 0) {
+            if (writer.getRemainderLength() !== 0) {
                 throw new CryptoError("Buffer has space leftover.");
             }
 
-            return HashAlgorithms.sha256(buffer.flip().toBuffer());
+            return HashAlgorithms.sha256(writer.getResult());
         } catch (cause) {
             throw new CryptoError("Cannot calculate block signed hash.", { cause });
         }
     }
 
-    public static getHeaderDataHash(data: IBlockHeaderData): Buffer {
+    public static getHeaderHash(header: IBlockHeaderData): Buffer {
         try {
-            const buffer = new ByteBuffer(this.getHeaderDataSize(data)).LE();
-            this.writeSignedData(buffer, data);
-            this.writeBlockSignature(buffer, data.blockSignature);
+            const size = this.getHeaderSize(header);
+            const writer = SerdeFactory.createWriter(Buffer.alloc(size));
+            this.writeSignedData(writer, header);
+            writer.writeEcdsaSignature(Buffer.from(header.blockSignature, "hex"));
 
-            if (buffer.remaining() !== 0) {
+            if (writer.getRemainderLength() !== 0) {
                 throw new CryptoError("Buffer has space leftover.");
             }
 
-            return HashAlgorithms.sha256(buffer.flip().toBuffer());
+            return HashAlgorithms.sha256(writer.getResult());
         } catch (cause) {
             throw new CryptoError("Cannot calculate block header hash.", { cause });
         }
     }
 
-    public static getId(data: IBlockHeaderData): string {
+    public static getId(header: IBlockHeaderData): string {
         try {
-            const hash = data.height === 1 ? this.getSignedDataHash(data) : this.getHeaderDataHash(data);
-            const milestone = configManager.getMilestone(data.height);
+            const hash = header.height === 1 ? this.getSignedHash(header) : this.getHeaderHash(header);
+            const milestone = configManager.getMilestone(header.height);
             const id = milestone.block.idFullSha256 ? hash.toString("hex") : hash.readBigUInt64LE().toString();
             const outlookTable = configManager.get<OutlookTable>("exceptions.outlookTable") ?? {};
 
@@ -89,67 +89,57 @@ export class Serializer {
 
     public static serialize(data: IBlockData): Buffer {
         try {
-            const buffer = new ByteBuffer(this.getDataSize(data)).LE();
-            this.writeSignedData(buffer, data);
-            this.writeBlockSignature(buffer, data.blockSignature);
-            this.writeTransactions(buffer, data.transactions);
+            const size = this.getSize(data);
+            const writer = SerdeFactory.createWriter(Buffer.alloc(size));
+            this.writeSignedData(writer, data);
+            writer.writeEcdsaSignature(Buffer.from(data.blockSignature, "hex"));
+            this.writeTransactions(writer, data.transactions);
 
-            if (buffer.remaining() !== 0) {
+            if (writer.getRemainderLength() !== 0) {
                 throw new CryptoError("Buffer has space leftover.");
             }
 
-            return buffer.flip().toBuffer();
+            return Buffer.from(writer.getResult());
         } catch (cause) {
             throw new CryptoError("Cannot serialize block.", { cause });
         }
     }
 
-    public static writeSignedData(buffer: ByteBuffer, data: IBlockSignedData): void {
+    public static writeSignedData(writer: IWriter, data: IBlockSignedData): void {
         if (data.version !== 0 && data.version !== 1) {
             throw new CryptoError("Unexpected block version.");
         }
 
-        buffer.writeUint32(data.version);
-        buffer.writeUint32(data.timestamp);
-        buffer.writeUint32(data.height);
+        writer.writeUInt32LE(data.version);
+        writer.writeUInt32LE(data.timestamp);
+        writer.writeUInt32LE(data.height);
 
         const previousMilestone = configManager.getMilestone(data.height - 1 || 1);
         previousMilestone.block.idFullSha256
-            ? buffer.append(data.previousBlock, "hex")
-            : buffer.BE().writeUint64(Long.fromString(data.previousBlock)).LE();
+            ? writer.writeBuffer(Buffer.from(data.previousBlock, "hex"))
+            : writer.writeBigUInt64BE(BigInt(data.previousBlock));
 
-        buffer.writeUint32(data.numberOfTransactions);
-        buffer.writeUint64(Long.fromString(data.totalAmount.toString()));
-        buffer.writeUint64(Long.fromString(data.totalFee.toString()));
-        buffer.writeUint64(Long.fromString(data.reward.toString()));
-        buffer.writeUint32(data.payloadLength);
-        buffer.append(data.payloadHash, "hex");
-        buffer.append(data.generatorPublicKey, "hex");
+        writer.writeUInt32LE(data.numberOfTransactions);
+        writer.writeBigUInt64LE(BigInt(data.totalAmount.toString()));
+        writer.writeBigUInt64LE(BigInt(data.totalFee.toString()));
+        writer.writeBigUInt64LE(BigInt(data.reward.toString()));
+        writer.writeUInt32LE(data.payloadLength);
+        writer.writeBuffer(Buffer.from(data.payloadHash, "hex"));
+        writer.writePublicKey(Buffer.from(data.generatorPublicKey, "hex"));
 
         if (data.version === 1) {
-            this.writePreviousBlockVotes(buffer, data.previousBlockVotes);
+            writer.writeUInt8(data.previousBlockVotes.length);
+            writer.writeSchnorrMultiSignature(data.previousBlockVotes);
         }
     }
 
-    public static writePreviousBlockVotes(buffer: ByteBuffer, previousBlockVotes: readonly string[]): void {
-        buffer.writeUint8(previousBlockVotes.length);
-
-        for (const previousBlockVote of previousBlockVotes) {
-            buffer.append(previousBlockVote, "hex");
-        }
-    }
-
-    public static writeBlockSignature(buffer: ByteBuffer, blockSignature: string): void {
-        buffer.append(blockSignature, "hex");
-    }
-
-    public static writeTransactions(buffer: ByteBuffer, transactions: readonly Buffer[]): void {
+    public static writeTransactions(writer: IWriter, transactions: readonly Buffer[]): void {
         for (const transaction of transactions) {
-            buffer.writeUint32(transaction.length);
+            writer.writeUInt32LE(transaction.length);
         }
 
         for (const transaction of transactions) {
-            buffer.append(transaction);
+            writer.writeBuffer(transaction);
         }
     }
 }

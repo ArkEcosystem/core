@@ -1,19 +1,18 @@
-import ByteBuffer from "bytebuffer";
-
 import { CryptoError } from "../errors";
-import { IBlockData, IBlockSignedData } from "../interfaces";
+import { IBlockData, IBlockSignedData, IReader } from "../interfaces";
 import { configManager } from "../managers";
+import { SerdeFactory } from "../serde";
 import { BigNumber } from "../utils";
 
 export class Deserializer {
-    public static deserialize(serialized: Buffer): IBlockData {
+    public static deserialize(buffer: Buffer): IBlockData {
         try {
-            const buffer = ByteBuffer.wrap(serialized).LE();
-            const signedData = this.readSignedData(buffer);
-            const blockSignature = this.readBlockSignature(buffer);
-            const transactions = this.readTransactions(buffer, signedData.numberOfTransactions);
+            const reader = SerdeFactory.createReader(buffer);
+            const signedData = this.readSignedData(reader);
+            const blockSignature = reader.readEcdsaSignature().toString("hex");
+            const transactions = this.readTransactions(reader, signedData.numberOfTransactions);
 
-            if (buffer.remaining() !== 0) {
+            if (reader.getRemainderLength() !== 0) {
                 throw new CryptoError("Buffer has space leftover.");
             }
 
@@ -23,28 +22,28 @@ export class Deserializer {
         }
     }
 
-    public static readSignedData(buffer: ByteBuffer): IBlockSignedData {
-        const version = buffer.readUint32();
+    public static readSignedData(reader: IReader): IBlockSignedData {
+        const version = reader.readUInt32LE();
 
         if (version !== 0 && version !== 1) {
             throw new CryptoError("Unexpected block version.");
         }
 
-        const timestamp = buffer.readUint32();
-        const height = buffer.readUint32();
+        const timestamp = reader.readUInt32LE();
+        const height = reader.readUInt32LE();
 
         const previousMilestone = configManager.getMilestone(height - 1 || 1);
         const previousBlock = previousMilestone.block.idFullSha256
-            ? buffer.readBytes(32).toString("hex")
-            : buffer.readBytes(8).BE().readUint64().toString();
+            ? reader.readBuffer(32).toString("hex")
+            : reader.readBigUInt64BE().toString();
 
-        const numberOfTransactions = buffer.readUint32();
-        const totalAmount = BigNumber.make(buffer.readUint64().toString());
-        const totalFee = BigNumber.make(buffer.readUint64().toString());
-        const reward = BigNumber.make(buffer.readUint64().toString());
-        const payloadLength = buffer.readUint32();
-        const payloadHash = buffer.readBytes(32).toString("hex");
-        const generatorPublicKey = buffer.readBytes(33).toString("hex");
+        const numberOfTransactions = reader.readUInt32LE();
+        const totalAmount = BigNumber.make(reader.readBigUInt64LE());
+        const totalFee = BigNumber.make(reader.readBigUInt64LE());
+        const reward = BigNumber.make(reader.readBigUInt64LE());
+        const payloadLength = reader.readUInt32LE();
+        const payloadHash = reader.readBuffer(32).toString("hex");
+        const generatorPublicKey = reader.readPublicKey().toString("hex");
 
         const common = {
             timestamp,
@@ -63,41 +62,22 @@ export class Deserializer {
             return { version, ...common };
         }
 
-        const previousBlockVotes = this.readPreviousBlockVotes(buffer);
+        const previousBlockVotesCount = reader.readUInt8();
+        const previousBlockVotes = reader.readSchnorrMultiSignature(previousBlockVotesCount);
 
         return { version, ...common, previousBlockVotes };
     }
 
-    public static readBlockSignature(buffer: ByteBuffer): string {
-        if (buffer.readUint8(buffer.offset) !== 0x30) {
-            throw new CryptoError("Not ECDSA signature.");
-        }
-
-        return buffer.readBytes(2 + buffer.readUint8(buffer.offset + 1)).toString("hex");
-    }
-
-    public static readPreviousBlockVotes(buffer: ByteBuffer): string[] {
-        const length = buffer.readUint8();
-        const previousBlockVotes: string[] = [];
-
-        for (let i = 0; i < length; i++) {
-            const previousBlockVote = buffer.readBytes(65).toString("hex");
-            previousBlockVotes.push(previousBlockVote);
-        }
-
-        return previousBlockVotes;
-    }
-
-    public static readTransactions(buffer: ByteBuffer, numberOfTransactions: number): Buffer[] {
+    public static readTransactions(reader: IReader, numberOfTransactions: number): Buffer[] {
         const lengths: number[] = [];
         const transactions: Buffer[] = [];
 
         for (let i = 0; i < numberOfTransactions; i++) {
-            lengths.push(buffer.readUint32());
+            lengths.push(reader.readUInt32LE());
         }
 
         for (const length of lengths) {
-            transactions.push(buffer.readBytes(length).toBuffer());
+            transactions.push(reader.readBuffer(length));
         }
 
         return transactions;

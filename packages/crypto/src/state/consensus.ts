@@ -1,6 +1,6 @@
 import { Hash, HashAlgorithms } from "../crypto";
 import { CryptoError } from "../errors";
-import { IState } from "../interfaces";
+import { ISchnorrMultiSignature, IState } from "../interfaces";
 
 export class Consensus {
     public static getVotingDelegates(state: IState): string[] {
@@ -77,20 +77,18 @@ export class Consensus {
         return false;
     }
 
-    public static isValidVote(state: IState, previousBlockVote: string): boolean {
+    public static isValidVote(state: IState, previousBlockVote: ISchnorrMultiSignature): boolean {
         const delegates = this.getVotingDelegates(state);
-        const index = parseInt(previousBlockVote.slice(0, 2), 16);
-        const signature = previousBlockVote.slice(2);
-        const publicKey = delegates[index];
+        const publicKey = delegates[previousBlockVote.index];
 
         if (!publicKey) {
             return false;
         }
 
-        return Hash.verifySchnorr(this.getVoteSignedHash(state), signature, publicKey);
+        return Hash.verifySchnorr(this.getVoteSignedHash(state), previousBlockVote.signature, publicKey);
     }
 
-    public static hasSupermajorityVote(state: IState, previousBlockVotes: readonly string[]): boolean {
+    public static hasSupermajorityVote(state: IState, previousBlockVotes: readonly ISchnorrMultiSignature[]): boolean {
         if (!state.nextDelegates) {
             throw new CryptoError("Next round not applied.");
         }
@@ -99,9 +97,7 @@ export class Consensus {
         const delegates = this.getVotingDelegates(state);
         const verifiedKeys = new Set<string>();
 
-        for (const previousBlockVote of previousBlockVotes) {
-            const index = parseInt(previousBlockVote.slice(0, 2), 16);
-            const signature = previousBlockVote.slice(2);
+        for (const { index, signature } of previousBlockVotes) {
             const publicKey = delegates[index];
 
             if (!publicKey) {
