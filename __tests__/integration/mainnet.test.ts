@@ -35,14 +35,14 @@ afterAll(async () => {
     await client.end();
 });
 
-type Range = { from?: number; to?: number };
+type Range = { start?: number; end?: number };
 
 async function* getBlocks(
     range?: Range,
 ): AsyncIterable<{ blockHeader: IBlockHeader; transactions: readonly Buffer[] }> {
     const limit = 50000;
 
-    for (let height = range?.from ?? 2; ; height += limit) {
+    for (let height = range?.start ?? 2; ; height += limit) {
         const blocksQuery = {
             rowMode: "array",
             text: `
@@ -51,7 +51,7 @@ async function* getBlocks(
                     total_amount, total_fee, reward, payload_length, payload_hash, generator_public_key,
                     block_signature
                 from blocks
-                where height >= ${height} ${range?.to ? `and height <= ${range.to}` : ""}
+                where height >= ${height} ${range?.end ? `and height < ${range.end}` : ""}
                 order by height
                 limit ${limit}
             `,
@@ -118,7 +118,7 @@ test("replay", async () => {
 
     let state = State.StateFactory.createGenesisState(genesisBlock) as IState<IBlockHeader>;
 
-    for await (const { blockHeader, transactions } of getBlocks({ from: 2 })) {
+    for await (const { blockHeader, transactions } of getBlocks({ start: 2, end: 3 })) {
         n++;
 
         const block = Blocks.BlockFactory.createBlockFromData({ ...blockHeader, transactions });
