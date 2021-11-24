@@ -1,3 +1,5 @@
+import ByteBuffer from "bytebuffer";
+
 import { CryptoError } from "../errors";
 import { IBlockData, IBlockSignedData } from "../interfaces";
 import { configManager } from "../managers";
@@ -6,7 +8,7 @@ import { BigNumber } from "../utils";
 export class Deserializer {
     public static deserialize(serialized: Buffer): IBlockData {
         try {
-            const buffer = ByteBuffer.wrap(serialized);
+            const buffer = ByteBuffer.wrap(serialized).LE();
             const signedData = this.readSignedData(buffer);
             const blockSignature = this.readBlockSignature(buffer);
             const transactions = this.readTransactions(buffer, signedData.numberOfTransactions);

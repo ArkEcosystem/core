@@ -44,7 +44,7 @@ export class Serializer {
 
     public static getSignedDataHash(data: IBlockSignedData): Buffer {
         try {
-            const buffer = new ByteBuffer(this.getSignedDataSize(data));
+            const buffer = new ByteBuffer(this.getSignedDataSize(data)).LE();
             this.writeSignedData(buffer, data);
 
             if (buffer.remaining() !== 0) {
@@ -59,7 +59,7 @@ export class Serializer {
 
     public static getHeaderDataHash(data: IBlockHeaderData): Buffer {
         try {
-            const buffer = new ByteBuffer(this.getHeaderDataSize(data));
+            const buffer = new ByteBuffer(this.getHeaderDataSize(data)).LE();
             this.writeSignedData(buffer, data);
             this.writeBlockSignature(buffer, data.blockSignature);
 
@@ -88,7 +88,7 @@ export class Serializer {
 
     public static serialize(data: IBlockData): Buffer {
         try {
-            const buffer = new ByteBuffer(this.getDataSize(data));
+            const buffer = new ByteBuffer(this.getDataSize(data)).LE();
             this.writeSignedData(buffer, data);
             this.writeBlockSignature(buffer, data.blockSignature);
             this.writeTransactions(buffer, data.transactions);
@@ -149,7 +149,12 @@ export class Serializer {
     }
 
     public static writeTransactions(buffer: ByteBuffer, transactions: readonly Buffer[]): void {
-        for (const transaction of transactions) buffer.writeUint32(transaction.length);
-        for (const transaction of transactions) buffer.append(transaction);
+        for (const transaction of transactions) {
+            buffer.writeUint32(transaction.length);
+        }
+
+        for (const transaction of transactions) {
+            buffer.append(transaction);
+        }
     }
 }
