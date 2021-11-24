@@ -1,9 +1,10 @@
 import { IBlockJson } from "./block";
+import { IMilestone } from "./managers";
 
 export interface NetworkConfig {
     exceptions: IExceptions;
     genesisBlock: IBlockJson;
-    milestones: Array<Record<string, any>>;
+    milestones: IMilestone[];
     network: Network;
 }
 

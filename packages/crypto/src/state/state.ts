@@ -61,7 +61,7 @@ export class State<B extends IBlockHeader> implements IState<B> {
                 throw new CryptoError("Invalid height.");
             }
 
-            const nextBlockSlot = Slots.getFutureSlot(this.lastSlot, nextBlock);
+            const nextBlockSlot = Slots.getLaterSlot(this.lastSlot, nextBlock);
             const nextBlockMilestone = configManager.getMilestone(nextBlock.height);
             const nextBlockForgerIndex = nextBlockSlot.no % nextBlockMilestone.activeDelegates;
 

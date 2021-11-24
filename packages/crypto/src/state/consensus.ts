@@ -3,38 +3,32 @@ import { CryptoError } from "../errors";
 import { IState } from "../interfaces";
 
 export class Consensus {
-    public static getAllDelegatePublicKeys(state: IState): string[] {
+    public static getVotingDelegates(state: IState): string[] {
         if (!state.nextDelegates) {
             throw new CryptoError("Next round not applied.");
         }
 
-        const allDelegatePublicKeys = state.finalizedDelegates.slice();
+        const delegates = state.finalizedDelegates.slice();
 
         for (const lastDelegate of state.lastDelegates) {
-            if (allDelegatePublicKeys.includes(lastDelegate) === false) {
-                allDelegatePublicKeys.push(lastDelegate);
+            if (delegates.includes(lastDelegate) === false) {
+                delegates.push(lastDelegate);
             }
         }
 
         for (const nextDelegate of state.nextDelegates) {
-            if (allDelegatePublicKeys.includes(nextDelegate) === false) {
-                allDelegatePublicKeys.push(nextDelegate);
+            if (delegates.includes(nextDelegate) === false) {
+                delegates.push(nextDelegate);
             }
         }
 
-        return allDelegatePublicKeys;
+        return delegates;
     }
 
     public static getVoteSignedHash(state: IState): Buffer {
-        let size = 0;
-        // justifiedBlock.height
-        size += 4;
-        // justifiedBlock.id
-        size += state.justifiedBlock.id.length === 64 ? 32 : 8;
-        // lastBlock.height
-        size += 4;
-        // lastBlock.id
-        size += state.lastBlock.id.length === 64 ? 32 : 8;
+        const justifiedIdSize = state.justifiedBlock.id.length === 64 ? 32 : 8;
+        const lastIdSize = state.lastBlock.id.length === 64 ? 32 : 8;
+        const size = 4 + justifiedIdSize + 4 + lastIdSize;
 
         let offset = 0;
         const buffer = Buffer.alloc(size);
@@ -53,7 +47,7 @@ export class Consensus {
     }
 
     public static canVote(state: IState, delegatePublicKey: string): boolean {
-        return this.getAllDelegatePublicKeys(state).includes(delegatePublicKey);
+        return this.getVotingDelegates(state).includes(delegatePublicKey);
     }
 
     public static isVoteNecessary(state: IState): boolean {
@@ -84,17 +78,16 @@ export class Consensus {
     }
 
     public static isValidVote(state: IState, previousBlockVote: string): boolean {
-        const voteSignedHash = this.getVoteSignedHash(state);
-        const allDelegatePublicKeys = this.getAllDelegatePublicKeys(state);
-        const publicKeyIndex = parseInt(previousBlockVote.slice(0, 2), 16);
+        const delegates = this.getVotingDelegates(state);
+        const index = parseInt(previousBlockVote.slice(0, 2), 16);
         const signature = previousBlockVote.slice(2);
-        const publicKey = allDelegatePublicKeys[publicKeyIndex];
+        const publicKey = delegates[index];
 
         if (!publicKey) {
             return false;
         }
 
-        return Hash.verifySchnorr(voteSignedHash, signature, publicKey);
+        return Hash.verifySchnorr(this.getVoteSignedHash(state), signature, publicKey);
     }
 
     public static hasSupermajorityVote(state: IState, previousBlockVotes: readonly string[]): boolean {
@@ -102,20 +95,20 @@ export class Consensus {
             throw new CryptoError("Next round not applied.");
         }
 
-        const voteSignedHash = this.getVoteSignedHash(state);
-        const allDelegatePublicKeys = this.getAllDelegatePublicKeys(state);
+        const hash = this.getVoteSignedHash(state);
+        const delegates = this.getVotingDelegates(state);
         const verifiedKeys = new Set<string>();
 
         for (const previousBlockVote of previousBlockVotes) {
-            const publicKeyIndex = parseInt(previousBlockVote.slice(0, 2), 16);
+            const index = parseInt(previousBlockVote.slice(0, 2), 16);
             const signature = previousBlockVote.slice(2);
-            const publicKey = allDelegatePublicKeys[publicKeyIndex];
+            const publicKey = delegates[index];
 
             if (!publicKey) {
                 throw new CryptoError("Invalid public key index.");
             }
 
-            if (!Hash.verifySchnorr(voteSignedHash, signature, publicKey)) {
+            if (!Hash.verifySchnorr(hash, signature, publicKey)) {
                 throw new CryptoError("Invalid signature.");
             }
 

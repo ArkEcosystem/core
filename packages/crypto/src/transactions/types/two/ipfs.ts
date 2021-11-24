@@ -21,7 +21,7 @@ export abstract class IpfsTransaction extends Transaction {
     }
 
     public verify(): boolean {
-        return configManager.getMilestone().aip11 && super.verify();
+        return configManager.getMilestone().aip11 ? super.verify() : false;
     }
 
     public serialize(options?: ISerializeOptions): ByteBuffer | undefined {

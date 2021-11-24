@@ -8,23 +8,18 @@ import { NetworkConfig } from "../interfaces/networks";
 import * as networks from "../networks";
 import { NetworkName } from "../types";
 
-export interface MilestoneSearchResult {
-    found: boolean;
-    height: number;
-    data: any;
-}
-
 export class ConfigManager {
     private config: NetworkConfig | undefined;
-    private height: number | undefined;
-    private milestone: IMilestone | undefined;
-    private milestones: Record<string, any> | undefined;
+    private index = -1;
+    private height?: number;
+    private milestones: IMilestone[] = [];
 
     public constructor() {
         this.setConfig(networks.devnet as unknown as NetworkConfig);
     }
 
     public setConfig(config: NetworkConfig): void {
+        this.milestones = [];
         this.config = {
             network: config.network,
             exceptions: config.exceptions,
@@ -32,8 +27,11 @@ export class ConfigManager {
             genesisBlock: config.genesisBlock,
         };
 
-        this.validateMilestones();
-        this.buildConstants();
+        for (const milestone of this.config.milestones) {
+            this.setMilestone(milestone);
+        }
+
+        this.buildMilestones();
     }
 
     public setFromPreset(network: NetworkName): void {
@@ -71,118 +69,92 @@ export class ConfigManager {
     public isNewMilestone(height?: number): boolean {
         height = height || this.height;
 
-        if (!this.milestones) {
-            throw new Error();
-        }
-
-        return this.milestones.some((milestone) => milestone.height === height);
-    }
-
-    public getMilestone(height?: number): { [key: string]: any } {
-        if (!this.milestone || !this.milestones) {
-            throw new Error();
-        }
-
-        if (!height && this.height) {
-            height = this.height;
-        }
-
         if (!height) {
-            height = 1;
+            throw new Error();
         }
 
-        while (
-            this.milestone.index < this.milestones.length - 1 &&
-            height >= this.milestones[this.milestone.index + 1].height
-        ) {
-            this.milestone.index++;
-            this.milestone.data = this.milestones[this.milestone.index];
-        }
-
-        while (height < this.milestones[this.milestone.index].height) {
-            this.milestone.index--;
-            this.milestone.data = this.milestones[this.milestone.index];
-        }
-
-        return this.milestone.data;
+        return this.getMilestone(height).height === height;
     }
 
-    public getNextMilestoneWithNewKey(previousMilestone: number, key: string): MilestoneSearchResult {
-        if (!this.milestones || !this.milestones.length) {
-            throw new Error(`Attempted to get next milestone but none were set`);
+    public getMilestone(height?: number): IMilestone {
+        height = height ?? this.height ?? 1;
+
+        while (this.index < this.milestones.length - 1 && height >= this.milestones[this.index + 1].height) {
+            this.index++;
         }
 
-        for (let i = 0; i < this.milestones.length; i++) {
-            const milestone = this.milestones[i];
-            if (
-                milestone[key] &&
-                milestone[key] !== this.getMilestone(previousMilestone)[key] &&
-                milestone.height > previousMilestone
-            ) {
-                return {
-                    found: true,
-                    height: milestone.height,
-                    data: milestone[key],
-                };
-            }
+        while (height < this.milestones[this.index].height) {
+            this.index--;
         }
 
-        return {
-            found: false,
-            height: previousMilestone,
-            data: null,
-        };
+        return this.milestones[this.index];
     }
 
-    public getMilestones(): any {
+    public setMilestone(milestone: IMilestone): void {
+        this.milestones.push(milestone);
+        this.buildMilestones();
+    }
+
+    public getMilestones(): readonly IMilestone[] {
         return this.milestones;
     }
 
-    private buildConstants(): void {
-        if (!this.config) {
-            throw new Error();
-        }
+    private buildMilestones(): void {
+        this.index = -1;
+        this.milestones.sort((a, b) => a.height - b.height);
 
-        this.milestones = this.config.milestones.sort((a, b) => a.height - b.height);
-        this.milestone = {
-            index: 0,
-            data: this.milestones[0],
-        };
+        try {
+            if (this.milestones.length === 0) {
+                throw new InvalidMilestoneConfigurationError("No milestones.");
+            }
 
-        let lastMerged = 0;
+            if (this.milestones[0].height !== 1) {
+                throw new InvalidMilestoneConfigurationError("Invalid genesis milestone height.");
+            }
 
-        const overwriteMerge = (dest, source, options) => source;
+            // merge milestones with same height
+            for (let i = this.milestones.length - 1; i >= 1; i--) {
+                const prev = this.milestones[i - 1];
+                const next = this.milestones[i];
 
-        while (lastMerged < this.milestones.length - 1) {
-            this.milestones[lastMerged + 1] = deepmerge(this.milestones[lastMerged], this.milestones[lastMerged + 1], {
-                arrayMerge: overwriteMerge,
-            });
-            lastMerged++;
+                if (prev.height === next.height) {
+                    this.milestones[i - 1] = deepmerge(prev, next, {
+                        arrayMerge: (dest, source, options) => source,
+                    });
+
+                    this.milestones.splice(i, 1);
+                }
+            }
+
+            // merge milestones
+            for (let i = 1; i < this.milestones.length; i++) {
+                const prev = this.milestones[i - 1];
+                const next = this.milestones[i];
+
+                this.milestones[i] = deepmerge(prev, next, {
+                    arrayMerge: (dest, source, options) => source,
+                });
+            }
+
+            this.validateActiveDelegates();
+        } catch (error) {
+            this.milestones = [];
+            throw error;
         }
     }
 
-    private validateMilestones(): void {
-        if (!this.config) {
-            throw new Error();
-        }
+    private validateActiveDelegates(): void {
+        let prev = this.milestones[0];
 
-        const delegateMilestones = this.config.milestones
-            .sort((a, b) => a.height - b.height)
-            .filter((milestone) => milestone.activeDelegates);
+        for (const next of this.milestones.slice(1)) {
+            if (next.activeDelegates === prev.activeDelegates) continue;
 
-        for (let i = 1; i < delegateMilestones.length; i++) {
-            const previous = delegateMilestones[i - 1];
-            const current = delegateMilestones[i];
-
-            if (previous.activeDelegates === current.activeDelegates) {
-                continue;
+            if ((next.height - prev.height) % prev.activeDelegates !== 0) {
+                const msg = `Bad milestone at height: ${next.height}. The number of delegates can only be changed at the beginning of a new round.`;
+                throw new InvalidMilestoneConfigurationError(msg);
             }
 
-            if ((current.height - previous.height) % previous.activeDelegates !== 0) {
-                throw new InvalidMilestoneConfigurationError(
-                    `Bad milestone at height: ${current.height}. The number of delegates can only be changed at the beginning of a new round.`,
-                );
-            }
+            prev = next;
         }
     }
 }

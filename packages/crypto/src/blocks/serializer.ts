@@ -1,4 +1,5 @@
 import ByteBuffer from "bytebuffer";
+import Long from "long";
 
 import { HashAlgorithms } from "../crypto";
 import { CryptoError } from "../errors";
@@ -115,18 +116,12 @@ export class Serializer {
         const previousMilestone = configManager.getMilestone(data.height - 1 || 1);
         previousMilestone.block.idFullSha256
             ? buffer.append(data.previousBlock, "hex")
-            : // @ts-ignore
-              buffer.BE().writeUint64(data.previousBlock).LE();
+            : buffer.BE().writeUint64(Long.fromString(data.previousBlock)).LE();
 
         buffer.writeUint32(data.numberOfTransactions);
-
-        // @ts-ignore
-        buffer.writeUint64(data.totalAmount.toString());
-        // @ts-ignore
-        buffer.writeUint64(data.totalFee.toString());
-        // @ts-ignore
-        buffer.writeUint64(data.reward.toString());
-
+        buffer.writeUint64(Long.fromString(data.totalAmount.toString()));
+        buffer.writeUint64(Long.fromString(data.totalFee.toString()));
+        buffer.writeUint64(Long.fromString(data.reward.toString()));
         buffer.writeUint32(data.payloadLength);
         buffer.append(data.payloadHash, "hex");
         buffer.append(data.generatorPublicKey, "hex");
