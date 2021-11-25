@@ -34,7 +34,7 @@ jobs:
             - name: Setup pnpm
               uses: pnpm/action-setup@v2.0.1
               with:
-                  version: 6.20.4
+                  version: latest
                   run_install: true
 
             - name: Build
