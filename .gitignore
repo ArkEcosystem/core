@@ -52,6 +52,9 @@ bundle.min.js
 # Build
 packages/*/dist/
 
+# Release
+packages/*/*.tgz
+
 # Microsoft Visual Studio settings
 .vs
 
@@ -105,5 +108,3 @@ tags
 
 # Madge
 *.svg
-
-/packages/*/*.tgz
