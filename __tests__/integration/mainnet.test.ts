@@ -42,40 +42,47 @@ type Range = {
 };
 
 type GetBlocksResultRow = {
-    readonly blockHeader: IBlockHeader;
-    transactions: readonly Buffer[];
+    readonly header: IBlockHeader;
+    readonly transactions: readonly Buffer[];
 };
 
 async function* getBlocks(range?: Range): AsyncIterable<GetBlocksResultRow> {
+    const headersQueryText = `
+        SELECT
+            id,
+            version,
+            timestamp,
+            previous_block,
+            height,
+            number_of_transactions,
+            total_amount,
+            total_fee,
+            reward,
+            payload_length,
+            payload_hash,
+            generator_public_key,
+            block_signature
+        FROM blocks
+        WHERE height >= $1 AND height < $2
+        ORDER BY height
+        LIMIT $3
+    `;
+
+    const transactionsQueryText = `
+        SELECT block_height, serialized
+        FROM transactions
+        WHERE block_id = ANY($1::text[])
+        ORDER BY block_height, sequence
+    `;
+
     const limit = 50000;
     const start = range.start ?? 2;
     const end = range.end ?? 100 * 10 ** 6;
 
     for (let height = start; ; height += limit) {
-        const blocksQueryText = `
-            SELECT
-                id,
-                version,
-                timestamp,
-                previous_block,
-                height,
-                number_of_transactions,
-                total_amount,
-                total_fee,
-                reward,
-                payload_length,
-                payload_hash,
-                generator_public_key,
-                block_signature
-            FROM blocks
-            WHERE height >= $1 AND height < $2
-            ORDER BY height
-            LIMIT $3
-        `;
-
-        const blocksQuery = { rowMode: "array", values: [height, end, limit], text: blocksQueryText };
-        const blocksResult = await client.query(blocksQuery);
-        const blockHeaders = blocksResult.rows.map((row) => ({
+        const headersQuery = { rowMode: "array", values: [height, end, limit], text: headersQueryText };
+        const headersResult = await client.query(headersQuery);
+        const headers = headersResult.rows.map((row) => ({
             id: row[0],
             version: row[1],
             timestamp: row[2],
@@ -91,39 +98,34 @@ async function* getBlocks(range?: Range): AsyncIterable<GetBlocksResultRow> {
             blockSignature: row[12],
         })) as IBlockHeader[];
 
-        if (blockHeaders.length === 0) {
+        if (headers.length === 0) {
             break;
         }
 
-        const transactionsQueryText = `
-            SELECT block_height, serialized
-            FROM transactions
-            WHERE block_id = ANY($1::text[])
-            ORDER BY block_height, sequence
-        `;
-
-        const transactionsQueryValues = [blockHeaders.map((blockHeader) => blockHeader.id)];
+        const transactionsQueryValues = [headers.map((blockHeader) => blockHeader.id)];
         const transactionsQuery = { rowMode: "array", values: transactionsQueryValues, text: transactionsQueryText };
         const transactionsResult = await client.query(transactionsQuery);
         const transactionsRows = transactionsResult.rows.slice() as [number, Buffer][];
 
-        for (const blockHeader of blockHeaders) {
+        for (const header of headers) {
             const transactions: Buffer[] = [];
 
-            for (let i = 0; i < blockHeader.numberOfTransactions; i++) {
+            for (let i = 0; i < header.numberOfTransactions; i++) {
                 const [blockHeight, serialized] = transactionsRows.shift();
-                assert(blockHeader.height === blockHeight);
+                assert(header.height === blockHeight);
                 transactions.push(serialized);
             }
 
-            yield { blockHeader, transactions };
+            yield { header, transactions };
         }
     }
 }
 
 async function getRoundDelegates(round: number): Promise<string[]> {
-    const query = `select public_key from rounds where round = ${round} order by balance desc, public_key asc`;
-    const result = await client.query({ text: query, rowMode: "array" });
+    const queryText = `SELECT public_key FROM rounds WHERE round = $1 ORDER BY balance desc, public_key asc`;
+    const query = { text: queryText, values: [round], rowMode: "array" };
+    const result = await client.query(query);
+
     return result.rows.map((row) => row[0]);
 }
 
@@ -135,33 +137,21 @@ test("replay", async () => {
     const genesisBlockJson = Networks.mainnet.genesisBlock as Interfaces.IBlockJson;
     const genesisBlock = Blocks.BlockFactory.createGenesisBlockFromJson(genesisBlockJson);
 
-    const state = State.StateFactory.createGenesisState(genesisBlock) as IState<IBlockHeader>;
+    let state = State.StateFactory.createGenesisState(genesisBlock) as IState<IBlockHeader>;
 
-    for await (const { blockHeader, transactions } of getBlocks({ start: 2 })) {
+    for await (const { header, transactions } of getBlocks({ start: 2 })) {
         n++;
 
-        // const header = Blocks.BlockFactory.createHeaderFromData(blockHeader);
-        const originalData = { ...blockHeader, transactions };
-        delete originalData.id;
-        const resultData = Blocks.Deserializer.deserialize(Blocks.Serializer.serialize(originalData));
+        // Blocks.Deserializer.deserialize(Blocks.Serializer.serialize({ ...header, transactions }));
 
-        // expect(resultData).toEqual(originalData);
+        state = state.createNextState(header);
 
-        // const block = Blocks.BlockFactory.createBlockFromData({ ...blockHeader, transactions });
+        if (!state.nextDelegates) {
+            const nextRound = State.Rounds.getRound(state.lastBlock.height + 1);
+            const delegates = await getRoundDelegates(nextRound);
 
-        // expect(block.id).toBe(blockHeader.id);
-        // expect(() => {
-        //     state = state.createNextState(block);
-        // }).not.toThrow();
-
-        // if (!state.nextDelegates) {
-        //     const nextRound = State.Rounds.getRound(state.lastBlock.height + 1);
-        //     const delegates = await getRoundDelegates(nextRound);
-
-        //     expect(() => {
-        //         state.applyRound(delegates);
-        //     }).not.toThrow();
-        // }
+            state.applyRound(delegates);
+        }
 
         const now = Date.now();
         if (now - last > 1000) {

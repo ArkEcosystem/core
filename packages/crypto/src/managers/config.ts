@@ -10,16 +10,15 @@ import { NetworkName } from "../types";
 
 export class ConfigManager {
     private config: NetworkConfig | undefined;
-    private index = -1;
-    private height?: number;
-    private milestones: IMilestone[] = [];
+    private height: number | undefined;
+    private milestone: IMilestone | undefined;
+    private milestones: Record<string, any> | undefined;
 
     public constructor() {
         this.setConfig(networks.devnet as unknown as NetworkConfig);
     }
 
     public setConfig(config: NetworkConfig): void {
-        this.milestones = [];
         this.config = {
             network: config.network,
             exceptions: config.exceptions,
@@ -27,11 +26,8 @@ export class ConfigManager {
             genesisBlock: config.genesisBlock,
         };
 
-        for (const milestone of this.config.milestones) {
-            this.setMilestone(milestone);
-        }
-
-        this.buildMilestones();
+        this.validateMilestones();
+        this.buildConstants();
     }
 
     public setFromPreset(network: NetworkName): void {
@@ -69,92 +65,91 @@ export class ConfigManager {
     public isNewMilestone(height?: number): boolean {
         height = height || this.height;
 
-        if (!height) {
+        if (!this.milestones) {
             throw new Error();
         }
 
-        return this.getMilestone(height).height === height;
+        return this.milestones.some((milestone) => milestone.height === height);
     }
 
-    public getMilestone(height?: number): IMilestone {
-        height = height ?? this.height ?? 1;
-
-        while (this.index < this.milestones.length - 1 && height >= this.milestones[this.index + 1].height) {
-            this.index++;
+    public getMilestone(height?: number): { [key: string]: any } {
+        if (!this.milestone || !this.milestones) {
+            throw new Error();
         }
 
-        while (height < this.milestones[this.index].height) {
-            this.index--;
+        if (!height && this.height) {
+            height = this.height;
         }
 
-        return this.milestones[this.index];
+        if (!height) {
+            height = 1;
+        }
+
+        while (
+            this.milestone.index < this.milestones.length - 1 &&
+            height >= this.milestones[this.milestone.index + 1].height
+        ) {
+            this.milestone.index++;
+            this.milestone.data = this.milestones[this.milestone.index];
+        }
+
+        while (height < this.milestones[this.milestone.index].height) {
+            this.milestone.index--;
+            this.milestone.data = this.milestones[this.milestone.index];
+        }
+
+        return this.milestone.data;
     }
 
-    public setMilestone(milestone: IMilestone): void {
-        this.milestones.push(milestone);
-        this.buildMilestones();
-    }
-
-    public getMilestones(): readonly IMilestone[] {
+    public getMilestones(): any {
         return this.milestones;
     }
 
-    private buildMilestones(): void {
-        this.index = -1;
-        this.milestones.sort((a, b) => a.height - b.height);
+    private buildConstants(): void {
+        if (!this.config) {
+            throw new Error();
+        }
 
-        try {
-            if (this.milestones.length === 0) {
-                throw new InvalidMilestoneConfigurationError("No milestones.");
-            }
+        this.milestones = this.config.milestones.sort((a, b) => a.height - b.height);
+        this.milestone = {
+            index: 0,
+            data: this.milestones[0],
+        };
 
-            if (this.milestones[0].height !== 1) {
-                throw new InvalidMilestoneConfigurationError("Invalid genesis milestone height.");
-            }
+        let lastMerged = 0;
 
-            // merge milestones with same height
-            for (let i = this.milestones.length - 1; i >= 1; i--) {
-                const prev = this.milestones[i - 1];
-                const next = this.milestones[i];
+        const overwriteMerge = (dest, source, options) => source;
 
-                if (prev.height === next.height) {
-                    this.milestones[i - 1] = deepmerge(prev, next, {
-                        arrayMerge: (dest, source, options) => source,
-                    });
-
-                    this.milestones.splice(i, 1);
-                }
-            }
-
-            // merge milestones
-            for (let i = 1; i < this.milestones.length; i++) {
-                const prev = this.milestones[i - 1];
-                const next = this.milestones[i];
-
-                this.milestones[i] = deepmerge(prev, next, {
-                    arrayMerge: (dest, source, options) => source,
-                });
-            }
-
-            this.validateActiveDelegates();
-        } catch (error) {
-            this.milestones = [];
-            throw error;
+        while (lastMerged < this.milestones.length - 1) {
+            this.milestones[lastMerged + 1] = deepmerge(this.milestones[lastMerged], this.milestones[lastMerged + 1], {
+                arrayMerge: overwriteMerge,
+            });
+            lastMerged++;
         }
     }
 
-    private validateActiveDelegates(): void {
-        let prev = this.milestones[0];
+    private validateMilestones(): void {
+        if (!this.config) {
+            throw new Error();
+        }
 
-        for (const next of this.milestones.slice(1)) {
-            if (next.activeDelegates === prev.activeDelegates) continue;
+        const delegateMilestones = this.config.milestones
+            .sort((a, b) => a.height - b.height)
+            .filter((milestone) => milestone.activeDelegates);
 
-            if ((next.height - prev.height) % prev.activeDelegates !== 0) {
-                const msg = `Bad milestone at height: ${next.height}. The number of delegates can only be changed at the beginning of a new round.`;
-                throw new InvalidMilestoneConfigurationError(msg);
+        for (let i = 1; i < delegateMilestones.length; i++) {
+            const previous = delegateMilestones[i - 1];
+            const current = delegateMilestones[i];
+
+            if (previous.activeDelegates === current.activeDelegates) {
+                continue;
             }
 
-            prev = next;
+            if ((current.height - previous.height) % previous.activeDelegates !== 0) {
+                throw new InvalidMilestoneConfigurationError(
+                    `Bad milestone at height: ${current.height}. The number of delegates can only be changed at the beginning of a new round.`,
+                );
+            }
         }
     }
 }
