@@ -98,7 +98,7 @@ if [[ ! -z $DEB ]]; then
     sudo apt-get install -y git curl apt-transport-https update-notifier
 elif [[ ! -z $RPM ]]; then
     sudo yum update -y
-    sudo yum install git curl epel-release -y
+    sudo yum install git curl eepel-release --skip-broken -y
 fi
 
 success "Installed system dependencies!"
@@ -121,24 +121,20 @@ fi
 
 success "Installed node.js & npm!"
 
-heading "Installing Yarn..."
+heading "Installing Pnpm..."
 
-if [[ ! -z $DEB ]]; then
-    curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
-    (echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list)
+npm config set prefix '~/.pnpm'
+npm config set global-dir ~/.pnpm
+npm config set global-bin-dir ~/.pnpm/bin
+export PATH=$(npm config get global-bin-dir):$PATH
+echo 'export PATH=$(npm config get global-bin-dir):$PATH' >> ~/.bashrc
+npm install -g pnpm
 
-    sudo apt-get update
-    sudo apt-get install -y yarn
-elif [[ ! -z $RPM ]]; then
-    curl -sL https://dl.yarnpkg.com/rpm/yarn.repo | sudo tee /etc/yum.repos.d/yarn.repo
-    sudo yum install yarn -y
-fi
-
-success "Installed Yarn!"
+success "Installed Pnpm!"
 
 heading "Installing PM2..."
 
-sudo yarn global add pm2
+pnpm install -g pm2
 pm2 install pm2-logrotate
 pm2 set pm2-logrotate:max_size 500M
 pm2 set pm2-logrotate:compress true
@@ -169,7 +165,8 @@ elif [[ ! -z $RPM ]]; then
         sudo service postgresql initdb
         sudo service postgresql start
     else
-        sudo postgresql-setup initdb
+        sudo postgresql-setup initdb  || true
+        sudo sed -i  '/^host    all             all             127.0.0.1\/32            ident/ s/ident/md5/' /var/lib/pgsql/data/pg_hba.conf > /dev/null 2>&1 || true
         sudo systemctl start postgresql
     fi
 fi
@@ -178,16 +175,18 @@ success "Installed PostgreSQL!"
 
 heading "Installing NTP..."
 
-sudo timedatectl set-ntp off > /dev/null 2>&1 || true # disable the default systemd timesyncd service
-
 if [[ ! -z $DEB ]]; then
     sudo apt-get install ntp -yyq
-elif [[ ! -z $RPM ]]; then
-    sudo yum install ntp -y -q
-fi
+    if [ -z "$(sudo service ntp status |grep running)" ] ; then
+       sudo ntpd -gq
+    fi
 
-if [ -z "$(sudo service ntp status |grep running)" ] ; then
-    sudo ntpd -gq
+elif [[ ! -z $RPM ]]; then
+    sudo yum install chrony -y -q
+
+    if [ -z "$(sudo service chronyd status |grep running)" ] ; then
+       sudo chronyd -q
+    fi
 fi
 
 success "Installed NTP!"
@@ -213,19 +212,16 @@ ARK=$(which ark || :)
 
 if [ ! -z "$ARK" ] ; then
     warning "Cleaning up previous installations..."
-    yarn global remove @arkecosystem/core
+     pnpm remove -g @arkecosystem/core
 fi
 
 addCore() {
-    while ! yarn global add @arkecosystem/core@${channel:-latest} ; do
+    while ! pnpm install -g @arkecosystem/core@${channel:-latest} ; do
         read -p "Installing ARK Core failed, do you want to retry? [y/N]: " choice
             if [[ ! "$choice" =~ ^(yes|y|Y) ]] ; then
                  exit 1
             fi
         done
-
-    echo 'export PATH=$(yarn global bin):$PATH' >> ~/.bashrc
-    export PATH=$(yarn global bin):$PATH
 }
 
 heading "Select Network:"
