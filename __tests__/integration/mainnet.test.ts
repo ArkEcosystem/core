@@ -169,8 +169,7 @@ test("once", async () => {
     const headers = await getBlockHeaderBatch({ from: 2, count: 50 + count * 51 });
     const rounds = await getRounds({ from: 2, count });
 
-    {
-    }
+    const start = Date.now();
 
     for (const header of headers) {
         state = state.createNextState(header);
@@ -183,6 +182,8 @@ test("once", async () => {
             state.applyRound(rounds.shift());
         }
     }
+
+    console.log(`${Date.now() - start}ms`);
 
     expect(state.lastBlock.height).toBe(headers[headers.length - 1].height);
 });
