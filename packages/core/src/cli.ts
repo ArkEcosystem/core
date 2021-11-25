@@ -1,7 +1,8 @@
 import { ApplicationFactory, Commands, Container, Contracts, InputParser, Plugins } from "@arkecosystem/core-cli";
 import envPaths from "env-paths";
+import { readJSONSync } from "fs-extra";
 import moduleAlias from "module-alias";
-import { basename, join, resolve } from "path";
+import { dirname, join, resolve } from "path";
 import { PackageJson } from "type-fest";
 
 /**
@@ -38,7 +39,7 @@ export class CommandLineInterface {
      * @memberof CommandLineInterface
      */
     public async execute(dirname = __dirname): Promise<void> {
-        // Only required for plugins that uses @arkecosystem as peer dependencies on local setup
+        // Required for resolving peer dependencies for plugins
         this.setAliases();
 
         // Load the package information. Only needed for updates and installations.
@@ -99,9 +100,15 @@ export class CommandLineInterface {
     }
 
     private setAliases(): void {
-        if (basename(join(__dirname, "../..")) === "packages") {
-            moduleAlias.addAlias("@arkecosystem/core", join(__dirname, "../../core"));
-            moduleAlias.addPath(join(__dirname, "../../core/node_modules"));
+        const cwd = join(__dirname, "..");
+        const corePackageJson = readJSONSync(join(cwd, "package.json"));
+
+        for (const [packageName, packagePath] of Object.entries<string>(corePackageJson._moduleAliases ?? {})) {
+            if (packagePath === ".") {
+                moduleAlias.addAlias(packageName, cwd);
+            } else {
+                moduleAlias.addAlias(packageName, dirname(require.resolve(join(packagePath, "package.json"))));
+            }
         }
     }
 
