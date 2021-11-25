@@ -116,7 +116,8 @@ if [[ ! -z $DEB ]]; then
 
 elif [[ ! -z $RPM ]]; then
     sudo yum install gcc-c++ make -y
-    curl -sL https://rpm.nodesource.com/setup_14.x | sudo -E bash - > /dev/null 2>&1
+    curl -sL https://rpm.nodesource.com/setup_14.x | sudo bash -
+    sudo yum install nodejs -y
 fi
 
 success "Installed node.js & npm!"
