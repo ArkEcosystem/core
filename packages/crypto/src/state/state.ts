@@ -1,9 +1,8 @@
+import { Rounds, Slots } from "../crypto";
 import { CryptoError } from "../errors";
 import { IBlockHeader, ISlot, IState, IStateData } from "../interfaces";
 import { configManager } from "../managers";
 import { Consensus } from "./consensus";
-import { Rounds } from "./rounds";
-import { Slots } from "./slots";
 
 export class State<B extends IBlockHeader> implements IState<B> {
     public nextDelegates?: readonly string[];
@@ -48,11 +47,11 @@ export class State<B extends IBlockHeader> implements IState<B> {
     }
 
     public createNextState(nextBlock: B): State<B> {
-        if (!this.nextDelegates) {
-            throw new CryptoError("Next round not applied.");
-        }
-
         try {
+            if (!this.nextDelegates) {
+                throw new CryptoError("Next round not applied.");
+            }
+
             if (nextBlock.previousBlock !== this.lastBlock.id) {
                 throw new CryptoError("Invalid previous block.");
             }
@@ -61,23 +60,27 @@ export class State<B extends IBlockHeader> implements IState<B> {
                 throw new CryptoError("Invalid height.");
             }
 
-            const nextBlockSlot = Slots.getLaterSlot(this.lastSlot, nextBlock);
-            const nextBlockMilestone = configManager.getMilestone(nextBlock.height);
-            const nextBlockForgerIndex = nextBlockSlot.no % nextBlockMilestone.activeDelegates;
+            const nextSlot = Slots.getSubsequentSlot(
+                this.lastBlock.height,
+                this.lastSlot,
+                nextBlock.height,
+                nextBlock.timestamp,
+            );
 
-            if (nextBlockSlot.no <= this.lastSlot.no) {
+            const nextMilestone = configManager.getMilestone(nextBlock.height);
+            const nextForgerIndex = nextSlot.no % nextMilestone.activeDelegates;
+
+            if (nextSlot.no <= this.lastSlot.no) {
                 throw new CryptoError("Invalid timestamp.");
             }
 
-            // TODO: future timestamp check
-
-            if (nextBlock.generatorPublicKey !== this.nextDelegates[nextBlockForgerIndex]) {
+            if (nextBlock.generatorPublicKey !== this.nextDelegates[nextForgerIndex]) {
                 throw new CryptoError("Invalid generator public key.");
             }
 
             const nextData = { ...this.data };
             nextData.lastBlock = nextBlock;
-            nextData.lastSlot = nextBlockSlot;
+            nextData.lastSlot = nextSlot;
             nextData.lastDelegates = this.nextDelegates;
             nextData.forgedTransactionCount = this.forgedTransactionCount + nextBlock.numberOfTransactions;
 
@@ -92,15 +95,15 @@ export class State<B extends IBlockHeader> implements IState<B> {
                 }
             }
 
-            if (nextBlockMilestone.height === nextBlock.height && nextBlockMilestone.finalizedDelegates) {
-                const prevBlockMilestone = configManager.getMilestone(nextBlock.height - 1);
+            if (nextMilestone.height === nextBlock.height && nextMilestone.finalizedDelegates) {
+                const lastMilestone = configManager.getMilestone(this.lastBlock.height);
 
-                if (prevBlockMilestone.finalizedDelegates !== nextBlockMilestone.finalizedDelegates) {
-                    nextData.finalizedDelegates = nextBlockMilestone.finalizedDelegates;
+                if (lastMilestone.finalizedDelegates !== nextMilestone.finalizedDelegates) {
+                    nextData.finalizedDelegates = nextMilestone.finalizedDelegates;
                 }
             }
 
-            if (Rounds.getRound(nextBlock.height + 1) === Rounds.getRound(nextBlock.height)) {
+            if (Rounds.getRound(nextBlock.height) === Rounds.getRound(nextBlock.height + 1)) {
                 return new State(nextData, this.nextDelegates);
             } else {
                 return new State(nextData);
@@ -111,7 +114,7 @@ export class State<B extends IBlockHeader> implements IState<B> {
         }
     }
 
-    public applyRound(delegates: readonly string[]): void {
+    public applyRound(delegatePublicKeys: readonly string[]): void {
         if (this.nextDelegates) {
             throw new CryptoError("Next round already applied.");
         }
@@ -119,10 +122,10 @@ export class State<B extends IBlockHeader> implements IState<B> {
         const nextRound = Rounds.getRound(this.lastBlock.height + 1);
         const nextMilestone = configManager.getMilestone(this.lastBlock.height + 1);
 
-        if (delegates.length !== nextMilestone.activeDelegates) {
+        if (delegatePublicKeys.length !== nextMilestone.activeDelegates) {
             throw new CryptoError("Invalid delegates count.");
         }
 
-        this.nextDelegates = Rounds.getRoundForgers(nextRound, delegates);
+        this.nextDelegates = Rounds.getShuffledDelegates(nextRound, delegatePublicKeys);
     }
 }

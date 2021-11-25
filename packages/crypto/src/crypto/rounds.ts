@@ -2,15 +2,10 @@ import { HashAlgorithms } from "../crypto";
 import { CryptoError } from "../errors";
 import { configManager } from "../managers";
 
-type Milestone = {
-    readonly height: number;
-    readonly activeDelegates: number;
-};
-
 export class Rounds {
     public static getRound(height: number): number {
-        const genesisMilestone = configManager.getMilestone(1) as Milestone;
-        const otherMilestones = configManager.getMilestones().slice(1) as Milestone[];
+        const genesisMilestone = configManager.getMilestone(1);
+        const otherMilestones = configManager.getMilestones().slice(1);
 
         let prevMilestone = genesisMilestone;
         let prevMilestoneRoundNo = 1;
@@ -19,15 +14,14 @@ export class Rounds {
             if (milestone.height > height) break;
             if (milestone.activeDelegates === prevMilestone.activeDelegates) continue;
 
-            const heights = milestone.height - prevMilestone.height;
-            const rounds = heights / prevMilestone.activeDelegates;
+            const length = milestone.height - prevMilestone.height;
 
-            if (Number.isInteger(rounds) === false) {
+            if (length % prevMilestone.activeDelegates !== 0) {
                 throw new CryptoError(`Invalid milestone.`);
             }
 
             prevMilestone = milestone;
-            prevMilestoneRoundNo += rounds;
+            prevMilestoneRoundNo += length / prevMilestone.activeDelegates;
         }
 
         const heights = height - prevMilestone.height;
@@ -36,22 +30,22 @@ export class Rounds {
         return prevMilestoneRoundNo + Math.floor(rounds);
     }
 
-    public static getRoundForgers(round: number, delegates: readonly string[]): string[] {
-        const forgers = delegates.slice();
+    public static getShuffledDelegates(round: number, delegatePublicKeys: readonly string[]): string[] {
+        const generatorPublicKeys = delegatePublicKeys.slice();
         let seed = HashAlgorithms.sha256(round.toString());
 
-        for (let i = 0; i < forgers.length; i++) {
-            for (const s of seed.slice(0, Math.min(forgers.length - i, 4))) {
-                const index = s % forgers.length;
-                const t = forgers[index];
-                forgers[index] = forgers[i];
-                forgers[i] = t;
+        for (let i = 0; i < generatorPublicKeys.length; i++) {
+            for (const s of seed.slice(0, Math.min(generatorPublicKeys.length - i, 4))) {
+                const index = s % generatorPublicKeys.length;
+                const t = generatorPublicKeys[index];
+                generatorPublicKeys[index] = generatorPublicKeys[i];
+                generatorPublicKeys[i] = t;
                 i++;
             }
 
             seed = HashAlgorithms.sha256(seed);
         }
 
-        return forgers;
+        return generatorPublicKeys;
     }
 }
