@@ -53,7 +53,7 @@ describe("Pagination", () => {
         const server = await initServer(app, defaults, customRoute);
 
         const response = await server.inject(injectOptions);
-        const payload = JSON.parse(response.payload || {});
+        const payload = JSON.parse(response.payload);
         expect(payload.data).toEqual(customResponse);
         expect(payload.meta).toEqual(
             expect.objectContaining({
@@ -74,7 +74,7 @@ describe("Pagination", () => {
         const server = await initServer(app, defaults, customRoute);
 
         const response = await server.inject(injectOptions);
-        const payload = JSON.parse(response.payload || {});
+        const payload = JSON.parse(response.payload);
         expect(payload.data).toEqual(customResponse.results);
         expect(payload.meta).toEqual(
             expect.objectContaining({
@@ -92,7 +92,7 @@ describe("Pagination", () => {
         const server = await initServer(app, defaults, customRoute);
 
         const response = await server.inject(injectOptions);
-        const payload = JSON.parse(response.payload || {});
+        const payload = JSON.parse(response.payload);
         expect(payload.data).toEqual(customResponse.results);
         expect(payload.meta).toEqual(
             expect.objectContaining({
@@ -116,7 +116,7 @@ describe("Pagination", () => {
         const server = await initServer(app, defaults, customRoute);
 
         const response = await server.inject(injectOptions);
-        const payload = JSON.parse(response.payload || {});
+        const payload = JSON.parse(response.payload);
         expect(payload.data).toEqual(customResponse.results);
         expect(payload.meta).toEqual(
             expect.objectContaining({
@@ -138,7 +138,7 @@ describe("Pagination", () => {
         const server = await initServer(app, defaults, customRoute);
 
         const response = await server.inject(injectOptions);
-        const payload = JSON.parse(response.payload || {});
+        const payload = JSON.parse(response.payload);
 
         expect(payload).toEqual(customResponse);
         expect(payload.data).toBeUndefined();
@@ -151,7 +151,7 @@ describe("Pagination", () => {
         injectOptions.url = '/api/transactions?page="invalid_values"&limit="invalid_value"';
 
         const response = await server.inject(injectOptions);
-        const payload = JSON.parse(response.payload || {});
+        const payload = JSON.parse(response.payload);
         expect(payload.data).toEqual(customResponse);
         expect(payload.meta).toEqual(
             expect.objectContaining({
@@ -167,7 +167,7 @@ describe("Pagination", () => {
         customResponse.totalCount = 5;
 
         const response = await server.inject(injectOptions);
-        const payload = JSON.parse(response.payload || {});
+        const payload = JSON.parse(response.payload);
         expect(payload.meta).toEqual(
             expect.objectContaining({
                 count: 3,
@@ -185,7 +185,7 @@ describe("Pagination", () => {
         customResponse.totalCount = 5;
 
         const response = await server.inject(injectOptions);
-        const payload = JSON.parse(response.payload || {});
+        const payload = JSON.parse(response.payload);
         expect(payload.meta).toEqual(
             expect.objectContaining({
                 count: 3,
@@ -204,7 +204,7 @@ describe("Pagination", () => {
         };
 
         const response = await server.inject(injectOptions);
-        const payload = JSON.parse(response.payload || {});
+        const payload = JSON.parse(response.payload);
         expect(payload.meta).toEqual(
             expect.objectContaining({
                 count: 3,

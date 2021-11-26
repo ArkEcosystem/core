@@ -1,6 +1,6 @@
 import { Container } from "@packages/core-kernel";
-
 import { InternalRoute } from "@packages/core-p2p/src/socket-server/routes/internal";
+import Hapi from "@hapi/hapi";
 
 describe("InternalRoute", () => {
     let internalRoute: InternalRoute;
@@ -10,7 +10,7 @@ describe("InternalRoute", () => {
     const logger = { warning: jest.fn(), debug: jest.fn() };
     const controller = { getCurrentRound: jest.fn() }; // a mock internal controller
     const app = { resolve: jest.fn().mockReturnValue(controller) };
-    const server = { bind: jest.fn(), route: jest.fn() };
+    const server: Partial<Hapi.Server> = { bind: jest.fn(), route: jest.fn() };
 
     beforeAll(() => {
         container.unbindAll();
@@ -37,7 +37,7 @@ describe("InternalRoute", () => {
             },
         }));
 
-        internalRoute.register(server);
+        internalRoute.register(server as Hapi.Server);
 
         expect(server.bind).toBeCalledTimes(1);
         expect(server.bind).toBeCalledWith(controller);

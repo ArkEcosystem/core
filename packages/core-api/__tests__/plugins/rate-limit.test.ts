@@ -54,7 +54,7 @@ describe("Rate limit", () => {
         const server = await initServer(app, defaults, customRoute);
 
         const response = await server.inject(injectOptions);
-        const payload = JSON.parse(response.payload || {});
+        const payload = JSON.parse(response.payload);
         expect(payload.data).toBe("ok");
     });
 
@@ -64,11 +64,11 @@ describe("Rate limit", () => {
         const server = await initServer(app, defaults, customRoute);
 
         let response = await server.inject(injectOptions);
-        let payload = JSON.parse(response.payload || {});
+        let payload = JSON.parse(response.payload);
         expect(payload.data).toBe("ok");
 
         response = await server.inject(injectOptions);
-        payload = JSON.parse(response.payload || {});
+        payload = JSON.parse(response.payload);
         expect(payload.statusCode).toBe(429);
     });
 
@@ -78,7 +78,7 @@ describe("Rate limit", () => {
         const server = await initServer(app, defaults, customRoute);
 
         const response = await server.inject(injectOptions);
-        const payload = JSON.parse(response.payload || {});
+        const payload = JSON.parse(response.payload);
         expect(payload.data).toBe("ok");
     });
 
@@ -87,7 +87,7 @@ describe("Rate limit", () => {
         const server = await initServer(app, defaults, customRoute);
 
         const response = await server.inject(injectOptions);
-        const payload = JSON.parse(response.payload || {});
+        const payload = JSON.parse(response.payload);
         expect(payload.data).toBe("ok");
     });
 
@@ -97,7 +97,7 @@ describe("Rate limit", () => {
         const server = await initServer(app, defaults, customRoute);
 
         const response = await server.inject(injectOptions);
-        const payload = JSON.parse(response.payload || {});
+        const payload = JSON.parse(response.payload);
         expect(payload.statusCode).toBe(429);
     });
 
@@ -107,7 +107,7 @@ describe("Rate limit", () => {
         const server = await initServer(app, defaults, customRoute);
 
         const response = await server.inject(injectOptions);
-        const payload = JSON.parse(response.payload || {});
+        const payload = JSON.parse(response.payload);
         expect(payload.statusCode).toBe(429);
     });
 
@@ -119,7 +119,7 @@ describe("Rate limit", () => {
         const server = await initServer(app, defaults, customRoute);
 
         const response = await server.inject(injectOptions);
-        const payload = JSON.parse(response.payload || {});
+        const payload = JSON.parse(response.payload);
         expect(payload.statusCode).toBe(500);
     });
 });

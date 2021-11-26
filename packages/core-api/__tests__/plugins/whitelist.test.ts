@@ -58,7 +58,7 @@ describe("Whitelist", () => {
         const server = await initServer(app, defaults, customRoute);
 
         const response = await server.inject(injectOptions);
-        const payload = JSON.parse(response.payload || {});
+        const payload = JSON.parse(response.payload);
         expect(payload.statusCode).toBe(403);
     });
 });

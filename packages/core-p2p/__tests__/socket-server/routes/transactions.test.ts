@@ -1,9 +1,9 @@
+import Hapi from "@hapi/hapi";
 import { Container } from "@packages/core-kernel";
-
 import { TransactionsRoute } from "@packages/core-p2p/src/socket-server/routes/transactions";
 
 describe("BlocksRoute", () => {
-    let tranasctionsRoute: TransactionsRoute;
+    let transactionsRoute: TransactionsRoute;
 
     const container = new Container.Container();
 
@@ -12,10 +12,10 @@ describe("BlocksRoute", () => {
     const app = {
         resolve: jest.fn().mockReturnValue(controller),
         getTagged: () => ({
-            getOptional: jest.fn().mockReturnValue(40)
-        })
+            getOptional: jest.fn().mockReturnValue(40),
+        }),
     };
-    const server = { bind: jest.fn(), route: jest.fn() };
+    const server: Partial<Hapi.Server> = { bind: jest.fn(), route: jest.fn() };
 
     beforeAll(() => {
         container.unbindAll();
@@ -24,11 +24,11 @@ describe("BlocksRoute", () => {
     });
 
     beforeEach(() => {
-        tranasctionsRoute = container.resolve<TransactionsRoute>(TransactionsRoute);
+        transactionsRoute = container.resolve<TransactionsRoute>(TransactionsRoute);
     });
 
     it("should bind the controller to the server and register the routes", () => {
-        const routes = tranasctionsRoute.getRoutesConfigByPath();
+        const routes = transactionsRoute.getRoutesConfigByPath();
         const routesExpected = Object.entries(routes).map(([path, config]) => ({
             method: "POST",
             path,
@@ -42,7 +42,7 @@ describe("BlocksRoute", () => {
             },
         }));
 
-        tranasctionsRoute.register(server);
+        transactionsRoute.register(server as Hapi.Server);
 
         expect(server.bind).toBeCalledTimes(1);
         expect(server.bind).toBeCalledWith(controller);

@@ -1,3 +1,4 @@
+import Hapi from "@hapi/hapi";
 import { Container } from "@packages/core-kernel";
 import { MissingCommonBlockError } from "@packages/core-p2p/src/errors";
 import { Peer } from "@packages/core-p2p/src/peer";
@@ -7,6 +8,8 @@ import { Sandbox } from "@packages/core-test-framework";
 import { Crypto, Managers } from "@packages/crypto";
 
 Managers.configManager.getMilestone().aip11 = true; // for creating aip11 v2 transactions
+
+const h = {} as Hapi.ResponseToolkit;
 
 describe("PeerController", () => {
     let sandbox: Sandbox;
@@ -56,12 +59,12 @@ describe("PeerController", () => {
             peers[4].latency = 1197634;
             peerRepository.getPeers = jest.fn().mockReturnValueOnce(peers);
 
-            const request = {
+            const request: any = {
                 socket: {
                     info: { remoteAddress: "180.177.54.4" },
                 },
             };
-            const peersBroadcast = peerController.getPeers(request, {});
+            const peersBroadcast = peerController.getPeers(request, h);
 
             expect(peersBroadcast).toEqual([peers[2], peers[1], peers[3], peers[4]].map((p) => p.toBroadcast()));
         });
@@ -81,12 +84,12 @@ describe("PeerController", () => {
             peers[4].latency = 1197634;
             peerRepository.getPeers = jest.fn().mockReturnValueOnce(peers);
 
-            const request = {
+            const request: any = {
                 socket: {
                     info: { remoteAddress: "1.2.3.4", "x-forwarded-for": "180.177.54.4" },
                 },
             };
-            const peersBroadcast = peerController.getPeers(request, {});
+            const peersBroadcast = peerController.getPeers(request, h);
 
             expect(peersBroadcast).toEqual([peers[2], peers[1], peers[3], peers[4]].map((p) => p.toBroadcast()));
         });
@@ -94,11 +97,11 @@ describe("PeerController", () => {
 
     describe("getCommonBlocks", () => {
         it("should return the last common block found and the last height", async () => {
-            const request = { payload: { ids: ["123456789", "111116789"] } };
+            const request: any = { payload: { ids: ["123456789", "111116789"] } };
             databaseInterceptor.getCommonBlocks = jest.fn().mockReturnValueOnce(request.payload.ids);
             const height = 1433;
             blockchain.getLastBlock = jest.fn().mockReturnValueOnce({ data: { height } });
-            const commonBlocks = await peerController.getCommonBlocks(request, {});
+            const commonBlocks = await peerController.getCommonBlocks(request, h);
 
             expect(commonBlocks).toEqual({
                 common: request.payload.ids[1],
@@ -107,10 +110,10 @@ describe("PeerController", () => {
         });
 
         it("should throw MissingCommonBlockError when no common block found", async () => {
-            const request = { payload: { ids: ["123456789", "111116789"] } };
+            const request: any = { payload: { ids: ["123456789", "111116789"] } };
             databaseInterceptor.getCommonBlocks = jest.fn().mockReturnValueOnce([]);
 
-            await expect(peerController.getCommonBlocks(request, {})).rejects.toBeInstanceOf(MissingCommonBlockError);
+            await expect(peerController.getCommonBlocks(request, h)).rejects.toBeInstanceOf(MissingCommonBlockError);
         });
     });
 
@@ -137,7 +140,7 @@ describe("PeerController", () => {
             };
             jest.spyOn(Crypto.Slots, "getSlotInfo").mockReturnValueOnce(slotInfo);
 
-            const status = await peerController.getStatus({}, {});
+            const status = await peerController.getStatus({} as Partial<Hapi.Request> as Hapi.Request, h);
 
             expect(getPeerConfig).toHaveBeenCalledTimes(1);
             expect(status).toEqual({

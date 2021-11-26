@@ -9,14 +9,12 @@ export const commaArrayQuery = {
     },
 
     onRequest(request: Hapi.Request, h: Hapi.ResponseToolkit): Hapi.Lifecycle.ReturnValue {
-        const query = {};
         const separator = ",";
 
         for (const [key, value] of Object.entries(request.query as { [key: string]: string })) {
-            query[key] = value.indexOf(separator) > -1 ? value.split(separator) : value;
+            request.query[key] = value.indexOf(separator) > -1 ? value.split(separator) : value;
         }
 
-        request.query = query;
         return h.continue;
     },
 };

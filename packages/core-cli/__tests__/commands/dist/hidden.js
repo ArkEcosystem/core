@@ -9,7 +9,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const core_cli_1 = require("@arkecosystem/core-cli");
+const core_cli_1 = require("@packages/core-cli");
 const boxen_1 = __importDefault(require("boxen"));
 const kleur_1 = require("kleur");
 /**

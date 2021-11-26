@@ -13,16 +13,18 @@
     "types": "dist/index",
     "scripts": {
         "ark": "node ./bin/run",
-        "build": "yarn clean && yarn compile",
-        "build:watch": "yarn clean && yarn compile -w",
+        "build": "pnpm clean && pnpm compile",
+        "build:watch": "pnpm clean && pnpm compile -w",
         "build:docs": "../../node_modules/typedoc/bin/typedoc --out docs src",
         "clean": "rimraf dist",
         "compile": "node ../../node_modules/typescript/bin/tsc",
-        "prepublishOnly": "yarn build"
+        "prepublishOnly": "pnpm build",
+        "publish:next": "pnpm publish --access public --tag next --git-checks=false",
+        "publish:latest": "pnpm publish --access public --git-checks=false"
     },
     "dependencies": {
-        "@arkecosystem/core-kernel": "4.0.0-next-1",
-        "@arkecosystem/crypto": "4.0.0-next-1",
+        "@arkecosystem/core-kernel": "workspace:*",
+        "@arkecosystem/crypto": "workspace:*",
         "@arkecosystem/utils": "1.3.0",
         "boxen": "5.1.2",
         "cli-table3": "0.6.0",
@@ -33,6 +35,7 @@
         "fast-levenshtein": "2.0.6",
         "fs-extra": "8.1.0",
         "glob": "7.1.7",
+        "got": "11.8.2",
         "inversify": "5.1.1",
         "joi": "17.4.2",
         "kleur": "4.0.0",
@@ -44,6 +47,7 @@
         "read-last-lines": "1.8.0",
         "reflect-metadata": "0.1.13",
         "semver": "6.3.0",
+        "tar": "6.1.11",
         "type-fest": "0.21.3",
         "yargs-parser": "20.2.9"
     },

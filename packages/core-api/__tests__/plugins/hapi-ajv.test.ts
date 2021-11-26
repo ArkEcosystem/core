@@ -79,7 +79,7 @@ describe("Hapi Ajv", () => {
         const server = await initServer(app, defaults, customRoute);
 
         const response = await server.inject(injectOptions);
-        const payload = JSON.parse(response.payload || {});
+        const payload = JSON.parse(response.payload);
         expect(payload.data).toBe("ok");
     });
 
@@ -89,7 +89,7 @@ describe("Hapi Ajv", () => {
         injectOptions.payload.test = ["Item1", "Item2"];
 
         const response = await server.inject(injectOptions);
-        const payload = JSON.parse(response.payload || {});
+        const payload = JSON.parse(response.payload);
         expect(payload.statusCode).toBe(422);
     });
 
@@ -99,7 +99,7 @@ describe("Hapi Ajv", () => {
         injectOptions.url = "/test";
 
         const response = await server.inject(injectOptions);
-        const payload = JSON.parse(response.payload || {});
+        const payload = JSON.parse(response.payload);
         expect(payload.statusCode).toBe(422);
     });
 });

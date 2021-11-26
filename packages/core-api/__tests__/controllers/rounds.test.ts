@@ -14,6 +14,7 @@ import { initApp, ItemResponse } from "../__support__";
 
 let app: Application;
 let controller: RoundsController;
+const h = {} as Hapi.ResponseToolkit;
 
 beforeEach(() => {
     app = initApp();
@@ -49,13 +50,13 @@ describe("RoundsController", () => {
 
             Mocks.RoundRepository.setRounds([round]);
 
-            const request: Hapi.Request = {
+            const request: Partial<Hapi.Request> = {
                 params: {
                     id: "12",
                 },
             };
 
-            const response = (await controller.delegates(request, undefined)) as ItemResponse;
+            const response = (await controller.delegates(request as Hapi.Request, h)) as ItemResponse;
 
             expect(response.data[0]).toEqual(
                 expect.objectContaining({
@@ -65,13 +66,13 @@ describe("RoundsController", () => {
         });
 
         it("should return error if round does not exist", async () => {
-            const request: Hapi.Request = {
+            const request: Partial<Hapi.Request> = {
                 params: {
                     id: "12",
                 },
             };
 
-            await expect(controller.delegates(request, undefined)).resolves.toThrowError("Round not found");
+            await expect(controller.delegates(request as Hapi.Request, h)).resolves.toThrowError("Round not found");
         });
     });
 });

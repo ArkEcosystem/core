@@ -18,7 +18,7 @@ jest.mock("worker_threads", () => {
                 filePath: "",
                 updateStep: 1000,
             },
-            cryptoPackages: ["@arkecosystem/core-magistrate-crypto"],
+            cryptoPackages: ["@packages/core-magistrate-crypto"],
             networkConfig: require("@packages/crypto").Managers.configManager.all(),
         },
     };

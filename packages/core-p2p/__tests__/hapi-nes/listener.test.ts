@@ -347,7 +347,7 @@ describe("Listener", () => {
 
     describe("_generateId()", () => {
         it("rolls over when reached max sockets per millisecond", async () => {
-            const server = Hapi.server();
+            const server: any = Hapi.server();
             await server.register({ plugin: plugin, options: {} });
 
             const listener = server.plugins.nes._listener;

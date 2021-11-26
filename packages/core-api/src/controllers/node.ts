@@ -93,13 +93,13 @@ export class NodeController extends Controller {
         };
     }
 
-    public async configurationCrypto() {
+    public async configurationCrypto(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         return {
             data: Managers.configManager.all(),
         };
     }
 
-    public async fees(request: Hapi.Request) {
+    public async fees(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         // @ts-ignore
         const handlers = this.nullHandlerRegistry.getRegisteredHandlers();
         const handlersKey = {};
