@@ -1,7 +1,8 @@
-import { Rounds, Slots } from "../crypto";
 import { TransactionType, TransactionTypeGroup } from "../enums";
 import { IBlock, IState } from "../interfaces";
 import { configManager } from "../managers";
+import { Rounds } from "./rounds";
+import { Slots } from "./slots";
 import { State } from "./state";
 
 export class StateFactory {

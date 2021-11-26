@@ -1,9 +1,9 @@
-import { Slots } from "../../../crypto";
 import { TransactionTypeGroup } from "../../../enums";
 import { MissingTransactionSignatureError, VendorFieldLengthExceededError } from "../../../errors";
 import { Address, Keys } from "../../../identities";
 import { IKeyPair, ITransaction, ITransactionData } from "../../../interfaces";
 import { configManager } from "../../../managers/config";
+import { Slots } from "../../../state";
 import { NetworkType } from "../../../types";
 import { BigNumber, maxVendorFieldLength } from "../../../utils";
 import { TransactionFactory, Utils } from "../..";

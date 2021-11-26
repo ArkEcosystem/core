@@ -1,8 +1,9 @@
-import { Rounds, Slots } from "../crypto";
 import { CryptoError } from "../errors";
 import { IBlockHeader, ISlot, IState, IStateData } from "../interfaces";
 import { configManager } from "../managers";
 import { Consensus } from "./consensus";
+import { Rounds } from "./rounds";
+import { Slots } from "./slots";
 
 export class State<B extends IBlockHeader> implements IState<B> {
     public nextDelegates?: readonly string[];
@@ -46,70 +47,83 @@ export class State<B extends IBlockHeader> implements IState<B> {
         return this.data.lastDelegates;
     }
 
-    public createNextState(nextBlock: B): State<B> {
+    public createNextState(nextLastBlock: B): State<B> {
         try {
             if (!this.nextDelegates) {
                 throw new CryptoError("Next round not applied.");
             }
 
-            if (nextBlock.previousBlock !== this.lastBlock.id) {
+            if (nextLastBlock.previousBlock !== this.lastBlock.id) {
                 throw new CryptoError("Invalid previous block.");
             }
 
-            if (nextBlock.height !== this.lastBlock.height + 1) {
+            if (nextLastBlock.height !== this.lastBlock.height + 1) {
                 throw new CryptoError("Invalid height.");
             }
 
-            const nextSlot = Slots.getSubsequentSlot(
-                this.lastBlock.height,
-                this.lastSlot,
-                nextBlock.height,
-                nextBlock.timestamp,
+            const nextLastSlot = Slots.getSubsequentSlot(
+                this.data.lastBlock.height,
+                this.data.lastSlot,
+                nextLastBlock.height,
+                nextLastBlock.timestamp,
             );
 
-            const nextMilestone = configManager.getMilestone(nextBlock.height);
-            const nextForgerIndex = nextSlot.no % nextMilestone.activeDelegates;
+            const nextMilestone = configManager.getMilestone(nextLastBlock.height);
+            const nextForgerIndex = nextLastSlot.no % nextMilestone.activeDelegates;
 
-            if (nextSlot.no <= this.lastSlot.no) {
+            if (nextLastSlot.no <= this.lastSlot.no) {
                 throw new CryptoError("Invalid timestamp.");
             }
 
-            if (nextBlock.generatorPublicKey !== this.nextDelegates[nextForgerIndex]) {
+            if (nextLastBlock.generatorPublicKey !== this.nextDelegates[nextForgerIndex]) {
                 throw new CryptoError("Invalid generator public key.");
             }
 
-            const nextData = { ...this.data };
-            nextData.lastBlock = nextBlock;
-            nextData.lastSlot = nextSlot;
-            nextData.lastDelegates = this.nextDelegates;
-            nextData.forgedTransactionCount = this.forgedTransactionCount + nextBlock.numberOfTransactions;
+            const nextLastDelegates = this.nextDelegates;
+            const nextForgedTransactoinCount = this.data.forgedTransactionCount + nextLastBlock.numberOfTransactions;
 
-            if (nextBlock.version === 1 && Consensus.hasSupermajorityVote(this, nextBlock.previousBlockVotes)) {
-                nextData.justifiedBlock = this.lastBlock;
+            let nextJustifiedBlock = this.data.justifiedBlock;
+            let nextFinalizedBlock = this.data.finalizedBlock;
+            let nextFinalizedDelegates = this.data.finalizedDelegates;
+            let nextFinalizedTransactionCount = this.data.finalizedTransactionCount;
 
-                if (nextData.justifiedBlock.height === this.justifiedBlock.height + 1) {
-                    nextData.finalizedDelegates = this.lastDelegates;
-                    nextData.finalizedBlock = this.justifiedBlock;
-                    nextData.finalizedTransactionCount =
-                        this.forgedTransactionCount - this.lastBlock.numberOfTransactions;
+            if (nextLastBlock.version === 1 && Consensus.hasSupermajorityVote(this, nextLastBlock.previousBlockVotes)) {
+                nextJustifiedBlock = this.data.lastBlock;
+
+                if (nextJustifiedBlock.height === this.data.justifiedBlock.height + 1) {
+                    nextFinalizedBlock = this.data.justifiedBlock;
+                    nextFinalizedDelegates = this.data.lastDelegates;
+                    nextFinalizedTransactionCount =
+                        this.data.forgedTransactionCount - this.data.lastBlock.numberOfTransactions;
                 }
             }
 
-            if (nextMilestone.height === nextBlock.height && nextMilestone.finalizedDelegates) {
+            if (nextMilestone.height === nextLastBlock.height && nextMilestone.finalizedDelegates) {
                 const lastMilestone = configManager.getMilestone(this.lastBlock.height);
 
                 if (lastMilestone.finalizedDelegates !== nextMilestone.finalizedDelegates) {
-                    nextData.finalizedDelegates = nextMilestone.finalizedDelegates;
+                    nextFinalizedDelegates = nextMilestone.finalizedDelegates;
                 }
             }
 
-            if (Rounds.getRound(nextBlock.height) === Rounds.getRound(nextBlock.height + 1)) {
+            const nextData = {
+                finalizedTransactionCount: nextFinalizedTransactionCount,
+                forgedTransactionCount: nextForgedTransactoinCount,
+                finalizedBlock: nextFinalizedBlock,
+                justifiedBlock: nextJustifiedBlock,
+                lastBlock: nextLastBlock,
+                lastSlot: nextLastSlot,
+                finalizedDelegates: nextFinalizedDelegates,
+                lastDelegates: nextLastDelegates,
+            };
+
+            if (Rounds.getRound(nextLastBlock.height) === Rounds.getRound(nextLastBlock.height + 1)) {
                 return new State(nextData, this.nextDelegates);
             } else {
                 return new State(nextData);
             }
         } catch (cause) {
-            const msg = `Cannot chain new block (height=${nextBlock.height}, id=${nextBlock.id}).`;
+            const msg = `Cannot chain new block (height=${nextLastBlock.height}, id=${nextLastBlock.id}).`;
             throw new CryptoError(msg, { cause });
         }
     }
