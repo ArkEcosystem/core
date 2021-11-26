@@ -4,19 +4,19 @@ import { ISchnorrMultiSignature, IState } from "../interfaces";
 
 export class Consensus {
     public static getVotingDelegates(state: IState): string[] {
-        if (!state.nextDelegates) {
-            throw new CryptoError("Next round not applied.");
+        if (!state.nextBlockRoundDelegates) {
+            throw new CryptoError("Next block round delegates aren't set.");
         }
 
         const delegates = state.finalizedDelegates.slice();
 
-        for (const lastDelegate of state.lastDelegates) {
+        for (const lastDelegate of state.lastRoundDelegates) {
             if (delegates.includes(lastDelegate) === false) {
                 delegates.push(lastDelegate);
             }
         }
 
-        for (const nextDelegate of state.nextDelegates) {
+        for (const nextDelegate of state.nextBlockRoundDelegates) {
             if (delegates.includes(nextDelegate) === false) {
                 delegates.push(nextDelegate);
             }
@@ -51,7 +51,7 @@ export class Consensus {
     }
 
     public static isVoteNecessary(state: IState): boolean {
-        if (!state.nextDelegates) {
+        if (!state.nextBlockRoundDelegates) {
             throw new CryptoError("Next round not applied.");
         }
 
@@ -60,18 +60,18 @@ export class Consensus {
         }
 
         for (const finalizedDelegate of state.finalizedDelegates) {
-            if (state.lastDelegates.includes(finalizedDelegate) === false) return true;
-            if (state.nextDelegates.includes(finalizedDelegate) === false) return true;
+            if (state.lastRoundDelegates.includes(finalizedDelegate) === false) return true;
+            if (state.nextBlockRoundDelegates.includes(finalizedDelegate) === false) return true;
         }
 
-        for (const lastDelegate of state.lastDelegates) {
+        for (const lastDelegate of state.lastRoundDelegates) {
             if (state.finalizedDelegates.includes(lastDelegate) === false) return true;
-            if (state.nextDelegates.includes(lastDelegate) === false) return true;
+            if (state.nextBlockRoundDelegates.includes(lastDelegate) === false) return true;
         }
 
-        for (const nextDelegate of state.nextDelegates) {
+        for (const nextDelegate of state.nextBlockRoundDelegates) {
             if (state.finalizedDelegates.includes(nextDelegate) === false) return true;
-            if (state.lastDelegates.includes(nextDelegate) === false) return true;
+            if (state.lastRoundDelegates.includes(nextDelegate) === false) return true;
         }
 
         return false;
@@ -89,7 +89,7 @@ export class Consensus {
     }
 
     public static hasSupermajorityVote(state: IState, previousBlockVotes: readonly ISchnorrMultiSignature[]): boolean {
-        if (!state.nextDelegates) {
+        if (!state.nextBlockRoundDelegates) {
             throw new CryptoError("Next round not applied.");
         }
 
@@ -111,7 +111,7 @@ export class Consensus {
             verifiedKeys.add(publicKey);
         }
 
-        for (const delegates of [state.finalizedDelegates, state.lastDelegates, state.nextDelegates]) {
+        for (const delegates of [state.finalizedDelegates, state.lastRoundDelegates, state.nextBlockRoundDelegates]) {
             const voteCount = delegates.filter((key) => verifiedKeys.has(key)).length;
             const threshold = (delegates.length * 2) / 3;
 

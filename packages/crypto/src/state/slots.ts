@@ -1,66 +1,77 @@
 import { CryptoError } from "../errors";
-import { IBlockHeader, ISlot } from "../interfaces";
+import { IBlockHeader, ISlot, IState } from "../interfaces";
 import { configManager } from "../managers";
 
 export class Slots {
-    public static getBlockchainTimestamp(date: Date): number {
-        const epoch = new Date(configManager.getMilestone().epoch);
-        const miliseconds = date.getTime() - epoch.getTime();
-
-        return Math.floor(miliseconds / 1000);
-    }
-
-    public static getSystemDate(timestamp: number): Date {
-        const epoch = new Date(configManager.getMilestone().epoch);
-        const miliseconds = epoch.getTime() + timestamp * 1000;
-
-        return new Date(miliseconds);
-    }
-
     public static getGenesisSlot(): ISlot {
-        return { no: 0, timestamp: 0 };
+        return { no: 0, timestamp: 0, duration: configManager.getMilestone(1).blocktime };
     }
 
-    public static getSubsequentSlot(
-        lastHeight: number,
-        lastSlot: ISlot,
-        subseqHeight: number,
-        subseqTimestamp: number,
-    ): ISlot {
-        if (subseqHeight < lastHeight) {
-            throw new CryptoError("Invalid subsequent height.");
-        }
+    public static getNextBlockSlot({ lastBlock, lastSlot }: IState, nextBlockTimestamp: number): ISlot {
+        const seconds = nextBlockTimestamp - lastSlot.timestamp;
+        const slots = Math.floor(seconds / lastSlot.duration);
 
-        const lastMilestone = configManager.getMilestone(lastHeight);
-        const subseqMilestone = configManager.getMilestone(subseqHeight);
+        return {
+            no: lastSlot.no + slots,
+            timestamp: lastSlot.timestamp + slots * lastSlot.duration,
+            duration: configManager.getMilestone(lastBlock.height + 1).blocktime,
+        };
+    }
 
-        if (lastMilestone.height !== subseqMilestone.height) {
-            for (const milestone of configManager.getMilestones()) {
-                if (milestone.height <= lastMilestone.height) continue;
-                if (milestone.height === subseqMilestone.height) break;
+    public static bootstrapSlot(blocks: readonly IBlockHeader[]): ISlot {
+        const milestones = configManager.getMilestones().slice(1);
+        const slot = { ...this.getGenesisSlot() };
 
-                if (milestone.blocktime !== lastMilestone.blocktime) {
-                    throw new CryptoError(`Block time changed.`);
+        for (const block of blocks) {
+            while (milestones[0]?.height < block.height) {
+                if (milestones.shift().blocktime !== slot.duration) {
+                    throw new CryptoError(`Missing required bootstrap block.`);
                 }
+            }
+
+            const timestampDelta = block.timestamp - slot.timestamp;
+            const slotNoChange = Math.floor(timestampDelta / slot.duration);
+            const slotTimestampChange = slotNoChange * slot.duration;
+
+            slot.no += slotNoChange;
+            slot.timestamp += slotTimestampChange;
+
+            if (milestones[0]?.height === block.height) {
+                slot.duration = milestones[0].blocktime;
             }
         }
 
-        const delta = Math.floor((subseqTimestamp - lastSlot.timestamp) / lastMilestone.blocktime);
-        const no = lastSlot.no + delta;
-        const timestamp = lastSlot.timestamp + delta * lastMilestone.blocktime;
-
-        return { no, timestamp };
+        return slot;
     }
 
-    public static getLastBlockSlot(blocks: readonly IBlockHeader[]): ISlot {
-        let slot = this.getGenesisSlot();
-        let height = 1;
+    public static getBlocktimeHeights(): number[] {
+        let blocktime = configManager.getMilestone(1).blocktime;
+        const milestones = configManager.getMilestones().slice(1);
+        const heights: number[] = [];
 
-        for (const block of blocks) {
-            slot = this.getSubsequentSlot(height, slot, block.height, block.timestamp);
-            height = block.height;
+        for (const milestone of milestones) {
+            if (milestone.blocktime !== blocktime) {
+                heights.push(milestone.height);
+                blocktime = milestone.blocktime;
+            }
         }
 
-        return slot;
+        return heights;
+    }
+
+    public static getBlockchainTimestamp(date: Date): number {
+        const genesisMilestone = configManager.getMilestone(1);
+        const epoch = new Date(genesisMilestone.epoch);
+        const milliseconds = date.getTime() - epoch.getTime();
+
+        return Math.floor(milliseconds / 1000);
+    }
+
+    public static getSystemDate(timestamp: number): Date {
+        const genesisMilestone = configManager.getMilestone(1);
+        const epoch = new Date(genesisMilestone.epoch);
+        const milliseconds = epoch.getTime() + timestamp * 1000;
+
+        return new Date(milliseconds);
     }
 }
