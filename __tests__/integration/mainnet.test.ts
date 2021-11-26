@@ -1,12 +1,16 @@
+/* eslint-disable jest/no-focused-tests */
 /* eslint-disable jest/no-conditional-expect */
 /* eslint-disable jest/expect-expect */
 import "jest-extended";
 
 import { Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
-import { Blocks, Crypto, Interfaces, Managers, Networks, State, Transactions, Utils } from "@packages/crypto";
-import { IBlockData, IBlockHeader, IState } from "@packages/crypto/dist/interfaces";
+import { Blocks, Interfaces, Managers, Networks, Serde, State, Transactions, Utils } from "@packages/crypto";
 import assert from "assert";
+import fs from "fs";
+import fsp from "fs/promises";
 import { Client } from "pg";
+
+type ITrustedBlockData = Interfaces.IBlockData & { readonly id: string };
 
 Managers.configManager.setFromPreset("mainnet");
 
@@ -30,15 +34,7 @@ const client = new Client({
 beforeAll(async () => await client.connect());
 afterAll(async () => await client.end());
 
-type Range = {
-    readonly from?: number;
-    readonly count?: number;
-};
-
-async function getBlockHeaderBatch(range?: Range): Promise<IBlockHeader[]> {
-    const from = range.from ?? 2;
-    const count = range.count ?? 50000;
-
+async function getBlockHeadersBatch(start: number, size: number): Promise<Interfaces.IBlockHeader[]> {
     const text = `
         SELECT
             id,
@@ -59,9 +55,9 @@ async function getBlockHeaderBatch(range?: Range): Promise<IBlockHeader[]> {
         ORDER BY height
     `;
 
-    const values = [from, from + count];
+    const values = [start, start + size];
     const result = await client.query({ rowMode: "array", values, text });
-    const batch: IBlockHeader[] = [];
+    const batch: Interfaces.IBlockHeader[] = [];
 
     for (const row of result.rows) {
         batch.push({
@@ -84,22 +80,7 @@ async function getBlockHeaderBatch(range?: Range): Promise<IBlockHeader[]> {
     return batch;
 }
 
-async function* getBlockHeaderBatches(range?: Range): AsyncIterable<IBlockHeader[]> {
-    const from = range.from ?? 2;
-    const count = range.count ?? 50000;
-
-    for (let height = from; ; height += count) {
-        const batch = await getBlockHeaderBatch({ from: height, count });
-
-        if (batch.length === 0) {
-            break;
-        }
-
-        yield batch;
-    }
-}
-
-async function* getBlockDataBatches(range?: Range): AsyncIterable<IBlockData[]> {
+async function getBlockDataBatch(start: number, size: number): Promise<ITrustedBlockData[]> {
     const text = `
         SELECT block_height, serialized
         FROM transactions
@@ -107,34 +88,44 @@ async function* getBlockDataBatches(range?: Range): AsyncIterable<IBlockData[]> 
         ORDER BY block_height, sequence
     `;
 
-    for await (const headers of getBlockHeaderBatches(range)) {
-        const batch: IBlockData[] = [];
-        const values = [headers.map((blockHeader) => blockHeader.id)];
-        const result = await client.query({ rowMode: "array", values, text });
-        const rows = result.rows.slice() as [number, Buffer][];
+    const headers = await getBlockHeadersBatch(start, size);
+    const values = [headers.map((header) => header.id)];
+    const result = await client.query({ rowMode: "array", values, text });
+    const rows = result.rows.slice() as [number, Buffer][];
+    const batch: ITrustedBlockData[] = [];
 
-        for (const header of headers) {
-            const transactions: Buffer[] = [];
+    for (const header of headers) {
+        const transactions: Buffer[] = [];
 
-            for (let i = 0; i < header.numberOfTransactions; i++) {
-                const row = rows.shift();
-                assert(header.height === row[0]);
-                transactions.push(row[1]);
-            }
-
-            const d = { ...header, transactions };
-            delete d.id;
-            batch.push(d);
+        for (let i = 0; i < header.numberOfTransactions; i++) {
+            const row = rows.shift();
+            assert(header.height === row[0]);
+            transactions.push(row[1]);
         }
 
-        yield batch;
+        batch.push({ ...header, transactions });
+    }
+
+    return batch;
+}
+
+async function* getBlockHeaders(start: number, batchSize: number): AsyncIterable<Interfaces.IBlockHeader> {
+    for (let i = 0; ; i++) {
+        const batch = await getBlockHeadersBatch(i * batchSize + start, batchSize);
+        if (batch.length === 0) break;
+        yield* batch;
     }
 }
 
-async function getRounds(range?: Range): Promise<string[][]> {
-    const from = range.from ?? 1;
-    const count = range.count ?? 50000;
+async function* getBlockData(start: number, batchSize: number): AsyncIterable<ITrustedBlockData> {
+    for (let i = 0; ; i++) {
+        const batch = await getBlockDataBatch(i * batchSize + start, batchSize);
+        if (batch.length === 0) break;
+        yield* batch;
+    }
+}
 
+async function getRoundsBatch(start: number, size: number): Promise<string[][]> {
     const text = `
         SELECT round, public_key
         FROM rounds
@@ -143,11 +134,11 @@ async function getRounds(range?: Range): Promise<string[][]> {
     `;
 
     const batch = [];
-    const values = [from, from + count];
+    const values = [start, start + size];
     const result = await client.query({ text, values, rowMode: "array" });
 
     for (const [round, publicKey] of result.rows) {
-        const index = round - from;
+        const index = round - start;
 
         if (batch[index]) {
             batch[index].push(publicKey);
@@ -159,63 +150,106 @@ async function getRounds(range?: Range): Promise<string[][]> {
     return batch;
 }
 
-test("once", async () => {
-    const genesisBlockJson = Networks.mainnet.genesisBlock as Interfaces.IBlockJson;
-    const genesisBlock = Blocks.BlockFactory.createGenesisBlockFromJson(genesisBlockJson);
+async function* dumpBlocks(filename: string, start: number, size: number): AsyncIterable<ITrustedBlockData> {
+    const temp = Buffer.alloc(1 + 32 + 8 + 2 + 2 * 1024 ** 2);
+    const writer = Serde.SerdeFactory.createWriter(temp);
+    const f = await fsp.open(filename, "w");
 
-    let state = State.StateFactory.createGenesisState(genesisBlock) as IState<IBlockHeader>;
+    try {
+        for await (const data of getBlockData(start, size)) {
+            yield data;
 
-    const count = 20000;
-    const headers = await getBlockHeaderBatch({ from: 2, count: 50 + count * 51 });
-    const rounds = await getRounds({ from: 2, count });
+            let idBuf: Buffer;
+            const serialized = Blocks.Serializer.serialize(data);
 
-    const start = Date.now();
-
-    for (const header of headers) {
-        state = state.createNextState(header);
-
-        if (!state.nextDelegates) {
-            if (rounds.length === 0) {
-                break;
+            if (data.id.length === 64) {
+                idBuf = Buffer.from(data.id, "hex");
+            } else {
+                idBuf = Buffer.alloc(8);
+                idBuf.writeBigUInt64BE(BigInt(data.id));
             }
 
-            state.applyRound(rounds.shift());
+            writer.writeUInt8(idBuf.length);
+            writer.writeUInt16LE(serialized.length);
+            writer.writeBuffer(idBuf);
+            writer.writeBuffer(serialized);
+            await f.write(writer.getResult());
+            writer.reset();
         }
+    } finally {
+        await f.close();
     }
+}
 
-    console.log(`${Date.now() - start}ms`);
+async function* restoreBlocks(filename: string): AsyncIterable<ITrustedBlockData> {
+    const stream = fs.createReadStream(filename);
 
-    expect(state.lastBlock.height).toBe(headers[headers.length - 1].height);
-});
+    let temp = Buffer.alloc(0);
+    let reader = Serde.SerdeFactory.createReader(temp);
 
-// test("replay", async () => {
-//     const genesisBlockJson = Networks.mainnet.genesisBlock as Interfaces.IBlockJson;
-//     const genesisBlock = Blocks.BlockFactory.createGenesisBlockFromJson(genesisBlockJson);
+    try {
+        for await (const chunk of stream) {
+            temp = Buffer.concat([reader.getRemainder(), chunk]);
+            reader = Serde.SerdeFactory.createReader(temp);
 
-//     let rounds: string[][] = [];
-//     let state = State.StateFactory.createGenesisState(genesisBlock) as IState<IBlockHeader>;
+            while (reader.getRemainderLength() >= 3) {
+                const idBufSize = reader.readUInt8();
+                const serializedSize = reader.readUInt16LE();
 
+                if (reader.getRemainderLength() < idBufSize + serializedSize) {
+                    reader.jump(-3);
+                    break;
+                }
+
+                const idBuf = reader.readBuffer(idBufSize);
+                const serialized = reader.readBuffer(serializedSize);
+                const id = idBuf.length === 32 ? idBuf.toString("hex") : idBuf.readBigUInt64BE().toString();
+                const data = Blocks.Deserializer.deserialize(serialized);
+
+                yield { ...data, id };
+            }
+        }
+    } finally {
+        stream.close();
+    }
+}
+
+// test.only("dump", async () => {
 //     const start = Date.now();
 //     let count = 0;
 
-//     for await (const headers of getBlockHeaderBatches({ from: 2, count: 10000 * 51 })) {
-//         for (const header of headers) {
-//             state = state.createNextState(header);
-
-//             if (!state.nextDelegates) {
-//                 if (rounds.length === 0) {
-//                     const nextRound = Crypto.Rounds.getRound(state.lastBlock.height + 1);
-//                     rounds = await getRounds({ from: nextRound, count: 10000 });
-//                 }
-
-//                 state.applyRound(rounds.shift());
-//             }
+//     for await (const block of dumpBlocks("/home/rainydio/blocks.bin", 2, 10 ** 5)) {
+//         if (++count % 10 ** 5 === 0) {
+//             const ms = Date.now() - start;
+//             const rate = (1000 * count) / ms;
+//             const seconds = ms / 1000;
+//             console.log(`${count / 10 ** 6}M blocks in ${seconds.toFixed(1)}s, ${rate.toFixed(0)} blocks/s`);
 //         }
-
-//         count += headers.length;
-//         const ms = Date.now() - start;
-//         const rate = (1000 * count) / ms;
-//         const seconds = ms / 1000;
-//         console.log(`${count} blocks in ${seconds.toFixed(1)}s, ${rate.toFixed(0)} blocks/s`);
 //     }
 // });
+
+test("replay", async () => {
+    const genesisBlockJson = Networks.mainnet.genesisBlock as Interfaces.IBlockJson;
+    const genesisBlock = Blocks.BlockFactory.createGenesisBlockFromJson(genesisBlockJson);
+
+    const state = State.StateFactory.createGenesisState(genesisBlock) as Interfaces.IState<Interfaces.IBlockHeader>;
+    // const rounds = await getRoundsBatch(2, 346945);
+
+    const start = Date.now();
+    let count = 0;
+
+    for await (const block of restoreBlocks("/home/rainydio/blocks.bin")) {
+        // state = state.createNextState(block);
+
+        // if (!state.nextDelegates) {
+        //     state.applyRound(rounds.shift());
+        // }
+
+        if (++count % 10 ** 5 === 0) {
+            const ms = Date.now() - start;
+            const rate = (1000 * count) / ms;
+            const seconds = ms / 1000;
+            console.log(`${count / 10 ** 6}M blocks in ${seconds.toFixed(1)}s, ${rate.toFixed(0)} blocks/s`);
+        }
+    }
+});
