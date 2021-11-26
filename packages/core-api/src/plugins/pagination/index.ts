@@ -1,9 +1,11 @@
 // Based on https://github.com/fknop/hapi-pagination
 
+import Hapi from "@hapi/hapi";
+
 import { getConfig } from "./config";
 import { Ext } from "./ext";
 
-exports.plugin = {
+export const pagination: Hapi.Plugin<any> = {
     name: "hapi-pagination",
     version: "1.0.0",
     register(server, options) {

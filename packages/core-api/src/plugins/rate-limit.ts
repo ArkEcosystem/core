@@ -1,4 +1,4 @@
-import Boom from "@hapi/boom";
+import Boom, { isBoom } from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 import mm from "nanomatch";
 import { RateLimiterMemory, RateLimiterRes, RLWrapperBlackAndWhite } from "rate-limiter-flexible";
@@ -24,7 +24,7 @@ const isListed = (ip: string, patterns: string[]): boolean => {
     return false;
 };
 
-export = {
+export const rateLimit: Hapi.Plugin<any> = {
     name: "rate-limit",
     version: "1.0.0",
     once: true,
@@ -39,7 +39,7 @@ export = {
             trustProxy: boolean;
         },
     ): Promise<void> {
-        if (options.enabled === false) {
+        if (!options.enabled) {
             return;
         }
 
@@ -92,7 +92,7 @@ export = {
                 if (request.plugins["rate-limit"]) {
                     const data = request.plugins["rate-limit"] as RateLimitPluginData;
 
-                    if (request.response.isBoom) {
+                    if (isBoom(request.response)) {
                         request.response.output.headers["X-RateLimit-Limit"] = String(options.points);
                         request.response.output.headers["X-RateLimit-Remaining"] = String(data.remaining);
                         request.response.output.headers["X-RateLimit-Reset"] = new Date(data.reset).toUTCString();

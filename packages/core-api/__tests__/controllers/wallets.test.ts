@@ -1,9 +1,10 @@
+import { Boom } from "@hapi/boom";
+import Hapi from "@hapi/hapi";
 import { LockSearchService, Resources, WalletSearchService } from "@packages/core-api";
 import { WalletsController } from "@packages/core-api/src/controllers/wallets";
 import { Identifiers } from "@packages/core-api/src/identifiers";
 import { Application, Container, Contracts, Providers, Services } from "@packages/core-kernel";
 import { Enums, Utils } from "@packages/crypto";
-import { Boom } from "@hapi/boom";
 
 const jestfn = <T extends (...args: unknown[]) => unknown>(
     implementation?: (...args: Parameters<T>) => ReturnType<T>,
@@ -36,6 +37,8 @@ const transactionHistoryService = {
 const paginationService = {
     getEmptyPage: jestfn<Services.Search.PaginationService["getEmptyPage"]>(),
 };
+
+const h = {} as Hapi.ResponseToolkit;
 
 const container = new Container.Container();
 container.bind(Container.Identifiers.Application).toConstantValue(app);
@@ -92,14 +95,17 @@ describe("WalletsController", () => {
             walletSearchService.getWalletsPage.mockReturnValueOnce(walletsPage);
 
             const walletsController = container.resolve(WalletsController);
-            const result = walletsController.index({
-                query: {
-                    page: 1,
-                    limit: 100,
-                    orderBy: ["balance:desc", "address:asc"],
-                    address: "ATrkBiUXGDKduaSjqez2Ar7T9rQW6cnaeu",
-                },
-            });
+            const result = walletsController.index(
+                {
+                    query: {
+                        page: 1,
+                        limit: 100,
+                        orderBy: ["balance:desc", "address:asc"],
+                        address: "ATrkBiUXGDKduaSjqez2Ar7T9rQW6cnaeu",
+                    },
+                } as Partial<Hapi.Request> as Hapi.Request,
+                h,
+            );
 
             expect(walletSearchService.getWalletsPage).toBeCalledWith(
                 { offset: 0, limit: 100 },
@@ -123,14 +129,17 @@ describe("WalletsController", () => {
             walletSearchService.getWalletsPage.mockReturnValueOnce(walletsPage);
 
             const walletsController = container.resolve(WalletsController);
-            const result = walletsController.top({
-                query: {
-                    page: 1,
-                    limit: 100,
-                    orderBy: ["balance:desc", "address:asc"],
-                    address: "ATrkBiUXGDKduaSjqez2Ar7T9rQW6cnaeu",
-                },
-            });
+            const result = walletsController.top(
+                {
+                    query: {
+                        page: 1,
+                        limit: 100,
+                        orderBy: ["balance:desc", "address:asc"],
+                        address: "ATrkBiUXGDKduaSjqez2Ar7T9rQW6cnaeu",
+                    },
+                } as Partial<Hapi.Request> as Hapi.Request,
+                h,
+            );
 
             expect(walletSearchService.getWalletsPage).toBeCalledWith(
                 { offset: 0, limit: 100 },
@@ -147,11 +156,14 @@ describe("WalletsController", () => {
             walletSearchService.getWallet.mockReturnValueOnce(walletResource1);
 
             const walletsController = container.resolve(WalletsController);
-            const result = walletsController.show({
-                params: {
-                    id: walletResource1.address,
-                },
-            });
+            const result = walletsController.show(
+                {
+                    params: {
+                        id: walletResource1.address,
+                    },
+                } as Partial<Hapi.Request> as Hapi.Request,
+                h,
+            );
 
             expect(walletSearchService.getWallet).toBeCalledWith(walletResource1.address);
             expect(result).toEqual({ data: walletResource1 });
@@ -161,11 +173,14 @@ describe("WalletsController", () => {
             walletSearchService.getWallet.mockReturnValueOnce(undefined);
 
             const walletsController = container.resolve(WalletsController);
-            const result = walletsController.show({
-                params: {
-                    id: "non-existing-wallet-id",
-                },
-            });
+            const result = walletsController.show(
+                {
+                    params: {
+                        id: "non-existing-wallet-id",
+                    },
+                } as Partial<Hapi.Request> as Hapi.Request,
+                h,
+            );
 
             expect(walletSearchService.getWallet).toBeCalledWith("non-existing-wallet-id");
             expect(result).toBeInstanceOf(Boom);
@@ -184,17 +199,20 @@ describe("WalletsController", () => {
             lockSearchService.getWalletLocksPage.mockReturnValueOnce(locksPage);
 
             const walletsController = container.resolve(WalletsController);
-            const result = walletsController.locks({
-                params: {
-                    id: walletResource1.publicKey,
-                },
-                query: {
-                    page: 1,
-                    limit: 100,
-                    orderBy: ["timestamp.unix:desc"],
-                    isExpired: false,
-                },
-            });
+            const result = walletsController.locks(
+                {
+                    params: {
+                        id: walletResource1.publicKey,
+                    },
+                    query: {
+                        page: 1,
+                        limit: 100,
+                        orderBy: ["timestamp.unix:desc"],
+                        isExpired: false,
+                    },
+                } as Partial<Hapi.Request> as Hapi.Request,
+                h,
+            );
 
             expect(walletSearchService.getWallet).toBeCalledWith(walletResource1.publicKey);
 
@@ -212,11 +230,14 @@ describe("WalletsController", () => {
             walletSearchService.getWallet.mockReturnValueOnce(undefined);
 
             const walletsController = container.resolve(WalletsController);
-            const result = walletsController.locks({
-                params: {
-                    id: "non-existing-wallet-id",
-                },
-            });
+            const result = walletsController.locks(
+                {
+                    params: {
+                        id: "non-existing-wallet-id",
+                    },
+                } as Partial<Hapi.Request> as Hapi.Request,
+                h,
+            );
 
             expect(walletSearchService.getWallet).toBeCalledWith("non-existing-wallet-id");
             expect(result).toBeInstanceOf(Boom);
@@ -256,8 +277,8 @@ describe("WalletsController", () => {
                         transform: false,
                         type: Enums.TransactionType.MultiPayment,
                     },
-                },
-                undefined,
+                } as Partial<Hapi.Request> as Hapi.Request,
+                h,
             );
 
             expect(walletSearchService.getWallet).toBeCalledWith(walletResource1.publicKey);
@@ -320,8 +341,8 @@ describe("WalletsController", () => {
                         transform: true,
                         type: Enums.TransactionType.MultiPayment,
                     },
-                },
-                undefined,
+                } as Partial<Hapi.Request> as Hapi.Request,
+                h,
             );
 
             expect(walletSearchService.getWallet).toBeCalledWith(walletResource1.publicKey);
@@ -360,8 +381,8 @@ describe("WalletsController", () => {
                     params: {
                         id: "non-existing-wallet-id",
                     },
-                },
-                undefined,
+                } as Partial<Hapi.Request> as Hapi.Request,
+                h,
             );
 
             expect(walletSearchService.getWallet).toBeCalledWith("non-existing-wallet-id");
@@ -402,8 +423,8 @@ describe("WalletsController", () => {
                         transform: false,
                         type: Enums.TransactionType.MultiPayment,
                     },
-                },
-                undefined,
+                } as Partial<Hapi.Request> as Hapi.Request,
+                h,
             );
 
             expect(walletSearchService.getWallet).toBeCalledWith(walletResource1.publicKey);
@@ -466,8 +487,8 @@ describe("WalletsController", () => {
                         transform: true,
                         type: Enums.TransactionType.MultiPayment,
                     },
-                },
-                undefined,
+                } as Partial<Hapi.Request> as Hapi.Request,
+                h,
             );
 
             expect(walletSearchService.getWallet).toBeCalledWith(walletResource1.publicKey);
@@ -506,8 +527,8 @@ describe("WalletsController", () => {
                     params: {
                         id: "non-existing-wallet-id",
                     },
-                },
-                undefined,
+                } as Partial<Hapi.Request> as Hapi.Request,
+                h,
             );
 
             expect(walletSearchService.getWallet).toBeCalledWith("non-existing-wallet-id");
@@ -526,8 +547,8 @@ describe("WalletsController", () => {
                     params: {
                         id: walletResource2Cold.address,
                     },
-                },
-                undefined,
+                } as Partial<Hapi.Request> as Hapi.Request,
+                h,
             );
 
             expect(walletSearchService.getWallet).toBeCalledWith(walletResource2Cold.address);
@@ -569,8 +590,8 @@ describe("WalletsController", () => {
                         transform: false,
                         type: Enums.TransactionType.MultiPayment,
                     },
-                },
-                undefined,
+                } as Partial<Hapi.Request> as Hapi.Request,
+                h,
             );
 
             expect(walletSearchService.getWallet).toBeCalledWith(walletResource1.publicKey);
@@ -633,8 +654,8 @@ describe("WalletsController", () => {
                         transform: true,
                         type: Enums.TransactionType.MultiPayment,
                     },
-                },
-                undefined,
+                } as Partial<Hapi.Request> as Hapi.Request,
+                h,
             );
 
             expect(walletSearchService.getWallet).toBeCalledWith(walletResource1.publicKey);
@@ -673,8 +694,8 @@ describe("WalletsController", () => {
                     params: {
                         id: "non-existing-wallet-id",
                     },
-                },
-                undefined,
+                } as Partial<Hapi.Request> as Hapi.Request,
+                h,
             );
 
             expect(walletSearchService.getWallet).toBeCalledWith("non-existing-wallet-id");
@@ -714,8 +735,8 @@ describe("WalletsController", () => {
                         orderBy: "amount:desc",
                         transform: false,
                     },
-                },
-                undefined,
+                } as Partial<Hapi.Request> as Hapi.Request,
+                h,
             );
 
             expect(walletSearchService.getWallet).toBeCalledWith(walletResource1.publicKey);
@@ -778,8 +799,8 @@ describe("WalletsController", () => {
                         orderBy: "amount:desc",
                         transform: true,
                     },
-                },
-                undefined,
+                } as Partial<Hapi.Request> as Hapi.Request,
+                h,
             );
 
             expect(walletSearchService.getWallet).toBeCalledWith(walletResource1.publicKey);
@@ -819,8 +840,8 @@ describe("WalletsController", () => {
                     params: {
                         id: "non-existing-wallet-id",
                     },
-                },
-                undefined,
+                } as Partial<Hapi.Request> as Hapi.Request,
+                h,
             );
 
             expect(walletSearchService.getWallet).toBeCalledWith("non-existing-wallet-id");
@@ -843,8 +864,8 @@ describe("WalletsController", () => {
                     params: {
                         id: walletResource2Cold.address,
                     },
-                },
-                undefined,
+                } as Partial<Hapi.Request> as Hapi.Request,
+                h,
             );
 
             expect(walletSearchService.getWallet).toBeCalledWith(walletResource2Cold.address);

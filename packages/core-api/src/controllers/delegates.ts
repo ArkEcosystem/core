@@ -27,7 +27,7 @@ export class DelegatesController extends Controller {
     @Container.inject(Container.Identifiers.BlockHistoryService)
     private readonly blockHistoryService!: Contracts.Shared.BlockHistoryService;
 
-    public index(request: Hapi.Request): Contracts.Search.ResultsPage<DelegateResource> {
+    public index(request: Hapi.Request, h: Hapi.ResponseToolkit): Contracts.Search.ResultsPage<DelegateResource> {
         const pagination = this.getQueryPagination(request.query);
         const sorting = request.query.orderBy as Contracts.Search.Sorting;
         const criteria = this.getQueryCriteria(request.query, delegateCriteriaSchemaObject) as DelegateCriteria;
@@ -35,7 +35,7 @@ export class DelegatesController extends Controller {
         return this.delegateSearchService.getDelegatesPage(pagination, sorting, criteria);
     }
 
-    public show(request: Hapi.Request): { data: DelegateResource } | Boom {
+    public show(request: Hapi.Request, h: Hapi.ResponseToolkit): { data: DelegateResource } | Boom {
         const walletId = request.params.id as string;
 
         const walletResource = this.walletSearchService.getWallet(walletId);
@@ -51,7 +51,7 @@ export class DelegatesController extends Controller {
         return { data: delegateResource };
     }
 
-    public voters(request: Hapi.Request): Contracts.Search.ResultsPage<WalletResource> | Boom {
+    public voters(request: Hapi.Request, h: Hapi.ResponseToolkit): Contracts.Search.ResultsPage<WalletResource> | Boom {
         const walletId = request.params.id as string;
 
         const walletResource = this.walletSearchService.getWallet(walletId);

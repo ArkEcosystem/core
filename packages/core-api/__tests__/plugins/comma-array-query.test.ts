@@ -1,12 +1,13 @@
+import Hapi from "@hapi/hapi";
 import { commaArrayQuery } from "@packages/core-api/src/plugins/comma-array-query";
 
 describe("commaArrayQuery.register", () => {
     it("should register onRequest extension", () => {
-        const server = {
+        const server: Partial<Hapi.Server> = {
             ext: jest.fn(),
         };
 
-        commaArrayQuery.register(server);
+        commaArrayQuery.register(server as Hapi.Server);
 
         expect(server.ext).toBeCalledWith("onRequest", commaArrayQuery.onRequest);
     });
@@ -19,17 +20,17 @@ describe("commaArrayQuery.onRequest", () => {
             "AQvWbCAXbBnY9fHpgNrcLZ99hYfDifH4Hs",
             "ATKegneyu9Fkoj5FxiJ3biup8xv8zM34M3",
         ];
-        const request = {
+        const request: Partial<Hapi.Request> = {
             query: {
                 address: addresses.join(","),
             },
         };
 
-        const h = {
-            continue: Symbol,
+        const h: Partial<Hapi.ResponseToolkit> = {
+            continue: Symbol(),
         };
 
-        const ret = commaArrayQuery.onRequest(request, h);
+        const ret = commaArrayQuery.onRequest(request as Hapi.Request, h as Hapi.ResponseToolkit);
 
         expect(request.query).toEqual({
             address: addresses,
@@ -40,17 +41,17 @@ describe("commaArrayQuery.onRequest", () => {
 
     it("should leave as-is query parameter without comma", () => {
         const address = "AXGc1bgU3v3rHmx9WVkUUHLA6gbzh8La7V";
-        const request = {
+        const request: Partial<Hapi.Request> = {
             query: {
                 address,
             },
         };
 
-        const h = {
-            continue: Symbol,
+        const h: Partial<Hapi.ResponseToolkit> = {
+            continue: Symbol(),
         };
 
-        const ret = commaArrayQuery.onRequest(request, h);
+        const ret = commaArrayQuery.onRequest(request as Hapi.Request, h as Hapi.ResponseToolkit);
 
         expect(request.query).toEqual({
             address,

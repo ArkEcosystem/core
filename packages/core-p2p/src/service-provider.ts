@@ -114,7 +114,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
     private async buildServer(): Promise<void> {
         const server: Server = this.app.get<Server>(Container.Identifiers.P2PServer);
-        const serverConfig = this.config().get<Types.JsonObject>("server");
+        const serverConfig = this.config().getRequired<{ hostname: string; port: number }>("server");
         Utils.assert.defined<Types.JsonObject>(serverConfig);
 
         await server.initialize("P2P Server", serverConfig);

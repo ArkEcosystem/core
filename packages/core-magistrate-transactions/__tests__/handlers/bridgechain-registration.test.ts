@@ -31,7 +31,7 @@ import { TransactionHandler } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
 import { Crypto, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
 import { configManager } from "@packages/crypto/src/managers";
-import _ from "lodash";
+import cloneDeep from "lodash.clonedeep";
 
 import { buildSenderWallet, initApp } from "../__support__/app";
 import { Assets } from "./__fixtures__";
@@ -98,8 +98,8 @@ describe("BusinessRegistration", () => {
             2,
         );
 
-        businessRegistrationAsset = _.cloneDeep(Assets.businessRegistrationAsset);
-        bridgechainRegistrationAsset = _.cloneDeep(Assets.bridgechainRegistrationAsset);
+        businessRegistrationAsset = cloneDeep(Assets.businessRegistrationAsset);
+        bridgechainRegistrationAsset = cloneDeep(Assets.bridgechainRegistrationAsset);
 
         bridgechainRegistrationTransaction = new BridgechainRegistrationBuilder()
             .bridgechainRegistrationAsset(bridgechainRegistrationAsset)

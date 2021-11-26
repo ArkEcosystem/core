@@ -1,8 +1,8 @@
 import "jest-extended";
 
-import { Contracts } from "@packages/core-kernel";
 import Hapi from "@hapi/hapi";
-import { TransactionsController } from "@packages/core-api/src/controllers/transactions";
+import { StoreRequest, TransactionsController } from "@packages/core-api/src/controllers/transactions";
+import { Contracts } from "@packages/core-kernel";
 import { Application, Utils } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
@@ -25,6 +25,8 @@ const jestfn = <T extends (...args: unknown[]) => unknown>(
 
 let app: Application;
 let controller: TransactionsController;
+const request = {} as Hapi.Request;
+const h = {} as Hapi.ResponseToolkit;
 
 const transactionHistoryService = {
     findOneByCriteria: jestfn<Contracts.Shared.TransactionHistoryService["findOneByCriteria"]>(),
@@ -107,7 +109,7 @@ describe("TransactionsController", () => {
                 meta: { totalCountIsEstimate: false },
             });
 
-            const request: Hapi.Request = {
+            const request: Partial<Hapi.Request> = {
                 query: {
                     page: 1,
                     limit: 100,
@@ -115,7 +117,7 @@ describe("TransactionsController", () => {
                 },
             };
 
-            const response = (await controller.index(request, undefined)) as PaginatedResponse;
+            const response = (await controller.index(request as Hapi.Request, h)) as PaginatedResponse;
 
             expect(response.totalCount).toBeDefined();
             expect(response.meta).toBeDefined();
@@ -134,7 +136,7 @@ describe("TransactionsController", () => {
                 meta: { totalCountIsEstimate: false },
             });
 
-            const request: Hapi.Request = {
+            const request: Partial<Hapi.Request> = {
                 query: {
                     page: 1,
                     limit: 100,
@@ -142,7 +144,7 @@ describe("TransactionsController", () => {
                 },
             };
 
-            const response = (await controller.index(request, undefined)) as PaginatedResponse;
+            const response = (await controller.index(request as Hapi.Request, h)) as PaginatedResponse;
 
             expect(response.totalCount).toBeDefined();
             expect(response.meta).toBeDefined();
@@ -166,13 +168,13 @@ describe("TransactionsController", () => {
 
             Mocks.TransactionPoolProcessor.setProcessorState(processorState);
 
-            const request: Hapi.Request = {
+            const request: Partial<StoreRequest> = {
                 payload: {
-                    transactions: [transferTransaction],
+                    transactions: [transferTransaction.data],
                 },
             };
 
-            const response = (await controller.store(request, undefined)) as ItemResponse;
+            const response = (await controller.store(request as StoreRequest, h)) as ItemResponse;
 
             expect(response.data).toEqual(expect.objectContaining(processorState));
         });
@@ -182,7 +184,7 @@ describe("TransactionsController", () => {
         it("should return transaction", async () => {
             transactionHistoryService.findOneByCriteria.mockResolvedValue(transferTransaction.data);
 
-            const request: Hapi.Request = {
+            const request: Partial<Hapi.Request> = {
                 params: {
                     id: transferTransaction.id,
                 },
@@ -191,7 +193,7 @@ describe("TransactionsController", () => {
                 },
             };
 
-            const response = (await controller.show(request, undefined)) as ItemResponse;
+            const response = (await controller.show(request as Hapi.Request, h)) as ItemResponse;
 
             expect(response.data).toEqual(
                 expect.objectContaining({
@@ -204,7 +206,7 @@ describe("TransactionsController", () => {
             transactionHistoryService.findOneByCriteria.mockResolvedValue(transferTransaction.data);
             blockHistoryService.findOneByCriteria.mockResolvedValue(block);
 
-            const request: Hapi.Request = {
+            const request: Partial<Hapi.Request> = {
                 params: {
                     id: transferTransaction.id,
                 },
@@ -213,7 +215,7 @@ describe("TransactionsController", () => {
                 },
             };
 
-            const response = (await controller.show(request, undefined)) as ItemResponse;
+            const response = (await controller.show(request as Hapi.Request, h)) as ItemResponse;
 
             expect(response.data).toEqual(
                 expect.objectContaining({
@@ -223,7 +225,7 @@ describe("TransactionsController", () => {
         });
 
         it("should return error if transaction does not exist", async () => {
-            const request: Hapi.Request = {
+            const request: Partial<Hapi.Request> = {
                 params: {
                     id: transferTransaction.id,
                 },
@@ -232,7 +234,7 @@ describe("TransactionsController", () => {
                 },
             };
 
-            await expect(controller.show(request, undefined)).resolves.toThrowError("Transaction not found");
+            await expect(controller.show(request as Hapi.Request, h)).resolves.toThrowError("Transaction not found");
         });
     });
 
@@ -240,7 +242,7 @@ describe("TransactionsController", () => {
         it("should return transactions", async () => {
             Mocks.TransactionPoolQuery.setTransactions([transferTransaction]);
 
-            const request: Hapi.Request = {
+            const request: Partial<Hapi.Request> = {
                 query: {
                     page: 1,
                     limit: 100,
@@ -248,7 +250,7 @@ describe("TransactionsController", () => {
                 },
             };
 
-            const response = (await controller.unconfirmed(request, undefined)) as PaginatedResponse;
+            const response = (await controller.unconfirmed(request as Hapi.Request, h)) as PaginatedResponse;
 
             expect(response.totalCount).toBeDefined();
             expect(response.meta).toBeDefined();
@@ -265,7 +267,7 @@ describe("TransactionsController", () => {
         it("should return transactions", async () => {
             Mocks.TransactionPoolQuery.setTransactions([transferTransaction]);
 
-            const request: Hapi.Request = {
+            const request: Partial<Hapi.Request> = {
                 params: {
                     id: transferTransaction.id,
                 },
@@ -274,7 +276,7 @@ describe("TransactionsController", () => {
                 },
             };
 
-            const response = (await controller.showUnconfirmed(request, undefined)) as ItemResponse;
+            const response = (await controller.showUnconfirmed(request as Hapi.Request, h)) as ItemResponse;
 
             expect(response.data).toEqual(
                 expect.objectContaining({
@@ -284,7 +286,7 @@ describe("TransactionsController", () => {
         });
 
         it("should return error if transaction does not exist", async () => {
-            const request: Hapi.Request = {
+            const request: Partial<Hapi.Request> = {
                 params: {
                     id: transferTransaction.id,
                 },
@@ -293,13 +295,15 @@ describe("TransactionsController", () => {
                 },
             };
 
-            await expect(controller.showUnconfirmed(request, undefined)).resolves.toThrowError("Transaction not found");
+            await expect(controller.showUnconfirmed(request as Hapi.Request, h)).resolves.toThrowError(
+                "Transaction not found",
+            );
         });
     });
 
     describe("types", () => {
         it("should return registered types", async () => {
-            const response = (await controller.types(undefined, undefined)) as ItemResponse;
+            const response = (await controller.types(request, h)) as ItemResponse;
 
             const transactionTypeObject = {};
             for (const key of Object.keys(TransactionType)) {
@@ -314,7 +318,7 @@ describe("TransactionsController", () => {
 
     describe("schemas", () => {
         it("should return registered schemas", async () => {
-            const response = (await controller.schemas(undefined, undefined)) as ItemResponse;
+            const response = (await controller.schemas(request, h)) as ItemResponse;
 
             const coreTransactionHandlersCount = 11;
             expect(Object.keys(response.data["1"]).length).toBe(coreTransactionHandlersCount);
@@ -325,7 +329,7 @@ describe("TransactionsController", () => {
         it("should return fees", async () => {
             Mocks.StateStore.setLastHeight(1);
 
-            const response = (await controller.fees(undefined, undefined)) as ItemResponse;
+            const response = (await controller.fees(request, h)) as ItemResponse;
 
             expect(response.data["1"]).toEqual(
                 expect.objectContaining({

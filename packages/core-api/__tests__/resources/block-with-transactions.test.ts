@@ -4,7 +4,7 @@ import { Container, Contracts, Utils } from "@packages/core-kernel";
 import { Sandbox } from "@packages/core-test-framework";
 import { Interfaces } from "@packages/crypto";
 import { BlockWithTransactionsResource } from "@packages/core-api/src/resources";
-import { cloneDeep } from "lodash";
+import cloneDeep from "lodash.clonedeep";
 
 let sandbox: Sandbox;
 let resource: BlockWithTransactionsResource;
