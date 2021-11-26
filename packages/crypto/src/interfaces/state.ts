@@ -1,5 +1,9 @@
 import { IBlockHeader } from "./block";
-import { ISlot } from "./crypto";
+
+export type ISlot = {
+    readonly no: number;
+    readonly timestamp: number;
+};
 
 export type IStateData<B = IBlockHeader> = {
     // Sum of numbeOfTransactions up to last finalized block
