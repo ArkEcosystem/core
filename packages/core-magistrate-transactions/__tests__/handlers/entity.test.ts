@@ -20,7 +20,7 @@ import {
 import { EntityTransactionHandler } from "@packages/core-magistrate-transactions/src/handlers/entity";
 import { Utils as CryptoUtils } from "@packages/crypto";
 import { Managers, Transactions } from "@packages/crypto";
-import { cloneDeep } from "lodash";
+import cloneDeep from "lodash.clonedeep";
 
 import { validRegisters, validResigns, validUpdates } from "./__fixtures__/entity";
 import { walletRepository } from "./__mocks__/wallet-repository";

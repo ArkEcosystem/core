@@ -19,23 +19,26 @@ jobs:
         steps:
             - uses: actions/checkout@v2
 
-            - name: Cache node modules
-              uses: actions/cache@v1
+            - name: Cache pnpm modules
+              uses: actions/cache@v2
               with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
+                  path: ~/.pnpm-store
+                  key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+                  restore-keys: ${{ runner.os }}-pnpm-
 
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v1
               with:
                   node-version: ${{ matrix.node-version }}
 
-            - name: Install & Build
-              run: yarn install && yarn bootstrap
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v2.0.1
+              with:
+                  version: latest
+                  run_install: true
 
             - name: Lint Source
-              run: yarn lint
+              run: pnpm run lint
     # tests:
     #     runs-on: ubuntu-latest
     #     strategy:
