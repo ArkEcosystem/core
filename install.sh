@@ -47,8 +47,11 @@ RPM=$(which yum || :)
 # Detect SystemV / SystemD
 SYS=$([[ -L "/sbin/init" ]] && echo 'SystemD' || echo 'SystemV')
 
+# Detect GLIBC version
+GLIBC_VERSION=$(ldd --version | grep ldd | awk '{print $NF}')
+
 # Detect Debian/Ubuntu derivative
-DEB_ID=$( (grep DISTRIB_CODENAME /etc/upstream-release/lsb-release || grep DISTRIB_CODENAME /etc/lsb-release) 2>/dev/null | cut -d'=' -f2 )
+DEB_ID=$( (grep DISTRIB_CODENAME /etc/upstream-release/lsb-release || grep DISTRIB_CODENAME /etc/lsb-release || grep VERSION_CODENAME /etc/os-release)  2>/dev/null | cut -d'=' -f2 )
 
 if [[ ! -z $DEB ]]; then
     success "Running install for Debian derivative"
@@ -95,10 +98,15 @@ heading "Installing system dependencies..."
 
 if [[ ! -z $DEB ]]; then
     sudo apt-get update
-    sudo apt-get install -y git curl apt-transport-https update-notifier
+    sudo apt-get install -y git curl apt-transport-https update-notifier bc wget gnupg
 elif [[ ! -z $RPM ]]; then
     sudo yum update -y
-    sudo yum install git curl eepel-release --skip-broken -y
+    sudo yum install git curl epel-release bc wget --skip-broken -y
+fi
+
+if [[ $(echo "$GLIBC_VERSION < 2.25" | bc -l) -eq 1 ]]; then
+    heading "Unsupported GLIBC version - required >= 2.25"
+    exit 1;
 fi
 
 success "Installed system dependencies!"
@@ -116,7 +124,8 @@ if [[ ! -z $DEB ]]; then
 
 elif [[ ! -z $RPM ]]; then
     sudo yum install gcc-c++ make -y
-    curl -sL https://rpm.nodesource.com/setup_14.x | sudo bash -
+    curl -sL https://rpm.nodesource.com/setup_14.x | sudo -E bash - > /dev/null 2>&1
+    sudo sed -i '/^failovermethod=/d' /etc/yum.repos.d/*.repo > /dev/null 2>&1
     sudo yum install nodejs -y
 fi
 
@@ -201,8 +210,8 @@ if [[ ! -z $DEB ]]; then
     sudo apt-get autoremove -yyq
     sudo apt-get autoclean -yq
 elif [[ ! -z $RPM ]]; then
-    sudo yum update
-    sudo yum clean
+    sudo yum update -y
+    sudo yum clean all -y
 fi
 
 success "Installed system updates!"
@@ -213,7 +222,10 @@ ARK=$(which ark || :)
 
 if [ ! -z "$ARK" ] ; then
     warning "Cleaning up previous installations..."
-     pnpm remove -g @arkecosystem/core
+     pnpm remove -g @arkecosystem/core > /dev/null 2>&1 || true
+     #make sure there isn't old yarn install
+     yarn global remove @arkecosystem/core > /dev/null 2>&1 || true
+
 fi
 
 addCore() {
