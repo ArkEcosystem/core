@@ -27,6 +27,10 @@ export class Writer implements IWriter {
         return this.offset;
     }
 
+    public reset(): void {
+        this.offset = 0;
+    }
+
     public jump(length: number): void {
         if (length < -this.offset || length > this.getRemainderLength()) {
             throw new CryptoError("Jump over buffer boundary.");

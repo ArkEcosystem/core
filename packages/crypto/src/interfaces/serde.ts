@@ -12,6 +12,7 @@ export interface IReader {
     getRemainder(): Buffer;
     getRemainderLength(): number;
 
+    reset(): void;
     jump(length: number): void;
 
     readInt8(): number;
@@ -47,6 +48,7 @@ export interface IWriter {
     getResult(): Buffer;
     getResultLength(): number;
 
+    reset(): void;
     jump(length: number): void;
 
     writeInt8(value: number): void;
