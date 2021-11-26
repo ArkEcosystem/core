@@ -9,6 +9,6 @@ export const register = (server: Hapi.Server): void => {
     server.route({
         method: "GET",
         path: "/blockchain",
-        handler: (request: Hapi.Request) => controller.index(request),
+        handler: (request: Hapi.Request, h: Hapi.ResponseToolkit) => controller.index(request, h),
     });
 };

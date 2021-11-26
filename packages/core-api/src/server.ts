@@ -1,9 +1,16 @@
 import { Container, Contracts, Providers, Types, Utils } from "@arkecosystem/core-kernel";
-import { badData } from "@hapi/boom";
-import { Server as HapiServer, ServerInjectOptions, ServerInjectResponse, ServerRoute } from "@hapi/hapi";
+import { badData, isBoom } from "@hapi/boom";
+import { RequestRoute, Server as HapiServer, ServerInjectOptions, ServerInjectResponse, ServerRoute } from "@hapi/hapi";
 import { readFileSync } from "fs";
 
 import * as Schemas from "./schemas";
+
+declare module "@hapi/hapi" {
+    interface ServerApplicationState {
+        app: Contracts.Kernel.Application;
+        schemas: typeof Schemas;
+    }
+}
 
 // todo: review the implementation
 @Container.injectable()
@@ -38,7 +45,7 @@ export class Server {
      * @type {HapiServer}
      * @memberof Server
      */
-    private server: HapiServer;
+    private server!: HapiServer;
 
     /**
      * @private
@@ -79,7 +86,7 @@ export class Server {
         });
 
         this.server.ext("onPreResponse", (request, h) => {
-            if (request.response.isBoom && request.response.isServer) {
+            if (isBoom(request.response) && request.response.isServer) {
                 this.logger.error(request.response.stack);
             }
             return h.continue;
@@ -141,7 +148,7 @@ export class Server {
         return this.server.route(routes);
     }
 
-    public getRoute(method: string, path: string): ServerRoute | undefined {
+    public getRoute(method: string, path: string): RequestRoute | undefined {
         return this.server.table().find((route) => route.method === method.toLowerCase() && route.path === path);
     }
 

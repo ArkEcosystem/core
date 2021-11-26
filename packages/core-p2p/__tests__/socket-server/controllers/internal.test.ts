@@ -1,3 +1,4 @@
+import Hapi from "@hapi/hapi";
 import { Container, Utils as KernelUtils } from "@packages/core-kernel";
 import { NetworkStateStatus } from "@packages/core-p2p/src/enums";
 import { NetworkState } from "@packages/core-p2p/src/network-state";
@@ -5,6 +6,9 @@ import { InternalController } from "@packages/core-p2p/src/socket-server/control
 import { Sandbox } from "@packages/core-test-framework";
 import { Blocks, Networks, Utils } from "@packages/crypto";
 import { TransactionFactory } from "@packages/crypto/src/transactions";
+
+const request = {} as Hapi.Request;
+const h = {} as Hapi.ResponseToolkit;
 
 describe("InternalController", () => {
     let sandbox: Sandbox;
@@ -39,7 +43,7 @@ describe("InternalController", () => {
     describe("acceptNewPeer", () => {
         it("should call peerProcessor.validateAndAcceptPeer with the ip from payload", async () => {
             const ip = "187.155.66.33";
-            await internalController.acceptNewPeer({ payload: { ip } }, {});
+            await internalController.acceptNewPeer({ payload: { ip } } as Partial<Hapi.Request> as Hapi.Request, h);
 
             expect(peerProcessor.validateAndAcceptPeer).toBeCalledTimes(1);
             expect(peerProcessor.validateAndAcceptPeer).toBeCalledWith({ ip });
@@ -50,7 +54,7 @@ describe("InternalController", () => {
         it("should call eventDispatcher.dispatch with {event, body} from payload", () => {
             const event = "test event";
             const body = { stuff: "thing" };
-            internalController.emitEvent({ payload: { event, body } }, {});
+            internalController.emitEvent({ payload: { event, body } } as Partial<Hapi.Request> as Hapi.Request, h);
 
             expect(emitter.dispatch).toBeCalledTimes(1);
             expect(emitter.dispatch).toBeCalledWith(event, body);
@@ -71,7 +75,7 @@ describe("InternalController", () => {
             poolService.getPoolSize = jest.fn().mockReturnValueOnce(poolSize);
             poolCollator.getBlockCandidateTransactions = jest.fn().mockReturnValueOnce(unconfirmedTxs);
 
-            expect(await internalController.getUnconfirmedTransactions({}, {})).toEqual({
+            expect(await internalController.getUnconfirmedTransactions(request, h)).toEqual({
                 poolSize,
                 transactions: unconfirmedTxs.map((tx) => tx.serialized.toString("hex")),
             });
@@ -135,7 +139,7 @@ describe("InternalController", () => {
             const roundInfo = { round: 1, nextRound: 2, maxDelegates: 71, roundHeight: 1 };
             jest.spyOn(KernelUtils.roundCalculator, "calculateRound").mockReturnValueOnce(roundInfo);
 
-            const currentRound = await internalController.getCurrentRound({}, {});
+            const currentRound = await internalController.getCurrentRound(request, h);
 
             const delegatesData = delegates.map((delegate) => {
                 return delegate.getData();
@@ -159,7 +163,7 @@ describe("InternalController", () => {
             const networkStateMock = new NetworkState(NetworkStateStatus.Default);
             networkMonitor.getNetworkState = jest.fn().mockReturnValueOnce(networkStateMock);
 
-            const networkState = await internalController.getNetworkState({}, {});
+            const networkState = await internalController.getNetworkState(request, h);
 
             expect(networkState).toEqual(networkStateMock);
             expect(networkMonitor.getNetworkState).toBeCalledTimes(1);
@@ -168,7 +172,7 @@ describe("InternalController", () => {
 
     describe("syncBlockchain", () => {
         it("should call blockchain.forceWakeup()", () => {
-            internalController.syncBlockchain({}, {});
+            internalController.syncBlockchain(request, h);
 
             expect(blockchain.forceWakeup).toBeCalledTimes(1);
         });

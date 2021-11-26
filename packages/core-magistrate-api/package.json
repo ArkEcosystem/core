@@ -30,11 +30,12 @@
         "@arkecosystem/core-magistrate-transactions": "workspace:*",
         "@arkecosystem/crypto": "workspace:*",
         "@hapi/boom": "9.1.4",
-        "@hapi/hapi": "20.1.5",
+        "@hapi/hapi": "20.2.1",
         "joi": "17.4.2"
     },
     "devDependencies": {
         "@types/hapi__boom": "7.4.1",
+        "@types/hapi__hapi": "20.0.9",
         "@types/hapi__joi": "17.1.7"
     },
     "engines": {

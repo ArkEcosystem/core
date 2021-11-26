@@ -14,6 +14,8 @@ import { initApp, ItemResponse } from "../__support__";
 
 let app: Application;
 let controller: NodeController;
+const request = {} as Hapi.Request;
+const h = {} as Hapi.ResponseToolkit;
 
 beforeEach(() => {
     const config = Generators.generateCryptoConfigRaw();
@@ -192,7 +194,7 @@ describe("NodeController", () => {
 
     describe("configurationCrypto", () => {
         it("should return all configurations", async () => {
-            const response = await controller.configurationCrypto();
+            const response = await controller.configurationCrypto(request, h);
 
             expect(response.data.network).toBeDefined();
             expect(response.data.exceptions).toBeDefined();
@@ -214,13 +216,13 @@ describe("NodeController", () => {
 
             Mocks.TransactionRepository.setFeeStatistics([feeStatistics, feeStatistics]);
 
-            const request: Hapi.Request = {
+            const request: Partial<Hapi.Request> = {
                 query: {
                     days: 5,
                 },
             };
 
-            const response = await controller.fees(request);
+            const response = await controller.fees(request as Hapi.Request, h);
 
             expect(response.data[feeStatistics.type.toString()]).toBeDefined();
         });

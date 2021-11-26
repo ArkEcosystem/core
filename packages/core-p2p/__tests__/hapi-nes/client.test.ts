@@ -1,8 +1,9 @@
 import "jest-extended";
 
-import * as Hapi from "@hapi/hapi";
-import * as Hoek from "@hapi/hoek";
-import * as Teamwork from "@hapi/teamwork";
+import { isBoom } from "@hapi/boom";
+import Hapi from "@hapi/hapi";
+import Hoek from "@hapi/hoek";
+import Teamwork from "@hapi/teamwork";
 import { Client, plugin } from "@packages/core-p2p/src/hapi-nes";
 import { stringifyNesMessage } from "@packages/core-p2p/src/hapi-nes/utils";
 
@@ -14,7 +15,8 @@ const createServerWithPlugin = async (pluginOptions = {}, serverOptions = {}, wi
 
     server.ext({
         type: "onPostAuth",
-        async method(request, h) {
+        async method(request: Hapi.Request, h) {
+            // @ts-ignore
             request.payload = (request.payload || Buffer.from("")).toString();
             return h.continue;
         },
@@ -23,24 +25,15 @@ const createServerWithPlugin = async (pluginOptions = {}, serverOptions = {}, wi
     if (withPreResponseHandler) {
         server.ext({
             type: "onPreResponse",
-            method: async (request, h) => {
-                try {
-                    if (request.response.source) {
-                        request.response.source = Buffer.from(request.response.source);
-                    } else {
-                        const errorMessage =
-                            request.response.output?.payload?.message ??
-                            request.response.output?.payload?.error ??
-                            "Error";
-                        request.response.output.payload = Buffer.from(errorMessage, "utf-8");
-                    }
-                } catch (e) {
-                    request.response.statusCode = 500; // Internal server error (serializing failed)
-                    request.response.output = {
-                        statusCode: 500,
-                        payload: Buffer.from("Internal server error"),
-                        headers: {},
-                    };
+            method: async (request: Hapi.Request, h: Hapi.ResponseToolkit) => {
+                if (!isBoom(request.response)) {
+                    // @ts-ignore
+                    request.response.source = Buffer.from(request.response.source);
+                } else {
+                    const errorMessage =
+                        request.response.output?.payload?.message ?? request.response.output?.payload?.error ?? "Error";
+                    // @ts-ignore
+                    request.response.output.payload = Buffer.from(errorMessage, "utf-8");
                 }
                 return h.continue;
             },
@@ -810,7 +803,7 @@ describe("Client", () => {
                 server.route({
                     method: "POST",
                     path: "/",
-                    handler: async (request) => {
+                    handler: async (request: any) => {
                         request.server.plugins.nes._listener._sockets._forEach((socket) => {
                             socket._ws.send(Buffer.from("{"));
                         });
@@ -845,7 +838,7 @@ describe("Client", () => {
                 server.route({
                     method: "POST",
                     path: "/",
-                    handler: async (request) => {
+                    handler: async (request: any) => {
                         request.server.plugins.nes._listener._sockets._forEach((socket) => {
                             socket._ws.send(
                                 stringifyNesMessage({
@@ -894,7 +887,7 @@ describe("Client", () => {
                 server.route({
                     method: "POST",
                     path: "/",
-                    handler: async (request) => {
+                    handler: async (request: any) => {
                         request.server.plugins.nes._listener._sockets._forEach((socket) => {
                             socket._ws.send(
                                 stringifyNesMessage({
@@ -987,7 +980,7 @@ describe("Client", () => {
 
         describe("_beat()", () => {
             it("disconnects when server fails to ping", async () => {
-                const server = await createServerWithPlugin({ heartbeat: { interval: 20, timeout: 10 } });
+                const server: any = await createServerWithPlugin({ heartbeat: { interval: 20, timeout: 10 } });
 
                 await server.start();
                 const client = new Client("http://localhost:" + server.info.port);
@@ -1014,7 +1007,7 @@ describe("Client", () => {
             });
 
             it("disconnects when server fails to ping (after a few pings)", async () => {
-                const server = await createServerWithPlugin({ heartbeat: { interval: 20, timeout: 10 } });
+                const server: any = await createServerWithPlugin({ heartbeat: { interval: 20, timeout: 10 } });
 
                 await server.start();
                 const client = new Client("http://localhost:" + server.info.port);
@@ -1037,7 +1030,7 @@ describe("Client", () => {
 
         describe("ping / pong", () => {
             it.each([["ping"], ["pong"]])("terminates when receiving a ws.%s", async (method) => {
-                const server = await createServerWithPlugin({}, {}, true);
+                const server: any = await createServerWithPlugin({}, {}, true);
 
                 server.route({
                     method: "POST",

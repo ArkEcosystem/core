@@ -1,7 +1,7 @@
+import hapi from "@hapi/hapi";
 import { Container } from "@packages/core-kernel";
 import * as Nes from "@packages/core-p2p/src/hapi-nes";
 import { Server } from "@packages/core-p2p/src/socket-server/server";
-import hapi from "@hapi/hapi";
 
 import { NesClient } from "../mocks/nes";
 
@@ -139,7 +139,7 @@ describe("Server", () => {
             await server.initialize(name, options);
             hapiServer.inject.mockReset();
 
-            const toInject = { name: "thing to inject" };
+            const toInject: any = { name: "thing to inject" };
             await server.inject(toInject);
 
             expect(hapiServer.inject).toBeCalledTimes(1);
