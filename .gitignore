@@ -2,7 +2,6 @@
 logs
 *.log
 npm-debug.log*
-lerna-debug.log
 
 # Runtime data
 pids
@@ -52,6 +51,9 @@ bundle.min.js
 
 # Build
 packages/*/dist/
+
+# Release
+packages/*/*.tgz
 
 # Microsoft Visual Studio settings
 .vs

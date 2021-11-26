@@ -28,7 +28,7 @@ import { TransactionHandler } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
 import { Crypto, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
 import { configManager } from "@packages/crypto/src/managers";
-import _ from "lodash";
+import cloneDeep from "lodash.clonedeep";
 
 import { buildSenderWallet, initApp } from "../__support__/app";
 import { Assets } from "./__fixtures__";
@@ -84,8 +84,8 @@ afterEach(() => {
 describe("BusinessRegistration", () => {
     let bridgechainResignationTransaction: Interfaces.ITransaction;
     let handler: TransactionHandler;
-    const businessRegistrationAsset = _.cloneDeep(Assets.businessRegistrationAsset);
-    const bridgechainRegistrationAsset = _.cloneDeep(Assets.bridgechainRegistrationAsset);
+    const businessRegistrationAsset = cloneDeep(Assets.businessRegistrationAsset);
+    const bridgechainRegistrationAsset = cloneDeep(Assets.bridgechainRegistrationAsset);
 
     beforeEach(async () => {
         handler = transactionHandlerRegistry.getRegisteredHandlerByType(

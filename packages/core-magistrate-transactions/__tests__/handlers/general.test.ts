@@ -4,7 +4,10 @@ import { Application, Contracts } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Enums, Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
 import { BusinessRegistrationBuilder } from "@packages/core-magistrate-crypto/src/builders";
-import { BusinessRegistrationTransactionHandler, EntityTransactionHandler } from "@packages/core-magistrate-transactions/src/handlers";
+import {
+    BusinessRegistrationTransactionHandler,
+    EntityTransactionHandler,
+} from "@packages/core-magistrate-transactions/src/handlers";
 import { Wallets } from "@packages/core-state";
 import { StateStore } from "@packages/core-state/src/stores/state";
 import { Generators } from "@packages/core-test-framework/src";
@@ -14,7 +17,7 @@ import { TransactionHandler } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
 import { Crypto, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
 import { configManager } from "@packages/crypto/src/managers";
-import _ from "lodash";
+import cloneDeep from "lodash.clonedeep";
 
 import { buildSenderWallet, initApp } from "../__support__/app";
 import { Assets } from "./__fixtures__";
@@ -74,7 +77,7 @@ describe("BusinessRegistration", () => {
 
         const builder = new BusinessRegistrationBuilder();
 
-        const businessRegistrationAsset = _.cloneDeep(Assets.businessRegistrationAsset);
+        const businessRegistrationAsset = cloneDeep(Assets.businessRegistrationAsset);
 
         businessRegistrationTransaction = builder
             .businessRegistrationAsset(businessRegistrationAsset)

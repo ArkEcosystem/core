@@ -14,17 +14,22 @@
     "main": "dist/index",
     "types": "dist/index",
     "scripts": {
-        "build": "yarn clean && tsc",
-        "build:watch": "yarn clean && yarn compile -w",
+        "build": "pnpm clean && tsc",
+        "build:watch": "pnpm clean && pnpm compile -w",
         "clean": "rimraf dist",
         "compile": "node ../../node_modules/typescript/bin/tsc",
-        "prepublishOnly": "yarn build"
+        "prepublishOnly": "pnpm build",
+        "publish:next": "pnpm publish --access public --tag next --git-checks=false",
+        "publish:latest": "pnpm publish --access public --git-checks=false"
     },
     "dependencies": {
-        "@arkecosystem/core-kernel": "4.0.0-next-1",
-        "@arkecosystem/core-magistrate-crypto": "4.0.0-next-1",
-        "@arkecosystem/core-transactions": "4.0.0-next-1",
-        "@arkecosystem/crypto": "4.0.0-next-1"
+        "@arkecosystem/core-kernel": "workspace:*",
+        "@arkecosystem/core-magistrate-crypto": "workspace:*",
+        "@arkecosystem/core-transactions": "workspace:*",
+        "@arkecosystem/crypto": "workspace:*"
+    },
+    "devDependencies": {
+        "lodash.clonedeep": "4.5.0"
     },
     "publishConfig": {
         "access": "public"

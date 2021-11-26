@@ -6,7 +6,7 @@ import { Identities, Managers, Transactions } from "@packages/crypto";
 describe("WorkerScriptHandler.loadCryptoPackage", () => {
     it("should register crypto package transactions", () => {
         const workerScriptHandler = new WorkerScriptHandler();
-        workerScriptHandler.loadCryptoPackage("@arkecosystem/core-magistrate-crypto");
+        workerScriptHandler.loadCryptoPackage("@packages/core-magistrate-crypto");
         const check = () => {
             Transactions.TransactionRegistry.registerTransactionType(
                 MagistrateTransactions.BusinessRegistrationTransaction,

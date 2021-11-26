@@ -3,7 +3,7 @@ import "jest-extended";
 import { TransactionResource } from "@packages/core-api/src/resources";
 import { Application } from "@packages/core-kernel";
 import { Utils } from "@packages/crypto";
-import { cloneDeep } from "lodash";
+import cloneDeep from "lodash.clonedeep";
 
 import { initApp } from "../__support__";
 

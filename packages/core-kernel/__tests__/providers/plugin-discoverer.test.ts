@@ -52,10 +52,10 @@ describe("PluginConfiguration", () => {
         });
 
         it("should return plugin using resolve", () => {
-            expect(pluginDiscoverer.get("@arkecosystem/core-kernel")).toEqual({
-                name: "@arkecosystem/core-kernel",
+            expect(pluginDiscoverer.get("@packages/core-kernel")).toEqual({
+                name: "@packages/core-kernel",
                 version: expect.toBeString(),
-                packageId: "@arkecosystem/core-kernel",
+                packageId: "@packages/core-kernel",
             });
         });
 
