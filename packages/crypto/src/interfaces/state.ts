@@ -14,13 +14,11 @@ export type IRound = {
     readonly length: number;
 };
 
-export interface IState<B extends IBlockHeader = IBlock> {
-    // State must be completed
-    readonly incomplete: boolean;
+export type IStateCompletionData = {
+    readonly nextBlockRoundDelegates: readonly string[];
+};
 
-    // Last forged height
-    readonly height: number;
-
+export type IStateData<B extends IBlockHeader = IBlock> = {
     // Sum of numberOfTransactions up to last forged block
     readonly forgedTransactionCount: number;
 
@@ -47,6 +45,14 @@ export interface IState<B extends IBlockHeader = IBlock> {
 
     // Last forged block round delegates
     readonly delegates: readonly string[];
+};
+
+export interface IState<B extends IBlockHeader = IBlock> extends IStateData<B> {
+    // State must be completed
+    readonly incomplete: boolean;
+
+    // Last forged height
+    readonly height: number;
 
     // Round of block that is about to be forged
     readonly nextBlockRound: IRound;
@@ -58,5 +64,5 @@ export interface IState<B extends IBlockHeader = IBlock> {
     readonly nextBlockRoundForgers?: readonly string[];
 
     // Complete state
-    complete(nextBlockRoundDelegates: readonly string[]): void;
+    complete(data: IStateCompletionData): void;
 }

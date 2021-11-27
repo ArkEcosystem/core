@@ -1,5 +1,5 @@
 import { CryptoError } from "../errors";
-import { IBlockHeader, IHeaderState, ISlot } from "../interfaces";
+import { IBlockHeader, ISlot } from "../interfaces";
 import { configManager } from "../managers";
 
 export class Slots {
@@ -7,15 +7,15 @@ export class Slots {
         return { no: 0, timestamp: 0, duration: configManager.getMilestone(1).blocktime };
     }
 
-    public static getNextBlockSlot(lastState: IHeaderState, nextBlockTimestamp: number): ISlot {
-        const slot = { ...lastState.slot };
-        const timestampDelta = nextBlockTimestamp - slot.timestamp;
+    public static getNextHeightSlot(lastHeight: number, lastSlot: ISlot, timestamp: number): ISlot {
+        const slot = { ...lastSlot };
+        const timestampDelta = timestamp - slot.timestamp;
         const slotNoChange = Math.floor(timestampDelta / slot.duration);
         const slotTimestampChange = slotNoChange * slot.duration;
 
         slot.no += slotNoChange;
         slot.timestamp += slotTimestampChange;
-        slot.duration = configManager.getMilestone(lastState.height + 1).blocktime;
+        slot.duration = configManager.getMilestone(lastHeight + 1).blocktime;
 
         return slot;
     }

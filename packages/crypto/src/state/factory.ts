@@ -1,6 +1,7 @@
+import { BlockFactory } from "../blocks";
 import { TransactionType, TransactionTypeGroup } from "../enums";
 import { CryptoError } from "../errors";
-import { IBlock, IBlockHeader, IState } from "../interfaces";
+import { IBlockHeader, IBlockJson, IState, IStateData } from "../interfaces";
 import { configManager } from "../managers";
 import { Consensus } from ".";
 import { Forgers } from "./forgers";
@@ -9,11 +10,9 @@ import { Slots } from "./slots";
 import { State } from "./state";
 
 export class StateFactory {
-    public static createGenesisState(genesisBlock: IBlock): IState {
-        if (genesisBlock.height !== 1) {
-            throw new Error("Not a genesis block.");
-        }
-
+    public static createGenesisState(): IState {
+        const genesisBlockJson = configManager.get("genesisBlock") as IBlockJson;
+        const genesisBlock = BlockFactory.createGenesisBlockFromJson(genesisBlockJson);
         const genesisSlot = Slots.getGenesisSlot();
         const genesisRound = Rounds.getGenesisRound();
         const genesisMilestone = configManager.getMilestone(genesisBlock.height);
@@ -27,20 +26,20 @@ export class StateFactory {
             throw new Error("Invalid genesis block.");
         }
 
-        const state = new State(
-            genesisBlock.numberOfTransactions,
-            genesisBlock.numberOfTransactions,
-            genesisDelegates,
-            genesisBlock,
-            genesisBlock,
-            genesisBlock,
-            genesisSlot,
-            genesisRound,
-            genesisDelegates,
-        );
+        const state = new State({
+            forgedTransactionCount: genesisBlock.numberOfTransactions,
+            finalizedTransactionCount: genesisBlock.numberOfTransactions,
+            finalizedDelegates: genesisDelegates,
+            finalizedBlock: genesisBlock,
+            justifiedBlock: genesisBlock,
+            block: genesisBlock,
+            slot: genesisSlot,
+            round: genesisRound,
+            delegates: genesisDelegates,
+        });
 
-        if (state.incomplete) {
-            state.complete(genesisDelegates);
+        if (state.nextBlockRound.no === genesisRound.no) {
+            state.complete({ nextBlockRoundDelegates: genesisDelegates });
         }
 
         return state;
@@ -48,7 +47,7 @@ export class StateFactory {
 
     public static createNextState<B extends IBlockHeader>(lastState: IState<B>, nextBlock: B): IState<B> {
         try {
-            if (!lastState.nextBlockRoundDelegates) {
+            if (!lastState.nextBlockRoundDelegates || !lastState.nextBlockRoundForgers) {
                 throw new CryptoError("Round delegates aren't set.");
             }
 
@@ -61,8 +60,9 @@ export class StateFactory {
             }
 
             const nextForgedTransactionCount = lastState.forgedTransactionCount + nextBlock.numberOfTransactions;
-            const nextBlockSlot = Slots.getNextBlockSlot(lastState, nextBlock.timestamp);
-            const nextBlockForger = Forgers.getNextBlockForger(lastState, nextBlockSlot);
+            const nextBlockSlot = Slots.getNextHeightSlot(lastState.height, lastState.slot, nextBlock.timestamp);
+            const nextBlockForgerIndex = nextBlockSlot.no % lastState.nextBlockRound.length;
+            const nextBlockForger = lastState.nextBlockRoundForgers[nextBlockForgerIndex];
 
             if (nextBlockSlot.no <= lastState.slot.no) {
                 throw new CryptoError("Invalid timestamp.");
@@ -88,17 +88,17 @@ export class StateFactory {
                 }
             }
 
-            const nextState = new State(
-                nextForgedTransactionCount,
-                nextFinalizedTransactionCount,
-                nextFinalizedDelegates,
-                nextFinalizedBlock,
-                nextJustifiedBlock,
-                nextBlock,
-                nextBlockSlot,
-                lastState.nextBlockRound,
-                lastState.nextBlockRoundDelegates,
-            );
+            const nextState = new State({
+                forgedTransactionCount: nextForgedTransactionCount,
+                finalizedTransactionCount: nextFinalizedTransactionCount,
+                finalizedDelegates: nextFinalizedDelegates,
+                finalizedBlock: nextFinalizedBlock,
+                justifiedBlock: nextJustifiedBlock,
+                block: nextBlock,
+                slot: nextBlockSlot,
+                round: lastState.nextBlockRound,
+                delegates: lastState.nextBlockRoundDelegates,
+            });
 
             if (nextState.nextBlockRound.no === lastState.nextBlockRound.no) {
                 nextState.nextBlockRoundDelegates = lastState.nextBlockRoundDelegates;
@@ -110,5 +110,9 @@ export class StateFactory {
             const msg = `Cannot chain new block (height=${nextBlock.height}, id=${nextBlock.id}).`;
             throw new CryptoError(msg, { cause });
         }
+    }
+
+    public static createState<B extends IBlockHeader>(data: IStateData<B>): IState<B> {
+        return new State(data);
     }
 }
