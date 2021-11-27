@@ -1,4 +1,4 @@
-import { IRound, IState } from "../interfaces";
+import { IHeaderState, IRound } from "../interfaces";
 import { configManager } from "../managers";
 
 export class Rounds {
@@ -6,21 +6,20 @@ export class Rounds {
         return { no: 1, height: 1, length: configManager.getMilestone(1).activeDelegates };
     }
 
-    public static getNextBlockRound(prevState: IState): IRound {
-        const nextRoundHeight = prevState.lastRound.height + prevState.lastRound.length;
-        const nextBlockHeight = prevState.lastBlock.height + 1;
+    public static getNextBlockRound(lastState: IHeaderState): IRound {
+        const nextRoundHeight = lastState.round.height + lastState.round.length;
+        const nextBlockHeight = lastState.height + 1;
 
         if (nextRoundHeight !== nextBlockHeight) {
-            return prevState.lastRound;
+            return lastState.round;
         }
 
-        const nextBlockRound = {
-            no: prevState.lastRound.no + 1,
-            height: nextRoundHeight,
-            length: configManager.getMilestone(nextBlockHeight).activeDelegates,
-        };
+        const round = { ...lastState.round };
+        round.no += 1;
+        round.height += round.length;
+        round.length = configManager.getMilestone(round.height).activeDelegates;
 
-        return nextBlockRound;
+        return round;
     }
 
     public static bootstrapRound(height: number): IRound {

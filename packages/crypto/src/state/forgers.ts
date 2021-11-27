@@ -1,6 +1,6 @@
 import { HashAlgorithms } from "../crypto";
 import { CryptoError } from "../errors";
-import { IRound, ISlot, IState } from "../interfaces";
+import { IHeaderState, IRound, ISlot } from "../interfaces";
 
 export class Forgers {
     public static getRoundForgers(round: IRound, delegates: readonly string[]): string[] {
@@ -22,13 +22,13 @@ export class Forgers {
         return forgers;
     }
 
-    public static getNextBlockForger(prevState: IState, nextBlockSlot: ISlot): string {
-        if (!prevState.nextBlockRoundForgers) {
+    public static getNextBlockForger(lastState: IHeaderState, nextBlockSlot: ISlot): string {
+        if (!lastState.nextBlockRoundForgers) {
             throw new CryptoError("Round delegates aren't set.");
         }
 
-        const nextBlockForgerIndex = nextBlockSlot.no % prevState.nextBlockRound.length;
-        const nextBlockForger = prevState.nextBlockRoundForgers[nextBlockForgerIndex];
+        const nextBlockForgerIndex = nextBlockSlot.no % lastState.nextBlockRound.length;
+        const nextBlockForger = lastState.nextBlockRoundForgers[nextBlockForgerIndex];
 
         return nextBlockForger;
     }

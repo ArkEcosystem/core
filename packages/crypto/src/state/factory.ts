@@ -9,21 +9,21 @@ import { Slots } from "./slots";
 import { State } from "./state";
 
 export class StateFactory {
-    public static createGenesisState(genesisBlock: IBlock): IState<IBlock> {
+    public static createGenesisState(genesisBlock: IBlock): IState {
         if (genesisBlock.height !== 1) {
             throw new Error("Not a genesis block.");
         }
 
         const genesisSlot = Slots.getGenesisSlot();
         const genesisRound = Rounds.getGenesisRound();
-        const genesisMillestone = configManager.getMilestone(genesisBlock.height);
+        const genesisMilestone = configManager.getMilestone(genesisBlock.height);
         const genesisDelegates = genesisBlock.transactions
             .filter((t) => t.typeGroup === TransactionTypeGroup.Core)
             .filter((t) => t.type === TransactionType.DelegateRegistration)
             .map((t) => t.data.senderPublicKey!)
             .sort();
 
-        if (genesisDelegates.length !== genesisMillestone.activeDelegates) {
+        if (genesisDelegates.length !== genesisMilestone.activeDelegates) {
             throw new Error("Invalid genesis block.");
         }
 
@@ -39,32 +39,32 @@ export class StateFactory {
             genesisDelegates,
         );
 
-        if (state.lastRound.no === state.nextBlockRound.no) {
-            state.setNextBlockRoundDelegates(genesisDelegates);
+        if (state.incomplete) {
+            state.complete(genesisDelegates);
         }
 
         return state;
     }
 
-    public static createNextState<B extends IBlockHeader>(prevState: IState<B>, nextBlock: B): IState<B> {
+    public static createNextState<B extends IBlockHeader>(lastState: IState<B>, nextBlock: B): IState<B> {
         try {
-            if (!prevState.nextBlockRoundDelegates) {
+            if (!lastState.nextBlockRoundDelegates) {
                 throw new CryptoError("Round delegates aren't set.");
             }
 
-            if (nextBlock.previousBlock !== prevState.lastBlock.id) {
+            if (nextBlock.previousBlock !== lastState.block.id) {
                 throw new CryptoError("Invalid previous block.");
             }
 
-            if (nextBlock.height !== prevState.lastBlock.height + 1) {
+            if (nextBlock.height !== lastState.height + 1) {
                 throw new CryptoError("Invalid height.");
             }
 
-            const nextForgedTransactionCount = prevState.forgedTransactionCount + nextBlock.numberOfTransactions;
-            const nextBlockSlot = Slots.getNextBlockSlot(prevState, nextBlock.timestamp);
-            const nextBlockForger = Forgers.getNextBlockForger(prevState, nextBlockSlot);
+            const nextForgedTransactionCount = lastState.forgedTransactionCount + nextBlock.numberOfTransactions;
+            const nextBlockSlot = Slots.getNextBlockSlot(lastState, nextBlock.timestamp);
+            const nextBlockForger = Forgers.getNextBlockForger(lastState, nextBlockSlot);
 
-            if (nextBlockSlot.no <= prevState.lastSlot.no) {
+            if (nextBlockSlot.no <= lastState.slot.no) {
                 throw new CryptoError("Invalid timestamp.");
             }
 
@@ -72,19 +72,19 @@ export class StateFactory {
                 throw new CryptoError("Invalid generator public key.");
             }
 
-            let nextJustifiedBlock = prevState.justifiedBlock;
-            let nextFinalizedBlock = prevState.finalizedBlock;
-            let nextFinalizedDelegates = prevState.finalizedDelegates;
-            let nextFinalizedTransactionCount = prevState.finalizedTransactionCount;
+            let nextJustifiedBlock = lastState.justifiedBlock;
+            let nextFinalizedBlock = lastState.finalizedBlock;
+            let nextFinalizedDelegates = lastState.finalizedDelegates;
+            let nextFinalizedTransactionCount = lastState.finalizedTransactionCount;
 
-            if (nextBlock.version === 1 && Consensus.hasSupermajorityVote(prevState, nextBlock.previousBlockVotes)) {
-                nextJustifiedBlock = prevState.lastBlock;
+            if (nextBlock.version === 1 && Consensus.hasSupermajorityVote(lastState, nextBlock.previousBlockVotes)) {
+                nextJustifiedBlock = lastState.block;
 
-                if (nextJustifiedBlock.height === prevState.justifiedBlock.height + 1) {
-                    nextFinalizedBlock = prevState.justifiedBlock;
-                    nextFinalizedDelegates = prevState.lastRoundDelegates;
+                if (nextJustifiedBlock.height === lastState.justifiedBlock.height + 1) {
+                    nextFinalizedBlock = lastState.justifiedBlock;
+                    nextFinalizedDelegates = lastState.delegates;
                     nextFinalizedTransactionCount =
-                        prevState.forgedTransactionCount - prevState.lastBlock.numberOfTransactions;
+                        lastState.forgedTransactionCount - lastState.block.numberOfTransactions;
                 }
             }
 
@@ -96,13 +96,13 @@ export class StateFactory {
                 nextJustifiedBlock,
                 nextBlock,
                 nextBlockSlot,
-                prevState.nextBlockRound,
-                prevState.nextBlockRoundDelegates,
+                lastState.nextBlockRound,
+                lastState.nextBlockRoundDelegates,
             );
 
-            if (nextState.nextBlockRound.no === prevState.nextBlockRound.no) {
-                nextState.nextBlockRoundDelegates = prevState.nextBlockRoundDelegates;
-                nextState.nextBlockRoundForgers = prevState.nextBlockRoundForgers;
+            if (nextState.nextBlockRound.no === lastState.nextBlockRound.no) {
+                nextState.nextBlockRoundDelegates = lastState.nextBlockRoundDelegates;
+                nextState.nextBlockRoundForgers = lastState.nextBlockRoundForgers;
             }
 
             return nextState;

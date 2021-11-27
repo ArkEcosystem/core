@@ -15,14 +15,14 @@ export class State<B extends IBlockHeader> implements IState<B> {
         public finalizedDelegates: readonly string[],
         public finalizedBlock: B,
         public justifiedBlock: B,
-        public lastBlock: B,
-        public lastSlot: ISlot,
-        public lastRound: IRound,
-        public lastRoundDelegates: readonly string[],
+        public block: B,
+        public slot: ISlot,
+        public round: IRound,
+        public delegates: readonly string[],
     ) {
         this.nextBlockRound = Rounds.getNextBlockRound(this);
 
-        const lastMilestone = configManager.getMilestone(this.lastBlock.height);
+        const lastMilestone = configManager.getMilestone(this.block.height);
         const finalizedMilestone = configManager.getMilestone(this.finalizedBlock.height);
 
         if (lastMilestone.finalizedDelegates !== finalizedMilestone.finalizedDelegates) {
@@ -30,16 +30,24 @@ export class State<B extends IBlockHeader> implements IState<B> {
         }
     }
 
-    public setNextBlockRoundDelegates(delegates: readonly string[]): void {
-        if (this.nextBlockRoundDelegates || this.nextBlockRoundForgers) {
-            throw new CryptoError("Next block's round delegates are already set.");
+    public get height(): number {
+        return this.block.height;
+    }
+
+    public get incomplete(): boolean {
+        return !this.nextBlockRoundDelegates || !this.nextBlockRoundForgers;
+    }
+
+    public complete(nextBlockRoundDelegates: readonly string[]): void {
+        if (this.incomplete === false) {
+            throw new CryptoError("State is complete.");
         }
 
-        if (delegates.length !== this.nextBlockRound.length) {
+        if (nextBlockRoundDelegates.length !== this.nextBlockRound.length) {
             throw new CryptoError("Invalid delegate count.");
         }
 
-        this.nextBlockRoundForgers = Forgers.getRoundForgers(this.nextBlockRound, delegates);
-        this.nextBlockRoundDelegates = delegates;
+        this.nextBlockRoundForgers = Forgers.getRoundForgers(this.nextBlockRound, nextBlockRoundDelegates);
+        this.nextBlockRoundDelegates = nextBlockRoundDelegates;
     }
 }

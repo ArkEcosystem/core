@@ -232,7 +232,7 @@ test("replay", async () => {
     const genesisBlockJson = Networks.mainnet.genesisBlock as Interfaces.IBlockJson;
     const genesisBlock = Blocks.BlockFactory.createGenesisBlockFromJson(genesisBlockJson);
 
-    let state = State.StateFactory.createGenesisState(genesisBlock) as Interfaces.IState<Interfaces.IBlockHeader>;
+    let lastState = State.StateFactory.createGenesisState(genesisBlock) as Interfaces.IHeaderState;
     let rounds: string[][] = [];
     // const rounds = await getRoundsBatch(2, 346945);
 
@@ -240,14 +240,14 @@ test("replay", async () => {
     let count = 0;
 
     for await (const block of restoreBlocks("/home/rainydio/blocks.bin")) {
-        state = State.StateFactory.createNextState(state, block);
+        lastState = State.StateFactory.createNextState(lastState, block);
 
-        if (state.nextBlockRound.no !== state.lastRound.no) {
+        if (lastState.incomplete) {
             if (rounds.length === 0) {
-                rounds = await getRoundsBatch(state.nextBlockRound.no, 10 ** 4);
+                rounds = await getRoundsBatch(lastState.nextBlockRound.no, 10 ** 4);
             }
 
-            state.setNextBlockRoundDelegates(rounds.shift());
+            lastState.complete(rounds.shift());
         }
 
         if (++count % 10 ** 5 === 0) {

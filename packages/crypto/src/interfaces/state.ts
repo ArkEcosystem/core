@@ -1,4 +1,6 @@
-import { IBlockHeader } from "./block";
+import { IBlock, IBlockHeader } from "./block";
+
+export type IHeaderState = IState<IBlockHeader>;
 
 export type ISlot = {
     readonly no: number;
@@ -12,11 +14,17 @@ export type IRound = {
     readonly length: number;
 };
 
-export interface IState<B = IBlockHeader> {
-    // Sum of numbeOfTransactions up to last forged block
+export interface IState<B extends IBlockHeader = IBlock> {
+    // State must be completed
+    readonly incomplete: boolean;
+
+    // Last forged height
+    readonly height: number;
+
+    // Sum of numberOfTransactions up to last forged block
     readonly forgedTransactionCount: number;
 
-    // Sum of numbeOfTransactions up to last finalized block
+    // Sum of numberOfTransactions up to last finalized block
     readonly finalizedTransactionCount: number;
 
     // Delegates from round of last finalized block *immediate child*
@@ -29,16 +37,16 @@ export interface IState<B = IBlockHeader> {
     readonly justifiedBlock: B;
 
     // Last forged block
-    readonly lastBlock: B;
+    readonly block: B;
 
     // Last forged block slot
-    readonly lastSlot: ISlot;
+    readonly slot: ISlot;
 
     // Last forged block round
-    readonly lastRound: IRound;
+    readonly round: IRound;
 
     // Last forged block round delegates
-    readonly lastRoundDelegates: readonly string[];
+    readonly delegates: readonly string[];
 
     // Round of block that is about to be forged
     readonly nextBlockRound: IRound;
@@ -49,5 +57,6 @@ export interface IState<B = IBlockHeader> {
     // Shuffled delegates from round of block that is about to be forged
     readonly nextBlockRoundForgers?: readonly string[];
 
-    setNextBlockRoundDelegates(delegates: readonly string[]): void;
+    // Complete state
+    complete(nextBlockRoundDelegates: readonly string[]): void;
 }
