@@ -4,7 +4,7 @@
 import "jest-extended";
 
 import { Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
-import { Blocks, Interfaces, Managers, Networks, Serde, State, Transactions, Utils } from "@packages/crypto";
+import { Blocks, Interfaces, Managers, Serde, State, Transactions, Utils } from "@packages/crypto";
 import assert from "assert";
 import fs from "fs";
 import fsp from "fs/promises";
@@ -181,36 +181,32 @@ async function* dumpBlocks(filename: string, start: number, size: number): Async
     }
 }
 
-async function* restoreBlocks(filename: string): AsyncIterable<ITrustedBlockData> {
-    const stream = fs.createReadStream(filename);
-
+async function* readBlocks(filename: string): AsyncIterable<ITrustedBlockData> {
     let temp = Buffer.alloc(0);
     let reader = Serde.SerdeFactory.createReader(temp);
 
-    try {
-        for await (const chunk of stream) {
-            temp = Buffer.concat([reader.getRemainder(), chunk]);
-            reader = Serde.SerdeFactory.createReader(temp);
+    const stream = fs.createReadStream(filename, { highWaterMark: 4 * 1024 ** 2 });
 
-            while (reader.getRemainderLength() >= 3) {
-                const idBufSize = reader.readUInt8();
-                const serializedSize = reader.readUInt16LE();
+    for await (const chunk of stream) {
+        temp = Buffer.concat([reader.getRemainder(), chunk]);
+        reader = Serde.SerdeFactory.createReader(temp);
 
-                if (reader.getRemainderLength() < idBufSize + serializedSize) {
-                    reader.jump(-3);
-                    break;
-                }
+        while (reader.getRemainderLength() >= 3) {
+            const idBufSize = reader.readUInt8();
+            const serializedSize = reader.readUInt16LE();
 
-                const idBuf = reader.readBuffer(idBufSize);
-                const serialized = reader.readBuffer(serializedSize);
-                const id = idBuf.length === 32 ? idBuf.toString("hex") : idBuf.readBigUInt64BE().toString();
-                const data = Blocks.Deserializer.deserialize(serialized);
-
-                yield { ...data, id };
+            if (reader.getRemainderLength() < idBufSize + serializedSize) {
+                reader.jump(-3);
+                break;
             }
+
+            const idBuf = reader.readBuffer(idBufSize);
+            const serialized = reader.readBuffer(serializedSize);
+            const id = idBuf.length === 32 ? idBuf.toString("hex") : idBuf.readBigUInt64BE().toString();
+            const data = Blocks.Deserializer.deserialize(serialized);
+
+            yield { ...data, id };
         }
-    } finally {
-        stream.close();
     }
 }
 
@@ -229,17 +225,14 @@ async function* restoreBlocks(filename: string): AsyncIterable<ITrustedBlockData
 // });
 
 test("replay", async () => {
-    const genesisBlockJson = Networks.mainnet.genesisBlock as Interfaces.IBlockJson;
-    const genesisBlock = Blocks.BlockFactory.createGenesisBlockFromJson(genesisBlockJson);
-
-    let lastState = State.StateFactory.createGenesisState(genesisBlock) as Interfaces.IHeaderState;
-    let rounds: string[][] = [];
-    // const rounds = await getRoundsBatch(2, 346945);
+    let lastState = State.StateFactory.createGenesisState() as Interfaces.IState<Interfaces.IBlockHeader>;
+    let rounds = await getRoundsBatch(2, 10 ** 4);
+    // let rounds = await getRoundsBatch(2, 346945);
 
     const start = Date.now();
     let count = 0;
 
-    for await (const block of restoreBlocks("/home/rainydio/blocks.bin")) {
+    for await (const block of readBlocks("/home/rainydio/blocks.bin")) {
         lastState = State.StateFactory.createNextState(lastState, block);
 
         if (lastState.incomplete) {
@@ -247,7 +240,7 @@ test("replay", async () => {
                 rounds = await getRoundsBatch(lastState.nextBlockRound.no, 10 ** 4);
             }
 
-            lastState.complete(rounds.shift());
+            lastState.complete({ nextBlockRoundDelegates: rounds.shift() });
         }
 
         if (++count % 10 ** 5 === 0) {
