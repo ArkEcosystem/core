@@ -1,5 +1,5 @@
 import { CryptoError } from "../errors";
-import { IBlockData, IBlockSignedData, IReader } from "../interfaces";
+import { IBlockData, IBlockPayloadSection, IBlockSignatureSection, IBlockSignedSection, IReader } from "../interfaces";
 import { configManager } from "../managers";
 import { SerdeFactory } from "../serde";
 import { BigNumber } from "../utils";
@@ -8,21 +8,21 @@ export class Deserializer {
     public static deserialize(buffer: Buffer): IBlockData {
         try {
             const reader = SerdeFactory.createReader(buffer);
-            const signedData = this.readSignedData(reader);
-            const blockSignature = reader.readEcdsaSignature().toString("hex");
-            const transactions = this.readTransactions(reader, signedData.numberOfTransactions);
+            const signedSection = this.readSignedSection(reader);
+            const signatureSection = this.readSignatureSection(reader);
+            const payloadSection = this.readPayloadSection(reader, signedSection.numberOfTransactions);
 
             if (reader.getRemainderLength() !== 0) {
                 throw new CryptoError("Buffer has space leftover.");
             }
 
-            return { ...signedData, blockSignature, transactions };
+            return { ...signedSection, ...signatureSection, ...payloadSection };
         } catch (cause) {
             throw new CryptoError(`Cannot deserialize block.`, { cause });
         }
     }
 
-    public static readSignedData(reader: IReader): IBlockSignedData {
+    public static readSignedSection(reader: IReader): IBlockSignedSection {
         const version = reader.readUInt32LE();
 
         if (version !== 0 && version !== 1) {
@@ -68,18 +68,22 @@ export class Deserializer {
         return { version, ...common, previousBlockVotes };
     }
 
-    public static readTransactions(reader: IReader, numberOfTransactions: number): Buffer[] {
+    public static readSignatureSection(reader: IReader): IBlockSignatureSection {
+        return { blockSignature: reader.readEcdsaSignature().toString("hex") };
+    }
+
+    public static readPayloadSection(reader: IReader, numberOfTransactions: number): IBlockPayloadSection {
         const lengths: number[] = [];
-        const transactions: Buffer[] = [];
+        const buffers: Buffer[] = [];
 
         for (let i = 0; i < numberOfTransactions; i++) {
             lengths.push(reader.readUInt32LE());
         }
 
         for (const length of lengths) {
-            transactions.push(reader.readBuffer(length));
+            buffers.push(reader.readBuffer(length));
         }
 
-        return transactions;
+        return { transactions: buffers.map((b) => ({ serialized: b })) };
     }
 }

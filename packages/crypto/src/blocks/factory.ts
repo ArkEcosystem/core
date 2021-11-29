@@ -1,74 +1,69 @@
-import { CryptoError } from "../errors";
-import { IBlock, IBlockData, IBlockHeader, IBlockHeaderData, IBlockJson, ITransaction } from "../interfaces";
+import { CryptoError, VerificationAggregateError } from "../errors";
+import { IBlock, IBlockData, IBlockHeader, IBlockHeaderData, IGenesisBlockJson, ITransaction } from "../interfaces";
 import { configManager } from "../managers";
 import { TransactionFactory } from "../transactions";
 import { BigNumber } from "../utils";
-import { Deserializer } from "./deserializer";
 import { Serializer } from "./serializer";
 import { Verifier } from "./verifier";
 
 export class BlockFactory {
-    public static createHeaderFromData(data: IBlockHeaderData): IBlockHeader {
+    public static createHeader(data: IBlockHeaderData): IBlockHeader {
         try {
-            Verifier.verifyHeader(data);
             const id = Serializer.getId(data);
+            const header = { ...data, id };
 
-            return { ...data, id };
+            const errors = VerificationAggregateError.aggregate([
+                () => Verifier.verifyVersion(header),
+                () => Verifier.verifyPreviousBlock(header),
+                () => Verifier.verifyNumberOfTransactions(header),
+                () => Verifier.verifyReward(header),
+                () => Verifier.verifyPayloadLength(header),
+                () => Verifier.verifyPreviousBlockVotes(header),
+                () => Verifier.verifyBlockSignature(header),
+            ]);
+
+            if (errors.length !== 0) {
+                throw new VerificationAggregateError(errors);
+            }
+
+            return header;
         } catch (cause) {
             throw new CryptoError(`Cannot create header (height=${data.height}).`, { cause });
         }
     }
 
-    public static createBlockFromTransactions(header: IBlockHeader, transactions: readonly ITransaction[]): IBlock {
+    public static createBlock(data: IBlockData): IBlock {
         try {
-            Verifier.verifyBlock(header, transactions);
-
-            return { ...header, transactions };
-        } catch (cause) {
-            throw new CryptoError(`Cannot create block (height=${header.height}).`, { cause });
-        }
-    }
-
-    public static createBlockFromSerializedTransactions(header: IBlockHeader, serialized: readonly Buffer[]): IBlock {
-        try {
-            const transactions = serialized.map((s) => TransactionFactory.fromBytesUnsafe(s));
-            Verifier.verifyBlock(header, transactions);
-
-            return { ...header, transactions };
-        } catch (cause) {
-            const msg = `Cannot create block (height=${header.height}) from header and serialized transactions.`;
-            throw new CryptoError(msg, { cause });
-        }
-    }
-
-    public static createBlockFromData(data: IBlockData): IBlock {
-        try {
-            Verifier.verifyData(data);
             const id = Serializer.getId(data);
-            const transactions = data.transactions.map((tx) => TransactionFactory.fromBytesUnsafe(tx));
-            Verifier.verifyBlock({ ...data, id }, transactions);
+            const transactions = data.transactions.map((t) => TransactionFactory.fromBytesUnsafe(t.serialized));
+            const block = { ...data, id, transactions };
 
-            return { ...data, id, transactions };
+            const errors = VerificationAggregateError.aggregate([
+                () => Verifier.verifyVersion(block),
+                () => Verifier.verifyPreviousBlock(block),
+                () => Verifier.verifyNumberOfTransactions(block),
+                () => Verifier.verifyTotalAmount(block),
+                () => Verifier.verifyTotalFee(block),
+                () => Verifier.verifyReward(block),
+                () => Verifier.verifyPayloadLength(block),
+                () => Verifier.verifyPayloadHash(block),
+                () => Verifier.verifyPreviousBlockVotes(block),
+                () => Verifier.verifyBlockSignature(block),
+                () => Verifier.verifyTransactions(block),
+                () => Verifier.verifySize(block),
+            ]);
+
+            if (errors.length !== 0) {
+                throw new VerificationAggregateError(errors);
+            }
+
+            return block;
         } catch (cause) {
             throw new CryptoError(`Cannot create block (height=${data.height}) from data.`, { cause });
         }
     }
 
-    public static createBlockFromBuffer(buffer: Buffer): IBlock {
-        try {
-            const data = Deserializer.deserialize(buffer);
-            Verifier.verifyData(data);
-            const id = Serializer.getId(data);
-            const transactions = data.transactions.map((tx) => TransactionFactory.fromBytesUnsafe(tx));
-            Verifier.verifyBlock({ ...data, id }, transactions);
-
-            return { ...data, id, transactions };
-        } catch (cause) {
-            throw new CryptoError("Cannot create block from buffer.", { cause });
-        }
-    }
-
-    public static createGenesisBlockFromJson(json: IBlockJson): IBlock {
+    public static createGenesisBlock(json: IGenesisBlockJson): IBlock {
         try {
             if (json.version !== 0 && json.version !== 1) throw new CryptoError("Bad version.");
             if (json.height !== 1) throw new CryptoError("Bad height.");

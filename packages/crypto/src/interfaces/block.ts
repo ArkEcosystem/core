@@ -1,11 +1,80 @@
-import * as Block0 from "./block0";
-import * as Block1 from "./block1";
+import { BigNumber } from "../utils";
+import { ISchnorrMultiSignature } from "./serde";
+import { ITransaction, ITransactionJson } from "./transactions";
 
-export type IBlockJson = Block0.IBlockJson0 | Block1.IBlockJson1;
+type IBlock0 = {
+    readonly version: 0;
+};
 
-export type IBlockSignedData = Block0.IBlockSignedData0 | Block1.IBlockSignedData1;
-export type IBlockHeaderData = Block0.IBlockHeaderData0 | Block1.IBlockHeaderData1;
-export type IBlockData = Block0.IBlockData0 | Block1.IBlockData1;
+type IBlock1 = {
+    readonly version: 1;
+    readonly previousBlockVotes: readonly ISchnorrMultiSignature[];
+};
 
-export type IBlockHeader = Block0.IBlockHeader0 | Block1.IBlockHeader1;
-export type IBlock = Block0.IBlock0 | Block1.IBlock1;
+export type IBlockSignedSection = (IBlock0 | IBlock1) & {
+    readonly timestamp: number;
+    readonly height: number;
+    readonly previousBlock: string;
+    readonly numberOfTransactions: number;
+    readonly totalAmount: BigNumber;
+    readonly totalFee: BigNumber;
+    readonly reward: BigNumber;
+    readonly payloadLength: number;
+    readonly payloadHash: string;
+    readonly generatorPublicKey: string;
+};
+
+export type IBlockSignatureSection = {
+    readonly blockSignature: string;
+};
+
+export type IBlockPayloadSection = {
+    readonly transactions: readonly {
+        readonly serialized: Buffer;
+    }[];
+};
+
+export type IBlockHeader = {
+    readonly id: string;
+} & (IBlockSignedSection & IBlockSignatureSection);
+
+export type IBlock = IBlockHeader & {
+    readonly transactions: readonly ITransaction[];
+};
+
+export type IBlockHeaderData = IBlockSignedSection & IBlockSignatureSection;
+export type IBlockData = IBlockHeaderData & IBlockPayloadSection;
+
+export type INewBlockData = (IBlock0 | IBlock1) & {
+    readonly timestamp: number;
+    readonly height: number;
+    readonly previousBlock: string;
+    readonly transactions: readonly ITransaction[];
+};
+
+// ---
+
+type IGenesisBlockJson0 = {
+    readonly version: 0;
+};
+
+type IGenesisBlockJson1 = {
+    readonly version: 1;
+    readonly previousBlockVotes: readonly string[];
+};
+
+export type IGenesisBlockJson = (IGenesisBlockJson0 | IGenesisBlockJson1) & {
+    readonly timestamp: number;
+    readonly height: number;
+    readonly previousBlock: null;
+    readonly numberOfTransactions: number;
+    readonly totalAmount: string;
+    readonly totalFee: string;
+    readonly reward: string;
+    readonly payloadLength: number;
+    readonly payloadHash: string;
+    readonly generatorPublicKey: string;
+    readonly blockSignature: string;
+    readonly transactions: readonly ITransactionJson[];
+    readonly id: string;
+};
