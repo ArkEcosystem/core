@@ -5,12 +5,11 @@ import "jest-extended";
 
 import { Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
 import { Blocks, Interfaces, Managers, Serde, State, Transactions, Utils } from "@packages/crypto";
+import { IBlockData, IBlockHeader } from "@packages/crypto/dist/interfaces";
 import assert from "assert";
 import fs from "fs";
 import fsp from "fs/promises";
 import { Client } from "pg";
-
-type ITrustedBlockData = Interfaces.IBlockData & { readonly id: string };
 
 Managers.configManager.setFromPreset("mainnet");
 
@@ -80,7 +79,7 @@ async function getBlockHeadersBatch(start: number, size: number): Promise<Interf
     return batch;
 }
 
-async function getBlockDataBatch(start: number, size: number): Promise<ITrustedBlockData[]> {
+async function getBlockDataBatch(start: number, size: number): Promise<(IBlockHeader & IBlockData)[]> {
     const text = `
         SELECT block_height, serialized
         FROM transactions
@@ -92,18 +91,18 @@ async function getBlockDataBatch(start: number, size: number): Promise<ITrustedB
     const values = [headers.map((header) => header.id)];
     const result = await client.query({ rowMode: "array", values, text });
     const rows = result.rows.slice() as [number, Buffer][];
-    const batch: ITrustedBlockData[] = [];
+    const batch: (IBlockHeader & IBlockData)[] = [];
 
     for (const header of headers) {
-        const transactions: Buffer[] = [];
+        const buffers: Buffer[] = [];
 
         for (let i = 0; i < header.numberOfTransactions; i++) {
             const row = rows.shift();
             assert(header.height === row[0]);
-            transactions.push(row[1]);
+            buffers.push(row[1]);
         }
 
-        batch.push({ ...header, transactions });
+        batch.push({ ...header, transactions: buffers.map((b) => ({ serialized: b })) });
     }
 
     return batch;
@@ -117,7 +116,7 @@ async function* getBlockHeaders(start: number, batchSize: number): AsyncIterable
     }
 }
 
-async function* getBlockData(start: number, batchSize: number): AsyncIterable<ITrustedBlockData> {
+async function* getBlockData(start: number, batchSize: number): AsyncIterable<IBlockHeader & IBlockData> {
     for (let i = 0; ; i++) {
         const batch = await getBlockDataBatch(i * batchSize + start, batchSize);
         if (batch.length === 0) break;
@@ -150,7 +149,7 @@ async function getRoundsBatch(start: number, size: number): Promise<string[][]> 
     return batch;
 }
 
-async function* dumpBlocks(filename: string, start: number, size: number): AsyncIterable<ITrustedBlockData> {
+async function* dumpBlocks(filename: string, start: number, size: number): AsyncIterable<IBlockHeader & IBlockData> {
     const temp = Buffer.alloc(1 + 32 + 8 + 2 + 2 * 1024 ** 2);
     const writer = Serde.SerdeFactory.createWriter(temp);
     const f = await fsp.open(filename, "w");
@@ -181,7 +180,7 @@ async function* dumpBlocks(filename: string, start: number, size: number): Async
     }
 }
 
-async function* readBlocks(filename: string): AsyncIterable<ITrustedBlockData> {
+async function* readBlocks(filename: string): AsyncIterable<IBlockHeader & IBlockData> {
     let temp = Buffer.alloc(0);
     let reader = Serde.SerdeFactory.createReader(temp);
 

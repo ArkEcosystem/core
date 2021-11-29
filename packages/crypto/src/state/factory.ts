@@ -1,18 +1,17 @@
 import { BlockFactory } from "../blocks";
 import { TransactionType, TransactionTypeGroup } from "../enums";
 import { CryptoError } from "../errors";
-import { IBlockHeader, IBlockJson, IState, IStateData } from "../interfaces";
+import { IBlockHeader, IGenesisBlockJson, IState, IStateData } from "../interfaces";
 import { configManager } from "../managers";
 import { Consensus } from ".";
-import { Forgers } from "./forgers";
 import { Rounds } from "./rounds";
 import { Slots } from "./slots";
 import { State } from "./state";
 
 export class StateFactory {
     public static createGenesisState(): IState {
-        const genesisBlockJson = configManager.get("genesisBlock") as IBlockJson;
-        const genesisBlock = BlockFactory.createGenesisBlockFromJson(genesisBlockJson);
+        const genesisBlockJson = configManager.get("genesisBlock") as IGenesisBlockJson;
+        const genesisBlock = BlockFactory.createGenesisBlock(genesisBlockJson);
         const genesisSlot = Slots.getGenesisSlot();
         const genesisRound = Rounds.getGenesisRound();
         const genesisMilestone = configManager.getMilestone(genesisBlock.height);
