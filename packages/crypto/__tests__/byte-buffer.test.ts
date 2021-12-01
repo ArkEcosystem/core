@@ -15,11 +15,11 @@ describe("ByteBuffer", () => {
             const byteBuffer = new ByteBuffer(buffer);
 
             byteBuffer.writeInt8(value);
-            expect(byteBuffer.getOffset()).toEqual(bufferSize);
+            expect(byteBuffer.getResultLength()).toEqual(bufferSize);
 
             byteBuffer.reset();
             expect(byteBuffer.readInt8()).toEqual(value);
-            expect(byteBuffer.getOffset()).toEqual(bufferSize);
+            expect(byteBuffer.getResultLength()).toEqual(bufferSize);
         });
 
         it.each(invalidValues)("should fail writing value: %s", (value: number) => {
@@ -34,7 +34,7 @@ describe("ByteBuffer", () => {
                     `The value of "value" is out of range. It must be >= ${min} and <= ${max}. Received ${value}`,
                 ),
             );
-            expect(byteBuffer.getOffset()).toEqual(0);
+            expect(byteBuffer.getResultLength()).toEqual(0);
         });
     });
 
@@ -51,11 +51,11 @@ describe("ByteBuffer", () => {
             const byteBuffer = new ByteBuffer(buffer);
 
             byteBuffer.writeUInt8(value);
-            expect(byteBuffer.getOffset()).toEqual(bufferSize);
+            expect(byteBuffer.getResultLength()).toEqual(bufferSize);
 
             byteBuffer.reset();
             expect(byteBuffer.readUInt8()).toEqual(value);
-            expect(byteBuffer.getOffset()).toEqual(bufferSize);
+            expect(byteBuffer.getResultLength()).toEqual(bufferSize);
         });
 
         it.each(invalidValues)("should fail writing value: %s", (value: number) => {
@@ -70,7 +70,7 @@ describe("ByteBuffer", () => {
                     `The value of "value" is out of range. It must be >= ${min} and <= ${max}. Received ${value}`,
                 ),
             );
-            expect(byteBuffer.getOffset()).toEqual(0);
+            expect(byteBuffer.getResultLength()).toEqual(0);
         });
     });
 
@@ -87,11 +87,11 @@ describe("ByteBuffer", () => {
             const byteBuffer = new ByteBuffer(buffer);
 
             byteBuffer.writeInt16BE(value);
-            expect(byteBuffer.getOffset()).toEqual(bufferSize);
+            expect(byteBuffer.getResultLength()).toEqual(bufferSize);
 
             byteBuffer.reset();
             expect(byteBuffer.readInt16BE()).toEqual(value);
-            expect(byteBuffer.getOffset()).toEqual(bufferSize);
+            expect(byteBuffer.getResultLength()).toEqual(bufferSize);
         });
 
         it.each(invalidValues)("should fail writing value: %s", (value: number) => {
@@ -106,7 +106,7 @@ describe("ByteBuffer", () => {
                     `The value of "value" is out of range. It must be >= ${min} and <= ${max}. Received ${value}`,
                 ),
             );
-            expect(byteBuffer.getOffset()).toEqual(0);
+            expect(byteBuffer.getResultLength()).toEqual(0);
         });
     });
 
@@ -123,11 +123,11 @@ describe("ByteBuffer", () => {
             const byteBuffer = new ByteBuffer(buffer);
 
             byteBuffer.writeUInt16BE(value);
-            expect(byteBuffer.getOffset()).toEqual(bufferSize);
+            expect(byteBuffer.getResultLength()).toEqual(bufferSize);
 
             byteBuffer.reset();
             expect(byteBuffer.readUInt16BE()).toEqual(value);
-            expect(byteBuffer.getOffset()).toEqual(bufferSize);
+            expect(byteBuffer.getResultLength()).toEqual(bufferSize);
         });
 
         it.each(invalidValues)("should fail writing value: %s", (value: number) => {
@@ -142,7 +142,7 @@ describe("ByteBuffer", () => {
                     `The value of "value" is out of range. It must be >= ${min} and <= ${max}. Received ${value}`,
                 ),
             );
-            expect(byteBuffer.getOffset()).toEqual(0);
+            expect(byteBuffer.getResultLength()).toEqual(0);
         });
     });
 
@@ -159,11 +159,11 @@ describe("ByteBuffer", () => {
             const byteBuffer = new ByteBuffer(buffer);
 
             byteBuffer.writeInt16LE(value);
-            expect(byteBuffer.getOffset()).toEqual(bufferSize);
+            expect(byteBuffer.getResultLength()).toEqual(bufferSize);
 
             byteBuffer.reset();
             expect(byteBuffer.readInt16LE()).toEqual(value);
-            expect(byteBuffer.getOffset()).toEqual(bufferSize);
+            expect(byteBuffer.getResultLength()).toEqual(bufferSize);
         });
 
         it.each(invalidValues)("should fail writing value: %s", (value: number) => {
@@ -178,7 +178,7 @@ describe("ByteBuffer", () => {
                     `The value of "value" is out of range. It must be >= ${min} and <= ${max}. Received ${value}`,
                 ),
             );
-            expect(byteBuffer.getOffset()).toEqual(0);
+            expect(byteBuffer.getResultLength()).toEqual(0);
         });
     });
 
@@ -195,11 +195,11 @@ describe("ByteBuffer", () => {
             const byteBuffer = new ByteBuffer(buffer);
 
             byteBuffer.writeUInt16LE(value);
-            expect(byteBuffer.getOffset()).toEqual(bufferSize);
+            expect(byteBuffer.getResultLength()).toEqual(bufferSize);
 
             byteBuffer.reset();
             expect(byteBuffer.readUInt16LE()).toEqual(value);
-            expect(byteBuffer.getOffset()).toEqual(bufferSize);
+            expect(byteBuffer.getResultLength()).toEqual(bufferSize);
         });
 
         it.each(invalidValues)("should fail writing value: %s", (value: number) => {
@@ -214,7 +214,7 @@ describe("ByteBuffer", () => {
                     `The value of "value" is out of range. It must be >= ${min} and <= ${max}. Received ${value}`,
                 ),
             );
-            expect(byteBuffer.getOffset()).toEqual(0);
+            expect(byteBuffer.getResultLength()).toEqual(0);
         });
     });
 
@@ -231,11 +231,11 @@ describe("ByteBuffer", () => {
             const byteBuffer = new ByteBuffer(buffer);
 
             byteBuffer.writeInt32BE(value);
-            expect(byteBuffer.getOffset()).toEqual(bufferSize);
+            expect(byteBuffer.getResultLength()).toEqual(bufferSize);
 
             byteBuffer.reset();
             expect(byteBuffer.readInt32BE()).toEqual(value);
-            expect(byteBuffer.getOffset()).toEqual(bufferSize);
+            expect(byteBuffer.getResultLength()).toEqual(bufferSize);
         });
 
         it.each(invalidValues)("should fail writing value: %s", (value: number) => {
@@ -250,7 +250,7 @@ describe("ByteBuffer", () => {
                     `The value of "value" is out of range. It must be >= ${min} and <= ${max}. Received ${value}`,
                 ),
             );
-            expect(byteBuffer.getOffset()).toEqual(0);
+            expect(byteBuffer.getResultLength()).toEqual(0);
         });
     });
 
@@ -267,11 +267,11 @@ describe("ByteBuffer", () => {
             const byteBuffer = new ByteBuffer(buffer);
 
             byteBuffer.writeUInt32BE(value);
-            expect(byteBuffer.getOffset()).toEqual(bufferSize);
+            expect(byteBuffer.getResultLength()).toEqual(bufferSize);
 
             byteBuffer.reset();
             expect(byteBuffer.readUInt32BE()).toEqual(value);
-            expect(byteBuffer.getOffset()).toEqual(bufferSize);
+            expect(byteBuffer.getResultLength()).toEqual(bufferSize);
         });
 
         it.each(invalidValues)("should fail writing value: %s", (value: number) => {
@@ -286,7 +286,7 @@ describe("ByteBuffer", () => {
                     `The value of "value" is out of range. It must be >= ${min} and <= ${max}. Received ${value}`,
                 ),
             );
-            expect(byteBuffer.getOffset()).toEqual(0);
+            expect(byteBuffer.getResultLength()).toEqual(0);
         });
     });
 
@@ -303,11 +303,11 @@ describe("ByteBuffer", () => {
             const byteBuffer = new ByteBuffer(buffer);
 
             byteBuffer.writeInt32LE(value);
-            expect(byteBuffer.getOffset()).toEqual(bufferSize);
+            expect(byteBuffer.getResultLength()).toEqual(bufferSize);
 
             byteBuffer.reset();
             expect(byteBuffer.readInt32LE()).toEqual(value);
-            expect(byteBuffer.getOffset()).toEqual(bufferSize);
+            expect(byteBuffer.getResultLength()).toEqual(bufferSize);
         });
 
         it.each(invalidValues)("should fail writing value: %s", (value: number) => {
@@ -322,7 +322,7 @@ describe("ByteBuffer", () => {
                     `The value of "value" is out of range. It must be >= ${min} and <= ${max}. Received ${value}`,
                 ),
             );
-            expect(byteBuffer.getOffset()).toEqual(0);
+            expect(byteBuffer.getResultLength()).toEqual(0);
         });
     });
 
@@ -339,11 +339,11 @@ describe("ByteBuffer", () => {
             const byteBuffer = new ByteBuffer(buffer);
 
             byteBuffer.writeUInt32LE(value);
-            expect(byteBuffer.getOffset()).toEqual(bufferSize);
+            expect(byteBuffer.getResultLength()).toEqual(bufferSize);
 
             byteBuffer.reset();
             expect(byteBuffer.readUInt32LE()).toEqual(value);
-            expect(byteBuffer.getOffset()).toEqual(bufferSize);
+            expect(byteBuffer.getResultLength()).toEqual(bufferSize);
         });
 
         it.each(invalidValues)("should fail writing value: %s", (value: number) => {
@@ -358,7 +358,7 @@ describe("ByteBuffer", () => {
                     `The value of "value" is out of range. It must be >= ${min} and <= ${max}. Received ${value}`,
                 ),
             );
-            expect(byteBuffer.getOffset()).toEqual(0);
+            expect(byteBuffer.getResultLength()).toEqual(0);
         });
     });
 
@@ -375,11 +375,11 @@ describe("ByteBuffer", () => {
             const byteBuffer = new ByteBuffer(buffer);
 
             byteBuffer.writeBigInt64BE(value);
-            expect(byteBuffer.getOffset()).toEqual(bufferSize);
+            expect(byteBuffer.getResultLength()).toEqual(bufferSize);
 
             byteBuffer.reset();
             expect(byteBuffer.readBigInt64BE()).toEqual(value);
-            expect(byteBuffer.getOffset()).toEqual(bufferSize);
+            expect(byteBuffer.getResultLength()).toEqual(bufferSize);
         });
 
         it.each(invalidValues)("should fail writing value: %s", (value: bigint) => {
@@ -396,7 +396,7 @@ describe("ByteBuffer", () => {
                         .replace(new RegExp(",", "g"), "_")}n`,
                 ),
             );
-            expect(byteBuffer.getOffset()).toEqual(0);
+            expect(byteBuffer.getResultLength()).toEqual(0);
         });
     });
 
@@ -413,11 +413,11 @@ describe("ByteBuffer", () => {
             const byteBuffer = new ByteBuffer(buffer);
 
             byteBuffer.writeBigUInt64BE(value);
-            expect(byteBuffer.getOffset()).toEqual(bufferSize);
+            expect(byteBuffer.getResultLength()).toEqual(bufferSize);
 
             byteBuffer.reset();
             expect(byteBuffer.readBigUInt64BE()).toEqual(value);
-            expect(byteBuffer.getOffset()).toEqual(bufferSize);
+            expect(byteBuffer.getResultLength()).toEqual(bufferSize);
         });
 
         it.each(invalidValues)("should fail writing value: %s", (value: bigint) => {
@@ -434,7 +434,7 @@ describe("ByteBuffer", () => {
                         .replace(new RegExp(",", "g"), "_")}n`,
                 ),
             );
-            expect(byteBuffer.getOffset()).toEqual(0);
+            expect(byteBuffer.getResultLength()).toEqual(0);
         });
     });
 
@@ -451,11 +451,11 @@ describe("ByteBuffer", () => {
             const byteBuffer = new ByteBuffer(buffer);
 
             byteBuffer.writeBigInt64LE(value);
-            expect(byteBuffer.getOffset()).toEqual(bufferSize);
+            expect(byteBuffer.getResultLength()).toEqual(bufferSize);
 
             byteBuffer.reset();
             expect(byteBuffer.readBigInt64LE()).toEqual(value);
-            expect(byteBuffer.getOffset()).toEqual(bufferSize);
+            expect(byteBuffer.getResultLength()).toEqual(bufferSize);
         });
 
         it.each(invalidValues)("should fail writing value: %s", (value: bigint) => {
@@ -472,7 +472,7 @@ describe("ByteBuffer", () => {
                         .replace(new RegExp(",", "g"), "_")}n`,
                 ),
             );
-            expect(byteBuffer.getOffset()).toEqual(0);
+            expect(byteBuffer.getResultLength()).toEqual(0);
         });
     });
 
@@ -489,11 +489,11 @@ describe("ByteBuffer", () => {
             const byteBuffer = new ByteBuffer(buffer);
 
             byteBuffer.writeBigUInt64LE(value);
-            expect(byteBuffer.getOffset()).toEqual(bufferSize);
+            expect(byteBuffer.getResultLength()).toEqual(bufferSize);
 
             byteBuffer.reset();
             expect(byteBuffer.readBigUInt64LE()).toEqual(value);
-            expect(byteBuffer.getOffset()).toEqual(bufferSize);
+            expect(byteBuffer.getResultLength()).toEqual(bufferSize);
         });
 
         it.each(invalidValues)("should fail writing value: %s", (value: bigint) => {
@@ -510,7 +510,7 @@ describe("ByteBuffer", () => {
                         .replace(new RegExp(",", "g"), "_")}n`,
                 ),
             );
-            expect(byteBuffer.getOffset()).toEqual(0);
+            expect(byteBuffer.getResultLength()).toEqual(0);
         });
     });
 });

@@ -6,7 +6,19 @@ export class ByteBuffer {
         this.buffer = buffer;
     }
 
-    public getOffset() {
+    public getRemainder(): Buffer {
+        return this.buffer.slice(this.offset);
+    }
+
+    public getRemainderLength(): number {
+        return this.buffer.length - this.offset;
+    }
+
+    public getResult(): Buffer {
+        return this.buffer.slice(0, this.offset);
+    }
+
+    public getResultLength(): number {
         return this.offset;
     }
 
