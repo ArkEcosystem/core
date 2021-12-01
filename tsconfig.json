@@ -7,7 +7,7 @@
         "esModuleInterop": true,
         "experimentalDecorators": true,
         "forceConsistentCasingInFileNames": true,
-        "lib": ["es2019"],
+        "lib": ["es2020"],
         "module": "CommonJS",
         "moduleResolution": "node",
         "newLine": "lf",
@@ -27,7 +27,7 @@
         "sourceMap": true,
         "strict": true,
         "stripInternal": true,
-        "target": "es2019",
+        "target": "es2020",
         "typeRoots": ["reflect-metadata", "node_modules/@types"],
         "useUnknownInCatchVariables": false
     },
