@@ -595,4 +595,39 @@ describe("ByteBuffer", () => {
             expect(byteBuffer.getResultLength()).toEqual(0);
         });
     });
+
+    describe("buffer", () => {
+        it("should write and read value", () => {
+            const bufferSize = 5;
+            const buffer = Buffer.alloc(bufferSize);
+            const bufferToCompare = Buffer.alloc(bufferSize).fill(1);
+
+            const byteBuffer = new ByteBuffer(buffer);
+
+            byteBuffer.writeBuffer(bufferToCompare);
+            expect(byteBuffer.getResultLength()).toEqual(bufferSize);
+
+            byteBuffer.reset();
+            expect(bufferToCompare.compare(byteBuffer.readBuffer(bufferSize))).toEqual(0);
+            expect(byteBuffer.getResultLength()).toEqual(bufferSize);
+        });
+
+        it("should throw when writing over boundary", () => {
+            const buffer = Buffer.alloc(5);
+            const byteBuffer = new ByteBuffer(buffer);
+
+            expect(() => {
+                byteBuffer.writeBuffer(Buffer.alloc(6));
+            }).toThrowError("Write over buffer boundary.");
+        });
+
+        it("should throw reading writing over boundary", () => {
+            const buffer = Buffer.alloc(5);
+            const byteBuffer = new ByteBuffer(buffer);
+
+            expect(() => {
+                byteBuffer.readBuffer(6);
+            }).toThrowError("Read over buffer boundary.");
+        });
+    });
 });
