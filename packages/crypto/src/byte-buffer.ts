@@ -50,6 +50,14 @@ export class ByteBuffer {
         this.offset = this.buffer.writeUInt16BE(value, this.offset);
     }
 
+    public writeUInt16LE(value: number): void {
+        this.offset = this.buffer.writeUInt16LE(value, this.offset);
+    }
+
+    public writeUInt32BE(value: number): void {
+        this.offset = this.buffer.writeUInt32BE(value, this.offset);
+    }
+
     public readInt8(): number {
         const value = this.buffer.readInt8(this.offset);
         this.offset += 1;
@@ -101,6 +109,18 @@ export class ByteBuffer {
     public readUInt16BE(): number {
         const value = this.buffer.readUInt16BE(this.offset);
         this.offset += 2;
+        return value;
+    }
+
+    public readUInt16LE(): number {
+        const value = this.buffer.readUInt16LE(this.offset);
+        this.offset += 2;
+        return value;
+    }
+
+    public readUInt32BE(): number {
+        const value = this.buffer.readUInt32BE(this.offset);
+        this.offset += 4;
         return value;
     }
 }
