@@ -217,4 +217,42 @@ describe("ByteBuffer", () => {
             expect(byteBuffer.getOffset()).toEqual(0);
         });
     });
+
+    describe("Int64BE", () => {
+        const bufferSize = 8;
+        const min = -9223372036854775808n;
+        const max = 9223372036854775807n;
+        const validValues = [min, max];
+        const invalidValues = [min - 1n, max + 1n];
+
+        it.each(validValues)("should write and read value: %s", (value: bigint) => {
+            const buffer = Buffer.alloc(bufferSize);
+
+            const byteBuffer = new ByteBuffer(buffer);
+
+            byteBuffer.writeBigInt64BE(value);
+            expect(byteBuffer.getOffset()).toEqual(bufferSize);
+
+            byteBuffer.reset();
+            expect(byteBuffer.readBigInt64BE()).toEqual(value);
+            expect(byteBuffer.getOffset()).toEqual(bufferSize);
+        });
+
+        it.each(invalidValues)("should fail writing value: %s", (value: bigint) => {
+            const buffer = Buffer.alloc(bufferSize);
+
+            const byteBuffer = new ByteBuffer(buffer);
+
+            expect(() => {
+                byteBuffer.writeBigInt64BE(value);
+            }).toThrowError(
+                // new RangeError(
+                //     `The value of "value" is out of range. It must be >= -(2n ** 63n) and < 2n ** 63n. Received ${value
+                //         .toLocaleString()
+                //         .replace(",", "_")}`,
+                // ),
+            );
+            expect(byteBuffer.getOffset()).toEqual(0);
+        });
+    });
 });
