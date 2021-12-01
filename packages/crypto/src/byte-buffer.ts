@@ -66,6 +66,10 @@ export class ByteBuffer {
         this.offset = this.buffer.writeBigUInt64BE(value, this.offset);
     }
 
+    public writeBigUInt64LE(value: bigint): void {
+        this.offset = this.buffer.writeBigUInt64LE(value, this.offset);
+    }
+
     public readInt8(): number {
         const value = this.buffer.readInt8(this.offset);
         this.offset += 1;
@@ -140,6 +144,12 @@ export class ByteBuffer {
 
     public readBigUInt64BE(): bigint {
         const value = this.buffer.readBigUInt64BE(this.offset);
+        this.offset += 8;
+        return value;
+    }
+
+    public readBigUInt64LE(): bigint {
+        const value = this.buffer.readBigUInt64LE(this.offset);
         this.offset += 8;
         return value;
     }
