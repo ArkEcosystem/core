@@ -2,6 +2,60 @@ import { ByteBuffer } from "@packages/crypto/src/byte-buffer";
 import { Buffer } from "buffer";
 
 describe("ByteBuffer", () => {
+    describe("result", () => {
+        it("should return valid result & result length", () => {
+            const buffer = Buffer.alloc(2);
+            const byteBuffer = new ByteBuffer(buffer);
+
+            expect(byteBuffer.getResultLength()).toEqual(0);
+            expect(Buffer.alloc(0).compare(byteBuffer.getResult())).toEqual(0);
+
+            byteBuffer.writeInt8(1);
+
+            expect(byteBuffer.getResultLength()).toEqual(1);
+            const tmpBuffer1 = Buffer.alloc(1);
+            tmpBuffer1.writeInt8(1);
+            expect(tmpBuffer1.compare(byteBuffer.getResult())).toEqual(0);
+
+            byteBuffer.writeInt8(2);
+
+            expect(byteBuffer.getResultLength()).toEqual(2);
+            const tmpBuffer2 = Buffer.alloc(2);
+            tmpBuffer2.writeInt8(1);
+            tmpBuffer2.writeInt8(2, 1);
+            expect(tmpBuffer2.compare(byteBuffer.getResult())).toEqual(0);
+        });
+    });
+
+    describe("reminder", () => {
+        it("should return valid remainders and remainder length", () => {
+            const buffer = Buffer.alloc(2);
+            const byteBuffer = new ByteBuffer(buffer);
+
+            byteBuffer.writeInt8(1);
+            byteBuffer.writeInt8(2);
+            byteBuffer.reset();
+
+            expect(byteBuffer.getRemainderLength()).toEqual(2);
+            const tmpBuffer1 = Buffer.alloc(2);
+            tmpBuffer1.writeInt8(1);
+            tmpBuffer1.writeInt8(2, 1);
+            expect(tmpBuffer1.compare(byteBuffer.getRemainder())).toEqual(0);
+
+            byteBuffer.readInt8();
+
+            expect(byteBuffer.getRemainderLength()).toEqual(1);
+            const tmpBuffer2 = Buffer.alloc(1);
+            tmpBuffer2.writeInt8(2);
+            expect(tmpBuffer2.compare(byteBuffer.getRemainder())).toEqual(0);
+
+            byteBuffer.readInt8();
+
+            expect(byteBuffer.getRemainderLength()).toEqual(0);
+            expect(Buffer.alloc(0).compare(byteBuffer.getRemainder())).toEqual(0);
+        });
+    });
+
     describe("Int8", () => {
         const bufferSize = 1;
         const min = -128;
