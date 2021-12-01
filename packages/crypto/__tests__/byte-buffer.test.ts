@@ -110,6 +110,42 @@ describe("ByteBuffer", () => {
         });
     });
 
+    describe("UInt16BE", () => {
+        const bufferSize = 2;
+        const min = 0;
+        const max = 65535;
+        const validValues = [min, max];
+        const invalidValues = [min - 1, max + 1];
+
+        it.each(validValues)("should write and read value: %s", (value: number) => {
+            const buffer = Buffer.alloc(bufferSize);
+
+            const byteBuffer = new ByteBuffer(buffer);
+
+            byteBuffer.writeUInt16BE(value);
+            expect(byteBuffer.getOffset()).toEqual(bufferSize);
+
+            byteBuffer.reset();
+            expect(byteBuffer.readUInt16BE()).toEqual(value);
+            expect(byteBuffer.getOffset()).toEqual(bufferSize);
+        });
+
+        it.each(invalidValues)("should fail writing value: %s", (value: number) => {
+            const buffer = Buffer.alloc(bufferSize);
+
+            const byteBuffer = new ByteBuffer(buffer);
+
+            expect(() => {
+                byteBuffer.writeUInt16BE(value);
+            }).toThrowError(
+                new RangeError(
+                    `The value of "value" is out of range. It must be >= ${min} and <= ${max}. Received ${value}`,
+                ),
+            );
+            expect(byteBuffer.getOffset()).toEqual(0);
+        });
+    });
+
     describe("Int16LE", () => {
         const bufferSize = 2;
         const min = -32768;
