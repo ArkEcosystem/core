@@ -66,7 +66,9 @@ describe("ByteBuffer", () => {
             expect(() => {
                 byteBuffer.writeUInt8(value);
             }).toThrowError(
-                new RangeError(`The value of "value" is out of range. It must be >= ${min} and <= ${max}. Received ${value}`),
+                new RangeError(
+                    `The value of "value" is out of range. It must be >= ${min} and <= ${max}. Received ${value}`,
+                ),
             );
             expect(byteBuffer.getOffset()).toEqual(0);
         });
@@ -99,6 +101,42 @@ describe("ByteBuffer", () => {
 
             expect(() => {
                 byteBuffer.writeInt16BE(value);
+            }).toThrowError(
+                new RangeError(
+                    `The value of "value" is out of range. It must be >= ${min} and <= ${max}. Received ${value}`,
+                ),
+            );
+            expect(byteBuffer.getOffset()).toEqual(0);
+        });
+    });
+
+    describe("Int16LE", () => {
+        const bufferSize = 2;
+        const min = -32768;
+        const max = 32767;
+        const validValues = [min, max];
+        const invalidValues = [min - 1, max + 1];
+
+        it.each(validValues)("should write and read value: %s", (value: number) => {
+            const buffer = Buffer.alloc(bufferSize);
+
+            const byteBuffer = new ByteBuffer(buffer);
+
+            byteBuffer.writeInt16LE(value);
+            expect(byteBuffer.getOffset()).toEqual(bufferSize);
+
+            byteBuffer.reset();
+            expect(byteBuffer.readInt16LE()).toEqual(value);
+            expect(byteBuffer.getOffset()).toEqual(bufferSize);
+        });
+
+        it.each(invalidValues)("should fail writing value: %s", (value: number) => {
+            const buffer = Buffer.alloc(bufferSize);
+
+            const byteBuffer = new ByteBuffer(buffer);
+
+            expect(() => {
+                byteBuffer.writeInt16LE(value);
             }).toThrowError(
                 new RangeError(
                     `The value of "value" is out of range. It must be >= ${min} and <= ${max}. Received ${value}`,
