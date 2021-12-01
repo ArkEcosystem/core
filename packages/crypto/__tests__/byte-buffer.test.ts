@@ -56,6 +56,34 @@ describe("ByteBuffer", () => {
         });
     });
 
+    describe("jump", () => {
+        it("should jump", () => {
+            const buffer = Buffer.alloc(1);
+            const byteBuffer = new ByteBuffer(buffer);
+
+            expect(byteBuffer.getResultLength()).toEqual(0);
+
+            byteBuffer.jump(1);
+            expect(byteBuffer.getResultLength()).toEqual(1);
+
+            byteBuffer.jump(-1);
+            expect(byteBuffer.getResultLength()).toEqual(0);
+        });
+
+        it("should throw error when jumping outside boundary", () => {
+            const buffer = Buffer.alloc(1);
+            const byteBuffer = new ByteBuffer(buffer);
+
+            expect(() => {
+                byteBuffer.jump(2);
+            }).toThrowError("Jump over buffer boundary.");
+
+            expect(() => {
+                byteBuffer.jump(-1);
+            }).toThrowError("Jump over buffer boundary.");
+        });
+    });
+
     describe("Int8", () => {
         const bufferSize = 1;
         const min = -128;

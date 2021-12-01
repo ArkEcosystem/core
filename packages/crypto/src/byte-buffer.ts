@@ -26,6 +26,14 @@ export class ByteBuffer {
         this.offset = 0;
     }
 
+    public jump(length: number): void {
+        if (length < -this.offset || length > this.getRemainderLength()) {
+            throw new Error("Jump over buffer boundary.");
+        }
+
+        this.offset += length;
+    }
+
     public writeInt8(value: number): void {
         this.offset = this.buffer.writeInt8(value, this.offset);
     }
