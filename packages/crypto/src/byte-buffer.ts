@@ -18,6 +18,10 @@ export class ByteBuffer {
         this.offset = this.buffer.writeInt8(value, this.offset);
     }
 
+    public writeInt16BE(value: number): void {
+        this.offset = this.buffer.writeInt16BE(value, this.offset);
+    }
+
     public writeUInt8(value: number): void {
         this.offset = this.buffer.writeUInt8(value, this.offset);
     }
@@ -25,6 +29,12 @@ export class ByteBuffer {
     public readInt8(): number {
         const value = this.buffer.readInt8(this.offset);
         this.offset += 1;
+        return value;
+    }
+
+    public readInt16BE(): number {
+        const value = this.buffer.readInt16BE(this.offset);
+        this.offset += 2;
         return value;
     }
 

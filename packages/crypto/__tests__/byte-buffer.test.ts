@@ -3,24 +3,27 @@ import { Buffer } from "buffer";
 
 describe("ByteBuffer", () => {
     describe("Int8", () => {
-        const validValues = [-128, 0, 1, 127];
-        const invalidValues = [-129, 128];
+        const bufferSize = 1;
+        const min = -128;
+        const max = 127;
+        const validValues = [min, max];
+        const invalidValues = [min - 1, max + 1];
 
         it.each(validValues)("should write and read value: %s", (value: number) => {
-            const buffer = Buffer.alloc(1);
+            const buffer = Buffer.alloc(bufferSize);
 
             const byteBuffer = new ByteBuffer(buffer);
 
             byteBuffer.writeInt8(value);
-            expect(byteBuffer.getOffset()).toEqual(1);
+            expect(byteBuffer.getOffset()).toEqual(bufferSize);
 
             byteBuffer.reset();
             expect(byteBuffer.readInt8()).toEqual(value);
-            expect(byteBuffer.getOffset()).toEqual(1);
+            expect(byteBuffer.getOffset()).toEqual(bufferSize);
         });
 
         it.each(invalidValues)("should fail writing value: %s", (value: number) => {
-            const buffer = Buffer.alloc(1);
+            const buffer = Buffer.alloc(bufferSize);
 
             const byteBuffer = new ByteBuffer(buffer);
 
@@ -28,7 +31,7 @@ describe("ByteBuffer", () => {
                 byteBuffer.writeInt8(value);
             }).toThrowError(
                 new RangeError(
-                    `The value of "value" is out of range. It must be >= -128 and <= 127. Received ${value}`,
+                    `The value of "value" is out of range. It must be >= ${min} and <= ${max}. Received ${value}`,
                 ),
             );
             expect(byteBuffer.getOffset()).toEqual(0);
@@ -36,31 +39,70 @@ describe("ByteBuffer", () => {
     });
 
     describe("UInt8", () => {
-        const validValues = [0, 1, 127, 255];
-        const invalidValues = [-1, 256];
+        const bufferSize = 1;
+        const min = 0;
+        const max = 255;
+        const validValues = [min, max];
+        const invalidValues = [min - 1, max + 1];
 
         it.each(validValues)("should write and read value: %s", (value: number) => {
-            const buffer = Buffer.alloc(1);
+            const buffer = Buffer.alloc(bufferSize);
 
             const byteBuffer = new ByteBuffer(buffer);
 
             byteBuffer.writeUInt8(value);
-            expect(byteBuffer.getOffset()).toEqual(1);
+            expect(byteBuffer.getOffset()).toEqual(bufferSize);
 
             byteBuffer.reset();
             expect(byteBuffer.readUInt8()).toEqual(value);
-            expect(byteBuffer.getOffset()).toEqual(1);
+            expect(byteBuffer.getOffset()).toEqual(bufferSize);
         });
 
         it.each(invalidValues)("should fail writing value: %s", (value: number) => {
-            const buffer = Buffer.alloc(1);
+            const buffer = Buffer.alloc(bufferSize);
 
             const byteBuffer = new ByteBuffer(buffer);
 
             expect(() => {
                 byteBuffer.writeUInt8(value);
             }).toThrowError(
-                new RangeError(`The value of "value" is out of range. It must be >= 0 and <= 255. Received ${value}`),
+                new RangeError(`The value of "value" is out of range. It must be >= ${min} and <= ${max}. Received ${value}`),
+            );
+            expect(byteBuffer.getOffset()).toEqual(0);
+        });
+    });
+
+    describe("Int16BE", () => {
+        const bufferSize = 2;
+        const min = -32768;
+        const max = 32767;
+        const validValues = [min, max];
+        const invalidValues = [min - 1, max + 1];
+
+        it.each(validValues)("should write and read value: %s", (value: number) => {
+            const buffer = Buffer.alloc(bufferSize);
+
+            const byteBuffer = new ByteBuffer(buffer);
+
+            byteBuffer.writeInt16BE(value);
+            expect(byteBuffer.getOffset()).toEqual(bufferSize);
+
+            byteBuffer.reset();
+            expect(byteBuffer.readInt16BE()).toEqual(value);
+            expect(byteBuffer.getOffset()).toEqual(bufferSize);
+        });
+
+        it.each(invalidValues)("should fail writing value: %s", (value: number) => {
+            const buffer = Buffer.alloc(bufferSize);
+
+            const byteBuffer = new ByteBuffer(buffer);
+
+            expect(() => {
+                byteBuffer.writeInt16BE(value);
+            }).toThrowError(
+                new RangeError(
+                    `The value of "value" is out of range. It must be >= ${min} and <= ${max}. Received ${value}`,
+                ),
             );
             expect(byteBuffer.getOffset()).toEqual(0);
         });
