@@ -34,4 +34,35 @@ describe("ByteBuffer", () => {
             expect(byteBuffer.getOffset()).toEqual(0);
         });
     });
+
+    describe("UInt8", () => {
+        const validValues = [0, 1, 127, 255];
+        const invalidValues = [-1, 256];
+
+        it.each(validValues)("should write and read value: %s", (value: number) => {
+            const buffer = Buffer.alloc(1);
+
+            const byteBuffer = new ByteBuffer(buffer);
+
+            byteBuffer.writeUInt8(value);
+            expect(byteBuffer.getOffset()).toEqual(1);
+
+            byteBuffer.reset();
+            expect(byteBuffer.readUInt8()).toEqual(value);
+            expect(byteBuffer.getOffset()).toEqual(1);
+        });
+
+        it.each(invalidValues)("should fail writing value: %s", (value: number) => {
+            const buffer = Buffer.alloc(1);
+
+            const byteBuffer = new ByteBuffer(buffer);
+
+            expect(() => {
+                byteBuffer.writeUInt8(value);
+            }).toThrowError(
+                new RangeError(`The value of "value" is out of range. It must be >= 0 and <= 255. Received ${value}`),
+            );
+            expect(byteBuffer.getOffset()).toEqual(0);
+        });
+    });
 });

@@ -18,8 +18,18 @@ export class ByteBuffer {
         this.offset = this.buffer.writeInt8(value, this.offset);
     }
 
+    public writeUInt8(value: number): void {
+        this.offset = this.buffer.writeUInt8(value, this.offset);
+    }
+
     public readInt8(): number {
         const value = this.buffer.readInt8(this.offset);
+        this.offset += 1;
+        return value;
+    }
+
+    public readUInt8(): number {
+        const value = this.buffer.readUInt8(this.offset);
         this.offset += 1;
         return value;
     }
