@@ -181,4 +181,40 @@ describe("ByteBuffer", () => {
             expect(byteBuffer.getOffset()).toEqual(0);
         });
     });
+
+    describe("Int32LE", () => {
+        const bufferSize = 4;
+        const min = -2147483648;
+        const max = 2147483647;
+        const validValues = [min, max];
+        const invalidValues = [min - 1, max + 1];
+
+        it.each(validValues)("should write and read value: %s", (value: number) => {
+            const buffer = Buffer.alloc(bufferSize);
+
+            const byteBuffer = new ByteBuffer(buffer);
+
+            byteBuffer.writeInt32LE(value);
+            expect(byteBuffer.getOffset()).toEqual(bufferSize);
+
+            byteBuffer.reset();
+            expect(byteBuffer.readInt32LE()).toEqual(value);
+            expect(byteBuffer.getOffset()).toEqual(bufferSize);
+        });
+
+        it.each(invalidValues)("should fail writing value: %s", (value: number) => {
+            const buffer = Buffer.alloc(bufferSize);
+
+            const byteBuffer = new ByteBuffer(buffer);
+
+            expect(() => {
+                byteBuffer.writeInt32LE(value);
+            }).toThrowError(
+                new RangeError(
+                    `The value of "value" is out of range. It must be >= ${min} and <= ${max}. Received ${value}`,
+                ),
+            );
+            expect(byteBuffer.getOffset()).toEqual(0);
+        });
+    });
 });
