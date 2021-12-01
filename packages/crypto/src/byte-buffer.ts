@@ -90,6 +90,14 @@ export class ByteBuffer {
         this.offset = this.buffer.writeBigUInt64LE(value, this.offset);
     }
 
+    public writeBuffer(value: Buffer): void {
+        if (value.length > this.getRemainderLength()) {
+            throw new Error("Write over buffer boundary.");
+        }
+
+        this.offset += value.copy(this.buffer, this.offset);
+    }
+
     public readInt8(): number {
         const value = this.buffer.readInt8(this.offset);
         this.offset += 1;
@@ -171,6 +179,16 @@ export class ByteBuffer {
     public readBigUInt64LE(): bigint {
         const value = this.buffer.readBigUInt64LE(this.offset);
         this.offset += 8;
+        return value;
+    }
+
+    public readBuffer(length: number): Buffer {
+        if (length > this.getRemainderLength()) {
+            throw new Error("Read over buffer boundary.");
+        }
+
+        const value = this.buffer.slice(this.offset, this.offset + length);
+        this.offset += length;
         return value;
     }
 }
