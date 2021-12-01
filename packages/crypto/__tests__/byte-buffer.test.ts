@@ -246,11 +246,49 @@ describe("ByteBuffer", () => {
             expect(() => {
                 byteBuffer.writeBigInt64BE(value);
             }).toThrowError(
-                // new RangeError(
-                //     `The value of "value" is out of range. It must be >= -(2n ** 63n) and < 2n ** 63n. Received ${value
-                //         .toLocaleString()
-                //         .replace(",", "_")}`,
-                // ),
+                new RangeError(
+                    `The value of "value" is out of range. It must be >= -(2n ** 63n) and < 2n ** 63n. Received ${value
+                        .toLocaleString()
+                        .replace(new RegExp(",", "g"), "_")}n`,
+                ),
+            );
+            expect(byteBuffer.getOffset()).toEqual(0);
+        });
+    });
+
+    describe("Int64LE", () => {
+        const bufferSize = 8;
+        const min = -9223372036854775808n;
+        const max = 9223372036854775807n;
+        const validValues = [min, max];
+        const invalidValues = [min - 1n, max + 1n];
+
+        it.each(validValues)("should write and read value: %s", (value: bigint) => {
+            const buffer = Buffer.alloc(bufferSize);
+
+            const byteBuffer = new ByteBuffer(buffer);
+
+            byteBuffer.writeBigInt64LE(value);
+            expect(byteBuffer.getOffset()).toEqual(bufferSize);
+
+            byteBuffer.reset();
+            expect(byteBuffer.readBigInt64LE()).toEqual(value);
+            expect(byteBuffer.getOffset()).toEqual(bufferSize);
+        });
+
+        it.each(invalidValues)("should fail writing value: %s", (value: bigint) => {
+            const buffer = Buffer.alloc(bufferSize);
+
+            const byteBuffer = new ByteBuffer(buffer);
+
+            expect(() => {
+                byteBuffer.writeBigInt64BE(value);
+            }).toThrowError(
+                new RangeError(
+                    `The value of "value" is out of range. It must be >= -(2n ** 63n) and < 2n ** 63n. Received ${value
+                        .toLocaleString()
+                        .replace(new RegExp(",", "g"), "_")}n`,
+                ),
             );
             expect(byteBuffer.getOffset()).toEqual(0);
         });
