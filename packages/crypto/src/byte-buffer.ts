@@ -58,6 +58,10 @@ export class ByteBuffer {
         this.offset = this.buffer.writeUInt32BE(value, this.offset);
     }
 
+    public writeUInt32LE(value: number): void {
+        this.offset = this.buffer.writeUInt32LE(value, this.offset);
+    }
+
     public readInt8(): number {
         const value = this.buffer.readInt8(this.offset);
         this.offset += 1;
@@ -120,6 +124,12 @@ export class ByteBuffer {
 
     public readUInt32BE(): number {
         const value = this.buffer.readUInt32BE(this.offset);
+        this.offset += 4;
+        return value;
+    }
+
+    public readUInt32LE(): number {
+        const value = this.buffer.readUInt32LE(this.offset);
         this.offset += 4;
         return value;
     }
