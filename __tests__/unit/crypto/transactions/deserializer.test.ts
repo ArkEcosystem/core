@@ -1,8 +1,6 @@
 import "jest-extended";
 
 import { Generators } from "@packages/core-test-framework/src";
-import ByteBuffer from "bytebuffer";
-
 import { Enums, Errors, Utils } from "@packages/crypto/src";
 import { Hash } from "@packages/crypto/src/crypto";
 import {
@@ -18,6 +16,8 @@ import { TransactionFactory, Utils as TransactionUtils, Verifier } from "@packag
 import { BuilderFactory } from "@packages/crypto/src/transactions/builders";
 import { Deserializer } from "@packages/crypto/src/transactions/deserializer";
 import { Serializer } from "@packages/crypto/src/transactions/serializer";
+import ByteBuffer from "bytebuffer";
+
 import { htlcSecretHashHex, htlcSecretHex } from "./__fixtures__/htlc";
 import { legacyMultiSignatureRegistration } from "./__fixtures__/transaction";
 
@@ -43,6 +43,7 @@ describe("Transaction serializer / deserializer", () => {
             .recipientId("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F")
             .amount("10000")
             .fee("50000000")
+            .timestamp(148354645)
             .vendorField("cool vendor field")
             .network(30)
             .sign("dummy passphrase")
@@ -50,6 +51,10 @@ describe("Transaction serializer / deserializer", () => {
 
         it("should ser/deserialize giving back original fields", () => {
             const serialized = TransactionFactory.fromData(transfer).serialized.toString("hex");
+            expect(serialized).toEqual(
+                "ff011e0055b6d70802a47a2f594635737d2ce9898680812ff7fa6aaa64ddea1360474c110e9985a08780f0fa020000000011636f6f6c2076656e646f72206669656c641027000000000000000000001e07917aa042bf600339e13ed57c5364a71eebb8c33044022013287e3d1713e1a407068af0054412dc523476a8786823b8744d2ba8a3daa144022059f30896ad610aecb145275bd89de58ddaeb7c703d31fdab2a02efa3ea4ae1bd",
+            );
+
             const deserialized = Deserializer.deserialize(serialized);
 
             checkCommonFields(deserialized, transfer);
@@ -65,12 +70,16 @@ describe("Transaction serializer / deserializer", () => {
                 .recipientId("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F")
                 .amount("10000")
                 .fee("50000000")
+                .timestamp(148354645)
                 .vendorField("y".repeat(255))
                 .network(30)
                 .sign("dummy passphrase")
                 .getStruct();
 
             const serialized = TransactionUtils.toBytes(transferWithLongVendorfield);
+            expect(serialized.toString("hex")).toEqual(
+                "ff011e0055b6d70802a47a2f594635737d2ce9898680812ff7fa6aaa64ddea1360474c110e9985a08780f0fa0200000000ff7979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979797979791027000000000000000000001e07917aa042bf600339e13ed57c5364a71eebb8c330450221008c7278bf5a3a0f79afade499f3c2c574a54d936708e078408030e222fb4aaea102203559198c9b99a4fe679e40c48c8d25390e5bdf42ec2aafe6a2c85ab637e34748",
+            );
             const deserialized = TransactionFactory.fromBytes(serialized);
 
             expect(deserialized.verified).toBeTrue();
@@ -102,11 +111,15 @@ describe("Transaction serializer / deserializer", () => {
             const secondSignature = BuilderFactory.secondSignature()
                 .signatureAsset("signature")
                 .fee("50000000")
+                .timestamp(148354645)
                 .network(30)
                 .sign("dummy passphrase")
                 .getStruct();
 
             const serialized = TransactionFactory.fromData(secondSignature).serialized.toString("hex");
+            expect(serialized).toEqual(
+                "ff011e0155b6d70802a47a2f594635737d2ce9898680812ff7fa6aaa64ddea1360474c110e9985a08780f0fa02000000000002314387e7f065bc95bb23197b39179f6fb8b9a23771e228a65326604f2c9860a13044022066b9d53702e38f2cf416fed043d30da6fa1adc140d144bfd563ba0be48f2de16022007c82133bc9c23a81390c4ed2237865a57c662bd536e5f1fcab2a3ae14f06287",
+            );
             const deserialized = Deserializer.deserialize(serialized);
 
             checkCommonFields(deserialized, secondSignature);
@@ -119,11 +132,15 @@ describe("Transaction serializer / deserializer", () => {
         it("should ser/deserialize giving back original fields", () => {
             const delegateRegistration = BuilderFactory.delegateRegistration()
                 .usernameAsset("homer")
+                .timestamp(148354645)
                 .network(30)
                 .sign("dummy passphrase")
                 .getStruct();
 
             const serialized = TransactionFactory.fromData(delegateRegistration).serialized.toString("hex");
+            expect(serialized).toEqual(
+                "ff011e0255b6d70802a47a2f594635737d2ce9898680812ff7fa6aaa64ddea1360474c110e9985a08700f90295000000000005686f6d6572304402207752a833bd57722134a07796a44eb2a132e37a873e6fdb51c1bf217116f6293d02204ee141716b142e49e62488ee9c97458a38942177a7ef8f7737b702c896245655",
+            );
             const deserialized = Deserializer.deserialize(serialized);
 
             checkCommonFields(deserialized, delegateRegistration);
@@ -136,12 +153,16 @@ describe("Transaction serializer / deserializer", () => {
         it("should ser/deserialize giving back original fields", () => {
             const vote = BuilderFactory.vote()
                 .votesAsset(["+02bcfa0951a92e7876db1fb71996a853b57f996972ed059a950d910f7d541706c9"])
+                .timestamp(148354645)
                 .fee("50000000")
                 .network(30)
                 .sign("dummy passphrase")
                 .getStruct();
 
             const serialized = TransactionFactory.fromData(vote).serialized.toString("hex");
+            expect(serialized).toEqual(
+                "ff011e0355b6d70802a47a2f594635737d2ce9898680812ff7fa6aaa64ddea1360474c110e9985a08780f0fa020000000000010102bcfa0951a92e7876db1fb71996a853b57f996972ed059a950d910f7d541706c93045022100b80680e9368e830663c10e52ab69b4adbbf4d55b9701a301cec5849640109fb102202c42de6a55792a16c8394d0981a852b0dea314b14378cdd3b4026e6b2e840074",
+            );
             const deserialized = Deserializer.deserialize(serialized);
 
             checkCommonFields(deserialized, vote);
@@ -173,6 +194,7 @@ describe("Transaction serializer / deserializer", () => {
             multiSignatureRegistration = BuilderFactory.multiSignature()
                 .senderPublicKey(participant1.publicKey)
                 .network(23)
+                .timestamp(148354645)
                 .participant(participant1.publicKey)
                 .participant(participant2.publicKey)
                 .participant(participant3.publicKey)
@@ -186,6 +208,9 @@ describe("Transaction serializer / deserializer", () => {
 
         it("should ser/deserialize a multisig registration", () => {
             const transaction = TransactionFactory.fromData(multiSignatureRegistration);
+            expect(transaction.serialized.toString("hex")).toEqual(
+                "ff02170100000004000000000000000000039180ea4a8a803ee11ecb462bb8f9613fcdb5fe917e292dbcc73409f0e98f8f220094357700000000000303039180ea4a8a803ee11ecb462bb8f9613fcdb5fe917e292dbcc73409f0e98f8f22028d3611c4f32feca3e6713992ae9387e18a0e01954046511878fe078703324dc0021d3932ab673230486d0f956d05b9e88791ee298d9af2d6df7d9ed5bb861c92dd5e3b61f2d6a2589b9abb4ed1dfd7253a1d2ac586d383a8a17237928d4648cd6d3ff1c8b025c7e150282f73ecd8a13f86254b508940ebb23d4f6f4f473b3a15de007dbeace4f00c9d5961a6bd65b4dbc6ea2b4c6278adc351e6da9eeba69478a7784e17754eff20a3ccd68cd48d87847d40768785852594e73cc6b01105064b6b5701d1c435978899abafd485f5e2dfe737781368efc1c4d02f4009a650849a434b923b2e6b79164181df493c9a05e2e6664c2ac0059d9194c792c1b1a85695b6215e0286b1d2b6abf7ca5090c66598e898aa08ba2de90dbd2ae9fe728b8b2d29504c6ad5a96ca1f0365e0390d0cf508550ded10a5e111db5bbf2b0f87972215ee69f9f",
+            );
             const deserialized = TransactionFactory.fromBytes(transaction.serialized);
 
             expect(transaction.isVerified).toBeTrue();
@@ -233,6 +258,7 @@ describe("Transaction serializer / deserializer", () => {
                 .fee("50000000")
                 .version(2)
                 .network(23)
+                .timestamp(148354645)
                 .ipfsAsset(ipfsIds[0])
                 .sign("dummy passphrase")
                 .getStruct();
@@ -240,6 +266,9 @@ describe("Transaction serializer / deserializer", () => {
 
         it("should ser/deserialize giving back original fields", () => {
             const serialized = TransactionFactory.fromData(ipfsTransaction).serialized.toString("hex");
+            expect(serialized).toEqual(
+                "ff0217010000000500000000000000000002a47a2f594635737d2ce9898680812ff7fa6aaa64ddea1360474c110e9985a08780f0fa02000000000012202853f0f11ab91d73b73a2a86606103f45dd469ad2e89ec6f9a25febe8758d3fed28df5c7334e86d67074330c8e4418c47ca82a6aff823431c9690213b6983dd82569730fb267ad96750a5249b7f751d2beb3b0958ed48b0517223531d80eaf89",
+            );
             const deserialized = Deserializer.deserialize(serialized);
 
             checkCommonFields(deserialized, ipfsTransaction);
