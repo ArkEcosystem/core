@@ -231,16 +231,12 @@ export class Serializer {
     }
 
     private static serializeVendorField(transaction: ITransaction, buffer: ByteBuffer): void {
-        if (transaction.hasVendorField()) {
-            const { data }: ITransaction = transaction;
+        const { data }: ITransaction = transaction;
 
-            if (data.vendorField) {
-                const vf: Buffer = Buffer.from(data.vendorField, "utf8");
-                buffer.writeByte(vf.length);
-                buffer.append(vf);
-            } else {
-                buffer.writeByte(0x00);
-            }
+        if (transaction.hasVendorField() && data.vendorField) {
+            const vf: Buffer = Buffer.from(data.vendorField, "utf8");
+            buffer.writeByte(vf.length);
+            buffer.append(vf);
         } else {
             buffer.writeByte(0x00);
         }
