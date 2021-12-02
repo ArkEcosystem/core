@@ -526,7 +526,7 @@ describe("Transaction serializer / deserializer", () => {
                 buffer.writeByte(transaction.network);
                 buffer.writeUint32(Enums.TransactionTypeGroup.Core);
                 buffer.writeUint16(transaction.type);
-                buffer.writeUint64(transaction.nonce.toFixed());
+                buffer.writeUint64(transaction.nonce!.toFixed());
                 buffer.append(transaction.senderPublicKey, "hex");
                 buffer.writeUint64(Utils.BigNumber.make(transaction.fee).toFixed());
                 buffer.writeByte(0x00);
@@ -586,7 +586,7 @@ describe("Transaction serializer / deserializer", () => {
             let transaction: ITransaction;
             expect(builder.data.version).toBe(2);
             expect(() => (transaction = builder.build())).not.toThrow();
-            expect(transaction.verify()).toBeTrue();
+            expect(transaction!.verify()).toBeTrue();
         });
 
         it("should deserialize a V2 transaction signed with ECDSA", () => {
@@ -596,7 +596,7 @@ describe("Transaction serializer / deserializer", () => {
             expect(builder.data.version).toBe(2);
             expect(builder.data.signature).not.toHaveLength(64);
             expect(() => (transaction = builder.build())).not.toThrow();
-            expect(transaction.verify()).toBeTrue();
+            expect(transaction!.verify()).toBeTrue();
         });
 
         it("should deserialize a V2 transaction when signed with Schnorr/Schnorr", () => {
@@ -606,9 +606,9 @@ describe("Transaction serializer / deserializer", () => {
             expect(builder.data.version).toBe(2);
             expect(() => (transaction = builder.build())).not.toThrow();
 
-            expect(transaction.verify()).toBeTrue();
-            expect(Verifier.verifySecondSignature(transaction.data, PublicKey.fromPassphrase("secret 2"))).toBeTrue();
-            expect(Verifier.verifySecondSignature(transaction.data, PublicKey.fromPassphrase("secret 3"))).toBeFalse();
+            expect(transaction!.verify()).toBeTrue();
+            expect(Verifier.verifySecondSignature(transaction!.data, PublicKey.fromPassphrase("secret 2"))).toBeTrue();
+            expect(Verifier.verifySecondSignature(transaction!.data, PublicKey.fromPassphrase("secret 3"))).toBeFalse();
         });
 
         it("should throw when V2 transaction is signed with Schnorr and ECDSA", () => {
