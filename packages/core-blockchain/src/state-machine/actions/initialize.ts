@@ -66,7 +66,8 @@ export class Initialize implements Action {
             await this.databaseService.deleteRound(roundInfo.round + 1);
 
             if (this.stateStore.getNetworkStart()) {
-                await this.app.get<Contracts.State.StateBuilder>(Container.Identifiers.StateBuilder).run();
+                await this.stateService.bootstrap();
+
                 await this.databaseInteraction.restoreCurrentRound();
                 await this.transactionPool.readdTransactions();
                 await this.networkMonitor.boot();

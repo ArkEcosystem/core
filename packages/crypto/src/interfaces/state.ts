@@ -1,3 +1,5 @@
+import { BigNumber } from "../utils";
+import { ISchnorrMultiSignature } from ".";
 import { IBlock, IBlockHeader } from "./block";
 
 export type IHeaderState = IState<IBlockHeader>;
@@ -14,55 +16,69 @@ export type IRound = {
     readonly length: number;
 };
 
-export type IStateCompletionData = {
-    readonly nextBlockRoundDelegates: readonly string[];
+export type IDelegate = {
+    readonly publicKey: string;
+    readonly balance: BigNumber;
+};
+
+export type IVotingTarget = {
+    readonly sourceHeight: number;
+    readonly sourceBlockId: string;
+    readonly targetHeight: number;
+    readonly targetBlockId: string;
 };
 
 export type IStateData<B extends IBlockHeader = IBlock> = {
-    // Sum of numberOfTransactions up to last forged block
     readonly forgedTransactionCount: number;
-
-    // Sum of numberOfTransactions up to last finalized block
     readonly finalizedTransactionCount: number;
+    readonly finalizedValidators: readonly string[];
 
-    // Delegates from round of last finalized block *immediate child*
-    readonly finalizedDelegates: readonly string[];
-
-    // Last finalized block
     readonly finalizedBlock: B;
-
-    // Last justified block
     readonly justifiedBlock: B;
 
-    // Last forged block
-    readonly block: B;
+    readonly lastBlock: B;
+    readonly lastSlot: ISlot;
+    readonly lastValidators: readonly string[];
 
-    // Last forged block slot
-    readonly slot: ISlot;
+    readonly currentRound: IRound;
+    readonly currentDelegates: readonly IDelegate[];
+    readonly currentValidators: readonly string[];
+    readonly currentForgers: readonly string[];
+};
 
-    // Last forged block round
-    readonly round: IRound;
+export type ITransitionStateData<B extends IBlockHeader = IBlock> = {
+    readonly forgedTransactionCount: number;
+    readonly finalizedTransactionCount: number;
+    readonly finalizedValidators: readonly string[];
 
-    // Last forged block round delegates
-    readonly delegates: readonly string[];
+    readonly finalizedBlock: B;
+    readonly justifiedBlock: B;
+
+    readonly currentBlock: B;
+    readonly currentSlot: ISlot;
+    readonly currentRound: IRound;
+    readonly currentDelegates: readonly IDelegate[];
+    readonly currentValidators: readonly string[];
+    readonly currentForgers: readonly string[];
 };
 
 export interface IState<B extends IBlockHeader = IBlock> extends IStateData<B> {
-    // State must be completed
-    readonly incomplete: boolean;
+    hasUnfinalizedTransactions(): boolean;
+    hasUnfinalizedValidators(): boolean;
 
-    // Last forged height
-    readonly height: number;
+    getValidators(): readonly string[];
+    getVotingTarget(): IVotingTarget;
+    hasEnoughVotes(votes: readonly ISchnorrMultiSignature[]): boolean;
 
-    // Round of block that is about to be forged
-    readonly nextBlockRound: IRound;
+    getCurrentSlot(timestamp: number): ISlot;
+    getCurrentForger(slot: ISlot): string;
 
-    // Delegates from round of block that is about to be forged
-    readonly nextBlockRoundDelegates?: readonly string[];
+    chainBlock(block: B): ITransitionState<B>;
+}
 
-    // Shuffled delegates from round of block that is about to be forged
-    readonly nextBlockRoundForgers?: readonly string[];
+export interface ITransitionState<B extends IBlockHeader = IBlock> extends ITransitionStateData<B> {
+    readonly nextHeightRound: IRound;
 
-    // Complete state
-    complete(data: IStateCompletionData): void;
+    continueCurrentRound(): IState<B>;
+    startNewRound(newDelegates: readonly IDelegate[]): IState<B>;
 }

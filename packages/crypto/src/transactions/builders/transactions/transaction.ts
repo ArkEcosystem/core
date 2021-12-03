@@ -3,8 +3,8 @@ import { MissingTransactionSignatureError, VendorFieldLengthExceededError } from
 import { Address, Keys } from "../../../identities";
 import { IKeyPair, ITransaction, ITransactionData } from "../../../interfaces";
 import { configManager } from "../../../managers/config";
-import { Slots } from "../../../state";
 import { NetworkType } from "../../../types";
+import { getBlockchainTimestamp } from "../../../utils";
 import { BigNumber, maxVendorFieldLength } from "../../../utils";
 import { TransactionFactory, Utils } from "../..";
 import { Signer } from "../../signer";
@@ -20,7 +20,7 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
     public constructor() {
         this.data = {
             id: undefined,
-            timestamp: Slots.getBlockchainTimestamp(new Date()),
+            timestamp: getBlockchainTimestamp(new Date()),
             typeGroup: TransactionTypeGroup.Test,
             nonce: BigNumber.ZERO,
             version: configManager.getMilestone().aip11 ? 0x02 : 0x01,

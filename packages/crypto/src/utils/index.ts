@@ -107,4 +107,20 @@ export const isSupportedTransactionVersion = (version: number): boolean => {
     return true;
 };
 
+export const getBlockchainTimestamp = (date: Date): number => {
+    const genesisMilestone = configManager.getMilestone();
+    const epoch = new Date(genesisMilestone.epoch);
+    const milliseconds = date.getTime() - epoch.getTime();
+
+    return Math.floor(milliseconds / 1000);
+};
+
+export const getSystemDate = (timestamp: number): Date => {
+    const genesisMilestone = configManager.getMilestone();
+    const epoch = new Date(genesisMilestone.epoch);
+    const milliseconds = epoch.getTime() + timestamp * 1000;
+
+    return new Date(milliseconds);
+};
+
 export { Base58, BigNumber, isValidPeer, isLocalHost, calculateBlockTime, isNewBlockTime };

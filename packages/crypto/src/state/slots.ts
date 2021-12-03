@@ -60,20 +60,4 @@ export class Slots {
 
         return heights;
     }
-
-    public static getBlockchainTimestamp(date: Date): number {
-        const genesisMilestone = configManager.getMilestone(1);
-        const epoch = new Date(genesisMilestone.epoch);
-        const milliseconds = date.getTime() - epoch.getTime();
-
-        return Math.floor(milliseconds / 1000);
-    }
-
-    public static getSystemDate(timestamp: number): Date {
-        const genesisMilestone = configManager.getMilestone(1);
-        const epoch = new Date(genesisMilestone.epoch);
-        const milliseconds = epoch.getTime() + timestamp * 1000;
-
-        return new Date(milliseconds);
-    }
 }

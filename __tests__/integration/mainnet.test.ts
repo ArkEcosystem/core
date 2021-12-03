@@ -5,7 +5,7 @@ import "jest-extended";
 
 import { Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
 import { Blocks, Interfaces, Managers, Serde, State, Transactions, Utils } from "@packages/crypto";
-import { IBlockData, IBlockHeader } from "@packages/crypto/dist/interfaces";
+import { IBlockData, IBlockHeader, IDelegate } from "@packages/crypto/dist/interfaces";
 import assert from "assert";
 import fs from "fs";
 import fsp from "fs/promises";
@@ -124,9 +124,9 @@ async function* getBlockData(start: number, batchSize: number): AsyncIterable<IB
     }
 }
 
-async function getRoundsBatch(start: number, size: number): Promise<string[][]> {
+async function getRoundsBatch(start: number, size: number): Promise<IDelegate[][]> {
     const text = `
-        SELECT round, public_key
+        SELECT round, public_key, balance
         FROM rounds
         WHERE round >= $1 AND round < $2
         ORDER BY round ASC, balance DESC, public_key ASC
@@ -136,13 +136,14 @@ async function getRoundsBatch(start: number, size: number): Promise<string[][]> 
     const values = [start, start + size];
     const result = await client.query({ text, values, rowMode: "array" });
 
-    for (const [round, publicKey] of result.rows) {
+    for (const [round, publicKey, balance] of result.rows) {
         const index = round - start;
+        const delegate = { publicKey, balance: Utils.BigNumber.make(balance) };
 
         if (batch[index]) {
-            batch[index].push(publicKey);
+            batch[index].push(delegate);
         } else {
-            batch[index] = [publicKey];
+            batch[index] = [delegate];
         }
     }
 
@@ -224,22 +225,25 @@ async function* readBlocks(filename: string): AsyncIterable<IBlockHeader & IBloc
 // });
 
 test("replay", async () => {
-    let lastState = State.StateFactory.createGenesisState() as Interfaces.IState<Interfaces.IBlockHeader>;
-    let rounds = await getRoundsBatch(2, 10 ** 4);
     // let rounds = await getRoundsBatch(2, 346945);
+    let rounds = await getRoundsBatch(2, 10 ** 4);
+    let lastState: Interfaces.IState<Interfaces.IBlockHeader> =
+        State.StateFactory.createGenesisState().continueCurrentRound();
 
     const start = Date.now();
     let count = 0;
 
     for await (const block of readBlocks("/home/rainydio/blocks.bin")) {
-        lastState = State.StateFactory.createNextState(lastState, block);
+        const transitionState = lastState.chainBlock(block);
 
-        if (lastState.incomplete) {
+        if (transitionState.currentRound.no === transitionState.nextHeightRound.no) {
+            lastState = transitionState.continueCurrentRound();
+        } else {
             if (rounds.length === 0) {
-                rounds = await getRoundsBatch(lastState.nextBlockRound.no, 10 ** 4);
+                rounds = await getRoundsBatch(transitionState.nextHeightRound.no, 10 ** 4);
             }
 
-            lastState.complete({ nextBlockRoundDelegates: rounds.shift() });
+            lastState = transitionState.startNewRound(rounds.shift());
         }
 
         if (++count % 10 ** 5 === 0) {
