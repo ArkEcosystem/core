@@ -236,6 +236,8 @@ test("replay", async () => {
     for await (const block of readBlocks("/home/rainydio/blocks.bin")) {
         const transitionState = lastState.chainBlock(block);
 
+        // apply transactions
+
         if (transitionState.currentRound.no === transitionState.nextHeightRound.no) {
             lastState = transitionState.continueCurrentRound();
         } else {

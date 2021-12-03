@@ -8,6 +8,43 @@ import { BigNumber } from "../utils";
 import { Serializer } from "./serializer";
 
 export class Verifier {
+    public static verifyHeader(header: IBlockHeader): void {
+        const errors = VerificationAggregateError.aggregate([
+            () => Verifier.verifyVersion(header),
+            () => Verifier.verifyPreviousBlock(header),
+            () => Verifier.verifyNumberOfTransactions(header),
+            () => Verifier.verifyReward(header),
+            () => Verifier.verifyPayloadLength(header),
+            () => Verifier.verifyPreviousBlockVotes(header),
+            () => Verifier.verifyBlockSignature(header),
+        ]);
+
+        if (errors.length !== 0) {
+            throw new VerificationAggregateError(errors);
+        }
+    }
+
+    public static verifyBlock(block: IBlock): void {
+        const errors = VerificationAggregateError.aggregate([
+            () => Verifier.verifyVersion(block),
+            () => Verifier.verifyPreviousBlock(block),
+            () => Verifier.verifyNumberOfTransactions(block),
+            () => Verifier.verifyTotalAmount(block),
+            () => Verifier.verifyTotalFee(block),
+            () => Verifier.verifyReward(block),
+            () => Verifier.verifyPayloadLength(block),
+            () => Verifier.verifyPayloadHash(block),
+            () => Verifier.verifyPreviousBlockVotes(block),
+            () => Verifier.verifyBlockSignature(block),
+            () => Verifier.verifyTransactions(block),
+            () => Verifier.verifySize(block),
+        ]);
+
+        if (errors.length !== 0) {
+            throw new VerificationAggregateError(errors);
+        }
+    }
+
     public static verifyVersion(header: IBlockHeader): void {
         const milestone = configManager.getMilestone(header.height);
 
@@ -72,7 +109,7 @@ export class Verifier {
     }
 
     public static verifyPayloadHash(block: IBlock): void {
-        const ids = block.transactions.filter((tx) => tx.id).map((tx) => tx.id!);
+        const ids = block.transactions.map((tx) => tx.id!);
         const buffers = ids.map((id) => Buffer.from(id, "hex"));
         const payloadHash = HashAlgorithms.sha256(buffers).toString("hex");
 
