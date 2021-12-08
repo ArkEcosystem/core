@@ -81,7 +81,6 @@ export class BlockFactory {
             if (json.previousBlock !== null) throw new CryptoError("Bad previous block.");
 
             const milestone = configManager.getMilestone(1);
-            const version = json.version;
             const transactions = json.transactions.map((txj) => TransactionFactory.fromGenesisJson(txj));
 
             const common = {
@@ -100,11 +99,12 @@ export class BlockFactory {
                 transactions,
             };
 
-            if (version === 0) {
-                return { ...common, version };
+            switch (json.version) {
+                case 0:
+                    return { ...common, version: json.version };
+                case 1:
+                    return { ...common, version: json.version, previousBlockVotes: [] };
             }
-
-            return { ...common, version, previousBlockVotes: [] };
         } catch (cause) {
             throw new CryptoError("Cannot create genesis block.", { cause });
         }
@@ -112,20 +112,22 @@ export class BlockFactory {
 
     public static createNewBlock(keys: IKeyPair, data: INewBlockData): IBlock {
         try {
-            const { version, timestamp, height, previousBlock, transactions } = data;
-            const numberOfTransactions = transactions.length;
-            const totalAmount = transactions.reduce((sum, tx) => sum.plus(tx.data.amount), BigNumber.ZERO);
-            const totalFee = transactions.reduce((sum, tx) => sum.plus(tx.data.fee), BigNumber.ZERO);
-            const reward = BigNumber.make(configManager.getMilestone(height).reward);
+            if (data.version !== 0 && data.version !== 1) throw new CryptoError("Bad version.");
+            if (data.height === 1) throw new CryptoError("Bad height.");
+
+            const numberOfTransactions = data.transactions.length;
+            const totalAmount = data.transactions.reduce((sum, tx) => sum.plus(tx.data.amount), BigNumber.ZERO);
+            const totalFee = data.transactions.reduce((sum, tx) => sum.plus(tx.data.fee), BigNumber.ZERO);
+            const reward = BigNumber.make(configManager.getMilestone(data.height).reward);
             const payloadLength = numberOfTransactions * 32;
-            const payloadHashBuffers = transactions.map((tx) => Buffer.from(tx.id!, "hex"));
+            const payloadHashBuffers = data.transactions.map((tx) => Buffer.from(tx.id!, "hex"));
             const payloadHash = HashAlgorithms.sha256(payloadHashBuffers).toString("hex");
             const generatorPublicKey = keys.publicKey;
 
-            const common = {
-                timestamp,
-                height,
-                previousBlock,
+            const signedSectionCommon = {
+                timestamp: data.timestamp,
+                height: data.height,
+                previousBlock: data.previousBlock,
                 numberOfTransactions,
                 totalAmount,
                 totalFee,
@@ -133,24 +135,27 @@ export class BlockFactory {
                 payloadLength,
                 payloadHash,
                 generatorPublicKey,
-                transactions,
             };
 
             let signedSection: IBlockSignedSection;
 
-            switch (version) {
+            switch (data.version) {
                 case 0:
-                    signedSection = { ...common, version: 0 as const };
+                    signedSection = { ...signedSectionCommon, version: data.version };
                     break;
                 case 1:
-                    signedSection = { ...common, previousBlockVotes: data.previousBlockVotes, version: 1 as const };
+                    signedSection = {
+                        ...signedSectionCommon,
+                        previousBlockVotes: data.previousBlockVotes,
+                        version: data.version,
+                    };
                     break;
             }
 
             const signedSectionHash = Serializer.getSignedSectionHash(signedSection);
             const blockSignature = Hash.signECDSA(signedSectionHash, keys);
             const id = Serializer.getId({ ...signedSection, blockSignature });
-            const block = { ...signedSection, blockSignature, id, transactions };
+            const block = { ...signedSection, blockSignature, id, transactions: data.transactions };
 
             const errors = VerificationAggregateError.aggregate([
                 () => Verifier.verifyVersion(block),
