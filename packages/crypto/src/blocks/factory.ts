@@ -139,15 +139,12 @@ export class BlockFactory {
             let signedSection: IBlockSignedSection;
 
             switch (version) {
-                case 0: {
+                case 0:
                     signedSection = { ...common, version: 0 as const };
                     break;
-                }
-                case 1: {
-                    const { previousBlockVotes } = data;
-                    signedSection = { ...common, previousBlockVotes, version: 1 as const };
+                case 1:
+                    signedSection = { ...common, previousBlockVotes: data.previousBlockVotes, version: 1 as const };
                     break;
-                }
             }
 
             const signedSectionHash = Serializer.getSignedSectionHash(signedSection);
