@@ -159,7 +159,6 @@ export class BlockFactory {
                 () => Verifier.verifyVersion(block),
                 () => Verifier.verifyPreviousBlock(block),
                 () => Verifier.verifyNumberOfTransactions(block),
-                () => Verifier.verifyPayloadHash(block),
                 () => Verifier.verifyPreviousBlockVotes(block),
                 () => Verifier.verifyTransactions(block),
                 () => Verifier.verifySize(block),
