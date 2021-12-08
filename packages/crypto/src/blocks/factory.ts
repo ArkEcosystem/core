@@ -1,6 +1,6 @@
 import { Hash } from "../crypto";
 import { HashAlgorithms } from "../crypto/hash-algorithms";
-import { CryptoError } from "../errors";
+import { CryptoError, VerificationAggregateError } from "../errors";
 import {
     IBlock,
     IBlockData,
@@ -23,7 +23,19 @@ export class BlockFactory {
             const id = Serializer.getId(data);
             const header = { ...data, id };
 
-            Verifier.verifyHeader(header);
+            const errors = VerificationAggregateError.aggregate([
+                () => Verifier.verifyVersion(header),
+                () => Verifier.verifyPreviousBlock(header),
+                () => Verifier.verifyNumberOfTransactions(header),
+                () => Verifier.verifyReward(header),
+                () => Verifier.verifyPayloadLength(header),
+                () => Verifier.verifyPreviousBlockVotes(header),
+                () => Verifier.verifyBlockSignature(header),
+            ]);
+
+            if (errors.length !== 0) {
+                throw new VerificationAggregateError(errors);
+            }
 
             return header;
         } catch (cause) {
@@ -37,7 +49,24 @@ export class BlockFactory {
             const transactions = data.transactions.map((t) => TransactionFactory.fromBytesUnsafe(t.serialized));
             const block = { ...data, id, transactions };
 
-            Verifier.verifyBlock(block);
+            const errors = VerificationAggregateError.aggregate([
+                () => Verifier.verifyVersion(block),
+                () => Verifier.verifyPreviousBlock(block),
+                () => Verifier.verifyNumberOfTransactions(block),
+                () => Verifier.verifyTotalAmount(block),
+                () => Verifier.verifyTotalFee(block),
+                () => Verifier.verifyReward(block),
+                () => Verifier.verifyPayloadLength(block),
+                () => Verifier.verifyPayloadHash(block),
+                () => Verifier.verifyPreviousBlockVotes(block),
+                () => Verifier.verifyBlockSignature(block),
+                () => Verifier.verifyTransactions(block),
+                () => Verifier.verifySize(block),
+            ]);
+
+            if (errors.length !== 0) {
+                throw new VerificationAggregateError(errors);
+            }
 
             return block;
         } catch (cause) {
@@ -72,60 +101,77 @@ export class BlockFactory {
             };
 
             if (version === 0) {
-                return { version, ...common };
+                return { ...common, version };
             }
 
-            return { version, ...common, previousBlockVotes: [] };
+            return { ...common, version, previousBlockVotes: [] };
         } catch (cause) {
             throw new CryptoError("Cannot create genesis block.", { cause });
         }
     }
 
     public static createNewBlock(keys: IKeyPair, data: INewBlockData): IBlock {
-        const { version, timestamp, height, previousBlock, transactions } = data;
-        const numberOfTransactions = transactions.length;
-        const totalAmount = transactions.reduce((sum, tx) => sum.plus(tx.data.amount), BigNumber.ZERO);
-        const totalFee = transactions.reduce((sum, tx) => sum.plus(tx.data.fee), BigNumber.ZERO);
-        const reward = BigNumber.make(configManager.getMilestone(height).reward);
-        const payloadLength = numberOfTransactions * 32;
-        const payloadHash = HashAlgorithms.sha256(transactions.map((tx) => Buffer.from(tx.id!, "hex"))).toString("hex");
-        const generatorPublicKey = keys.publicKey;
+        try {
+            const { version, timestamp, height, previousBlock, transactions } = data;
+            const numberOfTransactions = transactions.length;
+            const totalAmount = transactions.reduce((sum, tx) => sum.plus(tx.data.amount), BigNumber.ZERO);
+            const totalFee = transactions.reduce((sum, tx) => sum.plus(tx.data.fee), BigNumber.ZERO);
+            const reward = BigNumber.make(configManager.getMilestone(height).reward);
+            const payloadLength = numberOfTransactions * 32;
+            const payloadHashBuffers = transactions.map((tx) => Buffer.from(tx.id!, "hex"));
+            const payloadHash = HashAlgorithms.sha256(payloadHashBuffers).toString("hex");
+            const generatorPublicKey = keys.publicKey;
 
-        const common = {
-            timestamp,
-            height,
-            previousBlock,
-            numberOfTransactions,
-            totalAmount,
-            totalFee,
-            reward,
-            payloadLength,
-            payloadHash,
-            generatorPublicKey,
-            transactions,
-        };
+            const common = {
+                timestamp,
+                height,
+                previousBlock,
+                numberOfTransactions,
+                totalAmount,
+                totalFee,
+                reward,
+                payloadLength,
+                payloadHash,
+                generatorPublicKey,
+                transactions,
+            };
 
-        let signedSection: IBlockSignedSection;
+            let signedSection: IBlockSignedSection;
 
-        switch (version) {
-            case 0: {
-                signedSection = { ...common, version: 0 as const };
-                break;
+            switch (version) {
+                case 0: {
+                    signedSection = { ...common, version: 0 as const };
+                    break;
+                }
+                case 1: {
+                    const { previousBlockVotes } = data;
+                    signedSection = { ...common, previousBlockVotes, version: 1 as const };
+                    break;
+                }
             }
-            case 1: {
-                const { previousBlockVotes } = data;
-                signedSection = { ...common, previousBlockVotes, version: 1 as const };
-                break;
+
+            const signedSectionHash = Serializer.getSignedSectionHash(signedSection);
+            const blockSignature = Hash.signECDSA(signedSectionHash, keys);
+            const id = Serializer.getId({ ...signedSection, blockSignature });
+            const block = { ...signedSection, blockSignature, id, transactions };
+
+            const errors = VerificationAggregateError.aggregate([
+                () => Verifier.verifyVersion(block),
+                () => Verifier.verifyPreviousBlock(block),
+                () => Verifier.verifyNumberOfTransactions(block),
+                () => Verifier.verifyPayloadHash(block),
+                () => Verifier.verifyPreviousBlockVotes(block),
+                () => Verifier.verifyTransactions(block),
+                () => Verifier.verifySize(block),
+            ]);
+
+            if (errors.length !== 0) {
+                throw new VerificationAggregateError(errors);
             }
+
+            return block;
+        } catch (cause) {
+            throw new CryptoError(`Cannot create new block (height=${data.height}).`, { cause });
         }
-
-        const signedSectionHash = Serializer.getSignedSectionHash(signedSection);
-        const blockSignature = Hash.signECDSA(signedSectionHash, keys);
-        const id = Serializer.getId({ ...signedSection, blockSignature });
-        const block = { ...signedSection, id, blockSignature, transactions };
-
-        Verifier.verifyBlock(block);
-
-        return block;
     }
 }
