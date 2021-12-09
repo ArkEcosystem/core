@@ -1,5 +1,6 @@
-import ByteBuffer from "bytebuffer";
+// @ts-nocheck
 
+import { ByteBuffer } from "../byte-buffer";
 import { TransactionType, TransactionTypeGroup } from "../enums";
 import { TransactionVersionError } from "../errors";
 import { Address } from "../identities";
@@ -30,7 +31,7 @@ export class Serializer {
      * Serializes the given transaction according to AIP11.
      */
     public static serialize(transaction: ITransaction, options: ISerializeOptions = {}): Buffer {
-        const buffer: ByteBuffer = new ByteBuffer(512, true);
+        const buffer: ByteBuffer = new ByteBuffer(Buffer.alloc(512));
 
         this.serializeCommon(transaction.data, buffer);
         this.serializeVendorField(transaction, buffer);
@@ -41,15 +42,18 @@ export class Serializer {
             throw new Error();
         }
 
-        const typeBuffer: ByteBuffer = serialized.flip();
-        buffer.append(typeBuffer);
+        // const typeBuffer: ByteBuffer = serialized.flip();
+        // buffer.append(typeBuffer);
+        buffer.writeBuffer(serialized.getResult());
 
         this.serializeSignatures(transaction.data, buffer, options);
 
-        const flippedBuffer: Buffer = buffer.flip().toBuffer();
-        transaction.serialized = flippedBuffer;
+        // const flippedBuffer: Buffer = buffer.flip().toBuffer();
+        // transaction.serialized = flippedBuffer;
+        const bufferBuffer = buffer.getResult();
+        transaction.serialized = bufferBuffer;
 
-        return flippedBuffer;
+        return bufferBuffer;
     }
 
     /**
@@ -205,29 +209,42 @@ export class Serializer {
             transaction.typeGroup = TransactionTypeGroup.Core;
         }
 
-        buffer.writeByte(0xff);
-        buffer.writeByte(transaction.version);
-        buffer.writeByte(transaction.network || configManager.get("network.pubKeyHash"));
+        // buffer.writeByte(0xff);
+        // buffer.writeByte(transaction.version);
+        // buffer.writeByte(transaction.network || configManager.get("network.pubKeyHash"));
+
+        buffer.writeUInt8(0xff);
+        buffer.writeUInt8(transaction.version);
+        buffer.writeUInt8(transaction.network || configManager.get("network.pubKeyHash"));
 
         if (transaction.version === 1) {
-            buffer.writeByte(transaction.type);
-            buffer.writeUint32(transaction.timestamp);
+            // buffer.writeByte(transaction.type);
+            // buffer.writeUint32(transaction.timestamp);
+
+            buffer.writeUInt8(transaction.type);
+            buffer.writeUInt32LE(transaction.timestamp);
         } else {
-            buffer.writeUint32(transaction.typeGroup);
-            buffer.writeUint16(transaction.type);
+            // buffer.writeUint32(transaction.typeGroup);
+            // buffer.writeUint16(transaction.type);
+
+            buffer.writeUInt32LE(transaction.typeGroup);
+            buffer.writeUInt16LE(transaction.type);
 
             if (transaction.nonce) {
-                // @ts-ignore - The ByteBuffer types say we can't use strings but the code actually handles them.
-                buffer.writeUint64(transaction.nonce.toString());
+                // buffer.writeUint64(transaction.nonce.toString());
+                // @ts-ignore
+                buffer.writeBigInt64LE(transaction.nonce.value);
             }
         }
 
         if (transaction.senderPublicKey) {
-            buffer.append(transaction.senderPublicKey, "hex");
+            // buffer.append(transaction.senderPublicKey, "hex");
+            buffer.writeBuffer(Buffer.from(transaction.senderPublicKey, "hex"));
         }
 
-        // @ts-ignore - The ByteBuffer types say we can't use strings but the code actually handles them.
-        buffer.writeUint64(transaction.fee.toString());
+        // buffer.writeUint64(transaction.fee.toString());
+        // @ts-ignore
+        buffer.writeBigInt64LE(transaction.fee.value);
     }
 
     private static serializeVendorField(transaction: ITransaction, buffer: ByteBuffer): void {
@@ -235,10 +252,14 @@ export class Serializer {
 
         if (transaction.hasVendorField() && data.vendorField) {
             const vf: Buffer = Buffer.from(data.vendorField, "utf8");
-            buffer.writeByte(vf.length);
-            buffer.append(vf);
+            // buffer.writeByte(vf.length);
+            // buffer.append(vf);
+
+            buffer.writeUInt8(vf.length);
+            buffer.writeBuffer(vf);
         } else {
-            buffer.writeByte(0x00);
+            // buffer.writeByte(0x00);
+            buffer.writeUInt8(0x00);
         }
     }
 
@@ -248,21 +269,27 @@ export class Serializer {
         options: ISerializeOptions = {},
     ): void {
         if (transaction.signature && !options.excludeSignature) {
-            buffer.append(transaction.signature, "hex");
+            // buffer.append(transaction.signature, "hex");
+            buffer.writeBuffer(Buffer.from(transaction.signature, "hex"));
         }
 
         const secondSignature: string | undefined = transaction.secondSignature || transaction.signSignature;
 
         if (secondSignature && !options.excludeSecondSignature) {
-            buffer.append(secondSignature, "hex");
+            // buffer.append(secondSignature, "hex");
+            buffer.writeBuffer(Buffer.from(secondSignature, "hex"));
         }
 
         if (transaction.signatures) {
             if (transaction.version === 1 && isException(transaction)) {
-                buffer.append("ff", "hex"); // 0xff separator to signal start of multi-signature transactions
-                buffer.append(transaction.signatures.join(""), "hex");
+                // buffer.append("ff", "hex"); // 0xff separator to signal start of multi-signature transactions
+                // buffer.append(transaction.signatures.join(""), "hex");
+
+                buffer.writeUInt8(0xff); // 0xff separator to signal start of multi-signature transactions
+                buffer.writeBuffer(Buffer.from(transaction.signatures.join(""), "hex"));
             } else if (!options.excludeMultiSignature) {
-                buffer.append(transaction.signatures.join(""), "hex");
+                // buffer.append(transaction.signatures.join(""), "hex");
+                buffer.writeBuffer(Buffer.from(transaction.signatures.join(""), "hex"));
             }
         }
     }
