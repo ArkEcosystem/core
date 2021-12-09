@@ -1,5 +1,4 @@
-import ByteBuffer from "bytebuffer";
-
+import { ByteBuffer } from "../byte-buffer";
 import { TransactionType, TransactionTypeGroup } from "../enums";
 import {
     DuplicateParticipantInMultiSignatureError,
@@ -58,45 +57,47 @@ export class Deserializer {
             }
         }
 
-        instance.serialized = buffer.flip().toBuffer();
+        // instance.serialized = buffer.flip().toBuffer();
+        instance.serialized = buffer.getResult();
 
         return instance;
     }
 
     public static deserializeCommon(transaction: ITransactionData, buf: ByteBuffer): void {
-        buf.skip(1); // Skip 0xFF marker
-        transaction.version = buf.readUint8();
-        transaction.network = buf.readUint8();
+        // buf.skip(1); // Skip 0xFF marker
+        buf.jump(1); // Skip 0xFF marker
+        transaction.version = buf.readUInt8();
+        transaction.network = buf.readUInt8();
 
         if (transaction.version === 1) {
-            transaction.type = buf.readUint8();
-            transaction.timestamp = buf.readUint32();
+            transaction.type = buf.readUInt8();
+            transaction.timestamp = buf.readUInt32LE();
         } else {
-            transaction.typeGroup = buf.readUint32();
-            transaction.type = buf.readUint16();
-            transaction.nonce = BigNumber.make(buf.readUint64().toString());
+            transaction.typeGroup = buf.readUInt32LE();
+            transaction.type = buf.readUInt16LE();
+            transaction.nonce = BigNumber.make(buf.readBigUInt64LE());
         }
 
-        transaction.senderPublicKey = buf.readBytes(33).toString("hex");
-        transaction.fee = BigNumber.make(buf.readUint64().toString());
+        transaction.senderPublicKey = buf.readBuffer(33).toString("hex");
+        transaction.fee = BigNumber.make(buf.readBigUInt64LE().toString());
         transaction.amount = BigNumber.ZERO;
     }
 
     private static deserializeVendorField(transaction: ITransaction, buf: ByteBuffer): void {
-        const vendorFieldLength: number = buf.readUint8();
+        const vendorFieldLength: number = buf.readUInt8();
         if (vendorFieldLength > 0) {
             if (transaction.hasVendorField()) {
-                const vendorFieldBuffer: Buffer = buf.readBytes(vendorFieldLength).toBuffer();
+                const vendorFieldBuffer: Buffer = buf.readBuffer(vendorFieldLength);
                 transaction.data.vendorField = vendorFieldBuffer.toString("utf8");
             } else {
-                buf.skip(vendorFieldLength);
+                buf.jump(vendorFieldLength);
             }
         }
     }
 
     private static deserializeSignatures(transaction: ITransactionData, buf: ByteBuffer): void {
         if (transaction.version === 1) {
-            this.deserializeECDSA(transaction, buf);
+            // this.deserializeECDSA(transaction, buf);
         } else {
             this.deserializeSchnorrOrECDSA(transaction, buf);
         }
@@ -106,75 +107,79 @@ export class Deserializer {
         if (this.detectSchnorr(buf)) {
             this.deserializeSchnorr(transaction, buf);
         } else {
-            this.deserializeECDSA(transaction, buf);
+            // this.deserializeECDSA(transaction, buf);
         }
     }
 
-    private static deserializeECDSA(transaction: ITransactionData, buf: ByteBuffer): void {
-        const currentSignatureLength = (): number => {
-            buf.mark();
-
-            const lengthHex: string = buf.skip(1).readBytes(1).toString("hex");
-
-            buf.reset();
-            return parseInt(lengthHex, 16) + 2;
-        };
-
-        // Signature
-        if (buf.remaining()) {
-            const signatureLength: number = currentSignatureLength();
-            transaction.signature = buf.readBytes(signatureLength).toString("hex");
-        }
-
-        const beginningMultiSignature = () => {
-            buf.mark();
-
-            const marker: number = buf.readUint8();
-
-            buf.reset();
-
-            return marker === 255;
-        };
-
-        // Second Signature
-        if (buf.remaining() && !beginningMultiSignature()) {
-            const secondSignatureLength: number = currentSignatureLength();
-            transaction.secondSignature = buf.readBytes(secondSignatureLength).toString("hex");
-        }
-
-        // Multi Signatures
-        if (buf.remaining() && beginningMultiSignature()) {
-            buf.skip(1);
-            const multiSignature: string = buf.readBytes(buf.limit - buf.offset).toString("hex");
-            transaction.signatures = [multiSignature];
-        }
-
-        if (buf.remaining()) {
-            throw new InvalidTransactionBytesError("signature buffer not exhausted");
-        }
-    }
+    // private static deserializeECDSA(transaction: ITransactionData, buf: ByteBuffer): void {
+    //     const currentSignatureLength = (): number => {
+    //         buf.mark();
+    //
+    //         const lengthHex: string = buf.skip(1).readBytes(1).toString("hex");
+    //
+    //         buf.reset();
+    //         return parseInt(lengthHex, 16) + 2;
+    //     };
+    //
+    //     // Signature
+    //     if (buf.getRemainderLength()) {
+    //         const signatureLength: number = currentSignatureLength();
+    //         transaction.signature = buf.readBuffer(signatureLength).toString("hex");
+    //     }
+    //
+    //     const beginningMultiSignature = () => {
+    //         buf.mark();
+    //
+    //         // const marker: number = buf.readUint8();
+    //         const marker: number = buf.readUInt8();
+    //
+    //         buf.reset();
+    //
+    //         return marker === 255;
+    //     };
+    //
+    //     // Second Signature
+    //     if (buf.getRemainderLength() && !beginningMultiSignature()) {
+    //         const secondSignatureLength: number = currentSignatureLength();
+    //         transaction.secondSignature = buf.readBuffer(secondSignatureLength).toString("hex");
+    //     }
+    //
+    //     // Multi Signatures
+    //     if (buf.getRemainderLength() && beginningMultiSignature()) {
+    //         buf.jump(1);
+    //         // const multiSignature: string = buf.readBytes(buf.limit - buf.offset).toString("hex");
+    //         const multiSignature: string = buf.getRemainder().toString("hex");
+    //         transaction.signatures = [multiSignature];
+    //     }
+    //
+    //     if (buf.getRemainderLength()) {
+    //         throw new InvalidTransactionBytesError("signature buffer not exhausted");
+    //     }
+    // }
 
     private static deserializeSchnorr(transaction: ITransactionData, buf: ByteBuffer): void {
         const canReadNonMultiSignature = () => {
-            return buf.remaining() && (buf.remaining() % 64 === 0 || buf.remaining() % 65 !== 0);
+            return (
+                buf.getRemainderLength() && (buf.getRemainderLength() % 64 === 0 || buf.getRemainderLength() % 65 !== 0)
+            );
         };
 
         if (canReadNonMultiSignature()) {
-            transaction.signature = buf.readBytes(64).toString("hex");
+            transaction.signature = buf.readBuffer(64).toString("hex");
         }
 
         if (canReadNonMultiSignature()) {
-            transaction.secondSignature = buf.readBytes(64).toString("hex");
+            transaction.secondSignature = buf.readBuffer(64).toString("hex");
         }
 
-        if (buf.remaining()) {
-            if (buf.remaining() % 65 === 0) {
+        if (buf.getRemainderLength()) {
+            if (buf.getRemainderLength() % 65 === 0) {
                 transaction.signatures = [];
 
-                const count: number = buf.remaining() / 65;
+                const count: number = buf.getRemainderLength() / 65;
                 const publicKeyIndexes: { [index: number]: boolean } = {};
                 for (let i = 0; i < count; i++) {
-                    const multiSignaturePart: string = buf.readBytes(65).toString("hex");
+                    const multiSignaturePart: string = buf.readBuffer(65).toString("hex");
                     const publicKeyIndex: number = parseInt(multiSignaturePart.slice(0, 2), 16);
 
                     if (!publicKeyIndexes[publicKeyIndex]) {
@@ -192,7 +197,7 @@ export class Deserializer {
     }
 
     private static detectSchnorr(buf: ByteBuffer): boolean {
-        const remaining: number = buf.remaining();
+        const remaining: number = buf.getRemainderLength();
 
         // `signature` / `secondSignature`
         if (remaining === 64 || remaining === 128) {
@@ -217,9 +222,9 @@ export class Deserializer {
             serialized = Buffer.from(serialized, "hex");
         }
 
-        const buffer: ByteBuffer = new ByteBuffer(serialized.length, true);
-        buffer.append(serialized);
-        buffer.reset();
+        const buffer: ByteBuffer = new ByteBuffer(serialized);
+        // buffer.append(serialized);
+        // buffer.reset();
 
         return buffer;
     }
