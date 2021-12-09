@@ -4,7 +4,7 @@ import { Keys } from "@packages/crypto/src/identities";
 import { ITransaction } from "@packages/crypto/src/interfaces";
 import { configManager } from "@packages/crypto/src/managers";
 import {
-    // Deserializer,
+    Deserializer,
     InternalTransactionType,
     Serializer,
     Signer,
@@ -36,7 +36,12 @@ class TestTransaction extends Transaction {
         return buffer;
     }
 
-    public deserialize(buf: ByteBuffer): void {}
+    public deserialize(buf: ByteBuffer): void {
+        const { data } = this;
+        data.amount = BigNumber.make(buf.readBigInt64LE().toString());
+        data.expiration = buf.readUInt32LE();
+        data.recipientId = Address.fromBuffer(buf.readBuffer(21));
+    }
 }
 
 type TransactionConstructorMap = Map<number, typeof Transaction>;
@@ -63,6 +68,14 @@ const checkCommonFields = (deserialized: ITransaction, expected) => {
         fieldsToCheck.push("typeGroup");
         fieldsToCheck.push("nonce");
     }
+
+    for (const field of fieldsToCheck) {
+        expect(deserialized.data[field].toString()).toEqual(expected[field].toString());
+    }
+};
+
+const checkV2Fields = (deserialized: ITransaction, expected) => {
+    const fieldsToCheck = ["version", "type", "senderPublicKey", "recipientId", "fee", "typeGroup", "nonce", "amount"];
 
     for (const field of fieldsToCheck) {
         expect(deserialized.data[field].toString()).toEqual(expected[field].toString());
@@ -107,9 +120,8 @@ describe("Transaction serializer / deserializer", () => {
                     "fa17823c3e591586626426b494c8038d0eb10a67bcf06f2e6959a76b40898124c13e68a6ad36fd131affdeac64fc8c2b85c371b194ffc6e3ba868070fe677df2", // Signature
             );
 
-            // const deserialized = Deserializer.deserialize(serialized);
-            //
-            // checkCommonFields(deserialized, transaction.data);
+            const deserialized = Deserializer.deserialize(serialized);
+            checkV2Fields(deserialized, transaction.data);
         });
 
         it("should ser/deser second sign", () => {
@@ -150,9 +162,8 @@ describe("Transaction serializer / deserializer", () => {
                     "11816c200a139458c257fbb14c2f07c4dbb2ebf42ab9b98fbb8a702729c0427192dec75c2933db09333e2f790df652ee3a27d1e1730b8f28e786821fd9cf7587", // Second Signature
             );
 
-            // const deserialized = Deserializer.deserialize(serialized);
-            //
-            // checkCommonFields(deserialized, transaction.data);
+            const deserialized = Deserializer.deserialize(serialized);
+            checkV2Fields(deserialized, transaction.data);
         });
 
         it("should ser/deser multi sign", () => {
@@ -195,9 +206,8 @@ describe("Transaction serializer / deserializer", () => {
                     "02bda0a17aa62c9c5ed904eae3915dd414e1faf67905c32c260f9c6ffbdaa9ace8b270051d9a81b243a15b4448ce97199562814cbc7c23a6375b411e9616090a67", // 3rd signature
             );
 
-            // const deserialized = Deserializer.deserialize(serialized);
-            //
-            // checkCommonFields(deserialized, transaction.data);
+            const deserialized = Deserializer.deserialize(serialized);
+            checkV2Fields(deserialized, transaction.data);
         });
     });
 
@@ -240,9 +250,8 @@ describe("Transaction serializer / deserializer", () => {
                     "95a6303660af0a43d71d9d7434aababfd5fd9679c690164c3aea32ff3793ce00dc50868a41f379eee5470498e4c0a125f9dd5c6c12d1c5b1d7e708be6883ca31", // Signature
             );
 
-            // const deserialized = Deserializer.deserialize(serialized);
-            //
-            // checkCommonFields(deserialized, transaction.data);
+            const deserialized = Deserializer.deserialize(serialized);
+            checkV2Fields(deserialized, transaction.data);
         });
     });
 });
