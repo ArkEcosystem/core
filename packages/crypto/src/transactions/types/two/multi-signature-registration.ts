@@ -1,5 +1,4 @@
-import ByteBuffer from "bytebuffer";
-
+import { ByteBuffer } from "../../../byte-buffer";
 import { TransactionType, TransactionTypeGroup } from "../../../enums";
 import { IMultiSignatureAsset, ISerializeOptions, ITransactionData } from "../../../interfaces";
 import { configManager } from "../../../managers";
@@ -34,13 +33,13 @@ export class MultiSignatureRegistrationTransaction extends Transaction {
     public serialize(options?: ISerializeOptions): ByteBuffer | undefined {
         const { data } = this;
         const { min, publicKeys } = data.asset!.multiSignature!;
-        const buffer: ByteBuffer = new ByteBuffer(2 + publicKeys.length * 33);
+        const buffer: ByteBuffer = new ByteBuffer(Buffer.alloc(2 + publicKeys.length * 33));
 
-        buffer.writeUint8(min);
-        buffer.writeUint8(publicKeys.length);
+        buffer.writeUInt8(min);
+        buffer.writeUInt8(publicKeys.length);
 
         for (const publicKey of publicKeys) {
-            buffer.append(publicKey, "hex");
+            buffer.writeBuffer(Buffer.from(publicKey, "hex"));
         }
 
         return buffer;
@@ -50,11 +49,11 @@ export class MultiSignatureRegistrationTransaction extends Transaction {
         const { data } = this;
 
         const multiSignature: IMultiSignatureAsset = { publicKeys: [], min: 0 };
-        multiSignature.min = buf.readUint8();
+        multiSignature.min = buf.readUInt8();
 
-        const count = buf.readUint8();
+        const count = buf.readUInt8();
         for (let i = 0; i < count; i++) {
-            const publicKey = buf.readBytes(33).toString("hex");
+            const publicKey = buf.readBuffer(33).toString("hex");
             multiSignature.publicKeys.push(publicKey);
         }
 
