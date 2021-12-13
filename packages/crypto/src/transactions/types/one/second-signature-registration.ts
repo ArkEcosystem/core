@@ -1,5 +1,4 @@
-import ByteBuffer from "bytebuffer";
-
+import { ByteBuffer } from "../../../byte-buffer";
 import { TransactionType, TransactionTypeGroup } from "../../../enums";
 import { ISerializeOptions } from "../../../interfaces";
 import { BigNumber } from "../../../utils/bignum";
@@ -20,10 +19,10 @@ export abstract class SecondSignatureRegistrationTransaction extends Transaction
 
     public serialize(options?: ISerializeOptions): ByteBuffer | undefined {
         const { data } = this;
-        const buffer: ByteBuffer = new ByteBuffer(33, true);
+        const buffer: ByteBuffer = new ByteBuffer(Buffer.alloc(33));
 
         if (data.asset && data.asset.signature) {
-            buffer.append(data.asset.signature.publicKey, "hex");
+            buffer.writeBuffer(Buffer.from(data.asset.signature.publicKey, "hex"));
         }
 
         return buffer;
@@ -34,7 +33,7 @@ export abstract class SecondSignatureRegistrationTransaction extends Transaction
 
         data.asset = {
             signature: {
-                publicKey: buf.readBytes(33).toString("hex"),
+                publicKey: buf.readBuffer(33).toString("hex"),
             },
         };
     }
