@@ -1,5 +1,4 @@
-import ByteBuffer from "bytebuffer";
-
+import { ByteBuffer } from "../../../byte-buffer";
 import { TransactionType, TransactionTypeGroup } from "../../../enums";
 import { Address } from "../../../identities";
 import { ISerializeOptions } from "../../../interfaces";
@@ -25,10 +24,10 @@ export abstract class TransferTransaction extends Transaction {
 
     public serialize(options?: ISerializeOptions): ByteBuffer | undefined {
         const { data } = this;
-        const buffer: ByteBuffer = new ByteBuffer(24, true);
-        // @ts-ignore - The ByteBuffer types say we can't use strings but the code actually handles them.
-        buffer.writeUint64(data.amount.toString());
-        buffer.writeUint32(data.expiration || 0);
+        const buffer: ByteBuffer = new ByteBuffer(Buffer.alloc(33));
+        // @ts-ignore
+        buffer.writeBigUInt64LE(data.amount.value);
+        buffer.writeUInt32LE(data.expiration || 0);
 
         if (data.recipientId) {
             const { addressBuffer, addressError } = Address.toBuffer(data.recipientId);
@@ -37,7 +36,7 @@ export abstract class TransferTransaction extends Transaction {
                 options.addressError = addressError;
             }
 
-            buffer.append(addressBuffer);
+            buffer.writeBuffer(addressBuffer);
         }
 
         return buffer;
@@ -45,8 +44,8 @@ export abstract class TransferTransaction extends Transaction {
 
     public deserialize(buf: ByteBuffer): void {
         const { data } = this;
-        data.amount = BigNumber.make(buf.readUint64().toString());
-        data.expiration = buf.readUint32();
-        data.recipientId = Address.fromBuffer(buf.readBytes(21).toBuffer());
+        data.amount = BigNumber.make(buf.readBigUInt64LE().toString());
+        data.expiration = buf.readUInt32LE();
+        data.recipientId = Address.fromBuffer(buf.readBuffer(21));
     }
 }
