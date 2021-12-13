@@ -1,6 +1,6 @@
 import { base58 } from "bstring";
-import ByteBuffer from "bytebuffer";
 
+import { ByteBuffer } from "../../../byte-buffer";
 import { TransactionType, TransactionTypeGroup } from "../../../enums";
 import { ISerializeOptions } from "../../../interfaces";
 import { configManager } from "../../../managers";
@@ -29,9 +29,9 @@ export abstract class IpfsTransaction extends Transaction {
 
         if (data.asset) {
             const ipfsBuffer: Buffer = base58.decode(data.asset.ipfs);
-            const buffer: ByteBuffer = new ByteBuffer(ipfsBuffer.length, true);
+            const buffer: ByteBuffer = new ByteBuffer(Buffer.alloc(ipfsBuffer.length));
 
-            buffer.append(ipfsBuffer, "hex");
+            buffer.writeBuffer(ipfsBuffer);
 
             return buffer;
         }
@@ -42,9 +42,9 @@ export abstract class IpfsTransaction extends Transaction {
     public deserialize(buf: ByteBuffer): void {
         const { data } = this;
 
-        const hashFunction: number = buf.readUint8();
-        const ipfsHashLength: number = buf.readUint8();
-        const ipfsHash: Buffer = buf.readBytes(ipfsHashLength).toBuffer();
+        const hashFunction: number = buf.readUInt8();
+        const ipfsHashLength: number = buf.readUInt8();
+        const ipfsHash: Buffer = buf.readBuffer(ipfsHashLength);
 
         const buffer: Buffer = Buffer.alloc(ipfsHashLength + 2);
         buffer.writeUInt8(hashFunction, 0);
