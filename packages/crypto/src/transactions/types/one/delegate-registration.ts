@@ -1,5 +1,4 @@
-import ByteBuffer from "bytebuffer";
-
+import { ByteBuffer } from "../../../byte-buffer";
 import { TransactionType, TransactionTypeGroup } from "../../../enums";
 import { ISerializeOptions } from "../../../interfaces";
 import { BigNumber } from "../../../utils/bignum";
@@ -23,10 +22,11 @@ export abstract class DelegateRegistrationTransaction extends Transaction {
 
         if (data.asset && data.asset.delegate) {
             const delegateBytes: Buffer = Buffer.from(data.asset.delegate.username, "utf8");
-            const buffer: ByteBuffer = new ByteBuffer(delegateBytes.length, true);
+            const buffer: ByteBuffer = new ByteBuffer(Buffer.alloc(delegateBytes.length + 1));
 
-            buffer.writeByte(delegateBytes.length);
-            buffer.append(delegateBytes, "hex");
+            buffer.writeUInt8(delegateBytes.length);
+            // buffer.writeBuffer(delegateBytes, "hex");
+            buffer.writeBuffer(delegateBytes);
 
             return buffer;
         }
@@ -36,11 +36,11 @@ export abstract class DelegateRegistrationTransaction extends Transaction {
 
     public deserialize(buf: ByteBuffer): void {
         const { data } = this;
-        const usernamelength: number = buf.readUint8();
+        const usernameLength = buf.readUInt8();
 
         data.asset = {
             delegate: {
-                username: buf.readString(usernamelength),
+                username: buf.readBuffer(usernameLength).toString("utf8"),
             },
         };
     }
