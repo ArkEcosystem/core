@@ -1,5 +1,4 @@
-import ByteBuffer from "bytebuffer";
-
+import { ByteBuffer } from "../../../byte-buffer";
 import { TransactionType, TransactionTypeGroup } from "../../../enums";
 import { ISerializeOptions } from "../../../interfaces";
 import { configManager } from "../../../managers";
@@ -24,7 +23,7 @@ export abstract class DelegateResignationTransaction extends Transaction {
     }
 
     public serialize(options?: ISerializeOptions): ByteBuffer | undefined {
-        return new ByteBuffer(0);
+        return new ByteBuffer(Buffer.alloc(0));
     }
 
     public deserialize(buf: ByteBuffer): void {
