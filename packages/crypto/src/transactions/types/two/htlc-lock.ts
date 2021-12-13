@@ -1,5 +1,4 @@
-import ByteBuffer from "bytebuffer";
-
+import { ByteBuffer } from "../../../byte-buffer";
 import { TransactionType, TransactionTypeGroup } from "../../../enums";
 import { Address } from "../../../identities";
 import { ISerializeOptions } from "../../../interfaces";
@@ -32,15 +31,15 @@ export abstract class HtlcLockTransaction extends Transaction {
     public serialize(options?: ISerializeOptions): ByteBuffer | undefined {
         const { data } = this;
 
-        const buffer: ByteBuffer = new ByteBuffer(8 + 32 + 1 + 4 + 21, true);
+        const buffer: ByteBuffer = new ByteBuffer(Buffer.alloc(8 + 32 + 1 + 4 + 21));
 
-        // @ts-ignore - The ByteBuffer types say we can't use strings but the code actually handles them.
-        buffer.writeUint64(data.amount.toString());
+        // @ts-ignore
+        buffer.writeBigUInt64LE(data.amount.value);
 
         if (data.asset && data.asset.lock) {
-            buffer.append(Buffer.from(data.asset.lock.secretHash, "hex"));
-            buffer.writeUint8(data.asset.lock.expiration.type);
-            buffer.writeUint32(data.asset.lock.expiration.value);
+            buffer.writeBuffer(Buffer.from(data.asset.lock.secretHash, "hex"));
+            buffer.writeUInt8(data.asset.lock.expiration.type);
+            buffer.writeUInt32LE(data.asset.lock.expiration.value);
         }
 
         if (data.recipientId) {
@@ -50,7 +49,7 @@ export abstract class HtlcLockTransaction extends Transaction {
                 options.addressError = addressError;
             }
 
-            buffer.append(addressBuffer);
+            buffer.writeBuffer(addressBuffer);
         }
 
         return buffer;
@@ -59,11 +58,11 @@ export abstract class HtlcLockTransaction extends Transaction {
     public deserialize(buf: ByteBuffer): void {
         const { data } = this;
 
-        const amount: BigNumber = BigNumber.make(buf.readUint64().toString());
-        const secretHash: string = buf.readBytes(32).toString("hex");
-        const expirationType: number = buf.readUint8();
-        const expirationValue: number = buf.readUint32();
-        const recipientId: string = Address.fromBuffer(buf.readBytes(21).toBuffer());
+        const amount: BigNumber = BigNumber.make(buf.readBigUInt64LE().toString());
+        const secretHash: string = buf.readBuffer(32).toString("hex");
+        const expirationType: number = buf.readUInt8();
+        const expirationValue: number = buf.readUInt32LE();
+        const recipientId: string = Address.fromBuffer(buf.readBuffer(21));
 
         data.amount = amount;
         data.recipientId = recipientId;
