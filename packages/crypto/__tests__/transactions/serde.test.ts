@@ -267,7 +267,6 @@ describe("Transaction serializer / deserializer", () => {
                 senderPublicKey: PublicKey.fromPassphrase("sender passphrase"),
                 recipientId: Address.fromPassphrase("recipient passphrase"),
                 timestamp: 0,
-                // vendorField: "vendorField",
                 type: 1,
                 expiration: 0,
                 typeGroup: 3,
@@ -275,19 +274,11 @@ describe("Transaction serializer / deserializer", () => {
             };
 
             Signer.sign(transaction.data, Keys.fromPassphrase("sender passphrase"));
-
-            expect(transaction.data.signature).toEqual(
-                "30450221008067d1beb623f2e7dbcb8580c0036a2d4a59c1a64fc3ba66f05fcea5a0614c6302203e94b41d50ca69498e4970d8a289c431474728e26652db8889bec4d8d0001144",
-            );
-
             const serialized = Serializer.serialize(transaction);
 
             expect(serialized.toString("hex")).toEqual(
                 "ff011e01000000000316a0b23be3408a4af227280bb005e9a136e0dbdd86860516850e5c29c1829113c800000000000000006400000000000000000000001e66314f1ccb9741d6f1a6f9b26ed563c439fc1a9430450221008067d1beb623f2e7dbcb8580c0036a2d4a59c1a64fc3ba66f05fcea5a0614c6302203e94b41d50ca69498e4970d8a289c431474728e26652db8889bec4d8d0001144",
             );
-
-            // const deserialized = Deserializer.deserialize(serialized);
-            // checkV2Fields(deserialized, transaction.data);
         });
     });
 });
