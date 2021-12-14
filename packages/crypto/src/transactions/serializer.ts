@@ -67,9 +67,9 @@ export class Serializer {
                 bytebuffer.writeBuffer(Buffer.from(signature.publicKey, "hex"));
             }
 
-            bytebuffer.flip();
-
-            assetBytes = new Uint8Array(bytebuffer.toArrayBuffer());
+            // bytebuffer.flip();
+            // assetBytes = new Uint8Array(bytebuffer.getResult().toArrayBuffer());
+            assetBytes = bytebuffer.getResult();
             assetSize = assetBytes.length;
         }
 
