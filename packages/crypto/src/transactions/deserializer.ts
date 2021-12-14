@@ -57,7 +57,6 @@ export class Deserializer {
             }
         }
 
-        // instance.serialized = buffer.flip().toBuffer();
         instance.serialized = buffer.getResult();
 
         return instance;
@@ -97,7 +96,7 @@ export class Deserializer {
 
     private static deserializeSignatures(transaction: ITransactionData, buf: ByteBuffer): void {
         if (transaction.version === 1) {
-            // this.deserializeECDSA(transaction, buf);
+            this.deserializeECDSA(transaction, buf);
         } else {
             this.deserializeSchnorrOrECDSA(transaction, buf);
         }
@@ -107,55 +106,50 @@ export class Deserializer {
         if (this.detectSchnorr(buf)) {
             this.deserializeSchnorr(transaction, buf);
         } else {
-            // this.deserializeECDSA(transaction, buf);
+            this.deserializeECDSA(transaction, buf);
         }
     }
 
-    // private static deserializeECDSA(transaction: ITransactionData, buf: ByteBuffer): void {
-    //     const currentSignatureLength = (): number => {
-    //         buf.mark();
-    //
-    //         const lengthHex: string = buf.skip(1).readBytes(1).toString("hex");
-    //
-    //         buf.reset();
-    //         return parseInt(lengthHex, 16) + 2;
-    //     };
-    //
-    //     // Signature
-    //     if (buf.getRemainderLength()) {
-    //         const signatureLength: number = currentSignatureLength();
-    //         transaction.signature = buf.readBuffer(signatureLength).toString("hex");
-    //     }
-    //
-    //     const beginningMultiSignature = () => {
-    //         buf.mark();
-    //
-    //         // const marker: number = buf.readUint8();
-    //         const marker: number = buf.readUInt8();
-    //
-    //         buf.reset();
-    //
-    //         return marker === 255;
-    //     };
-    //
-    //     // Second Signature
-    //     if (buf.getRemainderLength() && !beginningMultiSignature()) {
-    //         const secondSignatureLength: number = currentSignatureLength();
-    //         transaction.secondSignature = buf.readBuffer(secondSignatureLength).toString("hex");
-    //     }
-    //
-    //     // Multi Signatures
-    //     if (buf.getRemainderLength() && beginningMultiSignature()) {
-    //         buf.jump(1);
-    //         // const multiSignature: string = buf.readBytes(buf.limit - buf.offset).toString("hex");
-    //         const multiSignature: string = buf.getRemainder().toString("hex");
-    //         transaction.signatures = [multiSignature];
-    //     }
-    //
-    //     if (buf.getRemainderLength()) {
-    //         throw new InvalidTransactionBytesError("signature buffer not exhausted");
-    //     }
-    // }
+    private static deserializeECDSA(transaction: ITransactionData, buf: ByteBuffer): void {
+        const currentSignatureLength = (): number => {
+            buf.jump(1);
+            const length = buf.readUInt8();
+
+            buf.jump(-2);
+            return length + 2;
+        };
+
+        // Signature
+        if (buf.getRemainderLength()) {
+            const signatureLength: number = currentSignatureLength();
+            transaction.signature = buf.readBuffer(signatureLength).toString("hex");
+        }
+
+        const beginningMultiSignature = () => {
+            const marker: number = buf.readUInt8();
+
+            buf.jump(-1);
+
+            return marker === 255;
+        };
+
+        // Second Signature
+        if (buf.getRemainderLength() && !beginningMultiSignature()) {
+            const secondSignatureLength: number = currentSignatureLength();
+            transaction.secondSignature = buf.readBuffer(secondSignatureLength).toString("hex");
+        }
+
+        // Multi Signatures
+        if (buf.getRemainderLength() && beginningMultiSignature()) {
+            buf.jump(1);
+            const multiSignature: string = buf.getRemainder().toString("hex");
+            transaction.signatures = [multiSignature];
+        }
+
+        if (buf.getRemainderLength()) {
+            throw new InvalidTransactionBytesError("signature buffer not exhausted");
+        }
+    }
 
     private static deserializeSchnorr(transaction: ITransactionData, buf: ByteBuffer): void {
         const canReadNonMultiSignature = () => {
@@ -223,9 +217,6 @@ export class Deserializer {
         }
 
         const buffer: ByteBuffer = new ByteBuffer(serialized);
-        // buffer.append(serialized);
-        // buffer.reset();
-
         return buffer;
     }
 }
