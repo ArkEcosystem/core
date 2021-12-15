@@ -1,7 +1,6 @@
 import "jest-extended";
 
 import { Interfaces, Utils } from "@packages/crypto";
-
 import {
     InvalidTransactionBytesError,
     TransactionSchemaError,
@@ -15,6 +14,7 @@ import {
     TransactionFactory,
     Utils as TransactionUtils,
 } from "@packages/crypto/src/transactions";
+
 import { transaction as transactionFixture } from "../fixtures/transaction";
 import { transaction as transactionDataFixture } from "../fixtures/transaction";
 import { createRandomTx } from "./__support__";

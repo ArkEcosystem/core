@@ -1,30 +1,21 @@
 import "jest-extended";
 
 import { Generators } from "@packages/core-test-framework/src";
-// @ts-ignore
 import { Enums, Errors, Utils } from "@packages/crypto/src";
-// @ts-ignore
 import { Hash } from "@packages/crypto/src/crypto";
 import {
     InvalidTransactionBytesError,
     TransactionSchemaError,
-    // @ts-ignore
     TransactionVersionError,
-    // @ts-ignore
     UnkownTransactionError,
 } from "@packages/crypto/src/errors";
-// @ts-ignore
-
 import { Address, Keys, PublicKey } from "@packages/crypto/src/identities";
-// @ts-ignore
 import { IKeyPair, ITransaction, ITransactionData } from "@packages/crypto/src/interfaces";
 import { configManager } from "@packages/crypto/src/managers";
 import { TransactionFactory, Utils as TransactionUtils, Verifier } from "@packages/crypto/src/transactions";
 import { BuilderFactory } from "@packages/crypto/src/transactions/builders";
 import { Deserializer } from "@packages/crypto/src/transactions/deserializer";
-// @ts-ignore
 import { Serializer } from "@packages/crypto/src/transactions/serializer";
-// @ts-ignore
 import ByteBuffer from "bytebuffer";
 
 import { htlcSecretHashHex, htlcSecretHex } from "./__fixtures__/htlc";
@@ -532,269 +523,269 @@ describe("Transaction serializer / deserializer", () => {
         });
     });
 
-    // describe("deserialize - others", () => {
-    //     beforeAll(() => {
-    //         // todo: completely wrap this into a function to hide the generation and setting of the config?
-    //         configManager.setConfig(Generators.generateCryptoConfigRaw());
-    //     });
-    //
-    //     it("should throw if type is not supported", () => {
-    //         const serializeWrongType = (transaction: ITransactionData) => {
-    //             // copy-paste from transaction serializer, common stuff
-    //             const buffer = new ByteBuffer(512, true);
-    //             buffer.writeByte(0xff);
-    //             buffer.writeByte(2);
-    //             buffer.writeByte(transaction.network);
-    //             buffer.writeUint32(Enums.TransactionTypeGroup.Core);
-    //             buffer.writeUint16(transaction.type);
-    //             buffer.writeUint64(transaction.nonce!.toFixed());
-    //             buffer.append(transaction.senderPublicKey, "hex");
-    //             buffer.writeUint64(Utils.BigNumber.make(transaction.fee).toFixed());
-    //             buffer.writeByte(0x00);
-    //
-    //             return Buffer.from(buffer.flip().toBuffer());
-    //         };
-    //         const transactionWrongType = BuilderFactory.transfer()
-    //             .recipientId("APyFYXxXtUrvZFnEuwLopfst94GMY5Zkeq")
-    //             .amount("10000")
-    //             .fee("50000000")
-    //             .vendorField("yo")
-    //             .network(23)
-    //             .sign("dummy passphrase")
-    //             .getStruct();
-    //         transactionWrongType.type = 55;
-    //
-    //         const serialized = serializeWrongType(transactionWrongType).toString("hex");
-    //         expect(() => Deserializer.deserialize(serialized)).toThrow(UnkownTransactionError);
-    //     });
-    // });
-    //
-    // describe("deserialize Schnorr / ECDSA", () => {
-    //     beforeEach(() => {
-    //         configManager.getMilestone().aip11 = true;
-    //     });
-    //
-    //     const builderWith = (
-    //         hasher: (buffer: Buffer, keys: IKeyPair) => string,
-    //         hasher2?: (buffer: Buffer, keys: IKeyPair) => string,
-    //     ) => {
-    //         const keys = Keys.fromPassphrase("secret");
-    //
-    //         const builder = BuilderFactory.transfer()
-    //             .senderPublicKey(keys.publicKey)
-    //             .recipientId(Address.fromPublicKey(keys.publicKey))
-    //             .amount("10000")
-    //             .fee("50000000");
-    //
-    //         const buffer = TransactionUtils.toHash(builder.data, {
-    //             excludeSignature: true,
-    //             excludeSecondSignature: true,
-    //         });
-    //
-    //         builder.data.signature = hasher(buffer, keys);
-    //
-    //         if (hasher2) {
-    //             const keys = Keys.fromPassphrase("secret 2");
-    //             const buffer = TransactionUtils.toHash(builder.data, {
-    //                 excludeSecondSignature: true,
-    //             });
-    //
-    //             builder.data.secondSignature = hasher2(buffer, keys);
-    //         }
-    //
-    //         return builder;
-    //     };
-    //
-    //     it("should deserialize a V2 transaction signed with Schnorr", () => {
-    //         const builder = builderWith(Hash.signSchnorr);
-    //
-    //         let transaction: ITransaction;
-    //         expect(builder.data.version).toBe(2);
-    //         expect(() => (transaction = builder.build())).not.toThrow();
-    //         expect(transaction!.verify()).toBeTrue();
-    //     });
-    //
-    //     it("should deserialize a V2 transaction signed with ECDSA", () => {
-    //         const builder = builderWith(Hash.signECDSA);
-    //
-    //         let transaction: ITransaction;
-    //         expect(builder.data.version).toBe(2);
-    //         expect(builder.data.signature).not.toHaveLength(64);
-    //         expect(() => (transaction = builder.build())).not.toThrow();
-    //         expect(transaction!.verify()).toBeTrue();
-    //     });
-    //
-    //     it("should deserialize a V2 transaction when signed with Schnorr/Schnorr", () => {
-    //         const builder = builderWith(Hash.signSchnorr, Hash.signSchnorr);
-    //
-    //         let transaction: ITransaction;
-    //         expect(builder.data.version).toBe(2);
-    //         expect(() => (transaction = builder.build())).not.toThrow();
-    //
-    //         expect(transaction!.verify()).toBeTrue();
-    //         expect(Verifier.verifySecondSignature(transaction!.data, PublicKey.fromPassphrase("secret 2"))).toBeTrue();
-    //         expect(Verifier.verifySecondSignature(transaction!.data, PublicKey.fromPassphrase("secret 3"))).toBeFalse();
-    //     });
-    //
-    //     it("should throw when V2 transaction is signed with Schnorr and ECDSA", () => {
-    //         let builder = builderWith(Hash.signSchnorr, Hash.signECDSA);
-    //         expect(builder.data.version).toBe(2);
-    //         expect(() => builder.build()).toThrow();
-    //
-    //         builder = builderWith(Hash.signECDSA, Hash.signSchnorr);
-    //         expect(builder.data.version).toBe(2);
-    //         expect(() => builder.build()).toThrow();
-    //     });
-    //
-    //     it("should throw when V2 transaction is signed with Schnorr and AIP11 not active", () => {
-    //         const builder = builderWith(Hash.signSchnorr);
-    //
-    //         configManager.getMilestone().aip11 = false;
-    //         expect(builder.data.version).toBe(2);
-    //         expect(() => builder.build()).toThrow();
-    //
-    //         configManager.getMilestone().aip11 = true;
-    //     });
-    //
-    //     it("should throw when V1 transaction is signed with Schnorr", () => {
-    //         configManager.getMilestone().aip11 = false;
-    //
-    //         const builder = builderWith(Hash.signSchnorr);
-    //         const buffer = TransactionUtils.toHash(builder.data, {
-    //             excludeSignature: true,
-    //             excludeSecondSignature: true,
-    //         });
-    //
-    //         builder.data.signature = builder.data.signature = Hash.signSchnorr(buffer, Keys.fromPassphrase("secret"));
-    //
-    //         expect(builder.data.version).toBe(1);
-    //         expect(() => builder.build()).toThrow();
-    //
-    //         configManager.getMilestone().aip11 = true;
-    //     });
-    // });
-    //
-    // describe("serialize - others", () => {
-    //     it("should throw if type is not supported", () => {
-    //         const transactionWrongType = BuilderFactory.transfer()
-    //             .recipientId("APyFYXxXtUrvZFnEuwLopfst94GMY5Zkeq")
-    //             .amount("10000")
-    //             .fee("50000000")
-    //             .vendorField("yo")
-    //             .network(23)
-    //             .sign("dummy passphrase")
-    //             .getStruct();
-    //         transactionWrongType.type = 55;
-    //
-    //         expect(() => TransactionFactory.fromData(transactionWrongType)).toThrow(UnkownTransactionError);
-    //     });
-    // });
-    //
-    // describe("getBytesV1", () => {
-    //     beforeAll(() => (configManager.getMilestone().aip11 = false));
-    //     afterAll(() => (configManager.getMilestone().aip11 = true));
-    //     let bytes;
-    //
-    //     // it('should return Buffer of simply transaction and buffer must be 292 length', () => {
-    //     //   const transaction = {
-    //     //     type: 0,
-    //     //     amount: 1000,
-    //     //     fee: 2000,
-    //     //     recipientId: 'AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff',
-    //     //     timestamp: 141738,
-    //     //     asset: {},
-    //     //     senderPublicKey: '5d036a858ce89f844491762eb89e2bfbd50a4a0a0da658e4b2628b25b117ae09',
-    //     //     signature: '618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a'
-    //     //   }
-    //
-    //     //   bytes = crypto.getBytes(transaction)
-    //     //   expect(bytes).toBeObject()
-    //     //   expect(bytes.toString('hex') + transaction.signature).toHaveLength(292)
-    //     // })
-    //
-    //     it("should return Buffer of simply transaction and buffer must be 202 length", () => {
-    //         const transaction = {
-    //             type: 0,
-    //             amount: Utils.BigNumber.make(1000),
-    //             fee: Utils.BigNumber.make(2000),
-    //             recipientId: "AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff",
-    //             timestamp: 141738,
-    //             asset: {},
-    //             senderPublicKey: "5d036a858ce89f844491762eb89e2bfbd50a4a0a0da658e4b2628b25b117ae09",
-    //             signature:
-    //                 "618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a",
-    //             id: "13987348420913138422",
-    //         };
-    //
-    //         bytes = Serializer.getBytes(transaction);
-    //         expect(bytes).toBeObject();
-    //         expect(bytes.length).toBe(202);
-    //         expect(bytes.toString("hex")).toBe(
-    //             "00aa2902005d036a858ce89f844491762eb89e2bfbd50a4a0a0da658e4b2628b25b117ae09171dfc69b54c7fe901e91d5a9ab78388645e2427ea00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000e803000000000000d007000000000000618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a",
-    //         );
-    //     });
-    //
-    //     // it('should return Buffer of transaction with second signature and buffer must be 420 length', () => {
-    //     //   const transaction = {
-    //     //     type: 0,
-    //     //     amount: 1000,
-    //     //     fee: 2000,
-    //     //     recipientId: 'AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff',
-    //     //     timestamp: 141738,
-    //     //     asset: {},
-    //     //     senderPublicKey: '5d036a858ce89f844491762eb89e2bfbd50a4a0a0da658e4b2628b25b117ae09',
-    //     //     signature: '618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a',
-    //     //     secondSignature: '618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a'
-    //     //   }
-    //     //
-    //     //   bytes = crypto.getBytes(transaction)
-    //     //   expect(bytes).toBeObject()
-    //     //   expect(bytes.toString('hex') + transaction.signature + transaction.secondSignature).toHaveLength(420)
-    //     // })
-    //
-    //     it("should return Buffer of transaction with second signature and buffer must be 266 length", () => {
-    //         const transaction = {
-    //             version: 1,
-    //             type: 0,
-    //             amount: Utils.BigNumber.make(1000),
-    //             fee: Utils.BigNumber.make(2000),
-    //             recipientId: "AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff",
-    //             timestamp: 141738,
-    //             asset: {},
-    //             senderPublicKey: "5d036a858ce89f844491762eb89e2bfbd50a4a0a0da658e4b2628b25b117ae09",
-    //             signature:
-    //                 "618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a",
-    //             secondSignature:
-    //                 "618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a",
-    //             id: "13987348420913138422",
-    //         };
-    //
-    //         bytes = Serializer.getBytes(transaction);
-    //         expect(bytes).toBeObject();
-    //         expect(bytes.length).toBe(266);
-    //         expect(bytes.toString("hex")).toBe(
-    //             "00aa2902005d036a858ce89f844491762eb89e2bfbd50a4a0a0da658e4b2628b25b117ae09171dfc69b54c7fe901e91d5a9ab78388645e2427ea00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000e803000000000000d007000000000000618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a",
-    //         );
-    //     });
-    //
-    //     it("should throw for unsupported version", () => {
-    //         const transaction = {
-    //             version: 110,
-    //             type: 0,
-    //             amount: Utils.BigNumber.make(1000),
-    //             fee: Utils.BigNumber.make(2000),
-    //             recipientId: "AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff",
-    //             timestamp: 141738,
-    //             asset: {},
-    //             senderPublicKey: "5d036a858ce89f844491762eb89e2bfbd50a4a0a0da658e4b2628b25b117ae09",
-    //             signature:
-    //                 "618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a",
-    //             secondSignature:
-    //                 "618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a",
-    //             id: "13987348420913138422",
-    //         };
-    //
-    //         expect(() => Serializer.getBytes(transaction)).toThrow(TransactionVersionError);
-    //     });
-    // });
+    describe("deserialize - others", () => {
+        beforeAll(() => {
+            // todo: completely wrap this into a function to hide the generation and setting of the config?
+            configManager.setConfig(Generators.generateCryptoConfigRaw());
+        });
+
+        it("should throw if type is not supported", () => {
+            const serializeWrongType = (transaction: ITransactionData) => {
+                // copy-paste from transaction serializer, common stuff
+                const buffer = new ByteBuffer(512, true);
+                buffer.writeByte(0xff);
+                buffer.writeByte(2);
+                buffer.writeByte(transaction.network);
+                buffer.writeUint32(Enums.TransactionTypeGroup.Core);
+                buffer.writeUint16(transaction.type);
+                buffer.writeUint64(transaction.nonce!.toFixed());
+                buffer.append(transaction.senderPublicKey, "hex");
+                buffer.writeUint64(Utils.BigNumber.make(transaction.fee).toFixed());
+                buffer.writeByte(0x00);
+
+                return Buffer.from(buffer.flip().toBuffer());
+            };
+            const transactionWrongType = BuilderFactory.transfer()
+                .recipientId("APyFYXxXtUrvZFnEuwLopfst94GMY5Zkeq")
+                .amount("10000")
+                .fee("50000000")
+                .vendorField("yo")
+                .network(23)
+                .sign("dummy passphrase")
+                .getStruct();
+            transactionWrongType.type = 55;
+
+            const serialized = serializeWrongType(transactionWrongType).toString("hex");
+            expect(() => Deserializer.deserialize(serialized)).toThrow(UnkownTransactionError);
+        });
+    });
+
+    describe("deserialize Schnorr / ECDSA", () => {
+        beforeEach(() => {
+            configManager.getMilestone().aip11 = true;
+        });
+
+        const builderWith = (
+            hasher: (buffer: Buffer, keys: IKeyPair) => string,
+            hasher2?: (buffer: Buffer, keys: IKeyPair) => string,
+        ) => {
+            const keys = Keys.fromPassphrase("secret");
+
+            const builder = BuilderFactory.transfer()
+                .senderPublicKey(keys.publicKey)
+                .recipientId(Address.fromPublicKey(keys.publicKey))
+                .amount("10000")
+                .fee("50000000");
+
+            const buffer = TransactionUtils.toHash(builder.data, {
+                excludeSignature: true,
+                excludeSecondSignature: true,
+            });
+
+            builder.data.signature = hasher(buffer, keys);
+
+            if (hasher2) {
+                const keys = Keys.fromPassphrase("secret 2");
+                const buffer = TransactionUtils.toHash(builder.data, {
+                    excludeSecondSignature: true,
+                });
+
+                builder.data.secondSignature = hasher2(buffer, keys);
+            }
+
+            return builder;
+        };
+
+        it("should deserialize a V2 transaction signed with Schnorr", () => {
+            const builder = builderWith(Hash.signSchnorr);
+
+            let transaction: ITransaction;
+            expect(builder.data.version).toBe(2);
+            expect(() => (transaction = builder.build())).not.toThrow();
+            expect(transaction!.verify()).toBeTrue();
+        });
+
+        it("should deserialize a V2 transaction signed with ECDSA", () => {
+            const builder = builderWith(Hash.signECDSA);
+
+            let transaction: ITransaction;
+            expect(builder.data.version).toBe(2);
+            expect(builder.data.signature).not.toHaveLength(64);
+            expect(() => (transaction = builder.build())).not.toThrow();
+            expect(transaction!.verify()).toBeTrue();
+        });
+
+        it("should deserialize a V2 transaction when signed with Schnorr/Schnorr", () => {
+            const builder = builderWith(Hash.signSchnorr, Hash.signSchnorr);
+
+            let transaction: ITransaction;
+            expect(builder.data.version).toBe(2);
+            expect(() => (transaction = builder.build())).not.toThrow();
+
+            expect(transaction!.verify()).toBeTrue();
+            expect(Verifier.verifySecondSignature(transaction!.data, PublicKey.fromPassphrase("secret 2"))).toBeTrue();
+            expect(Verifier.verifySecondSignature(transaction!.data, PublicKey.fromPassphrase("secret 3"))).toBeFalse();
+        });
+
+        it("should throw when V2 transaction is signed with Schnorr and ECDSA", () => {
+            let builder = builderWith(Hash.signSchnorr, Hash.signECDSA);
+            expect(builder.data.version).toBe(2);
+            expect(() => builder.build()).toThrow();
+
+            builder = builderWith(Hash.signECDSA, Hash.signSchnorr);
+            expect(builder.data.version).toBe(2);
+            expect(() => builder.build()).toThrow();
+        });
+
+        it("should throw when V2 transaction is signed with Schnorr and AIP11 not active", () => {
+            const builder = builderWith(Hash.signSchnorr);
+
+            configManager.getMilestone().aip11 = false;
+            expect(builder.data.version).toBe(2);
+            expect(() => builder.build()).toThrow();
+
+            configManager.getMilestone().aip11 = true;
+        });
+
+        it("should throw when V1 transaction is signed with Schnorr", () => {
+            configManager.getMilestone().aip11 = false;
+
+            const builder = builderWith(Hash.signSchnorr);
+            const buffer = TransactionUtils.toHash(builder.data, {
+                excludeSignature: true,
+                excludeSecondSignature: true,
+            });
+
+            builder.data.signature = builder.data.signature = Hash.signSchnorr(buffer, Keys.fromPassphrase("secret"));
+
+            expect(builder.data.version).toBe(1);
+            expect(() => builder.build()).toThrow();
+
+            configManager.getMilestone().aip11 = true;
+        });
+    });
+
+    describe("serialize - others", () => {
+        it("should throw if type is not supported", () => {
+            const transactionWrongType = BuilderFactory.transfer()
+                .recipientId("APyFYXxXtUrvZFnEuwLopfst94GMY5Zkeq")
+                .amount("10000")
+                .fee("50000000")
+                .vendorField("yo")
+                .network(23)
+                .sign("dummy passphrase")
+                .getStruct();
+            transactionWrongType.type = 55;
+
+            expect(() => TransactionFactory.fromData(transactionWrongType)).toThrow(UnkownTransactionError);
+        });
+    });
+
+    describe("getBytesV1", () => {
+        beforeAll(() => (configManager.getMilestone().aip11 = false));
+        afterAll(() => (configManager.getMilestone().aip11 = true));
+        let bytes;
+
+        // it('should return Buffer of simply transaction and buffer must be 292 length', () => {
+        //   const transaction = {
+        //     type: 0,
+        //     amount: 1000,
+        //     fee: 2000,
+        //     recipientId: 'AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff',
+        //     timestamp: 141738,
+        //     asset: {},
+        //     senderPublicKey: '5d036a858ce89f844491762eb89e2bfbd50a4a0a0da658e4b2628b25b117ae09',
+        //     signature: '618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a'
+        //   }
+
+        //   bytes = crypto.getBytes(transaction)
+        //   expect(bytes).toBeObject()
+        //   expect(bytes.toString('hex') + transaction.signature).toHaveLength(292)
+        // })
+
+        it("should return Buffer of simply transaction and buffer must be 202 length", () => {
+            const transaction = {
+                type: 0,
+                amount: Utils.BigNumber.make(1000),
+                fee: Utils.BigNumber.make(2000),
+                recipientId: "AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff",
+                timestamp: 141738,
+                asset: {},
+                senderPublicKey: "5d036a858ce89f844491762eb89e2bfbd50a4a0a0da658e4b2628b25b117ae09",
+                signature:
+                    "618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a",
+                id: "13987348420913138422",
+            };
+
+            bytes = Serializer.getBytes(transaction);
+            expect(bytes).toBeObject();
+            expect(bytes.length).toBe(202);
+            expect(bytes.toString("hex")).toBe(
+                "00aa2902005d036a858ce89f844491762eb89e2bfbd50a4a0a0da658e4b2628b25b117ae09171dfc69b54c7fe901e91d5a9ab78388645e2427ea00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000e803000000000000d007000000000000618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a",
+            );
+        });
+
+        // it('should return Buffer of transaction with second signature and buffer must be 420 length', () => {
+        //   const transaction = {
+        //     type: 0,
+        //     amount: 1000,
+        //     fee: 2000,
+        //     recipientId: 'AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff',
+        //     timestamp: 141738,
+        //     asset: {},
+        //     senderPublicKey: '5d036a858ce89f844491762eb89e2bfbd50a4a0a0da658e4b2628b25b117ae09',
+        //     signature: '618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a',
+        //     secondSignature: '618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a'
+        //   }
+        //
+        //   bytes = crypto.getBytes(transaction)
+        //   expect(bytes).toBeObject()
+        //   expect(bytes.toString('hex') + transaction.signature + transaction.secondSignature).toHaveLength(420)
+        // })
+
+        it("should return Buffer of transaction with second signature and buffer must be 266 length", () => {
+            const transaction = {
+                version: 1,
+                type: 0,
+                amount: Utils.BigNumber.make(1000),
+                fee: Utils.BigNumber.make(2000),
+                recipientId: "AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff",
+                timestamp: 141738,
+                asset: {},
+                senderPublicKey: "5d036a858ce89f844491762eb89e2bfbd50a4a0a0da658e4b2628b25b117ae09",
+                signature:
+                    "618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a",
+                secondSignature:
+                    "618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a",
+                id: "13987348420913138422",
+            };
+
+            bytes = Serializer.getBytes(transaction);
+            expect(bytes).toBeObject();
+            expect(bytes.length).toBe(266);
+            expect(bytes.toString("hex")).toBe(
+                "00aa2902005d036a858ce89f844491762eb89e2bfbd50a4a0a0da658e4b2628b25b117ae09171dfc69b54c7fe901e91d5a9ab78388645e2427ea00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000e803000000000000d007000000000000618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a",
+            );
+        });
+
+        it("should throw for unsupported version", () => {
+            const transaction = {
+                version: 110,
+                type: 0,
+                amount: Utils.BigNumber.make(1000),
+                fee: Utils.BigNumber.make(2000),
+                recipientId: "AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff",
+                timestamp: 141738,
+                asset: {},
+                senderPublicKey: "5d036a858ce89f844491762eb89e2bfbd50a4a0a0da658e4b2628b25b117ae09",
+                signature:
+                    "618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a",
+                secondSignature:
+                    "618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a",
+                id: "13987348420913138422",
+            };
+
+            expect(() => Serializer.getBytes(transaction)).toThrow(TransactionVersionError);
+        });
+    });
 });
