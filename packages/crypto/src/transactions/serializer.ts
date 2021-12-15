@@ -31,7 +31,7 @@ export class Serializer {
      * Serializes the given transaction according to AIP11.
      */
     public static serialize(transaction: ITransaction, options: ISerializeOptions = {}): Buffer {
-        const buffer: ByteBuffer = new ByteBuffer(Buffer.alloc(512));
+        const buffer: ByteBuffer = new ByteBuffer(Buffer.alloc(8192)); // TODO: Check max value
 
         this.serializeCommon(transaction.data, buffer);
         this.serializeVendorField(transaction, buffer);
@@ -67,8 +67,6 @@ export class Serializer {
                 bytebuffer.writeBuffer(Buffer.from(signature.publicKey, "hex"));
             }
 
-            // bytebuffer.flip();
-            // assetBytes = new Uint8Array(bytebuffer.getResult().toArrayBuffer());
             assetBytes = bytebuffer.getResult();
             assetSize = assetBytes.length;
         }
@@ -113,7 +111,7 @@ export class Serializer {
             }
         }
 
-        const bb: ByteBuffer = new ByteBuffer(Buffer.alloc(1 + 4 + 32 + 8 + 8 + 21 + 64 + 64 + 64 + assetSize));
+        const bb: ByteBuffer = new ByteBuffer(Buffer.alloc(1 + 4 + 32 + 8 + 8 + 21 + 255 + 64 + 64 + 64 + assetSize));
 
         bb.writeUInt8(transaction.type);
         bb.writeUInt32LE(transaction.timestamp);
