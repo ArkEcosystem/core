@@ -32,10 +32,7 @@ export class Deserializer {
         const timestamp = reader.readUInt32LE();
         const height = reader.readUInt32LE();
 
-        const previousMilestone = configManager.getMilestone(height - 1 || 1);
-        const previousBlock = previousMilestone.block.idFullSha256
-            ? reader.readBuffer(32).toString("hex")
-            : reader.readBigUInt64BE().toString();
+        const previousBlock = this.readId(reader, height - 1 || 1);
 
         const numberOfTransactions = reader.readUInt32LE();
         const totalAmount = BigNumber.make(reader.readBigUInt64LE());
@@ -58,14 +55,18 @@ export class Deserializer {
             generatorPublicKey,
         };
 
-        if (version === 0) {
-            return { version, ...common };
+        switch (version) {
+            case 0: {
+                return { ...common, version };
+            }
+
+            case 1: {
+                const previousBlockVotesCount = reader.readUInt8();
+                const previousBlockVotes = reader.readSchnorrMultiSignature(previousBlockVotesCount);
+
+                return { ...common, version, previousBlockVotes };
+            }
         }
-
-        const previousBlockVotesCount = reader.readUInt8();
-        const previousBlockVotes = reader.readSchnorrMultiSignature(previousBlockVotesCount);
-
-        return { version, ...common, previousBlockVotes };
     }
 
     public static readSignatureSection(reader: IReader): IBlockSignatureSection {
@@ -85,5 +86,15 @@ export class Deserializer {
         }
 
         return { transactions: buffers.map((b) => ({ serialized: b })) };
+    }
+
+    public static readId(reader: IReader, height: number): string {
+        const milestone = configManager.getMilestone(height);
+
+        if (milestone.block.idFullSha256) {
+            return reader.readBuffer(32).toString("hex");
+        } else {
+            return reader.readBigUInt64BE().toString();
+        }
     }
 }

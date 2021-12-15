@@ -10,7 +10,7 @@ import {
     IState,
     IStateData,
     ITransitionState,
-    IVotingTarget,
+    IVoteContent,
 } from "../interfaces";
 import { configManager } from "../managers";
 import { TransitionState } from "./transition-state";
@@ -56,8 +56,13 @@ export class State<B extends IBlockHeader> implements IState<B> {
     }
 
     public hasUnfinalizedValidators(): boolean {
-        if (isEqual(this.finalizedValidators, this.lastValidators) === false) return true;
-        if (isEqual(this.lastValidators, this.currentValidators) === false) return true;
+        if (isEqual(this.finalizedValidators, this.lastValidators) === false) {
+            return true;
+        }
+
+        if (isEqual(this.lastValidators, this.currentValidators) === false) {
+            return true;
+        }
 
         return false;
     }
@@ -78,19 +83,19 @@ export class State<B extends IBlockHeader> implements IState<B> {
         return validators;
     }
 
-    public getVotingTarget(): IVotingTarget {
-        const sourceHeight = this.justifiedBlock.height;
-        const sourceBlockId = this.justifiedBlock.id;
-        const targetHeight = this.lastBlock.height;
-        const targetBlockId = this.lastBlock.id;
-
-        return { sourceHeight, sourceBlockId, targetHeight, targetBlockId };
+    public getVoteContent(): IVoteContent {
+        return {
+            justifiedHeight: this.justifiedBlock.height,
+            justifiedBlockId: this.justifiedBlock.id,
+            lastHeight: this.lastBlock.height,
+            lastBlockId: this.lastBlock.id,
+        };
     }
 
-    public hasEnoughVotes(votes: readonly ISchnorrMultiSignature[]): boolean {
-        const votingTarget = this.getVotingTarget();
+    public isLastBlockJustified(votes: readonly ISchnorrMultiSignature[]): boolean {
+        const voteContent = this.getVoteContent();
         const validators = this.getValidators();
-        const votedValidators = Utils.getVotedValidators(votingTarget, validators, votes);
+        const votedValidators = Utils.getVotedValidators(voteContent, validators, votes);
 
         for (const validatorSet of [this.finalizedValidators, this.lastValidators, this.currentValidators]) {
             const voteThreshold = (validatorSet.length * 2) / 3;
@@ -153,7 +158,7 @@ export class State<B extends IBlockHeader> implements IState<B> {
             let finalizedValidators = this.finalizedValidators;
             let finalizedTransactionCount = this.finalizedTransactionCount;
 
-            if (currentBlock.version === 1 && this.hasEnoughVotes(currentBlock.previousBlockVotes)) {
+            if (currentBlock.version === 1 && this.isLastBlockJustified(currentBlock.previousBlockVotes)) {
                 justifiedBlock = this.lastBlock;
 
                 if (justifiedBlock.height === this.justifiedBlock.height + 1) {

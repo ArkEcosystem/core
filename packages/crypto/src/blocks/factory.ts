@@ -74,8 +74,10 @@ export class BlockFactory {
         }
     }
 
-    public static createGenesisBlock(json: IGenesisBlockJson): IBlock {
+    public static createGenesisBlock(): IBlock {
         try {
+            const json = configManager.get("genesisBlock") as IGenesisBlockJson;
+
             if (json.version !== 0 && json.version !== 1) throw new CryptoError("Bad version.");
             if (json.height !== 1) throw new CryptoError("Bad height.");
             if (json.previousBlock !== null) throw new CryptoError("Bad previous block.");

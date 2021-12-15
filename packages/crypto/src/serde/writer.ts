@@ -149,11 +149,4 @@ export class Writer implements IWriter {
             this.writeSchnorrSignature(item.signature);
         }
     }
-
-    public writeWithByteBuffer<T>(cb: (byteBuffer: ByteBuffer) => T): T {
-        const byteBuffer = ByteBuffer.wrap(this.buffer.slice(this.offset));
-        const result = cb(byteBuffer);
-        this.offset += byteBuffer.offset;
-        return result;
-    }
 }

@@ -141,10 +141,7 @@ export class Serializer {
         writer.writeUInt32LE(section.timestamp);
         writer.writeUInt32LE(section.height);
 
-        const previousMilestone = configManager.getMilestone(section.height - 1 || 1);
-        previousMilestone.block.idFullSha256
-            ? writer.writeBuffer(Buffer.from(section.previousBlock, "hex"))
-            : writer.writeBigUInt64BE(BigInt(section.previousBlock));
+        this.writeId(writer, section.height - 1 || 1, section.previousBlock);
 
         writer.writeUInt32LE(section.numberOfTransactions);
         writer.writeBigUInt64LE(BigInt(section.totalAmount.toString()));
@@ -171,6 +168,20 @@ export class Serializer {
 
         for (const transaction of section.transactions) {
             writer.writeBuffer(transaction.serialized);
+        }
+    }
+
+    public static writeId(writer: IWriter, height: number, id: string): void {
+        const milestone = configManager.getMilestone(height);
+
+        if (milestone.block.idFullSha256) {
+            if (id.length !== 64) {
+                throw new CryptoError("Invalid id.");
+            }
+
+            writer.writeBuffer(Buffer.from(id, "hex"));
+        } else {
+            writer.writeBigUInt64BE(BigInt(id));
         }
     }
 }

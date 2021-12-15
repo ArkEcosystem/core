@@ -36,7 +36,6 @@ export interface IReader {
     readEcdsaSignature(): Buffer;
     readSchnorrSignature(): Buffer;
     readSchnorrMultiSignature(signatureCount: number): ISchnorrMultiSignature[];
-    readWithByteBuffer<T>(cb: (byteBuffer: ByteBuffer) => T): T;
 }
 
 export interface IWriter {
@@ -72,5 +71,4 @@ export interface IWriter {
     writeEcdsaSignature(value: Buffer): void;
     writeSchnorrSignature(value: Buffer): void;
     writeSchnorrMultiSignature(value: readonly ISchnorrMultiSignature[]): void;
-    writeWithByteBuffer<T>(cb: (byteBuffer: ByteBuffer) => T): T;
 }

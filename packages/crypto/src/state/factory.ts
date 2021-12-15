@@ -1,15 +1,15 @@
 import { BlockFactory } from "../blocks";
 import { TransactionType, TransactionTypeGroup } from "../enums";
-import { IBlock, IGenesisBlockJson, ITransitionState } from "../interfaces";
+import { IBlock, IBlockHeader, IState, IStateData, ITransitionState } from "../interfaces";
 import { configManager } from "../managers";
 import { BigNumber } from "../utils";
+import { State } from "./state";
 import { TransitionState } from "./transition-state";
 import { Utils } from "./utils";
 
 export class StateFactory {
     public static createGenesisState(): ITransitionState<IBlock> {
-        const genesisBlockJson = configManager.get("genesisBlock") as IGenesisBlockJson;
-        const genesisBlock = BlockFactory.createGenesisBlock(genesisBlockJson);
+        const genesisBlock = BlockFactory.createGenesisBlock();
         const genesisMilestone = configManager.getMilestone(genesisBlock.height);
         const genesisRound = { no: 1, height: 1, length: genesisMilestone.activeDelegates };
         const genesisSlot = { no: 0, timestamp: 0, duration: genesisMilestone.blocktime };
@@ -41,5 +41,9 @@ export class StateFactory {
             currentValidators: genesisValidators,
             currentForgers: genesisForgers,
         });
+    }
+
+    public static createState<B extends IBlockHeader>(data: IStateData<B>): IState<B> {
+        return new State<B>(data);
     }
 }

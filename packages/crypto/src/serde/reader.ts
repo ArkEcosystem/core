@@ -164,11 +164,4 @@ export class Reader implements IReader {
 
         return items;
     }
-
-    public readWithByteBuffer<T>(cb: (byteBuffer: ByteBuffer) => T): T {
-        const byteBuffer = ByteBuffer.wrap(this.buffer.slice(this.offset));
-        const result = cb(byteBuffer);
-        this.offset += byteBuffer.offset;
-        return result;
-    }
 }

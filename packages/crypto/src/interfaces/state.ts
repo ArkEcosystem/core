@@ -21,11 +21,12 @@ export type IDelegate = {
     readonly balance: BigNumber;
 };
 
-export type IVotingTarget = {
-    readonly sourceHeight: number;
-    readonly sourceBlockId: string;
-    readonly targetHeight: number;
-    readonly targetBlockId: string;
+export type IVoteContent = {
+    readonly justifiedHeight: number;
+    readonly justifiedBlockId: string;
+
+    readonly lastHeight: number;
+    readonly lastBlockId: string;
 };
 
 export type IStateData<B extends IBlockHeader = IBlock> = {
@@ -67,8 +68,8 @@ export interface IState<B extends IBlockHeader = IBlock> extends IStateData<B> {
     hasUnfinalizedValidators(): boolean;
 
     getValidators(): readonly string[];
-    getVotingTarget(): IVotingTarget;
-    hasEnoughVotes(votes: readonly ISchnorrMultiSignature[]): boolean;
+    getVoteContent(): IVoteContent;
+    isLastBlockJustified(votes: readonly ISchnorrMultiSignature[]): boolean;
 
     getCurrentSlot(timestamp: number): ISlot;
     getCurrentForger(slot: ISlot): string;
