@@ -29,7 +29,9 @@ export class Serializer {
      * Serializes the given transaction according to AIP11.
      */
     public static serialize(transaction: ITransaction, options: ISerializeOptions = {}): Buffer {
-        const buffer: ByteBuffer = new ByteBuffer(Buffer.alloc(8192)); // TODO: Check max value
+        const buffer: ByteBuffer = new ByteBuffer(
+            Buffer.alloc(configManager.getMilestone(configManager.getHeight()).block.maxPayload),
+        );
 
         this.serializeCommon(transaction.data, buffer);
         this.serializeVendorField(transaction, buffer);
