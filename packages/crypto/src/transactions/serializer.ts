@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import { ByteBuffer } from "../byte-buffer";
 import { TransactionType, TransactionTypeGroup } from "../enums";
 import { TransactionVersionError } from "../errors";
@@ -94,21 +92,17 @@ export class Serializer {
                 transaction.asset.multiSignatureLegacy.keysgroup.join(""),
                 "utf8",
             );
-            const bb: ByteBuffer = new ByteBuffer(1 + 1 + keysgroupBuffer.length, true);
+            const bb: ByteBuffer = new ByteBuffer(Buffer.alloc(1 + 1 + keysgroupBuffer.length));
 
-            bb.writeByte(transaction.asset.multiSignatureLegacy.min);
-            bb.writeByte(transaction.asset.multiSignatureLegacy.lifetime);
+            bb.writeUInt8(transaction.asset.multiSignatureLegacy.min);
+            bb.writeUInt8(transaction.asset.multiSignatureLegacy.lifetime);
 
             for (const byte of keysgroupBuffer) {
-                bb.writeByte(byte);
+                bb.writeUInt8(byte);
             }
 
-            bb.flip();
-
-            assetBytes = bb.toBuffer();
-            if (assetBytes) {
-                assetSize = assetBytes.length;
-            }
+            assetBytes = bb.getResult();
+            assetSize = assetBytes.length;
         }
 
         const bb: ByteBuffer = new ByteBuffer(Buffer.alloc(1 + 4 + 32 + 8 + 8 + 21 + 255 + 64 + 64 + 64 + assetSize));
@@ -150,8 +144,10 @@ export class Serializer {
             }
         }
 
+        // @ts-ignore
         bb.writeBigUInt64LE(transaction.amount.value);
 
+        // @ts-ignore
         bb.writeBigUInt64LE(transaction.fee.value);
 
         if (assetSize > 0 && assetBytes) {
