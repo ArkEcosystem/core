@@ -36,7 +36,7 @@ beforeEach(() => {
     };
 });
 
-const transaction: Interfaces.ITransaction = TransactionFactory.fromData(transactionFixture);
+const transaction = TransactionFactory.fromData(transactionFixture);
 const transactionJson: Interfaces.ITransactionJson = transaction.toJson();
 const transactionSerialized: Buffer = Serializer.serialize(transaction);
 
