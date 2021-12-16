@@ -1,6 +1,6 @@
 import { ErrorObject } from "ajv";
-import ByteBuffer from "bytebuffer";
 
+import { ByteBuffer } from "../byte-buffer";
 import { HtlcLockExpirationType } from "../enums";
 import { BigNumber } from "../utils";
 
