@@ -32,9 +32,8 @@ describe("Business registration transaction", () => {
                 .sign("passphrase")
                 .getStruct();
 
-            const serialized = Transactions.TransactionFactory.fromData(businessRegistration).serialized.toString(
-                "hex",
-            );
+            const serialized =
+                Transactions.TransactionFactory.fromData(businessRegistration).serialized.toString("hex");
             const deserialized = Transactions.Deserializer.deserialize(serialized);
 
             checkCommonFields(deserialized, businessRegistration);
@@ -48,9 +47,8 @@ describe("Business registration transaction", () => {
                 .sign("passphrase")
                 .getStruct();
 
-            const serialized = Transactions.TransactionFactory.fromData(businessRegistration).serialized.toString(
-                "hex",
-            );
+            const serialized =
+                Transactions.TransactionFactory.fromData(businessRegistration).serialized.toString("hex");
             const deserialized = Transactions.Deserializer.deserialize(serialized);
 
             checkCommonFields(deserialized, businessRegistration);
@@ -64,9 +62,8 @@ describe("Business registration transaction", () => {
                 .sign("passphrase")
                 .getStruct();
 
-            const serialized = Transactions.TransactionFactory.fromData(businessRegistration).serialized.toString(
-                "hex",
-            );
+            const serialized =
+                Transactions.TransactionFactory.fromData(businessRegistration).serialized.toString("hex");
             const deserialized = Transactions.Deserializer.deserialize(serialized);
 
             checkCommonFields(deserialized, businessRegistration);
@@ -80,9 +77,8 @@ describe("Business registration transaction", () => {
                 .sign("passphrase")
                 .getStruct();
 
-            const serialized = Transactions.TransactionFactory.fromData(businessRegistration).serialized.toString(
-                "hex",
-            );
+            const serialized =
+                Transactions.TransactionFactory.fromData(businessRegistration).serialized.toString("hex");
             const deserialized = Transactions.Deserializer.deserialize(serialized);
 
             checkCommonFields(deserialized, businessRegistration);
@@ -115,7 +111,7 @@ describe("Business registration transaction", () => {
             transactionSchema = BusinessRegistrationTransaction.getSchema();
         });
 
-        it("should not throw any error ", () => {
+        it("should not throw any error", () => {
             const businessRegistration = builder
                 .businessRegistrationAsset(businessRegistrationAsset1)
                 .network(23)
@@ -124,7 +120,7 @@ describe("Business registration transaction", () => {
             const { error } = Ajv.validator.validate(transactionSchema, businessRegistration.getStruct());
             expect(error).toBeUndefined();
         });
-        it("should not throw any error ", () => {
+        it("should not throw any error", () => {
             const businessRegistration = builder
                 .businessRegistrationAsset(businessRegistrationAsset2)
                 .network(23)
@@ -133,7 +129,7 @@ describe("Business registration transaction", () => {
             const { error } = Ajv.validator.validate(transactionSchema, businessRegistration.getStruct());
             expect(error).toBeUndefined();
         });
-        it("should not throw any error ", () => {
+        it("should not throw any error", () => {
             const businessRegistration = builder
                 .businessRegistrationAsset(businessRegistrationAsset3)
                 .network(23)
@@ -142,7 +138,7 @@ describe("Business registration transaction", () => {
             const { error } = Ajv.validator.validate(transactionSchema, businessRegistration.getStruct());
             expect(error).toBeUndefined();
         });
-        it("should not throw any error ", () => {
+        it("should not throw any error", () => {
             const businessRegistration = builder
                 .businessRegistrationAsset(businessRegistrationAsset4)
                 .network(23)
