@@ -99,7 +99,7 @@ describe("Business update transaction", () => {
             transactionSchema = BusinessUpdateTransaction.getSchema();
         });
 
-        it("should not throw any error ", () => {
+        it("should not throw any error", () => {
             const businessUpdateBuilder = builder
                 .businessUpdateAsset(businessUpdateAsset1)
                 .network(23)
@@ -109,7 +109,7 @@ describe("Business update transaction", () => {
             expect(error).toBeUndefined();
         });
 
-        it("should not throw any error ", () => {
+        it("should not throw any error", () => {
             const businessUpdateBuilder = builder
                 .businessUpdateAsset(businessUpdateAsset2)
                 .network(23)
@@ -119,7 +119,7 @@ describe("Business update transaction", () => {
             expect(error).toBeUndefined();
         });
 
-        it("should not throw any error ", () => {
+        it("should not throw any error", () => {
             const businessUpdateBuilder = builder
                 .businessUpdateAsset(businessUpdateAsset3)
                 .network(23)
