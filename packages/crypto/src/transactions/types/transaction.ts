@@ -1,4 +1,3 @@
-import { ByteBuffer } from "../../byte-buffer";
 import { TransactionTypeGroup } from "../../enums";
 import { NotImplemented } from "../../errors";
 import { Address } from "../../identities";
@@ -10,7 +9,7 @@ import {
     ITransactionJson,
 } from "../../interfaces";
 import { configManager } from "../../managers/config";
-import { BigNumber } from "../../utils/bignum";
+import { BigNumber, ByteBuffer } from "../../utils";
 import { Verifier } from "../verifier";
 import { TransactionSchema } from "./schemas";
 

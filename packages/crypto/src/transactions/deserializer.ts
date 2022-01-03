@@ -1,4 +1,3 @@
-import { ByteBuffer } from "../byte-buffer";
 import { TransactionType, TransactionTypeGroup } from "../enums";
 import {
     DuplicateParticipantInMultiSignatureError,
@@ -7,7 +6,7 @@ import {
 } from "../errors";
 import { Address } from "../identities";
 import { IDeserializeOptions, ITransaction, ITransactionData } from "../interfaces";
-import { BigNumber, isSupportedTransactionVersion } from "../utils";
+import { BigNumber, ByteBuffer, isSupportedTransactionVersion } from "../utils";
 import { TransactionTypeFactory } from "./types";
 
 // Reference: https://github.com/ArkEcosystem/AIPs/blob/master/AIPS/aip-11.md

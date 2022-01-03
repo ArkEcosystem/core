@@ -1,4 +1,3 @@
-import { ByteBuffer } from "@packages/crypto/src/byte-buffer";
 import { Address, PublicKey } from "@packages/crypto/src/identities";
 import { Keys } from "@packages/crypto/src/identities";
 import { ITransaction } from "@packages/crypto/src/interfaces";
@@ -12,6 +11,7 @@ import {
     TransactionTypeFactory,
 } from "@packages/crypto/src/transactions";
 import { BigNumber } from "@packages/crypto/src/utils";
+import { ByteBuffer } from "@packages/crypto/src/utils/byte-buffer";
 
 configManager.getMilestone().aip11 = true;
 

@@ -1,8 +1,7 @@
-import { ByteBuffer } from "../../../byte-buffer";
 import { TransactionType, TransactionTypeGroup } from "../../../enums";
 import { IMultiSignatureLegacyAsset, ISerializeOptions, ITransactionData } from "../../../interfaces";
 import { isException } from "../../../utils";
-import { BigNumber } from "../../../utils/bignum";
+import { BigNumber, ByteBuffer } from "../../../utils";
 import * as schemas from "../schemas";
 import { Transaction } from "../transaction";
 

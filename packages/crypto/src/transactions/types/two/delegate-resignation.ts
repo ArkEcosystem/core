@@ -1,4 +1,4 @@
-import { ByteBuffer } from "../../../byte-buffer";
+import { ByteBuffer } from "../../../utils/byte-buffer";
 import { TransactionType, TransactionTypeGroup } from "../../../enums";
 import { ISerializeOptions } from "../../../interfaces";
 import { configManager } from "../../../managers";

@@ -1,8 +1,7 @@
 import { ErrorObject } from "ajv";
 
-import { ByteBuffer } from "../byte-buffer";
 import { HtlcLockExpirationType } from "../enums";
-import { BigNumber } from "../utils";
+import { BigNumber, ByteBuffer } from "../utils";
 
 export interface ITransaction {
     readonly id: string | undefined;

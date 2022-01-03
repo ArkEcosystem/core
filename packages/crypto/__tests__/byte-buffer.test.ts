@@ -1,4 +1,4 @@
-import { ByteBuffer } from "@packages/crypto/src/byte-buffer";
+import { ByteBuffer } from "@packages/crypto/src/utils/byte-buffer";
 import { Buffer } from "buffer";
 
 describe("ByteBuffer", () => {
