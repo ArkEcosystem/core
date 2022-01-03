@@ -1,6 +1,5 @@
 import { Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
-import ByteBuffer from "bytebuffer";
 
 import {
     EntityAction,
@@ -82,57 +81,92 @@ export class EntityTransaction extends Transactions.Transaction {
         return feeContext?.data?.asset ? this.staticFeeByAction[feeContext.data.asset.action] : this.defaultStaticFee;
     }
 
-    public serialize(): ByteBuffer {
+    public serialize(): Utils.ByteBuffer {
         const { data } = this;
 
         AppUtils.assert.defined<IEntityAsset>(data.asset);
 
         const asset: IEntityAsset = data.asset;
 
-        const buffer: ByteBuffer = new ByteBuffer();
-
-        buffer.writeUint8(asset.type);
-        buffer.writeUint8(asset.subType);
-        buffer.writeUint8(asset.action);
-
         const registrationIdBuffer = Buffer.from(asset.registrationId || "", "hex");
-        buffer.writeUint8(registrationIdBuffer.length);
-        buffer.append(registrationIdBuffer, "hex");
-
         const nameBuffer = Buffer.from(asset.data.name || "");
-        buffer.writeUint8(nameBuffer.length);
-        buffer.append(nameBuffer);
-
         const ipfsDataBuffer = Buffer.from(asset.data.ipfsData || "");
-        buffer.writeUint8(ipfsDataBuffer.length);
-        buffer.append(ipfsDataBuffer);
+
+        const buffer = new Utils.ByteBuffer(
+            Buffer.alloc(
+                3 + // Type, SubType, Action
+                    1 + // RegistrationId Length
+                    registrationIdBuffer.length +
+                    1 + // Name Length
+                    nameBuffer.length +
+                    1 + // IPFSData Length
+                    ipfsDataBuffer.length,
+            ),
+        );
+
+        // buffer.writeUint8(asset.type);
+        // buffer.writeUint8(asset.subType);
+        // buffer.writeUint8(asset.action);
+        buffer.writeUInt8(asset.type);
+        buffer.writeUInt8(asset.subType);
+        buffer.writeUInt8(asset.action);
+
+        // buffer.writeUint8(registrationIdBuffer.length);
+        // buffer.append(registrationIdBuffer, "hex");
+        buffer.writeUInt8(registrationIdBuffer.length);
+        buffer.writeBuffer(registrationIdBuffer);
+
+        // buffer.writeUint8(nameBuffer.length);
+        // buffer.append(nameBuffer);
+        buffer.writeUInt8(nameBuffer.length);
+        buffer.writeBuffer(nameBuffer);
+
+        // buffer.writeUint8(ipfsDataBuffer.length);
+        // buffer.append(ipfsDataBuffer);
+        buffer.writeUInt8(ipfsDataBuffer.length);
+        buffer.writeBuffer(ipfsDataBuffer);
 
         return buffer;
     }
 
-    public deserialize(buf: ByteBuffer): void {
+    public deserialize(buf: Utils.ByteBuffer): void {
         const { data } = this;
         data.asset = {};
 
-        data.asset.type = buf.readUint8();
-        data.asset.subType = buf.readUint8();
-        data.asset.action = buf.readUint8();
+        // data.asset.type = buf.readUint8();
+        // data.asset.subType = buf.readUint8();
+        // data.asset.action = buf.readUint8();
+        data.asset.type = buf.readUInt8();
+        data.asset.subType = buf.readUInt8();
+        data.asset.action = buf.readUInt8();
 
-        const registrationIdBufferLength: number = buf.readUint8();
+        // const registrationIdBufferLength: number = buf.readUint8();
+        // if (registrationIdBufferLength > 0) {
+        //     data.asset.registrationId = buf.readBytes(registrationIdBufferLength).toString("hex");
+        // }
+        const registrationIdBufferLength: number = buf.readUInt8();
         if (registrationIdBufferLength > 0) {
-            data.asset.registrationId = buf.readBytes(registrationIdBufferLength).toString("hex");
+            data.asset.registrationId = buf.readBuffer(registrationIdBufferLength).toString("hex");
         }
 
         data.asset.data = {};
 
-        const nameBufferLength: number = buf.readUint8();
+        // const nameBufferLength: number = buf.readUint8();
+        // if (nameBufferLength > 0) {
+        //     data.asset.data.name = buf.readString(nameBufferLength);
+        // }
+        const nameBufferLength: number = buf.readUInt8();
         if (nameBufferLength > 0) {
-            data.asset.data.name = buf.readString(nameBufferLength);
+            data.asset.data.name = buf.readBuffer(nameBufferLength).toString("utf8");
         }
 
-        const ipfsDataBufferLength: number = buf.readUint8();
+        // const ipfsDataBufferLength: number = buf.readUint8();
+        // if (ipfsDataBufferLength > 0) {
+        //     data.asset.data.ipfsData = buf.readString(ipfsDataBufferLength);
+        // }
+        const ipfsDataBufferLength: number = buf.readUInt8();
         if (ipfsDataBufferLength > 0) {
-            data.asset.data.ipfsData = buf.readString(ipfsDataBufferLength);
+            data.asset.data.ipfsData = buf.readBuffer(ipfsDataBufferLength).toString("utf8");
         }
     }
 }
