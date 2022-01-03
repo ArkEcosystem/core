@@ -6,9 +6,9 @@ import { EntityTransaction } from "@packages/core-magistrate-crypto/src/transact
 import { Managers, Transactions, Validation } from "@packages/crypto";
 
 import { generateAssets, generateSpecialAssets } from "../fixtures/entity/assets/generate";
-import { invalidRegisters, validRegisters } from "../fixtures/entity/schemas/register";
-import { invalidResigns, validResigns } from "../fixtures/entity/schemas/resign";
-import { invalidUpdates, validUpdates } from "../fixtures/entity/schemas/update";
+import { invalidRegisters, unserializableRegisters, validRegisters } from "../fixtures/entity/schemas/register";
+import { invalidResigns, unserializableResigns, validResigns } from "../fixtures/entity/schemas/resign";
+import { invalidUpdates, unserializableUpdates, validUpdates } from "../fixtures/entity/schemas/update";
 import { checkCommonFields } from "../helper";
 
 let builder: EntityBuilder;
@@ -61,6 +61,14 @@ describe("Entity transaction", () => {
                 mockVerifySchema.mockRestore();
             },
         );
+
+        it.each(
+            [...unserializableRegisters, ...unserializableResigns, ...unserializableUpdates].map((asset) => [asset]),
+        )("should throw error", (asset: Interfaces.IEntityAsset) => {
+            expect(() => {
+                builder.asset(asset).sign("passphrase");
+            }).toThrowError();
+        });
     });
 
     describe("Schema tests", () => {
@@ -80,16 +88,16 @@ describe("Entity transaction", () => {
                     entityRegistration.getStruct(),
                 );
                 expect(error).toBeUndefined();
-                expect(value.asset).toEqual(asset);
+                expect(value!.asset).toEqual(asset);
             },
         );
 
         it.each([...invalidRegisters, ...invalidResigns, ...invalidUpdates].map((asset) => [asset]))(
             "should give validation error",
             (asset: Interfaces.IEntityAsset) => {
-                const entityRegistration = builder.asset(asset).sign("passphrase");
+                const entity = builder.asset(asset).sign("passphrase");
 
-                const { error } = Validation.validator.validate(transactionSchema, entityRegistration.getStruct());
+                const { error } = Validation.validator.validate(transactionSchema, entity.getStruct());
                 expect(error).not.toBeUndefined();
             },
         );
