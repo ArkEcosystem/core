@@ -1,6 +1,5 @@
 import { Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Transactions, Utils } from "@arkecosystem/crypto";
-import ByteBuffer from "bytebuffer";
 
 import { MagistrateTransactionGroup, MagistrateTransactionStaticFees, MagistrateTransactionType } from "../enums";
 import { IBridgechainResignationAsset } from "../interfaces";
@@ -44,23 +43,24 @@ export class BridgechainResignationTransaction extends Transactions.Transaction 
         });
     }
 
-    public serialize(): ByteBuffer {
+    public serialize(): Utils.ByteBuffer {
         const { data } = this;
 
         AppUtils.assert.defined<IBridgechainResignationAsset>(data.asset?.bridgechainResignation);
 
-        const buffer: ByteBuffer = new ByteBuffer(32, true);
-        buffer.append(data.asset.bridgechainResignation.bridgechainId, "hex");
+        const buffer = new Utils.ByteBuffer(Buffer.alloc(32));
+        // buffer.append(data.asset.bridgechainResignation.bridgechainId, "hex");
+        buffer.writeBuffer(Buffer.from(data.asset.bridgechainResignation.bridgechainId, "hex"));
 
         return buffer;
     }
 
-    public deserialize(buf: ByteBuffer): void {
+    public deserialize(buf: Utils.ByteBuffer): void {
         const { data } = this;
 
         data.asset = {
             bridgechainResignation: {
-                bridgechainId: buf.readBytes(32).toString("hex"),
+                bridgechainId: buf.readBuffer(32).toString("hex"),
             },
         };
     }
