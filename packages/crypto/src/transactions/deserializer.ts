@@ -141,7 +141,7 @@ export class Deserializer {
         // Multi Signatures
         if (buf.getRemainderLength() && beginningMultiSignature()) {
             buf.jump(1);
-            const multiSignature: string = buf.getRemainder().toString("hex");
+            const multiSignature: string = buf.readBuffer(buf.getRemainderLength()).toString("hex");
             transaction.signatures = [multiSignature];
         }
 
