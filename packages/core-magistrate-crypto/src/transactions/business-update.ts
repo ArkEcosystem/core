@@ -97,37 +97,21 @@ export class BusinessUpdateTransaction extends Transactions.Transaction {
             Buffer.alloc(businessNameLength + businessWebsiteLength + businessVatLength + businessRepositoryLength + 4),
         );
 
-        // buffer.writeByte(businessNameLength);
-        // if (businessName && businessNameLength !== 0) {
-        //     buffer.append(businessName);
-        // }
         buffer.writeUInt8(businessNameLength);
         if (businessName && businessNameLength !== 0) {
             buffer.writeBuffer(businessName);
         }
 
-        // buffer.writeByte(businessWebsiteLength);
-        // if (businessWebsite && businessWebsiteLength !== 0) {
-        //     buffer.append(businessWebsite);
-        // }
         buffer.writeUInt8(businessWebsiteLength);
         if (businessWebsite && businessWebsiteLength !== 0) {
             buffer.writeBuffer(businessWebsite);
         }
-        //
-        // buffer.writeByte(businessVatLength);
-        // if (businessVat && businessVatLength !== 0) {
-        //     buffer.append(businessVat);
-        // }
+
         buffer.writeUInt8(businessVatLength);
         if (businessVat && businessVatLength !== 0) {
             buffer.writeBuffer(businessVat);
         }
 
-        // buffer.writeByte(businessRepositoryLength);
-        // if (businessRepository && businessRepositoryLength !== 0) {
-        //     buffer.append(businessRepository);
-        // }
         buffer.writeUInt8(businessRepositoryLength);
         if (businessRepository && businessRepositoryLength !== 0) {
             buffer.writeBuffer(businessRepository);
@@ -141,37 +125,21 @@ export class BusinessUpdateTransaction extends Transactions.Transaction {
 
         const businessUpdate: IBusinessUpdateAsset = {};
 
-        // const nameLength: number = buf.readUint8();
-        // if (nameLength !== 0) {
-        //     businessUpdate.name = buf.readString(nameLength);
-        // }
         const nameLength: number = buf.readUInt8();
         if (nameLength !== 0) {
             businessUpdate.name = buf.readBuffer(nameLength).toString("utf8");
         }
 
-        // const websiteLength: number = buf.readUint8();
-        // if (websiteLength !== 0) {
-        //     businessUpdate.website = buf.readString(websiteLength);
-        // }
         const websiteLength: number = buf.readUInt8();
         if (websiteLength !== 0) {
             businessUpdate.website = buf.readBuffer(websiteLength).toString("utf8");
         }
 
-        // const vatLength: number = buf.readUint8();
-        // if (vatLength !== 0) {
-        //     businessUpdate.vat = buf.readString(vatLength);
-        // }
         const vatLength: number = buf.readUInt8();
         if (vatLength !== 0) {
             businessUpdate.vat = buf.readBuffer(vatLength).toString("utf8");
         }
 
-        // const repositoryLength: number = buf.readUint8();
-        // if (repositoryLength !== 0) {
-        //     businessUpdate.repository = buf.readString(repositoryLength);
-        // }
         const repositoryLength: number = buf.readUInt8();
         if (repositoryLength !== 0) {
             businessUpdate.repository = buf.readBuffer(repositoryLength).toString("utf8");

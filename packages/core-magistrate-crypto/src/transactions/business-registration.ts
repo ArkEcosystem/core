@@ -67,22 +67,12 @@ export class BusinessRegistrationTransaction extends Transactions.Transaction {
             Buffer.alloc(businessName.length + businessWebsite.length + businessVatLength + businessRepoLength + 4),
         );
 
-        // buffer.writeByte(businessName.length);
-        // buffer.append(businessName, "hex");
         buffer.writeUInt8(businessName.length);
         buffer.writeBuffer(businessName);
 
-        // buffer.writeByte(businessWebsite.length);
-        // buffer.append(businessWebsite, "hex");
         buffer.writeUInt8(businessWebsite.length);
         buffer.writeBuffer(businessWebsite);
 
-        // if (businessVat) {
-        //     buffer.writeByte(businessVat.length);
-        //     buffer.append(businessVat, "hex");
-        // } else {
-        //     buffer.writeByte(0);
-        // }
         if (businessVat) {
             buffer.writeUInt8(businessVat.length);
             buffer.writeBuffer(businessVat);
@@ -90,12 +80,6 @@ export class BusinessRegistrationTransaction extends Transactions.Transaction {
             buffer.writeUInt8(0);
         }
 
-        // if (businessRepo) {
-        //     buffer.writeByte(businessRepo.length);
-        //     buffer.append(businessRepo, "hex");
-        // } else {
-        //     buffer.writeByte(0);
-        // }
         if (businessRepo) {
             buffer.writeUInt8(businessRepo.length);
             buffer.writeBuffer(businessRepo);
@@ -109,13 +93,9 @@ export class BusinessRegistrationTransaction extends Transactions.Transaction {
     public deserialize(buf: Utils.ByteBuffer): void {
         const { data } = this;
 
-        // const nameLength: number = buf.readUint8();
-        // const name: string = buf.readString(nameLength);
         const nameLength: number = buf.readUInt8();
         const name: string = buf.readBuffer(nameLength).toString("utf8");
 
-        // const websiteLength: number = buf.readUint8();
-        // const website: string = buf.readString(websiteLength);
         const websiteLength: number = buf.readUInt8();
         const website: string = buf.readBuffer(websiteLength).toString("utf8");
 
@@ -124,19 +104,11 @@ export class BusinessRegistrationTransaction extends Transactions.Transaction {
             website,
         };
 
-        // const vatLength = buf.readUint8();
-        // if (vatLength > 0) {
-        //     businessRegistration.vat = buf.readString(vatLength);
-        // }
         const vatLength = buf.readUInt8();
         if (vatLength > 0) {
             businessRegistration.vat = buf.readBuffer(vatLength).toString("utf8");
         }
 
-        // const repositoryLength: number = buf.readUint8();
-        // if (repositoryLength > 0) {
-        //     businessRegistration.repository = buf.readString(repositoryLength);
-        // }
         const repositoryLength: number = buf.readUInt8();
         if (repositoryLength > 0) {
             businessRegistration.repository = buf.readBuffer(repositoryLength).toString("utf8");
