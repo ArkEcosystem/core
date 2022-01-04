@@ -10,8 +10,7 @@ import {
     Transaction,
     TransactionTypeFactory,
 } from "@packages/crypto/src/transactions";
-import { BigNumber } from "@packages/crypto/src/utils";
-import { ByteBuffer } from "@packages/crypto/src/utils/byte-buffer";
+import { BigNumber, ByteBuffer } from "@packages/crypto/src/utils";
 
 configManager.getMilestone().aip11 = true;
 
