@@ -148,7 +148,7 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
         for (const [i, nameBuffer] of portNamesBuffers.entries()) {
             buffer.writeUInt8(nameBuffer.length);
             buffer.writeBuffer(nameBuffer);
-            buffer.writeInt16LE(portNumbers[i]);
+            buffer.writeUInt16LE(portNumbers[i]);
         }
 
         return buffer;
