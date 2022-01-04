@@ -49,7 +49,6 @@ export class BridgechainResignationTransaction extends Transactions.Transaction 
         AppUtils.assert.defined<IBridgechainResignationAsset>(data.asset?.bridgechainResignation);
 
         const buffer = new Utils.ByteBuffer(Buffer.alloc(32));
-        // buffer.append(data.asset.bridgechainResignation.bridgechainId, "hex");
         buffer.writeBuffer(Buffer.from(data.asset.bridgechainResignation.bridgechainId, "hex"));
 
         return buffer;

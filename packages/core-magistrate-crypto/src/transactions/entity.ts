@@ -104,25 +104,16 @@ export class EntityTransaction extends Transactions.Transaction {
             ),
         );
 
-        // buffer.writeUint8(asset.type);
-        // buffer.writeUint8(asset.subType);
-        // buffer.writeUint8(asset.action);
         buffer.writeUInt8(asset.type);
         buffer.writeUInt8(asset.subType);
         buffer.writeUInt8(asset.action);
 
-        // buffer.writeUint8(registrationIdBuffer.length);
-        // buffer.append(registrationIdBuffer, "hex");
         buffer.writeUInt8(registrationIdBuffer.length);
         buffer.writeBuffer(registrationIdBuffer);
 
-        // buffer.writeUint8(nameBuffer.length);
-        // buffer.append(nameBuffer);
         buffer.writeUInt8(nameBuffer.length);
         buffer.writeBuffer(nameBuffer);
 
-        // buffer.writeUint8(ipfsDataBuffer.length);
-        // buffer.append(ipfsDataBuffer);
         buffer.writeUInt8(ipfsDataBuffer.length);
         buffer.writeBuffer(ipfsDataBuffer);
 
@@ -133,17 +124,10 @@ export class EntityTransaction extends Transactions.Transaction {
         const { data } = this;
         data.asset = {};
 
-        // data.asset.type = buf.readUint8();
-        // data.asset.subType = buf.readUint8();
-        // data.asset.action = buf.readUint8();
         data.asset.type = buf.readUInt8();
         data.asset.subType = buf.readUInt8();
         data.asset.action = buf.readUInt8();
 
-        // const registrationIdBufferLength: number = buf.readUint8();
-        // if (registrationIdBufferLength > 0) {
-        //     data.asset.registrationId = buf.readBytes(registrationIdBufferLength).toString("hex");
-        // }
         const registrationIdBufferLength: number = buf.readUInt8();
         if (registrationIdBufferLength > 0) {
             data.asset.registrationId = buf.readBuffer(registrationIdBufferLength).toString("hex");
@@ -151,19 +135,11 @@ export class EntityTransaction extends Transactions.Transaction {
 
         data.asset.data = {};
 
-        // const nameBufferLength: number = buf.readUint8();
-        // if (nameBufferLength > 0) {
-        //     data.asset.data.name = buf.readString(nameBufferLength);
-        // }
         const nameBufferLength: number = buf.readUInt8();
         if (nameBufferLength > 0) {
             data.asset.data.name = buf.readBuffer(nameBufferLength).toString("utf8");
         }
 
-        // const ipfsDataBufferLength: number = buf.readUint8();
-        // if (ipfsDataBufferLength > 0) {
-        //     data.asset.data.ipfsData = buf.readString(ipfsDataBufferLength);
-        // }
         const ipfsDataBufferLength: number = buf.readUInt8();
         if (ipfsDataBufferLength > 0) {
             data.asset.data.ipfsData = buf.readBuffer(ipfsDataBufferLength).toString("utf8");
