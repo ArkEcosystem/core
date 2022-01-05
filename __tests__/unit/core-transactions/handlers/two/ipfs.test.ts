@@ -12,8 +12,8 @@ import { InsufficientBalanceError, IpfsHashAlreadyExists } from "@packages/core-
 import { TransactionHandler } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
 import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
-import { configManager } from "@packages/crypto/src/managers";
-import { BuilderFactory } from "@packages/crypto/src/transactions";
+import { configManager } from "@packages/crypto/dist/managers";
+import { BuilderFactory } from "@packages/crypto/dist/transactions";
 
 import {
     buildMultiSignatureWallet,
@@ -185,7 +185,7 @@ describe("Ipfs", () => {
         it("should return true when aip11 === true", async () => {
             await expect(handler.isActivated()).resolves.toBeTrue();
 
-            jest.spyOn(Managers.configManager, "getMilestone").mockReturnValue({});
+            Managers.configManager.getMilestone().aip11 = false;
 
             await expect(handler.isActivated()).resolves.toBeFalse();
         });
@@ -229,13 +229,6 @@ describe("Ipfs", () => {
             await expect(handler.throwIfCannotBeApplied(ipfsTransaction, senderWallet)).toResolve();
         });
 
-        it("should not throw defined as exception", async () => {
-            configManager.set("network.pubKeyHash", 99);
-            configManager.set("exceptions.transactions", [ipfsTransaction.id]);
-
-            await expect(handler.throwIfCannotBeApplied(ipfsTransaction, senderWallet)).toResolve();
-        });
-
         it("should not throw - second sign", async () => {
             await expect(
                 handler.throwIfCannotBeApplied(secondSignatureIpfsTransaction, secondSignatureWallet),
@@ -270,6 +263,13 @@ describe("Ipfs", () => {
             await expect(handler.throwIfCannotBeApplied(ipfsTransaction, senderWallet)).rejects.toThrow(
                 IpfsHashAlreadyExists,
             );
+        });
+
+        it("should not throw defined as exception", async () => {
+            configManager.set("network.pubKeyHash", 99);
+            configManager.set("exceptions.transactions", [ipfsTransaction.id]);
+
+            await expect(handler.throwIfCannotBeApplied(ipfsTransaction, senderWallet)).toResolve();
         });
     });
 
