@@ -29,7 +29,7 @@ export class Serializer {
      */
     public static serialize(transaction: ITransaction, options: ISerializeOptions = {}): Buffer {
         const buffer: ByteBuffer = new ByteBuffer(
-            Buffer.alloc(configManager.getMilestone(configManager.getHeight()).block.maxPayload),
+            Buffer.alloc(configManager.getMilestone(configManager.getHeight()).block?.maxPayload ?? 8192),
         );
 
         this.serializeCommon(transaction.data, buffer);
