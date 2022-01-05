@@ -25,14 +25,14 @@ export abstract class HtlcClaimTransaction extends Transaction {
     public serialize(options?: ISerializeOptions): ByteBuffer | undefined {
         const { data } = this;
 
-        const buffer: ByteBuffer = new ByteBuffer(Buffer.alloc(32 + 32));
+        const buff: ByteBuffer = new ByteBuffer(Buffer.alloc(32 + 32));
 
         if (data.asset && data.asset.claim) {
-            buffer.writeBuffer(Buffer.from(data.asset.claim.lockTransactionId, "hex"));
-            buffer.writeBuffer(Buffer.from(data.asset.claim.unlockSecret, "hex"));
+            buff.writeBuffer(Buffer.from(data.asset.claim.lockTransactionId, "hex"));
+            buff.writeBuffer(Buffer.from(data.asset.claim.unlockSecret, "hex"));
         }
 
-        return buffer;
+        return buff;
     }
 
     public deserialize(buf: ByteBuffer): void {

@@ -24,29 +24,29 @@ export class Serializer {
 
         const serializedHeader: Buffer = this.serialize(block);
 
-        const buffer: ByteBuffer = new ByteBuffer(serializedHeader.length + transactions.length * 4, true)
+        const buff: ByteBuffer = new ByteBuffer(serializedHeader.length + transactions.length * 4, true)
             .append(serializedHeader)
             .skip(transactions.length * 4);
 
         for (let i = 0; i < transactions.length; i++) {
             const serialized: Buffer = Utils.toBytes(transactions[i]);
-            buffer.writeUint32(serialized.length, serializedHeader.length + i * 4);
-            buffer.append(serialized);
+            buff.writeUint32(serialized.length, serializedHeader.length + i * 4);
+            buff.append(serialized);
         }
 
-        return buffer.flip().toBuffer();
+        return buff.flip().toBuffer();
     }
 
     public static serialize(block: IBlockData, includeSignature = true): Buffer {
-        const buffer: ByteBuffer = new ByteBuffer(512, true);
+        const buff: ByteBuffer = new ByteBuffer(512, true);
 
-        this.serializeHeader(block, buffer);
+        this.serializeHeader(block, buff);
 
         if (includeSignature) {
-            this.serializeSignature(block, buffer);
+            this.serializeSignature(block, buff);
         }
 
-        return buffer.flip().toBuffer();
+        return buff.flip().toBuffer();
     }
 
     private static headerSize(block: IBlockData): number {
@@ -67,7 +67,7 @@ export class Serializer {
         );
     }
 
-    private static serializeHeader(block: IBlockData, buffer: ByteBuffer): void {
+    private static serializeHeader(block: IBlockData, buff: ByteBuffer): void {
         const constants = configManager.getMilestone(block.height - 1 || 1);
 
         if (constants.block.idFullSha256) {
@@ -80,27 +80,27 @@ export class Serializer {
             block.previousBlockHex = Block.toBytesHex(block.previousBlock);
         }
 
-        buffer.writeUint32(block.version);
-        buffer.writeUint32(block.timestamp);
-        buffer.writeUint32(block.height);
-        buffer.append(block.previousBlockHex, "hex");
-        buffer.writeUint32(block.numberOfTransactions);
+        buff.writeUint32(block.version);
+        buff.writeUint32(block.timestamp);
+        buff.writeUint32(block.height);
+        buff.append(block.previousBlockHex, "hex");
+        buff.writeUint32(block.numberOfTransactions);
         // @ts-ignore - The ByteBuffer types say we can't use strings but the code actually handles them.
-        buffer.writeUint64(block.totalAmount.toString());
+        buff.writeUint64(block.totalAmount.toString());
         // @ts-ignore - The ByteBuffer types say we can't use strings but the code actually handles them.
-        buffer.writeUint64(block.totalFee.toString());
+        buff.writeUint64(block.totalFee.toString());
         // @ts-ignore - The ByteBuffer types say we can't use strings but the code actually handles them.
-        buffer.writeUint64(block.reward.toString());
-        buffer.writeUint32(block.payloadLength);
-        buffer.append(block.payloadHash, "hex");
-        buffer.append(block.generatorPublicKey, "hex");
+        buff.writeUint64(block.reward.toString());
+        buff.writeUint32(block.payloadLength);
+        buff.append(block.payloadHash, "hex");
+        buff.append(block.generatorPublicKey, "hex");
 
-        assert.strictEqual(buffer.offset, this.headerSize(block));
+        assert.strictEqual(buff.offset, this.headerSize(block));
     }
 
-    private static serializeSignature(block: IBlockData, buffer: ByteBuffer): void {
+    private static serializeSignature(block: IBlockData, buff: ByteBuffer): void {
         if (block.blockSignature) {
-            buffer.append(block.blockSignature, "hex");
+            buff.append(block.blockSignature, "hex");
         }
     }
 }

@@ -31,16 +31,16 @@ export class Deserializer {
     public static deserialize(serialized: string | Buffer, options: IDeserializeOptions = {}): ITransaction {
         const data = {} as ITransactionData;
 
-        const buffer: ByteBuffer = this.getByteBuffer(serialized);
-        this.deserializeCommon(data, buffer);
+        const buff: ByteBuffer = this.getByteBuffer(serialized);
+        this.deserializeCommon(data, buff);
 
         const instance: ITransaction = TransactionTypeFactory.create(data);
-        this.deserializeVendorField(instance, buffer);
+        this.deserializeVendorField(instance, buff);
 
         // Deserialize type specific parts
-        instance.deserialize(buffer);
+        instance.deserialize(buff);
 
-        this.deserializeSignatures(data, buffer);
+        this.deserializeSignatures(data, buff);
 
         if (data.version) {
             if (
@@ -56,7 +56,7 @@ export class Deserializer {
             }
         }
 
-        instance.serialized = buffer.getResult();
+        instance.serialized = buff.getResult();
 
         return instance;
     }
@@ -215,7 +215,6 @@ export class Deserializer {
             serialized = Buffer.from(serialized, "hex");
         }
 
-        const buffer: ByteBuffer = new ByteBuffer(serialized);
-        return buffer;
+        return new ByteBuffer(serialized);
     }
 }

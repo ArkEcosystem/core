@@ -18,17 +18,17 @@ export class VoteTransaction extends Transaction {
 
     public serialize(options?: ISerializeOptions): ByteBuffer | undefined {
         const { data } = this;
-        const buffer: ByteBuffer = new ByteBuffer(Buffer.alloc(100));
+        const buff: ByteBuffer = new ByteBuffer(Buffer.alloc(100));
 
         if (data.asset && data.asset.votes) {
             const voteBytes = data.asset.votes
                 .map((vote) => (vote.startsWith("+") ? "01" : "00") + vote.slice(1))
                 .join("");
-            buffer.writeUInt8(data.asset.votes.length);
-            buffer.writeBuffer(Buffer.from(voteBytes, "hex"));
+            buff.writeUInt8(data.asset.votes.length);
+            buff.writeBuffer(Buffer.from(voteBytes, "hex"));
         }
 
-        return buffer;
+        return buff;
     }
 
     public deserialize(buf: ByteBuffer): void {

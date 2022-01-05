@@ -32,16 +32,16 @@ export class MultiSignatureRegistrationTransaction extends Transaction {
     public serialize(options?: ISerializeOptions): ByteBuffer | undefined {
         const { data } = this;
         const { min, publicKeys } = data.asset!.multiSignature!;
-        const buffer: ByteBuffer = new ByteBuffer(Buffer.alloc(2 + publicKeys.length * 33));
+        const buff: ByteBuffer = new ByteBuffer(Buffer.alloc(2 + publicKeys.length * 33));
 
-        buffer.writeUInt8(min);
-        buffer.writeUInt8(publicKeys.length);
+        buff.writeUInt8(min);
+        buff.writeUInt8(publicKeys.length);
 
         for (const publicKey of publicKeys) {
-            buffer.writeBuffer(Buffer.from(publicKey, "hex"));
+            buff.writeBuffer(Buffer.from(publicKey, "hex"));
         }
 
-        return buffer;
+        return buff;
     }
 
     public deserialize(buf: ByteBuffer): void {

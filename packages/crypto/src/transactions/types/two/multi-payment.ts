@@ -30,20 +30,20 @@ export abstract class MultiPaymentTransaction extends Transaction {
         const { data } = this;
 
         if (data.asset && data.asset.payments) {
-            const buffer: ByteBuffer = new ByteBuffer(Buffer.alloc(2 + data.asset.payments.length * 29));
-            buffer.writeUInt16LE(data.asset.payments.length);
+            const buff: ByteBuffer = new ByteBuffer(Buffer.alloc(2 + data.asset.payments.length * 29));
+            buff.writeUInt16LE(data.asset.payments.length);
 
             for (const payment of data.asset.payments) {
                 // @ts-ignore
-                buffer.writeBigUInt64LE(payment.amount.value);
+                buff.writeBigUInt64LE(payment.amount.value);
 
                 const { addressBuffer, addressError } = Address.toBuffer(payment.recipientId);
                 options.addressError = addressError || options.addressError;
 
-                buffer.writeBuffer(addressBuffer);
+                buff.writeBuffer(addressBuffer);
             }
 
-            return buffer;
+            return buff;
         }
 
         return undefined;

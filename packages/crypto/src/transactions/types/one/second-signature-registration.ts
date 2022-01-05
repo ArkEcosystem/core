@@ -18,13 +18,13 @@ export abstract class SecondSignatureRegistrationTransaction extends Transaction
 
     public serialize(options?: ISerializeOptions): ByteBuffer | undefined {
         const { data } = this;
-        const buffer: ByteBuffer = new ByteBuffer(Buffer.alloc(33));
+        const buff: ByteBuffer = new ByteBuffer(Buffer.alloc(33));
 
         if (data.asset && data.asset.signature) {
-            buffer.writeBuffer(Buffer.from(data.asset.signature.publicKey, "hex"));
+            buff.writeBuffer(Buffer.from(data.asset.signature.publicKey, "hex"));
         }
 
-        return buffer;
+        return buff;
     }
 
     public deserialize(buf: ByteBuffer): void {

@@ -23,10 +23,10 @@ export abstract class TransferTransaction extends Transaction {
 
     public serialize(options?: ISerializeOptions): ByteBuffer | undefined {
         const { data } = this;
-        const buffer: ByteBuffer = new ByteBuffer(Buffer.alloc(33));
+        const buff: ByteBuffer = new ByteBuffer(Buffer.alloc(33));
         // @ts-ignore
-        buffer.writeBigUInt64LE(data.amount.value);
-        buffer.writeUInt32LE(data.expiration || 0);
+        buff.writeBigUInt64LE(data.amount.value);
+        buff.writeUInt32LE(data.expiration || 0);
 
         if (data.recipientId) {
             const { addressBuffer, addressError } = Address.toBuffer(data.recipientId);
@@ -35,10 +35,10 @@ export abstract class TransferTransaction extends Transaction {
                 options.addressError = addressError;
             }
 
-            buffer.writeBuffer(addressBuffer);
+            buff.writeBuffer(addressBuffer);
         }
 
-        return buffer;
+        return buff;
     }
 
     public deserialize(buf: ByteBuffer): void {

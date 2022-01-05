@@ -35,14 +35,14 @@ export abstract class MultiSignatureRegistrationTransaction extends Transaction 
         const legacyAsset: IMultiSignatureLegacyAsset = data.asset!.multiSignatureLegacy!;
         const joined: string = legacyAsset.keysgroup.map((k) => (k.startsWith("+") ? k.slice(1) : k)).join("");
         const keysgroupBuffer: Buffer = Buffer.from(joined, "hex");
-        const buffer: ByteBuffer = new ByteBuffer(Buffer.alloc(keysgroupBuffer.length + 3));
+        const buff: ByteBuffer = new ByteBuffer(Buffer.alloc(keysgroupBuffer.length + 3));
 
-        buffer.writeUInt8(legacyAsset.min);
-        buffer.writeUInt8(legacyAsset.keysgroup.length);
-        buffer.writeUInt8(legacyAsset.lifetime);
-        buffer.writeBuffer(keysgroupBuffer);
+        buff.writeUInt8(legacyAsset.min);
+        buff.writeUInt8(legacyAsset.keysgroup.length);
+        buff.writeUInt8(legacyAsset.lifetime);
+        buff.writeBuffer(keysgroupBuffer);
 
-        return buffer;
+        return buff;
     }
 
     public deserialize(buf: ByteBuffer): void {

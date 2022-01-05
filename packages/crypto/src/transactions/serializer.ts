@@ -28,12 +28,12 @@ export class Serializer {
      * Serializes the given transaction according to AIP11.
      */
     public static serialize(transaction: ITransaction, options: ISerializeOptions = {}): Buffer {
-        const buffer: ByteBuffer = new ByteBuffer(
+        const buff: ByteBuffer = new ByteBuffer(
             Buffer.alloc(configManager.getMilestone(configManager.getHeight()).block?.maxPayload ?? 8192),
         );
 
-        this.serializeCommon(transaction.data, buffer);
-        this.serializeVendorField(transaction, buffer);
+        this.serializeCommon(transaction.data, buff);
+        this.serializeVendorField(transaction, buff);
 
         const serialized: ByteBuffer | undefined = transaction.serialize(options);
 
@@ -41,11 +41,11 @@ export class Serializer {
             throw new Error();
         }
 
-        buffer.writeBuffer(serialized.getResult());
+        buff.writeBuffer(serialized.getResult());
 
-        this.serializeSignatures(transaction.data, buffer, options);
+        this.serializeSignatures(transaction.data, buff, options);
 
-        const bufferBuffer = buffer.getResult();
+        const bufferBuffer = buff.getResult();
         transaction.serialized = bufferBuffer;
 
         return bufferBuffer;
@@ -168,70 +168,70 @@ export class Serializer {
         return bb.getResult();
     }
 
-    private static serializeCommon(transaction: ITransactionData, buffer: ByteBuffer): void {
+    private static serializeCommon(transaction: ITransactionData, buff: ByteBuffer): void {
         transaction.version = transaction.version || 0x01;
         if (transaction.typeGroup === undefined) {
             transaction.typeGroup = TransactionTypeGroup.Core;
         }
 
-        buffer.writeUInt8(0xff);
-        buffer.writeUInt8(transaction.version);
-        buffer.writeUInt8(transaction.network || configManager.get("network.pubKeyHash"));
+        buff.writeUInt8(0xff);
+        buff.writeUInt8(transaction.version);
+        buff.writeUInt8(transaction.network || configManager.get("network.pubKeyHash"));
 
         if (transaction.version === 1) {
-            buffer.writeUInt8(transaction.type);
-            buffer.writeUInt32LE(transaction.timestamp);
+            buff.writeUInt8(transaction.type);
+            buff.writeUInt32LE(transaction.timestamp);
         } else {
-            buffer.writeUInt32LE(transaction.typeGroup);
-            buffer.writeUInt16LE(transaction.type);
+            buff.writeUInt32LE(transaction.typeGroup);
+            buff.writeUInt16LE(transaction.type);
 
             if (transaction.nonce) {
                 // @ts-ignore
-                buffer.writeBigInt64LE(transaction.nonce.value);
+                buff.writeBigInt64LE(transaction.nonce.value);
             }
         }
 
         if (transaction.senderPublicKey) {
-            buffer.writeBuffer(Buffer.from(transaction.senderPublicKey, "hex"));
+            buff.writeBuffer(Buffer.from(transaction.senderPublicKey, "hex"));
         }
 
         // @ts-ignore
-        buffer.writeBigInt64LE(transaction.fee.value);
+        buff.writeBigInt64LE(transaction.fee.value);
     }
 
-    private static serializeVendorField(transaction: ITransaction, buffer: ByteBuffer): void {
+    private static serializeVendorField(transaction: ITransaction, buff: ByteBuffer): void {
         const { data }: ITransaction = transaction;
 
         if (transaction.hasVendorField() && data.vendorField) {
             const vf: Buffer = Buffer.from(data.vendorField, "utf8");
-            buffer.writeUInt8(vf.length);
-            buffer.writeBuffer(vf);
+            buff.writeUInt8(vf.length);
+            buff.writeBuffer(vf);
         } else {
-            buffer.writeUInt8(0x00);
+            buff.writeUInt8(0x00);
         }
     }
 
     private static serializeSignatures(
         transaction: ITransactionData,
-        buffer: ByteBuffer,
+        buff: ByteBuffer,
         options: ISerializeOptions = {},
     ): void {
         if (transaction.signature && !options.excludeSignature) {
-            buffer.writeBuffer(Buffer.from(transaction.signature, "hex"));
+            buff.writeBuffer(Buffer.from(transaction.signature, "hex"));
         }
 
         const secondSignature: string | undefined = transaction.secondSignature || transaction.signSignature;
 
         if (secondSignature && !options.excludeSecondSignature) {
-            buffer.writeBuffer(Buffer.from(secondSignature, "hex"));
+            buff.writeBuffer(Buffer.from(secondSignature, "hex"));
         }
 
         if (transaction.signatures) {
             if (transaction.version === 1 && isException(transaction)) {
-                buffer.writeUInt8(0xff); // 0xff separator to signal start of multi-signature transactions
-                buffer.writeBuffer(Buffer.from(transaction.signatures.join(""), "hex"));
+                buff.writeUInt8(0xff); // 0xff separator to signal start of multi-signature transactions
+                buff.writeBuffer(Buffer.from(transaction.signatures.join(""), "hex"));
             } else if (!options.excludeMultiSignature) {
-                buffer.writeBuffer(Buffer.from(transaction.signatures.join(""), "hex"));
+                buff.writeBuffer(Buffer.from(transaction.signatures.join(""), "hex"));
             }
         }
     }

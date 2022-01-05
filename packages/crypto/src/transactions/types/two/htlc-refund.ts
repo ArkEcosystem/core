@@ -25,13 +25,13 @@ export abstract class HtlcRefundTransaction extends Transaction {
     public serialize(options?: ISerializeOptions): ByteBuffer | undefined {
         const { data } = this;
 
-        const buffer: ByteBuffer = new ByteBuffer(Buffer.alloc(32));
+        const buff: ByteBuffer = new ByteBuffer(Buffer.alloc(32));
 
         if (data.asset && data.asset.refund) {
-            buffer.writeBuffer(Buffer.from(data.asset.refund.lockTransactionId, "hex"));
+            buff.writeBuffer(Buffer.from(data.asset.refund.lockTransactionId, "hex"));
         }
 
-        return buffer;
+        return buff;
     }
 
     public deserialize(buf: ByteBuffer): void {
