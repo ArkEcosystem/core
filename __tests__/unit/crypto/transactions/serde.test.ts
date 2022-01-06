@@ -22,8 +22,7 @@ class TestTransaction extends Transaction {
     public serialize(): ByteBuffer {
         const { data } = this;
         const buffer: ByteBuffer = new ByteBuffer(Buffer.alloc(33));
-        // @ts-ignore
-        buffer.writeBigUInt64LE(data.amount.value);
+        buffer.writeBigUInt64LE(data.amount.toBigInt());
         buffer.writeUInt32LE(data.expiration || 0);
 
         if (data.recipientId) {
