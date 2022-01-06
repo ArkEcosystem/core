@@ -1,11 +1,10 @@
 import "jest-extended";
 
-import { Interfaces, Managers, Utils } from "@arkecosystem/crypto";
 import { BIP39 } from "@packages/core-forger/src/methods/bip39";
 import { TransactionFactory } from "@packages/core-test-framework/src/utils/transaction-factory";
+import { Managers, Utils } from "@packages/crypto";
 import { Block, BlockFactory, Deserializer, Serializer } from "@packages/crypto/src/blocks";
 import { Slots } from "@packages/crypto/src/crypto";
-import { IBlock } from "@packages/crypto/src/interfaces";
 import { configManager } from "@packages/crypto/src/managers";
 import * as networks from "@packages/crypto/src/networks";
 import { NetworkName } from "@packages/crypto/src/types";
@@ -59,7 +58,7 @@ describe("Block", () => {
             expect(block.verification.verified).toBeTrue();
         });
 
-        it("should fail to verify the block ", () => {
+        it("should fail to verify the block", () => {
             const block = BlockFactory.fromData(data);
 
             expect(block.verification.verified).toBeFalse();
@@ -103,7 +102,7 @@ describe("Block", () => {
                 .withPassphrase("super cool passphrase")
                 .create(210);
 
-            const block: IBlock = delegate.forge(transactions, optionsDefault);
+            const block = delegate.forge(transactions, optionsDefault);
 
             expect(block.verification.verified).toBeFalse();
             expect(block.verification.errors).toContain("Transactions length is too high");
@@ -126,7 +125,7 @@ describe("Block", () => {
                 .withPassphrase("super cool passphrase")
                 .create();
 
-            const block: IBlock = delegate.forge([transactions[0], transactions[0]], optionsDefault);
+            const block = delegate.forge([transactions[0], transactions[0]], optionsDefault);
 
             expect(block.verification.verified).toBeFalse();
             expect(block.verification.errors).toContain(`Encountered duplicate transaction: ${transactions[0].id}`);
@@ -186,7 +185,7 @@ describe("Block", () => {
 
             transactions[0].expiration = 102;
 
-            const block: IBlock = delegate.forge(transactions, optionsDefault);
+            const block = delegate.forge(transactions, optionsDefault);
             expect(block.verification.verified).toBeTrue();
         });
 
@@ -209,7 +208,7 @@ describe("Block", () => {
                 .withPassphrase("super cool passphrase")
                 .create();
 
-            const block: IBlock = delegate.forge(transactions, optionsDefault);
+            const block = delegate.forge(transactions, optionsDefault);
             expect(block.verification.verified).toBeFalse();
             expect(block.verification.errors).toContain(`Encountered expired transaction: ${transactions[0].id}`);
         });
@@ -235,7 +234,7 @@ describe("Block", () => {
                 .create();
 
             Managers.configManager.getMilestone().aip11 = false;
-            const block: IBlock = delegate.forge(transactions, optionsDefault);
+            const block = delegate.forge(transactions, optionsDefault);
             expect(block.verification.verified).toBeFalse();
             expect(block.verification.errors).toContain(`Encountered expired transaction: ${transactions[0].id}`);
             Managers.configManager.getMilestone().aip11 = true;
@@ -266,7 +265,7 @@ describe("Block", () => {
                 .create();
 
             Managers.configManager.getMilestone().aip11 = false;
-            const block: IBlock = delegate.forge(transactions, optionsDefault);
+            const block = delegate.forge(transactions, optionsDefault);
             expect(block.verification.verified).toBeTrue();
             Managers.configManager.getMilestone().aip11 = true;
         });
@@ -296,7 +295,7 @@ describe("Block", () => {
                 .create();
 
             Managers.configManager.getMilestone().aip11 = false;
-            const block: IBlock = delegate.forge(transactions, optionsDefault);
+            const block = delegate.forge(transactions, optionsDefault);
             expect(block.verification.verified).toBeFalse();
             expect(block.verification.errors).toContain(`Encountered future transaction: ${transactions[0].id}`);
             Managers.configManager.getMilestone().aip11 = true;
@@ -326,7 +325,7 @@ describe("Block", () => {
                 .withPassphrase("super cool passphrase")
                 .create();
 
-            const block: IBlock = delegate.forge(transactions, optionsDefault);
+            const block = delegate.forge(transactions, optionsDefault);
             expect(block.verification.verified).toBeTrue();
             expect(block.verification.errors).toBeEmpty();
         });
@@ -354,7 +353,7 @@ describe("Block", () => {
                 .withPassphrase("super cool passphrase")
                 .create();
 
-            const block: IBlock = delegate.forge(transactions, optionsDefault);
+            const block = delegate.forge(transactions, optionsDefault);
             expect(block.verification.verified).toBeFalse();
             expect(block.verification.errors).toContain(`Encountered future transaction: ${transactions[0].id}`);
         });
@@ -715,7 +714,7 @@ describe("Block", () => {
                 configManager.setFromPreset(network);
                 configManager.getMilestone().aip11 = false;
 
-                const block: Interfaces.IBlock = BlockFactory.fromJson(networks[network].genesisBlock);
+                const block = BlockFactory.fromJson(networks[network].genesisBlock);
 
                 expect(block.serialized).toHaveLength(length);
                 expect(block.verifySignature()).toBeTrue();

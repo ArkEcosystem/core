@@ -1,10 +1,9 @@
 import { base58 } from "bstring";
-import ByteBuffer from "bytebuffer";
 
 import { TransactionType, TransactionTypeGroup } from "../../../enums";
 import { ISerializeOptions } from "../../../interfaces";
 import { configManager } from "../../../managers";
-import { BigNumber } from "../../../utils/bignum";
+import { BigNumber, ByteBuffer } from "../../../utils";
 import * as schemas from "../schemas";
 import { Transaction } from "../transaction";
 
@@ -29,11 +28,11 @@ export abstract class IpfsTransaction extends Transaction {
 
         if (data.asset) {
             const ipfsBuffer: Buffer = base58.decode(data.asset.ipfs);
-            const buffer: ByteBuffer = new ByteBuffer(ipfsBuffer.length, true);
+            const buff: ByteBuffer = new ByteBuffer(Buffer.alloc(ipfsBuffer.length));
 
-            buffer.append(ipfsBuffer, "hex");
+            buff.writeBuffer(ipfsBuffer);
 
-            return buffer;
+            return buff;
         }
 
         return undefined;
@@ -42,17 +41,17 @@ export abstract class IpfsTransaction extends Transaction {
     public deserialize(buf: ByteBuffer): void {
         const { data } = this;
 
-        const hashFunction: number = buf.readUint8();
-        const ipfsHashLength: number = buf.readUint8();
-        const ipfsHash: Buffer = buf.readBytes(ipfsHashLength).toBuffer();
+        const hashFunction: number = buf.readUInt8();
+        const ipfsHashLength: number = buf.readUInt8();
+        const ipfsHash: Buffer = buf.readBuffer(ipfsHashLength);
 
-        const buffer: Buffer = Buffer.alloc(ipfsHashLength + 2);
-        buffer.writeUInt8(hashFunction, 0);
-        buffer.writeUInt8(ipfsHashLength, 1);
-        buffer.fill(ipfsHash, 2);
+        const buff: Buffer = Buffer.alloc(ipfsHashLength + 2);
+        buff.writeUInt8(hashFunction, 0);
+        buff.writeUInt8(ipfsHashLength, 1);
+        buff.fill(ipfsHash, 2);
 
         data.asset = {
-            ipfs: base58.encode(buffer),
+            ipfs: base58.encode(buff),
         };
     }
 }

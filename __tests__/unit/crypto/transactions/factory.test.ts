@@ -1,20 +1,20 @@
 import "jest-extended";
 
-import { Interfaces, Utils } from "@arkecosystem/crypto";
-
+import { Interfaces, Utils } from "@packages/crypto";
 import {
     InvalidTransactionBytesError,
     TransactionSchemaError,
     UnkownTransactionError,
-} from "../../../../packages/crypto/src/errors";
-import { ITransactionData } from "../../../../packages/crypto/src/interfaces";
-import { configManager } from "../../../../packages/crypto/src/managers";
+} from "@packages/crypto/src/errors";
+import { ITransactionData } from "@packages/crypto/src/interfaces";
+import { configManager } from "@packages/crypto/src/managers";
 import {
     Serializer,
     Transaction,
     TransactionFactory,
     Utils as TransactionUtils,
-} from "../../../../packages/crypto/src/transactions";
+} from "@packages/crypto/src/transactions";
+
 import { transaction as transactionFixture } from "../fixtures/transaction";
 import { transaction as transactionDataFixture } from "../fixtures/transaction";
 import { createRandomTx } from "./__support__";
@@ -36,7 +36,7 @@ beforeEach(() => {
     };
 });
 
-const transaction: Interfaces.ITransaction = TransactionFactory.fromData(transactionFixture);
+const transaction = TransactionFactory.fromData(transactionFixture);
 const transactionJson: Interfaces.ITransactionJson = transaction.toJson();
 const transactionSerialized: Buffer = Serializer.serialize(transaction);
 

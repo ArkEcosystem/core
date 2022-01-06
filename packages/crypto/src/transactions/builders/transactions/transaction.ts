@@ -99,6 +99,12 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
         return this.instance();
     }
 
+    public timestamp(timestamp: number): TBuilder {
+        this.data.timestamp = timestamp;
+
+        return this.instance();
+    }
+
     public sign(passphrase: string): TBuilder {
         const keys: IKeyPair = Keys.fromPassphrase(passphrase);
         return this.signWithKeyPair(keys);

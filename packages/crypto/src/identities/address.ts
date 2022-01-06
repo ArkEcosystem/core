@@ -27,8 +27,8 @@ export class Address {
         return Identity.fromPrivateKey(privateKey, { pubKeyHash: getPubKeyHash(networkVersion) });
     }
 
-    public static fromBuffer(buffer: Buffer): string {
-        return Identity.fromBuffer(buffer);
+    public static fromBuffer(buff: Buffer): string {
+        return Identity.fromBuffer(buff);
     }
 
     public static toBuffer(address: string, networkVersion?: number): { addressBuffer: Buffer; addressError?: string } {

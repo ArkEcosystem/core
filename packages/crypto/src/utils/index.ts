@@ -4,6 +4,7 @@ import { configManager } from "../managers";
 import { Base58 } from "./base58";
 import { BigNumber } from "./bignum";
 import { calculateBlockTime, isNewBlockTime } from "./block-time-calculator";
+import { ByteBuffer } from "./byte-buffer";
 import { isLocalHost, isValidPeer } from "./is-valid-peer";
 
 let genesisTransactions: { [key: string]: boolean };
@@ -107,4 +108,4 @@ export const isSupportedTransactionVersion = (version: number): boolean => {
     return true;
 };
 
-export { Base58, BigNumber, isValidPeer, isLocalHost, calculateBlockTime, isNewBlockTime };
+export { Base58, BigNumber, ByteBuffer, isValidPeer, isLocalHost, calculateBlockTime, isNewBlockTime };

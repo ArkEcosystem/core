@@ -1,9 +1,7 @@
-import ByteBuffer from "bytebuffer";
-
 import { TransactionType, TransactionTypeGroup } from "../../../enums";
 import { ISerializeOptions } from "../../../interfaces";
 import { configManager } from "../../../managers";
-import { BigNumber } from "../../../utils/bignum";
+import { BigNumber, ByteBuffer } from "../../../utils";
 import * as schemas from "../schemas";
 import { Transaction } from "../transaction";
 
@@ -27,21 +25,21 @@ export abstract class HtlcClaimTransaction extends Transaction {
     public serialize(options?: ISerializeOptions): ByteBuffer | undefined {
         const { data } = this;
 
-        const buffer: ByteBuffer = new ByteBuffer(32 + 32, true);
+        const buff: ByteBuffer = new ByteBuffer(Buffer.alloc(32 + 32));
 
         if (data.asset && data.asset.claim) {
-            buffer.append(Buffer.from(data.asset.claim.lockTransactionId, "hex"));
-            buffer.append(Buffer.from(data.asset.claim.unlockSecret, "hex"));
+            buff.writeBuffer(Buffer.from(data.asset.claim.lockTransactionId, "hex"));
+            buff.writeBuffer(Buffer.from(data.asset.claim.unlockSecret, "hex"));
         }
 
-        return buffer;
+        return buff;
     }
 
     public deserialize(buf: ByteBuffer): void {
         const { data } = this;
 
-        const lockTransactionId: string = buf.readBytes(32).toString("hex");
-        const unlockSecret: string = buf.readBytes(32).toString("hex");
+        const lockTransactionId: string = buf.readBuffer(32).toString("hex");
+        const unlockSecret: string = buf.readBuffer(32).toString("hex");
 
         data.asset = {
             claim: {

@@ -1,8 +1,8 @@
 import "jest-extended";
 
-import { Contracts } from "@packages/core-kernel";
 import Hapi from "@hapi/hapi";
 import { TransactionsController } from "@packages/core-api/src/controllers/transactions";
+import { Contracts } from "@packages/core-kernel";
 import { Application, Utils } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
@@ -11,9 +11,9 @@ import { Generators } from "@packages/core-test-framework/src";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
 import { Identities, Interfaces, Managers, Transactions } from "@packages/crypto";
+import { BuilderFactory } from "@packages/crypto/dist/transactions";
 import { TransactionType } from "@packages/crypto/src/enums";
 import { configManager } from "@packages/crypto/src/managers";
-import { BuilderFactory } from "@packages/crypto/src/transactions";
 
 import { initApp, ItemResponse, PaginatedResponse } from "../__support__";
 

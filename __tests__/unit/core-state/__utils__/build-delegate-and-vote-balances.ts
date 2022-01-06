@@ -1,5 +1,5 @@
 import { Wallet, WalletRepository } from "@packages/core-state/src/wallets";
-import { Identities, Utils as CryptoUtils } from "@packages/crypto/src";
+import { Identities, Utils as CryptoUtils } from "@packages/crypto";
 import { SATOSHI } from "@packages/crypto/src/constants";
 
 export const buildDelegateAndVoteWallets = (numberDelegates: number, walletRepo: WalletRepository): Wallet[] => {

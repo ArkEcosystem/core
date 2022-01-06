@@ -1,6 +1,5 @@
 import { Container, Contracts } from "@arkecosystem/core-kernel";
-import { Enums, Interfaces, Transactions } from "@arkecosystem/crypto";
-import ByteBuffer from "bytebuffer";
+import { Enums, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 
 import { InvalidTransactionDataError } from "./errors";
 
@@ -90,7 +89,7 @@ export class Processor implements Contracts.TransactionPool.Processor {
     private async getTransactionFromBuffer(transactionData: Buffer): Promise<Interfaces.ITransaction> {
         try {
             const transactionCommon = {} as Interfaces.ITransactionData;
-            const txByteBuffer = ByteBuffer.wrap(transactionData);
+            const txByteBuffer = new Utils.ByteBuffer(transactionData);
             Transactions.Deserializer.deserializeCommon(transactionCommon, txByteBuffer);
 
             if (this.workerPool.isTypeGroupSupported(transactionCommon.typeGroup || Enums.TransactionTypeGroup.Core)) {

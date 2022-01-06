@@ -1,5 +1,4 @@
 import { Transactions, Utils } from "@arkecosystem/crypto";
-import ByteBuffer from "bytebuffer";
 
 import { MagistrateTransactionGroup, MagistrateTransactionStaticFees, MagistrateTransactionType } from "../enums";
 
@@ -24,11 +23,11 @@ export class BusinessResignationTransaction extends Transactions.Transaction {
             },
         });
     }
-    public serialize(): ByteBuffer {
-        return new ByteBuffer(0);
+    public serialize(): Utils.ByteBuffer {
+        return new Utils.ByteBuffer(Buffer.alloc(0));
     }
 
-    public deserialize(buf: ByteBuffer): void {
+    public deserialize(buf: Utils.ByteBuffer): void {
         return;
     }
 }

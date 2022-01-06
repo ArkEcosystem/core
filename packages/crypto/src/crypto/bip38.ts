@@ -27,17 +27,17 @@ const SCRYPT_PARAMS = {
 };
 const NULL = Buffer.alloc(0);
 
-const getPublicKey = (buffer: Buffer, compressed: boolean): Buffer => {
-    return Buffer.from(Keys.fromPrivateKey(buffer, compressed).publicKey, "hex");
+const getPublicKey = (buff: Buffer, compressed: boolean): Buffer => {
+    return Buffer.from(Keys.fromPrivateKey(buff, compressed).publicKey, "hex");
 };
 
 const getAddressPrivate = (privateKey: Buffer, compressed: boolean): string => {
     const publicKey = getPublicKey(privateKey, compressed);
-    const buffer = HashAlgorithms.hash160(publicKey);
+    const buff = HashAlgorithms.hash160(publicKey);
     const payload = Buffer.alloc(21);
 
     payload.writeUInt8(0x00, 0);
-    buffer.copy(payload, 1);
+    buff.copy(payload, 1);
 
     return Base58.encodeCheck(payload);
 };
@@ -82,12 +82,12 @@ export const verify = (bip38: string): boolean => {
     return true;
 };
 
-const encryptRaw = (buffer: Buffer, compressed: boolean, passphrase: string): Buffer => {
-    if (buffer.length !== 32) {
-        throw new PrivateKeyLengthError(32, buffer.length);
+const encryptRaw = (buff: Buffer, compressed: boolean, passphrase: string): Buffer => {
+    if (buff.length !== 32) {
+        throw new PrivateKeyLengthError(32, buff.length);
     }
 
-    const address = getAddressPrivate(buffer, compressed);
+    const address = getAddressPrivate(buff, compressed);
 
     const secret = Buffer.from(passphrase, "utf8");
     const salt = HashAlgorithms.hash256(address).slice(0, 4);
@@ -96,7 +96,7 @@ const encryptRaw = (buffer: Buffer, compressed: boolean, passphrase: string): Bu
     const derivedHalf1 = scryptBuf.slice(0, 32);
     const derivedHalf2 = scryptBuf.slice(32, 64);
 
-    const xorBuf = xor(derivedHalf1, buffer);
+    const xorBuf = xor(derivedHalf1, buff);
     const cipher = aes.createCipheriv("aes-256-ecb", derivedHalf2, NULL);
     cipher.setAutoPadding(false);
     cipher.end(xorBuf);
@@ -114,18 +114,18 @@ const encryptRaw = (buffer: Buffer, compressed: boolean, passphrase: string): Bu
     return result;
 };
 
-const decryptECMult = (buffer: Buffer, passphrase: string): IDecryptResult => {
-    buffer = buffer.slice(1);
+const decryptECMult = (buff: Buffer, passphrase: string): IDecryptResult => {
+    buff = buff.slice(1);
 
-    const flag = buffer.readUInt8(1);
+    const flag = buff.readUInt8(1);
 
     const compressed = (flag & 0x20) !== 0;
     const hasLotSeq = (flag & 0x04) !== 0;
 
     assert.strictEqual(flag & 0x24, flag, "Invalid private key.");
 
-    const addressHash = buffer.slice(2, 6);
-    const ownerEntropy = buffer.slice(6, 14);
+    const addressHash = buff.slice(2, 6);
+    const ownerEntropy = buff.slice(6, 14);
     let ownerSalt;
 
     // 4 bytes ownerSalt if 4 bytes lot/sequence
@@ -137,8 +137,8 @@ const decryptECMult = (buffer: Buffer, passphrase: string): IDecryptResult => {
         ownerSalt = ownerEntropy;
     }
 
-    const encryptedPart1 = buffer.slice(14, 22); // First 8 bytes
-    const encryptedPart2 = buffer.slice(22, 38); // 16 bytes
+    const encryptedPart1 = buff.slice(14, 22); // First 8 bytes
+    const encryptedPart2 = buff.slice(22, 38); // 16 bytes
 
     const preFactor = crypto.scryptSync(passphrase, ownerSalt, 32, SCRYPT_PARAMS);
 
@@ -183,36 +183,36 @@ const decryptECMult = (buffer: Buffer, passphrase: string): IDecryptResult => {
 };
 
 // some of the techniques borrowed from: https://github.com/pointbiz/bitaddress.org
-const decryptRaw = (buffer: Buffer, passphrase: string): IDecryptResult => {
+const decryptRaw = (buff: Buffer, passphrase: string): IDecryptResult => {
     // 39 bytes: 2 bytes prefix, 37 bytes payload
-    if (buffer.length !== 39) {
-        throw new Bip38LengthError(39, buffer.length);
+    if (buff.length !== 39) {
+        throw new Bip38LengthError(39, buff.length);
     }
-    if (buffer.readUInt8(0) !== 0x01) {
-        throw new Bip38PrefixError(0x01, buffer.readUInt8(0));
+    if (buff.readUInt8(0) !== 0x01) {
+        throw new Bip38PrefixError(0x01, buff.readUInt8(0));
     }
 
     // check if BIP38 EC multiply
-    const type = buffer.readUInt8(1);
+    const type = buff.readUInt8(1);
     if (type === 0x43) {
-        return decryptECMult(buffer, passphrase);
+        return decryptECMult(buff, passphrase);
     }
     if (type !== 0x42) {
         throw new Bip38TypeError(0x42, type);
     }
 
-    const flagByte = buffer.readUInt8(2);
+    const flagByte = buff.readUInt8(2);
     const compressed = flagByte === 0xe0;
     if (!compressed && flagByte !== 0xc0) {
         throw new Bip38CompressionError(0xc0, flagByte);
     }
 
-    const salt = buffer.slice(3, 7);
+    const salt = buff.slice(3, 7);
     const scryptBuf = crypto.scryptSync(passphrase, salt, 64, SCRYPT_PARAMS);
     const derivedHalf1 = scryptBuf.slice(0, 32);
     const derivedHalf2 = scryptBuf.slice(32, 64);
 
-    const privKeyBuf = buffer.slice(7, 7 + 32);
+    const privKeyBuf = buff.slice(7, 7 + 32);
     const decipher = aes.createDecipheriv("aes-256-ecb", derivedHalf2, NULL);
     decipher.setAutoPadding(false);
     decipher.end(privKeyBuf);

@@ -1,10 +1,8 @@
 import "jest-extended";
 
-import ByteBuffer from "bytebuffer";
-
 import { BridgechainUpdateBuilder } from "@packages/core-magistrate-crypto/src/builders";
-import { Managers, Transactions, Validation } from "@packages/crypto";
 import { BridgechainUpdateTransaction } from "@packages/core-magistrate-crypto/src/transactions";
+import { Managers, Transactions, Validation } from "@packages/crypto";
 
 import { bridgechainUpdateAsset1, checkCommonFields } from "../helper";
 
@@ -28,7 +26,7 @@ describe("Bridgechain update ser/deser", () => {
                 .bridgechainUpdateAsset({
                     bridgechainId: genesisHash,
                     seedNodes: ["74.125.224.72"],
-                    ports: {"@arkecosystem/core-api": 12345},
+                    ports: { "@arkecosystem/core-api": 12345 },
                     bridgechainRepository: "http://www.repository.com/myorg/myrepo",
                     bridgechainAssetRepository: "http://www.repository.com/myorg/myassetrepo",
                 })
@@ -47,7 +45,7 @@ describe("Bridgechain update ser/deser", () => {
                 .bridgechainUpdateAsset({
                     bridgechainId: genesisHash,
                     seedNodes: ["74.125.224.72"],
-                    ports: {"@arkecosystem/core-api": 12345},
+                    ports: { "@arkecosystem/core-api": 12345 },
                     bridgechainRepository: "http://www.repository.com/myorg/myrepo",
                     bridgechainAssetRepository: "http://www.repository.com/myorg/myassetrepo",
                 })
@@ -56,14 +54,13 @@ describe("Bridgechain update ser/deser", () => {
 
             const transaction = Transactions.TransactionFactory.fromData(businessResignation);
 
-
             transaction.data.asset!.seedNodes = [];
             transaction.data.asset!.ports = {};
             transaction.data.asset!.bridgechainRepository = "";
             transaction.data.asset!.bridgechainAssetRepository = "";
 
-            const serialized = ByteBuffer.fromHex(transaction.serialize().toString("hex"));
-
+            const serialized = transaction.serialize()!;
+            serialized.reset();
             transaction.deserialize(serialized);
         });
 
@@ -73,7 +70,7 @@ describe("Bridgechain update ser/deser", () => {
                 .bridgechainUpdateAsset({
                     bridgechainId: genesisHash,
                     seedNodes: ["74.125.224.72"],
-                    ports: {"@arkecosystem/core-api": 12345},
+                    ports: { "@arkecosystem/core-api": 12345 },
                     bridgechainRepository: "http://www.repository.com/myorg/myrepo",
                     bridgechainAssetRepository: "http://www.repository.com/myorg/myassetrepo",
                 })

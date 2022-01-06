@@ -9,7 +9,7 @@ import { Mocks } from "@packages/core-test-framework";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
 import { Identities, Interfaces, Transactions } from "@packages/crypto";
-import { BuilderFactory } from "@packages/crypto/src/transactions";
+import { BuilderFactory } from "@packages/crypto/dist/transactions";
 
 import { initApp, ItemResponse, PaginatedResponse } from "../__support__";
 
