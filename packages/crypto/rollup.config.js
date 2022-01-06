@@ -15,9 +15,8 @@ const allModules = [...dependencies, ...builtinModules];
 const polyfillsPlugins = [
     inject({
         modules: {
-            BigInt: require.resolve("big-integer"),
             process: "process-es6",
-            Buffer: ["buffer-es6", "Buffer"],
+            Buffer: ["buffer", "Buffer"],
             global: require.resolve("rollup-plugin-node-polyfills/polyfills/global.js"),
         },
         include: undefined,
@@ -58,9 +57,7 @@ const browserConfig = {
         {
             file: pkg.unpkg,
             format: "esm",
-            plugins: [
-                terser(),
-            ]
+            plugins: [terser()],
         },
         {
             file: pkg.browser,

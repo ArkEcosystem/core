@@ -1,4 +1,5 @@
-import { Enums, Interfaces } from "@arkecosystem/core-magistrate-crypto/src";
+import { Enums, Interfaces } from "@packages/core-magistrate-crypto/src";
+
 import { invalidAssetData, validAssetData } from "./utils";
 
 export const validResigns: Interfaces.IEntityAsset[] = [
@@ -28,6 +29,22 @@ export const invalidResigns: Interfaces.IEntityAsset[] = [
             name: "why a name", // no property allowed in data for resign
         },
     },
+    ...invalidAssetData.map((data) => ({
+        type: Enums.EntityType.Module,
+        subType: 0,
+        action: Enums.EntityAction.Update,
+        data,
+    })),
+    ...validAssetData.map((data) => ({
+        // even "valid" data are invalid for resign as we allow no property in data
+        type: Enums.EntityType.Module,
+        subType: 0,
+        action: Enums.EntityAction.Update,
+        data,
+    })),
+];
+
+export const unserializableResigns: Interfaces.IEntityAsset[] = [
     {
         type: Enums.EntityType.Plugin,
         subType: 256, // max 255
@@ -56,17 +73,4 @@ export const invalidResigns: Interfaces.IEntityAsset[] = [
         registrationId: "e77a1d1d080ebce113dd27e1cb0a242ec8600fb72cd62ace4e46148bee1d3acc",
         data: {},
     },
-    ...invalidAssetData.map(data => ({
-        type: Enums.EntityType.Module,
-        subType: 0,
-        action: Enums.EntityAction.Update,
-        data,
-    })),
-    ...validAssetData.map(data => ({
-        // even "valid" data are invalid for resign as we allow no property in data
-        type: Enums.EntityType.Module,
-        subType: 0,
-        action: Enums.EntityAction.Update,
-        data,
-    })),
 ];

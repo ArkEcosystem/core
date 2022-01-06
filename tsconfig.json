@@ -7,8 +7,8 @@
         "esModuleInterop": true,
         "experimentalDecorators": true,
         "forceConsistentCasingInFileNames": true,
-        "lib": ["es2019"],
-        "module": "commonjs",
+        "lib": ["es2020"],
+        "module": "CommonJS",
         "moduleResolution": "node",
         "newLine": "lf",
         "noEmitOnError": true,
@@ -27,8 +27,8 @@
         "sourceMap": true,
         "strict": true,
         "stripInternal": true,
-        "target": "es2019",
-        "typeRoots": ["reflect-metadata", "node_modules/@types"]
+        "target": "es2020",
+        "typeRoots": ["reflect-metadata", "node_modules/@types"],
     },
     "exclude": ["node_modules", "**/*.spec.ts", "**/*.test.ts"]
 }

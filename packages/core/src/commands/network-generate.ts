@@ -1,9 +1,9 @@
 import { Commands, Container, Contracts, Services } from "@arkecosystem/core-cli";
-import { Crypto, Identities, Interfaces, Transactions, Utils, Managers, Blocks } from "@arkecosystem/crypto";
-import Joi from "joi";
+import { Blocks, Crypto, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import { generateMnemonic } from "bip39";
 import envPaths from "env-paths";
 import { ensureDirSync, existsSync, readJSONSync, writeFileSync, writeJSONSync } from "fs-extra";
+import Joi from "joi";
 import { join, resolve } from "path";
 import prompts from "prompts";
 
@@ -894,7 +894,7 @@ export class Command extends Commands.Command {
 
     private formatGenesisTransaction(transaction, wallet: Wallet) {
         Object.assign(transaction, {
-            fee: "0",
+            fee: Utils.BigNumber.ZERO,
             timestamp: 0,
         });
         transaction.signature = Transactions.Signer.sign(transaction, wallet.keys);

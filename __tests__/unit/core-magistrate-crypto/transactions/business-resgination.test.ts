@@ -17,6 +17,7 @@ describe("Business resignation ser/deser", () => {
     beforeEach(() => {
         builder = new BusinessResignationBuilder();
     });
+
     it("should ser/deserialize giving back original fields", () => {
         const businessResignation = builder.network(23).version(2).sign("passphrase").getStruct();
 

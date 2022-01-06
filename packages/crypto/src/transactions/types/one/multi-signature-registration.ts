@@ -1,9 +1,7 @@
-import ByteBuffer from "bytebuffer";
-
 import { TransactionType, TransactionTypeGroup } from "../../../enums";
 import { IMultiSignatureLegacyAsset, ISerializeOptions, ITransactionData } from "../../../interfaces";
 import { isException } from "../../../utils";
-import { BigNumber } from "../../../utils/bignum";
+import { BigNumber, ByteBuffer } from "../../../utils";
 import * as schemas from "../schemas";
 import { Transaction } from "../transaction";
 
@@ -37,27 +35,27 @@ export abstract class MultiSignatureRegistrationTransaction extends Transaction 
         const legacyAsset: IMultiSignatureLegacyAsset = data.asset!.multiSignatureLegacy!;
         const joined: string = legacyAsset.keysgroup.map((k) => (k.startsWith("+") ? k.slice(1) : k)).join("");
         const keysgroupBuffer: Buffer = Buffer.from(joined, "hex");
-        const buffer: ByteBuffer = new ByteBuffer(keysgroupBuffer.length + 3, true);
+        const buff: ByteBuffer = new ByteBuffer(Buffer.alloc(keysgroupBuffer.length + 3));
 
-        buffer.writeByte(legacyAsset.min);
-        buffer.writeByte(legacyAsset.keysgroup.length);
-        buffer.writeByte(legacyAsset.lifetime);
-        buffer.append(keysgroupBuffer, "hex");
+        buff.writeUInt8(legacyAsset.min);
+        buff.writeUInt8(legacyAsset.keysgroup.length);
+        buff.writeUInt8(legacyAsset.lifetime);
+        buff.writeBuffer(keysgroupBuffer);
 
-        return buffer;
+        return buff;
     }
 
     public deserialize(buf: ByteBuffer): void {
         const { data } = this;
 
         const multiSignatureLegacy: IMultiSignatureLegacyAsset = { keysgroup: [], lifetime: 0, min: 0 };
-        multiSignatureLegacy.min = buf.readUint8();
+        multiSignatureLegacy.min = buf.readUInt8();
 
-        const num: number = buf.readUint8();
-        multiSignatureLegacy.lifetime = buf.readUint8();
+        const num = buf.readUInt8();
+        multiSignatureLegacy.lifetime = buf.readUInt8();
 
         for (let index = 0; index < num; index++) {
-            const key: string = buf.readBytes(33).toString("hex");
+            const key: string = buf.readBuffer(33).toString("hex");
             multiSignatureLegacy.keysgroup.push(key);
         }
 

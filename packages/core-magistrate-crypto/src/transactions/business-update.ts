@@ -1,6 +1,5 @@
 import { Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Transactions, Utils } from "@arkecosystem/crypto";
-import ByteBuffer from "bytebuffer";
 
 import { MagistrateTransactionGroup, MagistrateTransactionStaticFees, MagistrateTransactionType } from "../enums";
 import { IBusinessUpdateAsset } from "../interfaces";
@@ -55,7 +54,7 @@ export class BusinessUpdateTransaction extends Transactions.Transaction {
         });
     }
 
-    public serialize(): ByteBuffer {
+    public serialize(): Utils.ByteBuffer {
         const { data } = this;
 
         AppUtils.assert.defined<IBusinessUpdateAsset>(data.asset?.businessUpdate);
@@ -94,57 +93,56 @@ export class BusinessUpdateTransaction extends Transactions.Transaction {
             businessRepositoryLength = businessRepository.length;
         }
 
-        const buffer: ByteBuffer = new ByteBuffer(
-            businessNameLength + businessWebsiteLength + businessVatLength + businessRepositoryLength + 4,
-            true,
+        const buffer = new Utils.ByteBuffer(
+            Buffer.alloc(businessNameLength + businessWebsiteLength + businessVatLength + businessRepositoryLength + 4),
         );
 
-        buffer.writeByte(businessNameLength);
+        buffer.writeUInt8(businessNameLength);
         if (businessName && businessNameLength !== 0) {
-            buffer.append(businessName);
+            buffer.writeBuffer(businessName);
         }
 
-        buffer.writeByte(businessWebsiteLength);
+        buffer.writeUInt8(businessWebsiteLength);
         if (businessWebsite && businessWebsiteLength !== 0) {
-            buffer.append(businessWebsite);
+            buffer.writeBuffer(businessWebsite);
         }
 
-        buffer.writeByte(businessVatLength);
+        buffer.writeUInt8(businessVatLength);
         if (businessVat && businessVatLength !== 0) {
-            buffer.append(businessVat);
+            buffer.writeBuffer(businessVat);
         }
 
-        buffer.writeByte(businessRepositoryLength);
+        buffer.writeUInt8(businessRepositoryLength);
         if (businessRepository && businessRepositoryLength !== 0) {
-            buffer.append(businessRepository);
+            buffer.writeBuffer(businessRepository);
         }
 
         return buffer;
     }
 
-    public deserialize(buf: ByteBuffer): void {
+    public deserialize(buf: Utils.ByteBuffer): void {
         const { data } = this;
 
         const businessUpdate: IBusinessUpdateAsset = {};
 
-        const nameLength: number = buf.readUint8();
+        const nameLength: number = buf.readUInt8();
         if (nameLength !== 0) {
-            businessUpdate.name = buf.readString(nameLength);
+            businessUpdate.name = buf.readBuffer(nameLength).toString("utf8");
         }
 
-        const websiteLength: number = buf.readUint8();
+        const websiteLength: number = buf.readUInt8();
         if (websiteLength !== 0) {
-            businessUpdate.website = buf.readString(websiteLength);
+            businessUpdate.website = buf.readBuffer(websiteLength).toString("utf8");
         }
 
-        const vatLength: number = buf.readUint8();
+        const vatLength: number = buf.readUInt8();
         if (vatLength !== 0) {
-            businessUpdate.vat = buf.readString(vatLength);
+            businessUpdate.vat = buf.readBuffer(vatLength).toString("utf8");
         }
 
-        const repositoryLength: number = buf.readUint8();
+        const repositoryLength: number = buf.readUInt8();
         if (repositoryLength !== 0) {
-            businessUpdate.repository = buf.readString(repositoryLength);
+            businessUpdate.repository = buf.readBuffer(repositoryLength).toString("utf8");
         }
 
         data.asset = {

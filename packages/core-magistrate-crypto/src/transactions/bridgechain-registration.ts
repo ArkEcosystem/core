@@ -1,6 +1,5 @@
 import { Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Transactions, Utils } from "@arkecosystem/crypto";
-import ByteBuffer from "bytebuffer";
 
 import { MagistrateTransactionGroup, MagistrateTransactionStaticFees, MagistrateTransactionType } from "../enums";
 import { IBridgechainPorts, IBridgechainRegistrationAsset } from "../interfaces";
@@ -56,7 +55,7 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
         });
     }
 
-    public serialize(): ByteBuffer {
+    public serialize(): Utils.ByteBuffer {
         const { data } = this;
 
         AppUtils.assert.defined<IBridgechainRegistrationAsset>(data.asset?.bridgechainRegistration);
@@ -111,79 +110,81 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
 
         portsBuffersLength += portsLength;
 
-        const buffer: ByteBuffer = new ByteBuffer(
-            bridgechainNameBufferLength +
-                seedNodesBuffersLength +
-                bridgechainGenesisHash.length +
-                bridgechainRepositoryBufferLength +
-                bridgechainAssetRepositoryBufferLength +
-                portsBuffersLength,
-            true,
+        const buffer = new Utils.ByteBuffer(
+            Buffer.alloc(
+                1 +
+                    bridgechainNameBufferLength +
+                    seedNodesBuffersLength +
+                    bridgechainGenesisHash.length +
+                    1 +
+                    bridgechainRepositoryBufferLength +
+                    bridgechainAssetRepositoryBufferLength +
+                    portsBuffersLength,
+            ),
         );
 
-        buffer.writeUint8(bridgechainNameBufferLength);
-        buffer.append(bridgechainNameBuffer);
+        buffer.writeUInt8(bridgechainNameBufferLength);
+        buffer.writeBuffer(bridgechainNameBuffer);
 
-        buffer.writeUint8(seedNodesBuffers.length);
+        buffer.writeUInt8(seedNodesBuffers.length);
         for (const seedBuffer of seedNodesBuffers) {
-            buffer.writeUint8(seedBuffer.length);
-            buffer.append(seedBuffer);
+            buffer.writeUInt8(seedBuffer.length);
+            buffer.writeBuffer(seedBuffer);
         }
 
-        buffer.append(bridgechainGenesisHash);
+        buffer.writeBuffer(bridgechainGenesisHash);
 
-        buffer.writeUint8(bridgechainRepositoryBufferLength);
-        buffer.append(bridgechainRepositoryBuffer);
+        buffer.writeUInt8(bridgechainRepositoryBufferLength);
+        buffer.writeBuffer(bridgechainRepositoryBuffer);
 
         if (bridgechainAssetRepositoryBuffer) {
-            buffer.writeUint8(bridgechainAssetRepositoryBuffer.length);
-            buffer.append(bridgechainAssetRepositoryBuffer);
+            buffer.writeUInt8(bridgechainAssetRepositoryBuffer.length);
+            buffer.writeBuffer(bridgechainAssetRepositoryBuffer);
         } else {
-            buffer.writeUint8(0);
+            buffer.writeUInt8(0);
         }
 
-        buffer.writeUint8(portsLength);
+        buffer.writeUInt8(portsLength);
         for (const [i, nameBuffer] of portNamesBuffers.entries()) {
-            buffer.writeUint8(nameBuffer.length);
-            buffer.append(nameBuffer);
-            buffer.writeUint16(portNumbers[i]);
+            buffer.writeUInt8(nameBuffer.length);
+            buffer.writeBuffer(nameBuffer);
+            buffer.writeUInt16LE(portNumbers[i]);
         }
 
         return buffer;
     }
 
-    public deserialize(buf: ByteBuffer): void {
+    public deserialize(buf: Utils.ByteBuffer): void {
         const { data } = this;
         const seedNodes: string[] = [];
 
-        const nameLength: number = buf.readUint8();
-        const name: string = buf.readString(nameLength);
+        const nameLength: number = buf.readUInt8();
+        const name: string = buf.readBuffer(nameLength).toString("utf8");
 
-        const seedNodesLength: number = buf.readUint8();
+        const seedNodesLength: number = buf.readUInt8();
         for (let i = 0; i < seedNodesLength; i++) {
-            const ipLength: number = buf.readUint8();
-            const ip: string = buf.readString(ipLength);
+            const ipLength: number = buf.readUInt8();
+            const ip: string = buf.readBuffer(ipLength).toString("utf8");
             seedNodes.push(ip);
         }
 
-        const genesisHash: string = buf.readBytes(32).toString("hex");
-        const repositoryLength: number = buf.readUint8();
-        const bridgechainRepository: string = buf.readString(repositoryLength);
+        const genesisHash: string = buf.readBuffer(32).toString("hex");
+        const repositoryLength: number = buf.readUInt8();
+        const bridgechainRepository: string = buf.readBuffer(repositoryLength).toString("utf8");
 
         let bridgechainAssetRepository: string | undefined = undefined;
-        const bridgechainAssetRepositoryLength: number = buf.readUint8();
+        const bridgechainAssetRepositoryLength: number = buf.readUInt8();
         if (bridgechainAssetRepositoryLength) {
-            bridgechainAssetRepository = buf.readString(bridgechainAssetRepositoryLength);
+            bridgechainAssetRepository = buf.readBuffer(bridgechainAssetRepositoryLength).toString("utf8");
         }
 
         const ports: IBridgechainPorts = {};
 
-        const portsLength: number = buf.readUint8();
+        const portsLength: number = buf.readUInt8();
         for (let i = 0; i < portsLength; i++) {
-            const nameLength: number = buf.readUint8();
-            const name: string = buf.readString(nameLength);
-            const port: number = buf.readUint16();
-            ports[name] = port;
+            const nameLength: number = buf.readUInt8();
+            const name: string = buf.readBuffer(nameLength).toString("utf8");
+            ports[name] = buf.readUInt16LE();
         }
 
         data.asset = {
