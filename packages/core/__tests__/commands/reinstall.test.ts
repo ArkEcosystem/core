@@ -24,7 +24,7 @@ describe("ReinstallCommand", () => {
 
         await cli.withFlags({ force: true }).execute(Command);
 
-        // yarn info peerDependencies > yarn global add > pm2 update > check core > check relay > check forger
+        // pnpm info peerDependencies > pnpm install -g > pm2 update > check core > check relay > check forger
         expect(sync).toHaveBeenCalledTimes(6);
 
         sync.mockReset();
@@ -41,7 +41,7 @@ describe("ReinstallCommand", () => {
 
         await cli.execute(Command);
 
-        // yarn info peerDependencies > yarn global add > pm2 update > check core > check relay > check forger
+        // pnpm info peerDependencies > pnpm install -g > pm2 update > check core > check relay > check forger
         expect(sync).toHaveBeenCalledTimes(6);
 
         sync.mockReset();

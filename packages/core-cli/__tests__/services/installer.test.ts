@@ -30,7 +30,7 @@ describe("Installer.install", () => {
 
         installer.install("@arkecosystem/core");
 
-        expect(spySync).toHaveBeenCalledWith("yarn global add @arkecosystem/core@latest --force", { shell: true });
+        expect(spySync).toHaveBeenCalledWith("pnpm install -g @arkecosystem/core@latest", { shell: true });
     });
 
     it("should install specific package when tag is provided", () => {
@@ -43,7 +43,7 @@ describe("Installer.install", () => {
 
         installer.install("@arkecosystem/core", "3.0.0");
 
-        expect(spySync).toHaveBeenCalledWith("yarn global add @arkecosystem/core@3.0.0 --force", { shell: true });
+        expect(spySync).toHaveBeenCalledWith("pnpm install -g @arkecosystem/core@3.0.0", { shell: true });
     });
 
     it("should throw when exit code isn't 0", () => {
@@ -56,7 +56,7 @@ describe("Installer.install", () => {
 
         expect(() => installer.install("@arkecosystem/core")).toThrow("stderr");
 
-        expect(spySync).toHaveBeenCalledWith("yarn global add @arkecosystem/core@latest --force", { shell: true });
+        expect(spySync).toHaveBeenCalledWith("pnpm install -g @arkecosystem/core@latest", { shell: true });
     });
 });
 
@@ -73,7 +73,7 @@ describe("Installer.installPeerDependencies", () => {
 
         installer.installPeerDependencies("@arkecosystem/core", "3.0.0");
 
-        expect(spySync).toHaveBeenCalledWith("yarn info @arkecosystem/core@3.0.0 peerDependencies --json", {
+        expect(spySync).toHaveBeenCalledWith("pnpm info @arkecosystem/core@3.0.0 peerDependencies --json", {
             shell: true,
         });
 
@@ -93,14 +93,14 @@ describe("Installer.installPeerDependencies", () => {
 
         installer.installPeerDependencies("@arkecosystem/core", "3.0.0");
 
-        expect(spySync).toHaveBeenCalledWith("yarn info @arkecosystem/core@3.0.0 peerDependencies --json", {
+        expect(spySync).toHaveBeenCalledWith("pnpm info @arkecosystem/core@3.0.0 peerDependencies --json", {
             shell: true,
         });
 
         expect(spyInstallRangeLatest).not.toHaveBeenCalled();
     });
 
-    it("should throw error when yarn command fails", () => {
+    it("should throw error when pnpm command fails", () => {
         const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
             stderr: "stderr",
             exitCode: 1,
@@ -108,7 +108,7 @@ describe("Installer.installPeerDependencies", () => {
 
         expect(() => installer.installPeerDependencies("@arkecosystem/core")).toThrow("stderr");
 
-        expect(spySync).toHaveBeenCalledWith("yarn info @arkecosystem/core@latest peerDependencies --json", {
+        expect(spySync).toHaveBeenCalledWith("pnpm info @arkecosystem/core@latest peerDependencies --json", {
             shell: true,
         });
     });
@@ -125,7 +125,7 @@ describe("Installer.installRangeLatest", () => {
 
         installer.installRangeLatest("@arkecosystem/core", "^3.0.0 <3.4.0");
 
-        expect(spySync).toHaveBeenCalledWith("yarn info @arkecosystem/core versions --json", {
+        expect(spySync).toHaveBeenCalledWith("pnpm info @arkecosystem/core versions --json", {
             shell: true,
         });
 
@@ -140,7 +140,7 @@ describe("Installer.installRangeLatest", () => {
 
         expect(() => installer.installRangeLatest("@arkecosystem/core", "^3.0.0 <3.4.0")).toThrow("stderr");
 
-        expect(spySync).toHaveBeenCalledWith("yarn info @arkecosystem/core versions --json", {
+        expect(spySync).toHaveBeenCalledWith("pnpm info @arkecosystem/core versions --json", {
             shell: true,
         });
     });
@@ -155,7 +155,7 @@ describe("Installer.installRangeLatest", () => {
             "No @arkecosystem/core version to satisfy ^4.0.0 <4.4.0",
         );
 
-        expect(spySync).toHaveBeenCalledWith("yarn info @arkecosystem/core versions --json", {
+        expect(spySync).toHaveBeenCalledWith("pnpm info @arkecosystem/core versions --json", {
             shell: true,
         });
     });
