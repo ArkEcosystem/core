@@ -145,13 +145,13 @@ export const walletId = Joi.alternatives().try(
     Joi.string().hex().length(66),
 );
 
-export const orderBy = Joi.string().regex(
-    /^[a-z._]{1,40}:(asc|desc)$/i,
-    "orderBy query parameter (<iteratee>:<direction>)",
+export const orderBy = Joi.alternatives().try(
+    Joi.string().regex(/^[a-z._]{1,40}:(asc|desc)$/i),
+    Joi.array().items(Joi.string().regex(/^[a-z._]{1,40}:(asc|desc)$/i)),
 );
 
 export const blocksOrderBy = orderBy.default("height:desc");
-export const transactionsOrderBy = orderBy.default("timestamp:desc,sequence:desc");
+export const transactionsOrderBy = orderBy.default(["timestamp:desc", "sequence:desc"]);
 
 const equalCriteria = (value: any) => value;
 const numericCriteria = (value: any) =>

@@ -56,7 +56,9 @@ export class Controller {
             return [];
         }
 
-        return request.query.orderBy.split(",").map((s: string) => ({
+        const orderBy = Array.isArray(request.query.orderBy) ? request.query.orderBy : request.query.orderBy.split(",");
+
+        return orderBy.map((s: string) => ({
             property: s.split(":")[0],
             direction: s.split(":")[1] === "desc" ? "desc" : "asc",
         }));
