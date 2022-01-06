@@ -22,7 +22,6 @@
     },
     "dependencies": {
         "@arkecosystem/core-kernel": "3.0.6",
-        "@arkecosystem/crypto": "3.0.6",
-        "bytebuffer": "5.0.1"
+        "@arkecosystem/crypto": "3.0.6"
     }
 }
