@@ -91,7 +91,7 @@ export const createSortingSchema = (schemaObject: SchemaObject, wildcardPaths: s
 // Pagination
 
 export const pagination = Joi.object({
-    page: Joi.number().integer().positive().default(1),
+    page: Joi.number().integer().positive().default(1).max(10000),
     offset: Joi.number().integer().min(0),
     limit: Joi.number().integer().min(1).default(100).max(Joi.ref("$configuration.plugins.pagination.limit")),
 }); // .without("offset", "page"); // conflict with pagination plugin
