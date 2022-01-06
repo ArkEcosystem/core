@@ -17,10 +17,10 @@
   resolved "https://registry.yarnpkg.com/@arkecosystem/crypto-networks/-/crypto-networks-1.2.0.tgz#7f00d8f2421923ab779b14c3d60b092c5484b44f"
   integrity sha512-ZytgxSgP4lfOUdQLvY6PyWkhvx6//V24MKv/faom9preIiamEfwEHLobFRs0cr5F1wSD7brMrLN/KcCkUw2Itw==
 
-"@arkecosystem/utils@1.3.0":
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/@arkecosystem/utils/-/utils-1.3.0.tgz#25150fd990e1192668a75c32b94b88dabc0f86eb"
-  integrity sha512-H3QlzZRHE6NXh5hJXGAAHdPGGq9VemgblpMcRixDYLEzpB9tP3S1AM3uNCr5KSjP+B6QuGt3B4yYTdzgQEvZ9A==
+"@arkecosystem/utils@1.3.1":
+  version "1.3.1"
+  resolved "https://registry.yarnpkg.com/@arkecosystem/utils/-/utils-1.3.1.tgz#2995bc92132c2d75a6f142ee9990a08adc1ab05c"
+  integrity sha512-CxEE65pBqlsg7tHiuoUh/IzwkDk56afgAUUQg6rgFhB3S4UQf0nt26rGC598ymh3+qnTLUvDsxdRR+P6toXLig==
   dependencies:
     "@hapi/bourne" "^2.0.0"
     deepmerge "^4.2.2"
