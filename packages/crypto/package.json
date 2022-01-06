@@ -43,6 +43,7 @@
         "bstring": "0.3.9",
         "buffer-xor": "2.0.2",
         "builtin-modules": "3.2.0",
+        "bytebuffer": "5.0.1",
         "dayjs": "1.10.7",
         "deepmerge": "4.2.2",
         "fast-memoize": "2.5.2",
