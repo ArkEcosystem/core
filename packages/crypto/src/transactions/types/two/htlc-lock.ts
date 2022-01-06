@@ -32,8 +32,7 @@ export abstract class HtlcLockTransaction extends Transaction {
 
         const buff: ByteBuffer = new ByteBuffer(Buffer.alloc(8 + 32 + 1 + 4 + 21));
 
-        // @ts-ignore
-        buff.writeBigUInt64LE(data.amount.value);
+        buff.writeBigUInt64LE(data.amount.toBigInt());
 
         if (data.asset && data.asset.lock) {
             buff.writeBuffer(Buffer.from(data.asset.lock.secretHash, "hex"));

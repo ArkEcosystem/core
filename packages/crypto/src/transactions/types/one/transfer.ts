@@ -24,8 +24,7 @@ export abstract class TransferTransaction extends Transaction {
     public serialize(options?: ISerializeOptions): ByteBuffer | undefined {
         const { data } = this;
         const buff: ByteBuffer = new ByteBuffer(Buffer.alloc(33));
-        // @ts-ignore
-        buff.writeBigUInt64LE(data.amount.value);
+        buff.writeBigUInt64LE(data.amount.toBigInt());
         buff.writeUInt32LE(data.expiration || 0);
 
         if (data.recipientId) {

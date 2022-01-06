@@ -34,8 +34,7 @@ export abstract class MultiPaymentTransaction extends Transaction {
             buff.writeUInt16LE(data.asset.payments.length);
 
             for (const payment of data.asset.payments) {
-                // @ts-ignore
-                buff.writeBigUInt64LE(payment.amount.value);
+                buff.writeBigUInt64LE(payment.amount.toBigInt());
 
                 const { addressBuffer, addressError } = Address.toBuffer(payment.recipientId);
                 options.addressError = addressError || options.addressError;

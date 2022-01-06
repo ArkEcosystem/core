@@ -145,11 +145,9 @@ export class Serializer {
             }
         }
 
-        // @ts-ignore
-        bb.writeBigUInt64LE(transaction.amount.value);
+        bb.writeBigUInt64LE(transaction.amount.toBigInt());
 
-        // @ts-ignore
-        bb.writeBigUInt64LE(transaction.fee.value);
+        bb.writeBigUInt64LE(transaction.fee.toBigInt());
 
         if (assetSize > 0 && assetBytes) {
             for (let i = 0; i < assetSize; i++) {
@@ -186,8 +184,7 @@ export class Serializer {
             buff.writeUInt16LE(transaction.type);
 
             if (transaction.nonce) {
-                // @ts-ignore
-                buff.writeBigInt64LE(transaction.nonce.value);
+                buff.writeBigInt64LE(transaction.nonce.toBigInt());
             }
         }
 
@@ -195,8 +192,7 @@ export class Serializer {
             buff.writeBuffer(Buffer.from(transaction.senderPublicKey, "hex"));
         }
 
-        // @ts-ignore
-        buff.writeBigInt64LE(transaction.fee.value);
+        buff.writeBigInt64LE(transaction.fee.toBigInt());
     }
 
     private static serializeVendorField(transaction: ITransaction, buff: ByteBuffer): void {
