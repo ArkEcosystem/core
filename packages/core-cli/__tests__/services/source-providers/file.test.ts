@@ -48,7 +48,7 @@ describe("File", () => {
             const packageName: string = "@arkecosystem/utils";
             expect(removeSync).toHaveBeenCalledWith(join(dataPath, packageName));
             expect(removeSync).toHaveBeenLastCalledWith(join(tempPath, "package"));
-            expect(spyOnExeca).toHaveBeenCalledWith(`yarn`, ["install", "--production"], {
+            expect(spyOnExeca).toHaveBeenCalledWith(`pnpm`, ["install", "--production"], {
                 cwd: join(dataPath, packageName),
             });
         });
@@ -85,7 +85,7 @@ describe("File", () => {
             const packageName: string = "@arkecosystem/utils";
             expect(removeSync).toHaveBeenCalledWith(join(dataPath, packageName));
             expect(removeSync).toHaveBeenLastCalledWith(join(tempPath, "package"));
-            expect(spyOnExeca).toHaveBeenCalledWith(`yarn`, ["install", "--production"], {
+            expect(spyOnExeca).toHaveBeenCalledWith(`pnpm`, ["install", "--production"], {
                 cwd: join(dataPath, packageName),
             });
         });

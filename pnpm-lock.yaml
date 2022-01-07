@@ -165,6 +165,7 @@ importers:
       got: 11.8.2
       joi: 17.4.2
       kleur: 4.1.4
+      module-alias: 2.2.2
       ngrok: 3.4.1
       prompts: 2.4.0
       tar: 6.1.11
@@ -199,6 +200,7 @@ importers:
       got: registry.npmjs.org/got/11.8.2
       joi: registry.npmjs.org/joi/17.4.2
       kleur: registry.npmjs.org/kleur/4.1.4
+      module-alias: registry.npmjs.org/module-alias/2.2.2
       ngrok: registry.npmjs.org/ngrok/3.4.1
       prompts: registry.npmjs.org/prompts/2.4.0
       tar: registry.npmjs.org/tar/6.1.11
@@ -12380,6 +12382,12 @@ packages:
     resolution: {integrity: sha1-dVSm+Nhxg0zJe1RisSLEwSTW3pE=, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.org/mkpath/-/mkpath-0.1.0.tgz}
     name: mkpath
     version: 0.1.0
+    dev: false
+
+  registry.npmjs.org/module-alias/2.2.2:
+    resolution: {integrity: sha512-A/78XjoX2EmNvppVWEhM2oGk3x4lLxnkEA4jTbaK97QKSDjkIoOsKQlfylt/d3kKKi596Qy3NP5XrXJ6fZIC9Q==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.org/module-alias/-/module-alias-2.2.2.tgz}
+    name: module-alias
+    version: 2.2.2
     dev: false
 
   registry.npmjs.org/module-definition/3.3.1:

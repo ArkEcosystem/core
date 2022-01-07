@@ -143,7 +143,7 @@ describe("NPM", () => {
             expect(moveSync).toHaveBeenCalledWith(`${tempPath}/package`, pathPlugin);
             expect(removeSync).toHaveBeenCalledWith(pathPlugin);
             expect(removeSync).toHaveBeenCalledWith(`${tempPath}/${packageName}.tgz`);
-            expect(spyOnExeca).toHaveBeenCalledWith(`yarn`, ["install", "--production"], {
+            expect(spyOnExeca).toHaveBeenCalledWith(`pnpm`, ["install", "--production"], {
                 cwd: join(dataPath, packageName),
             });
 

@@ -71,6 +71,7 @@
         "got": "11.8.2",
         "joi": "17.4.2",
         "kleur": "4.1.4",
+        "module-alias": "2.2.2",
         "ngrok": "3.4.1",
         "prompts": "2.4.0",
         "tar": "6.1.11",
@@ -88,5 +89,23 @@
     },
     "publishConfig": {
         "access": "public"
+    },
+    "_moduleAliases": {
+        "@arkecosystem/core": ".",
+        "@arkecosystem/core-api": "@arkecosystem/core-api",
+        "@arkecosystem/core-blockchain": "@arkecosystem/core-blockchain",
+        "@arkecosystem/core-cli": "@arkecosystem/core-cli",
+        "@arkecosystem/core-database": "@arkecosystem/core-database",
+        "@arkecosystem/core-forger": "@arkecosystem/core-forger",
+        "@arkecosystem/core-kernel": "@arkecosystem/core-kernel",
+        "@arkecosystem/core-logger-pino": "@arkecosystem/core-logger-pino",
+        "@arkecosystem/core-magistrate-api": "@arkecosystem/core-magistrate-api",
+        "@arkecosystem/core-magistrate-transactions": "@arkecosystem/core-magistrate-transactions",
+        "@arkecosystem/core-p2p": "@arkecosystem/core-p2p",
+        "@arkecosystem/core-snapshots": "@arkecosystem/core-snapshots",
+        "@arkecosystem/core-state": "@arkecosystem/core-state",
+        "@arkecosystem/core-transaction-pool": "@arkecosystem/core-transaction-pool",
+        "@arkecosystem/core-webhooks": "@arkecosystem/core-webhooks",
+        "@arkecosystem/crypto": "@arkecosystem/crypto"
     }
 }
