@@ -18,7 +18,7 @@ export const defaults = {
     },
     plugins: {
         log: {
-            enabled: !!process.env.CORE_API_LOG_ENABLED,
+            enabled: !!process.env.CORE_API_LOG,
         },
         cache: {
             enabled: !!process.env.CORE_API_CACHE,
