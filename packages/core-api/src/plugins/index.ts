@@ -14,7 +14,13 @@ export const preparePlugins = (config) => [
         },
     },
     { plugin: hapiAjv },
-    { plugin: log },
+    {
+        plugin: log,
+        options: {
+            ...config.log,
+            trustProxy: config.trustProxy,
+        },
+    },
     { plugin: commaArrayQuery },
     { plugin: dotSeparatedQuery },
     {

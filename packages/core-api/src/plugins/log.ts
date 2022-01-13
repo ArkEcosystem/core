@@ -10,9 +10,14 @@ export const log = {
     register(
         server: Hapi.Server,
         options: {
+            enabled: boolean;
             trustProxy: boolean;
         },
     ): void {
+        if (!options.enabled) {
+            return;
+        }
+
         const logger = server.app.app.get<Contracts.Kernel.Logger>(Container.Identifiers.LogService);
 
         server.ext("onRequest", (request: Hapi.Request, h: Hapi.ResponseToolkit) => {
