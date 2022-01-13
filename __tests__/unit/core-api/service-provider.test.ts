@@ -188,6 +188,8 @@ describe("ServiceProvider", () => {
             expect(result.value.server.https.tls.key).toBeUndefined();
             expect(result.value.server.https.tls.cert).toBeUndefined();
 
+            expect(result.value.plugins.log.enabled).toBeFalse();
+
             expect(result.value.plugins.cache.enabled).toBeFalse();
             expect(result.value.plugins.cache.stdTTL).toBeNumber();
             expect(result.value.plugins.cache.checkperiod).toBeNumber();
@@ -330,6 +332,30 @@ describe("ServiceProvider", () => {
 
                 expect(result.error).toBeDefined();
                 expect(result.error!.message).toEqual('"server.https.tls.key" is required');
+            });
+        });
+
+        describe("process.env.CORE_API_LOG", () => {
+            it("should return false if process.env.CORE_API_LOG is undefined", async () => {
+                jest.resetModules();
+                const result = (coreApiServiceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-api/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.plugins.log.enabled).toEqual(false);
+            });
+
+            it("should return true if process.env.CORE_API_LOG is defined", async () => {
+                process.env.CORE_API_LOG = "true";
+
+                jest.resetModules();
+                const result = (coreApiServiceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-api/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.plugins.log.enabled).toEqual(true);
             });
         });
 

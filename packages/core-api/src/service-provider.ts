@@ -61,6 +61,9 @@ export class ServiceProvider extends Providers.ServiceProvider {
                 }).required(),
             }).required(),
             plugins: Joi.object({
+                log: Joi.object({
+                    enabled: Joi.bool().required(),
+                }).required(),
                 cache: Joi.object({
                     enabled: Joi.bool().required(),
                     stdTTL: Joi.number().integer().min(0).required(),
