@@ -21,7 +21,7 @@ export const log = {
         const logger = server.app.app.get<Contracts.Kernel.Logger>(Container.Identifiers.LogService);
 
         server.ext("onRequest", (request: Hapi.Request, h: Hapi.ResponseToolkit) => {
-            logger.info(
+            logger.debug(
                 `API request on: "${request.path}" from: "${getIp(request, options.trustProxy)}" with query: "${
                     request.url.search
                 }"`,
