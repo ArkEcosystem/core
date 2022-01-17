@@ -1,3 +1,4 @@
+import { Crypto } from "@packages/core/src/exceptions";
 import { buildBIP38 } from "@packages/core/src/internal/crypto";
 import { writeJSONSync } from "fs-extra";
 import prompts from "prompts";
@@ -37,7 +38,7 @@ describe("buildBIP38", () => {
 
     it("should throw if the delegate configuration does not exist", async () => {
         await expect(buildBIP38({ token: "ark", network: "mainnet" })).rejects.toThrow(
-            `The ${process.env.CORE_PATH_CONFIG}/delegates.json file does not exist.`,
+            new Crypto.MissingConfigFile(process.env.CORE_PATH_CONFIG + "/delegates.json"),
         );
     });
 
@@ -56,7 +57,7 @@ describe("buildBIP38", () => {
         writeJSONSync(`${process.env.CORE_PATH_CONFIG}/delegates.json`, { secrets: [] });
 
         await expect(buildBIP38({ token: "ark", network: "mainnet" })).rejects.toThrow(
-            "We were unable to detect a BIP38 or BIP39 passphrase.",
+            new Crypto.PassphraseNotDetected(),
         );
     });
 
@@ -64,7 +65,7 @@ describe("buildBIP38", () => {
         writeJSONSync(`${process.env.CORE_PATH_CONFIG}/delegates.json`, {});
 
         await expect(buildBIP38({ token: "ark", network: "mainnet" })).rejects.toThrow(
-            "We were unable to detect a BIP38 or BIP39 passphrase.",
+            new Crypto.PassphraseNotDetected(),
         );
     });
 
