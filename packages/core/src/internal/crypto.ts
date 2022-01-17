@@ -2,6 +2,8 @@ import { existsSync } from "fs-extra";
 import { join } from "path";
 import prompts from "prompts";
 
+import { MissingConfigFile, PassphraseNotDetected } from "../exceptions/crypto";
+
 // todo: review the implementation
 export const buildBIP38 = async (flags, config?: string): Promise<Record<string, string | undefined>> => {
     if (!config && process.env.CORE_PATH_CONFIG) {
@@ -24,7 +26,7 @@ export const buildBIP38 = async (flags, config?: string): Promise<Record<string,
     const configDelegates = join(config!, "delegates.json");
 
     if (!existsSync(configDelegates)) {
-        throw new Error(`The ${configDelegates} file does not exist.`);
+        throw new MissingConfigFile(configDelegates);
     }
 
     const delegates = require(configDelegates);
@@ -34,7 +36,7 @@ export const buildBIP38 = async (flags, config?: string): Promise<Record<string,
     }
 
     if (!bip38 && !delegates.secrets?.length) {
-        throw new Error("We were unable to detect a BIP38 or BIP39 passphrase.");
+        throw new PassphraseNotDetected();
     }
 
     if (bip38 && !password) {
