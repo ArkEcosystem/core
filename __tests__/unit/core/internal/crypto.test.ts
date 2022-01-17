@@ -69,14 +69,20 @@ describe("buildBIP38", () => {
         );
     });
 
+    it("should throw if no bip38 password is provided and skipPrompts is true", async () => {
+        writeJSONSync(`${process.env.CORE_PATH_CONFIG}/delegates.json`, { bip38: "bip38" });
+
+        await expect(buildBIP38({ token: "ark", network: "mainnet", skipPrompts: true })).rejects.toThrow(
+            new Crypto.InvalidPassword(),
+        );
+    });
+
     it("should throw if no bip38 password is provided", async () => {
         writeJSONSync(`${process.env.CORE_PATH_CONFIG}/delegates.json`, { bip38: "bip38" });
 
         prompts.inject([null, true]);
 
-        await expect(buildBIP38({ token: "ark", network: "mainnet" })).rejects.toThrow(
-            "We've detected that you are using BIP38 but have not provided a valid password.",
-        );
+        await expect(buildBIP38({ token: "ark", network: "mainnet" })).rejects.toThrow(new Crypto.InvalidPassword());
     });
 
     it("should throw if no confirmation is provided", async () => {
