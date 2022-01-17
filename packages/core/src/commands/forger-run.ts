@@ -40,7 +40,8 @@ export class Command extends Commands.Command {
             .setFlag("env", "", Joi.string().default("production"))
             .setFlag("bip38", "", Joi.string())
             .setFlag("bip39", "A delegate plain text passphrase. Referred to as BIP39.", Joi.string())
-            .setFlag("password", "A custom password that encrypts the BIP39. Referred to as BIP38.", Joi.string());
+            .setFlag("password", "A custom password that encrypts the BIP39. Referred to as BIP38.", Joi.string())
+            .setFlag("skipPrompts", "Skip prompts.", Joi.boolean().default(false));
     }
 
     /**
