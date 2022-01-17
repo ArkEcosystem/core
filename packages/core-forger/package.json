@@ -27,7 +27,7 @@
         "@arkecosystem/core-transactions": "3.0.6",
         "@arkecosystem/crypto": "3.0.6",
         "joi": "17.4.2",
-        "node-forge": "0.10.0",
+        "node-forge": "1.2.1",
         "wif": "2.0.6"
     },
     "devDependencies": {
