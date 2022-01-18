@@ -1,3 +1,4 @@
+import { Crypto } from "@packages/core/src/exceptions";
 import { buildBIP38 } from "@packages/core/src/internal/crypto";
 import { writeJSONSync } from "fs-extra";
 import prompts from "prompts";
@@ -37,7 +38,7 @@ describe("buildBIP38", () => {
 
     it("should throw if the delegate configuration does not exist", async () => {
         await expect(buildBIP38({ token: "ark", network: "mainnet" })).rejects.toThrow(
-            `The ${process.env.CORE_PATH_CONFIG}/delegates.json file does not exist.`,
+            new Crypto.MissingConfigFile(process.env.CORE_PATH_CONFIG + "/delegates.json"),
         );
     });
 
@@ -56,7 +57,7 @@ describe("buildBIP38", () => {
         writeJSONSync(`${process.env.CORE_PATH_CONFIG}/delegates.json`, { secrets: [] });
 
         await expect(buildBIP38({ token: "ark", network: "mainnet" })).rejects.toThrow(
-            "We were unable to detect a BIP38 or BIP39 passphrase.",
+            new Crypto.PassphraseNotDetected(),
         );
     });
 
@@ -64,7 +65,15 @@ describe("buildBIP38", () => {
         writeJSONSync(`${process.env.CORE_PATH_CONFIG}/delegates.json`, {});
 
         await expect(buildBIP38({ token: "ark", network: "mainnet" })).rejects.toThrow(
-            "We were unable to detect a BIP38 or BIP39 passphrase.",
+            new Crypto.PassphraseNotDetected(),
+        );
+    });
+
+    it("should throw if no bip38 password is provided and skipPrompts is true", async () => {
+        writeJSONSync(`${process.env.CORE_PATH_CONFIG}/delegates.json`, { bip38: "bip38" });
+
+        await expect(buildBIP38({ token: "ark", network: "mainnet", skipPrompts: true })).rejects.toThrow(
+            new Crypto.InvalidPassword(),
         );
     });
 
@@ -73,9 +82,7 @@ describe("buildBIP38", () => {
 
         prompts.inject([null, true]);
 
-        await expect(buildBIP38({ token: "ark", network: "mainnet" })).rejects.toThrow(
-            "We've detected that you are using BIP38 but have not provided a valid password.",
-        );
+        await expect(buildBIP38({ token: "ark", network: "mainnet" })).rejects.toThrow(new Crypto.InvalidPassword());
     });
 
     it("should throw if no confirmation is provided", async () => {
