@@ -56,7 +56,7 @@ export class TransactionResource implements Resource {
             confirmations: 0, // ! resource.block ? lastBlock.data.height - resource.block.height + 1 : 0
             timestamp:
                 typeof resource.timestamp !== "undefined" ? AppUtils.formatTimestamp(resource.timestamp) : undefined,
-            nonce: resource.nonce!.toFixed(),
+            nonce: resource.nonce?.toFixed(),
         };
     }
 }
