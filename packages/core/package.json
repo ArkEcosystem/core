@@ -106,6 +106,7 @@
         "@arkecosystem/core-state": "@arkecosystem/core-state",
         "@arkecosystem/core-transaction-pool": "@arkecosystem/core-transaction-pool",
         "@arkecosystem/core-webhooks": "@arkecosystem/core-webhooks",
-        "@arkecosystem/crypto": "@arkecosystem/crypto"
+        "@arkecosystem/crypto": "@arkecosystem/crypto",
+        "joi": "joi"
     }
 }
