@@ -1,16 +1,17 @@
+import Hapi from "@hapi/hapi";
 import { log } from "@packages/core-api/src/plugins/log";
 
 const logger = {
     debug: jest.fn(),
 };
 
-const server = {
+const server: Partial<Hapi.Server> = {
     ext: jest.fn(),
     app: {
         app: {
             get: jest.fn().mockReturnValue(logger),
         },
-    },
+    } as any,
 };
 
 beforeEach(() => {
@@ -19,13 +20,13 @@ beforeEach(() => {
 
 describe("Log", () => {
     it("should register extension when enabled", () => {
-        log.register(server, { enabled: true, trustProxy: false });
+        log.register(server as Hapi.Server, { enabled: true, trustProxy: false });
 
         expect(server.ext).toBeCalled();
     });
 
     it("should not register extension when disabled", () => {
-        log.register(server, { enabled: false, trustProxy: false });
+        log.register(server as Hapi.Server, { enabled: false, trustProxy: false });
 
         expect(server.ext).not.toBeCalled();
     });
@@ -43,10 +44,11 @@ describe("Log", () => {
             continue: Symbol,
         };
 
-        log.register(server, { enabled: true, trustProxy: false });
+        log.register(server as Hapi.Server, { enabled: true, trustProxy: false });
 
         expect(server.ext).toBeCalled();
 
+        // @ts-ignore
         const onRequest = server.ext.mock.calls[0][1];
 
         const ret = onRequest(request, h);
