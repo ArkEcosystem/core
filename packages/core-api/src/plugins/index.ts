@@ -2,9 +2,9 @@ import { cache } from "./cache";
 import { commaArrayQuery } from "./comma-array-query";
 import { dotSeparatedQuery } from "./dot-separated-query";
 import { hapiAjv } from "./hapi-ajv";
+import { log } from "./log";
 import { pagination } from "./pagination";
 import { rateLimit } from "./rate-limit";
-import { log } from "./log";
 import { responseHeaders } from "./response-headers";
 import { whitelist } from "./whitelist";
 
