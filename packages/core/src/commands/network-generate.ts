@@ -895,7 +895,7 @@ export class Command extends Commands.Command {
 
     private formatGenesisTransaction(transaction, wallet: Wallet) {
         Object.assign(transaction, {
-            fee: "0",
+            fee: Utils.BigNumber.ZERO,
             timestamp: 0,
         });
         transaction.signature = Transactions.Signer.sign(transaction, wallet.keys);

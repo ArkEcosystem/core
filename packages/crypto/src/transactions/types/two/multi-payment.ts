@@ -1,10 +1,8 @@
-import ByteBuffer from "bytebuffer";
-
 import { TransactionType, TransactionTypeGroup } from "../../../enums";
 import { Address } from "../../../identities";
 import { IMultiPaymentItem, ISerializeOptions } from "../../../interfaces";
 import { configManager } from "../../../managers";
-import { BigNumber } from "../../../utils/bignum";
+import { BigNumber, ByteBuffer } from "../../../utils";
 import * as schemas from "../schemas";
 import { Transaction } from "../transaction";
 
@@ -32,20 +30,19 @@ export abstract class MultiPaymentTransaction extends Transaction {
         const { data } = this;
 
         if (data.asset && data.asset.payments) {
-            const buffer: ByteBuffer = new ByteBuffer(2 + data.asset.payments.length * 29, true);
-            buffer.writeUint16(data.asset.payments.length);
+            const buff: ByteBuffer = new ByteBuffer(Buffer.alloc(2 + data.asset.payments.length * 29));
+            buff.writeUInt16LE(data.asset.payments.length);
 
             for (const payment of data.asset.payments) {
-                // @ts-ignore - The ByteBuffer types say we can't use strings but the code actually handles them.
-                buffer.writeUint64(payment.amount.toString());
+                buff.writeBigUInt64LE(payment.amount.toBigInt());
 
                 const { addressBuffer, addressError } = Address.toBuffer(payment.recipientId);
                 options.addressError = addressError || options.addressError;
 
-                buffer.append(addressBuffer);
+                buff.writeBuffer(addressBuffer);
             }
 
-            return buffer;
+            return buff;
         }
 
         return undefined;
@@ -54,12 +51,12 @@ export abstract class MultiPaymentTransaction extends Transaction {
     public deserialize(buf: ByteBuffer): void {
         const { data } = this;
         const payments: IMultiPaymentItem[] = [];
-        const total: number = buf.readUint16();
+        const total: number = buf.readUInt16LE();
 
         for (let j = 0; j < total; j++) {
             payments.push({
-                amount: BigNumber.make(buf.readUint64().toString()),
-                recipientId: Address.fromBuffer(buf.readBytes(21).toBuffer()),
+                amount: BigNumber.make(buf.readBigUInt64LE().toString()),
+                recipientId: Address.fromBuffer(buf.readBuffer(21)),
             });
         }
 

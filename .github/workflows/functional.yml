@@ -25,7 +25,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [12.x]
+                node-version: [14.x]
 
         env:
             CORE_DB_DATABASE: ark_unitnet
@@ -97,7 +97,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [12.x]
+                node-version: [14.x]
 
         steps:
             - uses: actions/checkout@v2
@@ -165,7 +165,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [12.x]
+                node-version: [14.x]
 
         steps:
             - uses: actions/checkout@v2
@@ -233,7 +233,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [12.x]
+                node-version: [14.x]
 
         steps:
             - uses: actions/checkout@v2
@@ -301,7 +301,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [12.x]
+                node-version: [14.x]
 
         steps:
             - uses: actions/checkout@v2
@@ -369,7 +369,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [12.x]
+                node-version: [14.x]
 
         steps:
             - uses: actions/checkout@v2
@@ -437,7 +437,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [12.x]
+                node-version: [14.x]
 
         steps:
             - uses: actions/checkout@v2
@@ -505,7 +505,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [12.x]
+                node-version: [14.x]
 
         steps:
             - uses: actions/checkout@v2
@@ -573,7 +573,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [12.x]
+                node-version: [14.x]
 
         steps:
             - uses: actions/checkout@v2
@@ -641,7 +641,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [12.x]
+                node-version: [14.x]
 
         steps:
             - uses: actions/checkout@v2
@@ -709,7 +709,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [12.x]
+                node-version: [14.x]
 
         steps:
             - uses: actions/checkout@v2
@@ -777,7 +777,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [12.x]
+                node-version: [14.x]
 
         steps:
             - uses: actions/checkout@v2
@@ -845,7 +845,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [12.x]
+                node-version: [14.x]
 
         steps:
             - uses: actions/checkout@v2
@@ -913,7 +913,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [12.x]
+                node-version: [14.x]
 
         steps:
             - uses: actions/checkout@v2
@@ -981,7 +981,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [12.x]
+                node-version: [14.x]
 
         steps:
             - uses: actions/checkout@v2
@@ -1043,7 +1043,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [12.x]
+                node-version: [14.x]
 
         steps:
             - uses: actions/checkout@v2
@@ -1105,7 +1105,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [12.x]
+                node-version: [14.x]
 
         steps:
             - uses: actions/checkout@v2
@@ -1167,7 +1167,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [12.x]
+                node-version: [14.x]
 
         steps:
             - uses: actions/checkout@v2
@@ -1224,7 +1224,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [12.x]
+                node-version: [14.x]
 
         steps:
             - uses: actions/checkout@v2
@@ -1281,7 +1281,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [12.x]
+                node-version: [14.x]
 
         steps:
             - uses: actions/checkout@v2
@@ -1338,7 +1338,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [12.x]
+                node-version: [14.x]
 
         steps:
             - uses: actions/checkout@v2

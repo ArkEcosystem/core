@@ -23,10 +23,9 @@ import {
 import { TransactionHandler, TransactionHandlerConstructor } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
 import { Crypto, Enums, Identities, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
+import { BuilderFactory } from "@packages/crypto/dist/transactions";
 import { IMultiSignatureAsset } from "@packages/crypto/src/interfaces";
 import { configManager } from "@packages/crypto/src/managers";
-import { BuilderFactory } from "@packages/crypto/src/transactions";
-import ByteBuffer from "bytebuffer";
 
 import {
     buildMultiSignatureWallet,
@@ -62,8 +61,8 @@ class TestTransaction extends Transactions.Transaction {
         };
     }
 
-    public serialize(options?: any): ByteBuffer | undefined {
-        return new ByteBuffer(0);
+    public serialize(options?: any): Utils.ByteBuffer | undefined {
+        return new Utils.ByteBuffer(Buffer.alloc(0));
     }
 
     public deserialize(buf) {
@@ -416,12 +415,6 @@ describe("General Tests", () => {
             );
         });
 
-        it("should resolve defined as exception", async () => {
-            configManager.set("exceptions.transactions", [transferTransaction.id]);
-            configManager.set("network.pubKeyHash", 99);
-            await expect(handler.apply(transferTransaction)).toResolve();
-        });
-
         it("should resolve with V1", async () => {
             configManager.getMilestone().aip11 = false;
 
@@ -444,6 +437,12 @@ describe("General Tests", () => {
             process.env.CORE_ENV === "unitest";
             senderWallet.setBalance(Utils.BigNumber.ZERO);
             await expect(handler.apply(transferTransaction)).rejects.toThrow(InsufficientBalanceError);
+        });
+
+        it("should resolve defined as exception", async () => {
+            configManager.set("exceptions.transactions", [transferTransaction.id]);
+            configManager.set("network.pubKeyHash", 99);
+            await expect(handler.apply(transferTransaction)).toResolve();
         });
     });
 

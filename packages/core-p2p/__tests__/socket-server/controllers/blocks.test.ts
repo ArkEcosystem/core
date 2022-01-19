@@ -5,6 +5,7 @@ import { BlockRequest, BlocksController } from "@packages/core-p2p/src/socket-se
 import { TooManyTransactionsError } from "@packages/core-p2p/src/socket-server/errors";
 import { Sandbox } from "@packages/core-test-framework";
 import { Blocks, Identities, Managers, Networks, Transactions, Utils } from "@packages/crypto";
+import { cloneDeep } from "lodash";
 
 Managers.configManager.getMilestone().aip11 = true; // for creating aip11 v2 transactions
 
@@ -68,11 +69,10 @@ describe("BlocksController", () => {
                     .build(),
             ],
         } as Blocks.Block;
-        const deepClone = (obj) => JSON.parse(JSON.stringify(obj));
 
         describe("when block contains too many transactions", () => {
             it("should throw TooManyTransactionsError when numberOfTransactions is too much", async () => {
-                const blockTooManyTxs = deepClone(block);
+                const blockTooManyTxs = cloneDeep(block);
                 blockTooManyTxs.data.numberOfTransactions = 350;
                 const blockSerialized = Blocks.Serializer.serializeWithTransactions({
                     ...blockTooManyTxs.data,
@@ -90,7 +90,7 @@ describe("BlocksController", () => {
                 blockchain.getLastHeight.mockReturnValueOnce(100);
                 blockchain.getLastDownloadedBlock.mockReturnValueOnce(Networks.testnet.genesisBlock);
 
-                const blockUnchained = deepClone(block);
+                const blockUnchained = cloneDeep(block);
                 blockUnchained.data.height = 9;
                 const blockSerialized = Blocks.Serializer.serializeWithTransactions({
                     ...blockUnchained.data,

@@ -1,4 +1,5 @@
 import { Enums, Interfaces } from "@packages/core-magistrate-crypto/src";
+
 import { invalidAssetData, validAssetData } from "./utils";
 
 export const validUpdates: Interfaces.IEntityAsset[] = [
@@ -11,7 +12,7 @@ export const validUpdates: Interfaces.IEntityAsset[] = [
             ipfsData: "Qmbw6QmF6tuZpyV6WyEsTmExkEG3rW4khattQidPfbpmNZ",
         },
     },
-    ...validAssetData.map(data => ({
+    ...validAssetData.map((data) => ({
         type: Enums.EntityType.Module,
         subType: 0,
         action: Enums.EntityAction.Update,
@@ -29,6 +30,15 @@ export const invalidUpdates: Interfaces.IEntityAsset[] = [
             name: "name cannot be updated", // name is the only prop that cannot be updated
         },
     },
+    ...invalidAssetData.map((data) => ({
+        type: Enums.EntityType.Module,
+        subType: 0,
+        action: Enums.EntityAction.Update,
+        data,
+    })),
+];
+
+export const unserializableUpdates: Interfaces.IEntityAsset[] = [
     {
         type: Enums.EntityType.Plugin,
         subType: 256, // max 255
@@ -65,10 +75,4 @@ export const invalidUpdates: Interfaces.IEntityAsset[] = [
             ipfsData: "Qmbw6QmF6tuZpyV6WyEsTmExkEG3rW4khattQidPfbpmNZ",
         },
     },
-    ...invalidAssetData.map(data => ({
-        type: Enums.EntityType.Module,
-        subType: 0,
-        action: Enums.EntityAction.Update,
-        data,
-    })),
 ];

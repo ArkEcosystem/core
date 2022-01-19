@@ -1,7 +1,7 @@
 import "jest-extended";
 
+import { Factories, Generators } from "@packages/core-test-framework";
 import { Utils } from "@packages/crypto";
-import { Factories, Generators } from "@packages/core-test-framework/src";
 import { TransactionType } from "@packages/crypto/src/enums";
 import { Keys, WIF } from "@packages/crypto/src/identities";
 import { configManager } from "@packages/crypto/src/managers";

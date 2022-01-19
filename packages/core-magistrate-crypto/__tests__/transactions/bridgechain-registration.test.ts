@@ -26,9 +26,8 @@ describe("Bridgechain registration transaction", () => {
                 .sign("passphrase")
                 .getStruct();
 
-            const serialized = Transactions.TransactionFactory.fromData(bridgechainRegistration).serialized.toString(
-                "hex",
-            );
+            const serialized =
+                Transactions.TransactionFactory.fromData(bridgechainRegistration).serialized.toString("hex");
             const deserialized = Transactions.Deserializer.deserialize(serialized);
 
             checkCommonFields(deserialized, bridgechainRegistration);
@@ -45,9 +44,8 @@ describe("Bridgechain registration transaction", () => {
                 .sign("passphrase")
                 .getStruct();
 
-            const serialized = Transactions.TransactionFactory.fromData(bridgechainRegistration).serialized.toString(
-                "hex",
-            );
+            const serialized =
+                Transactions.TransactionFactory.fromData(bridgechainRegistration).serialized.toString("hex");
             const deserialized = Transactions.Deserializer.deserialize(serialized);
 
             checkCommonFields(deserialized, bridgechainRegistration);
@@ -133,7 +131,7 @@ describe("Bridgechain registration transaction", () => {
         });
 
         describe("should test edge cases of bridgechain genesisHash", () => {
-            it("should fail because genesisHash is to short (63chars) ", () => {
+            it("should fail because genesisHash is to short (63chars)", () => {
                 const bridgechainRegistration = builder
                     .bridgechainRegistrationAsset({
                         name: "google",
@@ -148,7 +146,7 @@ describe("Bridgechain registration transaction", () => {
                 expect(error).not.toBeUndefined();
             });
 
-            it("should fail because genesisHash is to long (65chars) ", () => {
+            it("should fail because genesisHash is to long (65chars)", () => {
                 const bridgechainRegistration = builder
                     .bridgechainRegistrationAsset({
                         name: "google",

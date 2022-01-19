@@ -75,48 +75,10 @@ describe("Transaction Forging - Entity registration", () => {
             await expect(entityRegistration.id).not.toBeForged();
             await expect(entityRegistration).not.entityRegistered();
         });
-
-        it("should reject entity registration, because entity type is > 255 [Signed with 1 Passphrase]", async () => {
-            // entity registration
-            const entityRegistration = TransactionFactory.initialize(app).entity({
-                type: 256,
-                subType: 1,
-                action: Enums.EntityAction.Register,
-                data: {
-                    name: "name256",
-                },
-            })
-                .withPassphrase(secrets[0])
-                .createOne();
-
-            await expect(entityRegistration).toBeRejected();
-            await snoozeForBlock(1);
-            await expect(entityRegistration.id).not.toBeForged();
-            await expect(entityRegistration).not.entityRegistered();
-        });
-
-        it("should reject entity registration, because entity sub type is > 255 [Signed with 1 Passphrase]", async () => {
-            // entity registration
-            const entityRegistration = TransactionFactory.initialize(app).entity({
-                type: 1,
-                subType: 256,
-                action: Enums.EntityAction.Register,
-                data: {
-                    name: "namesubtype256",
-                },
-            })
-                .withPassphrase(secrets[0])
-                .createOne();
-
-            await expect(entityRegistration).toBeRejected();
-            await snoozeForBlock(1);
-            await expect(entityRegistration.id).not.toBeForged();
-            await expect(entityRegistration).not.entityRegistered();
-        });
     });
 
     describe("Signed with 2 Passphrases", () => {
-        it("should broadcast, accept and forge it [Signed with 2 Passphrases] ", async () => {
+        it("should broadcast, accept and forge it [Signed with 2 Passphrases]", async () => {
             // Prepare a fresh wallet for the tests
             const passphrase = generateMnemonic();
             const secondPassphrase = generateMnemonic();

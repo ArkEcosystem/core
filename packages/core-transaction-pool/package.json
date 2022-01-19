@@ -31,7 +31,6 @@
         "@arkecosystem/core-transactions": "workspace:*",
         "@arkecosystem/crypto": "workspace:*",
         "better-sqlite3": "7.4.3",
-        "bytebuffer": "5.0.1",
         "fs-extra": "8.1.0",
         "joi": "17.4.2"
     },

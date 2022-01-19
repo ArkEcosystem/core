@@ -6,9 +6,7 @@ import { StateStore } from "@packages/core-state/src/stores/state";
 import { Wallet } from "@packages/core-state/src/wallets";
 import { WalletRepository } from "@packages/core-state/src/wallets";
 import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
-import { Enums, Utils } from "@packages/crypto/src";
-import { ITransaction } from "@packages/crypto/src/interfaces";
-import { IBlock } from "@packages/crypto/src/interfaces";
+import { Enums, Interfaces, Utils } from "@packages/crypto";
 
 import { makeChainedBlocks } from "./__utils__/make-chained-block";
 import { makeVoteTransactions } from "./__utils__/make-vote-transactions";
@@ -18,7 +16,7 @@ import { setUp, setUpDefaults } from "./setup";
 let blockState: BlockState;
 let stateStore: StateStore;
 let factory: FactoryBuilder;
-let blocks: IBlock[];
+let blocks: Interfaces.IBlock[];
 let walletRepo: WalletRepository;
 let forgingWallet: Contracts.State.Wallet;
 let votingWallet: Contracts.State.Wallet;
@@ -405,7 +403,7 @@ describe("BlockState", () => {
     });
 
     describe("Multipayment", () => {
-        let multiPaymentTransaction: ITransaction;
+        let multiPaymentTransaction: Interfaces.ITransaction;
         let sendersDelegate: Contracts.State.Wallet;
         let amount: Utils.BigNumber;
 
@@ -637,13 +635,13 @@ describe("BlockState", () => {
                 // @ts-ignore
                 delete voteTransaction.data.asset;
 
-                await expect(blockState.applyTransaction(voteTransaction as ITransaction)).toReject();
+                await expect(blockState.applyTransaction(voteTransaction as Interfaces.ITransaction)).toReject();
             });
         });
 
         describe("htlc transaction", () => {
-            let htlcClaimTransaction: ITransaction;
-            let htlcLock: ITransaction;
+            let htlcClaimTransaction: Interfaces.ITransaction;
+            let htlcLock: Interfaces.ITransaction;
             let lockData;
             let lockID;
 

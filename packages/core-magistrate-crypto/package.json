@@ -24,7 +24,6 @@
     },
     "dependencies": {
         "@arkecosystem/core-kernel": "workspace:*",
-        "@arkecosystem/crypto": "workspace:*",
-        "bytebuffer": "5.0.1"
+        "@arkecosystem/crypto": "workspace:*"
     }
 }

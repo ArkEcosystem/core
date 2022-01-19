@@ -23,8 +23,8 @@ export class TransactionFactory {
         return this.fromSerialized(hex);
     }
 
-    public static fromBytes(buffer: Buffer, strict = true, options: IDeserializeOptions = {}): ITransaction {
-        return this.fromSerialized(buffer.toString("hex"), strict, options);
+    public static fromBytes(buff: Buffer, strict = true, options: IDeserializeOptions = {}): ITransaction {
+        return this.fromSerialized(buff.toString("hex"), strict, options);
     }
 
     /**
@@ -34,10 +34,10 @@ export class TransactionFactory {
      * NOTE: Only use this internally when it is safe to assume the buffer has already been
      * verified.
      */
-    public static fromBytesUnsafe(buffer: Buffer, id?: string): ITransaction {
+    public static fromBytesUnsafe(buff: Buffer, id?: string): ITransaction {
         try {
             const options: IDeserializeOptions | ISerializeOptions = { acceptLegacyVersion: true };
-            const transaction = Deserializer.deserialize(buffer, options);
+            const transaction = Deserializer.deserialize(buff, options);
             transaction.data.id = id || Utils.getId(transaction.data, options);
             transaction.isVerified = true;
 

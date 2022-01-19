@@ -1,7 +1,6 @@
 import "jest-extended";
 
 import { Interfaces, Utils } from "@packages/crypto";
-
 import {
     InvalidTransactionBytesError,
     TransactionSchemaError,
@@ -15,6 +14,7 @@ import {
     TransactionFactory,
     Utils as TransactionUtils,
 } from "@packages/crypto/src/transactions";
+
 import { transaction as transactionFixture } from "../fixtures/transaction";
 import { transaction as transactionDataFixture } from "../fixtures/transaction";
 import { createRandomTx } from "./__support__";
@@ -36,7 +36,7 @@ beforeEach(() => {
     };
 });
 
-const transaction: Interfaces.ITransaction = TransactionFactory.fromData(transactionFixture);
+const transaction = TransactionFactory.fromData(transactionFixture);
 const transactionJson: Interfaces.ITransactionJson = transaction.toJson();
 const transactionSerialized: Buffer = Serializer.serialize(transaction);
 

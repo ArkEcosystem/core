@@ -224,7 +224,7 @@ export class CryptoGenerator extends Generator {
 
     private formatGenesisTransaction(transaction, wallet: Wallet) {
         Object.assign(transaction, {
-            fee: "0",
+            fee: Utils.BigNumber.make("0"),
             timestamp: 0,
         });
 

@@ -2,6 +2,8 @@ import { existsSync } from "fs-extra";
 import { join } from "path";
 import prompts from "prompts";
 
+import { InvalidPassword, MissingConfigFile, PassphraseNotDetected } from "../exceptions/crypto";
+
 // todo: review the implementation
 export const buildBIP38 = async (flags, config?: string): Promise<Record<string, string | undefined>> => {
     if (!config && process.env.CORE_PATH_CONFIG) {
@@ -15,6 +17,7 @@ export const buildBIP38 = async (flags, config?: string): Promise<Record<string,
     // initial values
     let bip38 = flags.bip38 || process.env.CORE_FORGER_BIP38;
     let password = flags.password || process.env.CORE_FORGER_PASSWORD;
+    const skipPrompts = flags.skipPrompts || false;
 
     if (bip38 && password) {
         return { bip38, password };
@@ -24,7 +27,7 @@ export const buildBIP38 = async (flags, config?: string): Promise<Record<string,
     const configDelegates = join(config!, "delegates.json");
 
     if (!existsSync(configDelegates)) {
-        throw new Error(`The ${configDelegates} file does not exist.`);
+        throw new MissingConfigFile(configDelegates);
     }
 
     const delegates = require(configDelegates);
@@ -34,10 +37,14 @@ export const buildBIP38 = async (flags, config?: string): Promise<Record<string,
     }
 
     if (!bip38 && !delegates.secrets?.length) {
-        throw new Error("We were unable to detect a BIP38 or BIP39 passphrase.");
+        throw new PassphraseNotDetected();
     }
 
     if (bip38 && !password) {
+        if (skipPrompts) {
+            throw new InvalidPassword();
+        }
+
         const response = await prompts([
             {
                 type: "password",
@@ -52,7 +59,7 @@ export const buildBIP38 = async (flags, config?: string): Promise<Record<string,
         ]);
 
         if (!response.password) {
-            throw new Error("We've detected that you are using BIP38 but have not provided a valid password.");
+            throw new InvalidPassword();
         }
 
         if (!response.confirm) {

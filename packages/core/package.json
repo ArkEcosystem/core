@@ -59,7 +59,7 @@
         "@arkecosystem/core-transactions": "workspace:*",
         "@arkecosystem/core-webhooks": "workspace:*",
         "@arkecosystem/crypto": "workspace:*",
-        "@arkecosystem/utils": "1.3.0",
+        "@arkecosystem/utils": "1.3.1",
         "argon2": "0.28.2",
         "bip39": "3.0.4",
         "boxen": "5.1.2",

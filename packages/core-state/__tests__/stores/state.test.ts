@@ -3,7 +3,7 @@ import "jest-extended";
 import { Container, Utils } from "@packages/core-kernel";
 import { StateStore } from "@packages/core-state/src/stores/state";
 import { FactoryBuilder } from "@packages/core-test-framework/src/factories";
-import { IBlock, IBlockData, ITransactionData } from "@packages/crypto/src/interfaces";
+import { IBlock, IBlockData, ITransactionData } from "@packages/crypto/dist/interfaces";
 
 import { makeChainedBlocks } from "../__utils__/make-chained-block";
 import { setUp } from "../setup";

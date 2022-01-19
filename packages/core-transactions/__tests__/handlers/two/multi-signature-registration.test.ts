@@ -20,9 +20,9 @@ import {
 import { TransactionHandler } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
 import { Crypto, Enums, Errors, Identities, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
+import { BuilderFactory } from "@packages/crypto/dist/transactions";
 import { IMultiSignatureAsset, IMultiSignatureLegacyAsset } from "@packages/crypto/src/interfaces";
 import { configManager } from "@packages/crypto/src/managers";
-import { BuilderFactory } from "@packages/crypto/src/transactions";
 
 import { buildRecipientWallet, buildSecondSignatureWallet, buildSenderWallet, initApp } from "../__support__/app";
 

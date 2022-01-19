@@ -19,8 +19,8 @@ import {
 import { TransactionHandler } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
 import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
+import { BuilderFactory } from "@packages/crypto/dist/transactions";
 import { configManager } from "@packages/crypto/src/managers";
-import { BuilderFactory } from "@packages/crypto/src/transactions";
 
 import {
     buildMultiSignatureWallet,

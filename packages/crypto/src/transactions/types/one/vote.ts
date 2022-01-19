@@ -1,8 +1,6 @@
-import ByteBuffer from "bytebuffer";
-
 import { TransactionType, TransactionTypeGroup } from "../../../enums";
 import { ISerializeOptions } from "../../../interfaces";
-import { BigNumber } from "../../../utils/bignum";
+import { BigNumber, ByteBuffer } from "../../../utils";
 import * as schemas from "../schemas";
 import { Transaction } from "../transaction";
 
@@ -20,26 +18,26 @@ export class VoteTransaction extends Transaction {
 
     public serialize(options?: ISerializeOptions): ByteBuffer | undefined {
         const { data } = this;
-        const buffer: ByteBuffer = new ByteBuffer(24, true);
+        const buff: ByteBuffer = new ByteBuffer(Buffer.alloc(100));
 
         if (data.asset && data.asset.votes) {
             const voteBytes = data.asset.votes
                 .map((vote) => (vote.startsWith("+") ? "01" : "00") + vote.slice(1))
                 .join("");
-            buffer.writeByte(data.asset.votes.length);
-            buffer.append(voteBytes, "hex");
+            buff.writeUInt8(data.asset.votes.length);
+            buff.writeBuffer(Buffer.from(voteBytes, "hex"));
         }
 
-        return buffer;
+        return buff;
     }
 
     public deserialize(buf: ByteBuffer): void {
         const { data } = this;
-        const votelength: number = buf.readUint8();
+        const votelength: number = buf.readUInt8();
         data.asset = { votes: [] };
 
         for (let i = 0; i < votelength; i++) {
-            let vote: string = buf.readBytes(34).toString("hex");
+            let vote: string = buf.readBuffer(34).toString("hex");
             vote = (vote[1] === "1" ? "+" : "-") + vote.slice(2);
 
             if (data.asset && data.asset.votes) {

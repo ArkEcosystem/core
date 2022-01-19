@@ -5,7 +5,7 @@ import { RoundInfo } from "@packages/core-kernel/src/contracts/shared";
 import { DposPreviousRoundStateProvider } from "@packages/core-kernel/src/contracts/state";
 import { DposState } from "@packages/core-state/src/dpos/dpos";
 import { WalletRepository } from "@packages/core-state/src/wallets";
-import { IBlock } from "@packages/crypto/src/interfaces";
+import { Interfaces } from "@packages/crypto";
 
 import { buildDelegateAndVoteWallets } from "../__utils__/build-delegate-and-vote-balances";
 import { makeChainedBlocks } from "../__utils__/make-chained-block";
@@ -36,7 +36,7 @@ afterEach(() => jest.clearAllMocks());
 
 describe("dposPreviousRound", () => {
     let round: RoundInfo;
-    let blocks: IBlock[];
+    let blocks: Interfaces.IBlock[];
 
     beforeEach(async () => {
         walletRepo.reset();
