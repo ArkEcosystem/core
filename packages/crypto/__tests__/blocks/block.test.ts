@@ -1,6 +1,5 @@
 import "jest-extended";
 
-import { Interfaces, Managers, Utils } from "@packages/crypto";
 import { BIP39 } from "@packages/core-forger/src/methods/bip39";
 import { TransactionFactory } from "@packages/core-test-framework/src/utils/transaction-factory";
 import { Managers, Utils } from "@packages/crypto";
