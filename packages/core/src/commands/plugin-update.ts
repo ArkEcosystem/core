@@ -1,10 +1,6 @@
-import { Commands, Container } from "@arkecosystem/core-cli";
+import { Commands, Container, Contracts } from "@arkecosystem/core-cli";
 import { Networks } from "@arkecosystem/crypto";
 import Joi from "joi";
-import { existsSync } from "fs-extra";
-import { join } from "path";
-
-import { Git, NPM } from "../source-providers";
 
 /**
  * @export
@@ -13,6 +9,9 @@ import { Git, NPM } from "../source-providers";
  */
 @Container.injectable()
 export class Command extends Commands.Command {
+    @Container.inject(Container.Identifiers.PluginManager)
+    private readonly pluginManager!: Contracts.PluginManager;
+
     /**
      * The console command signature.
      *
@@ -49,22 +48,10 @@ export class Command extends Commands.Command {
      * @memberof Command
      */
     public async execute(): Promise<void> {
-        const pkg: string = this.getArgument("package");
-
-        const paths = {
-            data: this.app.getCorePath("data", "plugins"),
-            temp: this.app.getCorePath("temp", "plugins"),
-        };
-        const directory: string = join(paths.data, pkg);
-
-        if (!existsSync(directory)) {
-            throw new Error(`The package [${pkg}] does not exist.`);
-        }
-
-        if (existsSync(`${directory}/.git`)) {
-            return new Git(paths).update(pkg);
-        }
-
-        return new NPM(paths).update(pkg);
+        return await this.pluginManager.update(
+            this.getFlag("token"),
+            this.getFlag("network"),
+            this.getArgument("package"),
+        );
     }
 }
