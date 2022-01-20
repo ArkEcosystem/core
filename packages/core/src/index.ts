@@ -1,2 +1,2 @@
 export * from "./cli";
-export * from "./exceptions";
+export * as Exceptions from "./exceptions";
