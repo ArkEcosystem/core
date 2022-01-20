@@ -5,6 +5,8 @@ import { ServiceProvider } from "@packages/core-logger-pino/src";
 import { defaults } from "@packages/core-logger-pino/src/defaults";
 import { AnySchema } from "joi";
 import { dirSync } from "tmp";
+import { Identifiers, interfaces } from "@arkecosystem/core-kernel/dist/ioc";
+import { LogManager } from "@arkecosystem/core-kernel/dist/services/log";
 
 let app: Application;
 
@@ -37,6 +39,23 @@ describe("ServiceProvider", () => {
     });
 
     it("should be disposable", async () => {
+        app.bind<Services.Log.LogManager>(Container.Identifiers.LogManager)
+            .to(Services.Log.LogManager)
+            .inSingletonScope();
+
+        await app.get<Services.Log.LogManager>(Container.Identifiers.LogManager).boot();
+
+        serviceProvider.setConfig(app.resolve(Providers.PluginConfiguration).merge(defaults));
+
+        app.bind(Container.Identifiers.ApplicationNamespace).toConstantValue("token-network");
+        app.bind("path.log").toConstantValue(dirSync().name);
+
+        app.bind(Identifiers.LogService).toDynamicValue((context: interfaces.Context) =>
+            context.container.get<LogManager>(Identifiers.LogManager).driver(),
+        );
+
+        await expect(serviceProvider.register()).toResolve();
+
         await expect(serviceProvider.dispose()).toResolve();
     });
 

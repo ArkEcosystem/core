@@ -96,6 +96,14 @@ export interface Logger {
      */
     suppressConsoleOutput(suppress: boolean): void;
 
+    /**
+     * Dispose logger.
+     *
+     * @returns {Promise<void>}
+     * @memberof Logger
+     */
+    dispose(): Promise<void>;
+
     // /**
     //  * @param {Record<string,string>} levels
     //  * @memberof Logger
