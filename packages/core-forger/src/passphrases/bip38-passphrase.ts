@@ -22,6 +22,7 @@ export class Bip38Passphrase extends AbstractPassphrase {
 
         this.keySize = 32;
         this.iterations = 5000;
+        this.keys = keys;
 
         this.otpSecret = forge.random.getBytesSync(128);
 
