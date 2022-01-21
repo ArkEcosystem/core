@@ -1,8 +1,8 @@
 import { Identities } from "@arkecosystem/crypto";
 
-import { Passphrase, UseKeysFunction } from "../interfaces";
+import { KeyPairHolder, UseKeysFunction } from "../interfaces";
 
-export abstract class AbstractPassphrase implements Passphrase {
+export abstract class AbstractKeyPairHolder implements KeyPairHolder {
     protected address: string;
 
     protected constructor(private publicKey: string) {

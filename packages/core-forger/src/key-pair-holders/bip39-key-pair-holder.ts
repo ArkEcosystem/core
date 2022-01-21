@@ -1,9 +1,9 @@
 import { Identities, Interfaces } from "@arkecosystem/crypto";
 
 import { UseKeysFunction } from "../interfaces";
-import { AbstractPassphrase } from "./abstract-passphrase";
+import { AbstractKeyPairHolder } from "./abstract-key-pair-holder";
 
-export class Bip39Passphrase extends AbstractPassphrase {
+export class Bip39KeyPairHolder extends AbstractKeyPairHolder {
     private readonly keys: Interfaces.IKeyPair;
 
     public constructor(passphrase: string) {

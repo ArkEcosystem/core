@@ -4,9 +4,9 @@ import forge from "node-forge";
 import wif from "wif";
 
 import { UseKeysFunction } from "../interfaces";
-import { AbstractPassphrase } from "./abstract-passphrase";
+import { AbstractKeyPairHolder } from "./abstract-key-pair-holder";
 
-export class Bip38Passphrase extends AbstractPassphrase {
+export class Bip38KeyPairHolder extends AbstractKeyPairHolder {
     public otp: string | undefined;
     private readonly otpSecret: string;
     private encryptedKeys: string | undefined;
@@ -16,7 +16,7 @@ export class Bip38Passphrase extends AbstractPassphrase {
     private readonly iterations: number;
 
     public constructor(bip38: string, password: string) {
-        const keys = Bip38Passphrase.decryptPassphrase(bip38, password);
+        const keys = Bip38KeyPairHolder.decryptPassphrase(bip38, password);
 
         super(keys.publicKey);
 

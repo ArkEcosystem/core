@@ -59,7 +59,7 @@ export interface Delegate {
 
 export type UseKeysFunction = (keys: Interfaces.IKeyPair) => void;
 
-export interface Passphrase {
+export interface KeyPairHolder {
     getPublicKey(): string;
     getAddress(): string;
 
