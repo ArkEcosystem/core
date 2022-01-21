@@ -31,12 +31,6 @@ export interface RelayHost {
  */
 export interface Delegate {
     /**
-     * @type {Interfaces.IKeyPair}
-     * @memberof Delegate
-     */
-    keys: Interfaces.IKeyPair | undefined;
-
-    /**
      * @type {string}
      * @memberof Delegate
      */
