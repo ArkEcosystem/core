@@ -56,3 +56,12 @@ export interface Delegate {
      */
     forge(transactions: Interfaces.ITransactionData[], options: Record<string, any>): Interfaces.IBlock;
 }
+
+type UseKeysFunction = (keys: Interfaces.IKeyPair) => void;
+
+export interface Passphrase {
+    getPublicKey(): string;
+    getAddress(): string;
+
+    useKeys(UseKeysFunction);
+}
