@@ -1,9 +1,8 @@
-import { Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Crypto, Identities, Interfaces, Managers } from "@arkecosystem/crypto";
 import forge from "node-forge";
 import wif from "wif";
 
-import { UseKeysFunction } from "../interfaces";
 import { AbstractKeyPairHolder } from "./abstract-key-pair-holder";
 
 export class Bip38KeyPairHolder extends AbstractKeyPairHolder {
@@ -37,7 +36,7 @@ export class Bip38KeyPairHolder extends AbstractKeyPairHolder {
         return Identities.Keys.fromWIF(wifKey);
     }
 
-    public useKeys<T>(fn: UseKeysFunction<T>): T {
+    public useKeys<T>(fn: Contracts.Shared.UseKeysFunction<T>): T {
         const keys = this.decryptKeysWithOtp();
 
         let result: T;

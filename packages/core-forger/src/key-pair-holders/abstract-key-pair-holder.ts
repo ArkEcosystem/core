@@ -1,8 +1,7 @@
+import { Contracts } from "@arkecosystem/core-kernel";
 import { Identities } from "@arkecosystem/crypto";
 
-import { KeyPairHolder, UseKeysFunction } from "../interfaces";
-
-export abstract class AbstractKeyPairHolder implements KeyPairHolder {
+export abstract class AbstractKeyPairHolder implements Contracts.Shared.KeyPairHolder {
     protected address: string;
 
     protected constructor(private publicKey: string) {
@@ -17,5 +16,5 @@ export abstract class AbstractKeyPairHolder implements KeyPairHolder {
         return this.address;
     }
 
-    public abstract useKeys<T>(fn: UseKeysFunction<T>): T;
+    public abstract useKeys<T>(fn: Contracts.Shared.UseKeysFunction<T>): T;
 }

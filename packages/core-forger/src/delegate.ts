@@ -1,13 +1,13 @@
-import { Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Blocks, Crypto, Interfaces, Utils } from "@arkecosystem/crypto";
 
-import { Delegate as IDelegate, KeyPairHolder } from "./interfaces";
+import { Delegate as IDelegate } from "./interfaces";
 
 export class Delegate implements IDelegate {
     public publicKey: string;
     public address: string;
 
-    public constructor(private keyPairHolder: KeyPairHolder) {
+    public constructor(private keyPairHolder: Contracts.Shared.KeyPairHolder) {
         this.publicKey = this.keyPairHolder.getPublicKey();
         this.address = this.keyPairHolder.getAddress();
     }

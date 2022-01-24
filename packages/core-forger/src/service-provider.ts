@@ -23,7 +23,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.app.bind<ForgerService>(Container.Identifiers.ForgerService).to(ForgerService).inSingletonScope();
         this.app
             .bind<ForgerService>(Container.Identifiers.ForgerDelegateFactory)
-            .toFactory<Delegate>(() => (keyPairHolder: Interfaces.KeyPairHolder) => {
+            .toFactory<Delegate>(() => (keyPairHolder: Contracts.Shared.KeyPairHolder) => {
                 return new Delegate(keyPairHolder);
             });
 
