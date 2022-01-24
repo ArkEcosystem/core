@@ -2,10 +2,11 @@ import { Container, Contracts, Enums, Providers, Services } from "@arkecosystem/
 import Joi from "joi";
 
 import { ForgeNewBlockAction, IsForgingAllowedAction } from "./actions";
-import { DelegateFactory } from "./delegate-factory";
+import { Delegate } from "./delegate";
 import { DelegateTracker } from "./delegate-tracker";
 import { ForgerService } from "./forger-service";
-import { Delegate } from "./interfaces";
+import * as Interfaces from "./interfaces";
+import { KeyPairHolderFactory } from "./key-pair-holders";
 import { CurrentDelegateProcessAction, LastForgedBlockRemoteAction, NextSlotProcessAction } from "./process-actions";
 
 /**
@@ -31,7 +32,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
      * @memberof ServiceProvider
      */
     public async boot(): Promise<void> {
-        const delegates: Delegate[] = this.makeDelegates();
+        const delegates: Interfaces.Delegate[] = this.makeDelegates();
 
         const forgerService = this.app.get<ForgerService>(Container.Identifiers.ForgerService);
 
@@ -115,7 +116,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
      * @private
      * @memberof ServiceProvider
      */
-    private startTracker(delegates: Delegate[]): void {
+    private startTracker(delegates: Interfaces.Delegate[]): void {
         if (!Array.isArray(delegates) || !delegates.length) {
             return;
         }
@@ -135,17 +136,17 @@ export class ServiceProvider extends Providers.ServiceProvider {
      * @returns {Delegate[]}
      * @memberof ServiceProvider
      */
-    private makeDelegates(): Delegate[] {
-        const delegates: Set<Delegate> = new Set<Delegate>();
+    private makeDelegates(): Interfaces.Delegate[] {
+        const delegates: Set<Interfaces.Delegate> = new Set<Interfaces.Delegate>();
 
         for (const secret of this.app.config("delegates.secrets")) {
-            delegates.add(DelegateFactory.fromBIP39(secret));
+            delegates.add(new Delegate(KeyPairHolderFactory.fromBIP39(secret)));
         }
 
         const { bip38, password } = this.app.config("app.flags")!;
 
         if (bip38) {
-            delegates.add(DelegateFactory.fromBIP38(bip38, password));
+            delegates.add(new Delegate(KeyPairHolderFactory.fromBIP38(bip38, password)));
         }
 
         return [...delegates];
