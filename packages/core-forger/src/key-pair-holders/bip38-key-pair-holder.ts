@@ -10,7 +10,6 @@ export class Bip38KeyPairHolder extends AbstractKeyPairHolder {
     public otp: string | undefined;
     private readonly otpSecret: string;
     private encryptedKeys: string | undefined;
-    private keys: Interfaces.IKeyPair | undefined;
 
     private readonly keySize: number;
     private readonly iterations: number;
@@ -22,11 +21,9 @@ export class Bip38KeyPairHolder extends AbstractKeyPairHolder {
 
         this.keySize = 32;
         this.iterations = 5000;
-        this.keys = keys;
-
         this.otpSecret = forge.random.getBytesSync(128);
 
-        this.encryptKeysWithOtp();
+        this.encryptKeysWithOtp(keys);
     }
 
     private static decryptPassphrase(passphrase: string, password: string): Interfaces.IKeyPair {
@@ -42,36 +39,34 @@ export class Bip38KeyPairHolder extends AbstractKeyPairHolder {
 
     public useKeys<T>(fn: UseKeysFunction<T>): T {
         // TODO: Handle errors
-        this.decryptKeysWithOtp();
+        const keys = this.decryptKeysWithOtp();
 
-        AppUtils.assert.defined<Interfaces.IKeyPair>(this.keys);
+        const result = fn({ ...keys });
 
-        const result = fn(this.keys);
-
-        this.encryptKeysWithOtp();
+        this.encryptKeysWithOtp(keys);
 
         return result;
     }
 
-    private encryptKeysWithOtp(): void {
-        AppUtils.assert.defined<Interfaces.IKeyPair>(this.keys);
+    private encryptKeysWithOtp(keys): void {
+        AppUtils.assert.defined<Interfaces.IKeyPair>(keys);
 
-        const wifKey: string = Identities.WIF.fromKeys(this.keys);
+        const wifKey: string = Identities.WIF.fromKeys(keys);
 
-        this.keys = undefined;
         this.otp = forge.random.getBytesSync(16);
         this.encryptedKeys = this.encryptDataWithOtp(wifKey, this.otp);
     }
 
-    private decryptKeysWithOtp(): void {
+    private decryptKeysWithOtp(): Interfaces.IKeyPair {
         AppUtils.assert.defined<string>(this.encryptedKeys);
         AppUtils.assert.defined<string>(this.otp);
 
         const wifKey: string = this.decryptDataWithOtp(this.encryptedKeys, this.otp);
 
-        this.keys = Identities.Keys.fromWIF(wifKey);
         this.otp = undefined;
         this.encryptedKeys = undefined;
+
+        return Identities.Keys.fromWIF(wifKey);
     }
 
     /**
