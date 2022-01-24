@@ -51,11 +51,11 @@ export interface Delegate {
     forge(transactions: Interfaces.ITransactionData[], options: Record<string, any>): Interfaces.IBlock;
 }
 
-export type UseKeysFunction = (keys: Interfaces.IKeyPair) => void;
+export type UseKeysFunction<T> = (keys: Interfaces.IKeyPair) => T;
 
 export interface KeyPairHolder {
     getPublicKey(): string;
     getAddress(): string;
 
-    useKeys(fn: UseKeysFunction);
+    useKeys<T>(fn: UseKeysFunction<T>): T;
 }

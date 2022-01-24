@@ -40,15 +40,17 @@ export class Bip38KeyPairHolder extends AbstractKeyPairHolder {
         return Identities.Keys.fromWIF(wifKey);
     }
 
-    public useKeys(fn: UseKeysFunction) {
+    public useKeys<T>(fn: UseKeysFunction<T>): T {
         // TODO: Handle errors
         this.decryptKeysWithOtp();
 
         AppUtils.assert.defined<Interfaces.IKeyPair>(this.keys);
 
-        fn(this.keys);
+        const result = fn(this.keys);
 
         this.encryptKeysWithOtp();
+
+        return result;
     }
 
     private encryptKeysWithOtp(): void {

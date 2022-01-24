@@ -13,7 +13,7 @@ export class Bip39KeyPairHolder extends AbstractKeyPairHolder {
         this.keys = keys;
     }
 
-    public useKeys(fn: UseKeysFunction) {
-        fn(this.keys);
+    public useKeys<T>(fn: UseKeysFunction<T>): T {
+        return fn(this.keys);
     }
 }

@@ -17,5 +17,5 @@ export abstract class AbstractKeyPairHolder implements KeyPairHolder {
         return this.address;
     }
 
-    public abstract useKeys(fn: UseKeysFunction);
+    public abstract useKeys<T>(fn: UseKeysFunction<T>): T;
 }
