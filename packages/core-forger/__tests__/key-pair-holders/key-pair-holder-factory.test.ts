@@ -1,4 +1,4 @@
-import { KeyPairHolderFactory } from "@packages/core-forger/src/key-pair-holders";
+import { KeyPairHolderFactory } from "@packages/core-kernel/src/utils/key-pair-holders";
 import { Identities } from "@packages/crypto";
 
 const passphrase38: string = "clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire";

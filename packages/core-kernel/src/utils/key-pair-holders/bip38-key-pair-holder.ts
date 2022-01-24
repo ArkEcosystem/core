@@ -1,8 +1,9 @@
-import { Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Crypto, Identities, Interfaces, Managers } from "@arkecosystem/crypto";
 import forge from "node-forge";
 import wif from "wif";
 
+import { UseKeysFunction } from "../../contracts/shared";
+import { assert } from "../assert";
 import { AbstractKeyPairHolder } from "./abstract-key-pair-holder";
 
 export class Bip38KeyPairHolder extends AbstractKeyPairHolder {
@@ -36,7 +37,7 @@ export class Bip38KeyPairHolder extends AbstractKeyPairHolder {
         return Identities.Keys.fromWIF(wifKey);
     }
 
-    public useKeys<T>(fn: Contracts.Shared.UseKeysFunction<T>): T {
+    public useKeys<T>(fn: UseKeysFunction<T>): T {
         const keys = this.decryptKeysWithOtp();
 
         let result: T;
@@ -51,7 +52,7 @@ export class Bip38KeyPairHolder extends AbstractKeyPairHolder {
     }
 
     private encryptKeysWithOtp(keys): void {
-        AppUtils.assert.defined<Interfaces.IKeyPair>(keys);
+        assert.defined<Interfaces.IKeyPair>(keys);
 
         const wifKey: string = Identities.WIF.fromKeys(keys);
 
@@ -60,8 +61,8 @@ export class Bip38KeyPairHolder extends AbstractKeyPairHolder {
     }
 
     private decryptKeysWithOtp(): Interfaces.IKeyPair {
-        AppUtils.assert.defined<string>(this.encryptedKeys);
-        AppUtils.assert.defined<string>(this.otp);
+        assert.defined<string>(this.encryptedKeys);
+        assert.defined<string>(this.otp);
 
         const wifKey: string = this.decryptDataWithOtp(this.encryptedKeys, this.otp);
 
@@ -72,7 +73,7 @@ export class Bip38KeyPairHolder extends AbstractKeyPairHolder {
     }
 
     private encryptDataWithOtp(content: string, password: string): string {
-        AppUtils.assert.defined<string>(this.otpSecret);
+        assert.defined<string>(this.otpSecret);
 
         const cipher: forge.cipher.BlockCipher = forge.cipher.createCipher(
             "AES-CBC",
@@ -86,7 +87,7 @@ export class Bip38KeyPairHolder extends AbstractKeyPairHolder {
     }
 
     private decryptDataWithOtp(cipherText: string, password: string): string {
-        AppUtils.assert.defined<string>(this.otpSecret);
+        assert.defined<string>(this.otpSecret);
 
         const decipher: forge.cipher.BlockCipher = forge.cipher.createDecipher(
             "AES-CBC",

@@ -1,4 +1,4 @@
-import { Container, Contracts, Enums, Providers, Services } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Enums, Providers, Services, Utils } from "@arkecosystem/core-kernel";
 import Joi from "joi";
 
 import { ForgeNewBlockAction, IsForgingAllowedAction } from "./actions";
@@ -6,7 +6,6 @@ import { Delegate } from "./delegate";
 import { DelegateTracker } from "./delegate-tracker";
 import { ForgerService } from "./forger-service";
 import * as Interfaces from "./interfaces";
-import { KeyPairHolderFactory } from "./key-pair-holders";
 import { CurrentDelegateProcessAction, LastForgedBlockRemoteAction, NextSlotProcessAction } from "./process-actions";
 
 /**
@@ -147,7 +146,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
         for (const secret of this.app.config("delegates.secrets")) {
             delegates.add(
                 this.app.get<Interfaces.DelegateFactory>(Container.Identifiers.ForgerDelegateFactory)(
-                    KeyPairHolderFactory.fromBIP39(secret),
+                    Utils.KeyPairHolderFactory.fromBIP39(secret),
                 ),
             );
         }
@@ -157,7 +156,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
         if (bip38) {
             delegates.add(
                 this.app.get<Interfaces.DelegateFactory>(Container.Identifiers.ForgerDelegateFactory)(
-                    KeyPairHolderFactory.fromBIP38(bip38, password),
+                    Utils.KeyPairHolderFactory.fromBIP38(bip38, password),
                 ),
             );
         }

@@ -1,5 +1,5 @@
 import { Delegate } from "@arkecosystem/core-forger/src/delegate";
-import { Bip39KeyPairHolder } from "@arkecosystem/core-forger/src/key-pair-holders/bip39-key-pair-holder";
+import { Utils } from "@arkecosystem/core-kernel";
 import { Crypto, Managers } from "@arkecosystem/crypto";
 
 import secrets from "../../internal/passphrases.json";
@@ -48,12 +48,15 @@ export const registerBlockFactory = (
             }
         }
 
-        return new Delegate(new Bip39KeyPairHolder(options.passphrase || secrets[0])).forge(transactions, {
-            previousBlock,
-            timestamp:
-                Crypto.Slots.getSlotNumber(blockTimestampLookup, Crypto.Slots.getTime()) * options.blocktime ||
-                blocktime,
-            reward: options.reward || reward,
-        })!;
+        return new Delegate(Utils.KeyPairHolderFactory.fromBIP39(options.passphrase || secrets[0])).forge(
+            transactions,
+            {
+                previousBlock,
+                timestamp:
+                    Crypto.Slots.getSlotNumber(blockTimestampLookup, Crypto.Slots.getTime()) * options.blocktime ||
+                    blocktime,
+                reward: options.reward || reward,
+            },
+        )!;
     });
 };

@@ -1,6 +1,6 @@
-import { Contracts } from "@arkecosystem/core-kernel";
 import { Identities, Interfaces } from "@arkecosystem/crypto";
 
+import { UseKeysFunction } from "../../contracts/shared";
 import { AbstractKeyPairHolder } from "./abstract-key-pair-holder";
 
 export class Bip39KeyPairHolder extends AbstractKeyPairHolder {
@@ -13,7 +13,7 @@ export class Bip39KeyPairHolder extends AbstractKeyPairHolder {
         this.keys = keys;
     }
 
-    public useKeys<T>(fn: Contracts.Shared.UseKeysFunction<T>): T {
+    public useKeys<T>(fn: UseKeysFunction<T>): T {
         return fn(this.keys);
     }
 }

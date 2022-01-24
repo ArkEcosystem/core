@@ -1,5 +1,5 @@
 import { Delegate } from "@packages/core-forger/src/delegate";
-import { Bip39KeyPairHolder } from "@packages/core-forger/src/key-pair-holders/bip39-key-pair-holder";
+import { Bip39KeyPairHolder } from "@packages/core-kernel/src/utils/key-pair-holders/bip39-key-pair-holder";
 import { TransactionFactory } from "@packages/core-test-framework/src/utils/transaction-factory";
 import { Utils } from "@packages/crypto";
 

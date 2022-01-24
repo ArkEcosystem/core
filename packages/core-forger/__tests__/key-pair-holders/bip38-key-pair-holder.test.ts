@@ -1,4 +1,4 @@
-import { Bip38KeyPairHolder } from "@packages/core-forger/src/key-pair-holders/bip38-key-pair-holder";
+import { Bip38KeyPairHolder } from "@packages/core-kernel/src/utils/key-pair-holders/bip38-key-pair-holder";
 import { Identities, Interfaces } from "@packages/crypto";
 
 const passphrase: string = "clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire";

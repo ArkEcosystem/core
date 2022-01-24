@@ -2,10 +2,10 @@ import "jest-extended";
 
 import { Interfaces } from "@packages/core-forger";
 import { Delegate } from "@packages/core-forger/src/delegate";
-import { KeyPairHolderFactory } from "@packages/core-forger/src/key-pair-holders";
 import { ServiceProvider } from "@packages/core-forger/src/service-provider";
 import { Application, Container, Providers } from "@packages/core-kernel";
 import { Pm2ProcessActionsService } from "@packages/core-kernel/src/services/process-actions/drivers/pm2";
+import { KeyPairHolderFactory } from "@packages/core-kernel/src/utils/key-pair-holders";
 import { AnySchema } from "joi";
 
 describe("ServiceProvider", () => {
