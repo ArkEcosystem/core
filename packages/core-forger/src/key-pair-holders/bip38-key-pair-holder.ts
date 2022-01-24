@@ -38,12 +38,15 @@ export class Bip38KeyPairHolder extends AbstractKeyPairHolder {
     }
 
     public useKeys<T>(fn: UseKeysFunction<T>): T {
-        // TODO: Handle errors
         const keys = this.decryptKeysWithOtp();
 
-        const result = fn({ ...keys });
+        let result: T;
 
-        this.encryptKeysWithOtp(keys);
+        try {
+            result = fn({ ...keys });
+        } finally {
+            this.encryptKeysWithOtp(keys);
+        }
 
         return result;
     }
@@ -69,13 +72,6 @@ export class Bip38KeyPairHolder extends AbstractKeyPairHolder {
         return Identities.Keys.fromWIF(wifKey);
     }
 
-    /**
-     * @private
-     * @param {string} content
-     * @param {string} password
-     * @returns {string}
-     * @memberof BIP38
-     */
     private encryptDataWithOtp(content: string, password: string): string {
         AppUtils.assert.defined<string>(this.otpSecret);
 
@@ -90,13 +86,6 @@ export class Bip38KeyPairHolder extends AbstractKeyPairHolder {
         return forge.util.encode64(cipher.output.getBytes());
     }
 
-    /**
-     * @private
-     * @param {string} cipherText
-     * @param {string} password
-     * @returns {string}
-     * @memberof BIP38
-     */
     private decryptDataWithOtp(cipherText: string, password: string): string {
         AppUtils.assert.defined<string>(this.otpSecret);
 
