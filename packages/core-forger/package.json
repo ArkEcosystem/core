@@ -29,7 +29,6 @@
         "@arkecosystem/core-transactions": "workspace:*",
         "@arkecosystem/crypto": "workspace:*",
         "joi": "17.4.2",
-        "node-forge": "0.10.0",
         "wif": "2.0.6"
     },
     "devDependencies": {
