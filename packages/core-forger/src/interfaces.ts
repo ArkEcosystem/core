@@ -51,6 +51,8 @@ export interface Delegate {
     forge(transactions: Interfaces.ITransactionData[], options: Record<string, any>): Interfaces.IBlock;
 }
 
+export type DelegateFactory = (keyPairHolder: KeyPairHolder) => Delegate;
+
 export type UseKeysFunction<T> = (keys: Interfaces.IKeyPair) => T;
 
 export interface KeyPairHolder {

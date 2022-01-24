@@ -21,6 +21,11 @@ export class ServiceProvider extends Providers.ServiceProvider {
      */
     public async register(): Promise<void> {
         this.app.bind<ForgerService>(Container.Identifiers.ForgerService).to(ForgerService).inSingletonScope();
+        this.app
+            .bind<ForgerService>(Container.Identifiers.ForgerDelegateFactory)
+            .toFactory<Delegate>(() => (keyPairHolder: Interfaces.KeyPairHolder) => {
+                return new Delegate(keyPairHolder);
+            });
 
         this.registerActions();
 
@@ -140,13 +145,21 @@ export class ServiceProvider extends Providers.ServiceProvider {
         const delegates: Set<Interfaces.Delegate> = new Set<Interfaces.Delegate>();
 
         for (const secret of this.app.config("delegates.secrets")) {
-            delegates.add(new Delegate(KeyPairHolderFactory.fromBIP39(secret)));
+            delegates.add(
+                this.app.get<Interfaces.DelegateFactory>(Container.Identifiers.ForgerDelegateFactory)(
+                    KeyPairHolderFactory.fromBIP39(secret),
+                ),
+            );
         }
 
         const { bip38, password } = this.app.config("app.flags")!;
 
         if (bip38) {
-            delegates.add(new Delegate(KeyPairHolderFactory.fromBIP38(bip38, password)));
+            delegates.add(
+                this.app.get<Interfaces.DelegateFactory>(Container.Identifiers.ForgerDelegateFactory)(
+                    KeyPairHolderFactory.fromBIP38(bip38, password),
+                ),
+            );
         }
 
         return [...delegates];

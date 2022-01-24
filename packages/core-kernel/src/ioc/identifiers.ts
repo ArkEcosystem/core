@@ -90,6 +90,9 @@ export const Identifiers = {
     DposState: Symbol.for("State<DposState>"),
     DposPreviousRoundStateProvider: Symbol("Provider<DposPreviousRoundState>"),
 
+    // Forger
+    ForgerDelegateFactory: Symbol("Forger<DelegateFactory>"),
+
     // P2P - @todo: better names that won't clash
     PeerCommunicator: Symbol.for("Peer<Communicator>"),
     PeerConnector: Symbol.for("Peer<Connector>"),
