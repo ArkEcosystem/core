@@ -379,14 +379,12 @@ importers:
       '@types/node-forge': 0.10.4
       '@types/wif': 2.0.2
       joi: 17.4.2
-      wif: 2.0.6
     dependencies:
       '@arkecosystem/core-kernel': link:../core-kernel
       '@arkecosystem/core-p2p': link:../core-p2p
       '@arkecosystem/core-transactions': link:../core-transactions
       '@arkecosystem/crypto': link:../crypto
       joi: 17.4.2
-      wif: 2.0.6
     devDependencies:
       '@types/node-forge': 0.10.4
       '@types/wif': 2.0.2
@@ -421,6 +419,7 @@ importers:
       reflect-metadata: 0.1.13
       semver: 6.3.0
       type-fest: 0.21.3
+      wif: 2.0.6
     dependencies:
       '@arkecosystem/crypto': link:../crypto
       '@arkecosystem/utils': 1.3.1
@@ -444,6 +443,7 @@ importers:
       reflect-metadata: 0.1.13
       semver: 6.3.0
       type-fest: 0.21.3
+      wif: registry.npmjs.org/wif/2.0.6
     devDependencies:
       '@types/cron': 1.7.3
       '@types/fs-extra': 8.1.2
@@ -7211,7 +7211,7 @@ packages:
     resolution: {integrity: sha1-kZfYYa2BQvPmPVqDv+TFn3MwiF0=}
     engines: {node: '>=0.8.0'}
     dependencies:
-      readable-stream: 1.1.14
+      readable-stream: registry.npmjs.org/readable-stream/1.1.14
       xregexp: 2.0.0
     dev: false
 
@@ -7330,7 +7330,7 @@ packages:
       extend: 3.0.2
       file-uri-to-path: 1.0.0
       ftp: 0.3.10
-      readable-stream: 2.3.7
+      readable-stream: registry.npmjs.org/readable-stream/2.3.7
     dev: false
 
   /get-value/2.0.6:
@@ -7709,7 +7709,7 @@ packages:
     engines: {node: '>= 0.6'}
     dependencies:
       depd: 1.1.2
-      inherits: 2.0.4
+      inherits: registry.npmjs.org/inherits/2.0.4
       setprototypeof: 1.2.0
       statuses: 1.5.0
       toidentifier: 1.0.1
@@ -13563,6 +13563,41 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
+  registry.npmjs.org/base-x/3.0.9:
+    resolution: {integrity: sha512-H7JU6iBHTal1gp56aKoaa//YUxEaAOUiydvrV/pILqIHXTtqxSkATOnDA2u+jZ/61sD+L/412+7kzXRtWukhpQ==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.org/base-x/-/base-x-3.0.9.tgz}
+    name: base-x
+    version: 3.0.9
+    dependencies:
+      safe-buffer: registry.npmjs.org/safe-buffer/5.2.1
+    dev: false
+
+  registry.npmjs.org/bs58/4.0.1:
+    resolution: {integrity: sha1-vhYedsNU9veIrkBx9j806MTwpCo=, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.org/bs58/-/bs58-4.0.1.tgz}
+    name: bs58
+    version: 4.0.1
+    dependencies:
+      base-x: registry.npmjs.org/base-x/3.0.9
+    dev: false
+
+  registry.npmjs.org/bs58check/2.1.2:
+    resolution: {integrity: sha512-0TS1jicxdU09dwJMNZtVAfzPi6Q6QeN0pM1Fkzrjn+XYHvzMKPU3pHVpva+769iNVSfIYWf7LJ6WR+BuuMf8cA==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.org/bs58check/-/bs58check-2.1.2.tgz}
+    name: bs58check
+    version: 2.1.2
+    dependencies:
+      bs58: registry.npmjs.org/bs58/4.0.1
+      create-hash: registry.npmjs.org/create-hash/1.2.0
+      safe-buffer: registry.npmjs.org/safe-buffer/5.2.1
+    dev: false
+
+  registry.npmjs.org/cipher-base/1.0.4:
+    resolution: {integrity: sha512-Kkht5ye6ZGmwv40uUDZztayT2ThLQGfnj/T71N/XzeZeo3nf8foyW7zGTsPYkEya3m5f3cAypH+qe7YOrM1U2Q==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.org/cipher-base/-/cipher-base-1.0.4.tgz}
+    name: cipher-base
+    version: 1.0.4
+    dependencies:
+      inherits: registry.npmjs.org/inherits/2.0.4
+      safe-buffer: registry.npmjs.org/safe-buffer/5.2.1
+    dev: false
+
   registry.npmjs.org/colors/1.4.0:
     resolution: {integrity: sha512-a+UqTh4kgZg/SlGvfbzDHpgRu7AAQOmmqRHJnxhRZICKFUT91brVhNNt58CMWU9PsBbv3PDCZUHbVxuDiH2mtA==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.org/colors/-/colors-1.4.0.tgz}
     name: colors
@@ -13571,6 +13606,18 @@ packages:
     requiresBuild: true
     dev: false
     optional: true
+
+  registry.npmjs.org/create-hash/1.2.0:
+    resolution: {integrity: sha512-z00bCGNHDG8mHAkP7CtT1qVu+bFQUPjYq/4Iv3C3kWjTFV10zIjfSoeqXo9Asws8gwSHDGj/hl2u4OGIjapeCg==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.org/create-hash/-/create-hash-1.2.0.tgz}
+    name: create-hash
+    version: 1.2.0
+    dependencies:
+      cipher-base: registry.npmjs.org/cipher-base/1.0.4
+      inherits: registry.npmjs.org/inherits/2.0.4
+      md5.js: registry.npmjs.org/md5.js/1.3.5
+      ripemd160: registry.npmjs.org/ripemd160/2.0.2
+      sha.js: registry.npmjs.org/sha.js/2.4.11
+    dev: false
 
   registry.npmjs.org/encoding/0.1.13:
     resolution: {integrity: sha512-ETBauow1T35Y/WZMkio9jiM0Z5xjHHmJ4XmjZOq1l/dXz3lr2sRn87nJy20RupqSh1F2m3HHPSp8ShIPQJrJ3A==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.org/encoding/-/encoding-0.1.13.tgz}
@@ -13607,11 +13654,105 @@ packages:
     name: graceful-fs
     version: 4.2.8
 
+  registry.npmjs.org/hash-base/3.1.0:
+    resolution: {integrity: sha512-1nmYp/rhMDiE7AYkDw+lLwlAzz0AntGIe51F3RfFfEqyQ3feY2eI/NcwC6umIQVOASPMsWJLJScWKSSvzL9IVA==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.org/hash-base/-/hash-base-3.1.0.tgz}
+    name: hash-base
+    version: 3.1.0
+    engines: {node: '>=4'}
+    dependencies:
+      inherits: registry.npmjs.org/inherits/2.0.4
+      readable-stream: registry.npmjs.org/readable-stream/3.6.0
+      safe-buffer: registry.npmjs.org/safe-buffer/5.2.1
+    dev: false
+
+  registry.npmjs.org/inherits/2.0.4:
+    resolution: {integrity: sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.org/inherits/-/inherits-2.0.4.tgz}
+    name: inherits
+    version: 2.0.4
+    dev: false
+
+  registry.npmjs.org/md5.js/1.3.5:
+    resolution: {integrity: sha512-xitP+WxNPcTTOgnTJcrhM0xvdPepipPSf3I8EIpGKeFLjt3PlJLIDG3u8EX53ZIubkb+5U2+3rELYpEhHhzdkg==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.org/md5.js/-/md5.js-1.3.5.tgz}
+    name: md5.js
+    version: 1.3.5
+    dependencies:
+      hash-base: registry.npmjs.org/hash-base/3.1.0
+      inherits: registry.npmjs.org/inherits/2.0.4
+      safe-buffer: registry.npmjs.org/safe-buffer/5.2.1
+    dev: false
+
   registry.npmjs.org/node-forge/1.2.1:
     resolution: {integrity: sha512-Fcvtbb+zBcZXbTTVwqGA5W+MKBj56UjVRevvchv5XrcyXbmNdesfZL37nlcWOfpgHhgmxApw3tQbTr4CqNmX4w==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.org/node-forge/-/node-forge-1.2.1.tgz}
     name: node-forge
     version: 1.2.1
     engines: {node: '>= 6.13.0'}
+    dev: false
+
+  registry.npmjs.org/readable-stream/1.1.14:
+    resolution: {integrity: sha1-fPTFTvZI44EwhMY23SB54WbAgdk=, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.org/readable-stream/-/readable-stream-1.1.14.tgz}
+    name: readable-stream
+    version: 1.1.14
+    dependencies:
+      core-util-is: 1.0.3
+      inherits: registry.npmjs.org/inherits/2.0.4
+      isarray: 0.0.1
+      string_decoder: registry.npmjs.org/string_decoder/0.10.31
+    dev: false
+
+  registry.npmjs.org/readable-stream/2.3.7:
+    resolution: {integrity: sha512-Ebho8K4jIbHAxnuxi7o42OrZgF/ZTNcsZj6nRKyUmkhLFq8CHItp/fy6hQZuZmP/n3yZ9VBUbp4zz/mX8hmYPw==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.org/readable-stream/-/readable-stream-2.3.7.tgz}
+    name: readable-stream
+    version: 2.3.7
+    dependencies:
+      core-util-is: 1.0.3
+      inherits: registry.npmjs.org/inherits/2.0.4
+      isarray: 1.0.0
+      process-nextick-args: 2.0.1
+      safe-buffer: registry.npmjs.org/safe-buffer/5.1.2
+      string_decoder: registry.npmjs.org/string_decoder/1.1.1
+      util-deprecate: registry.npmjs.org/util-deprecate/1.0.2
+    dev: false
+
+  registry.npmjs.org/readable-stream/3.6.0:
+    resolution: {integrity: sha512-BViHy7LKeTz4oNnkcLJ+lVSL6vpiFeX6/d3oSH8zCW7UxP2onchk+vTGB143xuFjHS3deTgkKoXXymXqymiIdA==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.org/readable-stream/-/readable-stream-3.6.0.tgz}
+    name: readable-stream
+    version: 3.6.0
+    engines: {node: '>= 6'}
+    dependencies:
+      inherits: registry.npmjs.org/inherits/2.0.4
+      string_decoder: registry.npmjs.org/string_decoder/1.3.0
+      util-deprecate: registry.npmjs.org/util-deprecate/1.0.2
+    dev: false
+
+  registry.npmjs.org/ripemd160/2.0.2:
+    resolution: {integrity: sha512-ii4iagi25WusVoiC4B4lq7pbXfAp3D9v5CwfkY33vffw2+pkDjY1D8GaN7spsxvCSx8dkPqOZCEZyfxcmJG2IA==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.org/ripemd160/-/ripemd160-2.0.2.tgz}
+    name: ripemd160
+    version: 2.0.2
+    dependencies:
+      hash-base: registry.npmjs.org/hash-base/3.1.0
+      inherits: registry.npmjs.org/inherits/2.0.4
+    dev: false
+
+  registry.npmjs.org/safe-buffer/5.1.2:
+    resolution: {integrity: sha512-Gd2UZBJDkXlY7GbJxfsE8/nvKkUEU1G38c1siN6QP6a9PT9MmHB8GnpscSmMJSoF8LOIrt8ud/wPtojys4G6+g==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.org/safe-buffer/-/safe-buffer-5.1.2.tgz}
+    name: safe-buffer
+    version: 5.1.2
+    dev: false
+
+  registry.npmjs.org/safe-buffer/5.2.1:
+    resolution: {integrity: sha512-rp3So07KcdmmKbGvgaNxQSJr7bGVSVk5S9Eq1F+ppbRo70+YeaDxkw5Dd8NPN+GD6bjnYm2VuPuCXmpuYvmCXQ==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.org/safe-buffer/-/safe-buffer-5.2.1.tgz}
+    name: safe-buffer
+    version: 5.2.1
+    dev: false
+
+  registry.npmjs.org/sha.js/2.4.11:
+    resolution: {integrity: sha512-QMEp5B7cftE7APOjk5Y6xgrbWu+WkLVQwk8JNjZ8nKRciZaByEW6MubieAiToS7+dwvrjGhH8jRXz3MVd0AYqQ==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.org/sha.js/-/sha.js-2.4.11.tgz}
+    name: sha.js
+    version: 2.4.11
+    hasBin: true
+    dependencies:
+      inherits: registry.npmjs.org/inherits/2.0.4
+      safe-buffer: registry.npmjs.org/safe-buffer/5.2.1
     dev: false
 
   registry.npmjs.org/source-map/0.6.1:
@@ -13621,3 +13762,39 @@ packages:
     engines: {node: '>=0.10.0'}
     requiresBuild: true
     optional: true
+
+  registry.npmjs.org/string_decoder/0.10.31:
+    resolution: {integrity: sha1-YuIDvEF2bGwoyfyEMB2rHFMQ+pQ=, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.org/string_decoder/-/string_decoder-0.10.31.tgz}
+    name: string_decoder
+    version: 0.10.31
+    dev: false
+
+  registry.npmjs.org/string_decoder/1.1.1:
+    resolution: {integrity: sha512-n/ShnvDi6FHbbVfviro+WojiFzv+s8MPMHBczVePfUpDJLwoLT0ht1l4YwBCbi8pJAveEEdnkHyPyTP/mzRfwg==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.org/string_decoder/-/string_decoder-1.1.1.tgz}
+    name: string_decoder
+    version: 1.1.1
+    dependencies:
+      safe-buffer: registry.npmjs.org/safe-buffer/5.1.2
+    dev: false
+
+  registry.npmjs.org/string_decoder/1.3.0:
+    resolution: {integrity: sha512-hkRX8U1WjJFd8LsDJ2yQ/wWWxaopEsABU1XfkM8A+j0+85JAGppt16cr1Whg6KIbb4okU6Mql6BOj+uup/wKeA==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.org/string_decoder/-/string_decoder-1.3.0.tgz}
+    name: string_decoder
+    version: 1.3.0
+    dependencies:
+      safe-buffer: registry.npmjs.org/safe-buffer/5.2.1
+    dev: false
+
+  registry.npmjs.org/util-deprecate/1.0.2:
+    resolution: {integrity: sha1-RQ1Nyfpw3nMnYvvS1KKJgUGaDM8=, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.org/util-deprecate/-/util-deprecate-1.0.2.tgz}
+    name: util-deprecate
+    version: 1.0.2
+    dev: false
+
+  registry.npmjs.org/wif/2.0.6:
+    resolution: {integrity: sha1-CNP1IFbGZnkplyb63g1DKudLRwQ=, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.org/wif/-/wif-2.0.6.tgz}
+    name: wif
+    version: 2.0.6
+    dependencies:
+      bs58check: registry.npmjs.org/bs58check/2.1.2
+    dev: false

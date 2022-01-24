@@ -28,8 +28,7 @@
         "@arkecosystem/core-p2p": "workspace:*",
         "@arkecosystem/core-transactions": "workspace:*",
         "@arkecosystem/crypto": "workspace:*",
-        "joi": "17.4.2",
-        "wif": "2.0.6"
+        "joi": "17.4.2"
     },
     "devDependencies": {
         "@types/node-forge": "0.10.4",
