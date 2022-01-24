@@ -1,11 +1,9 @@
 import "jest-extended";
 
-import { Interfaces } from "@packages/core-forger";
 import { Delegate } from "@packages/core-forger/src/delegate";
 import { ServiceProvider } from "@packages/core-forger/src/service-provider";
-import { Application, Container, Providers } from "@packages/core-kernel";
+import { Application, Container, Contracts, Providers, Utils } from "@packages/core-kernel";
 import { Pm2ProcessActionsService } from "@packages/core-kernel/src/services/process-actions/drivers/pm2";
-import { KeyPairHolderFactory } from "@packages/core-kernel/src/utils/key-pair-holders";
 import { AnySchema } from "joi";
 
 describe("ServiceProvider", () => {
@@ -61,8 +59,8 @@ describe("ServiceProvider", () => {
 
     describe("boot", () => {
         it("should call boot on forger service", async () => {
-            const spyOnFromBip38 = jest.spyOn(KeyPairHolderFactory, "fromBIP38");
-            const spyOnFromBip39 = jest.spyOn(KeyPairHolderFactory, "fromBIP39");
+            const spyOnFromBip38 = jest.spyOn(Utils.KeyPairHolderFactory, "fromBIP38");
+            const spyOnFromBip39 = jest.spyOn(Utils.KeyPairHolderFactory, "fromBIP39");
 
             app.config("delegates", {
                 secrets: ["this is a super secret passphrase"],
@@ -71,7 +69,7 @@ describe("ServiceProvider", () => {
             const forgerService = { boot: jest.fn(), register: jest.fn() };
             app.bind(Container.Identifiers.ForgerService).toConstantValue(forgerService);
             app.bind(Container.Identifiers.ForgerDelegateFactory).toFactory(
-                () => (keyPairHolder: Interfaces.KeyPairHolder) => {
+                () => (keyPairHolder: Contracts.Shared.KeyPairHolder) => {
                     return new Delegate(keyPairHolder);
                 },
             );
@@ -87,8 +85,8 @@ describe("ServiceProvider", () => {
         });
 
         it("should create delegates from delegates.secret and flags.bip38 / flags.password", async () => {
-            const spyOnFromBip38 = jest.spyOn(KeyPairHolderFactory, "fromBIP38");
-            const spyOnFromBip39 = jest.spyOn(KeyPairHolderFactory, "fromBIP39");
+            const spyOnFromBip38 = jest.spyOn(Utils.KeyPairHolderFactory, "fromBIP38");
+            const spyOnFromBip39 = jest.spyOn(Utils.KeyPairHolderFactory, "fromBIP39");
 
             app.config("delegates", {
                 secrets: ["this is a super secret passphrase"],
@@ -104,7 +102,7 @@ describe("ServiceProvider", () => {
             const forgerService = { boot: jest.fn(), register: jest.fn() };
             app.bind(Container.Identifiers.ForgerService).toConstantValue(forgerService);
             app.bind(Container.Identifiers.ForgerDelegateFactory).toFactory(
-                () => (keyPairHolder: Interfaces.KeyPairHolder) => {
+                () => (keyPairHolder: Contracts.Shared.KeyPairHolder) => {
                     return new Delegate(keyPairHolder);
                 },
             );
