@@ -1,7 +1,8 @@
 import "jest-extended";
 
+import { Delegate } from "@packages/core-forger/src/delegate";
 import { DelegateTracker } from "@packages/core-forger/src/delegate-tracker";
-import { BIP39 } from "@packages/core-forger/src/methods/bip39";
+import { Bip39KeyPairHolder } from "@packages/core-forger/src/key-pair-holders/bip39-key-pair-holder";
 import { Utils } from "@packages/core-kernel";
 import { Wallet } from "@packages/core-state/src/wallets";
 import { Crypto, Managers } from "@packages/crypto";
@@ -32,7 +33,7 @@ beforeEach(() => {
 describe("DelegateTracker", () => {
     describe("initialise", () => {
         it("should set-up delegates", async () => {
-            const delegate = new BIP39(dummy.plainPassphrase);
+            const delegate = new Delegate(new Bip39KeyPairHolder(dummy.plainPassphrase));
 
             delegateTracker.initialize([delegate]);
             expect((delegateTracker as any).delegates).toEqual([delegate]);

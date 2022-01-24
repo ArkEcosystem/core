@@ -1,6 +1,8 @@
 import "jest-extended";
 
-import { DelegateFactory } from "@packages/core-forger/src/delegate-factory";
+import { Interfaces } from "@packages/core-forger";
+import { Delegate } from "@packages/core-forger/src/delegate";
+import { KeyPairHolderFactory } from "@packages/core-forger/src/key-pair-holders";
 import { ServiceProvider } from "@packages/core-forger/src/service-provider";
 import { Application, Container, Providers } from "@packages/core-kernel";
 import { Pm2ProcessActionsService } from "@packages/core-kernel/src/services/process-actions/drivers/pm2";
@@ -11,9 +13,6 @@ describe("ServiceProvider", () => {
     let serviceProvider: ServiceProvider;
 
     const triggerService = { bind: jest.fn() };
-
-    const bip39DelegateMock = { address: "D6Z26L69gdk8qYmTv5uzk3uGepigtHY4ax" } as any;
-    const bip38DelegateMock = { address: "D6Z26L69gbk8qYmTv5uzk3uGepigtHY4ax" } as any;
 
     beforeEach(() => {
         app = new Application(new Container.Container());
@@ -27,8 +26,10 @@ describe("ServiceProvider", () => {
         app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
         app.bind(Container.Identifiers.ProcessActionsService).to(Pm2ProcessActionsService).inSingletonScope();
 
-        app.config("delegates", { secrets: [], bip38: "dummy bip 38" });
-        app.config("app", { flags: { bip38: "dummy bip 38", password: "dummy pwd" } });
+        app.config("delegates", { secrets: [] });
+        app.config("app", {
+            flags: {},
+        });
 
         serviceProvider = app.resolve<ServiceProvider>(ServiceProvider);
 
@@ -39,9 +40,10 @@ describe("ServiceProvider", () => {
             tracker: true,
         });
         serviceProvider.setConfig(pluginConfiguration);
+    });
 
-        jest.spyOn(DelegateFactory, "fromBIP39").mockReturnValue(bip39DelegateMock);
-        jest.spyOn(DelegateFactory, "fromBIP38").mockReturnValue(bip38DelegateMock);
+    afterEach(() => {
+        jest.clearAllMocks();
     });
 
     describe("register", () => {
@@ -59,35 +61,62 @@ describe("ServiceProvider", () => {
 
     describe("boot", () => {
         it("should call boot on forger service", async () => {
-            app.config("delegates", { secrets: ["this is a super secret passphrase"], bip38: "dummy bip 38" });
+            const spyOnFromBip38 = jest.spyOn(KeyPairHolderFactory, "fromBIP38");
+            const spyOnFromBip39 = jest.spyOn(KeyPairHolderFactory, "fromBIP39");
+
+            app.config("delegates", {
+                secrets: ["this is a super secret passphrase"],
+            });
 
             const forgerService = { boot: jest.fn(), register: jest.fn() };
             app.bind(Container.Identifiers.ForgerService).toConstantValue(forgerService);
+            app.bind(Container.Identifiers.ForgerDelegateFactory).toFactory(
+                () => (keyPairHolder: Interfaces.KeyPairHolder) => {
+                    return new Delegate(keyPairHolder);
+                },
+            );
 
             await serviceProvider.boot();
 
             expect(forgerService.register).toBeCalledTimes(1);
             expect(forgerService.boot).toBeCalledTimes(1);
+            expect(forgerService.boot.mock.calls[0][0].length).toEqual(1);
+
+            expect(spyOnFromBip38).toHaveBeenCalledTimes(0);
+            expect(spyOnFromBip39).toHaveBeenCalledTimes(1);
         });
 
         it("should create delegates from delegates.secret and flags.bip38 / flags.password", async () => {
-            const secrets = ["this is a super secret passphrase", "this is a super secret passphrase2"];
-            app.config("delegates", { secrets, bip38: "dummy bip 38" });
+            const spyOnFromBip38 = jest.spyOn(KeyPairHolderFactory, "fromBIP38");
+            const spyOnFromBip39 = jest.spyOn(KeyPairHolderFactory, "fromBIP39");
 
-            const flagsConfig = { bip38: "dummy bip38", password: "dummy password" };
+            app.config("delegates", {
+                secrets: ["this is a super secret passphrase"],
+                bip38: "6PYTQC4c2vBv6PGvV4HibNni6wNsHsGbR1qpL1DfkCNihsiWwXnjvJMU4B",
+            });
+
+            const flagsConfig = {
+                bip38: "6PYTQC4c2vBv6PGvV4HibNni6wNsHsGbR1qpL1DfkCNihsiWwXnjvJMU4B",
+                password: "bip38-password",
+            };
             app.config("app.flags", flagsConfig);
 
             const forgerService = { boot: jest.fn(), register: jest.fn() };
             app.bind(Container.Identifiers.ForgerService).toConstantValue(forgerService);
-
-            const anotherBip39DelegateMock = { address: "D6Z26L69gdk8qYmTv5uzk3uGepigtHY4fe" } as any;
-            jest.spyOn(DelegateFactory, "fromBIP39").mockReturnValueOnce(anotherBip39DelegateMock);
+            app.bind(Container.Identifiers.ForgerDelegateFactory).toFactory(
+                () => (keyPairHolder: Interfaces.KeyPairHolder) => {
+                    return new Delegate(keyPairHolder);
+                },
+            );
 
             await serviceProvider.boot();
 
             expect(forgerService.register).toBeCalledTimes(1);
             expect(forgerService.boot).toBeCalledTimes(1);
-            expect(forgerService.boot).toBeCalledWith([anotherBip39DelegateMock, bip39DelegateMock, bip38DelegateMock]);
+            expect(forgerService.boot.mock.calls[0][0].length).toEqual(2);
+
+            expect(spyOnFromBip38).toHaveBeenCalledTimes(1);
+            expect(spyOnFromBip39).toHaveBeenCalledTimes(1);
         });
 
         it("should call boot on forger service with empty array when no delegates are configured", async () => {

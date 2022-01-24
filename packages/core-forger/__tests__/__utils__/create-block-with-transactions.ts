@@ -1,4 +1,5 @@
-import { BIP39 } from "@packages/core-forger/src/methods/bip39";
+import { Delegate } from "@packages/core-forger/src/delegate";
+import { Bip39KeyPairHolder } from "@packages/core-forger/src/key-pair-holders/bip39-key-pair-holder";
 import { TransactionFactory } from "@packages/core-test-framework/src/utils/transaction-factory";
 import { Utils } from "@packages/crypto";
 
@@ -39,6 +40,6 @@ export const transactions = TransactionFactory.initialize()
     .withPassphrase("super cool passphrase")
     .create(50);
 
-export const delegate: BIP39 = new BIP39(dummy.plainPassphrase);
+export const delegate: Delegate = new Delegate(new Bip39KeyPairHolder(dummy.plainPassphrase));
 
 export const forgedBlockWithTransactions = delegate.forge(transactions, optionsDefault);
