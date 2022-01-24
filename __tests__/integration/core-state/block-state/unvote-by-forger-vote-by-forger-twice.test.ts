@@ -1,7 +1,7 @@
-import { Application, Container, Contracts } from "@packages/core-kernel";
-import { Utils, Transactions } from "@packages/crypto";
+import { Delegate } from "@packages/core-forger/src/delegate";
+import { Application, Container, Contracts, Utils as AppUtils } from "@packages/core-kernel";
 import { delegates } from "@packages/core-test-framework";
-import { BIP39 } from "@packages/core-forger/src/methods/bip39";
+import { Transactions, Utils } from "@packages/crypto";
 
 import { setUp, tearDown } from "../__support__/setup";
 import { getActualVoteBalances, getExpectedVoteBalances } from "../__support__/utils";
@@ -59,11 +59,11 @@ test("BlockState handling [unvote by forger, vote by forger, unvote by forger, v
         .sign(delegates[1].passphrase)
         .build();
 
-    const bip39 = new BIP39(delegates[1].passphrase);
+    const delegate = new Delegate(AppUtils.KeyPairHolderFactory.fromBIP39(delegates[1].passphrase));
 
     const block1 = stateStore.getLastBlock();
 
-    const block2 = bip39.forge(
+    const block2 = delegate.forge(
         [unvoteTransaction1.data, voteTransaction2.data, unvoteTransaction3.data, voteTransaction4.data],
         {
             timestamp: block1.data.timestamp + 60,

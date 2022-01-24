@@ -1,9 +1,9 @@
-import { createHash } from "crypto";
-import { Application, Container, Contracts } from "@packages/core-kernel";
-import { Utils, Transactions, Identities, Enums } from "@packages/crypto";
 import { Repositories } from "@packages/core-database";
+import { Delegate } from "@packages/core-forger/src/delegate";
+import { Application, Container, Contracts, Utils as AppUtils } from "@packages/core-kernel";
 import { delegates } from "@packages/core-test-framework";
-import { BIP39 } from "@packages/core-forger/src/methods/bip39";
+import { Enums, Identities, Transactions, Utils } from "@packages/crypto";
+import { createHash } from "crypto";
 
 import { setUp, tearDown } from "../__support__/setup";
 import { getActualVoteBalances, getExpectedVoteBalances } from "../__support__/utils";
@@ -61,17 +61,17 @@ test("BlockState handling [lock], [claim] blocks", async () => {
         .sign(delegates[2].passphrase)
         .build();
 
-    const bip39 = new BIP39(delegates[1].passphrase);
+    const delegate = new Delegate(AppUtils.KeyPairHolderFactory.fromBIP39(delegates[1].passphrase));
 
     const block1 = stateStore.getLastBlock();
 
-    const block2 = bip39.forge([lockTransaction.data], {
+    const block2 = delegate.forge([lockTransaction.data], {
         timestamp: block1.data.timestamp + 60,
         previousBlock: block1.data,
         reward: Utils.BigNumber.make("100"),
     });
 
-    const block3 = bip39.forge([refundTransaction.data], {
+    const block3 = delegate.forge([refundTransaction.data], {
         timestamp: block2.data.timestamp + 60,
         previousBlock: block2.data,
         reward: Utils.BigNumber.make("100"),
