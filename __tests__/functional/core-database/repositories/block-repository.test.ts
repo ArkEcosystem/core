@@ -1,3 +1,6 @@
+import { BlockRepository } from "@packages/core-database/src/repositories/block-repository";
+import { Delegate } from "@packages/core-forger/src/delegate";
+import { Utils as AppUtils } from "@packages/core-kernel";
 import { Blocks, Managers, Utils } from "@packages/crypto";
 import { Connection } from "typeorm";
 import { getCustomRepository } from "typeorm";
@@ -8,8 +11,6 @@ import {
     toBlockModel,
     toBlockModelWithTransactions,
 } from "../__support__";
-import { BlockRepository } from "@packages/core-database/src/repositories/block-repository";
-import { BIP39 } from "@packages/core-forger/src/methods/bip39";
 
 let connection: Connection | undefined;
 
@@ -21,14 +22,14 @@ beforeEach(async () => {
     await clearCoreDatabase(connection);
 });
 
-const bip39 = new BIP39("generator's secret");
+const delegate = new Delegate(AppUtils.KeyPairHolderFactory.fromBIP39("generator's secret"));
 const block1 = Blocks.BlockFactory.fromJson(Managers.configManager.get("genesisBlock"));
-const block2 = bip39.forge([], {
+const block2 = delegate.forge([], {
     timestamp: block1.data.timestamp + 60,
     previousBlock: block1.data,
     reward: new Utils.BigNumber("100"),
 });
-const block3 = bip39.forge([], {
+const block3 = delegate.forge([], {
     timestamp: block2.data.timestamp + 120,
     previousBlock: block2.data,
     reward: new Utils.BigNumber("100"),
@@ -133,7 +134,7 @@ describe("BlockRepository.getBlockRewards", () => {
         const blockRewards = await blockRepository.getBlockRewards();
         expect(blockRewards).toStrictEqual([
             { generatorPublicKey: block1.data.generatorPublicKey, rewards: "0" },
-            { generatorPublicKey: bip39.publicKey, rewards: "200" },
+            { generatorPublicKey: delegate.publicKey, rewards: "200" },
         ]);
     });
 });
@@ -151,7 +152,7 @@ describe("BlockRepository.getDelegatesForgedBlocks", () => {
                 totalProduced: "1",
             },
             {
-                generatorPublicKey: bip39.publicKey,
+                generatorPublicKey: delegate.publicKey,
                 totalFees: "0",
                 totalRewards: "200",
                 totalProduced: "2",
@@ -167,7 +168,7 @@ describe("BlockRepository.getLastForgedBlocks", () => {
         const lastForgedBlocks = await blockRepository.getLastForgedBlocks();
         expect(lastForgedBlocks).toStrictEqual([
             {
-                generatorPublicKey: bip39.publicKey,
+                generatorPublicKey: delegate.publicKey,
                 id: block3.data.id,
                 timestamp: block3.data.timestamp,
                 height: 3,
