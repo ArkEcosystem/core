@@ -810,6 +810,7 @@ importers:
       rollup-plugin-node-polyfills: 0.2.1
       rollup-plugin-terser: 7.0.0
       util: 0.12.4
+      wif: 2.0.6
     dependencies:
       '@arkecosystem/crypto-identities': 1.2.0
       '@arkecosystem/crypto-networks': 1.2.0
@@ -849,6 +850,7 @@ importers:
       rollup-plugin-node-polyfills: 0.2.1
       rollup-plugin-terser: 7.0.0_rollup@2.18.0
       util: 0.12.4
+      wif: registry.npmjs.org/wif/2.0.6
 
 packages:
 
@@ -858,7 +860,7 @@ packages:
       bcrypto: 5.4.0
       bstring: 0.3.9
       fast-memoize: 2.5.2
-      wif: 2.0.6
+      wif: registry.npmjs.org/wif/2.0.6
     dev: false
 
   /@arkecosystem/crypto-networks/1.2.0:
@@ -4797,7 +4799,7 @@ packages:
       create-hmac: 1.1.7
       tiny-secp256k1: 1.1.6
       typeforce: 1.18.0
-      wif: 2.0.6
+      wif: registry.npmjs.org/wif/2.0.6
 
   /bip39/3.0.4:
     resolution: {integrity: sha512-YZKQlb752TrUWqHWj7XAwCSjYEgGAk+/Aas3V7NyjQeZYsztO8JnQUaCWhcnL4T+jL8nvB8typ2jRPzTlgugNw==}
@@ -6292,7 +6294,7 @@ packages:
       brorand: 1.1.0
       hash.js: 1.1.7
       hmac-drbg: 1.0.1
-      inherits: 2.0.4
+      inherits: registry.npmjs.org/inherits/2.0.4
       minimalistic-assert: 1.0.1
       minimalistic-crypto-utils: 1.0.1
 
@@ -7619,18 +7621,10 @@ packages:
     dependencies:
       function-bind: 1.1.1
 
-  /hash-base/3.1.0:
-    resolution: {integrity: sha512-1nmYp/rhMDiE7AYkDw+lLwlAzz0AntGIe51F3RfFfEqyQ3feY2eI/NcwC6umIQVOASPMsWJLJScWKSSvzL9IVA==}
-    engines: {node: '>=4'}
-    dependencies:
-      inherits: 2.0.4
-      readable-stream: 3.6.0
-      safe-buffer: 5.2.1
-
   /hash.js/1.1.7:
     resolution: {integrity: sha512-taOaskGt4z4SOANNseOviYDvjEJinIkRgmp7LbKP2YTTmVxWBl87s/uzK9r+44BclBSp2X7K1hqeNfz9JbBeXA==}
     dependencies:
-      inherits: 2.0.4
+      inherits: registry.npmjs.org/inherits/2.0.4
       minimalistic-assert: 1.0.1
 
   /highlight.js/10.7.3:
@@ -9655,9 +9649,9 @@ packages:
   /md5.js/1.3.5:
     resolution: {integrity: sha512-xitP+WxNPcTTOgnTJcrhM0xvdPepipPSf3I8EIpGKeFLjt3PlJLIDG3u8EX53ZIubkb+5U2+3rELYpEhHhzdkg==}
     dependencies:
-      hash-base: 3.1.0
-      inherits: 2.0.4
-      safe-buffer: 5.2.1
+      hash-base: registry.npmjs.org/hash-base/3.1.0
+      inherits: registry.npmjs.org/inherits/2.0.4
+      safe-buffer: registry.npmjs.org/safe-buffer/5.2.1
 
   /media-typer/0.3.0:
     resolution: {integrity: sha1-hxDXrwqmJvj/+hzgAWhUUmMlV0g=}
@@ -11787,8 +11781,8 @@ packages:
   /ripemd160/2.0.2:
     resolution: {integrity: sha512-ii4iagi25WusVoiC4B4lq7pbXfAp3D9v5CwfkY33vffw2+pkDjY1D8GaN7spsxvCSx8dkPqOZCEZyfxcmJG2IA==}
     dependencies:
-      hash-base: 3.1.0
-      inherits: 2.0.4
+      hash-base: registry.npmjs.org/hash-base/3.1.0
+      inherits: registry.npmjs.org/inherits/2.0.4
 
   /rollup-plugin-inject/3.0.2:
     resolution: {integrity: sha512-ptg9PQwzs3orn4jkgXJ74bfs5vYz1NCZlSQMBUA0wKcGp5i5pA1AO3fOUEte8enhGUC+iapTCzEWw2jEFFUO/w==}
@@ -13327,6 +13321,7 @@ packages:
     resolution: {integrity: sha1-CNP1IFbGZnkplyb63g1DKudLRwQ=}
     dependencies:
       bs58check: 2.1.2
+    dev: false
 
   /word-wrap/1.2.3:
     resolution: {integrity: sha512-Hz/mrNwitNRh/HUAtM/VT/5VH+ygD6DV7mYKZAtHOrbs8U7lvPS6xf7EJKMF0uW1KJCl0H701g3ZGus+muE5vQ==}
@@ -13569,7 +13564,6 @@ packages:
     version: 3.0.9
     dependencies:
       safe-buffer: registry.npmjs.org/safe-buffer/5.2.1
-    dev: false
 
   registry.npmjs.org/bs58/4.0.1:
     resolution: {integrity: sha1-vhYedsNU9veIrkBx9j806MTwpCo=, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.org/bs58/-/bs58-4.0.1.tgz}
@@ -13577,7 +13571,6 @@ packages:
     version: 4.0.1
     dependencies:
       base-x: registry.npmjs.org/base-x/3.0.9
-    dev: false
 
   registry.npmjs.org/bs58check/2.1.2:
     resolution: {integrity: sha512-0TS1jicxdU09dwJMNZtVAfzPi6Q6QeN0pM1Fkzrjn+XYHvzMKPU3pHVpva+769iNVSfIYWf7LJ6WR+BuuMf8cA==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.org/bs58check/-/bs58check-2.1.2.tgz}
@@ -13587,7 +13580,6 @@ packages:
       bs58: registry.npmjs.org/bs58/4.0.1
       create-hash: registry.npmjs.org/create-hash/1.2.0
       safe-buffer: registry.npmjs.org/safe-buffer/5.2.1
-    dev: false
 
   registry.npmjs.org/cipher-base/1.0.4:
     resolution: {integrity: sha512-Kkht5ye6ZGmwv40uUDZztayT2ThLQGfnj/T71N/XzeZeo3nf8foyW7zGTsPYkEya3m5f3cAypH+qe7YOrM1U2Q==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.org/cipher-base/-/cipher-base-1.0.4.tgz}
@@ -13596,7 +13588,6 @@ packages:
     dependencies:
       inherits: registry.npmjs.org/inherits/2.0.4
       safe-buffer: registry.npmjs.org/safe-buffer/5.2.1
-    dev: false
 
   registry.npmjs.org/colors/1.4.0:
     resolution: {integrity: sha512-a+UqTh4kgZg/SlGvfbzDHpgRu7AAQOmmqRHJnxhRZICKFUT91brVhNNt58CMWU9PsBbv3PDCZUHbVxuDiH2mtA==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.org/colors/-/colors-1.4.0.tgz}
@@ -13617,7 +13608,6 @@ packages:
       md5.js: registry.npmjs.org/md5.js/1.3.5
       ripemd160: registry.npmjs.org/ripemd160/2.0.2
       sha.js: registry.npmjs.org/sha.js/2.4.11
-    dev: false
 
   registry.npmjs.org/encoding/0.1.13:
     resolution: {integrity: sha512-ETBauow1T35Y/WZMkio9jiM0Z5xjHHmJ4XmjZOq1l/dXz3lr2sRn87nJy20RupqSh1F2m3HHPSp8ShIPQJrJ3A==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.org/encoding/-/encoding-0.1.13.tgz}
@@ -13663,13 +13653,11 @@ packages:
       inherits: registry.npmjs.org/inherits/2.0.4
       readable-stream: registry.npmjs.org/readable-stream/3.6.0
       safe-buffer: registry.npmjs.org/safe-buffer/5.2.1
-    dev: false
 
   registry.npmjs.org/inherits/2.0.4:
     resolution: {integrity: sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.org/inherits/-/inherits-2.0.4.tgz}
     name: inherits
     version: 2.0.4
-    dev: false
 
   registry.npmjs.org/md5.js/1.3.5:
     resolution: {integrity: sha512-xitP+WxNPcTTOgnTJcrhM0xvdPepipPSf3I8EIpGKeFLjt3PlJLIDG3u8EX53ZIubkb+5U2+3rELYpEhHhzdkg==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.org/md5.js/-/md5.js-1.3.5.tgz}
@@ -13679,7 +13667,6 @@ packages:
       hash-base: registry.npmjs.org/hash-base/3.1.0
       inherits: registry.npmjs.org/inherits/2.0.4
       safe-buffer: registry.npmjs.org/safe-buffer/5.2.1
-    dev: false
 
   registry.npmjs.org/node-forge/1.2.1:
     resolution: {integrity: sha512-Fcvtbb+zBcZXbTTVwqGA5W+MKBj56UjVRevvchv5XrcyXbmNdesfZL37nlcWOfpgHhgmxApw3tQbTr4CqNmX4w==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.org/node-forge/-/node-forge-1.2.1.tgz}
@@ -13722,7 +13709,6 @@ packages:
       inherits: registry.npmjs.org/inherits/2.0.4
       string_decoder: registry.npmjs.org/string_decoder/1.3.0
       util-deprecate: registry.npmjs.org/util-deprecate/1.0.2
-    dev: false
 
   registry.npmjs.org/ripemd160/2.0.2:
     resolution: {integrity: sha512-ii4iagi25WusVoiC4B4lq7pbXfAp3D9v5CwfkY33vffw2+pkDjY1D8GaN7spsxvCSx8dkPqOZCEZyfxcmJG2IA==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.org/ripemd160/-/ripemd160-2.0.2.tgz}
@@ -13731,7 +13717,6 @@ packages:
     dependencies:
       hash-base: registry.npmjs.org/hash-base/3.1.0
       inherits: registry.npmjs.org/inherits/2.0.4
-    dev: false
 
   registry.npmjs.org/safe-buffer/5.1.2:
     resolution: {integrity: sha512-Gd2UZBJDkXlY7GbJxfsE8/nvKkUEU1G38c1siN6QP6a9PT9MmHB8GnpscSmMJSoF8LOIrt8ud/wPtojys4G6+g==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.org/safe-buffer/-/safe-buffer-5.1.2.tgz}
@@ -13743,7 +13728,6 @@ packages:
     resolution: {integrity: sha512-rp3So07KcdmmKbGvgaNxQSJr7bGVSVk5S9Eq1F+ppbRo70+YeaDxkw5Dd8NPN+GD6bjnYm2VuPuCXmpuYvmCXQ==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.org/safe-buffer/-/safe-buffer-5.2.1.tgz}
     name: safe-buffer
     version: 5.2.1
-    dev: false
 
   registry.npmjs.org/sha.js/2.4.11:
     resolution: {integrity: sha512-QMEp5B7cftE7APOjk5Y6xgrbWu+WkLVQwk8JNjZ8nKRciZaByEW6MubieAiToS7+dwvrjGhH8jRXz3MVd0AYqQ==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.org/sha.js/-/sha.js-2.4.11.tgz}
@@ -13753,7 +13737,6 @@ packages:
     dependencies:
       inherits: registry.npmjs.org/inherits/2.0.4
       safe-buffer: registry.npmjs.org/safe-buffer/5.2.1
-    dev: false
 
   registry.npmjs.org/source-map/0.6.1:
     resolution: {integrity: sha512-UjgapumWlbMhkBgzT7Ykc5YXUT46F0iKu8SGXq0bcwP5dz/h0Plj6enJqjz1Zbq2l5WaqYnrVbwWOWMyF3F47g==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.org/source-map/-/source-map-0.6.1.tgz}
@@ -13783,13 +13766,11 @@ packages:
     version: 1.3.0
     dependencies:
       safe-buffer: registry.npmjs.org/safe-buffer/5.2.1
-    dev: false
 
   registry.npmjs.org/util-deprecate/1.0.2:
     resolution: {integrity: sha1-RQ1Nyfpw3nMnYvvS1KKJgUGaDM8=, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.org/util-deprecate/-/util-deprecate-1.0.2.tgz}
     name: util-deprecate
     version: 1.0.2
-    dev: false
 
   registry.npmjs.org/wif/2.0.6:
     resolution: {integrity: sha1-CNP1IFbGZnkplyb63g1DKudLRwQ=, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.org/wif/-/wif-2.0.6.tgz}
@@ -13797,4 +13778,3 @@ packages:
     version: 2.0.6
     dependencies:
       bs58check: registry.npmjs.org/bs58check/2.1.2
-    dev: false
