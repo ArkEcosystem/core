@@ -1,8 +1,7 @@
 import { Command } from "@packages/core/src/commands/config-cli";
 import { Container } from "@packages/core-cli";
 import { Console } from "@packages/core-test-framework";
-
-import execa from "../__mocks__/execa";
+import execa from "execa";
 
 let cli;
 let config;
@@ -48,7 +47,7 @@ describe("Command", () => {
             stdout: '"null"',
             stderr: undefined,
             exitCode: 0,
-        });
+        } as any);
 
         const install: jest.SpyInstance = jest
             .spyOn(cli.app.get(Container.Identifiers.Installer), "install")
@@ -75,7 +74,7 @@ describe("Command", () => {
             stdout: '"null"',
             stderr: undefined,
             exitCode: 0,
-        });
+        } as any);
 
         await cli.withFlags({ channel: "latest" }).execute(Command);
 

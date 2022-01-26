@@ -3,9 +3,8 @@ import "jest-extended";
 import { Command } from "@packages/core/src/commands/reinstall";
 import { Container } from "@packages/core-cli";
 import { Console } from "@packages/core-test-framework";
+import execa from "execa";
 import prompts from "prompts";
-
-import execa from "../__mocks__/execa";
 
 let cli;
 let processManager;
@@ -20,7 +19,7 @@ describe("ReinstallCommand", () => {
             stdout: '"null"',
             stderr: undefined,
             exitCode: 0,
-        });
+        } as any);
 
         await cli.withFlags({ force: true }).execute(Command);
 
@@ -35,7 +34,7 @@ describe("ReinstallCommand", () => {
             stdout: '"null"',
             stderr: undefined,
             exitCode: 0,
-        });
+        } as any);
 
         prompts.inject([true]);
 
@@ -52,7 +51,7 @@ describe("ReinstallCommand", () => {
             stdout: '"null"',
             stderr: undefined,
             exitCode: 0,
-        });
+        } as any);
 
         prompts.inject([false]);
 
@@ -68,7 +67,7 @@ describe("ReinstallCommand", () => {
             stdout: '"null"',
             stderr: undefined,
             exitCode: 0,
-        });
+        } as any);
 
         const isOnline = jest.spyOn(processManager, "isOnline").mockReturnValue(true);
         const restart = jest.spyOn(processManager, "restart").mockImplementation(undefined);
