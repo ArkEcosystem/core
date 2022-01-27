@@ -1,5 +1,5 @@
-import { Bip39KeyPairHolder } from "@packages/core-kernel/src/utils/key-pair-holders/bip39-key-pair-holder";
 import { Identities, Interfaces } from "@packages/crypto";
+import { Bip39KeyPairHolder } from "@packages/crypto/src/key-pair-holders/bip39-key-pair-holder";
 
 const passphrase: string = "clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire";
 

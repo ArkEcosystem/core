@@ -1,4 +1,5 @@
-import { Container, Contracts, Enums, Providers, Services, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Enums, Providers, Services } from "@arkecosystem/core-kernel";
+import { Interfaces as CryptoInterfaces, KeyPairHolders } from "@arkecosystem/crypto";
 import Joi from "joi";
 
 import { ForgeNewBlockAction, IsForgingAllowedAction } from "./actions";
@@ -22,7 +23,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.app.bind<ForgerService>(Container.Identifiers.ForgerService).to(ForgerService).inSingletonScope();
         this.app
             .bind<ForgerService>(Container.Identifiers.ForgerDelegateFactory)
-            .toFactory<Delegate>(() => (keyPairHolder: Contracts.Shared.KeyPairHolder) => {
+            .toFactory<Delegate>(() => (keyPairHolder: CryptoInterfaces.KeyPairHolder) => {
                 return new Delegate(keyPairHolder);
             });
 
@@ -146,7 +147,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
         for (const secret of this.app.config("delegates.secrets")) {
             delegates.add(
                 this.app.get<Interfaces.DelegateFactory>(Container.Identifiers.ForgerDelegateFactory)(
-                    Utils.KeyPairHolderFactory.fromBIP39(secret),
+                    KeyPairHolders.KeyPairHolderFactory.fromBIP39(secret),
                 ),
             );
         }
@@ -156,7 +157,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
         if (bip38) {
             delegates.add(
                 this.app.get<Interfaces.DelegateFactory>(Container.Identifiers.ForgerDelegateFactory)(
-                    Utils.KeyPairHolderFactory.fromBIP38(bip38, password),
+                    KeyPairHolders.KeyPairHolderFactory.fromBIP38(bip38, password),
                 ),
             );
         }

@@ -1,12 +1,11 @@
-import { Identities } from "@arkecosystem/crypto";
-
-import { KeyPairHolder, UseKeysFunction } from "../../contracts/shared";
+import { Address } from "../identities/address";
+import { KeyPairHolder, UseKeysFunction } from "../interfaces/identities";
 
 export abstract class AbstractKeyPairHolder implements KeyPairHolder {
     protected address: string;
 
     protected constructor(private publicKey: string) {
-        this.address = Identities.Address.fromPublicKey(this.publicKey);
+        this.address = Address.fromPublicKey(this.publicKey);
     }
 
     public getPublicKey(): string {

@@ -1,4 +1,3 @@
-import { Contracts } from "@arkecosystem/core-kernel";
 import { Nes } from "@arkecosystem/core-p2p";
 import { Interfaces } from "@arkecosystem/crypto";
 
@@ -52,4 +51,4 @@ export interface Delegate {
     forge(transactions: Interfaces.ITransactionData[], options: Record<string, any>): Interfaces.IBlock;
 }
 
-export type DelegateFactory = (keyPairHolder: Contracts.Shared.KeyPairHolder) => Delegate;
+export type DelegateFactory = (keyPairHolder: Interfaces.KeyPairHolder) => Delegate;

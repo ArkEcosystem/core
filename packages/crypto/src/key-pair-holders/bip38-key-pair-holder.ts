@@ -1,9 +1,13 @@
-import { Crypto, Identities, Interfaces, Managers } from "@arkecosystem/crypto";
+import assert from "assert";
 import forge from "node-forge";
 import wif from "wif";
 
-import { UseKeysFunction } from "../../contracts/shared";
-import { assert } from "../assert";
+import { decrypt } from "../crypto/bip38";
+import { Keys } from "../identities/keys";
+import { WIF } from "../identities/wif";
+import { IDecryptResult } from "../interfaces/crypto";
+import { IKeyPair, UseKeysFunction } from "../interfaces/identities";
+import { configManager } from "../managers";
 import { AbstractKeyPairHolder } from "./abstract-key-pair-holder";
 
 export class Bip38KeyPairHolder extends AbstractKeyPairHolder {
@@ -26,15 +30,15 @@ export class Bip38KeyPairHolder extends AbstractKeyPairHolder {
         this.encryptKeysWithOtp(keys);
     }
 
-    private static decryptPassphrase(passphrase: string, password: string): Interfaces.IKeyPair {
-        const decryptedWif: Interfaces.IDecryptResult = Crypto.bip38.decrypt(passphrase, password);
+    private static decryptPassphrase(passphrase: string, password: string): IKeyPair {
+        const decryptedWif: IDecryptResult = decrypt(passphrase, password);
         const wifKey: string = wif.encode(
-            Managers.configManager.get("network.wif"),
+            configManager.get("network.wif"),
             decryptedWif.privateKey,
             decryptedWif.compressed,
         );
 
-        return Identities.Keys.fromWIF(wifKey);
+        return Keys.fromWIF(wifKey);
     }
 
     public useKeys<T>(fn: UseKeysFunction<T>): T {
@@ -52,28 +56,28 @@ export class Bip38KeyPairHolder extends AbstractKeyPairHolder {
     }
 
     private encryptKeysWithOtp(keys): void {
-        assert.defined<Interfaces.IKeyPair>(keys);
+        assert.ok(keys);
 
-        const wifKey: string = Identities.WIF.fromKeys(keys);
+        const wifKey: string = WIF.fromKeys(keys);
 
         this.otp = forge.random.getBytesSync(16);
         this.encryptedKeys = this.encryptDataWithOtp(wifKey, this.otp);
     }
 
-    private decryptKeysWithOtp(): Interfaces.IKeyPair {
-        assert.defined<string>(this.encryptedKeys);
-        assert.defined<string>(this.otp);
+    private decryptKeysWithOtp(): IKeyPair {
+        assert.ok(this.encryptedKeys);
+        assert.ok(this.otp);
 
         const wifKey: string = this.decryptDataWithOtp(this.encryptedKeys, this.otp);
 
         this.otp = undefined;
         this.encryptedKeys = undefined;
 
-        return Identities.Keys.fromWIF(wifKey);
+        return Keys.fromWIF(wifKey);
     }
 
     private encryptDataWithOtp(content: string, password: string): string {
-        assert.defined<string>(this.otpSecret);
+        assert.ok(this.otpSecret);
 
         const cipher: forge.cipher.BlockCipher = forge.cipher.createCipher(
             "AES-CBC",
@@ -87,7 +91,7 @@ export class Bip38KeyPairHolder extends AbstractKeyPairHolder {
     }
 
     private decryptDataWithOtp(cipherText: string, password: string): string {
-        assert.defined<string>(this.otpSecret);
+        assert.ok(this.otpSecret);
 
         const decipher: forge.cipher.BlockCipher = forge.cipher.createDecipher(
             "AES-CBC",

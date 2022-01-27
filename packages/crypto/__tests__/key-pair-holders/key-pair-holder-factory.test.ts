@@ -1,5 +1,5 @@
-import { KeyPairHolderFactory } from "@packages/core-kernel/src/utils/key-pair-holders";
 import { Identities } from "@packages/crypto";
+import { KeyPairHolderFactory } from "@packages/crypto/src/key-pair-holders";
 
 const passphrase38: string = "clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire";
 const bip38: string = "6PYTQC4c2vBv6PGvV4HibNni6wNsHsGbR1qpL1DfkCNihsiWwXnjvJMU4B";

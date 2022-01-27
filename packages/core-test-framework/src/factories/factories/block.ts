@@ -1,6 +1,5 @@
 import { Delegate } from "@arkecosystem/core-forger/src/delegate";
-import { Utils } from "@arkecosystem/core-kernel";
-import { Crypto, Managers } from "@arkecosystem/crypto";
+import { Crypto, KeyPairHolders, Managers } from "@arkecosystem/crypto";
 
 import secrets from "../../internal/passphrases.json";
 import { Signer } from "../../internal/signer";
@@ -48,7 +47,7 @@ export const registerBlockFactory = (
             }
         }
 
-        return new Delegate(Utils.KeyPairHolderFactory.fromBIP39(options.passphrase || secrets[0])).forge(
+        return new Delegate(KeyPairHolders.KeyPairHolderFactory.fromBIP39(options.passphrase || secrets[0])).forge(
             transactions,
             {
                 previousBlock,

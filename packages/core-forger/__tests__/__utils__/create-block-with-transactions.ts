@@ -1,7 +1,7 @@
 import { Delegate } from "@packages/core-forger/src/delegate";
-import { Bip39KeyPairHolder } from "@packages/core-kernel/src/utils/key-pair-holders/bip39-key-pair-holder";
 import { TransactionFactory } from "@packages/core-test-framework/src/utils/transaction-factory";
 import { Utils } from "@packages/crypto";
+import { Bip39KeyPairHolder } from "@packages/crypto/src/key-pair-holders/bip39-key-pair-holder";
 
 export const dummy = {
     plainPassphrase: "clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire",

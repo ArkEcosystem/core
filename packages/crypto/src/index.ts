@@ -5,6 +5,7 @@ export * as Enums from "./enums";
 export * as Errors from "./errors";
 export * as Identities from "./identities";
 export * as Interfaces from "./interfaces";
+export * as KeyPairHolders from "./key-pair-holders";
 export * as Managers from "./managers";
 export * as Networks from "./networks";
 export * as Transactions from "./transactions";

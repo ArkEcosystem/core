@@ -3,9 +3,9 @@ import "jest-extended";
 import { Delegate } from "@packages/core-forger/src/delegate";
 import { DelegateTracker } from "@packages/core-forger/src/delegate-tracker";
 import { Utils } from "@packages/core-kernel";
-import { Bip39KeyPairHolder } from "@packages/core-kernel/src/utils/key-pair-holders/bip39-key-pair-holder";
 import { Wallet } from "@packages/core-state/src/wallets";
 import { Crypto, Managers } from "@packages/crypto";
+import { Bip39KeyPairHolder } from "@packages/crypto/src/key-pair-holders/bip39-key-pair-holder";
 
 import { calculateActiveDelegates } from "./__utils__/calculate-active-delegates";
 import { dummy } from "./__utils__/create-block-with-transactions";

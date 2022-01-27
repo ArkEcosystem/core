@@ -40,12 +40,10 @@
         "joi": "17.4.2",
         "log-process-errors": "5.1.2",
         "nanomatch": "1.2.13",
-        "node-forge": "1.2.1",
         "nsfw": "2.1.2",
         "reflect-metadata": "0.1.13",
         "semver": "6.3.0",
-        "type-fest": "0.21.3",
-        "wif": "2.0.6"
+        "type-fest": "0.21.3"
     },
     "devDependencies": {
         "@types/cron": "1.7.3",

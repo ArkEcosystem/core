@@ -16,7 +16,6 @@ export * from "./assert";
 export * from "./expiration-calculator";
 export * from "./ipc-handler";
 export * from "./ipc-subprocess";
-export * from "./key-pair-holders";
 export * from "./lock";
 
 export const delegateCalculator = { calculateApproval, calculateForgedTotal };
