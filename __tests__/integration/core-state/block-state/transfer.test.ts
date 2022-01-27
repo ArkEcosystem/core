@@ -1,7 +1,7 @@
 import { Delegate } from "@packages/core-forger/src/delegate";
-import { Application, Container, Contracts, Utils as AppUtils } from "@packages/core-kernel";
+import { Application, Container, Contracts } from "@packages/core-kernel";
 import { delegates } from "@packages/core-test-framework";
-import { Identities, Transactions, Utils } from "@packages/crypto";
+import { Identities, KeyPairHolders, Transactions, Utils } from "@packages/crypto";
 
 import { setUp, tearDown } from "../__support__/setup";
 import { getActualVoteBalances, getExpectedVoteBalances } from "../__support__/utils";
@@ -39,7 +39,7 @@ test("BlockState handling [transfer] block", async () => {
         .sign(delegates[2].passphrase)
         .build();
 
-    const delegate = new Delegate(AppUtils.KeyPairHolderFactory.fromBIP39(delegates[1].passphrase));
+    const delegate = new Delegate(KeyPairHolders.Factory.fromBIP39(delegates[1].passphrase));
 
     const block1 = stateStore.getLastBlock();
 

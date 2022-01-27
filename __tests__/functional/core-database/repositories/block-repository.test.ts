@@ -1,7 +1,6 @@
 import { BlockRepository } from "@packages/core-database/src/repositories/block-repository";
 import { Delegate } from "@packages/core-forger/src/delegate";
-import { Utils as AppUtils } from "@packages/core-kernel";
-import { Blocks, Managers, Utils } from "@packages/crypto";
+import { Blocks, KeyPairHolders, Managers, Utils } from "@packages/crypto";
 import { Connection } from "typeorm";
 import { getCustomRepository } from "typeorm";
 
@@ -22,7 +21,7 @@ beforeEach(async () => {
     await clearCoreDatabase(connection);
 });
 
-const delegate = new Delegate(AppUtils.KeyPairHolderFactory.fromBIP39("generator's secret"));
+const delegate = new Delegate(KeyPairHolders.Factory.fromBIP39("generator's secret"));
 const block1 = Blocks.BlockFactory.fromJson(Managers.configManager.get("genesisBlock"));
 const block2 = delegate.forge([], {
     timestamp: block1.data.timestamp + 60,

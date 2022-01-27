@@ -1,8 +1,8 @@
 import { BlockRepository } from "@packages/core-database/src/repositories/block-repository";
 import { TransactionRepository } from "@packages/core-database/src/repositories/transaction-repository";
 import { Delegate } from "@packages/core-forger/src/delegate";
-import { Contracts, Utils as AppUtils } from "@packages/core-kernel";
-import { Blocks, Crypto, Enums, Identities, Managers, Transactions, Utils } from "@packages/crypto";
+import { Contracts } from "@packages/core-kernel";
+import { Blocks, Crypto, Enums, Identities, KeyPairHolders, Managers, Transactions, Utils } from "@packages/crypto";
 import { Connection } from "typeorm";
 import { getCustomRepository } from "typeorm";
 
@@ -44,7 +44,7 @@ const transaction3 = Transactions.BuilderFactory.transfer()
     .sign("sender's secret")
     .build();
 
-const delegate = new Delegate(AppUtils.KeyPairHolderFactory.fromBIP39("generator's secret"));
+const delegate = new Delegate(KeyPairHolders.Factory.fromBIP39("generator's secret"));
 const block1 = Blocks.BlockFactory.fromJson(Managers.configManager.get("genesisBlock"));
 const block2 = delegate.forge([transaction1.data], {
     timestamp: Crypto.Slots.getTime() - 60,

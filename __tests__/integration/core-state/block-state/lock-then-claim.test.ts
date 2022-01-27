@@ -1,8 +1,8 @@
 import { Repositories } from "@packages/core-database";
 import { Delegate } from "@packages/core-forger/src/delegate";
-import { Application, Container, Contracts, Utils as AppUtils } from "@packages/core-kernel";
+import { Application, Container, Contracts } from "@packages/core-kernel";
 import { delegates } from "@packages/core-test-framework";
-import { Enums, Identities, Transactions, Utils } from "@packages/crypto";
+import { Enums, Identities, KeyPairHolders, Transactions, Utils } from "@packages/crypto";
 import { createHash } from "crypto";
 
 import { setUp, tearDown } from "../__support__/setup";
@@ -62,7 +62,7 @@ test("BlockState handling [lock], [claim] blocks", async () => {
         .sign(delegates[3].passphrase)
         .build();
 
-    const delegate = new Delegate(AppUtils.KeyPairHolderFactory.fromBIP39(delegates[1].passphrase));
+    const delegate = new Delegate(KeyPairHolders.Factory.fromBIP39(delegates[1].passphrase));
 
     const block1 = stateStore.getLastBlock();
 
