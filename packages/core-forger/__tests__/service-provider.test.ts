@@ -60,8 +60,8 @@ describe("ServiceProvider", () => {
 
     describe("boot", () => {
         it("should call boot on forger service", async () => {
-            const spyOnFromBip38 = jest.spyOn(KeyPairHolders.KeyPairHolderFactory, "fromBIP38");
-            const spyOnFromBip39 = jest.spyOn(KeyPairHolders.KeyPairHolderFactory, "fromBIP39");
+            const spyOnFromBip38 = jest.spyOn(KeyPairHolders.Factory, "fromBIP38");
+            const spyOnFromBip39 = jest.spyOn(KeyPairHolders.Factory, "fromBIP39");
 
             app.config("delegates", {
                 secrets: ["this is a super secret passphrase"],
@@ -86,8 +86,8 @@ describe("ServiceProvider", () => {
         });
 
         it("should create delegates from delegates.secret and flags.bip38 / flags.password", async () => {
-            const spyOnFromBip38 = jest.spyOn(KeyPairHolders.KeyPairHolderFactory, "fromBIP38");
-            const spyOnFromBip39 = jest.spyOn(KeyPairHolders.KeyPairHolderFactory, "fromBIP39");
+            const spyOnFromBip38 = jest.spyOn(KeyPairHolders.Factory, "fromBIP38");
+            const spyOnFromBip39 = jest.spyOn(KeyPairHolders.Factory, "fromBIP39");
 
             app.config("delegates", {
                 secrets: ["this is a super secret passphrase"],

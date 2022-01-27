@@ -1,7 +1,6 @@
 import { Delegate } from "@packages/core-forger/src/delegate";
 import { TransactionFactory } from "@packages/core-test-framework/src/utils/transaction-factory";
-import { Utils } from "@packages/crypto";
-import { Bip39KeyPairHolder } from "@packages/crypto/src/key-pair-holders/bip39-key-pair-holder";
+import { KeyPairHolders, Utils } from "@packages/crypto";
 
 export const dummy = {
     plainPassphrase: "clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire",
@@ -40,6 +39,6 @@ export const transactions = TransactionFactory.initialize()
     .withPassphrase("super cool passphrase")
     .create(50);
 
-export const delegate: Delegate = new Delegate(new Bip39KeyPairHolder(dummy.plainPassphrase));
+export const delegate: Delegate = new Delegate(KeyPairHolders.Factory.fromBIP39(dummy.plainPassphrase));
 
 export const forgedBlockWithTransactions = delegate.forge(transactions, optionsDefault);

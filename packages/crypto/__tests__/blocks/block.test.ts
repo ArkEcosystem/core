@@ -86,7 +86,7 @@ describe("Block", () => {
         });
 
         it("should fail to verify a block with too much transactions", () => {
-            const delegate = new Delegate(KeyPairHolders.KeyPairHolderFactory.fromBIP39("super cool passphrase"));
+            const delegate = new Delegate(KeyPairHolders.Factory.fromBIP39("super cool passphrase"));
             const optionsDefault = {
                 timestamp: 12345689,
                 previousBlock: {
@@ -109,7 +109,7 @@ describe("Block", () => {
         });
 
         it("should fail to verify a block with duplicate transactions", () => {
-            const delegate = new Delegate(KeyPairHolders.KeyPairHolderFactory.fromBIP39("super cool passphrase"));
+            const delegate = new Delegate(KeyPairHolders.Factory.fromBIP39("super cool passphrase"));
             const optionsDefault = {
                 timestamp: 12345689,
                 previousBlock: {
@@ -166,7 +166,7 @@ describe("Block", () => {
         });
 
         it("should verify a block with expiring transactions", () => {
-            const delegate = new Delegate(KeyPairHolders.KeyPairHolderFactory.fromBIP39("super cool passphrase"));
+            const delegate = new Delegate(KeyPairHolders.Factory.fromBIP39("super cool passphrase"));
             const optionsDefault = {
                 timestamp: 12345689,
                 previousBlock: {
@@ -190,7 +190,7 @@ describe("Block", () => {
         });
 
         it("should fail to verify a block with expired transactions", () => {
-            const delegate = new Delegate(KeyPairHolders.KeyPairHolderFactory.fromBIP39("super cool passphrase"));
+            const delegate = new Delegate(KeyPairHolders.Factory.fromBIP39("super cool passphrase"));
             const optionsDefault = {
                 timestamp: 12345689,
                 previousBlock: {
@@ -214,7 +214,7 @@ describe("Block", () => {
         });
 
         it("should fail to verify a block with expired transaction timestamp", () => {
-            const delegate = new Delegate(KeyPairHolders.KeyPairHolderFactory.fromBIP39("super cool passphrase"));
+            const delegate = new Delegate(KeyPairHolders.Factory.fromBIP39("super cool passphrase"));
             const optionsDefault = {
                 timestamp: 12345689,
                 previousBlock: {
@@ -241,7 +241,7 @@ describe("Block", () => {
         });
 
         it("should verify a block with future transaction timestamp if within blocktime", () => {
-            const delegate = new Delegate(KeyPairHolders.KeyPairHolderFactory.fromBIP39("super cool passphrase"));
+            const delegate = new Delegate(KeyPairHolders.Factory.fromBIP39("super cool passphrase"));
             const optionsDefault = {
                 timestamp: 12345689,
                 previousBlock: {
@@ -271,7 +271,7 @@ describe("Block", () => {
         });
 
         it("should fail to verify a block with future transaction timestamp", () => {
-            const delegate = new Delegate(KeyPairHolders.KeyPairHolderFactory.fromBIP39("super cool passphrase"));
+            const delegate = new Delegate(KeyPairHolders.Factory.fromBIP39("super cool passphrase"));
             const optionsDefault = {
                 timestamp: 12345689,
                 previousBlock: {
@@ -302,7 +302,7 @@ describe("Block", () => {
         });
 
         it("should accept block with future transaction timestamp if milestone is active", () => {
-            const delegate = new Delegate(KeyPairHolders.KeyPairHolderFactory.fromBIP39("super cool passphrase"));
+            const delegate = new Delegate(KeyPairHolders.Factory.fromBIP39("super cool passphrase"));
             const optionsDefault = {
                 timestamp: 12345689,
                 previousBlock: {
@@ -331,7 +331,7 @@ describe("Block", () => {
         });
 
         it("should reject block with future transaction timestamp if milestone is not active", () => {
-            const delegate = new Delegate(KeyPairHolders.KeyPairHolderFactory.fromBIP39("super cool passphrase"));
+            const delegate = new Delegate(KeyPairHolders.Factory.fromBIP39("super cool passphrase"));
             const optionsDefault = {
                 timestamp: 12345689,
                 previousBlock: {

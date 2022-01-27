@@ -147,7 +147,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
         for (const secret of this.app.config("delegates.secrets")) {
             delegates.add(
                 this.app.get<Interfaces.DelegateFactory>(Container.Identifiers.ForgerDelegateFactory)(
-                    KeyPairHolders.KeyPairHolderFactory.fromBIP39(secret),
+                    KeyPairHolders.Factory.fromBIP39(secret),
                 ),
             );
         }
@@ -157,7 +157,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
         if (bip38) {
             delegates.add(
                 this.app.get<Interfaces.DelegateFactory>(Container.Identifiers.ForgerDelegateFactory)(
-                    KeyPairHolders.KeyPairHolderFactory.fromBIP38(bip38, password),
+                    KeyPairHolders.Factory.fromBIP38(bip38, password),
                 ),
             );
         }

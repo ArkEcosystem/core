@@ -1,8 +1,8 @@
 import { Keys } from "../identities";
 import { IKeyPair, UseKeysFunction } from "../interfaces/identities";
-import { AbstractKeyPairHolder } from "./abstract-key-pair-holder";
+import { AbstractKeyPairHolder } from "./abstract";
 
-export class Bip39KeyPairHolder extends AbstractKeyPairHolder {
+export class Bip39 extends AbstractKeyPairHolder {
     private readonly keys: IKeyPair;
 
     public constructor(passphrase: string) {

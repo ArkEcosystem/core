@@ -8,9 +8,9 @@ import { WIF } from "../identities/wif";
 import { IDecryptResult } from "../interfaces/crypto";
 import { IKeyPair, UseKeysFunction } from "../interfaces/identities";
 import { configManager } from "../managers";
-import { AbstractKeyPairHolder } from "./abstract-key-pair-holder";
+import { AbstractKeyPairHolder } from "./abstract";
 
-export class Bip38KeyPairHolder extends AbstractKeyPairHolder {
+export class Bip38 extends AbstractKeyPairHolder {
     public otp: string | undefined;
     private readonly otpSecret: string;
     private encryptedKeys: string | undefined;
@@ -19,7 +19,7 @@ export class Bip38KeyPairHolder extends AbstractKeyPairHolder {
     private readonly iterations: number;
 
     public constructor(bip38: string, password: string) {
-        const keys = Bip38KeyPairHolder.decryptPassphrase(bip38, password);
+        const keys = Bip38.decryptPassphrase(bip38, password);
 
         super(keys.publicKey);
 

@@ -1,1 +1,1 @@
-export * from "./key-pair-holder-factory";
+export * from "./factory";

@@ -4,8 +4,7 @@ import { Delegate } from "@packages/core-forger/src/delegate";
 import { DelegateTracker } from "@packages/core-forger/src/delegate-tracker";
 import { Utils } from "@packages/core-kernel";
 import { Wallet } from "@packages/core-state/src/wallets";
-import { Crypto, Managers } from "@packages/crypto";
-import { Bip39KeyPairHolder } from "@packages/crypto/src/key-pair-holders/bip39-key-pair-holder";
+import { Crypto, KeyPairHolders, Managers } from "@packages/crypto";
 
 import { calculateActiveDelegates } from "./__utils__/calculate-active-delegates";
 import { dummy } from "./__utils__/create-block-with-transactions";
@@ -33,7 +32,7 @@ beforeEach(() => {
 describe("DelegateTracker", () => {
     describe("initialise", () => {
         it("should set-up delegates", async () => {
-            const delegate = new Delegate(new Bip39KeyPairHolder(dummy.plainPassphrase));
+            const delegate = new Delegate(KeyPairHolders.Factory.fromBIP39(dummy.plainPassphrase));
 
             delegateTracker.initialize([delegate]);
             expect((delegateTracker as any).delegates).toEqual([delegate]);

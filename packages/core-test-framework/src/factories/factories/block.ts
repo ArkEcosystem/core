@@ -47,15 +47,12 @@ export const registerBlockFactory = (
             }
         }
 
-        return new Delegate(KeyPairHolders.KeyPairHolderFactory.fromBIP39(options.passphrase || secrets[0])).forge(
-            transactions,
-            {
-                previousBlock,
-                timestamp:
-                    Crypto.Slots.getSlotNumber(blockTimestampLookup, Crypto.Slots.getTime()) * options.blocktime ||
-                    blocktime,
-                reward: options.reward || reward,
-            },
-        )!;
+        return new Delegate(KeyPairHolders.Factory.fromBIP39(options.passphrase || secrets[0])).forge(transactions, {
+            previousBlock,
+            timestamp:
+                Crypto.Slots.getSlotNumber(blockTimestampLookup, Crypto.Slots.getTime()) * options.blocktime ||
+                blocktime,
+            reward: options.reward || reward,
+        })!;
     });
 };

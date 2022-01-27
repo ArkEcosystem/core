@@ -1,15 +1,15 @@
 import { verify } from "../crypto/bip38";
 import { KeyPairHolder } from "../interfaces";
-import { Bip38KeyPairHolder } from "./bip38-key-pair-holder";
-import { Bip39KeyPairHolder } from "./bip39-key-pair-holder";
+import { Bip38 } from "./bip38";
+import { Bip39 } from "./bip39";
 
-export class KeyPairHolderFactory {
+export class Factory {
     public static fromBIP38(bip38: string, password: string): KeyPairHolder {
         if (!verify(bip38)) {
             throw new Error("Not bip38");
         }
 
-        return new Bip38KeyPairHolder(bip38, password);
+        return new Bip38(bip38, password);
     }
 
     public static fromBIP39(passphrase: string): KeyPairHolder {
@@ -17,6 +17,6 @@ export class KeyPairHolderFactory {
             throw new Error("Not bip39");
         }
 
-        return new Bip39KeyPairHolder(passphrase);
+        return new Bip39(passphrase);
     }
 }
