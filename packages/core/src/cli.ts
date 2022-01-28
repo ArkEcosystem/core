@@ -5,6 +5,15 @@ import moduleAlias from "module-alias";
 import { dirname, join, resolve } from "path";
 import { PackageJson } from "type-fest";
 
+type Flags = {
+    [args: string]: any;
+};
+
+type TokenNetworkFlags = {
+    token: string;
+    network?: string;
+} & Flags;
+
 /**
  * @export
  * @class CommandLineInterface
@@ -52,7 +61,10 @@ export class CommandLineInterface {
         this.app.get<Contracts.Updater>(Container.Identifiers.Updater).check();
 
         // Parse arguments and flags
-        const { args, flags } = InputParser.parseArgv(this.argv);
+        const parsedArgv = InputParser.parseArgv(this.argv);
+
+        const args = parsedArgv.args;
+        const flags = await this.detectNetworkAndToken(parsedArgv.flags);
 
         // Discover commands and commands from plugins
         const commands: Contracts.CommandList = await this.discoverCommands(dirname, flags);
@@ -94,7 +106,7 @@ export class CommandLineInterface {
             return;
         }
 
-        commandInstance.register(this.argv);
+        commandInstance.register(this.appendNetworkAndToken(this.argv, flags));
 
         await commandInstance.run();
     }
@@ -112,8 +124,8 @@ export class CommandLineInterface {
         }
     }
 
-    private async detectNetworkAndToken(flags: any): Promise<{ token: string; network?: string }> {
-        const tempFlags = {
+    private async detectNetworkAndToken(flags: Flags): Promise<TokenNetworkFlags> {
+        const tempFlags: TokenNetworkFlags = {
             token: "ark",
             ...flags,
         };
@@ -141,16 +153,38 @@ export class CommandLineInterface {
         return tempFlags;
     }
 
-    private async discoverCommands(dirname: string, flags: any): Promise<Contracts.CommandList> {
+    private appendNetworkAndToken(argv: string[], { token, network }: TokenNetworkFlags): string[] {
+        const exists = (argv: string[], name: string): boolean => {
+            return argv.some((argument) => {
+                return argument.startsWith(`--${name}`);
+            });
+        };
+
+        const makeArgument = (argument: string, value: string): string => {
+            return `--${argument}=${value}`;
+        };
+
+        let newArgv: string[] = [];
+
+        if (!exists(argv, "token")) {
+            newArgv = [...newArgv, makeArgument("token", token)];
+        }
+
+        if (!exists(argv, "network") && network) {
+            newArgv = [...newArgv, makeArgument("network", network)];
+        }
+
+        return [...argv, ...newArgv];
+    }
+
+    private async discoverCommands(dirname: string, flags: TokenNetworkFlags): Promise<Contracts.CommandList> {
         const commandsDiscoverer = this.app.resolve(Commands.DiscoverCommands);
         const commands: Contracts.CommandList = commandsDiscoverer.within(resolve(dirname, "./commands"));
 
-        const tempFlags = await this.detectNetworkAndToken(flags);
-
-        if (tempFlags.network) {
+        if (flags.network) {
             const plugins = await this.app
                 .get<Contracts.PluginManager>(Container.Identifiers.PluginManager)
-                .list(tempFlags.token, tempFlags.network);
+                .list(flags.token, flags.network);
 
             const commandsFromPlugins = commandsDiscoverer.from(plugins.map((plugin) => plugin.path));
 
