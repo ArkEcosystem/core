@@ -106,7 +106,7 @@ export class CommandLineInterface {
             return;
         }
 
-        commandInstance.register(this.appendNetworkAndToken(this.argv, flags));
+        commandInstance.register(this.argv);
 
         await commandInstance.run();
     }
@@ -147,34 +147,11 @@ export class CommandLineInterface {
                 envPaths(tempFlags.token, {
                     suffix: "core",
                 }).config,
+                false,
             );
         } catch {}
 
         return tempFlags;
-    }
-
-    private appendNetworkAndToken(argv: string[], { token, network }: TokenNetworkFlags): string[] {
-        const exists = (argv: string[], name: string): boolean => {
-            return argv.some((argument) => {
-                return argument.startsWith(`--${name}`);
-            });
-        };
-
-        const makeArgument = (argument: string, value: string): string => {
-            return `--${argument}=${value}`;
-        };
-
-        let newArgv: string[] = [];
-
-        if (!exists(argv, "token")) {
-            newArgv = [...newArgv, makeArgument("token", token)];
-        }
-
-        if (!exists(argv, "network") && network) {
-            newArgv = [...newArgv, makeArgument("network", network)];
-        }
-
-        return [...argv, ...newArgv];
     }
 
     private async discoverCommands(dirname: string, flags: TokenNetworkFlags): Promise<Contracts.CommandList> {
