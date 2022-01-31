@@ -6,7 +6,7 @@ import { Console } from "@packages/core-test-framework";
 import nock from "nock";
 import prompts from "prompts";
 
-import execa from "../../../../__mocks__/execa";
+import execa from "../__mocks__/execa";
 import { versionNext } from "./__fixtures__/latest-version";
 
 let cli;
