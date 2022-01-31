@@ -50,7 +50,7 @@ export class Initialize implements Action {
             // only genesis block? special case of first round needs to be dealt with
             if (block.data.height === 1) {
                 if (block.data.payloadHash !== Managers.configManager.get("network.nethash")) {
-                    this.logger.error("FATAL: The genesis block payload hash is different from configured the nethash");
+                    this.logger.error("FATAL: The genesis block payload hash is different from the configured nethash");
 
                     return this.blockchain.dispatch("FAILURE");
                 }
