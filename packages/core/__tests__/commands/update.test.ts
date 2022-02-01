@@ -1,12 +1,12 @@
 import "jest-extended";
 
+import { Command } from "@packages/core/src/commands/update";
 import { Container } from "@packages/core-cli";
 import { Console } from "@packages/core-test-framework";
-import { Command } from "@packages/core/src/commands/update";
+import execa from "execa";
 import nock from "nock";
 import prompts from "prompts";
 
-import execa from "../../../../__mocks__/execa";
 import { versionNext } from "../internal/__fixtures__/latest-version";
 
 let cli;
@@ -47,7 +47,7 @@ describe("UpdateCommand", () => {
         const sync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
             stdout: "stdout",
             stderr: undefined,
-        });
+        } as any);
 
         prompts.inject([false]);
 
@@ -68,7 +68,7 @@ describe("UpdateCommand", () => {
             stdout: '"null"',
             stderr: undefined,
             exitCode: 0,
-        });
+        } as any);
 
         await cli.withFlags({ force: true, updateProcessManager: true }).execute(Command);
 
@@ -90,7 +90,7 @@ describe("UpdateCommand", () => {
             stdout: '"null"',
             stderr: undefined,
             exitCode: 0,
-        });
+        } as any);
 
         await cli.withFlags({ force: true, reset: true, updateProcessManager: true }).execute(Command);
 
@@ -115,7 +115,7 @@ describe("UpdateCommand", () => {
             stdout: '"null"',
             stderr: undefined,
             exitCode: 0,
-        });
+        } as any);
 
         prompts.inject([true]);
 
@@ -137,7 +137,7 @@ describe("UpdateCommand", () => {
             stdout: '"null"',
             stderr: undefined,
             exitCode: 0,
-        });
+        } as any);
         jest.spyOn(processManager, "restart").mockImplementation(undefined);
 
         await cli.withFlags({ force: true, restart: true, updateProcessManager: true }).execute(Command);
@@ -162,7 +162,7 @@ describe("UpdateCommand", () => {
             stdout: '"null"',
             stderr: undefined,
             exitCode: 0,
-        });
+        } as any);
         const isOnline = jest.spyOn(processManager, "isOnline").mockReturnValue(true);
         const restart = jest.spyOn(processManager, "restart").mockImplementation(undefined);
 
@@ -185,7 +185,7 @@ describe("UpdateCommand", () => {
             stdout: '"null"',
             stderr: undefined,
             exitCode: 0,
-        });
+        } as any);
         const isOnline = jest.spyOn(processManager, "isOnline").mockReturnValue(true);
         const restart = jest.spyOn(processManager, "restart").mockImplementation(undefined);
 
@@ -208,7 +208,7 @@ describe("UpdateCommand", () => {
             stdout: '"null"',
             stderr: undefined,
             exitCode: 0,
-        });
+        } as any);
         const isOnline = jest.spyOn(processManager, "isOnline").mockReturnValue(true);
         const restart = jest.spyOn(processManager, "restart").mockImplementation(undefined);
 
@@ -232,7 +232,7 @@ describe("UpdateCommand", () => {
             stdout: '"null"',
             stderr: undefined,
             exitCode: 0,
-        });
+        } as any);
         const isOnline = jest.spyOn(processManager, "isOnline").mockReturnValue(true);
         const restart = jest.spyOn(processManager, "restart").mockImplementation(undefined);
 
