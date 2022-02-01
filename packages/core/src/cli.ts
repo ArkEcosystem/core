@@ -1,4 +1,12 @@
-import { ApplicationFactory, Commands, Container, Contracts, InputParser, Plugins } from "@arkecosystem/core-cli";
+import {
+    ApplicationFactory,
+    Commands,
+    Components,
+    Container,
+    Contracts,
+    InputParser,
+    Plugins,
+} from "@arkecosystem/core-cli";
 import envPaths from "env-paths";
 import { readJSONSync } from "fs-extra";
 import moduleAlias from "module-alias";
@@ -58,7 +66,11 @@ export class CommandLineInterface {
         this.app = ApplicationFactory.make(new Container.Container(), pkg);
 
         // Check for updates
-        this.app.get<Contracts.Updater>(Container.Identifiers.Updater).check();
+        if (await this.app.get<Contracts.Updater>(Container.Identifiers.Updater).check()) {
+            this.app
+                .get<Components.ComponentFactory>(Container.Identifiers.ComponentFactory)
+                .info("New version is available");
+        }
 
         // Parse arguments and flags
         const parsedArgv = InputParser.parseArgv(this.argv);
