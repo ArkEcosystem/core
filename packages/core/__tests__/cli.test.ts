@@ -1,7 +1,7 @@
 import "jest-extended";
 
-import { Commands, Services } from "@packages/core-cli";
 import { CommandLineInterface } from "@packages/core/src/cli";
+import { Commands, Services } from "@packages/core-cli";
 import envPaths from "env-paths";
 import prompts from "prompts";
 
@@ -106,7 +106,7 @@ describe("CLI", () => {
             await expect(cli.execute("./packages/core/dist")).toResolve();
 
             expect(spyOnList).toHaveBeenCalledWith("ark", "testnet");
-            expect(spyOnDiscoverNetwork).toHaveBeenCalledWith(envPaths("ark", { suffix: "core" }).config);
+            expect(spyOnDiscoverNetwork).toHaveBeenCalledWith(envPaths("ark", { suffix: "core" }).config, false);
         });
 
         it("should not load CLI plugins if network is not provided", async () => {
