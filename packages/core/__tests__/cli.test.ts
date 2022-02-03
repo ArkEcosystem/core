@@ -1,7 +1,7 @@
 import "jest-extended";
 
 import { CommandLineInterface } from "@packages/core/src/cli";
-import { Commands, Services } from "@packages/core-cli";
+import { Commands, ComponentFactory, Services } from "@packages/core-cli";
 import envPaths from "env-paths";
 import prompts from "prompts";
 
@@ -56,6 +56,64 @@ describe("CLI", () => {
         prompts.inject([true]);
         await expect(cli.execute("./packages/core/dist")).toResolve();
         expect(mockExit).not.toHaveBeenCalled();
+    });
+
+    describe("check for new version", () => {
+        let spyOnCheck;
+        let spyOnInfo;
+
+        beforeEach(() => {
+            spyOnCheck = jest.spyOn(Services.Updater.prototype, "check").mockResolvedValue(false);
+            spyOnInfo = spyOnInfo = jest.spyOn(ComponentFactory.prototype, "info");
+        });
+
+        it("should check if new version exists", async () => {
+            const cli = new CommandLineInterface(["help"]);
+
+            await expect(cli.execute("./packages/core/dist")).toResolve();
+            expect(spyOnCheck).toHaveBeenCalled();
+            expect(spyOnInfo).not.toHaveBeenCalled();
+        });
+
+        it("should render if new version exists", async () => {
+            spyOnCheck.mockResolvedValue(true);
+
+            const cli = new CommandLineInterface(["help"]);
+
+            await expect(cli.execute("./packages/core/dist")).toResolve();
+            expect(spyOnCheck).toHaveBeenCalled();
+            expect(spyOnInfo).toHaveBeenCalledWith("New version is available");
+        });
+
+        it("should skip check if --skipVersionCheck is present", async () => {
+            const cli = new CommandLineInterface(["help", "--skipVersionCheck"]);
+
+            await expect(cli.execute("./packages/core/dist")).toResolve();
+            expect(spyOnCheck).not.toHaveBeenCalled();
+            expect(spyOnInfo).not.toHaveBeenCalled();
+        });
+
+        it("should skip check if --skipVersionCheck=true", async () => {
+            const cli = new CommandLineInterface(["help", "--skipVersionCheck=true"]);
+
+            await expect(cli.execute("./packages/core/dist")).toResolve();
+            expect(spyOnCheck).not.toHaveBeenCalled();
+            expect(spyOnInfo).not.toHaveBeenCalled();
+        });
+
+        it("should check if --skipVersionCheck=false", async () => {
+            const cli = new CommandLineInterface(["help", "--skipVersionCheck=false"]);
+
+            await expect(cli.execute("./packages/core/dist")).toResolve();
+            expect(spyOnCheck).toHaveBeenCalled();
+        });
+
+        it("should check if --skipVersionCheck is random string", async () => {
+            const cli = new CommandLineInterface(["help", "--skipVersionCheck=dummy"]);
+
+            await expect(cli.execute("./packages/core/dist")).toResolve();
+            expect(spyOnCheck).toHaveBeenCalled();
+        });
     });
 
     describe("discover plugins", () => {

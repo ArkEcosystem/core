@@ -11,8 +11,6 @@ import { Identifiers, inject, injectable } from "../ioc";
 import { Installer } from "./installer";
 import { ProcessManager } from "./process-manager";
 
-const ONE_DAY = 1000 * 60 * 60 * 24;
-
 /**
  * @export
  * @class Updater
@@ -61,13 +59,6 @@ export class Updater implements Contracts.Updater {
 
     /**
      * @private
-     * @type {*}
-     * @memberof Updater
-     */
-    private updateCheckInterval: any = ONE_DAY;
-
-    /**
-     * @private
      * @type {(string | undefined)}
      * @memberof Updater
      */
@@ -94,10 +85,6 @@ export class Updater implements Contracts.Updater {
 
         if (this.latestVersion) {
             this.config.forget("latestVersion"); // ? shouldn't it be moved after lastUpdateCheck
-        }
-
-        if (Date.now() - this.config.get<number>("lastUpdateCheck") < this.updateCheckInterval) {
-            return false;
         }
 
         const latestVersion: string | undefined = await this.getLatestVersion();

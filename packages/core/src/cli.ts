@@ -1,6 +1,15 @@
-import { ApplicationFactory, Commands, Container, Contracts, InputParser, Plugins } from "@arkecosystem/core-cli";
+import {
+    ApplicationFactory,
+    Commands,
+    Components,
+    Container,
+    Contracts,
+    InputParser,
+    Plugins,
+} from "@arkecosystem/core-cli";
 import envPaths from "env-paths";
 import { readJSONSync } from "fs-extra";
+import joi from "joi";
 import moduleAlias from "module-alias";
 import { dirname, join, resolve } from "path";
 import { PackageJson } from "type-fest";
@@ -57,14 +66,20 @@ export class CommandLineInterface {
         // Create the application we will work with
         this.app = ApplicationFactory.make(new Container.Container(), pkg);
 
-        // Check for updates
-        this.app.get<Contracts.Updater>(Container.Identifiers.Updater).check();
-
         // Parse arguments and flags
         const parsedArgv = InputParser.parseArgv(this.argv);
 
         const args = parsedArgv.args;
         const flags = await this.detectNetworkAndToken(parsedArgv.flags);
+
+        // Check for updates
+        const skipVersionCheck = joi.boolean().default(false).failover(false).validate(flags.skipVersionCheck).value;
+
+        if (!skipVersionCheck && (await this.app.get<Contracts.Updater>(Container.Identifiers.Updater).check())) {
+            this.app
+                .get<Components.ComponentFactory>(Container.Identifiers.ComponentFactory)
+                .info("New version is available");
+        }
 
         // Discover commands and commands from plugins
         const commands: Contracts.CommandList = await this.discoverCommands(dirname, flags);

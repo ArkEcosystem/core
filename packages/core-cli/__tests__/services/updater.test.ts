@@ -10,7 +10,6 @@ import execa from "../__mocks__/execa";
 import { versionNext } from "./__fixtures__/latest-version";
 
 let cli;
-// let processManager;
 let updater;
 let config;
 
@@ -18,7 +17,6 @@ beforeEach(() => {
     nock.cleanAll();
 
     cli = new Console();
-    // processManager = cli.app.get(Container.Identifiers.ProcessManager);
     updater = cli.app.resolve(Updater);
     config = cli.app.get(Container.Identifiers.Config);
 });
@@ -53,14 +51,6 @@ describe("Updater", () => {
 
         it("should return false if the latest version is already installed", async () => {
             nock(/.*/).get("/@arkecosystem%2Fcore").reply(200, versionNext);
-
-            await expect(updater.check()).resolves.toBeFalse();
-        });
-
-        it("should return false if the last check has been within the last 24 hours ago", async () => {
-            nock(/.*/).get("/@arkecosystem%2Fcore").reply(200, versionNext);
-
-            config.set("lastUpdateCheck", Date.now());
 
             await expect(updater.check()).resolves.toBeFalse();
         });
