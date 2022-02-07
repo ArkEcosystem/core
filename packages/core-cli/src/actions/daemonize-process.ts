@@ -4,7 +4,7 @@ import { Application } from "../application";
 import { Spinner } from "../components";
 import { ProcessOptions } from "../contracts";
 import { Identifiers, inject, injectable } from "../ioc";
-import { ProcessManager } from "../services";
+import { ProcessManager, Setup } from "../services";
 import { AbortRunningProcess } from "./abort-running-process";
 import { AbortUnknownProcess } from "./abort-unknown-process";
 
@@ -29,6 +29,9 @@ export class DaemonizeProcess {
      */
     @inject(Identifiers.ProcessManager)
     private readonly processManager!: ProcessManager;
+
+    @inject(Identifiers.Setup)
+    private readonly setup!: Setup;
 
     /**
      * @static
@@ -57,6 +60,10 @@ export class DaemonizeProcess {
                 flagsProcess["no-daemon"] = true;
             }
 
+            if (this.setup.isGlobal()) {
+                flagsProcess["interpreter"] = "bash";
+            }
+
             flagsProcess.name = processName;
 
             const potato: boolean = totalmem() < 2 * 1024 ** 3;
@@ -64,6 +71,7 @@ export class DaemonizeProcess {
             this.processManager.start(
                 {
                     ...options,
+                    script: this.setup.isGlobal() ? "ark" : this.setup.getRootPath(),
                     ...{
                         env: {
                             NODE_ENV: "production",
