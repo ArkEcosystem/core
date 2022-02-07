@@ -85,7 +85,7 @@ export type ProcessIdentifier = string | number;
 
 export type ProcessDescription = Record<string, any>;
 
-export type ProcessOptions = Record<"name" | "script" | "args", string>;
+export type ProcessOptions = Record<"name" | "args", string>;
 
 // APPLICATION
 export interface Application {

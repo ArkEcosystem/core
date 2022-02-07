@@ -1,7 +1,6 @@
 import { Commands, Container, Contracts, Utils } from "@arkecosystem/core-cli";
 import { Networks } from "@arkecosystem/crypto";
 import Joi from "joi";
-import { resolve } from "path";
 
 import { buildBIP38 } from "../internal/crypto";
 
@@ -68,7 +67,6 @@ export class Command extends Commands.Command {
         await this.actions.daemonizeProcess(
             {
                 name: `${flags.token}-core`,
-                script: resolve(__dirname, "../../bin/run"),
                 args: `core:run ${Utils.castFlagsToString(flags, ["daemon"])}`,
             },
             flags,
