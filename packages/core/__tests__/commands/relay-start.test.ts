@@ -1,8 +1,7 @@
+import { Command } from "@packages/core/src/commands/relay-start";
 import { Container } from "@packages/core-cli";
 import { Console } from "@packages/core-test-framework";
-import { Command } from "@packages/core/src/commands/relay-start";
 import os from "os";
-import { resolve } from "path";
 
 let cli;
 let processManager;
@@ -29,7 +28,7 @@ describe("StartCommand", () => {
                 },
                 name: "ark-relay",
                 node_args: undefined,
-                script: resolve(__dirname, "../../../../packages/core/bin/run"),
+                script: __filename,
             },
             { "kill-timeout": 30000, "max-restarts": 5, name: "ark-relay" },
         );
