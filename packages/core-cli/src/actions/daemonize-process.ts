@@ -60,10 +60,6 @@ export class DaemonizeProcess {
                 flagsProcess["no-daemon"] = true;
             }
 
-            if (this.setup.isGlobal()) {
-                flagsProcess["interpreter"] = "bash";
-            }
-
             flagsProcess.name = processName;
 
             const potato: boolean = totalmem() < 2 * 1024 ** 3;
@@ -71,7 +67,7 @@ export class DaemonizeProcess {
             this.processManager.start(
                 {
                     ...options,
-                    script: this.setup.isGlobal() ? "ark" : this.setup.getRootPath(),
+                    script: this.setup.isGlobal() ? this.setup.getGlobalEntrypoint() : this.setup.getLocalEntrypoint(),
                     ...{
                         env: {
                             NODE_ENV: "production",
