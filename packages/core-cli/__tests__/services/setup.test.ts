@@ -42,7 +42,7 @@ describe("Setup", () => {
                 exitCode: 0,
             });
 
-            jest.spyOn(setup, "getRootPath").mockReturnValue(join(globalDir, "/path/to/package"));
+            jest.spyOn(setup, "getLocalEntrypoint").mockReturnValue(join(globalDir, "/path/to/package"));
 
             expect(setup.isGlobal()).toBeTrue();
         });
@@ -56,6 +56,36 @@ describe("Setup", () => {
             setup.isGlobal();
 
             expect(spyOnSync).toHaveBeenCalledWith("pnpm root -g dir", { shell: true });
+        });
+    });
+
+    describe("getLocalEntrypoint", () => {
+        it("should return local entrypoint", () => {
+            expect(setup.getLocalEntrypoint()).toEqual(__filename);
+        });
+    });
+
+    describe("getGlobalEntrypoint", () => {
+        it("should return global entrypoint", () => {
+            const spyOnSync = jest.spyOn(execa, "sync").mockReturnValue({
+                stdout: globalDir,
+                exitCode: 0,
+            });
+
+            expect(setup.getGlobalEntrypoint()).toEqual(join(globalDir, "@arkecosystem/core/bin/run"));
+            expect(spyOnSync).toHaveBeenCalled();
+        });
+
+        it("should throw error if pNpm is not installed", () => {
+            const spyOnSync = jest.spyOn(execa, "sync").mockReturnValue({
+                stdout: "",
+                exitCode: 1,
+            });
+
+            expect(() => {
+                setup.getGlobalEntrypoint();
+            }).toThrow("Cannot determine global pNpm dir");
+            expect(spyOnSync).toHaveBeenCalled();
         });
     });
 });

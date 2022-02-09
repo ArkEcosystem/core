@@ -26,7 +26,7 @@ export class Setup {
         const { stdout, exitCode } = sync(`pnpm root -g dir`, { shell: true });
 
         if (exitCode !== 0) {
-            throw new Error("Cannot determine global pNpm dir.");
+            throw new Error("Cannot determine global pNpm dir");
         }
 
         return stdout;
