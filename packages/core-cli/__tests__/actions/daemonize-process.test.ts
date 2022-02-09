@@ -1,17 +1,29 @@
 import { Container } from "@packages/core-cli";
-import { Console } from "@packages/core-test-framework";
 import { DaemonizeProcess } from "@packages/core-cli/src/actions";
+import { Setup } from "@packages/core-cli/src/services/setup";
+import { Console } from "@packages/core-test-framework";
 import os from "os";
 
 let cli;
 let processManager;
+let setup: Partial<Setup>;
 let action;
 
+const localEntrypoint = "/local/entrypoint";
+const globalEntrypoint = "/global/entrypoint";
+
 beforeEach(() => {
+    setup = {
+        isGlobal: jest.fn().mockReturnValue(false),
+        getLocalEntrypoint: jest.fn().mockReturnValue(localEntrypoint),
+        getGlobalEntrypoint: jest.fn().mockReturnValue(globalEntrypoint),
+    };
+
     cli = new Console();
     processManager = cli.app.get(Container.Identifiers.ProcessManager);
 
     // Bind from src instead of dist to collect coverage.
+    cli.app.rebind(Container.Identifiers.Setup).toConstantValue(setup);
     cli.app.rebind(Container.Identifiers.DaemonizeProcess).to(DaemonizeProcess).inSingletonScope();
     action = cli.app.get(Container.Identifiers.DaemonizeProcess);
 });
@@ -25,7 +37,6 @@ describe("DaemonizeProcess", () => {
             action.execute(
                 {
                     name: "ark-core",
-                    script: "script",
                     args: "core:run --daemon",
                 },
                 {},
@@ -48,7 +59,6 @@ describe("DaemonizeProcess", () => {
             action.execute(
                 {
                     name: "ark-core",
-                    script: "script",
                     args: "core:run --daemon",
                 },
                 {},
@@ -72,7 +82,6 @@ describe("DaemonizeProcess", () => {
         action.execute(
             {
                 name: "ark-core",
-                script: "script",
                 args: "core:run --daemon",
             },
             {},
@@ -97,7 +106,6 @@ describe("DaemonizeProcess", () => {
         action.execute(
             {
                 name: "ark-core",
-                script: "script",
                 args: "core:run --daemon",
             },
             {},
@@ -113,7 +121,7 @@ describe("DaemonizeProcess", () => {
                 env: { CORE_ENV: undefined, NODE_ENV: "production" },
                 name: "ark-core",
                 node_args: undefined,
-                script: "script",
+                script: localEntrypoint,
             },
             { "kill-timeout": 30000, "max-restarts": 5, name: "ark-core", "no-daemon": true },
         );
@@ -135,7 +143,6 @@ describe("DaemonizeProcess", () => {
         action.execute(
             {
                 name: "ark-core",
-                script: "script",
                 args: "core:run --daemon",
             },
             { daemon: false },
@@ -151,7 +158,7 @@ describe("DaemonizeProcess", () => {
                 env: { CORE_ENV: undefined, NODE_ENV: "production" },
                 name: "ark-core",
                 node_args: undefined,
-                script: "script",
+                script: localEntrypoint,
             },
             { "kill-timeout": 30000, "max-restarts": 5, name: "ark-core", "no-daemon": true },
         );
@@ -173,7 +180,6 @@ describe("DaemonizeProcess", () => {
         action.execute(
             {
                 name: "ark-core",
-                script: "script",
                 args: "core:run --daemon",
             },
             { daemon: true },
@@ -189,7 +195,7 @@ describe("DaemonizeProcess", () => {
                 env: { CORE_ENV: undefined, NODE_ENV: "production" },
                 name: "ark-core",
                 node_args: undefined,
-                script: "script",
+                script: localEntrypoint,
             },
             { "kill-timeout": 30000, "max-restarts": 5, name: "ark-core" },
         );
@@ -211,7 +217,6 @@ describe("DaemonizeProcess", () => {
         action.execute(
             {
                 name: "ark-core",
-                script: "script",
                 args: "core:run --daemon",
             },
             {},
@@ -232,7 +237,7 @@ describe("DaemonizeProcess", () => {
                 node_args: {
                     max_old_space_size: 500,
                 },
-                script: "script",
+                script: localEntrypoint,
             },
             { "kill-timeout": 30000, "max-restarts": 5, name: "ark-core", "no-daemon": true },
         );
@@ -257,7 +262,6 @@ describe("DaemonizeProcess", () => {
             action.execute(
                 {
                     name: "ark-core",
-                    script: "script",
                     args: "core:run --daemon",
                 },
                 {},
@@ -274,7 +278,7 @@ describe("DaemonizeProcess", () => {
                 env: { CORE_ENV: undefined, NODE_ENV: "production" },
                 name: "ark-core",
                 node_args: undefined,
-                script: "script",
+                script: localEntrypoint,
             },
             { "kill-timeout": 30000, "max-restarts": 5, name: "ark-core", "no-daemon": true },
         );
@@ -303,7 +307,6 @@ describe("DaemonizeProcess", () => {
             action.execute(
                 {
                     name: "ark-core",
-                    script: "script",
                     args: "core:run --daemon",
                 },
                 {},
@@ -320,7 +323,46 @@ describe("DaemonizeProcess", () => {
                 env: { CORE_ENV: undefined, NODE_ENV: "production" },
                 name: "ark-core",
                 node_args: undefined,
-                script: "script",
+                script: localEntrypoint,
+            },
+            { "kill-timeout": 30000, "max-restarts": 5, name: "ark-core", "no-daemon": true },
+        );
+
+        has.mockClear();
+        isUnknown.mockClear();
+        isOnline.mockClear();
+        totalmem.mockClear();
+        start.mockClear();
+    });
+
+    it("should take global entrypoint if setup is global", () => {
+        setup.isGlobal = jest.fn().mockReturnValue(true);
+
+        const has = jest.spyOn(processManager, "has").mockReturnValue(true);
+        const isUnknown = jest.spyOn(processManager, "isUnknown").mockReturnValue(false);
+        const isOnline = jest.spyOn(processManager, "isOnline").mockReturnValue(false);
+        const totalmem = jest.spyOn(os, "totalmem").mockReturnValue(99999999999);
+        const start = jest.spyOn(processManager, "start").mockImplementation(undefined);
+
+        action.execute(
+            {
+                name: "ark-core",
+                args: "core:run --daemon",
+            },
+            {},
+        );
+
+        expect(has).toHaveBeenCalledWith("ark-core");
+        expect(isUnknown).toHaveBeenCalledWith("ark-core");
+        expect(isOnline).toHaveBeenCalledWith("ark-core");
+        expect(totalmem).toHaveBeenCalled();
+        expect(start).toHaveBeenCalledWith(
+            {
+                args: "core:run --daemon",
+                env: { CORE_ENV: undefined, NODE_ENV: "production" },
+                name: "ark-core",
+                node_args: undefined,
+                script: globalEntrypoint,
             },
             { "kill-timeout": 30000, "max-restarts": 5, name: "ark-core", "no-daemon": true },
         );
