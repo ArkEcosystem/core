@@ -1,25 +1,34 @@
 import { sync } from "execa";
+import { join } from "path";
 
 import { injectable } from "../ioc";
 
 @injectable()
 export class Setup {
     public isGlobal(): boolean {
-        const globalDir = this.getGlobalDir();
-        return !!(globalDir && this.getRootPath().startsWith(globalDir));
+        try {
+            const globalDir = this.getGlobalRootDir();
+            return !!(globalDir && this.getLocalEntrypoint().startsWith(globalDir));
+        } catch {
+            return false;
+        }
     }
 
-    public getRootPath(): string {
+    public getLocalEntrypoint(): string {
         return require.main!.filename;
     }
 
-    private getGlobalDir(): string | undefined {
+    public getGlobalEntrypoint(): string {
+        return join(this.getGlobalRootDir(), "@arkecosystem/core/bin/run");
+    }
+
+    private getGlobalRootDir(): string {
         const { stdout, exitCode } = sync(`pnpm root -g dir`, { shell: true });
 
-        if (exitCode === 0) {
-            return stdout;
+        if (exitCode !== 0) {
+            throw new Error("Cannot determine global pNpm dir.");
         }
 
-        return undefined;
+        return stdout;
     }
 }
