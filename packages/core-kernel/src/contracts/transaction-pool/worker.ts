@@ -12,7 +12,7 @@ export interface WorkerScriptHandler {
     loadCryptoPackage(packageName: string): void;
     setConfig(networkConfig: any): void;
     setHeight(height: number): void;
-    getTransactionFromData(transactionData: Interfaces.ITransactionData | Buffer): Promise<SerializedTransaction>;
+    getTransactionFromData(transactionData: Interfaces.ITransactionData | string): Promise<SerializedTransaction>;
 }
 
 export type WorkerIpcSubprocess = IpcSubprocess<WorkerScriptHandler>;
