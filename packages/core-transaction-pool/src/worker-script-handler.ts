@@ -18,12 +18,12 @@ export class WorkerScriptHandler implements Contracts.TransactionPool.WorkerScri
     }
 
     public async getTransactionFromData(
-        transactionDataDTO: Interfaces.ITransactionData | string,
+        transactionData: Interfaces.ITransactionData | string,
     ): Promise<Contracts.TransactionPool.SerializedTransaction> {
         const tx =
-            typeof transactionDataDTO === "string"
-                ? Transactions.TransactionFactory.fromBytes(Buffer.from(transactionDataDTO, "hex"))
-                : Transactions.TransactionFactory.fromData(transactionDataDTO);
+            typeof transactionData === "string"
+                ? Transactions.TransactionFactory.fromBytes(Buffer.from(transactionData, "hex"))
+                : Transactions.TransactionFactory.fromData(transactionData);
         return { id: tx.id!, serialized: tx.serialized.toString("hex"), isVerified: tx.isVerified };
     }
 }
