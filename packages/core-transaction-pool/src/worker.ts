@@ -34,7 +34,7 @@ export class Worker implements Contracts.TransactionPool.Worker {
 
         const { id, serialized, isVerified } = await this.ipcSubprocess.sendRequest(
             "getTransactionFromData",
-            transactionData,
+            transactionData instanceof Buffer ? transactionData.toString("hex") : transactionData,
         );
         const transaction = Transactions.TransactionFactory.fromBytesUnsafe(Buffer.from(serialized, "hex"), id);
         transaction.isVerified = isVerified;
