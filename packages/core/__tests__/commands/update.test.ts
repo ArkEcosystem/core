@@ -1,250 +1,104 @@
-import "jest-extended";
-
 import { Command } from "@packages/core/src/commands/update";
 import { Container } from "@packages/core-cli";
+import { ActionFactory } from "@packages/core-cli/src/action-factory";
+import { Updater } from "@packages/core-cli/src/services/updater";
 import { Console } from "@packages/core-test-framework";
-import execa from "execa";
-import nock from "nock";
-import prompts from "prompts";
-
-import { versionNext } from "../internal/__fixtures__/latest-version";
 
 let cli;
-let processManager;
+let updater: Partial<Updater>;
+let actionFactory: Partial<ActionFactory>;
 
 beforeEach(() => {
-    nock.cleanAll();
+    updater = {
+        check: jest.fn().mockResolvedValue(true),
+        update: jest.fn(),
+    };
+
+    actionFactory = {
+        restartRunningProcess: jest.fn(),
+        restartRunningProcessWithPrompt: jest.fn(),
+    };
 
     cli = new Console();
-    processManager = cli.app.get(Container.Identifiers.ProcessManager);
+    cli.app.rebind(Container.Identifiers.Updater).toConstantValue(updater);
+    cli.app.rebind(Container.Identifiers.ActionFactory).toConstantValue(actionFactory);
 });
 
-afterEach(() => jest.resetAllMocks());
-
-beforeAll(() => nock.disableNetConnect());
-
-afterAll(() => nock.enableNetConnect());
-
 describe("UpdateCommand", () => {
-    it("should throw if the latest version is already installed", async () => {
-        nock(/.*/).get("/@arkecosystem%2Fcore").reply(200, versionNext);
+    it("should not update if check returns false", async () => {
+        updater.check = jest.fn().mockResolvedValue(false);
 
-        const spySuccess = jest.spyOn(cli.app.get(Container.Identifiers.Success), "render");
+        await cli.execute(Command);
 
-        await cli.withFlags({ force: true }).execute(Command);
-
-        expect(spySuccess).toHaveBeenCalledWith("You already have the latest version (3.0.0-next.0)");
+        expect(updater.check).toHaveBeenCalled();
+        expect(updater.update).not.toHaveBeenCalled();
+        expect(actionFactory.restartRunningProcess).not.toHaveBeenCalled();
+        expect(actionFactory.restartRunningProcessWithPrompt).not.toHaveBeenCalled();
     });
 
-    it("should throw if the update is not confirmed", async () => {
-        const response = { ...versionNext };
-        response["dist-tags"].next = "4.0.0-next.0";
-        response.versions["4.0.0-next.0"] = { ...response.versions["2.5.0-next.10"] };
-        response.versions["4.0.0-next.0"] = { ...response.versions["2.5.0-next.10"], ...{ version: "4.0.0-next.0" } };
+    it("should update with a prompts", async () => {
+        await cli.execute(Command);
 
-        nock(/.*/).get("/@arkecosystem%2Fcore").reply(200, response);
-
-        const sync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-            stdout: "stdout",
-            stderr: undefined,
-        } as any);
-
-        prompts.inject([false]);
-
-        await expect(cli.execute(Command)).rejects.toThrow("You'll need to confirm the update to continue.");
-
-        expect(sync).not.toHaveBeenCalled();
+        expect(updater.check).toHaveBeenCalled();
+        expect(updater.update).toHaveBeenCalledWith(false, false);
+        expect(actionFactory.restartRunningProcess).not.toHaveBeenCalled();
+        expect(actionFactory.restartRunningProcessWithPrompt).toHaveBeenCalledTimes(3);
     });
 
     it("should update without a prompt if the [--force] flag is present", async () => {
-        const response = { ...versionNext };
-        response["dist-tags"].next = "4.0.0-next.0";
-        response.versions["4.0.0-next.0"] = { ...response.versions["2.5.0-next.10"] };
-        response.versions["4.0.0-next.0"] = { ...response.versions["2.5.0-next.10"], ...{ version: "4.0.0-next.0" } };
+        await cli.withFlags({ force: true, updateProcessManager: false }).execute(Command);
 
-        nock(/.*/).get("/@arkecosystem%2Fcore").reply(200, response);
+        expect(updater.check).toHaveBeenCalled();
+        expect(updater.update).toHaveBeenCalledWith(false, true);
+        expect(actionFactory.restartRunningProcess).not.toHaveBeenCalled();
+        expect(actionFactory.restartRunningProcessWithPrompt).not.toHaveBeenCalled();
+    });
 
-        const sync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-            stdout: '"null"',
-            stderr: undefined,
-            exitCode: 0,
-        } as any);
-
+    it("should update and update process manager without a prompt if the [--force --updateProcessManager] flag is present", async () => {
         await cli.withFlags({ force: true, updateProcessManager: true }).execute(Command);
 
-        // yarn info peerDependencies
-        // yarn global add
-        // pm2 update
-        expect(sync).toHaveBeenCalledTimes(3);
+        expect(updater.check).toHaveBeenCalled();
+        expect(updater.update).toHaveBeenCalledWith(true, true);
+        expect(actionFactory.restartRunningProcess).not.toHaveBeenCalled();
+        expect(actionFactory.restartRunningProcessWithPrompt).not.toHaveBeenCalled();
     });
 
-    it("should update and reset without a prompt if the [--force --reset] flag is present", async () => {
-        const response = { ...versionNext };
-        response["dist-tags"].next = "4.0.0-next.0";
-        response.versions["4.0.0-next.0"] = { ...response.versions["2.5.0-next.10"] };
-        response.versions["4.0.0-next.0"] = { ...response.versions["2.5.0-next.10"], ...{ version: "4.0.0-next.0" } };
+    it("should update and restart without a prompt if the [--force --restart] flag is present", async () => {
+        await cli.withFlags({ force: true, restart: true }).execute(Command);
 
-        nock(/.*/).get("/@arkecosystem%2Fcore").reply(200, response);
-
-        const sync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-            stdout: '"null"',
-            stderr: undefined,
-            exitCode: 0,
-        } as any);
-
-        await cli.withFlags({ force: true, reset: true, updateProcessManager: true }).execute(Command);
-
-        // yarn info peerDependencies
-        // yarn global add
-        // pm2 update
-        // restart core
-        // restart relay
-        // restart forger
-        expect(sync).toHaveBeenCalledTimes(3);
+        expect(updater.check).toHaveBeenCalled();
+        expect(updater.update).toHaveBeenCalledWith(false, true);
+        expect(actionFactory.restartRunningProcess).toHaveBeenCalledTimes(3);
+        expect(actionFactory.restartRunningProcessWithPrompt).not.toHaveBeenCalled();
     });
 
-    it("should update with a prompt if the [--force] flag is not present", async () => {
-        const response = { ...versionNext };
-        response["dist-tags"].next = "4.0.0-next.0";
-        response.versions["4.0.0-next.0"] = { ...response.versions["2.5.0-next.10"] };
-        response.versions["4.0.0-next.0"] = { ...response.versions["2.5.0-next.10"], ...{ version: "4.0.0-next.0" } };
+    it("should update and restart core without a prompt if the [--force --restartCore] flag is present", async () => {
+        await cli.withFlags({ force: true, restartCore: true }).execute(Command);
 
-        nock(/.*/).get("/@arkecosystem%2Fcore").reply(200, response);
-
-        const sync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-            stdout: '"null"',
-            stderr: undefined,
-            exitCode: 0,
-        } as any);
-
-        prompts.inject([true]);
-
-        await cli.execute(Command);
-
-        expect(sync).toHaveBeenCalled();
-
-        sync.mockReset();
+        expect(updater.check).toHaveBeenCalled();
+        expect(updater.update).toHaveBeenCalledWith(false, true);
+        expect(actionFactory.restartRunningProcess).toHaveBeenCalledTimes(1);
+        expect(actionFactory.restartRunningProcess).toHaveBeenCalledWith("ark-core");
+        expect(actionFactory.restartRunningProcessWithPrompt).not.toHaveBeenCalled();
     });
 
-    it("should update and restart all processes if the [--restart] flag is present", async () => {
-        const response = { ...versionNext };
-        response["dist-tags"].next = "4.0.0-next.0";
-        response.versions["4.0.0-next.0"] = { ...response.versions["2.5.0-next.10"], ...{ version: "4.0.0-next.0" } };
+    it("should update and restart relay without a prompt if the [--force --restartRelay] flag is present", async () => {
+        await cli.withFlags({ force: true, restartRelay: true }).execute(Command);
 
-        nock(/.*/).get("/@arkecosystem%2Fcore").reply(200, response);
-
-        const sync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-            stdout: '"null"',
-            stderr: undefined,
-            exitCode: 0,
-        } as any);
-        jest.spyOn(processManager, "restart").mockImplementation(undefined);
-
-        await cli.withFlags({ force: true, restart: true, updateProcessManager: true }).execute(Command);
-
-        // yarn info peerDependencies
-        // yarn global add
-        // pm2 update
-        // restart core
-        // restart relay
-        // restart forger
-        expect(sync).toHaveBeenCalledTimes(6);
+        expect(updater.check).toHaveBeenCalled();
+        expect(updater.update).toHaveBeenCalledWith(false, true);
+        expect(actionFactory.restartRunningProcess).toHaveBeenCalledTimes(1);
+        expect(actionFactory.restartRunningProcess).toHaveBeenCalledWith("ark-relay");
+        expect(actionFactory.restartRunningProcessWithPrompt).not.toHaveBeenCalled();
     });
 
-    it("should update and restart the core process if the [--restartCore] flag is present", async () => {
-        const response = { ...versionNext };
-        response["dist-tags"].next = "4.0.0-next.0";
-        response.versions["4.0.0-next.0"] = { ...response.versions["2.5.0-next.10"], ...{ version: "4.0.0-next.0" } };
+    it("should update and restart forger without a prompt if the [--force --restartForger] flag is present", async () => {
+        await cli.withFlags({ force: true, restartForger: true }).execute(Command);
 
-        nock(/.*/).get("/@arkecosystem%2Fcore").reply(200, response);
-
-        const sync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-            stdout: '"null"',
-            stderr: undefined,
-            exitCode: 0,
-        } as any);
-        const isOnline = jest.spyOn(processManager, "isOnline").mockReturnValue(true);
-        const restart = jest.spyOn(processManager, "restart").mockImplementation(undefined);
-
-        await cli.withFlags({ force: true, restartCore: true, updateProcessManager: true }).execute(Command);
-
-        expect(sync).toHaveBeenCalledTimes(3);
-        expect(isOnline).toHaveBeenCalled();
-        expect(restart).toHaveBeenCalledTimes(1);
-        expect(restart).toHaveBeenCalledWith("ark-core");
-    });
-
-    it("should update and restart the core process if the [--restartRelay] flag is present", async () => {
-        const response = { ...versionNext };
-        response["dist-tags"].next = "4.0.0-next.0";
-        response.versions["4.0.0-next.0"] = { ...response.versions["2.5.0-next.10"], ...{ version: "4.0.0-next.0" } };
-
-        nock(/.*/).get("/@arkecosystem%2Fcore").reply(200, response);
-
-        const sync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-            stdout: '"null"',
-            stderr: undefined,
-            exitCode: 0,
-        } as any);
-        const isOnline = jest.spyOn(processManager, "isOnline").mockReturnValue(true);
-        const restart = jest.spyOn(processManager, "restart").mockImplementation(undefined);
-
-        await cli.withFlags({ force: true, restartRelay: true, updateProcessManager: true }).execute(Command);
-
-        expect(sync).toHaveBeenCalledTimes(3);
-        expect(isOnline).toHaveBeenCalled();
-        expect(restart).toHaveBeenCalledTimes(1);
-        expect(restart).toHaveBeenCalledWith("ark-relay");
-    });
-
-    it("should update and restart the core process if the [--restartForger] flag is present", async () => {
-        const response = { ...versionNext };
-        response["dist-tags"].next = "4.0.0-next.0";
-        response.versions["4.0.0-next.0"] = { ...response.versions["2.5.0-next.10"], ...{ version: "4.0.0-next.0" } };
-
-        nock(/.*/).get("/@arkecosystem%2Fcore").reply(200, response);
-
-        const sync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-            stdout: '"null"',
-            stderr: undefined,
-            exitCode: 0,
-        } as any);
-        const isOnline = jest.spyOn(processManager, "isOnline").mockReturnValue(true);
-        const restart = jest.spyOn(processManager, "restart").mockImplementation(undefined);
-
-        await cli.withFlags({ force: true, restartForger: true, updateProcessManager: true }).execute(Command);
-
-        expect(sync).toHaveBeenCalledTimes(3);
-        expect(isOnline).toHaveBeenCalled();
-        expect(restart).toHaveBeenCalledTimes(1);
-        expect(restart).toHaveBeenCalledWith("ark-forger");
-    });
-
-    it("should update with a prompt and restart processes after confirmation", async () => {
-        const response = { ...versionNext };
-        response["dist-tags"].next = "4.0.0-next.0";
-        response.versions["4.0.0-next.0"] = { ...response.versions["2.5.0-next.10"] };
-        response.versions["4.0.0-next.0"] = { ...response.versions["2.5.0-next.10"], ...{ version: "4.0.0-next.0" } };
-
-        nock(/.*/).get("/@arkecosystem%2Fcore").reply(200, response);
-
-        const sync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-            stdout: '"null"',
-            stderr: undefined,
-            exitCode: 0,
-        } as any);
-        const isOnline = jest.spyOn(processManager, "isOnline").mockReturnValue(true);
-        const restart = jest.spyOn(processManager, "restart").mockImplementation(undefined);
-
-        prompts.inject([true]); // update
-        prompts.inject([true]); // restart core
-        prompts.inject([true]); // restart forger
-        prompts.inject([true]); // restart relay
-
-        await cli.execute(Command);
-
-        expect(sync).toHaveBeenCalledTimes(2);
-        expect(isOnline).toHaveBeenCalled();
-        expect(restart).toHaveBeenCalledTimes(3);
+        expect(updater.check).toHaveBeenCalled();
+        expect(updater.update).toHaveBeenCalledWith(false, true);
+        expect(actionFactory.restartRunningProcess).toHaveBeenCalledTimes(1);
+        expect(actionFactory.restartRunningProcess).toHaveBeenCalledWith("ark-forger");
+        expect(actionFactory.restartRunningProcessWithPrompt).not.toHaveBeenCalled();
     });
 });
