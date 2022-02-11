@@ -67,7 +67,7 @@ describe("Installer.installPeerDependencies", () => {
             .mockReturnValue(undefined);
 
         const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-            stdout: JSON.stringify({ data: { pm2: "4.5.0", somepkg: "^1.0.0" } }),
+            stdout: JSON.stringify({ pm2: "4.5.0", somepkg: "^1.0.0" }),
             exitCode: 0,
         });
 
@@ -87,7 +87,7 @@ describe("Installer.installPeerDependencies", () => {
             .mockReturnValue(undefined);
 
         const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-            stdout: JSON.stringify({}),
+            stdout: "",
             exitCode: 0,
         });
 
@@ -119,7 +119,7 @@ describe("Installer.installRangeLatest", () => {
         const spyInstall: jest.SpyInstance = jest.spyOn(installer, "install").mockReturnValue(undefined);
 
         const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-            stdout: JSON.stringify({ data: ["3.0.0", "3.1.0", "3.0.0-next.9"] }),
+            stdout: JSON.stringify(["3.0.0", "3.1.0", "3.0.0-next.9"]),
             exitCode: 0,
         });
 
@@ -147,7 +147,22 @@ describe("Installer.installRangeLatest", () => {
 
     it("should throw error when there is no version matching requested range", () => {
         const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-            stdout: JSON.stringify({ data: ["3.0.0", "3.0.0-next.9"] }),
+            stdout: JSON.stringify(["3.0.0", "3.0.0-next.9"]),
+            exitCode: 0,
+        });
+
+        expect(() => installer.installRangeLatest("@arkecosystem/core", "^4.0.0 <4.4.0")).toThrow(
+            "No @arkecosystem/core version to satisfy ^4.0.0 <4.4.0",
+        );
+
+        expect(spySync).toHaveBeenCalledWith("pnpm info @arkecosystem/core versions --json", {
+            shell: true,
+        });
+    });
+
+    it("should throw error when package doesn't exist", () => {
+        const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
+            stdout: "",
             exitCode: 0,
         });
 
