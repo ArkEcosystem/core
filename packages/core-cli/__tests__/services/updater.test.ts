@@ -92,13 +92,10 @@ describe("Updater", () => {
 
             nock(/.*/).get("/@arkecosystem%2Fcore").reply(200, response);
 
-            const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-                stdout: '"null"',
-                stderr: undefined,
-                exitCode: 0,
-            });
             const spySpinner = jest.spyOn(cli.app.get(Container.Identifiers.Spinner), "render");
-            const spyInstaller = jest.spyOn(cli.app.get(Container.Identifiers.Installer), "install");
+            const spyInstaller = jest
+                .spyOn(cli.app.get(Container.Identifiers.Installer), "install")
+                .mockImplementation(async () => {});
             const spyProcessManager = jest.spyOn(cli.app.get(Container.Identifiers.ProcessManager), "update");
 
             // Act...
@@ -108,7 +105,6 @@ describe("Updater", () => {
 
             // Assert...
             expect(update).toBeTrue();
-            expect(spySync).toHaveBeenCalled();
             expect(spySpinner).toHaveBeenCalled();
             expect(spyInstaller).toHaveBeenCalled();
             expect(spyProcessManager).toHaveBeenCalled();
@@ -126,13 +122,10 @@ describe("Updater", () => {
 
             nock(/.*/).get("/@arkecosystem%2Fcore").reply(200, response);
 
-            const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-                stdout: '"null"',
-                stderr: undefined,
-                exitCode: 0,
-            });
             const spySpinner = jest.spyOn(cli.app.get(Container.Identifiers.Spinner), "render");
-            const spyInstaller = jest.spyOn(cli.app.get(Container.Identifiers.Installer), "install");
+            const spyInstaller = jest
+                .spyOn(cli.app.get(Container.Identifiers.Installer), "install")
+                .mockImplementation(async () => {});
 
             prompts.inject([true]);
 
@@ -143,7 +136,6 @@ describe("Updater", () => {
 
             // Assert...
             expect(update).toBeTrue();
-            expect(spySync).toHaveBeenCalled();
             expect(spySpinner).toHaveBeenCalled();
             expect(spyInstaller).toHaveBeenCalled();
         });
