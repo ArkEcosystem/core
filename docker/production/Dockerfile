@@ -6,7 +6,7 @@ ADD docker/production/entrypoint.sh /entrypoint.sh
 
 ARG core_channel=latest
 
-RUN apk add --no-cache --virtual .build-deps make gcc g++ python git \
+RUN apk add --no-cache --virtual .build-deps make gcc g++ python3 git \
     && apk add --no-cache bash sudo git openntpd openssl \
     && echo "servers pool.ntp.org" > /etc/ntpd.conf \
     && echo "servers time.google.com" >> /etc/ntpd.conf \
