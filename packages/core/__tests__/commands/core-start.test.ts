@@ -1,9 +1,8 @@
+import { Command } from "@packages/core/src/commands/core-start";
 import { Container } from "@packages/core-cli";
 import { Console } from "@packages/core-test-framework";
-import { Command } from "@packages/core/src/commands/core-start";
 import { writeJSONSync } from "fs-extra";
 import os from "os";
-import { resolve } from "path";
 import { dirSync, setGracefulCleanup } from "tmp";
 
 let cli;
@@ -37,7 +36,7 @@ describe("StartCommand", () => {
                 },
                 name: "ark-core",
                 node_args: undefined,
-                script: resolve(__dirname, "../../../../packages/core/bin/run"),
+                script: __filename,
             },
             { "kill-timeout": 30000, "max-restarts": 5, name: "ark-core" },
         );

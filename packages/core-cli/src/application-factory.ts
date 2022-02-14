@@ -46,7 +46,7 @@ import {
 import { Input, InputValidator } from "./input";
 import { Container, Identifiers, interfaces } from "./ioc";
 import { Output } from "./output";
-import { Config, Environment, Installer, Logger, PluginManager, ProcessManager, Updater } from "./services";
+import { Config, Environment, Installer, Logger, PluginManager, ProcessManager, Setup, Updater } from "./services";
 import { Process } from "./utils";
 
 export class ApplicationFactory {
@@ -88,6 +88,8 @@ export class ApplicationFactory {
         app.bind(Identifiers.PluginManager).to(PluginManager).inSingletonScope();
 
         app.bind(Identifiers.Installer).to(Installer).inSingletonScope();
+
+        app.bind(Identifiers.Setup).to(Setup).inSingletonScope();
 
         app.bind(Identifiers.Environment).to(Environment).inSingletonScope();
 

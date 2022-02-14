@@ -13,6 +13,7 @@ export const Identifiers = {
     ProcessManager: Symbol.for("ProcessManager"),
     PluginManager: Symbol.for("PluginManager"),
     Updater: Symbol.for("Updater"),
+    Setup: Symbol.for("Setup"),
     // Input
     InputValidator: Symbol.for("Input<Validator>"),
     // Factories

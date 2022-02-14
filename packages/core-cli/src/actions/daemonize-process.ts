@@ -4,7 +4,7 @@ import { Application } from "../application";
 import { Spinner } from "../components";
 import { ProcessOptions } from "../contracts";
 import { Identifiers, inject, injectable } from "../ioc";
-import { ProcessManager } from "../services";
+import { ProcessManager, Setup } from "../services";
 import { AbortRunningProcess } from "./abort-running-process";
 import { AbortUnknownProcess } from "./abort-unknown-process";
 
@@ -29,6 +29,9 @@ export class DaemonizeProcess {
      */
     @inject(Identifiers.ProcessManager)
     private readonly processManager!: ProcessManager;
+
+    @inject(Identifiers.Setup)
+    private readonly setup!: Setup;
 
     /**
      * @static
@@ -64,6 +67,7 @@ export class DaemonizeProcess {
             this.processManager.start(
                 {
                     ...options,
+                    script: this.setup.isGlobal() ? this.setup.getGlobalEntrypoint() : this.setup.getLocalEntrypoint(),
                     ...{
                         env: {
                             NODE_ENV: "production",
