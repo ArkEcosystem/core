@@ -1,13 +1,19 @@
 import { Command } from "@packages/core/src/commands/config-cli";
 import { Container } from "@packages/core-cli";
+import { Installer } from "@packages/core-cli/src/services";
 import { Console } from "@packages/core-test-framework";
-import execa from "execa";
 
 let cli;
 let config;
+let installer: Partial<Installer>;
 
 beforeEach(() => {
+    installer = {
+        install: jest.fn(),
+    };
+
     cli = new Console();
+    cli.app.rebind(Container.Identifiers.Installer).toConstantValue(installer);
     config = cli.app.get(Container.Identifiers.Config);
 });
 
@@ -43,39 +49,23 @@ describe("Command", () => {
     });
 
     it("should change the channel and install the new version", async () => {
-        jest.spyOn(execa, "sync").mockReturnValue({
-            stdout: '"null"',
-            stderr: undefined,
-            exitCode: 0,
-        } as any);
-
-        const install: jest.SpyInstance = jest
-            .spyOn(cli.app.get(Container.Identifiers.Installer), "install")
-            .mockImplementation();
-
         await cli.withFlags({ channel: "latest" }).execute(Command);
 
         expect(config.get("channel")).toBe("latest");
-        expect(install).toHaveBeenCalledWith("@arkecosystem/core", "latest");
+        expect(installer.install).toHaveBeenCalledWith("@arkecosystem/core", "latest");
 
         await cli.withFlags({ channel: "next" }).execute(Command);
 
         expect(config.get("channel")).toBe("next");
-        expect(install).toHaveBeenCalledWith("@arkecosystem/core", "next");
+        expect(installer.install).toHaveBeenCalledWith("@arkecosystem/core", "next");
 
         await cli.withFlags({ channel: "latest" }).execute(Command);
 
         expect(config.get("channel")).toBe("latest");
-        expect(install).toHaveBeenCalledWith("@arkecosystem/core", "latest");
+        expect(installer.install).toHaveBeenCalledWith("@arkecosystem/core", "latest");
     });
 
     it("should fail to change the channel if the new and old are the same", async () => {
-        jest.spyOn(execa, "sync").mockReturnValue({
-            stdout: '"null"',
-            stderr: undefined,
-            exitCode: 0,
-        } as any);
-
         await cli.withFlags({ channel: "latest" }).execute(Command);
 
         await expect(cli.withFlags({ channel: "latest" }).execute(Command)).rejects.toThrow(

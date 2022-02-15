@@ -61,19 +61,70 @@ describe("Installer.install", () => {
 });
 
 describe("Installer.installPeerDependencies", () => {
-    it("should install each peer dependency", () => {
+    it("should install each peer dependency, when packages aren't installed", () => {
         const spyInstallRangeLatest: jest.SpyInstance = jest
             .spyOn(installer, "installRangeLatest")
             .mockReturnValue(undefined);
 
-        const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-            stdout: JSON.stringify({ data: { pm2: "4.5.0", somepkg: "^1.0.0" } }),
-            exitCode: 0,
-        });
+        const spySync: jest.SpyInstance = jest
+            .spyOn(execa, "sync")
+            .mockReturnValueOnce({
+                stdout: JSON.stringify({ pm2: "4.5.0", somepkg: "^1.0.0" }),
+                exitCode: 0,
+            })
+            .mockReturnValueOnce({
+                stdout: "",
+                exitCode: 0,
+            });
 
         installer.installPeerDependencies("@arkecosystem/core", "3.0.0");
 
         expect(spySync).toHaveBeenCalledWith("pnpm info @arkecosystem/core@3.0.0 peerDependencies --json", {
+            shell: true,
+        });
+
+        expect(spySync).toHaveBeenCalledWith("pnpm list -g --json", {
+            shell: true,
+        });
+
+        expect(spyInstallRangeLatest).toHaveBeenCalledWith("pm2", "4.5.0");
+        expect(spyInstallRangeLatest).toHaveBeenCalledWith("somepkg", "^1.0.0");
+    });
+
+    it("should install each peer dependency, when installed packages doesn't pass semver validation", () => {
+        const spyInstallRangeLatest: jest.SpyInstance = jest
+            .spyOn(installer, "installRangeLatest")
+            .mockReturnValue(undefined);
+
+        const spySync: jest.SpyInstance = jest
+            .spyOn(execa, "sync")
+            .mockReturnValueOnce({
+                stdout: JSON.stringify({ pm2: "4.5.0", somepkg: "^1.0.0" }),
+                exitCode: 0,
+            })
+            .mockReturnValueOnce({
+                stdout: JSON.stringify([
+                    {
+                        dependencies: {
+                            pm2: {
+                                version: "4.0.0",
+                            },
+                            somepkg: {
+                                version: "0.0.1",
+                            },
+                        },
+                    },
+                ]),
+                exitCode: 0,
+            });
+
+        installer.installPeerDependencies("@arkecosystem/core", "3.0.0");
+
+        expect(spySync).toHaveBeenCalledWith("pnpm info @arkecosystem/core@3.0.0 peerDependencies --json", {
+            shell: true,
+        });
+
+        expect(spySync).toHaveBeenCalledWith("pnpm list -g --json", {
             shell: true,
         });
 
@@ -87,7 +138,7 @@ describe("Installer.installPeerDependencies", () => {
             .mockReturnValue(undefined);
 
         const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-            stdout: JSON.stringify({}),
+            stdout: "",
             exitCode: 0,
         });
 
@@ -100,13 +151,80 @@ describe("Installer.installPeerDependencies", () => {
         expect(spyInstallRangeLatest).not.toHaveBeenCalled();
     });
 
-    it("should throw error when pnpm command fails", () => {
+    it("should not install each peer dependency, when installed packages pass semver validation", () => {
+        const spyInstallRangeLatest: jest.SpyInstance = jest
+            .spyOn(installer, "installRangeLatest")
+            .mockReturnValue(undefined);
+
+        const spySync: jest.SpyInstance = jest
+            .spyOn(execa, "sync")
+            .mockReturnValueOnce({
+                stdout: JSON.stringify({ pm2: "4.5.0", somepkg: "^1.0.0" }),
+                exitCode: 0,
+            })
+            .mockReturnValueOnce({
+                stdout: JSON.stringify([
+                    {
+                        dependencies: {
+                            pm2: {
+                                version: "4.5.0",
+                            },
+                            somepkg: {
+                                version: "1.2.1",
+                            },
+                        },
+                    },
+                ]),
+                exitCode: 0,
+            });
+
+        installer.installPeerDependencies("@arkecosystem/core", "3.0.0");
+
+        expect(spySync).toHaveBeenCalledWith("pnpm info @arkecosystem/core@3.0.0 peerDependencies --json", {
+            shell: true,
+        });
+
+        expect(spySync).toHaveBeenCalledWith("pnpm list -g --json", {
+            shell: true,
+        });
+
+        expect(spyInstallRangeLatest).not.toHaveBeenCalled();
+    });
+
+    it("should throw error when pnpm command fails on pnpm info", () => {
+        const spySync: jest.SpyInstance = jest
+            .spyOn(execa, "sync")
+            .mockReturnValueOnce({
+                stdout: JSON.stringify({ pm2: "4.5.0", somepkg: "^1.0.0" }),
+                exitCode: 0,
+            })
+            .mockReturnValue({
+                stderr: "stderr",
+                exitCode: 1,
+            });
+
+        expect(() => installer.installPeerDependencies("@arkecosystem/core")).toThrow(
+            `"pnpm list -g --json" exited with code 1\nstderr`,
+        );
+
+        expect(spySync).toHaveBeenCalledWith("pnpm info @arkecosystem/core@latest peerDependencies --json", {
+            shell: true,
+        });
+
+        expect(spySync).toHaveBeenCalledWith("pnpm list -g --json", {
+            shell: true,
+        });
+    });
+
+    it("should throw error when pnpm command fails on pnpm info", () => {
         const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
             stderr: "stderr",
             exitCode: 1,
         });
 
-        expect(() => installer.installPeerDependencies("@arkecosystem/core")).toThrow("stderr");
+        expect(() => installer.installPeerDependencies("@arkecosystem/core")).toThrow(
+            `"pnpm info @arkecosystem/core@latest peerDependencies --json" exited with code 1\nstderr`,
+        );
 
         expect(spySync).toHaveBeenCalledWith("pnpm info @arkecosystem/core@latest peerDependencies --json", {
             shell: true,
@@ -119,7 +237,7 @@ describe("Installer.installRangeLatest", () => {
         const spyInstall: jest.SpyInstance = jest.spyOn(installer, "install").mockReturnValue(undefined);
 
         const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-            stdout: JSON.stringify({ data: ["3.0.0", "3.1.0", "3.0.0-next.9"] }),
+            stdout: JSON.stringify(["3.0.0", "3.1.0", "3.0.0-next.9"]),
             exitCode: 0,
         });
 
@@ -147,7 +265,22 @@ describe("Installer.installRangeLatest", () => {
 
     it("should throw error when there is no version matching requested range", () => {
         const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-            stdout: JSON.stringify({ data: ["3.0.0", "3.0.0-next.9"] }),
+            stdout: JSON.stringify(["3.0.0", "3.0.0-next.9"]),
+            exitCode: 0,
+        });
+
+        expect(() => installer.installRangeLatest("@arkecosystem/core", "^4.0.0 <4.4.0")).toThrow(
+            "No @arkecosystem/core version to satisfy ^4.0.0 <4.4.0",
+        );
+
+        expect(spySync).toHaveBeenCalledWith("pnpm info @arkecosystem/core versions --json", {
+            shell: true,
+        });
+    });
+
+    it("should throw error when package doesn't exist", () => {
+        const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
+            stdout: "",
             exitCode: 0,
         });
 

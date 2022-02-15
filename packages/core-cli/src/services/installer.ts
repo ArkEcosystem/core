@@ -3,6 +3,11 @@ import * as semver from "semver";
 
 import { injectable } from "../ioc";
 
+type Package = {
+    pkg: string;
+    version: string;
+};
+
 /**
  * @export
  * @class Installer
@@ -34,8 +39,13 @@ export class Installer {
             );
         }
 
-        for (const [peerPkg, peerPkgSemver] of Object.entries(JSON.parse(stdout).data ?? {})) {
-            this.installRangeLatest(peerPkg, peerPkgSemver as string);
+        const installedPackages = this.getInstalled();
+
+        for (const [peerPkg, peerPkgSemver] of Object.entries(stdout !== "" ? JSON.parse(stdout) : {})) {
+            const installedPkg = installedPackages.find((installed) => installed.pkg === peerPkg);
+            if (!installedPkg || !semver.satisfies(installedPkg.version, peerPkgSemver as string)) {
+                this.installRangeLatest(peerPkg, peerPkgSemver as string);
+            }
         }
     }
 
@@ -46,7 +56,7 @@ export class Installer {
             throw new Error(`"pnpm info ${pkg} versions --json" exited with code ${exitCode}\n${stderr}`);
         }
 
-        const versions = (JSON.parse(stdout).data as string[])
+        const versions = (stdout !== "" ? (JSON.parse(stdout) as string[]) : [])
             .filter((v) => semver.satisfies(v, range))
             .sort((a, b) => semver.rcompare(a, b));
 
@@ -55,5 +65,24 @@ export class Installer {
         }
 
         this.install(pkg, versions[0]);
+    }
+
+    private getInstalled(): Package[] {
+        const { stdout, stderr, exitCode } = sync(`pnpm list -g --json`, { shell: true });
+
+        if (exitCode !== 0) {
+            throw new Error(`"pnpm list -g --json" exited with code ${exitCode}\n${stderr}`);
+        }
+
+        if (stdout === "") {
+            return [];
+        }
+
+        return Object.entries<{ version: string }>(JSON.parse(stdout)[0].dependencies).map(([pkg, meta]) => {
+            return {
+                pkg,
+                version: meta.version,
+            };
+        });
     }
 }
