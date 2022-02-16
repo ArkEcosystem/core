@@ -1,6 +1,8 @@
 name: Mainnet sync
 
-on: push
+on:
+    schedule:
+        - cron: '0 10 * * *'
 
 jobs:
     mainnet-sync:
