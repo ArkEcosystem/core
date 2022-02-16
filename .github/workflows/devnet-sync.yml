@@ -9,17 +9,8 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
-            - uses: actions/checkout@v2
-              with:
-                  ref: develop
-            - name: Cache node modules
-              uses: actions/cache@v1
-              with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
-            - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v1
+            - name: executing remote ssh commands using password
+              uses: appleboy/ssh-action@master
               with:
                   host: ${{ secrets.SYNC_HOST }}
                   username: ${{ secrets.SYNC_USERNAME }}
