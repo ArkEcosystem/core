@@ -1,10 +1,12 @@
 import { createWriteStream, ensureFileSync, removeSync } from "fs-extra";
 import got from "got";
+import { join } from "path";
 import stream from "stream";
 import { extract } from "tar";
 import { promisify } from "util";
 
 import { AbstractSource } from "./abstract-source";
+import { InvalidChannel } from "./errors";
 
 /**
  * @export
@@ -38,7 +40,13 @@ export class NPM extends AbstractSource {
      * @memberof NPM
      */
     public async update(value: string): Promise<void> {
-        await this.install(value);
+        const version = this.getPackageVersion(join(this.dataPath, value));
+
+        const latestVersion = await this.getLatestPackageVersion(value, this.parseChannel(version));
+
+        if (version !== latestVersion) {
+            await this.install(value, latestVersion);
+        }
     }
 
     protected async preparePackage(value: string, version?: string): Promise<void> {
@@ -76,6 +84,19 @@ export class NPM extends AbstractSource {
         };
     }
 
+    private async getLatestPackageVersion(value: string, channel: string): Promise<string> {
+        const registry = process.env.CORE_NPM_REGISTRY || "https://registry.npmjs.org";
+        const { body } = await got(`${registry}/${value}`);
+
+        const response = JSON.parse(body);
+
+        if (response["dist-tags"][channel]) {
+            return response["dist-tags"][channel];
+        }
+
+        throw new InvalidChannel(value, channel);
+    }
+
     /**
      * @private
      * @param {string} source
@@ -106,5 +127,15 @@ export class NPM extends AbstractSource {
         });
 
         removeSync(file);
+    }
+
+    private parseChannel(version: string): string {
+        const channel = version.replace(/[^a-z]/gi, "");
+
+        if (!channel) {
+            return "latest";
+        }
+
+        return channel;
     }
 }

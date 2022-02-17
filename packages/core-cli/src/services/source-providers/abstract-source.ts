@@ -53,6 +53,14 @@ export abstract class AbstractSource implements Source {
         }
     }
 
+    protected getPackageVersion(path: string): string {
+        try {
+            return readJSONSync(join(path, "package.json")).version;
+        } catch {
+            throw new InvalidPackageJson();
+        }
+    }
+
     protected removeInstalledPackage(packageName: string): void {
         removeSync(this.getDestPath(packageName));
     }

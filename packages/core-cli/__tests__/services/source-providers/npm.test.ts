@@ -122,10 +122,29 @@ describe("NPM", () => {
                 });
 
             nock(/.*/)
+                .get("/@arkecosystem/utils")
+                .reply(200, {
+                    name: "@arkecosystem/utils",
+                    "dist-tags": {
+                        latest: "0.9.1",
+                    },
+                    versions: {
+                        "0.9.1": {
+                            name: "@arkecosystem/utils",
+                            version: "0.9.1",
+                            dist: {
+                                tarball: "https://registry.npmjs.org/@arkecosystem/utils/-/utils-0.9.1.tgz",
+                            },
+                        },
+                    },
+                });
+
+            nock(/.*/)
                 .get("/@arkecosystem/utils/-/utils-0.9.1.tgz")
                 .reply(200, fs.readFileSync(resolve(__dirname, "utils-0.9.1.tgz")));
 
             // Arrange
+            const readJsonSync = jest.spyOn(fs, "readJSONSync").mockReturnValueOnce({ version: "0.8.0" });
             const removeSync = jest.spyOn(fs, "removeSync");
             const ensureFileSync = jest.spyOn(fs, "ensureFileSync");
             const moveSync = jest.spyOn(fs, "moveSync");
@@ -137,6 +156,7 @@ describe("NPM", () => {
 
             // Assert
             const pathPlugin: string = `${dataPath}/${packageName}`;
+            expect(readJsonSync).toHaveBeenCalledWith(`${pathPlugin}/package.json`);
             expect(removeSync).toHaveBeenCalledWith(pathPlugin);
             expect(ensureFileSync).toHaveBeenCalledWith(`${tempPath}/${packageName}.tgz`);
             expect(removeSync).toHaveBeenCalledWith(pathPlugin);
@@ -151,6 +171,39 @@ describe("NPM", () => {
             removeSync.mockReset();
             ensureFileSync.mockReset();
             moveSync.mockReset();
+        });
+
+        it("should successfully throw if channel doesn't exist", async () => {
+            nock(/.*/)
+                .get("/@arkecosystem/utils")
+                .reply(200, {
+                    name: "@arkecosystem/utils",
+                    "dist-tags": {
+                        latest: "0.9.1",
+                    },
+                    versions: {
+                        "0.9.1": {
+                            name: "@arkecosystem/utils",
+                            version: "0.9.1",
+                            dist: {
+                                tarball: "https://registry.npmjs.org/@arkecosystem/utils/-/utils-0.9.1.tgz",
+                            },
+                        },
+                    },
+                });
+
+            // Arrange
+            const readJsonSync = jest.spyOn(fs, "readJSONSync").mockReturnValueOnce({ version: "0.8.0-next.1" });
+
+            // Act
+            const packageName: string = "@arkecosystem/utils";
+            await expect(source.update(packageName)).rejects.toThrow(
+                "Package @arkecosystem/utils doesn't have channel: next",
+            );
+
+            // Assert
+            const pathPlugin: string = `${dataPath}/${packageName}`;
+            expect(readJsonSync).toHaveBeenCalledWith(`${pathPlugin}/package.json`);
         });
     });
 });

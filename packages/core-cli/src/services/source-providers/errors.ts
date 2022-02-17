@@ -22,6 +22,12 @@ export class InvalidPackageJson extends SourceError {
     }
 }
 
+export class InvalidChannel extends SourceError {
+    public constructor(pkg: string, channel: string) {
+        super(`Package ${pkg} doesn't have channel: ${channel}`);
+    }
+}
+
 export class MissingPackageFolder extends SourceError {
     public constructor() {
         super(`Compressed file doesn't contain required package folder`);
