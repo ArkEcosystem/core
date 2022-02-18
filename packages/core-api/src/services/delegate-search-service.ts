@@ -8,6 +8,9 @@ export class DelegateSearchService {
     @Container.tagged("state", "blockchain")
     private readonly walletRepository!: Contracts.State.WalletRepository;
 
+    @Container.inject(Container.Identifiers.StateStore)
+    private readonly stateStore!: Contracts.State.StateStore;
+
     @Container.inject(Container.Identifiers.StandardCriteriaService)
     private readonly standardCriteriaService!: Services.Search.StandardCriteriaService;
 
@@ -61,7 +64,10 @@ export class DelegateSearchService {
                 last: delegateLastBlock,
             },
             production: {
-                approval: AppUtils.delegateCalculator.calculateApproval(wallet),
+                approval: AppUtils.delegateCalculator.calculateApproval(
+                    wallet,
+                    this.stateStore.getLastBlock().data.height,
+                ),
             },
             forged: {
                 fees: delegateAttribute.forgedFees,
