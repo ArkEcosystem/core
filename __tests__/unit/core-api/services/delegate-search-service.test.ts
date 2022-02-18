@@ -13,8 +13,17 @@ const standardCriteriaService = {
     testStandardCriterias: jest.fn(),
 };
 
+const stateStore = {
+    getLastBlock: jest.fn().mockReturnValue({
+        data: {
+            height: 100,
+        },
+    }),
+};
+
 const container = new Container.Container();
 container.bind(Container.Identifiers.WalletRepository).toConstantValue(walletRepository);
+container.bind(Container.Identifiers.StateStore).toConstantValue(stateStore);
 container.bind(Container.Identifiers.StandardCriteriaService).toConstantValue(standardCriteriaService);
 container.bind(Container.Identifiers.PaginationService).to(Services.Search.PaginationService);
 
@@ -22,7 +31,11 @@ const delegateSearchService = container.resolve(DelegateSearchService);
 
 let attributeMap;
 
+let spyOnCalculateApproval;
+
 beforeEach(() => {
+    spyOnCalculateApproval = jest.spyOn(AppUtils.delegateCalculator, "calculateApproval");
+
     const attributeSet = new Services.Attributes.AttributeSet();
     attributeSet.set("delegate");
     attributeSet.set("delegate.approval");
@@ -63,6 +76,8 @@ describe("DelegateSearchService", () => {
             expect(delegateSearchService.getDelegate("ANBkoGqWeTSiaEVgVzSKZd3jS7UWzv9PSo")).toEqual(
                 Delegates.delegateResource,
             );
+
+            expect(spyOnCalculateApproval).toHaveBeenCalledWith(delegate, 100);
         });
 
         it("should return delegate by wallet address with produced blocks", () => {
@@ -88,6 +103,7 @@ describe("DelegateSearchService", () => {
             expect(delegateSearchService.getDelegate("ANBkoGqWeTSiaEVgVzSKZd3jS7UWzv9PSo")).toEqual(
                 Delegates.delegateResourceWithLastBlock,
             );
+            expect(spyOnCalculateApproval).toHaveBeenCalledWith(delegate, 100);
         });
 
         it("should return undefined if walled is not delegate", () => {
@@ -130,6 +146,7 @@ describe("DelegateSearchService", () => {
 
             expect(walletRepository.allByUsername).toHaveBeenCalled();
             expect(standardCriteriaService.testStandardCriterias).toHaveBeenCalled();
+            expect(spyOnCalculateApproval).toHaveBeenCalledWith(delegate, 100);
         });
 
         it("should return empty array if all tested criterias are false", () => {
