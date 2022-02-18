@@ -29,7 +29,13 @@ export const setUp = async (): Promise<Application> => {
     await transactionsServiceProvider.register();
     await apiServiceProvider.register();
 
-    app.rebind(Container.Identifiers.StateStore).toConstantValue(null);
+    app.rebind(Container.Identifiers.StateStore).toConstantValue({
+        getLastBlock: jest.fn().mockReturnValue({
+            data: {
+                height: 1,
+            },
+        }),
+    });
 
     const walletAttributes = app.get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes);
     walletAttributes.set("delegate.username");
