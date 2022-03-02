@@ -35,7 +35,7 @@ export class PaginationService {
             return [];
         }
 
-        let tree = createTree<{index: number, item: T}, undefined>((a, b) => {
+        let tree = createTree<{ index: number; item: T }, undefined>((a, b) => {
             return this.compare(a, b, sorting);
         });
 
@@ -43,8 +43,8 @@ export class PaginationService {
         for (const item of items) {
             const key = {
                 index: i++,
-                item: item
-            }
+                item: item,
+            };
             if (tree.length < count || this.compare(key, tree.end.key!, sorting) === -1) {
                 tree = tree.insert(key, undefined);
             }
@@ -54,10 +54,10 @@ export class PaginationService {
             }
         }
 
-        return tree.keys.map(key => key.item);
+        return tree.keys.map((key) => key.item);
     }
 
-    private compare<T>(a: { index: number; item: T }, b: { index: number, item: T}, sorting: Sorting): number {
+    private compare<T>(a: { index: number; item: T }, b: { index: number; item: T }, sorting: Sorting): number {
         for (const { property, direction } of sorting) {
             let valueA = get(a.item, property);
             let valueB = get(b.item, property);
