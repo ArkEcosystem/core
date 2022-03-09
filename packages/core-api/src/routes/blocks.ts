@@ -2,6 +2,7 @@ import Hapi from "@hapi/hapi";
 import Joi from "joi";
 
 import { BlocksController } from "../controllers/blocks";
+import { blockSortingSchema, transactionSortingSchema } from "../resources-new";
 import * as Schemas from "../schemas";
 
 export const register = (server: Hapi.Server): void => {
@@ -18,7 +19,9 @@ export const register = (server: Hapi.Server): void => {
                     ...server.app.schemas.blockCriteriaSchemas,
                     orderBy: server.app.schemas.blocksOrderBy,
                     transform: Joi.bool().default(true),
-                }).concat(Schemas.pagination),
+                })
+                    .concat(blockSortingSchema)
+                    .concat(Schemas.pagination),
             },
             plugins: {
                 pagination: {
@@ -83,7 +86,9 @@ export const register = (server: Hapi.Server): void => {
                     ...server.app.schemas.transactionCriteriaSchemas,
                     orderBy: server.app.schemas.transactionsOrderBy,
                     transform: Joi.bool().default(true),
-                }).concat(Schemas.pagination),
+                })
+                    .concat(transactionSortingSchema)
+                    .concat(Schemas.pagination),
             },
             plugins: {
                 pagination: {
