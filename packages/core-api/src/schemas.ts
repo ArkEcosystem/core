@@ -44,7 +44,11 @@ export const createRangeCriteriaSchema = (item: Joi.Schema): Joi.Schema => {
 
 // Sorting
 
-export const createSortingSchema = (schemaObject: SchemaObject, wildcardPaths: string[] = []): Joi.ObjectSchema => {
+export const createSortingSchema = (
+    schemaObject: SchemaObject,
+    wildcardPaths: string[] = [],
+    transform: boolean = true,
+): Joi.ObjectSchema => {
     const getObjectPaths = (object: SchemaObject): string[] => {
         return Object.entries(object)
             .map(([key, value]) => {
@@ -80,7 +84,11 @@ export const createSortingSchema = (schemaObject: SchemaObject, wildcardPaths: s
                     });
                 }
 
-                sorting.push({ property, direction: direction as "asc" | "desc" });
+                if (transform) {
+                    sorting.push({ property, direction: direction as "asc" | "desc" });
+                } else {
+                    sorting.push(value);
+                }
             }
 
             return sorting;
