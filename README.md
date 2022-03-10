@@ -16,8 +16,9 @@ This project is maintained by emsy from delegate [friendsoflittleyus](https://fr
 ## Installation
 
 1. `bash <(curl -s https://raw.githubusercontent.com/e-m-s-y/radians-core/feat/radians/install.sh)`.
-2. Configure database credentials.
-3. `radians relay:start`.
+2. Select mainnet.
+3. Configure the database.
+4. `radians relay:start`.
 
 ## Credits
 - [ARK Ecosystem](https://ark.io).
