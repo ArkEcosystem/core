@@ -1,42 +1,23 @@
-# ARK Core
+# Radians Core
+Radians is a fork of ARK Core and is created to support community development. More details can be found at [radians.nl](https://radians.nl).
 
-<p align="center">
-    <img src="https://raw.githubusercontent.com/ARKEcosystem/core/master/banner.png" />
-</p>
+In addition to ARK Radians offers the following tools:
 
-[![Build Status](https://badgen.now.sh/github/status/ArkEcosystem/core/master)](https://github.com/ArkEcosystem/core/actions)
-[![License: MIT](https://badgen.now.sh/badge/license/MIT/green)](https://opensource.org/licenses/MIT)
+- MQTT events.
+- Real-time blockchain events using [socket.io](https://socket.io).
 
-> Lead Maintainer: [Erwann Gentric](https://github.com/air1one)
+## Endpoints
+- [Explorer](http://explorer.radians.nl).
+- [API](https://api.radians.nl).
+- [socket.io websocket](https://socket.radians.nl).
 
-## Introduction
-
-> This repository contains all plugins that make up the ARK Core.
-
-Check our [dedicated documentation site](https://learn.ark.dev) for information about all available plugins and [How to write a Core Plugin
-](https://learn.ark.dev/application-development/how-to-write-core-dapps) if you want to get started with developing your own plugins.
-
-## Documentation
-
--   Development : https://learn.ark.dev/core-getting-started/setting-up-your-development-environment
--   Docker : https://guides.ark.dev/devops-guides/how-to-setup-a-node-with-docker
-
-## API Documentation
-
--   API v2 : https://api.ark.dev
-
-## GitHub Development Bounty
-
--   Get involved with the development and start earning ARK : https://bounty.ark.io
-
-## Security
-
-If you discover a security vulnerability within this package, please send an e-mail to security@ark.io. All security vulnerabilities will be promptly addressed.
+This project is maintained by emsy from delegate [friendsoflittleyus](https://friendsoflittleyus.nl).
 
 ## Credits
-
-This project exists thanks to all the people who [contribute](../../contributors).
+- [ARK Ecosystem](https://ark.io).
+  - ARK Core.
+- [alessiodf](https://github.com/alessiodf).
+  - Genesis delegate generation [script](https://github.com/e-m-s-y/radians-core-2/blob/master/packages/core/src/commands/genesis-delegate-generate.ts).
 
 ## License
-
-[MIT](LICENSE) © [ARK Ecosystem](https://ark.io)
+[MIT](LICENSE)
