@@ -1,0 +1,37 @@
+{
+    "name": "@deadlock-delegate/mqtt",
+    "version": "1.0.1",
+    "description": "MQTT plugin for core",
+    "author": "deadlock",
+    "license": "MIT",
+    "keywords": [
+        "blockchain",
+        "ark",
+        "arkecosystem",
+        "plugin",
+        "crypto",
+        "dpos",
+        "mqtt",
+        "broadcaster"
+    ],
+    "main": "dist/service-provider.js",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/deadlock-delegate/mqtt.git"
+    },
+    "bugs": {
+        "url": "https://github.com/deadlock-delegate/mqtt/issues"
+    },
+    "homepage": "https://github.com/deadlock-delegate/mqtt",
+    "scripts": {
+        "compile": "../../node_modules/typescript/bin/tsc",
+        "build": "yarn clean && yarn compile",
+        "clean": "del dist"
+    },
+    "dependencies": {
+        "mqtt": "^4.2.8"
+    },
+    "devDependencies": {
+        "@arkecosystem/core-kernel": "^3.0.0 || ^3.0.0-next.0"
+    }
+}

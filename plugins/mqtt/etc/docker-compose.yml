@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  mosquitto:
+    image: eclipse-mosquitto:latest
+    restart: always
+    volumes:
+      - ./config:/mosquitto/config
+      # - ./mosquitto/data:/mosquitto/data
+      # - ./mosquitto/log:/mosquitto/log
+    ports:
+      - 1883:1883

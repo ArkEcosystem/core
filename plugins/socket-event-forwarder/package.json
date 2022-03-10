@@ -1,0 +1,38 @@
+{
+    "name": "@foly/socket-event-forwarder",
+    "version": "2.0.1",
+    "description": "A plugin which sends real-time socket events from a bridgechain node towards connected clients.",
+    "author": "emsy",
+    "license": "MIT",
+    "main": "dist/service-provider.js",
+    "dependencies": {
+        "socket.io": "^4.2.0",
+        "systeminformation": "^5.9.2"
+    },
+    "devDependencies": {
+        "@arkecosystem/core-kernel": "^3.0.0 || ^3.0.0-next.0",
+        "typescript": "^4.5.5"
+    },
+    "scripts": {
+        "compile": "./node_modules/typescript/bin/tsc",
+        "build": "yarn clean && yarn compile",
+        "clean": "rimraf dist"
+    },
+    "files": [
+        "dist"
+    ],
+    "homepage": "https://github.com/e-m-s-y/socket-event-forwarder",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/e-m-s-y/socket-event-forwarder.git"
+    },
+    "bugs": {
+        "url": "https://github.com/e-m-s-y/socket-event-forwarder/issues"
+    },
+    "keywords": [
+        "arkecosystem",
+        "bridgechain",
+        "plugin",
+        "events"
+    ]
+}
