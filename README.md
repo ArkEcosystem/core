@@ -13,6 +13,12 @@ In addition to ARK Radians offers the following tools:
 
 This project is maintained by emsy from delegate [friendsoflittleyus](https://friendsoflittleyus.nl).
 
+## Installation
+
+1. `bash <(curl -s https://raw.githubusercontent.com/e-m-s-y/radians-core/feat/radians/install.sh)`.
+2. Configure database credentials.
+3. `radians relay:start`.
+
 ## Credits
 - [ARK Ecosystem](https://ark.io).
   - ARK Core.
