@@ -1,0 +1,18 @@
+{
+    "name": "radians",
+    "messagePrefix": "radians message:\n",
+    "bip32": {
+        "public": 70617039,
+        "private": 70615956
+    },
+    "pubKeyHash": 65,
+    "nethash": "314ccfc8c437e10cccb527ee6726be606da8fbaebe54c5c105df30882511c25a",
+    "wif": 145,
+    "slip44": 1,
+    "aip20": 0,
+    "client": {
+        "token": "RAD",
+        "symbol": "R",
+        "explorer": "https://explorer.radians.nl"
+    }
+}

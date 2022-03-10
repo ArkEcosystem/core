@@ -36,6 +36,85 @@
             },
             {
                 "package": "@arkecosystem/core-forger"
+            },
+            {
+                "package": "@foly/socket-event-forwarder",
+                "options": {
+                    "enabled": false,
+                    "port": 3333,
+                    "events": [
+                        "shutdown",
+                        "block.applied",
+                        "block.disregarded",
+                        "block.forged",
+                        "block.received",
+                        "block.reverted",
+                        "delegate.registered",
+                        "delegate.resigned",
+                        "forger.failed",
+                        "forger.missing",
+                        "forger.started",
+                        "internal.milestone.changed",
+                        "peer.added",
+                        "peer.removed",
+                        "round.applied",
+                        "round.created",
+                        "round.missed",
+                        "snapshot.start",
+                        "snapshot.progress",
+                        "snapshot.complete",
+                        "stateBuilder.finished",
+                        "state.starting",
+                        "state.started",
+                        "transaction.applied",
+                        "transaction.expired",
+                        "transaction.forged",
+                        "transaction.reverted",
+                        "wallet.vote",
+                        "wallet.unvote",
+                        "scooter.registered",
+                        "scooter.rental.start",
+                        "scooter.rental.finish",
+                        "wallet.logged.in",
+                        "wallet.logged.out",
+                        "character.registered"
+                    ],
+                    "confirmations": [
+                        1,
+                        2,
+                        3,
+                        4,
+                        5
+                    ],
+                    "customEvents": [
+                        "transaction.confirmed",
+                        "systeminformation",
+                        "network.latency",
+                        "blockheight.current"
+                    ],
+                    "systeminformationInterval": 5000,
+                    "networkLatencyInterval": 10000,
+                    "blockheightCurrentInterval": 5000
+                }
+            },
+            {
+                "package": "@deadlock-delegate/mqtt",
+                "options": {
+                    "enabled": false,
+                    "events": [
+                        "block.forged",
+                        "block.applied",
+                        "transaction.applied",
+                        "scooter.registered",
+                        "scooter.rental.start",
+                        "scooter.rental.finish",
+                        "wallet.logged.in",
+                        "wallet.logged.out",
+                        "character.registered"
+                    ],
+                    "topic": "radians/events",
+                    "mqttBroker": ""
+                }
             }
         ]
     },
@@ -73,6 +152,85 @@
             },
             {
                 "package": "@arkecosystem/core-webhooks"
+            },
+            {
+                "package": "@foly/socket-event-forwarder",
+                "options": {
+                    "enabled": false,
+                    "port": 3333,
+                    "events": [
+                        "shutdown",
+                        "block.applied",
+                        "block.disregarded",
+                        "block.forged",
+                        "block.received",
+                        "block.reverted",
+                        "delegate.registered",
+                        "delegate.resigned",
+                        "forger.failed",
+                        "forger.missing",
+                        "forger.started",
+                        "internal.milestone.changed",
+                        "peer.added",
+                        "peer.removed",
+                        "round.applied",
+                        "round.created",
+                        "round.missed",
+                        "snapshot.start",
+                        "snapshot.progress",
+                        "snapshot.complete",
+                        "stateBuilder.finished",
+                        "state.starting",
+                        "state.started",
+                        "transaction.applied",
+                        "transaction.expired",
+                        "transaction.forged",
+                        "transaction.reverted",
+                        "wallet.vote",
+                        "wallet.unvote",
+                        "scooter.registered",
+                        "scooter.rental.start",
+                        "scooter.rental.finish",
+                        "wallet.logged.in",
+                        "wallet.logged.out",
+                        "character.registered"
+                    ],
+                    "confirmations": [
+                        1,
+                        2,
+                        3,
+                        4,
+                        5
+                    ],
+                    "customEvents": [
+                        "transaction.confirmed",
+                        "systeminformation",
+                        "network.latency",
+                        "blockheight.current"
+                    ],
+                    "systeminformationInterval": 5000,
+                    "networkLatencyInterval": 10000,
+                    "blockheightCurrentInterval": 5000
+                }
+            },
+            {
+                "package": "@deadlock-delegate/mqtt",
+                "options": {
+                    "enabled": false,
+                    "events": [
+                        "block.forged",
+                        "block.applied",
+                        "transaction.applied",
+                        "scooter.registered",
+                        "scooter.rental.start",
+                        "scooter.rental.finish",
+                        "wallet.logged.in",
+                        "wallet.logged.out",
+                        "character.registered"
+                    ],
+                    "topic": "radians/events",
+                    "mqttBroker": ""
+                }
             }
         ]
     },

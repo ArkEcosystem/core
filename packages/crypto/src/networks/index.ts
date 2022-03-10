@@ -1,1 +1,3 @@
-export * from "@arkecosystem/crypto-networks";
+export { devnet } from "@arkecosystem/crypto-networks";
+export { testnet } from "./testnet";
+export { mainnet } from "./mainnet";
