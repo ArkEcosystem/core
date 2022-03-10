@@ -212,20 +212,32 @@ fi
 
 success "Installed system updates!"
 
-heading "Installing ARK Core..."
+heading "Installing Radians Core..."
 
-while ! yarn global add @arkecosystem/core ; do
-    read -p "Installing ARK Core failed, do you want to retry? [y/N]: " choice
-    if [[ ! "$choice" =~ ^(yes|y|Y) ]] ; then
-        exit 1
-    fi
-done
+rm -rf "$HOME/.config/radians-core"
+rm -rf "$HOME/.config/@radians"
+rm -rf "$HOME/radians-core"
+
+git clone "https://github.com/e-m-s-y/radians-core.git" "$HOME/radians-core" || FAILED="Y"
+
+if [ "$FAILED" == "Y" ]; then
+    echo "Failed to fetch core repo with origin 'https://github.com/e-m-s-y/radians-core.git'"
+    exit 1
+fi
+
+rm -rf "$HOME/.cache/yarn"
+cd "$HOME/radians-core"
+yarn setup
+
+shopt -s expand_aliases
+alias solar="$HOME/radians-core/packages/core/bin/run $@ --token=radians"
+echo 'alias radians="$HOME/radians-core/packages/core/bin/run $@ --token=radians"' >> ~/.bashrc
 
 echo 'export PATH=$(yarn global bin):$PATH' >> ~/.bashrc
 export PATH=$(yarn global bin):$PATH
-ark config:publish
+radians config:publish
 
-success "Installed ARK Core!"
+success "Installed Radians Core!"
 
 readNonempty() {
     prompt=${1}
