@@ -264,9 +264,9 @@ if [[ "$choice" =~ ^(yes|y|Y) ]]; then
         read -p "Proceed? [y/N]: " choice
     done
 
-    ark env:set --key=CORE_DB_USERNAME --value="${databaseUsername}"
-    ark env:set --key=CORE_DB_PASSWORD --value="${databasePassword}"
-    ark env:set --key=CORE_DB_DATABASE --value="${databaseName}"
+    radians env:set --key=CORE_DB_USERNAME --value="${databaseUsername}"
+    radians env:set --key=CORE_DB_PASSWORD --value="${databasePassword}"
+    radians env:set --key=CORE_DB_DATABASE --value="${databaseName}"
 
     userExists=$(sudo -i -u postgres psql -tAc "SELECT 1 FROM pg_user WHERE usename = '${databaseUsername}'")
     databaseExists=$(sudo -i -u postgres psql -tAc "SELECT 1 FROM pg_database WHERE datname = '${databaseName}'")
