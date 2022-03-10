@@ -230,7 +230,7 @@ cd "$HOME/radians-core"
 yarn setup
 
 shopt -s expand_aliases
-alias solar="$HOME/radians-core/packages/core/bin/run $@ --token=radians"
+alias radians="$HOME/radians-core/packages/core/bin/run $@ --token=radians"
 echo 'alias radians="$HOME/radians-core/packages/core/bin/run $@ --token=radians"' >> ~/.bashrc
 
 echo 'export PATH=$(yarn global bin):$PATH' >> ~/.bashrc
