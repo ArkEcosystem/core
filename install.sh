@@ -218,7 +218,7 @@ rm -rf "$HOME/.config/radians-core"
 rm -rf "$HOME/.config/@radians"
 rm -rf "$HOME/radians-core"
 
-git clone "https://github.com/e-m-s-y/radians-core.git" "$HOME/radians-core" || FAILED="Y"
+git clone -b "feat/radians" "https://github.com/e-m-s-y/radians-core.git" "$HOME/radians-core" || FAILED="Y"
 
 if [ "$FAILED" == "Y" ]; then
     echo "Failed to fetch core repo with origin 'https://github.com/e-m-s-y/radians-core.git'"
