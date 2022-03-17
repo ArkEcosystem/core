@@ -437,12 +437,13 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
         this.logger.debug(`Downloading blocks in chunks: ${chunksHumanReadable}`);
         let firstFailureMessage!: string;
 
-        try {
-            // Convert the array of AsyncFunction to an array of Promise by calling the functions.
+        // Convert the array of AsyncFunction to an array of Promise by calling the functions.
+        // @ts-ignore
+        const result = await Promise.allSettled(downloadJobs.map((f) => f()));
+        const failure = result.find((value) => value.status === "rejected");
+        if (failure) {
             // @ts-ignore
-            await Promise.all(downloadJobs.map((f) => f()));
-        } catch (error) {
-            firstFailureMessage = error.message;
+            firstFailureMessage = failure.reason;
         }
 
         let downloadedBlocks: Interfaces.IBlockData[] = [];
