@@ -3,6 +3,7 @@ import Joi from "joi";
 
 import { DelegatesController } from "../controllers/delegates";
 import {
+    blockSortingSchema,
     delegateCriteriaSchema,
     delegateSortingSchema,
     walletCriteriaSchema,
@@ -75,7 +76,9 @@ export const register = (server: Hapi.Server): void => {
                     ...server.app.schemas.blockCriteriaSchemas,
                     orderBy: server.app.schemas.blocksOrderBy,
                     transform: Joi.bool().default(true),
-                }).concat(Schemas.pagination),
+                })
+                    .concat(blockSortingSchema)
+                    .concat(Schemas.pagination),
             },
             plugins: {
                 pagination: {
