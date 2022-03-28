@@ -1,5 +1,5 @@
-import { isBoom } from "@hapi/boom";
 import { Container, Contracts } from "@arkecosystem/core-kernel";
+import { isBoom } from "@hapi/boom";
 
 @Container.injectable()
 export class CloseConnectionPlugin {
