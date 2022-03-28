@@ -44,7 +44,11 @@ export const createRangeCriteriaSchema = (item: Joi.Schema): Joi.Schema => {
 
 // Sorting
 
-export const createSortingSchema = (schemaObject: SchemaObject, wildcardPaths: string[] = []): Joi.ObjectSchema => {
+export const createSortingSchema = (
+    schemaObject: SchemaObject,
+    wildcardPaths: string[] = [],
+    transform: boolean = true,
+): Joi.ObjectSchema => {
     const getObjectPaths = (object: SchemaObject): string[] => {
         return Object.entries(object)
             .map(([key, value]) => {
@@ -55,37 +59,45 @@ export const createSortingSchema = (schemaObject: SchemaObject, wildcardPaths: s
 
     const exactPaths = getObjectPaths(schemaObject);
 
-    return Joi.object({
-        orderBy: Joi.custom((value, helpers) => {
-            if (value === "") {
-                return [];
+    const orderBy = Joi.custom((value, helpers) => {
+        if (value === "") {
+            return [];
+        }
+
+        const sorting: Contracts.Search.Sorting = [];
+
+        for (const item of value.split(",")) {
+            const pair = item.split(":");
+            const property = String(pair[0]);
+            const direction = pair.length === 1 ? "asc" : pair[1];
+
+            if (!exactPaths.includes(property) && !wildcardPaths.find((wp) => property.startsWith(`${wp}.`))) {
+                return helpers.message({
+                    custom: `Unknown orderBy property '${property}'`,
+                });
             }
 
-            const sorting: Contracts.Search.Sorting = [];
+            if (direction !== "asc" && direction !== "desc") {
+                return helpers.message({
+                    custom: `Unexpected orderBy direction '${direction}' for property '${property}'`,
+                });
+            }
 
-            for (const item of value.split(",")) {
-                const pair = item.split(":");
-                const property = String(pair[0]);
-                const direction = pair.length === 1 ? "asc" : pair[1];
-
-                if (!exactPaths.includes(property) && !wildcardPaths.find((wp) => property.startsWith(`${wp}.`))) {
-                    return helpers.message({
-                        custom: `Unknown orderBy property '${property}'`,
-                    });
-                }
-
-                if (direction !== "asc" && direction !== "desc") {
-                    return helpers.message({
-                        custom: `Unexpected orderBy direction '${direction}' for property '${property}'`,
-                    });
-                }
-
+            if (transform) {
                 sorting.push({ property, direction: direction as "asc" | "desc" });
+            } else {
+                sorting.push(value);
             }
+        }
 
-            return sorting;
-        }).default([]),
+        return sorting;
     });
+
+    if (transform) {
+        return Joi.object({ orderBy: orderBy.default([]) });
+    } else {
+        return Joi.object({ orderBy });
+    }
 };
 
 // Pagination

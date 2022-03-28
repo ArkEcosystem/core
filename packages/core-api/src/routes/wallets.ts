@@ -5,6 +5,7 @@ import { WalletsController } from "../controllers/wallets";
 import {
     lockCriteriaSchema,
     lockSortingSchema,
+    transactionSortingSchema,
     walletCriteriaSchema,
     walletParamSchema,
     walletSortingSchema,
@@ -86,7 +87,9 @@ export const register = (server: Hapi.Server): void => {
                     ...server.app.schemas.transactionCriteriaSchemas,
                     orderBy: server.app.schemas.transactionsOrderBy,
                     transform: Joi.bool().default(true),
-                }).concat(Schemas.pagination),
+                })
+                    .concat(transactionSortingSchema)
+                    .concat(Schemas.pagination),
             },
             plugins: {
                 pagination: {
@@ -109,7 +112,9 @@ export const register = (server: Hapi.Server): void => {
                     ...server.app.schemas.transactionCriteriaSchemas,
                     orderBy: server.app.schemas.transactionsOrderBy,
                     transform: Joi.bool().default(true),
-                }).concat(Schemas.pagination),
+                })
+                    .concat(transactionSortingSchema)
+                    .concat(Schemas.pagination),
             },
             plugins: {
                 pagination: {
@@ -132,7 +137,9 @@ export const register = (server: Hapi.Server): void => {
                     ...server.app.schemas.transactionCriteriaSchemas,
                     orderBy: server.app.schemas.transactionsOrderBy,
                     transform: Joi.bool().default(true),
-                }).concat(Schemas.pagination),
+                })
+                    .concat(transactionSortingSchema)
+                    .concat(Schemas.pagination),
             },
             plugins: {
                 pagination: {
@@ -155,7 +162,9 @@ export const register = (server: Hapi.Server): void => {
                     ...server.app.schemas.transactionCriteriaSchemas,
                     orderBy: server.app.schemas.transactionsOrderBy,
                     transform: Joi.bool().default(true),
-                }).concat(Schemas.pagination),
+                })
+                    .concat(transactionSortingSchema)
+                    .concat(Schemas.pagination),
             },
             plugins: {
                 pagination: {

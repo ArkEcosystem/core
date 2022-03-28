@@ -1,5 +1,6 @@
 import Joi from "joi";
 
+import * as Schemas from "../schemas";
 import { walletCriteriaSchemaObject } from "./wallet";
 
 export const transactionIdSchema = Joi.string().hex().length(64);
@@ -17,3 +18,4 @@ export const transactionCriteriaSchemaObject = {
 };
 
 export const transactionParamSchema = transactionIdSchema;
+export const transactionSortingSchema = Schemas.createSortingSchema(Schemas.transactionCriteriaSchemas, [], false);
