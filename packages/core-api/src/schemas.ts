@@ -44,11 +44,7 @@ export const createRangeCriteriaSchema = (item: Joi.Schema): Joi.Schema => {
 
 // Sorting
 
-export const createSortingSchema = (
-    schemaObject: SchemaObject,
-    wildcardPaths: string[] = [],
-    transform: boolean = true,
-): Joi.ObjectSchema => {
+export const createSortingSchema = (schemaObject: SchemaObject, wildcardPaths: string[] = []): Joi.ObjectSchema => {
     const getObjectPaths = (object: SchemaObject): string[] => {
         return Object.entries(object)
             .map(([key, value]) => {
@@ -66,8 +62,17 @@ export const createSortingSchema = (
 
         const sorting: Contracts.Search.Sorting = [];
 
-        for (const item of value.split(",")) {
+        let items: string[] = [];
+
+        if (Array.isArray(value)) {
+            items = value;
+        } else if (value) {
+            items = [value];
+        }
+
+        for (const item of items) {
             const pair = item.split(":");
+
             const property = String(pair[0]);
             const direction = pair.length === 1 ? "asc" : pair[1];
 
@@ -83,21 +88,13 @@ export const createSortingSchema = (
                 });
             }
 
-            if (transform) {
-                sorting.push({ property, direction: direction as "asc" | "desc" });
-            } else {
-                sorting.push(value);
-            }
+            sorting.push({ property, direction: direction as "asc" | "desc" });
         }
 
         return sorting;
     });
 
-    if (transform) {
-        return Joi.object({ orderBy: orderBy.default([]) });
-    } else {
-        return Joi.object({ orderBy });
-    }
+    return Joi.object({ orderBy: orderBy.default([]) });
 };
 
 // Pagination
@@ -162,8 +159,11 @@ export const orderBy = Joi.alternatives().try(
     Joi.array().items(Joi.string().regex(/^[a-z._]{1,40}:(asc|desc)$/i)),
 );
 
-export const blocksOrderBy = orderBy.default("height:desc");
-export const transactionsOrderBy = orderBy.default(["timestamp:desc", "sequence:desc"]);
+export const blocksOrderBy = orderBy.default({ property: "height", direction: "desc" });
+export const transactionsOrderBy = orderBy.default([
+    { property: "timestamp", direction: "desc" },
+    { property: "sequence", direction: "desc" },
+]);
 
 const equalCriteria = (value: any) => value;
 const numericCriteria = (value: any) =>
