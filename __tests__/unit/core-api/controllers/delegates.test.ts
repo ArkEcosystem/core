@@ -284,7 +284,7 @@ describe("DelegatesController", () => {
                     query: {
                         page: 1,
                         limit: 100,
-                        orderBy: "height:desc",
+                        orderBy: [{ direction: "desc", property: "height" }],
                         transform: false,
                     },
                 },
@@ -337,7 +337,7 @@ describe("DelegatesController", () => {
                     query: {
                         page: 1,
                         limit: 100,
-                        orderBy: "height:desc",
+                        orderBy: [{ direction: "desc", property: "height" }],
                         transform: true,
                     },
                 },
