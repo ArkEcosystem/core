@@ -1,6 +1,5 @@
 import "jest-extended";
 
-import Joi from "joi";
 import { Controller } from "@packages/core-api/src/controllers/controller";
 import { Resource } from "@packages/core-api/src/interfaces";
 import { Application, Container } from "@packages/core-kernel";
@@ -8,6 +7,7 @@ import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
 import { Transactions } from "@packages/crypto";
+import Joi from "joi";
 
 import { initApp } from "../__support__";
 
@@ -168,7 +168,10 @@ describe("Controller", () => {
         it("should parse order", async () => {
             const request = {
                 query: {
-                    orderBy: "test:desc,test2:asc",
+                    orderBy: [
+                        { direction: "desc", property: "test" },
+                        { direction: "asc", property: "test2" },
+                    ],
                 },
             };
 
