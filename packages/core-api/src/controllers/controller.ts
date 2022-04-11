@@ -58,10 +58,12 @@ export class Controller {
 
         const orderBy = Array.isArray(request.query.orderBy) ? request.query.orderBy : request.query.orderBy.split(",");
 
-        return orderBy.map((s: string) => ({
-            property: s.split(":")[0],
-            direction: s.split(":")[1] === "desc" ? "desc" : "asc",
-        }));
+        return orderBy
+            .flatMap((o: object) => o)
+            .map((s: string) => ({
+                property: s.split(":")[0],
+                direction: s.split(":")[1] === "desc" ? "desc" : "asc",
+            }));
     }
 
     protected getListingOptions(): Contracts.Search.Options {
