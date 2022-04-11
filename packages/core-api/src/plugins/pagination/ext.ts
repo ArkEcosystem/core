@@ -54,7 +54,8 @@ export class Ext {
 
         // strip prefix in baseUri, we want a "clean" relative path
         const baseUri = request.url.pathname.slice(this.routePathPrefix.length) + "?";
-        const { query } = request;
+        const query = { ...request.query };
+        delete query.orderBy;
         const currentPage = query.page;
         const currentLimit = query.limit;
 
