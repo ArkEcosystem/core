@@ -252,7 +252,7 @@ describe("WalletsController", () => {
                     query: {
                         page: 1,
                         limit: 100,
-                        orderBy: [{ direction: "desc", property: "amount" }],
+                        orderBy: "amount:desc",
                         transform: false,
                         type: Enums.TransactionType.MultiPayment,
                     },
@@ -272,7 +272,7 @@ describe("WalletsController", () => {
                     // not filtered out from criteria
                     page: 1,
                     limit: 100,
-                    orderBy: [{ direction: "desc", property: "amount" }],
+                    orderBy: "amount:desc",
                     transform: false,
                 },
                 [{ direction: "desc", property: "amount" }],
@@ -316,7 +316,7 @@ describe("WalletsController", () => {
                     query: {
                         page: 1,
                         limit: 100,
-                        orderBy: [{ direction: "desc", property: "amount" }],
+                        orderBy: "amount:desc",
                         transform: true,
                         type: Enums.TransactionType.MultiPayment,
                     },
@@ -336,7 +336,7 @@ describe("WalletsController", () => {
                     // not filtered out from criteria
                     page: 1,
                     limit: 100,
-                    orderBy: [{ direction: "desc", property: "amount" }],
+                    orderBy: "amount:desc",
                     transform: true,
                 },
                 [{ direction: "desc", property: "amount" }],
@@ -398,7 +398,7 @@ describe("WalletsController", () => {
                     query: {
                         page: 1,
                         limit: 100,
-                        orderBy: [{ direction: "desc", property: "amount" }],
+                        orderBy: "amount:desc",
                         transform: false,
                         type: Enums.TransactionType.MultiPayment,
                     },
@@ -418,7 +418,7 @@ describe("WalletsController", () => {
                     // not filtered out from criteria
                     page: 1,
                     limit: 100,
-                    orderBy: [{ direction: "desc", property: "amount" }],
+                    orderBy: "amount:desc",
                     transform: false,
                 },
                 [{ direction: "desc", property: "amount" }],
@@ -462,7 +462,7 @@ describe("WalletsController", () => {
                     query: {
                         page: 1,
                         limit: 100,
-                        orderBy: [{ direction: "desc", property: "amount" }],
+                        orderBy: "amount:desc",
                         transform: true,
                         type: Enums.TransactionType.MultiPayment,
                     },
@@ -482,7 +482,7 @@ describe("WalletsController", () => {
                     // not filtered out from criteria
                     page: 1,
                     limit: 100,
-                    orderBy: [{ direction: "desc", property: "amount" }],
+                    orderBy: "amount:desc",
                     transform: true,
                 },
                 [{ direction: "desc", property: "amount" }],
@@ -565,7 +565,7 @@ describe("WalletsController", () => {
                     query: {
                         page: 1,
                         limit: 100,
-                        orderBy: [{ direction: "desc", property: "amount" }],
+                        orderBy: "amount:desc",
                         transform: false,
                         type: Enums.TransactionType.MultiPayment,
                     },
@@ -585,7 +585,7 @@ describe("WalletsController", () => {
                     // not filtered out from criteria
                     page: 1,
                     limit: 100,
-                    orderBy: [{ direction: "desc", property: "amount" }],
+                    orderBy: "amount:desc",
                     transform: false,
                 },
                 [{ direction: "desc", property: "amount" }],
@@ -629,7 +629,7 @@ describe("WalletsController", () => {
                     query: {
                         page: 1,
                         limit: 100,
-                        orderBy: [{ direction: "desc", property: "amount" }],
+                        orderBy: "amount:desc",
                         transform: true,
                         type: Enums.TransactionType.MultiPayment,
                     },
@@ -649,7 +649,7 @@ describe("WalletsController", () => {
                     // not filtered out from criteria
                     page: 1,
                     limit: 100,
-                    orderBy: [{ direction: "desc", property: "amount" }],
+                    orderBy: "amount:desc",
                     transform: true,
                 },
                 [{ direction: "desc", property: "amount" }],
@@ -711,7 +711,7 @@ describe("WalletsController", () => {
                     query: {
                         page: 1,
                         limit: 100,
-                        orderBy: [{ direction: "desc", property: "amount" }],
+                        orderBy: "amount:desc",
                         transform: false,
                     },
                 },
@@ -731,7 +731,7 @@ describe("WalletsController", () => {
                     // not filtered out from criteria
                     page: 1,
                     limit: 100,
-                    orderBy: [{ direction: "desc", property: "amount" }],
+                    orderBy: "amount:desc",
                     transform: false,
                 },
                 [{ direction: "desc", property: "amount" }],
@@ -775,7 +775,7 @@ describe("WalletsController", () => {
                     query: {
                         page: 1,
                         limit: 100,
-                        orderBy: [{ direction: "desc", property: "amount" }],
+                        orderBy: "amount:desc",
                         transform: true,
                     },
                 },
@@ -795,7 +795,7 @@ describe("WalletsController", () => {
                     // not filtered out from criteria
                     page: 1,
                     limit: 100,
-                    orderBy: [{ direction: "desc", property: "amount" }],
+                    orderBy: "amount:desc",
                     transform: true,
                 },
                 [{ direction: "desc", property: "amount" }],
