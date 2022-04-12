@@ -143,7 +143,7 @@ describe("LocksController", () => {
                     query: {
                         page: 1,
                         limit: 100,
-                        orderBy: [{ direction: "desc", property: "amount" }],
+                        orderBy: "amount:desc",
                     },
                     payload: {
                         ids: [lock1Id, lock2Id],
