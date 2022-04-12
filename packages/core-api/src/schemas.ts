@@ -66,27 +66,31 @@ export const createSortingSchema = (
 
         const sorting: Contracts.Search.Sorting = [];
 
-        for (const item of value.split(",")) {
-            const pair = item.split(":");
-            const property = String(pair[0]);
-            const direction = pair.length === 1 ? "asc" : pair[1];
+        const sortingCriteria: string[] = Array.isArray(value) ? value : [value];
 
-            if (!exactPaths.includes(property) && !wildcardPaths.find((wp) => property.startsWith(`${wp}.`))) {
-                return helpers.message({
-                    custom: `Unknown orderBy property '${property}'`,
-                });
-            }
+        for (const criteria of sortingCriteria) {
+            for (const item of criteria.split(",")) {
+                const pair = item.split(":");
+                const property = String(pair[0]);
+                const direction = pair.length === 1 ? "asc" : pair[1];
 
-            if (direction !== "asc" && direction !== "desc") {
-                return helpers.message({
-                    custom: `Unexpected orderBy direction '${direction}' for property '${property}'`,
-                });
-            }
+                if (!exactPaths.includes(property) && !wildcardPaths.find((wp) => property.startsWith(`${wp}.`))) {
+                    return helpers.message({
+                        custom: `Unknown orderBy property '${property}'`,
+                    });
+                }
 
-            if (transform) {
-                sorting.push({ property, direction: direction as "asc" | "desc" });
-            } else {
-                sorting.push(value);
+                if (direction !== "asc" && direction !== "desc") {
+                    return helpers.message({
+                        custom: `Unexpected orderBy direction '${direction}' for property '${property}'`,
+                    });
+                }
+
+                if (transform) {
+                    sorting.push({ property, direction: direction as "asc" | "desc" });
+                } else {
+                    sorting.push(value);
+                }
             }
         }
 
