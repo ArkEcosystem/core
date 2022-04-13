@@ -46,7 +46,7 @@ describe("InternalController", () => {
             await internalController.acceptNewPeer({ payload: { ip } } as Partial<Hapi.Request> as Hapi.Request, h);
 
             expect(peerProcessor.validateAndAcceptPeer).toBeCalledTimes(1);
-            expect(peerProcessor.validateAndAcceptPeer).toBeCalledWith({ ip });
+            expect(peerProcessor.validateAndAcceptPeer).toBeCalledWith({ ip }, {});
         });
     });
 
