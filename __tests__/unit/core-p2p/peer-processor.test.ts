@@ -68,7 +68,7 @@ describe("PeerProcessor", () => {
             const peer = new Peer("178.165.55.55", 4000);
             peerRepository.getSameSubnetPeers = jest.fn().mockReturnValueOnce([]);
 
-            await peerProcessor.validateAndAcceptPeer(peer);
+            await peerProcessor.validateAndAcceptPeer(peer, {});
 
             expect(peerRepository.setPendingPeer).toBeCalledTimes(1);
             expect(peerCommunicator.ping).toBeCalledTimes(1);
@@ -82,7 +82,7 @@ describe("PeerProcessor", () => {
             const peer = new Peer("178.165.55.55", 4000);
             peerRepository.getSameSubnetPeers = jest.fn().mockReturnValueOnce([]);
 
-            await peerProcessor.validateAndAcceptPeer(peer);
+            await peerProcessor.validateAndAcceptPeer(peer, {});
 
             expect(peerRepository.setPendingPeer).toBeCalledTimes(1);
             expect(peerCommunicator.ping).toBeCalledTimes(1);
@@ -96,7 +96,7 @@ describe("PeerProcessor", () => {
             const peer = new Peer("178.165.55.55", 4000);
             peerRepository.getSameSubnetPeers = jest.fn().mockReturnValueOnce([]);
 
-            await peerProcessor.validateAndAcceptPeer(peer);
+            await peerProcessor.validateAndAcceptPeer(peer, {});
 
             expect(peerRepository.setPendingPeer).toBeCalledTimes(1);
             expect(peerCommunicator.ping).toBeCalledTimes(1);
@@ -108,7 +108,7 @@ describe("PeerProcessor", () => {
             peerRepository.getSameSubnetPeers = jest.fn().mockReturnValueOnce([]);
             peerCommunicator.ping = jest.fn().mockRejectedValueOnce(new Error("ping threw"));
 
-            await peerProcessor.validateAndAcceptPeer(peer);
+            await peerProcessor.validateAndAcceptPeer(peer, {});
 
             expect(peerRepository.setPendingPeer).toBeCalledTimes(1);
             expect(peerCommunicator.ping).toBeCalledTimes(1);
@@ -121,7 +121,7 @@ describe("PeerProcessor", () => {
             peerRepository.getSameSubnetPeers = jest.fn().mockReturnValueOnce([]);
             peerRepository.hasPeer = jest.fn().mockReturnValueOnce(true);
 
-            await peerProcessor.validateAndAcceptPeer(peer);
+            await peerProcessor.validateAndAcceptPeer(peer, {});
 
             expect(peerRepository.setPendingPeer).toBeCalledTimes(0);
             expect(peerCommunicator.ping).toBeCalledTimes(0);
