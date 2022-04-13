@@ -43,11 +43,12 @@ export class PeerProcessor implements Contracts.P2P.PeerProcessor {
 
     public async validateAndAcceptPeer(
         peer: Contracts.P2P.Peer,
+        headers: Contracts.P2P.Headers,
         options: Contracts.P2P.AcceptNewPeerOptions = {},
     ): Promise<void> {
         /* istanbul ignore else */
         if (this.validatePeerIp(peer, options)) {
-            await this.acceptNewPeer(peer, options);
+            await this.acceptNewPeer(peer, headers, options);
         }
     }
 
@@ -88,8 +89,15 @@ export class PeerProcessor implements Contracts.P2P.PeerProcessor {
         return true;
     }
 
-    private async acceptNewPeer(peer, options: Contracts.P2P.AcceptNewPeerOptions): Promise<void> {
+    private async acceptNewPeer(
+        peer,
+        headers: Contracts.P2P.Headers,
+        options: Contracts.P2P.AcceptNewPeerOptions,
+    ): Promise<void> {
         if (this.repository.hasPeer(peer.ip)) {
+            if (headers.version) {
+                this.repository.getPeer(peer.ip).version = headers.version;
+            }
             return;
         }
 
