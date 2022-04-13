@@ -26,10 +26,14 @@ export class AcceptPeerPlugin {
             type: "onPreHandler",
             async method(request, h) {
                 if (routesConfigByPath[request.path]) {
+                    const headers = request.payload?.headers || {};
                     const peerIp = request.socket ? getPeerIp(request.socket) : request.info.remoteAddress;
-                    peerProcessor.validateAndAcceptPeer({
-                        ip: peerIp,
-                    } as Contracts.P2P.Peer);
+                    peerProcessor.validateAndAcceptPeer(
+                        {
+                            ip: peerIp,
+                        } as Contracts.P2P.Peer,
+                        headers,
+                    );
                 }
                 return h.continue;
             },

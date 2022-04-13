@@ -66,7 +66,7 @@ describe("AcceptPeerPlugin", () => {
         expect(JSON.parse(responseValid.payload)).toEqual(responsePayload);
         expect(responseValid.statusCode).toBe(200);
         expect(peerProcessor.validateAndAcceptPeer).toBeCalledTimes(1);
-        expect(peerProcessor.validateAndAcceptPeer).toBeCalledWith({ ip: remoteAddress });
+        expect(peerProcessor.validateAndAcceptPeer).toBeCalledWith({ ip: remoteAddress }, {});
     });
 
     it("should not be called on another route", async () => {

@@ -1,5 +1,9 @@
 import { Peer } from "./peer";
 
+export interface Headers {
+    version?: string;
+}
+
 export interface AcceptNewPeerOptions {
     seed?: boolean;
     lessVerbose?: boolean;
@@ -8,7 +12,7 @@ export interface AcceptNewPeerOptions {
 export interface PeerProcessor {
     initialize();
 
-    validateAndAcceptPeer(peer: Peer, options?: AcceptNewPeerOptions): Promise<void>;
+    validateAndAcceptPeer(peer: Peer, headers: Headers, options?: AcceptNewPeerOptions): Promise<void>;
 
     validatePeerIp(peer, options?: AcceptNewPeerOptions): boolean;
 
