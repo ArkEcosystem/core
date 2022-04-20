@@ -74,6 +74,7 @@ export class Ext {
                   qs.stringify(Hoek.applyToDefaults({ ...query, ...request.orig.query }, { page }), {
                       allowDots: true,
                       arrayFormat: "comma",
+                      encode: false,
                   })
                 : null;
 
