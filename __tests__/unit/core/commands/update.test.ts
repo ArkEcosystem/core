@@ -75,7 +75,7 @@ describe("UpdateCommand", () => {
         // yarn info peerDependencies
         // yarn global add
         // pm2 update
-        expect(sync).toHaveBeenCalledTimes(3);
+        expect(sync).toHaveBeenCalledTimes(4);
     });
 
     it("should update and reset without a prompt if the [--force --reset] flag is present", async () => {
@@ -100,7 +100,7 @@ describe("UpdateCommand", () => {
         // restart core
         // restart relay
         // restart forger
-        expect(sync).toHaveBeenCalledTimes(3);
+        expect(sync).toHaveBeenCalledTimes(4);
     });
 
     it("should update with a prompt if the [--force] flag is not present", async () => {
@@ -148,7 +148,7 @@ describe("UpdateCommand", () => {
         // restart core
         // restart relay
         // restart forger
-        expect(sync).toHaveBeenCalledTimes(6);
+        expect(sync).toHaveBeenCalledTimes(7);
     });
 
     it("should update and restart the core process if the [--restartCore] flag is present", async () => {
@@ -168,7 +168,7 @@ describe("UpdateCommand", () => {
 
         await cli.withFlags({ force: true, restartCore: true, updateProcessManager: true }).execute(Command);
 
-        expect(sync).toHaveBeenCalledTimes(3);
+        expect(sync).toHaveBeenCalledTimes(4);
         expect(isOnline).toHaveBeenCalled();
         expect(restart).toHaveBeenCalledTimes(1);
         expect(restart).toHaveBeenCalledWith("ark-core");
@@ -191,7 +191,7 @@ describe("UpdateCommand", () => {
 
         await cli.withFlags({ force: true, restartRelay: true, updateProcessManager: true }).execute(Command);
 
-        expect(sync).toHaveBeenCalledTimes(3);
+        expect(sync).toHaveBeenCalledTimes(4);
         expect(isOnline).toHaveBeenCalled();
         expect(restart).toHaveBeenCalledTimes(1);
         expect(restart).toHaveBeenCalledWith("ark-relay");
@@ -214,7 +214,7 @@ describe("UpdateCommand", () => {
 
         await cli.withFlags({ force: true, restartForger: true, updateProcessManager: true }).execute(Command);
 
-        expect(sync).toHaveBeenCalledTimes(3);
+        expect(sync).toHaveBeenCalledTimes(4);
         expect(isOnline).toHaveBeenCalled();
         expect(restart).toHaveBeenCalledTimes(1);
         expect(restart).toHaveBeenCalledWith("ark-forger");
@@ -243,7 +243,7 @@ describe("UpdateCommand", () => {
 
         await cli.execute(Command);
 
-        expect(sync).toHaveBeenCalledTimes(2);
+        expect(sync).toHaveBeenCalledTimes(3);
         expect(isOnline).toHaveBeenCalled();
         expect(restart).toHaveBeenCalledTimes(3);
     });
