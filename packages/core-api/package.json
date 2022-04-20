@@ -34,6 +34,7 @@
         "joi": "17.4.2",
         "nanomatch": "1.2.13",
         "node-cache": "5.1.2",
+        "qs": "6.10.3",
         "rate-limiter-flexible": "1.3.2",
         "semver": "6.3.0"
     },
