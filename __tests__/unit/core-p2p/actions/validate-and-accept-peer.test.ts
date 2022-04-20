@@ -14,10 +14,11 @@ describe("ValidateAndAcceptPeerAction", () => {
         it("should call peerProcessor.validateAndAcceptPeer with arguments provided", async () => {
             const peer = { ip: "187.165.33.2", port: 4000 };
             const options = { someParam: 1 };
-            await validateAndAcceptPeerAction.execute({ peer, options });
+            const headers = { version: "3.0.0" };
+            await validateAndAcceptPeerAction.execute({ peer, options, headers });
 
             expect(peerProcessor.validateAndAcceptPeer).toBeCalledTimes(1);
-            expect(peerProcessor.validateAndAcceptPeer).toBeCalledWith(peer, options);
+            expect(peerProcessor.validateAndAcceptPeer).toBeCalledWith(peer, headers, options);
         });
     });
 });

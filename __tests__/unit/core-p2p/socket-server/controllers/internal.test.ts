@@ -42,7 +42,7 @@ describe("InternalController", () => {
             await internalController.acceptNewPeer({ payload: { ip } }, {});
 
             expect(peerProcessor.validateAndAcceptPeer).toBeCalledTimes(1);
-            expect(peerProcessor.validateAndAcceptPeer).toBeCalledWith({ ip });
+            expect(peerProcessor.validateAndAcceptPeer).toBeCalledWith({ ip }, {});
         });
     });
 

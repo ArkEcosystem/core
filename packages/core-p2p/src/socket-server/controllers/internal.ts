@@ -28,9 +28,12 @@ export class InternalController extends Controller {
     private readonly collator!: Contracts.TransactionPool.Collator;
 
     public async acceptNewPeer(request: Hapi.Request, h: Hapi.ResponseToolkit): Promise<void> {
-        return this.peerProcessor.validateAndAcceptPeer({
-            ip: (request.payload as any).ip,
-        } as Contracts.P2P.Peer);
+        return this.peerProcessor.validateAndAcceptPeer(
+            {
+                ip: (request.payload as any).ip,
+            } as Contracts.P2P.Peer,
+            {},
+        );
     }
 
     public emitEvent(request: Hapi.Request, h: Hapi.ResponseToolkit): boolean {
