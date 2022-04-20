@@ -16,7 +16,13 @@ export class Installer {
     public install(pkg: string, tag: string = "latest"): void {
         this.installPeerDependencies(pkg, tag);
 
-        const { stdout, stderr, exitCode } = sync(`rm -f "\`yarn global dir\`"/node_modules/better-sqlite3/build/Release/better_sqlite3.node && yarn global add ${pkg}@${tag} --force`, { shell: true });
+        try {
+            sync(`rm -f "\`yarn global dir\`"/node_modules/better-sqlite3/build/Release/better_sqlite3.node`, {
+                shell: true,
+            });
+        } catch {}
+
+        const { stdout, stderr, exitCode } = sync(`yarn global add ${pkg}@${tag} --force`, { shell: true });
 
         if (exitCode !== 0) {
             throw new Error(`"yarn global add ${pkg}@${tag} --force" exited with code ${exitCode}\n${stderr}`);
