@@ -23,7 +23,7 @@ export abstract class Generator {
                 delegates: 51,
                 blocktime: 8,
                 maxTxPerBlock: 150,
-                maxBlockPayload: 2097152,
+                maxBlockPayload: 6291456,
                 rewardHeight: 75600,
                 rewardAmount: 200000000,
                 pubKeyHash: 23,

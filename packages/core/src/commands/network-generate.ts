@@ -180,7 +180,7 @@ export class Command extends Commands.Command {
             description: "The maximum payload length by block.",
             schema: Joi.number(),
             promptType: "number",
-            default: 2097152,
+            default: 6291456,
         },
         {
             name: "rewardHeight",
