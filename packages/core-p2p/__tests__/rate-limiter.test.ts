@@ -1,5 +1,5 @@
 import { RateLimiter } from "@packages/core-p2p/src/rate-limiter";
-import { cloneDeep } from "lodash";
+import cloneDeep from "lodash.clonedeep";
 
 describe("RateLimiter", () => {
     let rateLimiter: RateLimiter;

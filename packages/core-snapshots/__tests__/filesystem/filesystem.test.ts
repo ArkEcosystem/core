@@ -5,7 +5,7 @@ import { LocalFilesystem } from "@packages/core-kernel/src/services/filesystem/d
 import { Filesystem } from "@packages/core-snapshots/src/filesystem/filesystem";
 import { Identifiers } from "@packages/core-snapshots/src/ioc";
 import { Sandbox } from "@packages/core-test-framework";
-import { cloneDeep } from "lodash";
+import cloneDeep from "lodash.clonedeep";
 import { dirSync, setGracefulCleanup } from "tmp";
 
 import { metaData } from "../__fixtures__/assets";

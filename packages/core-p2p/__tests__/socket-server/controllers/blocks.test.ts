@@ -5,7 +5,7 @@ import { BlockRequest, BlocksController } from "@packages/core-p2p/src/socket-se
 import { TooManyTransactionsError } from "@packages/core-p2p/src/socket-server/errors";
 import { Sandbox } from "@packages/core-test-framework";
 import { Blocks, Identities, Managers, Networks, Transactions, Utils } from "@packages/crypto";
-import { cloneDeep } from "lodash";
+import cloneDeep from "lodash.clonedeep";
 
 Managers.configManager.getMilestone().aip11 = true; // for creating aip11 v2 transactions
 

@@ -2,7 +2,7 @@ import "@packages/core-test-framework/src/matchers/functional/entity";
 
 import { EntityType } from "@packages/core-magistrate-crypto/src/enums";
 import got from "got";
-import _ from "lodash";
+import cloneDeep from "lodash.clonedeep";
 
 let entityTransaction;
 
@@ -50,7 +50,7 @@ describe("Entity", () => {
         });
 
         it("should not pass if asset is different", async () => {
-            const tmpEntityTransaction = _.cloneDeep(entityTransaction);
+            const tmpEntityTransaction = cloneDeep(entityTransaction);
             tmpEntityTransaction.asset.subType = 1;
 
             await expect(tmpEntityTransaction).not.entityRegistered();
@@ -181,7 +181,7 @@ describe("Entity", () => {
         });
 
         it("should pass", async () => {
-            const updateEntityTransaction = _.cloneDeep(entityTransaction);
+            const updateEntityTransaction = cloneDeep(entityTransaction);
             updateEntityTransaction.asset.registrationId = entityTransaction.id;
 
             await expect(updateEntityTransaction).entityUpdated();
@@ -189,7 +189,7 @@ describe("Entity", () => {
         });
 
         it("should pass if asset is different", async () => {
-            const updateEntityTransaction = _.cloneDeep(entityTransaction);
+            const updateEntityTransaction = cloneDeep(entityTransaction);
             updateEntityTransaction.asset.registrationId = entityTransaction.id;
 
             updateEntityTransaction.asset.subType = 1;
@@ -214,7 +214,7 @@ describe("Entity", () => {
                 };
             });
 
-            const updateEntityTransaction = _.cloneDeep(entityTransaction);
+            const updateEntityTransaction = cloneDeep(entityTransaction);
             updateEntityTransaction.asset.registrationId = entityTransaction.id;
 
             await expect(updateEntityTransaction).not.entityUpdated();
@@ -227,7 +227,7 @@ describe("Entity", () => {
                 throw new Error();
             });
 
-            const updateEntityTransaction = _.cloneDeep(entityTransaction);
+            const updateEntityTransaction = cloneDeep(entityTransaction);
             updateEntityTransaction.asset.registrationId = entityTransaction.id;
 
             await expect(updateEntityTransaction).not.entityUpdated();
