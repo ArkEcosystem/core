@@ -1,4 +1,4 @@
-lockfileVersion: 5.3
+lockfileVersion: 5.4
 
 importers:
 
@@ -78,8 +78,8 @@ importers:
       '@types/prettier': 2.4.1
       '@types/rimraf': 3.0.2
       '@types/uuid': 8.3.1
-      '@typescript-eslint/eslint-plugin': 5.3.0_f8873316f48f7781ccc3e081fc76e214
-      '@typescript-eslint/parser': 5.3.0_eslint@8.1.0+typescript@4.4.4
+      '@typescript-eslint/eslint-plugin': 5.3.0_7cdtgfxur53ydtgd4ca7y5xccq
+      '@typescript-eslint/parser': 5.3.0_kg6jpekmz32ttootlnctbptdqy
       babel-loader: 8.2.3_@babel+core@7.16.0
       capture-console: 1.0.1
       chalk: 4.1.2
@@ -91,8 +91,8 @@ importers:
       env-paths: 2.2.0
       eslint: 8.1.0
       eslint-config-prettier: 8.3.0_eslint@8.1.0
-      eslint-plugin-jest: 25.2.2_8b83960a909347b56897443063930486
-      eslint-plugin-prettier: 4.0.0_850528f9ec3c0797b9b19a94a36b5ba3
+      eslint-plugin-jest: 25.2.2_robzmcuqsnd3k2exiqygheyeqy
+      eslint-plugin-prettier: 4.0.0_qucsr6pmhqdzponrtkkkg223um
       eslint-plugin-simple-import-sort: 7.0.0_eslint@8.1.0
       expand-home-dir: 0.0.3
       fs-extra: 10.0.0
@@ -114,7 +114,7 @@ importers:
       rimraf: 3.0.2
       sinon: 11.1.2
       tmp: 0.2.1
-      ts-jest: 27.0.7_64b3e2d9790b45ff46b15c2c39e45934
+      ts-jest: 27.0.7_msz6fwlzbnc76rvrlqwdtzczgq
       typedoc: 0.22.7_typescript@4.4.4
       typescript: 4.4.4
       typesync: 0.8.0
@@ -833,7 +833,7 @@ importers:
       lodash.get: 4.4.2
       lodash.set: 4.3.2
     devDependencies:
-      '@rollup/plugin-babel': 5.3.0_0e8a276b4be126c5e002e55c4738a372
+      '@rollup/plugin-babel': 5.3.0_rollup@2.18.0
       '@rollup/plugin-commonjs': 13.0.2_rollup@2.18.0
       '@rollup/plugin-inject': 4.0.2_rollup@2.18.0
       '@rollup/plugin-json': 4.1.0_rollup@2.18.0
@@ -844,7 +844,7 @@ importers:
       '@types/lodash.get': 4.4.6
       '@types/lodash.set': 4.3.6
       '@types/wif': 2.0.2
-      '@wessberg/rollup-plugin-ts': 1.3.14_rollup@2.18.0+typescript@4.4.4
+      '@wessberg/rollup-plugin-ts': 1.3.14_rollup@2.18.0
       buffer: 6.0.3
       process-es6: 0.11.6
       rollup: 2.18.0
@@ -2209,7 +2209,7 @@ packages:
       '@commitlint/execute-rule': 14.0.0
       '@commitlint/resolve-extends': 14.1.0
       '@commitlint/types': 14.0.0
-      '@endemolshinegroup/cosmiconfig-typescript-loader': 3.0.2_3fdcc7bc724bd900a681b5e9457ed94a
+      '@endemolshinegroup/cosmiconfig-typescript-loader': 3.0.2_h7omppdsjpmqbjubwxuuk7wzji
       chalk: 4.1.2
       cosmiconfig: 7.0.1
       lodash: 4.17.21
@@ -2281,7 +2281,7 @@ packages:
       chalk: 4.1.2
     dev: true
 
-  /@endemolshinegroup/cosmiconfig-typescript-loader/3.0.2_3fdcc7bc724bd900a681b5e9457ed94a:
+  /@endemolshinegroup/cosmiconfig-typescript-loader/3.0.2_h7omppdsjpmqbjubwxuuk7wzji:
     resolution: {integrity: sha512-QRVtqJuS1mcT56oHpVegkKBlgtWjXw/gHNWO3eL9oyB5Sc7HBoc2OLG/nYpVfT/Jejvo3NUrD0Udk7XgoyDKkA==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.com/@endemolshinegroup/cosmiconfig-typescript-loader/-/cosmiconfig-typescript-loader-3.0.2.tgz}
     engines: {node: '>=10.0.0'}
     peerDependencies:
@@ -3180,7 +3180,7 @@ packages:
     resolution: {integrity: sha1-p3c2C1s5oaLlEG+OhY8v0tBgxXA=, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.com/@protobufjs/utf8/-/utf8-1.1.0.tgz}
     dev: false
 
-  /@rollup/plugin-babel/5.3.0_0e8a276b4be126c5e002e55c4738a372:
+  /@rollup/plugin-babel/5.3.0_rollup@2.18.0:
     resolution: {integrity: sha512-9uIC8HZOnVLrLHxayq/PTzw+uS25E14KPUBh5ktF+18Mjo5yK0ToMMx6epY0uEgkjwJw0aBW4x2horYXh8juWw==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.com/@rollup/plugin-babel/-/plugin-babel-5.3.0.tgz}
     engines: {node: '>= 10.0.0'}
     peerDependencies:
@@ -3191,10 +3191,8 @@ packages:
       '@types/babel__core':
         optional: true
     dependencies:
-      '@babel/core': 7.16.0
       '@babel/helper-module-imports': 7.16.0
       '@rollup/pluginutils': 3.1.0_rollup@2.18.0
-      '@types/babel__core': 7.1.16
       rollup: 2.18.0
     dev: true
 
@@ -3810,7 +3808,7 @@ packages:
       '@types/yargs-parser': 20.2.1
     dev: true
 
-  /@typescript-eslint/eslint-plugin/5.3.0_f8873316f48f7781ccc3e081fc76e214:
+  /@typescript-eslint/eslint-plugin/5.3.0_7cdtgfxur53ydtgd4ca7y5xccq:
     resolution: {integrity: sha512-ARUEJHJrq85aaiCqez7SANeahDsJTD3AEua34EoQN9pHS6S5Bq9emcIaGGySt/4X2zSi+vF5hAH52sEen7IO7g==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.com/@typescript-eslint/eslint-plugin/-/eslint-plugin-5.3.0.tgz}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     peerDependencies:
@@ -3821,8 +3819,8 @@ packages:
       typescript:
         optional: true
     dependencies:
-      '@typescript-eslint/experimental-utils': 5.3.0_eslint@8.1.0+typescript@4.4.4
-      '@typescript-eslint/parser': 5.3.0_eslint@8.1.0+typescript@4.4.4
+      '@typescript-eslint/experimental-utils': 5.3.0_kg6jpekmz32ttootlnctbptdqy
+      '@typescript-eslint/parser': 5.3.0_kg6jpekmz32ttootlnctbptdqy
       '@typescript-eslint/scope-manager': 5.3.0
       debug: 4.3.2
       eslint: 8.1.0
@@ -3836,7 +3834,7 @@ packages:
       - supports-color
     dev: true
 
-  /@typescript-eslint/experimental-utils/5.3.0_eslint@8.1.0+typescript@4.4.4:
+  /@typescript-eslint/experimental-utils/5.3.0_kg6jpekmz32ttootlnctbptdqy:
     resolution: {integrity: sha512-NFVxYTjKj69qB0FM+piah1x3G/63WB8vCBMnlnEHUsiLzXSTWb9FmFn36FD9Zb4APKBLY3xRArOGSMQkuzTF1w==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.com/@typescript-eslint/experimental-utils/-/experimental-utils-5.3.0.tgz}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     peerDependencies:
@@ -3854,7 +3852,7 @@ packages:
       - typescript
     dev: true
 
-  /@typescript-eslint/experimental-utils/5.4.0_eslint@8.1.0+typescript@4.4.4:
+  /@typescript-eslint/experimental-utils/5.4.0_kg6jpekmz32ttootlnctbptdqy:
     resolution: {integrity: sha512-Nz2JDIQUdmIGd6p33A+naQmwfkU5KVTLb/5lTk+tLVTDacZKoGQisj8UCxk7onJcrgjIvr8xWqkYI+DbI3TfXg==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.com/@typescript-eslint/experimental-utils/-/experimental-utils-5.4.0.tgz}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     peerDependencies:
@@ -3872,7 +3870,7 @@ packages:
       - typescript
     dev: true
 
-  /@typescript-eslint/parser/5.3.0_eslint@8.1.0+typescript@4.4.4:
+  /@typescript-eslint/parser/5.3.0_kg6jpekmz32ttootlnctbptdqy:
     resolution: {integrity: sha512-rKu/yAReip7ovx8UwOAszJVO5MgBquo8WjIQcp1gx4pYQCwYzag+I5nVNHO4MqyMkAo0gWt2gWUi+36gWAVKcw==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.com/@typescript-eslint/parser/-/parser-5.3.0.tgz}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     peerDependencies:
@@ -4078,7 +4076,7 @@ packages:
       ua-parser-js: 0.7.31
     dev: true
 
-  /@wessberg/rollup-plugin-ts/1.3.14_rollup@2.18.0+typescript@4.4.4:
+  /@wessberg/rollup-plugin-ts/1.3.14_rollup@2.18.0:
     resolution: {integrity: sha512-k1a//kf27mGpDgX/duQ4TUOqUJ0d20tOoCS2mkS5TF5vu3ZC6xNaDXkrL/ZBOqP840GW12L1UqyHQmc3D9ULng==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.com/@wessberg/rollup-plugin-ts/-/rollup-plugin-ts-1.3.14.tgz}
     engines: {node: '>=10.0.0'}
     deprecated: this package has been renamed to rollup-plugin-ts. Please install rollup-plugin-ts instead
@@ -4100,14 +4098,13 @@ packages:
       '@types/babel__core': 7.1.16
       '@wessberg/browserslist-generator': 1.0.47
       '@wessberg/stringutil': 1.0.19
-      '@wessberg/ts-clone-node': 0.3.19_typescript@4.4.4
+      '@wessberg/ts-clone-node': 0.3.19
       browserslist: 4.18.1
       chalk: 4.1.2
       magic-string: 0.25.7
       rollup: 2.18.0
       slash: 3.0.0
       tslib: 2.3.1
-      typescript: 4.4.4
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -4117,14 +4114,12 @@ packages:
     engines: {node: '>=8.0.0'}
     dev: true
 
-  /@wessberg/ts-clone-node/0.3.19_typescript@4.4.4:
+  /@wessberg/ts-clone-node/0.3.19:
     resolution: {integrity: sha512-BnJcU0ZwHxa5runiEkHzMZ6/ydxz+YYqBHOGQtf3eoxSZu2iWMPPaUfCum0O1/Ey5dqrrptUh+HmyMTzHPfdPA==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.com/@wessberg/ts-clone-node/-/ts-clone-node-0.3.19.tgz}
     engines: {node: '>=10.0.0'}
     deprecated: this package has been renamed to ts-clone-node. Please install ts-clone-node instead
     peerDependencies:
       typescript: ^3.x || ^4.x
-    dependencies:
-      typescript: 4.4.4
     dev: true
 
   /JSONStream/1.3.5:
@@ -6491,7 +6486,7 @@ packages:
       eslint: 8.1.0
     dev: true
 
-  /eslint-plugin-jest/25.2.2_8b83960a909347b56897443063930486:
+  /eslint-plugin-jest/25.2.2_robzmcuqsnd3k2exiqygheyeqy:
     resolution: {integrity: sha512-frn5yhOF60U4kcqozO3zKTNZQUk+mfx037XOy2iiYL8FhorEkuCuL3/flzKcY1ECDP2WYT9ydmvlO3fRW9o4mg==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.com/eslint-plugin-jest/-/eslint-plugin-jest-25.2.2.tgz}
     engines: {node: ^12.13.0 || ^14.15.0 || >=16.0.0}
     peerDependencies:
@@ -6501,15 +6496,15 @@ packages:
       '@typescript-eslint/eslint-plugin':
         optional: true
     dependencies:
-      '@typescript-eslint/eslint-plugin': 5.3.0_f8873316f48f7781ccc3e081fc76e214
-      '@typescript-eslint/experimental-utils': 5.4.0_eslint@8.1.0+typescript@4.4.4
+      '@typescript-eslint/eslint-plugin': 5.3.0_7cdtgfxur53ydtgd4ca7y5xccq
+      '@typescript-eslint/experimental-utils': 5.4.0_kg6jpekmz32ttootlnctbptdqy
       eslint: 8.1.0
     transitivePeerDependencies:
       - supports-color
       - typescript
     dev: true
 
-  /eslint-plugin-prettier/4.0.0_850528f9ec3c0797b9b19a94a36b5ba3:
+  /eslint-plugin-prettier/4.0.0_qucsr6pmhqdzponrtkkkg223um:
     resolution: {integrity: sha512-98MqmCJ7vJodoQK359bqQWaxOE0CS8paAz/GgjaZLyex4TTk3g9HugoO89EqWCrFiOqn9EVvcoo7gZzONCWVwQ==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.com/eslint-plugin-prettier/-/eslint-plugin-prettier-4.0.0.tgz}
     engines: {node: '>=6.0.0'}
     peerDependencies:
@@ -12799,7 +12794,7 @@ packages:
     engines: {node: '>=12'}
     dev: true
 
-  /ts-jest/27.0.7_64b3e2d9790b45ff46b15c2c39e45934:
+  /ts-jest/27.0.7_msz6fwlzbnc76rvrlqwdtzczgq:
     resolution: {integrity: sha512-O41shibMqzdafpuP+CkrOL7ykbmLh+FqQrXEmV9CydQ5JBk0Sj0uAEF5TNNe94fZWKm3yYvWa/IbyV4Yg1zK2Q==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.com/ts-jest/-/ts-jest-27.0.7.tgz}
     engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
     hasBin: true
