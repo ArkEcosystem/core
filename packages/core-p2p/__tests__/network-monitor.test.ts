@@ -8,7 +8,7 @@ import { Peer } from "@packages/core-p2p/src/peer";
 import { PeerVerificationResult } from "@packages/core-p2p/src/peer-verifier";
 import { Blocks } from "@packages/crypto";
 import delay from "delay";
-import { cloneDeep } from "lodash";
+import cloneDeep from "lodash.clonedeep";
 import path from "path";
 
 jest.mock("@packages/core-kernel", () => {

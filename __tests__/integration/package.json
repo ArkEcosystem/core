@@ -1,12 +1,10 @@
 {
-    "name": "@tests/functional",
+    "name": "@tests/integration",
     "version": "4.0.0-next-1",
     "description": "Functional tests for ARK Core",
     "license": "MIT",
     "devDependencies": {
-        "bip39": "3.0.4",
-        "delay": "5.0.0",
-        "got": "11.8.2",
-        "typeorm": "0.2.25"
+        "@hapi/hapi": "20.2.1",
+        "bip39": "3.0.4"
     }
 }
