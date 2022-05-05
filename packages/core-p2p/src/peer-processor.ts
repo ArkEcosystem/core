@@ -43,7 +43,7 @@ export class PeerProcessor implements Contracts.P2P.PeerProcessor {
 
     public async validateAndAcceptPeer(
         peer: Contracts.P2P.Peer,
-        headers: Contracts.P2P.Headers,
+        headers: Contracts.P2P.Headers = {},
         options: Contracts.P2P.AcceptNewPeerOptions = {},
     ): Promise<void> {
         /* istanbul ignore else */
