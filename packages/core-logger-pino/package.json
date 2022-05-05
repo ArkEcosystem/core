@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-logger-pino",
-    "version": "4.0.0-next.13",
+    "version": "4.0.0-next.14",
     "description": "Webhooks for ARK Core",
     "license": "MIT",
     "contributors": [
