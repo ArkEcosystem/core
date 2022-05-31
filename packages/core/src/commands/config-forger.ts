@@ -38,7 +38,6 @@ export class Command extends Commands.Command {
         this.definition
             .setFlag("token", "The name of the token.", Joi.string().default("ark"))
             .setFlag("network", "The name of the network.", Joi.string().valid(...Object.keys(Networks)))
-            .setFlag("bip38", "", Joi.string())
             .setFlag("bip39", "A delegate plain text passphrase. Referred to as BIP39.", Joi.string())
             .setFlag("password", "A custom password that encrypts the BIP39. Referred to as BIP38.", Joi.string())
             .setFlag(
