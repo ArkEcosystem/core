@@ -32,13 +32,11 @@ export class Serializer {
         const maxPayload = configManager.getMilestone(configManager.getHeight()).block?.maxPayload;
         const maxTransactions = configManager.getMilestone(configManager.getHeight()).block?.maxTransactions;
 
-        if( maxPayload && maxTransactions) {
-            size = Math.floor(maxPayload / maxTransactions) * 2
+        if (maxPayload && maxTransactions) {
+            size = Math.floor(maxPayload / maxTransactions) * 2;
         }
 
-        const buff: ByteBuffer = new ByteBuffer(
-            Buffer.alloc(size),
-        );
+        const buff: ByteBuffer = new ByteBuffer(Buffer.alloc(size));
 
         this.serializeCommon(transaction.data, buff);
         this.serializeVendorField(transaction, buff);
