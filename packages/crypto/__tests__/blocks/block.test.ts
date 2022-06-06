@@ -16,7 +16,7 @@ const { outlookTable } = configManager.getPreset("mainnet").exceptions;
 
 beforeEach(() => configManager.setFromPreset("devnet"));
 
-afterEach(() => jest.resetAllMocks());
+afterEach(() => jest.clearAllMocks());
 
 describe("Block", () => {
     const data = {
@@ -135,7 +135,7 @@ describe("Block", () => {
             jest.spyOn(configManager, "getMilestone").mockImplementation((height) => ({
                 block: {
                     version: 0,
-                    maxTransactions: 200,
+                    maxTransactions: dummyBlock.numberOfTransactions,
                     maxPayload: dummyBlockSize - 1,
                 },
                 reward: 200000000,
@@ -150,7 +150,7 @@ describe("Block", () => {
             jest.spyOn(configManager, "getMilestone").mockImplementation((height) => ({
                 block: {
                     version: 0,
-                    maxTransactions: 200,
+                    maxTransactions: dummyBlock.numberOfTransactions,
                     maxPayload: dummyBlockSize,
                 },
                 reward: 200000000,
