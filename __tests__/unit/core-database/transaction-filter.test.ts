@@ -374,7 +374,7 @@ describe("TransactionFilter.getExpression", () => {
             expect(expression).toEqual({
                 property: "vendorField",
                 op: "like",
-                pattern: "%pattern%",
+                pattern: Buffer.from("%pattern%", "utf-8"),
             });
         });
     });
