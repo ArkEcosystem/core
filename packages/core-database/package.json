@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-database",
-    "version": "4.0.0-next.14",
+    "version": "4.0.0-next.15",
     "description": "Database Interface for ARK Core",
     "license": "MIT",
     "contributors": [
