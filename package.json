@@ -87,7 +87,6 @@
         "lerna": "3.22.1",
         "lint-staged": "10.5.4",
         "madge": "4.0.1",
-        "moment": "2.29.1",
         "moment-timezone": "0.5.33",
         "nock": "13.1.3",
         "npm-check-updates": "9.2.4",
