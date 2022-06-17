@@ -26,7 +26,7 @@ describe("ProcessManager", () => {
                 stdout: null,
                 stderr: undefined,
                 failed: false,
-            });
+            } as any);
 
             // Act...
             const processes: Contracts.ProcessDescription[] | undefined = processManager.list();
@@ -43,7 +43,7 @@ describe("ProcessManager", () => {
                 stdout: "\n",
                 stderr: undefined,
                 failed: false,
-            });
+            } as any);
 
             // Act...
             const processes: Contracts.ProcessDescription[] | undefined = processManager.list();
@@ -60,7 +60,7 @@ describe("ProcessManager", () => {
                 stdout: "{",
                 stderr: undefined,
                 failed: false,
-            });
+            } as any);
 
             // Act...
             const processes: Contracts.ProcessDescription[] | undefined = processManager.list();
@@ -92,7 +92,7 @@ describe("ProcessManager", () => {
                 stdout: '[{ "key": "value" }]',
                 stderr: undefined,
                 failed: false,
-            });
+            } as any);
 
             // Act...
             const processes: Contracts.ProcessDescription[] | undefined = processManager.list();
@@ -111,7 +111,7 @@ describe("ProcessManager", () => {
                 stdout: '[{ "id": "stub", "pm2_env": { "status": "unknown" } }]',
                 stderr: undefined,
                 failed: false,
-            });
+            } as any);
 
             // Act...
             const process: Contracts.ProcessDescription | undefined = processManager.describe("stub");
@@ -127,7 +127,7 @@ describe("ProcessManager", () => {
                 stdout: '[{ "id": "stub-other", "pm2_env": { "status": "unknown" } }]',
                 stderr: undefined,
                 failed: false,
-            });
+            } as any);
 
             // Act...
             const process: Contracts.ProcessDescription | undefined = processManager.describe("stub");
@@ -143,7 +143,7 @@ describe("ProcessManager", () => {
                 stdout: "[]",
                 stderr: undefined,
                 failed: false,
-            });
+            } as any);
 
             // Act...
             const process: Contracts.ProcessDescription | undefined = processManager.describe("stub");
@@ -175,7 +175,7 @@ describe("ProcessManager", () => {
                 stdout: null,
                 stderr: undefined,
                 failed: false,
-            });
+            } as any);
 
             // Act...
             const { failed } = processManager.start(
@@ -196,7 +196,7 @@ describe("ProcessManager", () => {
                 stdout: null,
                 stderr: undefined,
                 failed: false,
-            });
+            } as any);
 
             // Act...
             const { failed } = processManager.start(
@@ -221,7 +221,7 @@ describe("ProcessManager", () => {
                 stdout: null,
                 stderr: undefined,
                 failed: false,
-            });
+            } as any);
 
             // Act...
             const { failed } = processManager.start(
@@ -234,7 +234,9 @@ describe("ProcessManager", () => {
 
             // Assert...
             expect(failed).toBeFalse();
-            expect(spySync).toHaveBeenCalledWith("pm2 start stub.js --name='stub' -- core:run --daemon", { shell: true });
+            expect(spySync).toHaveBeenCalledWith("pm2 start stub.js --name='stub' -- core:run --daemon", {
+                shell: true,
+            });
         });
 
         it("should ignore the flags if they are undefined", () => {
@@ -243,7 +245,7 @@ describe("ProcessManager", () => {
                 stdout: null,
                 stderr: undefined,
                 failed: false,
-            });
+            } as any);
 
             // Act...
             const { failed } = processManager.start(
@@ -266,7 +268,7 @@ describe("ProcessManager", () => {
                 stdout: null,
                 stderr: undefined,
                 failed: false,
-            });
+            } as any);
 
             // Act...
             const { failed } = processManager.stop("stub");
@@ -282,7 +284,7 @@ describe("ProcessManager", () => {
                 stdout: null,
                 stderr: undefined,
                 failed: false,
-            });
+            } as any);
 
             // Act...
             const { failed } = processManager.stop("stub", { key: "value" });
@@ -297,10 +299,11 @@ describe("ProcessManager", () => {
         it("should be OK if failed is false", () => {
             // Arrange...
             const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
+                // @ts-ignore
                 stdout: null,
                 stderr: undefined,
                 failed: false,
-            });
+            } as any);
 
             // Act...
             const { failed } = processManager.restart("stub");
@@ -316,7 +319,7 @@ describe("ProcessManager", () => {
                 stdout: null,
                 stderr: undefined,
                 failed: false,
-            });
+            } as any);
 
             // Act...
             const { failed } = processManager.restart("stub", { key: "value" });
@@ -332,7 +335,7 @@ describe("ProcessManager", () => {
                 stdout: null,
                 stderr: undefined,
                 failed: false,
-            });
+            } as any);
 
             // Act...
             const { failed } = processManager.restart("stub", {});
@@ -350,7 +353,7 @@ describe("ProcessManager", () => {
                 stdout: null,
                 stderr: undefined,
                 failed: false,
-            });
+            } as any);
 
             // Act...
             const { failed } = processManager.reload("stub");
@@ -368,7 +371,7 @@ describe("ProcessManager", () => {
                 stdout: null,
                 stderr: undefined,
                 failed: false,
-            });
+            } as any);
 
             // Act...
             const { failed } = processManager.reset("stub");
@@ -386,7 +389,7 @@ describe("ProcessManager", () => {
                 stdout: null,
                 stderr: undefined,
                 failed: false,
-            });
+            } as any);
 
             // Act...
             const { failed } = processManager.delete("stub");
@@ -404,7 +407,7 @@ describe("ProcessManager", () => {
                 stdout: null,
                 stderr: undefined,
                 failed: false,
-            });
+            } as any);
 
             // Act...
             const { failed } = processManager.flush("stub");
@@ -422,7 +425,7 @@ describe("ProcessManager", () => {
                 stdout: null,
                 stderr: undefined,
                 failed: false,
-            });
+            } as any);
 
             // Act...
             const { failed } = processManager.reloadLogs();
@@ -440,7 +443,7 @@ describe("ProcessManager", () => {
                 stdout: null,
                 stderr: undefined,
                 failed: false,
-            });
+            } as any);
 
             // Act...
             const { failed } = processManager.ping();
@@ -458,7 +461,7 @@ describe("ProcessManager", () => {
                 stdout: null,
                 stderr: undefined,
                 failed: false,
-            });
+            } as any);
 
             // Act...
             const { failed } = processManager.update();
@@ -472,6 +475,7 @@ describe("ProcessManager", () => {
     describe("#trigger", () => {
         it(".trigger()", async () => {
             // Arrange...
+            // @ts-ignore
             execa.mockResolvedValue({
                 stdout: null,
                 stderr: undefined,
@@ -494,7 +498,7 @@ describe("ProcessManager", () => {
                 stdout: '[{ "id": "stub", "pm2_env": { "status": "online" } }]',
                 stderr: undefined,
                 failed: false,
-            });
+            } as any);
 
             // Act...
             const status = processManager.status("stub");
@@ -526,7 +530,7 @@ describe("ProcessManager", () => {
                 stdout: '[{ "id": "stub-other", "pm2_env": { "status": "online" } }]',
                 stderr: undefined,
                 failed: false,
-            });
+            } as any);
 
             // Act...
             const status = processManager.status("stub");
@@ -544,7 +548,7 @@ describe("ProcessManager", () => {
                 stdout: '[{ "id": "stub", "pm2_env": { "status": "online" } }]',
                 stderr: undefined,
                 failed: false,
-            });
+            } as any);
 
             // Act...
             const status = processManager.isOnline("stub");
@@ -562,7 +566,7 @@ describe("ProcessManager", () => {
                 stdout: '[{ "id": "stub", "pm2_env": { "status": "stopped" } }]',
                 stderr: undefined,
                 failed: false,
-            });
+            } as any);
 
             // Act...
             const status = processManager.isStopped("stub");
@@ -580,7 +584,7 @@ describe("ProcessManager", () => {
                 stdout: '[{ "id": "stub", "pm2_env": { "status": "stopping" } }]',
                 stderr: undefined,
                 failed: false,
-            });
+            } as any);
 
             // Act...
             const status = processManager.isStopping("stub");
@@ -598,7 +602,7 @@ describe("ProcessManager", () => {
                 stdout: '[{ "id": "stub", "pm2_env": { "status": "waiting restart" } }]',
                 stderr: undefined,
                 failed: false,
-            });
+            } as any);
 
             // Act...
             const status = processManager.isWaiting("stub");
@@ -616,7 +620,7 @@ describe("ProcessManager", () => {
                 stdout: '[{ "id": "stub", "pm2_env": { "status": "launching" } }]',
                 stderr: undefined,
                 failed: false,
-            });
+            } as any);
 
             // Act...
             const status = processManager.isLaunching("stub");
@@ -634,7 +638,7 @@ describe("ProcessManager", () => {
                 stdout: '[{ "id": "stub", "pm2_env": { "status": "errored" } }]',
                 stderr: undefined,
                 failed: false,
-            });
+            } as any);
 
             // Act...
             const status = processManager.isErrored("stub");
@@ -652,7 +656,7 @@ describe("ProcessManager", () => {
                 stdout: '[{ "id": "stub", "pm2_env": { "status": "one-launch-status" } }]',
                 stderr: undefined,
                 failed: false,
-            });
+            } as any);
 
             // Act...
             const status = processManager.isOneLaunch("stub");
@@ -670,7 +674,7 @@ describe("ProcessManager", () => {
                 stdout: '[{ "id": "stub", "pm2_env": { "status": "unknown" } }]',
                 stderr: undefined,
                 failed: false,
-            });
+            } as any);
 
             // Act...
             const status = processManager.isUnknown("stub");
@@ -686,7 +690,7 @@ describe("ProcessManager", () => {
                 stdout: '[{ "id": "stub", "pm2_env": { "status": "online" } }]',
                 stderr: undefined,
                 failed: false,
-            });
+            } as any);
 
             // Act...
             const status = processManager.isUnknown("stub");
@@ -718,7 +722,7 @@ describe("ProcessManager", () => {
                 stdout: 1,
                 stderr: undefined,
                 failed: false,
-            });
+            } as any);
 
             // Act...
             const status = processManager.has("stub");
@@ -734,7 +738,7 @@ describe("ProcessManager", () => {
                 stdout: "",
                 stderr: undefined,
                 failed: false,
-            });
+            } as any);
 
             // Act...
             const status = processManager.has("stub");
@@ -766,7 +770,7 @@ describe("ProcessManager", () => {
                 stdout: "",
                 stderr: undefined,
                 failed: false,
-            });
+            } as any);
 
             // Act...
             const status = processManager.missing("stub");
@@ -782,7 +786,7 @@ describe("ProcessManager", () => {
                 stdout: 1,
                 stderr: undefined,
                 failed: false,
-            });
+            } as any);
 
             // Act...
             const status = processManager.missing("stub");
