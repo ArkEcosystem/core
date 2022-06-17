@@ -70,7 +70,6 @@
         "@typescript-eslint/parser": "3.10.1",
         "babel-loader": "8.2.2",
         "capture-console": "1.0.1",
-        "cpy-cli": "3.1.1",
         "create-hash": "1.2.0",
         "cross-env": "7.0.3",
         "del-cli": "3.0.1",
