@@ -28,9 +28,15 @@ export class Serializer {
      * Serializes the given transaction according to AIP11.
      */
     public static serialize(transaction: ITransaction, options: ISerializeOptions = {}): Buffer {
-        const buff: ByteBuffer = new ByteBuffer(
-            Buffer.alloc(configManager.getMilestone(configManager.getHeight()).block?.maxPayload ?? 8192),
-        );
+        let size = 83886;
+        const maxPayload = configManager.getMilestone(configManager.getHeight()).block?.maxPayload;
+        const maxTransactions = configManager.getMilestone(configManager.getHeight()).block?.maxTransactions;
+
+        if (maxPayload && maxTransactions) {
+            size = Math.floor(maxPayload / maxTransactions) * 2;
+        }
+
+        const buff: ByteBuffer = new ByteBuffer(Buffer.alloc(size));
 
         this.serializeCommon(transaction.data, buff);
         this.serializeVendorField(transaction, buff);
