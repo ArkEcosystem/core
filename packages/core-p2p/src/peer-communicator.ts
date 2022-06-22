@@ -97,7 +97,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
     // ! do not rely on parameter timeoutMsec as guarantee that ping method will resolve within it !
     // ! peerVerifier.checkState can take more time !
     // TODO refactor ?
-    public async ping(peer: Contracts.P2P.Peer, timeoutMsec: number, force = false): Promise<any> {
+    public async ping(peer: Contracts.P2P.Peer, timeoutMsec: number, force = false, fast = false): Promise<any> {
         const deadline = new Date().getTime() + timeoutMsec;
 
         if (peer.recentlyPinged() && !force) {
@@ -127,7 +127,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
                 throw new PeerPingTimeoutError(timeoutMsec);
             }
 
-            peer.verificationResult = await peerVerifier.checkState(pingResponse.state, deadline);
+            peer.verificationResult = await peerVerifier.checkState(pingResponse.state, deadline, fast);
 
             if (!peer.isVerified()) {
                 throw new PeerVerificationFailedError();

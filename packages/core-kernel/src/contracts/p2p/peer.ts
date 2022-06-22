@@ -71,6 +71,6 @@ export interface PeerPingResponse {
 export interface PeerVerificationResult {
     readonly myHeight: number;
     readonly hisHeight: number;
-    readonly highestCommonHeight: number;
+    readonly highestCommonHeight?: number;
     readonly forked: boolean;
 }

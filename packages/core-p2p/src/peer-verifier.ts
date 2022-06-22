@@ -11,11 +11,15 @@ export class PeerVerificationResult {
     public constructor(
         public readonly myHeight: number,
         public readonly hisHeight: number,
-        public readonly highestCommonHeight: number,
+        public readonly highestCommonHeight?: number,
     ) {}
 
     public get forked(): boolean {
-        return this.highestCommonHeight !== this.myHeight && this.highestCommonHeight !== this.hisHeight;
+        if (this.highestCommonHeight) {
+            return this.highestCommonHeight !== this.myHeight && this.highestCommonHeight !== this.hisHeight;
+        }
+
+        return this.myHeight > this.hisHeight;
     }
 }
 
@@ -88,6 +92,7 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
      * The caller should ensure that it is a valid state: must have .header.height and .header.id
      * properties.
      * @param {Number} deadline operation deadline, in milliseconds since Epoch
+     * @param {Boolean} fast skip commonBlockHeight check, because we need only data for quorum
      * @return {PeerVerificationResut|undefined} PeerVerificationResut object if the peer's blockchain
      * is verified to be legit (albeit it may be different than our blockchain), or undefined if
      * the peer's state could not be verified.
@@ -96,6 +101,7 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
     public async checkState(
         claimedState: Contracts.P2P.PeerState,
         deadline: number,
+        fast: boolean,
     ): Promise<PeerVerificationResult | undefined> {
         if (!(await this.checkStateHeader(claimedState))) {
             return undefined;
@@ -106,6 +112,10 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
         if (await this.weHavePeersHighestBlock(claimedState, ourHeight)) {
             // Case3 and Case5
             return new PeerVerificationResult(ourHeight, claimedHeight, claimedHeight);
+        }
+
+        if (fast) {
+            return new PeerVerificationResult(ourHeight, claimedHeight);
         }
 
         const highestCommonBlockHeight = await this.findHighestCommonBlockHeight(claimedHeight, ourHeight, deadline);
