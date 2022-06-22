@@ -91,7 +91,7 @@ describe("PeerVerifier", () => {
                     },
                 };
 
-                expect(await peerVerifier.checkState(claimedState, Date.now() + 2000)).toBeUndefined();
+                expect(await peerVerifier.checkState(claimedState, Date.now() + 2000, false)).toBeUndefined();
             });
         });
 
@@ -145,12 +145,12 @@ describe("PeerVerifier", () => {
                     .spyOn(Blocks.BlockFactory, "fromData")
                     .mockImplementation(blockWithIdFromDataMock);
 
-                const result = await peerVerifier.checkState(claimedState, Date.now() + 2000);
+                const result = await peerVerifier.checkState(claimedState, Date.now() + 2000, false);
 
                 expect(result).toBeInstanceOf(PeerVerificationResult);
                 expect(result.forked).toBeFalse();
 
-                const resultAlreadyVerified = await peerVerifier.checkState(claimedState, Date.now() + 2000);
+                const resultAlreadyVerified = await peerVerifier.checkState(claimedState, Date.now() + 2000, false);
 
                 expect(resultAlreadyVerified).toBeInstanceOf(PeerVerificationResult);
                 expect(resultAlreadyVerified.forked).toBeFalse();
@@ -214,7 +214,7 @@ describe("PeerVerifier", () => {
                 });
                 const spyFromData = jest.spyOn(Blocks.BlockFactory, "fromData").mockImplementation(blockFromDataMock);
 
-                const result = await peerVerifier.checkState(claimedState, Date.now() + 2000);
+                const result = await peerVerifier.checkState(claimedState, Date.now() + 2000, false);
 
                 expect(result).toBeInstanceOf(PeerVerificationResult);
                 expect(result.forked).toBeTrue();
@@ -246,7 +246,7 @@ describe("PeerVerifier", () => {
                     ]);
                 databaseInterceptor.getBlocksByHeight = jest.fn().mockReturnValueOnce([{ id: claimedState.header.id }]);
 
-                const result = await peerVerifier.checkState(claimedState, Date.now() + 2000);
+                const result = await peerVerifier.checkState(claimedState, Date.now() + 2000, false);
 
                 expect(result).toBeInstanceOf(PeerVerificationResult);
                 expect(result.forked).toBeFalse();
@@ -340,7 +340,7 @@ describe("PeerVerifier", () => {
                         .spyOn(Blocks.BlockFactory, "fromData")
                         .mockImplementation(blockFromDataMock);
 
-                    const result = await peerVerifier.checkState(claimedState, Date.now() + 2000);
+                    const result = await peerVerifier.checkState(claimedState, Date.now() + 2000, false);
 
                     expect(result).toBeInstanceOf(PeerVerificationResult);
                     expect(result.forked).toBeTrue();
@@ -365,7 +365,7 @@ describe("PeerVerifier", () => {
                 trigger.call = jest.fn().mockReturnValue([{ publicKey: generatorPublicKey }]); // getActiveDelegates mock
                 stateStore.getLastBlocks = jest.fn();
 
-                const result = await peerVerifier.checkState(claimedState, Date.now() + 2000);
+                const result = await peerVerifier.checkState(claimedState, Date.now() + 2000, false);
 
                 expect(result).toBeUndefined();
             });
@@ -386,7 +386,7 @@ describe("PeerVerifier", () => {
                     );
                 peerCommunicator.hasCommonBlocks = jest.fn();
 
-                const result = await peerVerifier.checkState(claimedState, Date.now() + 2000);
+                const result = await peerVerifier.checkState(claimedState, Date.now() + 2000, false);
 
                 expect(result).toBeUndefined();
             });
@@ -411,7 +411,7 @@ describe("PeerVerifier", () => {
                 peerCommunicator.hasCommonBlocks = jest.fn();
                 jest.spyOn(Blocks.BlockFactory, "fromData").mockImplementation(blockFromDataMock);
 
-                await expect(peerVerifier.checkState(claimedState, Date.now() + 2000)).toReject();
+                await expect(peerVerifier.checkState(claimedState, Date.now() + 2000, false)).toReject();
             });
 
             it("should return undefined when peer returns no common block", async () => {
@@ -434,7 +434,7 @@ describe("PeerVerifier", () => {
                 peerCommunicator.hasCommonBlocks = jest.fn().mockResolvedValueOnce(undefined);
                 jest.spyOn(Blocks.BlockFactory, "fromData").mockImplementation(blockFromDataMock);
 
-                const result = await peerVerifier.checkState(claimedState, Date.now() + 2000);
+                const result = await peerVerifier.checkState(claimedState, Date.now() + 2000, false);
 
                 expect(result).toBeUndefined();
             });
@@ -461,7 +461,7 @@ describe("PeerVerifier", () => {
                     .mockImplementation((_, ids) => ({ id: "unexpectedId", height: parseInt(ids[0].slice(0, 2)) }));
                 jest.spyOn(Blocks.BlockFactory, "fromData").mockImplementation(blockFromDataMock);
 
-                const result = await peerVerifier.checkState(claimedState, Date.now() + 2000);
+                const result = await peerVerifier.checkState(claimedState, Date.now() + 2000, false);
 
                 expect(result).toBeUndefined();
             });
@@ -488,7 +488,7 @@ describe("PeerVerifier", () => {
                     .mockImplementation((_, ids) => ({ id: ids[0], height: 1000 + parseInt(ids[0].slice(0, 2)) }));
                 jest.spyOn(Blocks.BlockFactory, "fromData").mockImplementation(blockFromDataMock);
 
-                const result = await peerVerifier.checkState(claimedState, Date.now() + 2000);
+                const result = await peerVerifier.checkState(claimedState, Date.now() + 2000, false);
 
                 expect(result).toBeUndefined();
             });
@@ -531,7 +531,7 @@ describe("PeerVerifier", () => {
                         peerCommunicator.getPeerBlocks = jest.fn().mockRejectedValueOnce(new Error("timeout"));
                     }
 
-                    const result = await peerVerifier.checkState(claimedState, Date.now() + 2000);
+                    const result = await peerVerifier.checkState(claimedState, Date.now() + 2000, false);
 
                     expect(result).toBeUndefined();
                 },
@@ -577,7 +577,7 @@ describe("PeerVerifier", () => {
                     .mockImplementationOnce(blockFromDataMock)
                     .mockImplementation(notVerifiedBlockFromDataMock);
 
-                const result = await peerVerifier.checkState(claimedState, Date.now() + 2000);
+                const result = await peerVerifier.checkState(claimedState, Date.now() + 2000, false);
 
                 expect(result).toBeUndefined();
             });
@@ -620,7 +620,7 @@ describe("PeerVerifier", () => {
                 });
                 jest.spyOn(Blocks.BlockFactory, "fromData").mockImplementation(blockFromDataMock);
 
-                const result = await peerVerifier.checkState(claimedState, Date.now() + 2000);
+                const result = await peerVerifier.checkState(claimedState, Date.now() + 2000, false);
 
                 expect(result).toBeUndefined();
             });
@@ -664,7 +664,7 @@ describe("PeerVerifier", () => {
                 });
                 jest.spyOn(Blocks.BlockFactory, "fromData").mockImplementation(blockFromDataMock);
 
-                const result = await peerVerifier.checkState(claimedState, Date.now() + 2000);
+                const result = await peerVerifier.checkState(claimedState, Date.now() + 2000, false);
 
                 expect(result).toBeUndefined();
             });
@@ -700,7 +700,7 @@ describe("PeerVerifier", () => {
                 });
                 const spyFromData = jest.spyOn(Blocks.BlockFactory, "fromData").mockImplementation(blockFromDataMock);
 
-                await expect(peerVerifier.checkState(claimedState, Date.now() - 1)).rejects.toEqual(
+                await expect(peerVerifier.checkState(claimedState, Date.now() - 1, false)).rejects.toEqual(
                     new Error("timeout elapsed before successful completion of the verification"),
                 );
 
@@ -735,7 +735,7 @@ describe("PeerVerifier", () => {
                 ]);
                 databaseInterceptor.getBlocksByHeight = jest.fn().mockReturnValueOnce([{ id: claimedState.header.id }]);
 
-                const result = await peerVerifier.checkState(claimedState, Date.now() + 2000);
+                const result = await peerVerifier.checkState(claimedState, Date.now() + 2000, false);
 
                 expect(result).toBeInstanceOf(PeerVerificationResult);
                 expect(result.forked).toBeFalse();
@@ -795,7 +795,7 @@ describe("PeerVerifier", () => {
                 });
                 const spyFromData = jest.spyOn(Blocks.BlockFactory, "fromData").mockImplementation(blockFromDataMock);
 
-                const result = await peerVerifier.checkState(claimedState, Date.now() + 2000);
+                const result = await peerVerifier.checkState(claimedState, Date.now() + 2000, false);
 
                 expect(result).toBeInstanceOf(PeerVerificationResult);
                 expect(result.forked).toBeTrue();
