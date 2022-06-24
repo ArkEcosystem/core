@@ -104,7 +104,6 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
      * The caller should ensure that it is a valid state: must have .header.height and .header.id
      * properties.
      * @param {Number} deadline operation deadline, in milliseconds since Epoch
-     * @param {Boolean} fast skip commonBlockHeight check, because we need only data for quorum
      * @return {PeerVerificationResut|undefined} PeerVerificationResut object if the peer's blockchain
      * is verified to be legit (albeit it may be different than our blockchain), or undefined if
      * the peer's state could not be verified.
@@ -121,7 +120,7 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
         const claimedHeight = Number(claimedState.header.height);
         const ourHeight: number = this.ourHeight();
         if (await this.weHavePeersHighestBlock(claimedState, ourHeight)) {
-            // Case3 and Case5 -> peersQuorum++;
+            // Case3 and Case5
             return new PeerVerificationResult(ourHeight, claimedHeight, claimedHeight);
         }
 
