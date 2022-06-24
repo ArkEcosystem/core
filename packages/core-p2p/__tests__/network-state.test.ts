@@ -2,7 +2,7 @@ import { Container, Utils as KernelUtils } from "@packages/core-kernel";
 import { NetworkStateStatus } from "@packages/core-p2p/src/enums";
 import { NetworkState } from "@packages/core-p2p/src/network-state";
 import { Peer } from "@packages/core-p2p/src/peer";
-import { PeerVerificationResult } from "@packages/core-p2p/src/peer-verifier";
+import { FastPeerVerificationResult } from "@packages/core-p2p/src/peer-verifier";
 import { Blocks, Crypto, Utils } from "@packages/crypto";
 
 describe("NetworkState", () => {
@@ -99,7 +99,7 @@ describe("NetworkState", () => {
                 peer3.state = { header: {}, height: 8, forgingAllowed: true, currentSlot: currentSlot }; // same height
                 const peer4 = new Peer("184.168.65.65", 4000);
                 peer4.state = { header: {}, height: 6, forgingAllowed: false, currentSlot: currentSlot - 2 }; // below height
-                peer4.verificationResult = new PeerVerificationResult(8, 6, 4); // forked
+                peer4.fastVerificationResult = new FastPeerVerificationResult(8, 6); // forked
                 const peer5 = new Peer("185.168.65.65", 4000);
                 peer5.state = { header: {}, height: 6, forgingAllowed: false, currentSlot: currentSlot - 2 }; // below height, not forked
                 peers = [peer1, peer2, peer3, peer4, peer5];
