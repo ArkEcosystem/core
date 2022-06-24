@@ -33,7 +33,7 @@ describe("PeerCommunicator", () => {
 
     const logger = { warning: jest.fn(), debug: jest.fn(), error: jest.fn(), info: jest.fn() };
     const configuration = { getOptional: jest.fn(), getRequired: jest.fn() };
-    const peerVerifier = { initialize: () => {}, checkState: jest.fn() };
+    const peerVerifier = { initialize: () => {}, checkState: jest.fn(), checkStateFast: jest.fn() };
     peerVerifier.initialize = () => peerVerifier;
     const version = "3.0.0";
     const headers = { version };
@@ -249,6 +249,23 @@ describe("PeerCommunicator", () => {
 
                 const pingResult = await peerCommunicator.ping(peer, 6000);
 
+                expect(peerVerifier.checkState).toBeCalledTimes(1);
+                expect(connector.emit).toBeCalledTimes(1);
+                expect(connector.emit).toBeCalledWith(peer, event, { headers }, 5000);
+                expect(pingResult).toEqual(baseGetStatusResponse.state);
+            });
+
+            it("should not throw otherwise using fast option", async () => {
+                const event = "p2p.peer.getStatus";
+                const peer = new Peer("187.168.65.65", 4000);
+                const pingResponse = baseGetStatusResponse;
+                connector.emit = jest.fn().mockReturnValueOnce({ payload: pingResponse });
+                configuration.getOptional = jest.fn().mockReturnValueOnce([baseGetStatusResponse.config.version]); // minimumVersions
+                peerVerifier.checkStateFast = jest.fn().mockReturnValueOnce(new PeerVerificationResult(1, 1, 1));
+
+                const pingResult = await peerCommunicator.ping(peer, 6000, false, true);
+
+                expect(peerVerifier.checkStateFast).toBeCalledTimes(1);
                 expect(connector.emit).toBeCalledTimes(1);
                 expect(connector.emit).toBeCalledWith(peer, event, { headers }, 5000);
                 expect(pingResult).toEqual(baseGetStatusResponse.state);
