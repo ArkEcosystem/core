@@ -395,7 +395,7 @@ describe("PeerVerifier", () => {
                 stateStore.getLastHeight = jest
                     .fn()
                     .mockReturnValueOnce(claimedState.height)
-                    .mockRejectedValueOnce(undefined);
+                    .mockReturnValueOnce(undefined);
                 stateStore.getLastBlocks = jest
                     .fn()
                     .mockReturnValueOnce([{ data: { height: claimedState.height }, getHeader: () => ourHeader }]);
