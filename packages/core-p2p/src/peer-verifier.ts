@@ -19,7 +19,7 @@ export class PeerVerificationResult {
             return this.highestCommonHeight !== this.myHeight && this.highestCommonHeight !== this.hisHeight;
         }
 
-        return this.myHeight > this.hisHeight;
+        return true;
     }
 }
 
@@ -110,11 +110,18 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
         const claimedHeight = Number(claimedState.header.height);
         const ourHeight: number = this.ourHeight();
         if (await this.weHavePeersHighestBlock(claimedState, ourHeight)) {
-            // Case3 and Case5
+            // Case3 and Case5 -> peersQuorum++;
             return new PeerVerificationResult(ourHeight, claimedHeight, claimedHeight);
         }
 
         if (fast) {
+            /* Case 1 -> peersNoQuorum++
+             * Case 2 -> peersNoQuorum++
+             * Case 4 -> peersNoQuorum++; peersForked++;
+             * Case 6 -> peersNoQuorum++; peersForked++;
+             *
+             * All those cases will report PeerVerificationResult.forked === true. That is ok, because we use fast check only for quorum validation.
+             */
             return new PeerVerificationResult(ourHeight, claimedHeight);
         }
 
