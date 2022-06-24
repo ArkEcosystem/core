@@ -127,10 +127,18 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
                 throw new PeerPingTimeoutError(timeoutMsec);
             }
 
-            peer.verificationResult = await peerVerifier.checkState(pingResponse.state, deadline, fast);
+            if (fast) {
+                peer.fastVerificationResult = await peerVerifier.checkStateFast(pingResponse.state, deadline);
 
-            if (!peer.isVerified()) {
-                throw new PeerVerificationFailedError();
+                if (!peer.fastVerificationResult) {
+                    throw new PeerVerificationFailedError();
+                }
+            } else {
+                peer.verificationResult = await peerVerifier.checkState(pingResponse.state, deadline);
+
+                if (!peer.isVerified()) {
+                    throw new PeerVerificationFailedError();
+                }
             }
         }
 

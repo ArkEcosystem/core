@@ -291,8 +291,8 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
             .reverse();
 
         for (const forkHeight of forkHeights) {
-            const forkPeerCount = forkVerificationResults.filter((vr) => vr.highestCommonHeight! === forkHeight).length;
-            const ourPeerCount = verificationResults.filter((vr) => vr.highestCommonHeight! > forkHeight).length + 1;
+            const forkPeerCount = forkVerificationResults.filter((vr) => vr.highestCommonHeight === forkHeight).length;
+            const ourPeerCount = verificationResults.filter((vr) => vr.highestCommonHeight > forkHeight).length + 1;
 
             if (forkPeerCount > ourPeerCount) {
                 const blocksToRollback = lastBlock.data.height - forkHeight;

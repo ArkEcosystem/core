@@ -43,7 +43,13 @@ export class Peer implements Contracts.P2P.Peer {
      * @type {(PeerVerificationResult | undefined)}
      * @memberof Peer
      */
-    public verificationResult: PeerVerificationResult | undefined;
+    public verificationResult: Contracts.P2P.PeerVerificationResult | undefined;
+
+    /**
+     * @type {(PeerVerificationResult | undefined)}
+     * @memberof Peer
+     */
+    public fastVerificationResult: Contracts.P2P.FastPeerVerificationResult | undefined;
 
     /**
      * @type {Contracts.P2P.PeerState}
