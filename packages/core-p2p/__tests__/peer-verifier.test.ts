@@ -1,6 +1,6 @@
 import { Application, Container, Contracts } from "@packages/core-kernel";
 import { Peer } from "@packages/core-p2p/src/peer";
-import { PeerVerificationResult, PeerVerifier } from "@packages/core-p2p/src/peer-verifier";
+import { PeerVerificationResult, FastPeerVerificationResult, PeerVerifier } from "@packages/core-p2p/src/peer-verifier";
 import { Blocks } from "@packages/crypto";
 
 describe("PeerVerifier", () => {
@@ -395,7 +395,7 @@ describe("PeerVerifier", () => {
                 stateStore.getLastHeight = jest
                     .fn()
                     .mockReturnValueOnce(claimedState.height)
-                    .mockRejectedValueOnce(undefined);
+                    .mockReturnValueOnce(undefined);
                 stateStore.getLastBlocks = jest
                     .fn()
                     .mockReturnValueOnce([{ data: { height: claimedState.height }, getHeader: () => ourHeader }]);
@@ -799,6 +799,351 @@ describe("PeerVerifier", () => {
 
                 expect(result).toBeInstanceOf(PeerVerificationResult);
                 expect(result.forked).toBeTrue();
+
+                spyFromData.mockRestore();
+                peerCommunicator.getPeerBlocks = jest.fn();
+                databaseInterceptor.getBlocksByHeight = jest.fn();
+                peerCommunicator.hasCommonBlocks = jest.fn();
+            });
+        });
+    });
+
+    describe("checkStateFast", () => {
+        describe("when claimed state block header does not match claimed state height", () => {
+            it("should return undefined", async () => {
+                const claimedState: Contracts.P2P.PeerState = {
+                    height: 18,
+                    forgingAllowed: false,
+                    currentSlot: 18,
+                    header: {
+                        height: 19,
+                        id: "13965046748333390338",
+                    },
+                };
+
+                expect(await peerVerifier.checkState(claimedState, Date.now() + 2000)).toBeUndefined();
+            });
+        });
+
+        describe("when Case1. Peer height > our height and our highest block is part of the peer's chain", () => {
+            it("should return PeerVerificationResult forked", async () => {
+                const generatorPublicKey = "03c5282b639d0e8f94cfac6c0ed242d1634d8a2c93cbd76c6ed2856a9f19cf6a13";
+                const claimedState: Contracts.P2P.PeerState = {
+                    height: 18,
+                    forgingAllowed: false,
+                    currentSlot: 18,
+                    header: {
+                        height: 18,
+                        id: "13965046748333390338",
+                        generatorPublicKey,
+                    },
+                };
+                const ourHeader = {
+                    height: 15,
+                    id: "11165046748333390338",
+                };
+
+                stateStore.getLastHeight = jest.fn().mockReturnValue(ourHeader.height);
+                stateStore.getLastBlocks = jest
+                    .fn()
+                    .mockReturnValue([{ data: { height: ourHeader.height }, getHeader: () => ourHeader }]);
+                databaseInterceptor.getBlocksByHeight = jest.fn().mockImplementation((blockHeights) =>
+                    blockHeights.map((height: number) => ({
+                        height,
+                        id: height.toString().padStart(2, "0").repeat(20), // just using height to mock the id
+                    })),
+                );
+                peerCommunicator.hasCommonBlocks = jest.fn().mockImplementation((_, ids) => ({
+                    id: ids[ids.length - 1],
+                    height: parseInt(ids[ids.length - 1].slice(0, 2)),
+                }));
+                trigger.call = jest.fn().mockReturnValue([
+                    {
+                        getPublicKey: () => {
+                            return generatorPublicKey;
+                        },
+                    },
+                ]);
+                const spyFromData = jest
+                    .spyOn(Blocks.BlockFactory, "fromData")
+                    .mockImplementation(blockWithIdFromDataMock);
+
+                const result = await peerVerifier.checkStateFast(claimedState, Date.now() + 2000);
+
+                expect(result).toBeInstanceOf(FastPeerVerificationResult);
+                expect(result.forked).toBeTrue();
+                expect(result.myHeight).toEqual(15);
+                expect(result.hisHeight).toEqual(18);
+                expect(result.highestCommonHeight).toBeUndefined();
+
+                spyFromData.mockRestore();
+                peerCommunicator.getPeerBlocks = jest.fn();
+                databaseInterceptor.getBlocksByHeight = jest.fn();
+                peerCommunicator.hasCommonBlocks = jest.fn();
+                stateStore.getLastHeight = jest.fn();
+                trigger.call = jest.fn();
+                stateStore.getLastBlocks = jest.fn();
+            });
+        });
+
+        describe("when Case2. Peer height > our height and our highest block is not part of the peer's chain", () => {
+            const claimedState: Contracts.P2P.PeerState = {
+                height: 18,
+                forgingAllowed: false,
+                currentSlot: 18,
+                header: {
+                    height: 18,
+                    id: "13965046748333390338",
+                },
+            };
+            const ourHeader = {
+                height: 15,
+                id: "11165046748333390338",
+            };
+
+            it("should return PeerVerificationResult forked", async () => {
+                const generatorPublicKey = "03c5282b639d0e8f94cfac6c0ed242d1634d8a2c93cbd76c6ed2856a9f19cf6a13";
+                stateStore.getLastHeight = jest
+                    .fn()
+                    .mockReturnValueOnce(ourHeader.height)
+                    .mockReturnValueOnce(ourHeader.height);
+                stateStore.getLastBlocks = jest
+                    .fn()
+                    .mockReturnValueOnce([{ data: { height: ourHeader.height }, getHeader: () => ourHeader }]);
+                databaseInterceptor.getBlocksByHeight = jest.fn().mockImplementation((blockHeights) =>
+                    blockHeights.map((height: number) => ({
+                        height,
+                        id: height.toString().padStart(2, "0").repeat(20), // just using height to mock the id
+                    })),
+                );
+                trigger.call = jest.fn().mockReturnValue([
+                    {
+                        getPublicKey: () => {
+                            return generatorPublicKey;
+                        },
+                    },
+                ]); // getActiveDelegates mock
+                const spyFromData = jest.spyOn(Blocks.BlockFactory, "fromData").mockImplementation(blockFromDataMock);
+
+                const result = await peerVerifier.checkStateFast(claimedState, Date.now() + 2000);
+
+                expect(result).toBeInstanceOf(FastPeerVerificationResult);
+                expect(result.forked).toBeTrue();
+                expect(result.myHeight).toEqual(15);
+                expect(result.hisHeight).toEqual(18);
+                expect(result.highestCommonHeight).toBeUndefined();
+
+                spyFromData.mockRestore();
+                peerCommunicator.getPeerBlocks = jest.fn();
+                databaseInterceptor.getBlocksByHeight = jest.fn();
+                peerCommunicator.hasCommonBlocks = jest.fn();
+            });
+        });
+
+        describe("when Case3. Peer height == our height and our latest blocks are the same", () => {
+            const claimedState: Contracts.P2P.PeerState = {
+                height: 15,
+                forgingAllowed: false,
+                currentSlot: 15,
+                header: {
+                    height: 15,
+                    id: "13965046748333390338",
+                },
+            };
+
+            it("should return PeerVerificationResult not forked", async () => {
+                stateStore.getLastHeight = jest.fn().mockReturnValueOnce(claimedState.height);
+                stateStore.getLastBlocks = jest
+                    .fn()
+                    .mockReturnValueOnce([
+                        { data: { height: claimedState.height }, getHeader: () => claimedState.header },
+                    ]);
+                databaseInterceptor.getBlocksByHeight = jest.fn().mockReturnValueOnce([{ id: claimedState.header.id }]);
+
+                const result = await peerVerifier.checkStateFast(claimedState, Date.now() + 2000);
+
+                expect(result).toBeInstanceOf(FastPeerVerificationResult);
+                expect(result.forked).toBeFalse();
+                expect(result.myHeight).toEqual(15);
+                expect(result.hisHeight).toEqual(15);
+                expect(result.highestCommonHeight).toEqual(15);
+            });
+        });
+
+        describe("when Case4. Peer height == our height and our latest blocks differ", () => {
+            const claimedState: Contracts.P2P.PeerState = {
+                height: 15,
+                forgingAllowed: false,
+                currentSlot: 15,
+                header: {
+                    height: 15,
+                    id: "13965046748333390338",
+                },
+            };
+            const ourHeader = {
+                height: 15,
+                id: "11165046748333390338",
+            };
+
+            it.each([[true], [false]])(
+                "should return PeerVerificationResult forked when claimed state block header is valid",
+                async (delegatesEmpty) => {
+                    const generatorPublicKey = "03c5282b639d0e8f94cfac6c0ed242d1634d8a2c93cbd76c6ed2856a9f19cf6a13";
+                    stateStore.getLastHeight = jest
+                        .fn()
+                        .mockReturnValueOnce(claimedState.height)
+                        .mockReturnValueOnce(claimedState.height);
+                    stateStore.getLastBlocks = jest
+                        .fn()
+                        .mockReturnValueOnce([{ data: { height: claimedState.height }, getHeader: () => ourHeader }]);
+                    databaseInterceptor.getBlocksByHeight = jest
+                        .fn()
+                        .mockReturnValueOnce([{ id: ourHeader.id }])
+                        .mockImplementation((blockHeights) =>
+                            blockHeights.map((height: number) => ({
+                                height,
+                                id: height.toString().padStart(2, "0").repeat(20), // just using height to mock the id
+                            })),
+                        );
+
+                    if (delegatesEmpty) {
+                        // getActiveDelegates return empty array, should still work using dpos state
+                        trigger.call = jest.fn().mockReturnValue([]); // getActiveDelegates mock
+                        dposState.getRoundInfo = jest
+                            .fn()
+                            .mockReturnValueOnce({ round: 1, maxDelegates: 51 })
+                            .mockReturnValueOnce({ round: 1, maxDelegates: 51 });
+                        dposState.getRoundDelegates = jest
+                            .fn()
+                            .mockReturnValueOnce([
+                                {
+                                    getPublicKey: () => {
+                                        return generatorPublicKey;
+                                    },
+                                },
+                            ])
+                            .mockReturnValueOnce([
+                                {
+                                    getPublicKey: () => {
+                                        return generatorPublicKey;
+                                    },
+                                },
+                            ]);
+                    } else {
+                        trigger.call = jest.fn().mockReturnValue([
+                            {
+                                getPublicKey: () => {
+                                    return generatorPublicKey;
+                                },
+                            },
+                        ]); // getActiveDelegates mock
+                    }
+
+                    const spyFromData = jest
+                        .spyOn(Blocks.BlockFactory, "fromData")
+                        .mockImplementation(blockFromDataMock);
+
+                    const result = await peerVerifier.checkStateFast(claimedState, Date.now() + 2000);
+
+                    expect(result).toBeInstanceOf(FastPeerVerificationResult);
+                    expect(result.forked).toBeTrue();
+                    expect(result.myHeight).toEqual(15);
+                    expect(result.hisHeight).toEqual(15);
+                    expect(result.highestCommonHeight).toBeUndefined();
+
+                    spyFromData.mockRestore();
+                    peerCommunicator.getPeerBlocks = jest.fn();
+                    databaseInterceptor.getBlocksByHeight = jest.fn();
+                    peerCommunicator.hasCommonBlocks = jest.fn();
+                },
+            );
+        });
+
+        describe("when Case5. Peer height < our height and peer's latest block is part of our chain", () => {
+            const claimedState: Contracts.P2P.PeerState = {
+                height: 15,
+                forgingAllowed: false,
+                currentSlot: 15,
+                header: {
+                    height: 15,
+                    id: "13965046748333390338",
+                },
+            };
+            const ourHeight = claimedState.height + 2;
+            const ourHeader = {
+                height: ourHeight,
+                id: "6857401089891373446",
+            };
+
+            it("should return PeerVerificationResult not forked", async () => {
+                stateStore.getLastHeight = jest.fn().mockReturnValueOnce(ourHeight);
+                stateStore.getLastBlocks = jest.fn().mockReturnValueOnce([
+                    { data: { height: ourHeight }, getHeader: () => ourHeader },
+                    { data: { height: claimedState.height }, getHeader: () => claimedState.header },
+                ]);
+                databaseInterceptor.getBlocksByHeight = jest.fn().mockReturnValueOnce([{ id: claimedState.header.id }]);
+
+                const result = await peerVerifier.checkStateFast(claimedState, Date.now() + 2000);
+
+                expect(result).toBeInstanceOf(FastPeerVerificationResult);
+                expect(result.forked).toBeFalse();
+                expect(result.myHeight).toEqual(17);
+                expect(result.hisHeight).toEqual(15);
+                expect(result.highestCommonHeight).toEqual(15);
+            });
+        });
+
+        describe("when Case6. Peer height < our height and peer's latest block is not part of our chain", () => {
+            const generatorPublicKey = "03c5282b639d0e8f94cfac6c0ed242d1634d8a2c93cbd76c6ed2856a9f19cf6a13";
+            const claimedState: Contracts.P2P.PeerState = {
+                height: 12,
+                forgingAllowed: false,
+                currentSlot: 12,
+                header: {
+                    height: 12,
+                    id: "13965046748333390338",
+                    generatorPublicKey,
+                },
+            };
+            const ourHeader = {
+                height: 15,
+                id: "11165046748333390338",
+            };
+
+            it("should return PeerVerificationResult forked", async () => {
+                stateStore.getLastHeight = jest
+                    .fn()
+                    .mockReturnValueOnce(ourHeader.height)
+                    .mockReturnValueOnce(ourHeader.height);
+                stateStore.getLastBlocks = jest
+                    .fn()
+                    .mockReturnValueOnce([{ data: { height: ourHeader.height }, getHeader: () => ourHeader }]);
+                databaseInterceptor.getBlocksByHeight = jest
+                    .fn()
+                    .mockReturnValueOnce([{ id: ourHeader.id }])
+                    .mockImplementation((blockHeights) =>
+                        blockHeights.map((height: number) => ({
+                            height,
+                            id: height.toString().padStart(2, "0").repeat(20), // just using height to mock the id
+                        })),
+                    );
+                trigger.call = jest.fn().mockReturnValue([
+                    {
+                        getPublicKey: () => {
+                            return generatorPublicKey;
+                        },
+                    },
+                ]);
+
+                const spyFromData = jest.spyOn(Blocks.BlockFactory, "fromData").mockImplementation(blockFromDataMock);
+
+                const result = await peerVerifier.checkStateFast(claimedState, Date.now() + 2000);
+
+                expect(result).toBeInstanceOf(FastPeerVerificationResult);
+                expect(result.forked).toBeTrue();
+                expect(result.myHeight).toEqual(15);
+                expect(result.hisHeight).toEqual(12);
+                expect(result.highestCommonHeight).toBeUndefined();
 
                 spyFromData.mockRestore();
                 peerCommunicator.getPeerBlocks = jest.fn();

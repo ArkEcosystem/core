@@ -23,6 +23,7 @@ export interface Peer {
     lastPinged: Dayjs | undefined;
     sequentialErrorCounter: number;
     verificationResult: PeerVerificationResult | undefined;
+    fastVerificationResult: FastPeerVerificationResult | undefined;
 
     isVerified(): boolean;
     isForked(): boolean;
@@ -72,5 +73,11 @@ export interface PeerVerificationResult {
     readonly myHeight: number;
     readonly hisHeight: number;
     readonly highestCommonHeight: number;
+    readonly forked: boolean;
+}
+
+export interface FastPeerVerificationResult {
+    readonly myHeight: number;
+    readonly hisHeight: number;
     readonly forked: boolean;
 }

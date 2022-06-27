@@ -144,7 +144,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
             Promise.all(
                 peers.map(async (peer) => {
                     try {
-                        await this.communicator.ping(peer, pingDelay, forcePing);
+                        await this.communicator.ping(peer, pingDelay, forcePing, fast);
                     } catch (error) {
                         unresponsivePeers++;
 
@@ -285,7 +285,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
         );
 
         const forkHeights: number[] = forkVerificationResults
-            .map((verificationResult: Contracts.P2P.PeerVerificationResult) => verificationResult.highestCommonHeight)
+            .map((verificationResult) => verificationResult.highestCommonHeight!)
             .filter((forkHeight, i, arr) => arr.indexOf(forkHeight) === i) // unique
             .sort()
             .reverse();
