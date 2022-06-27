@@ -19,6 +19,22 @@ export class PeerVerificationResult {
     }
 }
 
+export class FastPeerVerificationResult {
+    public constructor(
+        public readonly myHeight: number,
+        public readonly hisHeight: number,
+        public readonly highestCommonHeight?: number,
+    ) {}
+
+    public get forked(): boolean {
+        if (this.highestCommonHeight) {
+            return this.highestCommonHeight !== this.myHeight && this.highestCommonHeight !== this.hisHeight;
+        }
+
+        return true;
+    }
+}
+
 // todo: review the implementation
 @Container.injectable()
 export class PeerVerifier implements Contracts.P2P.PeerVerifier {
@@ -120,6 +136,31 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
         this.log(Severity.DEBUG_EXTRA, "success");
 
         return new PeerVerificationResult(ourHeight, claimedHeight, highestCommonBlockHeight);
+    }
+
+    public async checkStateFast(
+        claimedState: Contracts.P2P.PeerState,
+        deadline: number,
+    ): Promise<FastPeerVerificationResult | undefined> {
+        if (!(await this.checkStateHeader(claimedState))) {
+            return undefined;
+        }
+
+        const claimedHeight = Number(claimedState.header.height);
+        const ourHeight: number = this.ourHeight();
+        if (await this.weHavePeersHighestBlock(claimedState, ourHeight)) {
+            // Case3 and Case5 -> peersQuorum++;
+            return new FastPeerVerificationResult(ourHeight, claimedHeight, claimedHeight);
+        }
+
+        /* Case 1 -> peersNoQuorum++
+         * Case 2 -> peersNoQuorum++
+         * Case 4 -> peersNoQuorum++; peersForked++;
+         * Case 6 -> peersNoQuorum++; peersForked++;
+         *
+         * All those cases will report PeerVerificationResult.forked === true. That is ok, because we use fast check only for quorum validation.
+         */
+        return new FastPeerVerificationResult(ourHeight, claimedHeight);
     }
 
     private async checkStateHeader(claimedState: Contracts.P2P.PeerState): Promise<boolean> {

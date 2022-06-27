@@ -400,7 +400,7 @@ describe("NetworkMonitor", () => {
 
             expect(communicator.ping).toBeCalledTimes(peers.length);
             for (const peer of peers) {
-                expect(communicator.ping).toBeCalledWith(peer, config.verifyTimeout, expect.anything());
+                expect(communicator.ping).toBeCalledWith(peer, config.verifyTimeout, expect.anything(), false);
             }
         });
 
@@ -412,7 +412,7 @@ describe("NetworkMonitor", () => {
 
             expect(communicator.ping).toBeCalledTimes(peers.length);
             for (const peer of peers) {
-                expect(communicator.ping).toBeCalledWith(peer, config.verifyTimeout, expect.anything());
+                expect(communicator.ping).toBeCalledWith(peer, config.verifyTimeout, expect.anything(), false);
             }
         });
 
