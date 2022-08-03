@@ -220,6 +220,25 @@ export class BlockProcessor {
     }
 
     private async validateGenerator(block: Interfaces.IBlock): Promise<boolean> {
+        const walletRepository = this.app.getTagged<Contracts.State.WalletRepository>(
+            Container.Identifiers.WalletRepository,
+            "state",
+            "blockchain",
+        );
+
+        if (!walletRepository.hasByPublicKey(block.data.generatorPublicKey)) {
+            return false;
+        }
+
+        const generatorWallet: Contracts.State.Wallet = walletRepository.findByPublicKey(block.data.generatorPublicKey);
+
+        let generatorUsername: string;
+        try {
+            generatorUsername = generatorWallet.getAttribute("delegate.username");
+        } catch {
+            return false;
+        }
+
         const blockTimeLookup = await AppUtils.forgingInfoCalculator.getBlockTimeLookup(this.app, block.data.height);
 
         const roundInfo: Contracts.Shared.RoundInfo = AppUtils.roundCalculator.calculateRound(block.data.height);
@@ -234,20 +253,6 @@ export class BlockProcessor {
         );
 
         const forgingDelegate: Contracts.State.Wallet = delegates[forgingInfo.currentForger];
-
-        const walletRepository = this.app.getTagged<Contracts.State.WalletRepository>(
-            Container.Identifiers.WalletRepository,
-            "state",
-            "blockchain",
-        );
-        const generatorWallet: Contracts.State.Wallet = walletRepository.findByPublicKey(block.data.generatorPublicKey);
-
-        let generatorUsername: string;
-        try {
-            generatorUsername = generatorWallet.getAttribute("delegate.username");
-        } catch {
-            return false;
-        }
 
         if (!forgingDelegate) {
             this.logger.debug(

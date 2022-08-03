@@ -33,6 +33,7 @@ describe("BlockProcessor", () => {
 
     const walletRepository = {
         findByPublicKey: jest.fn(),
+        hasByPublicKey: jest.fn(),
         getNonce: jest.fn(),
     };
     const transactionHandlerRegistry = {
@@ -310,6 +311,8 @@ describe("BlockProcessor", () => {
             const generatorWallet = {
                 getAttribute: jest.fn().mockReturnValue("generatorusername"),
             };
+
+            walletRepository.hasByPublicKey = jest.fn().mockReturnValue(true);
             walletRepository.findByPublicKey = jest
                 .fn()
                 .mockReturnValueOnce(generatorWallet)
@@ -331,6 +334,30 @@ describe("BlockProcessor", () => {
             await expect(blockProcessor.process(block)).toResolve();
 
             expect(InvalidGeneratorHandler.prototype.execute).toBeCalledTimes(1);
+            expect(walletRepository.hasByPublicKey).toHaveBeenCalledWith(block.data.generatorPublicKey);
+            expect(walletRepository.findByPublicKey).toHaveBeenCalledWith(block.data.generatorPublicKey);
+            expect(walletRepository.findByPublicKey).toHaveBeenCalledTimes(2);
+            expect(generatorWallet.getAttribute).toHaveBeenCalledTimes(2);
+        });
+
+        it("should execute InvalidGeneratorHandler when wallet doesn't exists", async () => {
+            const block = {
+                ...chainedBlock,
+            };
+            blockchain.getLastBlock = jest.fn().mockReturnValueOnce(baseBlock);
+            const generatorWallet = {
+                getAttribute: jest.fn().mockReturnValue("generatorusername"),
+            };
+            walletRepository.hasByPublicKey = jest.fn().mockReturnValue(false);
+            walletRepository.findByPublicKey = jest.fn().mockReturnValueOnce(generatorWallet);
+
+            const blockProcessor = sandbox.app.resolve<BlockProcessor>(BlockProcessor);
+
+            await expect(blockProcessor.process(block)).toResolve();
+
+            expect(InvalidGeneratorHandler.prototype.execute).toBeCalledTimes(1);
+            expect(walletRepository.hasByPublicKey).toHaveBeenCalledWith(block.data.generatorPublicKey);
+            expect(walletRepository.findByPublicKey).not.toBeCalled();
         });
 
         it("should execute InvalidGeneratorHandler when generatorWallet.getAttribute() throws", async () => {
@@ -343,6 +370,7 @@ describe("BlockProcessor", () => {
                     throw new Error("oops");
                 }),
             };
+            walletRepository.hasByPublicKey = jest.fn().mockReturnValue(true);
             walletRepository.findByPublicKey = jest
                 .fn()
                 .mockReturnValueOnce(generatorWallet)
@@ -358,6 +386,10 @@ describe("BlockProcessor", () => {
             await blockProcessor.process(block);
 
             expect(InvalidGeneratorHandler.prototype.execute).toBeCalledTimes(1);
+
+            expect(walletRepository.hasByPublicKey).toHaveBeenCalledWith(block.data.generatorPublicKey);
+            expect(walletRepository.findByPublicKey).toHaveBeenCalledWith(block.data.generatorPublicKey);
+            expect(generatorWallet.getAttribute).toHaveBeenCalledOnce();
         });
     });
 
@@ -379,6 +411,7 @@ describe("BlockProcessor", () => {
         const generatorWallet = {
             getAttribute: jest.fn().mockReturnValue("generatorusername"),
         };
+        walletRepository.hasByPublicKey = jest.fn().mockReturnValue(true);
         walletRepository.findByPublicKey = jest.fn().mockReturnValueOnce(generatorWallet);
         stateStore.getLastBlock.mockReturnValueOnce(baseBlock);
         stateStore.getLastStoredBlockHeight.mockReturnValueOnce(baseBlock.data.height);
@@ -415,6 +448,7 @@ describe("BlockProcessor", () => {
         const generatorWallet = {
             getAttribute: jest.fn().mockReturnValue("generatorusername"),
         };
+        walletRepository.hasByPublicKey = jest.fn().mockReturnValue(true);
         walletRepository.findByPublicKey = jest.fn().mockReturnValueOnce(generatorWallet);
         stateStore.getLastBlock.mockReturnValueOnce({ data: { height: 2 } });
         stateStore.getLastBlocks.mockReturnValueOnce([
@@ -439,6 +473,7 @@ describe("BlockProcessor", () => {
         const generatorWallet = {
             getAttribute: jest.fn().mockReturnValue("generatorusername"),
         };
+        walletRepository.hasByPublicKey = jest.fn().mockReturnValue(true);
         walletRepository.findByPublicKey = jest.fn().mockReturnValueOnce(generatorWallet);
 
         const blockProcessor = sandbox.app.resolve<BlockProcessor>(BlockProcessor);
