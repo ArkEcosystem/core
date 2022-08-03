@@ -46,7 +46,11 @@ export class BlocksController extends Controller {
         const block = this.stateStore.getGenesisBlock();
 
         if (request.query.transform) {
-            return this.respondWithResource(block, BlockWithTransactionsResource, true);
+            return this.respondWithResource(
+                { data: block.data, transactions: block.transactions.map((t) => t.data) },
+                BlockWithTransactionsResource,
+                true,
+            );
         } else {
             return this.respondWithResource(block.data, BlockResource, false);
         }
@@ -56,7 +60,11 @@ export class BlocksController extends Controller {
         const block = this.blockchain.getLastBlock();
 
         if (request.query.transform) {
-            return this.respondWithResource(block, BlockWithTransactionsResource, true);
+            return this.respondWithResource(
+                { data: block.data, transactions: block.transactions.map((t) => t.data) },
+                BlockWithTransactionsResource,
+                true,
+            );
         } else {
             return this.respondWithResource(block.data, BlockResource, false);
         }
