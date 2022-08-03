@@ -39,7 +39,7 @@
         "env-paths": "2.2.0",
         "fast-memoize": "2.5.2",
         "fs-extra": "8.1.0",
-        "got": "11.8.2",
+        "got": "11.8.5",
         "jest-extended": "0.11.5",
         "lodash.clonedeep": "4.5.0",
         "tmp": "0.2.1",
