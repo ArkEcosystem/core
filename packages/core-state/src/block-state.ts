@@ -24,14 +24,7 @@ export class BlockState implements Contracts.State.BlockState {
 
         const previousBlock = this.state.getLastBlock();
         const forgerWallet = this.walletRepository.findByPublicKey(block.data.generatorPublicKey);
-        /**
-         * TODO: side-effect of findByPublicKey is that it creates a wallet if one isn't found - is that correct?
-         * If so, this code can be deleted.
-         */
-        // if (!forgerWallet) {
-        //     const msg = `Failed to lookup forger '${block.data.generatorPublicKey}' of block '${block.data.id}'.`;
-        //     this.app.terminate(msg);
-        // }
+
         const appliedTransactions: Interfaces.ITransaction[] = [];
         try {
             for (const transaction of block.transactions) {
@@ -56,14 +49,6 @@ export class BlockState implements Contracts.State.BlockState {
 
     public async revertBlock(block: Interfaces.IBlock): Promise<void> {
         const forgerWallet = this.walletRepository.findByPublicKey(block.data.generatorPublicKey);
-        /**
-         * TODO: side-effect of findByPublicKey is that it creates a wallet if one isn't found - is that correct?
-         * If so, this code can be deleted.
-         */
-        // if (!forgerWallet) {
-        //     const msg = `Failed to lookup forger '${block.data.generatorPublicKey}' of block '${block.data.id}'.`;
-        //     this.app.terminate(msg);
-        // }
 
         const revertedTransactions: Interfaces.ITransaction[] = [];
         try {

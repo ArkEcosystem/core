@@ -113,13 +113,15 @@ export class TransactionFilter implements Contracts.Database.TransactionFilter {
     private async handleSenderIdCriteria(
         criteria: Contracts.Search.EqualCriteria<string>,
     ): Promise<Contracts.Search.Expression<Transaction>> {
-        const senderWallet = this.walletRepository.findByAddress(criteria);
+        if (this.walletRepository.hasByAddress(criteria)) {
+            const senderWallet = this.walletRepository.findByAddress(criteria);
 
-        if (senderWallet && senderWallet.getPublicKey()) {
-            return { op: "equal", property: "senderPublicKey", value: senderWallet.getPublicKey() };
-        } else {
-            return { op: "false" };
+            if (senderWallet.getPublicKey()) {
+                return { op: "equal", property: "senderPublicKey", value: senderWallet.getPublicKey() };
+            }
         }
+
+        return { op: "false" };
     }
 
     private async handleRecipientIdCriteria(
@@ -140,27 +142,33 @@ export class TransactionFilter implements Contracts.Database.TransactionFilter {
             ],
         };
 
-        const recipientWallet = this.walletRepository.findByAddress(criteria);
-        if (recipientWallet && recipientWallet.getPublicKey()) {
-            const delegateRegistrationExpression: Contracts.Search.AndExpression<Transaction> = {
-                op: "and",
-                expressions: [
-                    { op: "equal", property: "typeGroup", value: Enums.TransactionTypeGroup.Core },
-                    { op: "equal", property: "type", value: Enums.TransactionType.DelegateRegistration },
-                    { op: "equal", property: "senderPublicKey", value: recipientWallet.getPublicKey() },
-                ],
-            };
+        if (this.walletRepository.hasByAddress(criteria)) {
+            const recipientWallet = this.walletRepository.findByAddress(criteria);
+            if (recipientWallet && recipientWallet.getPublicKey()) {
+                const delegateRegistrationExpression: Contracts.Search.AndExpression<Transaction> = {
+                    op: "and",
+                    expressions: [
+                        { op: "equal", property: "typeGroup", value: Enums.TransactionTypeGroup.Core },
+                        { op: "equal", property: "type", value: Enums.TransactionType.DelegateRegistration },
+                        { op: "equal", property: "senderPublicKey", value: recipientWallet.getPublicKey() },
+                    ],
+                };
 
-            return {
-                op: "or",
-                expressions: [recipientIdExpression, multipaymentRecipientIdExpression, delegateRegistrationExpression],
-            };
-        } else {
-            return {
-                op: "or",
-                expressions: [recipientIdExpression, multipaymentRecipientIdExpression],
-            };
+                return {
+                    op: "or",
+                    expressions: [
+                        recipientIdExpression,
+                        multipaymentRecipientIdExpression,
+                        delegateRegistrationExpression,
+                    ],
+                };
+            }
         }
+
+        return {
+            op: "or",
+            expressions: [recipientIdExpression, multipaymentRecipientIdExpression],
+        };
     }
 
     private async handleAssetCriteria(
