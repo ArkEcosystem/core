@@ -47,7 +47,7 @@ export class BlocksController extends Controller {
 
         if (request.query.transform) {
             return this.respondWithResource(
-                { data: block.data, transactions: block.data.transactions || [] },
+                { data: block.data, transactions: block.transactions.map((t) => t.data) },
                 BlockWithTransactionsResource,
                 true,
             );
@@ -61,7 +61,7 @@ export class BlocksController extends Controller {
 
         if (request.query.transform) {
             return this.respondWithResource(
-                { data: block.data, transactions: block.data.transactions || [] },
+                { data: block.data, transactions: block.transactions.map((t) => t.data) },
                 BlockWithTransactionsResource,
                 true,
             );
