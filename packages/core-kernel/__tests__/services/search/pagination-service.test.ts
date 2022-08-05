@@ -32,6 +32,20 @@ describe("PaginationService.getPage", () => {
         });
     });
 
+    it("should leave items order intact when sorting by undefined property", () => {
+        const paginationService = container.resolve(PaginationService);
+        const pagination = { offset: 0, limit: 100 };
+        const items = [{ v: 1 }, { v: 3 }, {}, { v: 2 }];
+        const sorting = [{ property: "dummy", direction: "asc" as const }];
+        const resultsPage = paginationService.getPage(pagination, sorting, items);
+
+        expect(resultsPage).toEqual({
+            results: [{ v: 1 }, { v: 3 }, {}, { v: 2 }],
+            totalCount: 4,
+            meta: { totalCountIsEstimate: false },
+        });
+    });
+
     it("should return items with undefined properties at the end", () => {
         const paginationService = container.resolve(PaginationService);
         const pagination = { offset: 0, limit: 100 };
@@ -207,6 +221,56 @@ describe("PaginationService.getPage", () => {
                 { a: Utils.BigNumber.make("1"), b: 101 },
                 { a: Utils.BigNumber.make("1"), b: 200 },
                 { a: Utils.BigNumber.make("2"), b: 100 },
+            ],
+            totalCount: 3,
+            meta: { totalCountIsEstimate: false },
+        });
+    });
+
+    it("should sort using second sorting instruction when first properties are null", () => {
+        const paginationService = container.resolve(PaginationService);
+        const pagination = { offset: 0, limit: 100 };
+        const items = [
+            { a: null, b: 101 },
+            { a: true, b: 100 },
+            { a: null, b: 200 },
+        ];
+        const sorting = [
+            { property: "a", direction: "asc" as const },
+            { property: "b", direction: "asc" as const },
+        ];
+        const resultsPage = paginationService.getPage(pagination, sorting, items);
+
+        expect(resultsPage).toEqual({
+            results: [
+                { a: true, b: 100 },
+                { a: null, b: 101 },
+                { a: null, b: 200 },
+            ],
+            totalCount: 3,
+            meta: { totalCountIsEstimate: false },
+        });
+    });
+
+    it("should sort using second sorting instruction when first properties are undefined", () => {
+        const paginationService = container.resolve(PaginationService);
+        const pagination = { offset: 0, limit: 100 };
+        const items = [
+            { a: undefined, b: 200 },
+            { a: undefined, b: 101 },
+            { a: true, b: 100 },
+        ];
+        const sorting = [
+            { property: "a", direction: "asc" as const },
+            { property: "b", direction: "asc" as const },
+        ];
+        const resultsPage = paginationService.getPage(pagination, sorting, items);
+
+        expect(resultsPage).toEqual({
+            results: [
+                { a: true, b: 100 },
+                { a: undefined, b: 101 },
+                { a: undefined, b: 200 },
             ],
             totalCount: 3,
             meta: { totalCountIsEstimate: false },
