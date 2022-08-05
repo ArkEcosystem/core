@@ -33,7 +33,7 @@
         "fast-levenshtein": "2.0.6",
         "fs-extra": "8.1.0",
         "glob": "7.1.7",
-        "got": "11.8.2",
+        "got": "11.8.5",
         "inversify": "5.1.1",
         "joi": "17.4.2",
         "kleur": "4.0.0",
