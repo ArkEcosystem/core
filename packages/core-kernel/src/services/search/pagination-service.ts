@@ -98,6 +98,9 @@ export class PaginationService {
             }
         }
 
-        return a.index < b.index ? -1 : 1;
+        if (a.index < b.index) return -1;
+        if (a.index > b.index) return 1;
+
+        return 0;
     }
 }
