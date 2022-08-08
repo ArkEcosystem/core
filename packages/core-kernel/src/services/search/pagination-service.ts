@@ -64,10 +64,10 @@ export class PaginationService {
             let valueB = get(b.item, property);
 
             // undefined and null are always at the end regardless of direction
-            if (typeof valueA === "undefined" && typeof valueB === "undefined") return 0;
+            if (typeof valueA === "undefined" && typeof valueB === "undefined") continue;
             if (typeof valueA === "undefined" && typeof valueB !== "undefined") return 1;
             if (typeof valueA !== "undefined" && typeof valueB === "undefined") return -1;
-            if (valueA === null && valueB === null) return 0;
+            if (valueA === null && valueB === null) continue;
             if (valueA === null && valueB !== null) return 1;
             if (valueA !== null && valueB === null) return -1;
 
