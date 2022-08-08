@@ -40,8 +40,7 @@
         "@types/hapi__boom": "7.4.1",
         "@types/hapi__joi": "17.1.7",
         "@types/ip": "1.1.0",
-        "@types/semver": "6.2.3",
-        "lodash.clonedeep": "4.5.0"
+        "@types/semver": "6.2.3"
     },
     "engines": {
         "node": ">=10.x"
