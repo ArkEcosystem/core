@@ -49,7 +49,7 @@ describe("Wallet Repository Copy On Write", () => {
     it("should find wallets by address", () => {
         const spyFindByAddress = jest.spyOn(walletRepo, "findByAddress");
         const clonedWallet = walletRepoCopyOnWrite.findByAddress("notexisting");
-        expect(spyFindByAddress).toHaveBeenCalledWith("notexisting");
+        expect(spyFindByAddress).not.toBeCalled();
         const originalWallet = walletRepo.findByAddress(clonedWallet.getAddress());
         expect(originalWallet).not.toBe(clonedWallet);
     });

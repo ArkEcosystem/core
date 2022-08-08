@@ -14,7 +14,14 @@ export class WalletRepositoryCopyOnWrite extends WalletRepository {
 
     public findByAddress(address: string): Contracts.State.Wallet {
         if (address && !this.hasByAddress(address)) {
-            this.cloneWallet(this.blockchainWalletRepository, this.blockchainWalletRepository.findByAddress(address));
+            if (this.blockchainWalletRepository.hasByAddress(address)) {
+                this.cloneWallet(
+                    this.blockchainWalletRepository,
+                    this.blockchainWalletRepository.findByAddress(address),
+                );
+            } else {
+                super.findByAddress(address);
+            }
         }
         return this.findByIndex(Contracts.State.WalletIndexes.Addresses, address)!;
     }
