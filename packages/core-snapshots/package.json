@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-snapshots",
-    "version": "4.0.0-next.17",
+    "version": "4.0.0-next.18",
     "description": "Provides live local streamed snapshots functionality for ARK Core",
     "license": "MIT",
     "contributors": [
