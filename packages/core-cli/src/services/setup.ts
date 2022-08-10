@@ -8,7 +8,7 @@ export class Setup {
     public isGlobal(): boolean {
         try {
             const globalDir = this.getGlobalRootDir();
-            return !!(globalDir && this.getLocalEntrypoint().startsWith(globalDir));
+            return !!(globalDir && this.getLocalEntrypoint().startsWith(globalDir.replace("node_modules", "")));
         } catch {
             return false;
         }
