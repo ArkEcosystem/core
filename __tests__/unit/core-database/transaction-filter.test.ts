@@ -4,6 +4,7 @@ import { Enums, Utils } from "@packages/crypto";
 
 const walletRepository = {
     findByAddress: jest.fn(),
+    hasByAddress: jest.fn(),
 };
 
 const container = new Container.Container();
@@ -11,6 +12,7 @@ container.bind(Container.Identifiers.WalletRepository).toConstantValue(walletRep
 
 beforeEach(() => {
     walletRepository.findByAddress.mockReset();
+    walletRepository.hasByAddress.mockReset();
 });
 
 describe("TransactionFilter.getExpression", () => {
@@ -25,6 +27,7 @@ describe("TransactionFilter.getExpression", () => {
 
     describe("TransactionCriteria.address", () => {
         it("should compare senderPublicKey, recipientId, multipayment recipientId, delegate registration sender", async () => {
+            walletRepository.hasByAddress.mockReturnValue(true);
             walletRepository.findByAddress
                 .mockReturnValueOnce({
                     getPublicKey: () => {
@@ -40,6 +43,7 @@ describe("TransactionFilter.getExpression", () => {
             const transactionFilter = container.resolve(TransactionFilter);
             const expression = await transactionFilter.getExpression({ address: "123" });
 
+            expect(walletRepository.hasByAddress).toBeCalledWith("123");
             expect(walletRepository.findByAddress).toBeCalledWith("123");
             expect(expression).toEqual({
                 op: "or",
@@ -67,10 +71,13 @@ describe("TransactionFilter.getExpression", () => {
         });
 
         it("should compare recipientId, multipayment recipientId when wallet not found", async () => {
+            walletRepository.hasByAddress.mockReturnValue(false);
+
             const transactionFilter = container.resolve(TransactionFilter);
             const expression = await transactionFilter.getExpression({ address: "123" });
 
-            expect(walletRepository.findByAddress).toBeCalledWith("123");
+            expect(walletRepository.hasByAddress).toBeCalledWith("123");
+            expect(walletRepository.findByAddress).not.toBeCalled();
             expect(expression).toEqual({
                 op: "or",
                 expressions: [
@@ -90,6 +97,7 @@ describe("TransactionFilter.getExpression", () => {
 
     describe("TransactionCriteria.senderId", () => {
         it("should compare senderPublicKey using equal expression", async () => {
+            walletRepository.hasByAddress.mockReturnValue(true);
             walletRepository.findByAddress.mockReturnValueOnce({
                 getPublicKey: () => {
                     return "456";
@@ -99,21 +107,26 @@ describe("TransactionFilter.getExpression", () => {
             const transactionFilter = container.resolve(TransactionFilter);
             const expression = await transactionFilter.getExpression({ senderId: "123" });
 
+            expect(walletRepository.hasByAddress).toBeCalledWith("123");
             expect(walletRepository.findByAddress).toBeCalledWith("123");
             expect(expression).toEqual({ property: "senderPublicKey", op: "equal", value: "456" });
         });
 
         it("should produce false expression when wallet not found", async () => {
+            walletRepository.hasByAddress.mockReturnValue(false);
+
             const transactionFilter = container.resolve(TransactionFilter);
             const expression = await transactionFilter.getExpression({ senderId: "123" });
 
-            expect(walletRepository.findByAddress).toBeCalledWith("123");
+            expect(walletRepository.hasByAddress).toBeCalledWith("123");
+            expect(walletRepository.findByAddress).not.toBeCalled();
             expect(expression).toEqual({ op: "false" });
         });
     });
 
     describe("TransactionCriteria.recipientId", () => {
         it("should compare using equal expression and include multipayment and include delegate registration transaction", async () => {
+            walletRepository.hasByAddress.mockReturnValue(true);
             walletRepository.findByAddress.mockReturnValueOnce({
                 getPublicKey: () => {
                     return "456";
@@ -123,6 +136,7 @@ describe("TransactionFilter.getExpression", () => {
             const transactionFilter = container.resolve(TransactionFilter);
             const expression = await transactionFilter.getExpression({ recipientId: "123" });
 
+            expect(walletRepository.hasByAddress).toBeCalledWith("123");
             expect(walletRepository.findByAddress).toBeCalledWith("123");
             expect(expression).toEqual({
                 op: "or",
@@ -149,10 +163,13 @@ describe("TransactionFilter.getExpression", () => {
         });
 
         it("should compare using equal expression and include multipayment when wallet not found", async () => {
+            walletRepository.hasByAddress.mockReturnValue(false);
+
             const transactionFilter = container.resolve(TransactionFilter);
             const expression = await transactionFilter.getExpression({ recipientId: "123" });
 
-            expect(walletRepository.findByAddress).toBeCalledWith("123");
+            expect(walletRepository.hasByAddress).toBeCalledWith("123");
+            expect(walletRepository.findByAddress).not.toBeCalled();
             expect(expression).toEqual({
                 op: "or",
                 expressions: [
