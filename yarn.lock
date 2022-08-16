@@ -20,10 +20,10 @@
     fast-memoize "^2.5.1"
     wif "^2.0.6"
 
-"@arkecosystem/crypto-networks@1.2.1":
-  version "1.2.1"
-  resolved "https://registry.npmjs.org/@arkecosystem/crypto-networks/-/crypto-networks-1.2.1.tgz#0715507bd0d04042ec710e09e2f51de4521de63e"
-  integrity sha512-Dyk9LZKzV4lS7uddjYQpeN1tS0r40i4tyWGFEipvlFEgqAECKQhH6MBnR+tWMC3c6Q+DV1EVA7F+n8KIjW4fmw==
+"@arkecosystem/crypto-networks@1.2.2":
+  version "1.2.2"
+  resolved "https://registry.npmjs.org/@arkecosystem/crypto-networks/-/crypto-networks-1.2.2.tgz#5efb52c161af5a05ee805e2327d58673024b4b5a"
+  integrity sha512-2iVeiYNnqtV9oZxWt/q9LFb/7zEMN2u/3pwTwIvBonrqtJwazorCBP+zbBwxeXivwnM4SxrCQweoTlujjvA+8w==
 
 "@arkecosystem/utils@1.3.1":
   version "1.3.1"
