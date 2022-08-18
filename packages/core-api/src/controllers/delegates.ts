@@ -6,13 +6,13 @@ import Hapi from "@hapi/hapi";
 import { Identifiers } from "../identifiers";
 import { BlockResource, BlockWithTransactionsResource } from "../resources";
 import {
+    blockCriteriaSchemaObject,
     DelegateCriteria,
     delegateCriteriaSchemaObject,
     DelegateResource,
     WalletCriteria,
     walletCriteriaSchemaObject,
     WalletResource,
-    blockCriteriaSchemaObject,
 } from "../resources-new";
 import { DelegateSearchService, WalletSearchService } from "../services";
 import { Controller } from "./controller";
