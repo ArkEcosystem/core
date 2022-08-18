@@ -12,6 +12,7 @@ import {
     WalletCriteria,
     walletCriteriaSchemaObject,
     WalletResource,
+    blockCriteriaSchemaObject,
 } from "../resources-new";
 import { DelegateSearchService, WalletSearchService } from "../services";
 import { Controller } from "./controller";
@@ -88,8 +89,12 @@ export class DelegatesController extends Controller {
             return notFound("Delegate not found");
         }
 
+        const blockCriteria = {
+            ...(this.getQueryCriteria(request.query, blockCriteriaSchemaObject) as Contracts.Shared.OrBlockCriteria),
+            generatorPublicKey: delegateResource.publicKey,
+        };
+
         if (request.query.transform) {
-            const blockCriteria = { generatorPublicKey: delegateResource.publicKey };
             const blockWithSomeTransactionsListResult = await this.blockHistoryService.listByCriteriaJoinTransactions(
                 blockCriteria,
                 { typeGroup: Enums.TransactionTypeGroup.Core, type: Enums.TransactionType.MultiPayment },
@@ -100,7 +105,6 @@ export class DelegatesController extends Controller {
 
             return this.toPagination(blockWithSomeTransactionsListResult, BlockWithTransactionsResource, true);
         } else {
-            const blockCriteria = { generatorPublicKey: delegateResource.publicKey };
             const blockListResult = await this.blockHistoryService.listByCriteria(
                 blockCriteria,
                 this.getListingOrder(request),
