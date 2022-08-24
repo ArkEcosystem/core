@@ -19,7 +19,7 @@ describe("PoolClearCommand", () => {
         prompts.inject([true]);
         jest.spyOn(cli.app, "getCorePath").mockResolvedValueOnce(null);
         await expect(cli.execute(Command)).toResolve();
-        expect(removeSync).toHaveBeenCalled();
+        expect(removeSync).toHaveBeenCalledTimes(3);
     });
 
     it("should throw any errors", async () => {
@@ -48,6 +48,6 @@ describe("PoolClearCommand", () => {
         prompts.inject([true]);
         jest.spyOn(cli.app, "getCorePath").mockResolvedValueOnce(null);
         await expect(cli.withFlags({ false: true }).execute(Command)).toResolve();
-        expect(removeSync).toHaveBeenCalled();
+        expect(removeSync).toHaveBeenCalledTimes(3);
     });
 });
