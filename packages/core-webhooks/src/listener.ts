@@ -1,4 +1,4 @@
-import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
 import { performance } from "perf_hooks";
 
 import * as conditions from "./conditions";
@@ -38,6 +38,15 @@ export class Listener {
     private readonly logger!: Contracts.Kernel.Logger;
 
     /**
+     * @private
+     * @type {Providers.PluginConfiguration}
+     * @memberof Listener
+     */
+    @Container.inject(Container.Identifiers.PluginConfiguration)
+    @Container.tagged("plugin", "@arkecosystem/core-webhooks")
+    private readonly webhooksConfiguration!: Providers.PluginConfiguration;
+
+    /**
      * @param {string} event
      * @memberof Listener
      */
@@ -64,7 +73,7 @@ export class Listener {
      * @returns {Promise<void>}
      * @memberof Broadcaster
      */
-    public async broadcast(webhook: Webhook, payload: object, timeout: number = 1500): Promise<void> {
+    public async broadcast(webhook: Webhook, payload: object): Promise<void> {
         const start = performance.now();
 
         try {
@@ -77,7 +86,7 @@ export class Listener {
                 headers: {
                     Authorization: webhook.token,
                 },
-                timeout,
+                timeout: this.webhooksConfiguration.getRequired("timeout"),
             });
 
             this.logger.debug(

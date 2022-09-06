@@ -27,6 +27,10 @@ const mockEventDispatcher = {
     dispatch: jest.fn(),
 };
 
+const webhooksConfiguration = {
+    getRequired: jest.fn().mockReturnValue(2000),
+};
+
 let spyOnPost: jest.SpyInstance;
 
 const expectFinishedEventData = () => {
@@ -54,6 +58,7 @@ beforeEach(() => {
     sandbox.app.bind<Database>(Identifiers.Database).to(Database).inSingletonScope();
 
     sandbox.app.bind(Container.Identifiers.LogService).toConstantValue(logger);
+    sandbox.app.bind(Container.Identifiers.PluginConfiguration).toConstantValue(webhooksConfiguration);
 
     database = sandbox.app.get<Database>(Identifiers.Database);
     database.boot();
