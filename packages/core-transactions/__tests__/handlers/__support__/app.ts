@@ -33,7 +33,10 @@ import { TransactionHandlerRegistry } from "@packages/core-transactions/src/hand
 import { Identities, Utils } from "@packages/crypto";
 import { IMultiSignatureAsset } from "@packages/crypto/src/interfaces";
 import { ServiceProvider } from "@packages/core-transactions/src/service-provider";
-import { SecondSignatureVerificationMemoizer } from "@packages/core-transactions/src/memoizers";
+import {
+    SecondSignatureVerificationMemoizer,
+    MultiSignatureVerificationMemoizer,
+} from "@packages/core-transactions/src/memoizers";
 
 const logger = {
     notice: jest.fn(),
@@ -131,6 +134,8 @@ export const initApp = (): Application => {
     app.bind(Identifiers.SecondSignatureVerificationMemoizer)
         .to(SecondSignatureVerificationMemoizer)
         .inSingletonScope();
+
+    app.bind(Identifiers.MultiSignatureVerificationMemoizer).to(MultiSignatureVerificationMemoizer).inSingletonScope();
 
     app.bind(Identifiers.TransactionHandler).to(One.TransferTransactionHandler);
     app.bind(Identifiers.TransactionHandler).to(Two.TransferTransactionHandler);

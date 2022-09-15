@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { Services, Providers, Container } from "@packages/core-kernel";
+import { Container, Providers, Services } from "@packages/core-kernel";
 import { Application } from "@packages/core-kernel/src/application";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import {
@@ -8,9 +8,12 @@ import {
     InvalidTransactionTypeError,
 } from "@packages/core-transactions/src/errors";
 import { One, TransactionHandler, TransactionHandlerConstructor, Two } from "@packages/core-transactions/src/handlers";
-import { SecondSignatureVerificationMemoizer } from "@packages/core-transactions/src/memoizers";
 import { TransactionHandlerProvider } from "@packages/core-transactions/src/handlers/handler-provider";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
+import {
+    MultiSignatureVerificationMemoizer,
+    SecondSignatureVerificationMemoizer,
+} from "@packages/core-transactions/src/memoizers";
 import { ServiceProvider } from "@packages/core-transactions/src/service-provider";
 import { Crypto, Enums, Identities, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
 import { TransactionSchema } from "@packages/crypto/src/transactions/types/schemas";
@@ -130,6 +133,7 @@ beforeEach(() => {
     app.bind(Identifiers.SecondSignatureVerificationMemoizer)
         .to(SecondSignatureVerificationMemoizer)
         .inSingletonScope();
+    app.bind(Identifiers.MultiSignatureVerificationMemoizer).to(MultiSignatureVerificationMemoizer).inSingletonScope();
 
     app.bind(Identifiers.TransactionHandler).to(One.TransferTransactionHandler);
     app.bind(Identifiers.TransactionHandler).to(Two.TransferTransactionHandler);
