@@ -68,7 +68,7 @@ export class Initialize implements Action {
             if (this.stateStore.getNetworkStart()) {
                 await this.app.get<Contracts.State.StateBuilder>(Container.Identifiers.StateBuilder).run();
                 await this.databaseInteraction.restoreCurrentRound();
-                await this.transactionPool.readdTransactions();
+                await this.transactionPool.readdTransactionsFromStore();
                 await this.networkMonitor.boot();
 
                 return this.blockchain.dispatch("STARTED");
@@ -94,7 +94,7 @@ export class Initialize implements Action {
             await this.app.get<Contracts.State.StateBuilder>(Container.Identifiers.StateBuilder).run();
 
             await this.databaseInteraction.restoreCurrentRound();
-            await this.transactionPool.readdTransactions();
+            await this.transactionPool.readdTransactionsFromStore();
 
             await this.networkMonitor.boot();
 

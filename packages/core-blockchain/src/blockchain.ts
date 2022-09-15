@@ -362,7 +362,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             await this.blockRepository.deleteBlocks(removedBlocks.reverse());
             this.stateStore.setLastStoredBlockHeight(lastBlock.data.height - nblocks);
 
-            await this.transactionPool.readdTransactions(removedTransactions.reverse());
+            await this.transactionPool.readdTransactionsFromStore(removedTransactions.reverse());
 
             // Validate last block
             const lastStoredBlock = await this.database.getLastBlock();

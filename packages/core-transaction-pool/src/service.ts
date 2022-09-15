@@ -59,10 +59,10 @@ export class Service implements Contracts.TransactionPool.Service {
         try {
             switch (name) {
                 case Enums.StateEvent.BuilderFinished:
-                    await this.readdTransactions();
+                    await this.readdTransactionsFromStore();
                     break;
                 case Enums.CryptoEvent.MilestoneChanged:
-                    await this.readdTransactions();
+                    await this.readdTransactionsFromStore();
                     break;
                 case Enums.BlockEvent.Applied:
                     await this.cleanUp();
@@ -115,7 +115,9 @@ export class Service implements Contracts.TransactionPool.Service {
         });
     }
 
-    public async readdTransactions(previouslyForgedTransactions: Interfaces.ITransaction[] = []): Promise<void> {
+    public async readdTransactionsFromStore(
+        previouslyForgedTransactions: Interfaces.ITransaction[] = [],
+    ): Promise<void> {
         await this.lock.runExclusive(async () => {
             if (this.disposed) {
                 return;
@@ -188,6 +190,73 @@ export class Service implements Contracts.TransactionPool.Service {
             if (previouslyForgedFailures >= 1) {
                 this.logger.warning(`${previouslyForgedFailures} previously forged transactions failed re-adding`);
             }
+            if (previouslyStoredSuccesses >= 1) {
+                this.logger.info(`${previouslyStoredSuccesses} previously stored transactions re-added`);
+            }
+            if (previouslyStoredExpirations >= 1) {
+                this.logger.info(`${previouslyStoredExpirations} previously stored transactions expired`);
+            }
+            if (previouslyStoredFailures >= 1) {
+                this.logger.warning(`${previouslyStoredFailures} previously stored transactions failed re-adding`);
+            }
+        });
+    }
+
+    public async readdTransactionsFromMempool(): Promise<void> {
+        await this.lock.runExclusive(async () => {
+            if (this.disposed) {
+                return;
+            }
+
+            let previouslyStoredSuccesses = 0;
+            let previouslyStoredExpirations = 0;
+            let previouslyStoredFailures = 0;
+
+            let transactions: Interfaces.ITransaction[] = [];
+            for (const senderMempool of this.mempool.getSenderMempools()) {
+                transactions = [...transactions, ...senderMempool.getFromEarliest()];
+            }
+
+            const transactionToHeight: Map<string, number> = new Map();
+            for (const { id, height } of this.storage.getAllTransactions()) {
+                transactionToHeight.set(id, height);
+            }
+
+            this.mempool.flush();
+
+            const maxTransactionAge: number = this.configuration.getRequired<number>("maxTransactionAge");
+            const lastHeight: number = this.stateStore.getLastHeight();
+            const expiredHeight: number = lastHeight - maxTransactionAge;
+
+            for (const transaction of transactions) {
+                AppUtils.assert.defined<string>(transaction.id);
+
+                let removeFromStore = true;
+
+                if (
+                    transactionToHeight.has(transaction.id) &&
+                    transactionToHeight.get(transaction.id)! > expiredHeight
+                ) {
+                    try {
+                        await this.addTransactionToMempool(transaction);
+                        previouslyStoredSuccesses++;
+                        removeFromStore = false;
+                    } catch (error) {
+                        this.logger.debug(
+                            `Failed to re-add previously stored transaction ${transaction.id}: ${error.message}`,
+                        );
+                        previouslyStoredFailures++;
+                    }
+                } else {
+                    this.logger.debug(`Not re-adding previously stored expired transaction ${transaction.id}`);
+                    previouslyStoredExpirations++;
+                }
+
+                if (removeFromStore) {
+                    this.storage.removeTransaction(transaction.id);
+                }
+            }
+
             if (previouslyStoredSuccesses >= 1) {
                 this.logger.info(`${previouslyStoredSuccesses} previously stored transactions re-added`);
             }
