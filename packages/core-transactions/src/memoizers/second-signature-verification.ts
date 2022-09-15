@@ -3,7 +3,7 @@ import { Interfaces, Transactions } from "@arkecosystem/crypto";
 import LRUCache from "lru-cache";
 
 @Container.injectable()
-export class SecondSignatureVerificationCache {
+export class SecondSignatureVerificationMemoizer {
     private lruCache = new LRUCache<string, boolean>({ max: 2 });
 
     public verifySecondSignature(transaction: Interfaces.ITransactionData, publicKey: string): boolean {

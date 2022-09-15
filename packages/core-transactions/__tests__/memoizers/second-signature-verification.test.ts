@@ -1,13 +1,13 @@
 import "jest-extended";
 
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
-import { SecondSignatureVerificationCache } from "@packages/core-transactions/src/cache/second-signature-verification";
+import { SecondSignatureVerificationMemoizer } from "@packages/core-transactions/src/memoizers/second-signature-verification";
 import { Identities, Interfaces, Transactions } from "@packages/crypto";
 import { BuilderFactory } from "@packages/crypto/dist/transactions";
 
 describe("SecondSignatureVerificationCache", () => {
     let transaction: Interfaces.ITransaction;
-    let cache: SecondSignatureVerificationCache;
+    let memoizer: SecondSignatureVerificationMemoizer;
 
     const createTransaction = (amount: string) => {
         return BuilderFactory.transfer()
@@ -20,7 +20,7 @@ describe("SecondSignatureVerificationCache", () => {
     beforeEach(() => {
         transaction = createTransaction("1");
 
-        cache = new SecondSignatureVerificationCache();
+        memoizer = new SecondSignatureVerificationMemoizer();
     });
 
     afterEach(() => {
@@ -30,7 +30,7 @@ describe("SecondSignatureVerificationCache", () => {
     it("should call verifier if no cached value is found", () => {
         const spyOnVerifier = jest.spyOn(Transactions.Verifier, "verifySecondSignature");
 
-        cache.verifySecondSignature(transaction.data, "publicKey");
+        memoizer.verifySecondSignature(transaction.data, "publicKey");
 
         expect(spyOnVerifier).toBeCalled();
     });
@@ -38,8 +38,8 @@ describe("SecondSignatureVerificationCache", () => {
     it("should take cached value if called with same parameters", () => {
         const spyOnVerifier = jest.spyOn(Transactions.Verifier, "verifySecondSignature");
 
-        const result1 = cache.verifySecondSignature(transaction.data, "publicKey");
-        const result2 = cache.verifySecondSignature(transaction.data, "publicKey");
+        const result1 = memoizer.verifySecondSignature(transaction.data, "publicKey");
+        const result2 = memoizer.verifySecondSignature(transaction.data, "publicKey");
 
         expect(spyOnVerifier).toBeCalledTimes(1);
         expect(result1).toEqual(result2);
@@ -48,8 +48,8 @@ describe("SecondSignatureVerificationCache", () => {
     it("should not take cached value if called with different parameters", () => {
         const spyOnVerifier = jest.spyOn(Transactions.Verifier, "verifySecondSignature");
 
-        cache.verifySecondSignature(transaction.data, "publicKey");
-        cache.verifySecondSignature(transaction.data, "differentPublicKey");
+        memoizer.verifySecondSignature(transaction.data, "publicKey");
+        memoizer.verifySecondSignature(transaction.data, "differentPublicKey");
 
         expect(spyOnVerifier).toBeCalledTimes(2);
     });
@@ -62,14 +62,14 @@ describe("SecondSignatureVerificationCache", () => {
 
         const transaction2 = createTransaction("2");
 
-        expect(cache.verifySecondSignature(transaction.data, "publicKey")).toEqual(false);
-        expect(cache.verifySecondSignature(transaction2.data, "publicKey")).toEqual(true);
+        expect(memoizer.verifySecondSignature(transaction.data, "publicKey")).toEqual(false);
+        expect(memoizer.verifySecondSignature(transaction2.data, "publicKey")).toEqual(true);
 
         expect(spyOnVerifier).toBeCalledTimes(2);
 
         // Values from cache
-        expect(cache.verifySecondSignature(transaction.data, "publicKey")).toEqual(false);
-        expect(cache.verifySecondSignature(transaction2.data, "publicKey")).toEqual(true);
+        expect(memoizer.verifySecondSignature(transaction.data, "publicKey")).toEqual(false);
+        expect(memoizer.verifySecondSignature(transaction2.data, "publicKey")).toEqual(true);
 
         expect(spyOnVerifier).toBeCalledTimes(2);
     });
@@ -77,7 +77,9 @@ describe("SecondSignatureVerificationCache", () => {
     it("should throw error if transaction.id is undefined", () => {
         transaction.data.id = undefined;
 
-        expect(() => cache.verifySecondSignature(transaction.data, "publicKey")).toThrowError("Missing transaction id");
+        expect(() => memoizer.verifySecondSignature(transaction.data, "publicKey")).toThrowError(
+            "Missing transaction id",
+        );
     });
 
     it("should remove first inserted element when max size is exceeded", () => {
@@ -86,10 +88,10 @@ describe("SecondSignatureVerificationCache", () => {
         const transaction2 = createTransaction("2");
         const transaction3 = createTransaction("3");
 
-        cache.verifySecondSignature(transaction.data, "publicKey");
-        cache.verifySecondSignature(transaction2.data, "publicKey");
-        cache.verifySecondSignature(transaction3.data, "publicKey");
-        cache.verifySecondSignature(transaction.data, "publicKey");
+        memoizer.verifySecondSignature(transaction.data, "publicKey");
+        memoizer.verifySecondSignature(transaction2.data, "publicKey");
+        memoizer.verifySecondSignature(transaction3.data, "publicKey");
+        memoizer.verifySecondSignature(transaction.data, "publicKey");
 
         expect(spyOnVerifier).toBeCalledTimes(4);
     });
@@ -97,9 +99,9 @@ describe("SecondSignatureVerificationCache", () => {
     it("should clear cache", () => {
         const spyOnVerifier = jest.spyOn(Transactions.Verifier, "verifySecondSignature");
 
-        cache.verifySecondSignature(transaction.data, "publicKey");
-        cache.clear();
-        cache.verifySecondSignature(transaction.data, "publicKey");
+        memoizer.verifySecondSignature(transaction.data, "publicKey");
+        memoizer.clear();
+        memoizer.verifySecondSignature(transaction.data, "publicKey");
 
         expect(spyOnVerifier).toBeCalledTimes(2);
     });
