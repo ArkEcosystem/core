@@ -1,4 +1,5 @@
 import { Container, Providers, Services } from "@arkecosystem/core-kernel";
+import Joi from "joi";
 
 import { One, TransactionHandlerConstructor, Two } from "./handlers";
 import { TransactionHandlerProvider } from "./handlers/handler-provider";
@@ -80,5 +81,11 @@ export class ServiceProvider extends Providers.ServiceProvider {
      */
     public async required(): Promise<boolean> {
         return true;
+    }
+
+    public configSchema(): object {
+        return Joi.object({
+            memoizerCacheSize: Joi.number().integer().min(1).required(),
+        }).required();
     }
 }
