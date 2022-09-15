@@ -22,6 +22,7 @@ const storage = {
 };
 const mempool = {
     getSize: jest.fn(),
+    getSenderMempools: jest.fn(),
     addTransaction: jest.fn(),
     removeTransaction: jest.fn(),
     removeForgedTransaction: jest.fn(),
@@ -602,6 +603,121 @@ describe("Service.readdTransactionsFromStore", () => {
         expect(storage.addTransaction).toBeCalledTimes(0);
 
         expect(storage.removeTransaction).toBeCalledTimes(0);
+    });
+});
+
+describe("Service.readdTransactionsFromMempool", () => {
+    it("should flush mempool", async () => {
+        mempool.getSenderMempools.mockReturnValueOnce([]);
+        storage.getAllTransactions.mockReturnValueOnce([]);
+
+        const service = container.resolve(Service);
+        await service.readdTransactionsFromMempool();
+
+        expect(mempool.flush).toBeCalled();
+    });
+
+    it("should add all transactions from mempool", async () => {
+        const height = 1000;
+        stateStore.getLastHeight.mockReturnValue(height);
+
+        configuration.getRequired.mockImplementation((key) => {
+            if (key === "maxTransactionAge") return 100;
+            if (key === "maxTransactionsInPool") return 100;
+            throw new Error("Unreachable");
+        });
+
+        const senderMempool = {
+            getFromEarliest: jest.fn().mockReturnValueOnce([transaction1, transaction2, transaction3]),
+        };
+
+        mempool.getSenderMempools.mockReturnValueOnce([senderMempool]);
+
+        storage.getAllTransactions.mockReturnValueOnce([
+            { height: 1000, id: transaction1.id, serialized: transaction1.serialized },
+            { height: 1000, id: transaction2.id, serialized: transaction2.serialized },
+            { height: 1000, id: transaction3.id, serialized: transaction3.serialized },
+        ]);
+
+        const service = container.resolve(Service);
+        await service.readdTransactionsFromMempool();
+
+        expect(mempool.getSenderMempools).toBeCalledTimes(1);
+        expect(senderMempool.getFromEarliest).toBeCalledTimes(1);
+
+        expect(mempool.addTransaction).toBeCalledTimes(3);
+        expect(mempool.addTransaction).toBeCalledWith(transaction1);
+        expect(mempool.addTransaction).toBeCalledWith(transaction2);
+        expect(mempool.addTransaction).toBeCalledWith(transaction3);
+
+        expect(storage.removeTransaction).toBeCalledTimes(0);
+    });
+
+    it("should remove transaction from storage that cannot be added to mempool", async () => {
+        const height = 1000;
+        stateStore.getLastHeight.mockReturnValue(height);
+
+        configuration.getRequired.mockImplementation((key) => {
+            if (key === "maxTransactionAge") return 100;
+            if (key === "maxTransactionsInPool") return 100;
+            throw new Error("Unreachable");
+        });
+
+        const senderMempool = {
+            getFromEarliest: jest.fn().mockReturnValueOnce([transaction1]),
+        };
+
+        mempool.getSenderMempools.mockReturnValueOnce([senderMempool]);
+
+        storage.getAllTransactions.mockReturnValueOnce([
+            { height: 1000, id: transaction1.id, serialized: transaction1.serialized },
+        ]);
+        mempool.addTransaction.mockRejectedValueOnce(new Error("Something wrong"));
+
+        const service = container.resolve(Service);
+        await service.readdTransactionsFromStore();
+
+        expect(mempool.addTransaction).toBeCalledTimes(1);
+        expect(mempool.addTransaction).toBeCalledWith(transaction1);
+
+        expect(storage.removeTransaction).toBeCalledTimes(1);
+        expect(storage.removeTransaction).toBeCalledWith(transaction1.id);
+    });
+
+    it("should remove all transactions from storage that cannot be added to mempool", async () => {
+        const height = 1000;
+        stateStore.getLastHeight.mockReturnValue(height);
+
+        configuration.getRequired.mockImplementation((key) => {
+            if (key === "maxTransactionAge") return 100;
+            if (key === "maxTransactionsInPool") return 100;
+            throw new Error("Unreachable");
+        });
+
+        const senderMempool = {
+            getFromEarliest: jest.fn().mockReturnValueOnce([transaction1, transaction2]),
+        };
+
+        mempool.getSenderMempools.mockReturnValueOnce([senderMempool]);
+
+        storage.getAllTransactions.mockReturnValueOnce([
+            { height: 1000, id: transaction1.id, serialized: transaction1.serialized },
+            { height: 1000, id: transaction2.id, serialized: transaction2.serialized },
+        ]);
+
+        mempool.addTransaction.mockRejectedValueOnce(new Error("Something wrong"));
+        mempool.addTransaction.mockRejectedValueOnce(new Error("Something wrong"));
+
+        const service = container.resolve(Service);
+        await service.readdTransactionsFromStore();
+
+        expect(mempool.addTransaction).toBeCalledTimes(2);
+        expect(mempool.addTransaction).toBeCalledWith(transaction1);
+        expect(mempool.addTransaction).toBeCalledWith(transaction2);
+
+        expect(storage.removeTransaction).toBeCalledTimes(2);
+        expect(storage.removeTransaction).toBeCalledWith(transaction1.id);
+        expect(storage.removeTransaction).toBeCalledWith(transaction2.id);
     });
 });
 
