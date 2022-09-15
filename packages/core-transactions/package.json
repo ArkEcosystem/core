@@ -27,7 +27,8 @@
         "@arkecosystem/crypto": "workspace:*"
     },
     "devDependencies": {
-        "bytebuffer": "5.0.1"
+        "bytebuffer": "5.0.1",
+        "lru-cache": "7.14.0"
     },
     "engines": {
         "node": ">=10.x"
