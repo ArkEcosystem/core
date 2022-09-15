@@ -18,7 +18,10 @@ describe("AcceptBlockHandler", () => {
         setForkedBlock: jest.fn(),
         clearForkedBlock: jest.fn(),
     };
-    const transactionPool = { removeForgedTransaction: jest.fn() };
+    const transactionPool = {
+        removeForgedTransaction: jest.fn(),
+        readdTransactionsFromMempool: jest.fn(),
+    };
     const databaseInteractions = {
         walletRepository: {
             getNonce: jest.fn(),
@@ -72,6 +75,8 @@ describe("AcceptBlockHandler", () => {
             expect(transactionPool.removeForgedTransaction).toBeCalledTimes(2);
             expect(transactionPool.removeForgedTransaction).toHaveBeenCalledWith(block.transactions[0]);
             expect(transactionPool.removeForgedTransaction).toHaveBeenCalledWith(block.transactions[1]);
+
+            expect(transactionPool.readdTransactionsFromMempool).toBeCalledTimes(1);
         });
 
         it("should clear forkedBlock if incoming block has same height", async () => {
