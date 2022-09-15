@@ -59,11 +59,11 @@ describe("Blockchain", () => {
             .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
             .bind("getActiveDelegates", new GetActiveDelegatesAction(sandbox.app));
 
-        sandbox.app
-            .bind(Identifiers.QueueFactory)
-            .toFactory((context: interfaces.Context) => async <K, T>(name?: string): Promise<Queue> =>
-                sandbox.app.resolve<Queue>(MemoryQueue).make(),
-            );
+        sandbox.app.bind(Identifiers.QueueFactory).toFactory(
+            (context: interfaces.Context) =>
+                async <K, T>(name?: string): Promise<Queue> =>
+                    sandbox.app.resolve<Queue>(MemoryQueue).make(),
+        );
 
         Managers.configManager.setFromPreset("testnet");
     });
@@ -125,7 +125,7 @@ describe("Blockchain", () => {
 
         blockProcessor.process = jest.fn();
 
-        transactionPoolService.readdTransactions = jest.fn();
+        transactionPoolService.readdTransactionsFromStore = jest.fn();
     });
 
     describe("initialize", () => {

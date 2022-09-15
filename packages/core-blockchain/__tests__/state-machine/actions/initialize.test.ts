@@ -13,7 +13,7 @@ describe("Initialize", () => {
         getNetworkStart: jest.fn().mockReturnValue(false),
         getRestoredDatabaseIntegrity: jest.fn().mockReturnValue(false),
     };
-    const transactionPool = { readdTransactions: jest.fn() };
+    const transactionPool = { readdTransactionsFromStore: jest.fn() };
     const databaseService = {
         verifyBlockchain: jest.fn(),
         deleteRound: jest.fn(),
@@ -74,7 +74,7 @@ describe("Initialize", () => {
 
                 expect(databaseService.deleteRound).toHaveBeenCalledTimes(1);
                 expect(databaseInteractions.restoreCurrentRound).toHaveBeenCalledTimes(1);
-                expect(transactionPool.readdTransactions).toHaveBeenCalledTimes(1);
+                expect(transactionPool.readdTransactionsFromStore).toHaveBeenCalledTimes(1);
                 expect(peerNetworkMonitor.boot).toHaveBeenCalledTimes(1);
                 expect(stateBuilder.run).toHaveBeenCalledTimes(1);
                 expect(blockchain.dispatch).toHaveBeenCalledTimes(1);
@@ -197,7 +197,7 @@ describe("Initialize", () => {
 
                 expect(databaseService.deleteRound).toHaveBeenCalledTimes(1);
                 expect(databaseInteractions.restoreCurrentRound).toHaveBeenCalledTimes(1);
-                expect(transactionPool.readdTransactions).toHaveBeenCalledTimes(0);
+                expect(transactionPool.readdTransactionsFromStore).toHaveBeenCalledTimes(0);
                 expect(peerNetworkMonitor.boot).toHaveBeenCalledTimes(1);
                 expect(stateBuilder.run).toHaveBeenCalledTimes(1);
                 expect(blockchain.dispatch).toHaveBeenCalledTimes(1);
