@@ -1,10 +1,19 @@
-import { Container } from "@arkecosystem/core-kernel";
+import { Container, Providers } from "@arkecosystem/core-kernel";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
 import LRUCache from "lru-cache";
 
 @Container.injectable()
 export class SecondSignatureVerificationMemoizer {
-    private lruCache = new LRUCache<string, boolean>({ max: 2 });
+    @Container.inject(Container.Identifiers.PluginConfiguration)
+    @Container.tagged("plugin", "@arkecosystem/core-transactions")
+    private readonly configuration!: Providers.PluginConfiguration;
+
+    private lruCache!: LRUCache<string, boolean>;
+
+    @Container.postConstruct()
+    public initialize() {
+        this.lruCache = new LRUCache({ max: this.configuration.getRequired("memoizerCacheSize") });
+    }
 
     public verifySecondSignature(transaction: Interfaces.ITransactionData, publicKey: string): boolean {
         const key = this.getKey(transaction, publicKey);

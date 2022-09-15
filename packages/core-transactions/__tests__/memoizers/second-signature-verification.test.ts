@@ -4,9 +4,12 @@ import passphrases from "@packages/core-test-framework/src/internal/passphrases.
 import { SecondSignatureVerificationMemoizer } from "@packages/core-transactions/src/memoizers/second-signature-verification";
 import { Identities, Interfaces, Transactions } from "@packages/crypto";
 import { BuilderFactory } from "@packages/crypto/dist/transactions";
+import { Application, Container, Providers } from "@packages/core-kernel";
 
 describe("SecondSignatureVerificationCache", () => {
     let transaction: Interfaces.ITransaction;
+
+    let app: Application;
     let memoizer: SecondSignatureVerificationMemoizer;
 
     const createTransaction = (amount: string) => {
@@ -20,7 +23,25 @@ describe("SecondSignatureVerificationCache", () => {
     beforeEach(() => {
         transaction = createTransaction("1");
 
-        memoizer = new SecondSignatureVerificationMemoizer();
+        app = new Application(new Container.Container());
+
+        app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
+
+        const defaults = {
+            memoizerCacheSize: 2,
+        };
+
+        const pluginConfiguration = app.get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration);
+        const pluginConfigurationInstance: Providers.PluginConfiguration = pluginConfiguration.from(
+            "core-api",
+            defaults,
+        );
+
+        app.rebind(Container.Identifiers.PluginConfiguration)
+            .toConstantValue(pluginConfigurationInstance)
+            .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("plugin", "@arkecosystem/core-transactions"));
+
+        memoizer = app.resolve(SecondSignatureVerificationMemoizer);
     });
 
     afterEach(() => {
