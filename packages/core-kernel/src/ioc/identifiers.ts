@@ -131,6 +131,7 @@ export const Identifiers = {
     TransactionHandlerProvider: Symbol.for("Provider<TransactionHandler>"),
     // Memoizers
     SecondSignatureVerificationMemoizer: Symbol.for("Memoizer<SecondSignatureVerification>"),
+    MultiSignatureVerificationMemoizer: Symbol.for("Memoizer<MultiSignatureVerification>"),
 
     // Watcher
     WatcherEventListener: Symbol.for("Watcher<EventListener>"),
