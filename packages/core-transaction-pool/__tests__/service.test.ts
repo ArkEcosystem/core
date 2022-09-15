@@ -126,20 +126,20 @@ describe("Service.dispose", () => {
 describe("Service.handle", () => {
     it("should re-add transactions after state builder had finished", async () => {
         const service = container.resolve(Service);
-        jest.spyOn(service, "readdTransactions").mockImplementation(() => Promise.resolve());
+        jest.spyOn(service, "readdTransactionsFromStore").mockImplementation(() => Promise.resolve());
 
         await service.handle({ name: Enums.StateEvent.BuilderFinished });
 
-        expect(service.readdTransactions).toBeCalled();
+        expect(service.readdTransactionsFromStore).toBeCalled();
     });
 
     it("should re-add transactions after milestone had changed", async () => {
         const service = container.resolve(Service);
-        jest.spyOn(service, "readdTransactions").mockImplementation(() => Promise.resolve());
+        jest.spyOn(service, "readdTransactionsFromStore").mockImplementation(() => Promise.resolve());
 
         await service.handle({ name: Enums.CryptoEvent.MilestoneChanged });
 
-        expect(service.readdTransactions).toBeCalled();
+        expect(service.readdTransactionsFromStore).toBeCalled();
     });
 
     it("should cleanup transactions after block is applied", async () => {
@@ -410,12 +410,12 @@ describe("Service.removeForgedTransaction", () => {
     });
 });
 
-describe("Service.readdTransactions", () => {
+describe("Service.readdTransactionsFromStore", () => {
     it("should flush mempool", async () => {
         storage.getAllTransactions.mockReturnValueOnce([]);
 
         const service = container.resolve(Service);
-        await service.readdTransactions();
+        await service.readdTransactionsFromStore();
 
         expect(mempool.flush).toBeCalled();
     });
@@ -437,7 +437,7 @@ describe("Service.readdTransactions", () => {
         ]);
 
         const service = container.resolve(Service);
-        await service.readdTransactions();
+        await service.readdTransactionsFromStore();
 
         expect(mempool.addTransaction).toBeCalledTimes(3);
         expect(mempool.addTransaction).toBeCalledWith(transaction1);
@@ -463,7 +463,7 @@ describe("Service.readdTransactions", () => {
         mempool.addTransaction.mockRejectedValueOnce(new Error("Something wrong"));
 
         const service = container.resolve(Service);
-        await service.readdTransactions();
+        await service.readdTransactionsFromStore();
 
         expect(mempool.addTransaction).toBeCalledTimes(1);
         expect(mempool.addTransaction).toBeCalledWith(transaction1);
@@ -491,7 +491,7 @@ describe("Service.readdTransactions", () => {
         mempool.addTransaction.mockRejectedValueOnce(new Error("Something wrong"));
 
         const service = container.resolve(Service);
-        await service.readdTransactions();
+        await service.readdTransactionsFromStore();
 
         expect(mempool.addTransaction).toBeCalledTimes(2);
         expect(mempool.addTransaction).toBeCalledWith(transaction1);
@@ -517,7 +517,7 @@ describe("Service.readdTransactions", () => {
         ]);
 
         const service = container.resolve(Service);
-        await service.readdTransactions([transaction1, transaction2]);
+        await service.readdTransactionsFromStore([transaction1, transaction2]);
 
         expect(mempool.addTransaction).toBeCalledTimes(3);
         expect(mempool.addTransaction).toBeCalledWith(transaction1);
@@ -557,7 +557,7 @@ describe("Service.readdTransactions", () => {
         mempool.addTransaction.mockRejectedValueOnce(new Error("Something wrong"));
 
         const service = container.resolve(Service);
-        await service.readdTransactions([transaction1, transaction2]);
+        await service.readdTransactionsFromStore([transaction1, transaction2]);
 
         expect(mempool.addTransaction).toBeCalledTimes(3);
         expect(mempool.addTransaction).toBeCalledWith(transaction1);
@@ -592,7 +592,7 @@ describe("Service.readdTransactions", () => {
         mempool.addTransaction.mockRejectedValueOnce(new Error("Something wrong"));
 
         const service = container.resolve(Service);
-        await service.readdTransactions([transaction1, transaction2]);
+        await service.readdTransactionsFromStore([transaction1, transaction2]);
 
         expect(mempool.addTransaction).toBeCalledTimes(3);
         expect(mempool.addTransaction).toBeCalledWith(transaction1);
