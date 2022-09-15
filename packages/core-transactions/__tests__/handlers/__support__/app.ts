@@ -33,6 +33,7 @@ import { TransactionHandlerRegistry } from "@packages/core-transactions/src/hand
 import { Identities, Utils } from "@packages/crypto";
 import { IMultiSignatureAsset } from "@packages/crypto/src/interfaces";
 import { ServiceProvider } from "@packages/core-transactions/src/service-provider";
+import { SecondSignatureVerificationMemoizer } from "@packages/core-transactions/src/memoizers";
 
 const logger = {
     notice: jest.fn(),
@@ -101,6 +102,7 @@ export const initApp = (): Application => {
         "maxTransactionsPerSender",
         300,
     );
+    app.get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration).set("memoizerCacheSize", 20000);
 
     app.bind(Container.Identifiers.StateStore).to(StateStore).inTransientScope();
 
@@ -125,6 +127,10 @@ export const initApp = (): Application => {
     app.bind(Identifiers.DatabaseBlockRepository).toConstantValue(Mocks.BlockRepository.instance);
 
     app.bind(Identifiers.DatabaseTransactionRepository).toConstantValue(Mocks.TransactionRepository.instance);
+
+    app.bind(Identifiers.SecondSignatureVerificationMemoizer)
+        .to(SecondSignatureVerificationMemoizer)
+        .inSingletonScope();
 
     app.bind(Identifiers.TransactionHandler).to(One.TransferTransactionHandler);
     app.bind(Identifiers.TransactionHandler).to(Two.TransferTransactionHandler);

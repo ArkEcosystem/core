@@ -25,19 +25,14 @@ describe("SecondSignatureVerificationCache", () => {
 
         app = new Application(new Container.Container());
 
-        app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
-
-        const defaults = {
-            memoizerCacheSize: 2,
-        };
-
-        const pluginConfiguration = app.get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration);
+        const pluginConfiguration = app.resolve<Providers.PluginConfiguration>(Providers.PluginConfiguration);
         const pluginConfigurationInstance: Providers.PluginConfiguration = pluginConfiguration.from(
-            "core-api",
-            defaults,
+            "core-transactions",
+            {
+                memoizerCacheSize: 2,
+            },
         );
-
-        app.rebind(Container.Identifiers.PluginConfiguration)
+        app.bind(Container.Identifiers.PluginConfiguration)
             .toConstantValue(pluginConfigurationInstance)
             .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("plugin", "@arkecosystem/core-transactions"));
 
