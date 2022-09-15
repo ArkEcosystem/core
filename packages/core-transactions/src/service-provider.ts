@@ -86,6 +86,8 @@ export class ServiceProvider extends Providers.ServiceProvider {
     public configSchema(): object {
         return Joi.object({
             memoizerCacheSize: Joi.number().integer().min(1).required(),
-        }).required();
+        })
+            .required()
+            .unknown(true);
     }
 }
