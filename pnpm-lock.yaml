@@ -747,6 +747,7 @@ importers:
       '@arkecosystem/core-kernel': workspace:*
       '@arkecosystem/crypto': workspace:*
       bytebuffer: 5.0.1
+      joi: 17.4.2
       lru-cache: 7.14.0
     dependencies:
       '@arkecosystem/core-database': link:../core-database
@@ -754,6 +755,7 @@ importers:
       '@arkecosystem/crypto': link:../crypto
     devDependencies:
       bytebuffer: 5.0.1
+      joi: 17.4.2
       lru-cache: 7.14.0
 
   packages/core-webhooks:
@@ -3265,15 +3267,15 @@ packages:
     dev: false
 
   /@sideway/address/4.1.2:
-    resolution: {integrity: sha512-idTz8ibqWFrPU8kMirL0CoPH/A29XOzzAzpyN3zQ4kAWnzmNfFmRaoMNN6VI8ske5M73HZyhIaW4OuSFIdM4oA==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.com/@sideway/address/-/address-4.1.2.tgz}
+    resolution: {integrity: sha512-idTz8ibqWFrPU8kMirL0CoPH/A29XOzzAzpyN3zQ4kAWnzmNfFmRaoMNN6VI8ske5M73HZyhIaW4OuSFIdM4oA==}
     dependencies:
       '@hapi/hoek': 9.2.1
 
   /@sideway/formula/3.0.0:
-    resolution: {integrity: sha512-vHe7wZ4NOXVfkoRb8T5otiENVlT7a3IAiw7H5M2+GO+9CDgcVUUsX1zalAztCmwyOr2RUTGJdgB+ZvSVqmdHmg==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.com/@sideway/formula/-/formula-3.0.0.tgz}
+    resolution: {integrity: sha512-vHe7wZ4NOXVfkoRb8T5otiENVlT7a3IAiw7H5M2+GO+9CDgcVUUsX1zalAztCmwyOr2RUTGJdgB+ZvSVqmdHmg==}
 
   /@sideway/pinpoint/2.0.0:
-    resolution: {integrity: sha512-RNiOoTPkptFtSVzQevY/yWtZwf/RxyVnPy/OcA9HBM3MlGDnBEYL5B41H0MTn0Uec8Hi+2qUtTfG2WWZBmMejQ==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.com/@sideway/pinpoint/-/pinpoint-2.0.0.tgz}
+    resolution: {integrity: sha512-RNiOoTPkptFtSVzQevY/yWtZwf/RxyVnPy/OcA9HBM3MlGDnBEYL5B41H0MTn0Uec8Hi+2qUtTfG2WWZBmMejQ==}
 
   /@sindresorhus/is/0.14.0:
     resolution: {integrity: sha512-9NET910DNaIPngYnLLPeg+Ogzqsi9uM4mSboU5y6p8S5DzMTVEsJZrawi+BoDNUVBa2DhJqQYUFvMDfgU062LQ==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.com/@sindresorhus/is/-/is-0.14.0.tgz}
@@ -8837,7 +8839,7 @@ packages:
     dev: false
 
   /joi/17.4.2:
-    resolution: {integrity: sha512-Lm56PP+n0+Z2A2rfRvsfWVDXGEWjXxatPopkQ8qQ5mxCEhwHG+Ettgg5o98FFaxilOxozoa14cFhrE/hOzh/Nw==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.com/joi/-/joi-17.4.2.tgz}
+    resolution: {integrity: sha512-Lm56PP+n0+Z2A2rfRvsfWVDXGEWjXxatPopkQ8qQ5mxCEhwHG+Ettgg5o98FFaxilOxozoa14cFhrE/hOzh/Nw==}
     dependencies:
       '@hapi/hoek': 9.2.1
       '@hapi/topo': 5.1.0

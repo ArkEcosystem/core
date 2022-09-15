@@ -28,6 +28,7 @@
     },
     "devDependencies": {
         "bytebuffer": "5.0.1",
+        "joi": "17.4.2",
         "lru-cache": "7.14.0"
     },
     "engines": {
