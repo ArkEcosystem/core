@@ -748,6 +748,8 @@ importers:
       '@arkecosystem/crypto': workspace:*
       bytebuffer: 5.0.1
       joi: 17.4.2
+      lodash.clonedeep: 4.5.0
+      lodash.isequal: 4.5.0
       lru-cache: 7.14.0
     dependencies:
       '@arkecosystem/core-database': link:../core-database
@@ -756,6 +758,8 @@ importers:
     devDependencies:
       bytebuffer: 5.0.1
       joi: 17.4.2
+      lodash.clonedeep: 4.5.0
+      lodash.isequal: 4.5.0
       lru-cache: 7.14.0
 
   packages/core-webhooks:
@@ -9238,7 +9242,7 @@ packages:
     dev: true
 
   /lodash.clonedeep/4.5.0:
-    resolution: {integrity: sha1-4j8/nE+Pvd6HJSnBBxhXoIblzO8=}
+    resolution: {integrity: sha512-H5ZhCF25riFd9uB5UCkVKo61m3S/xZk1x4wA6yp/L3RFP6Z/eHH1ymQcGLo7J3GMPfm0V/7m1tryHuGVxpqEBQ==}
 
   /lodash.debounce/4.0.8:
     resolution: {integrity: sha1-gteb/zCmfEAF/9XiUVMArZyk168=, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.com/lodash.debounce/-/lodash.debounce-4.0.8.tgz}
@@ -9246,6 +9250,10 @@ packages:
 
   /lodash.get/4.4.2:
     resolution: {integrity: sha1-LRd/ZS+jHpObRDjVNBSZ36OCXpk=, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.com/lodash.get/-/lodash.get-4.4.2.tgz}
+
+  /lodash.isequal/4.5.0:
+    resolution: {integrity: sha512-pDo3lu8Jhfjqls6GkMgpahsF9kCyayhgykjyLMNFTKWrpVdAQtYyB4muAMWozBB4ig/dtWAmsMxLEI8wuz+DYQ==}
+    dev: true
 
   /lodash.isfunction/3.0.9:
     resolution: {integrity: sha512-AirXNj15uRIMMPihnkInB4i3NHeb4iBtNg9WRWuK2o31S+ePwwNmDPaTL3o7dTJ+VXNZim7rFs4rxN4YU1oUJw==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.com/lodash.isfunction/-/lodash.isfunction-3.0.9.tgz}
