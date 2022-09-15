@@ -4,6 +4,7 @@ import Joi from "joi";
 import { One, TransactionHandlerConstructor, Two } from "./handlers";
 import { TransactionHandlerProvider } from "./handlers/handler-provider";
 import { TransactionHandlerRegistry } from "./handlers/handler-registry";
+import { SecondSignatureVerificationMemoizer } from "./memoizers";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public static getTransactionHandlerConstructorsBinding(): (
@@ -50,6 +51,11 @@ export class ServiceProvider extends Providers.ServiceProvider {
             .bind(Container.Identifiers.WalletRepository)
             .toConstantValue(null)
             .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("state", "null"));
+
+        this.app
+            .bind(Container.Identifiers.SecondSignatureVerificationMemoizer)
+            .to(SecondSignatureVerificationMemoizer)
+            .inSingletonScope();
 
         this.app.bind(Container.Identifiers.TransactionHandler).to(One.TransferTransactionHandler);
         this.app.bind(Container.Identifiers.TransactionHandler).to(Two.TransferTransactionHandler);
