@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { Container, Utils, Contracts } from "@packages/core-kernel";
+import { Container, Contracts, Utils } from "@packages/core-kernel";
 import { PoolError } from "@packages/core-kernel/dist/contracts/transaction-pool";
 import { Enums } from "@packages/core-magistrate-crypto";
 import { EntityBuilder } from "@packages/core-magistrate-crypto/src/builders";
