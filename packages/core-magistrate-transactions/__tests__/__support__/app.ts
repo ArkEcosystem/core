@@ -27,6 +27,8 @@ import {
     RevertTransactionAction,
     ThrowIfCannotEnterPoolAction,
     VerifyTransactionAction,
+    OnPoolEnterAction,
+    OnPoolLeaveAction,
 } from "@packages/core-transaction-pool/src/actions";
 import { DynamicFeeMatcher } from "@packages/core-transaction-pool/src/dynamic-fee-matcher";
 import { ExpirationService } from "@packages/core-transaction-pool/src/expiration-service";
@@ -44,6 +46,7 @@ import {
     SecondSignatureVerificationMemoizer,
     MultiSignatureVerificationMemoizer,
 } from "@packages/core-transactions/src/memoizers";
+import { MempoolIndexRegistry } from "@packages/core-transaction-pool/src/mempool-index-registry";
 
 const logger = {
     notice: jest.fn(),
@@ -148,6 +151,7 @@ export const initApp = (): Application => {
     app.bind(Container.Identifiers.TransactionPoolDynamicFeeMatcher).to(DynamicFeeMatcher);
     app.bind(Container.Identifiers.TransactionPoolExpirationService).to(ExpirationService);
 
+    app.bind(Container.Identifiers.TransactionPoolMempoolIndexRegistry).to(MempoolIndexRegistry).inSingletonScope();
     app.bind(Container.Identifiers.TransactionPoolSenderMempool).to(SenderMempool);
     app.bind(Container.Identifiers.TransactionPoolSenderMempoolFactory).toAutoFactory(
         Container.Identifiers.TransactionPoolSenderMempool,
@@ -211,6 +215,16 @@ export const initApp = (): Application => {
     app.get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService).bind(
         "revertTransaction",
         new RevertTransactionAction(),
+    );
+
+    app.get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService).bind(
+        "onPoolEnter",
+        new OnPoolEnterAction(),
+    );
+
+    app.get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService).bind(
+        "onPoolLeave",
+        new OnPoolLeaveAction(),
     );
 
     return app;
