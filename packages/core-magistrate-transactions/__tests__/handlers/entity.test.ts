@@ -1,11 +1,12 @@
 import "jest-extended";
 
-import { Container, Utils } from "@packages/core-kernel";
+import { Container, Utils, Contracts } from "@packages/core-kernel";
 import { PoolError } from "@packages/core-kernel/dist/contracts/transaction-pool";
 import { Enums } from "@packages/core-magistrate-crypto";
 import { EntityBuilder } from "@packages/core-magistrate-crypto/src/builders";
 import { EntityAction, EntityType } from "@packages/core-magistrate-crypto/src/enums";
 import { EntityTransaction } from "@packages/core-magistrate-crypto/src/transactions";
+import { MempoolIndexes } from "@packages/core-magistrate-transactions/src/enums";
 import {
     EntityAlreadyRegisteredError,
     EntityAlreadyResignedError,
@@ -18,9 +19,9 @@ import {
     StaticFeeMismatchError,
 } from "@packages/core-magistrate-transactions/src/errors";
 import { EntityTransactionHandler } from "@packages/core-magistrate-transactions/src/handlers/entity";
+import { MempoolIndexRegistry } from "@packages/core-transaction-pool/src/mempool-index-registry";
 import { Utils as CryptoUtils } from "@packages/crypto";
 import { Managers, Transactions } from "@packages/crypto";
-import cloneDeep from "lodash.clonedeep";
 
 import { validRegisters, validResigns, validUpdates } from "./__fixtures__/entity";
 import { walletRepository } from "./__mocks__/wallet-repository";
@@ -67,6 +68,11 @@ describe("Entity handler", () => {
         container.unbindAll();
         container.bind(Container.Identifiers.TransactionHistoryService).toConstantValue(transactionHistoryService);
         container.bind(Container.Identifiers.TransactionPoolQuery).toConstantValue(poolQuery);
+        container.bind(Container.Identifiers.TransactionPoolMempoolIndex).toConstantValue(MempoolIndexes.EntityName);
+        container
+            .bind(Container.Identifiers.TransactionPoolMempoolIndexRegistry)
+            .to(MempoolIndexRegistry)
+            .inSingletonScope();
     });
 
     let wallet, walletAttributes;
@@ -196,39 +202,122 @@ describe("Entity handler", () => {
         });
 
         it("should resolve", async () => {
+            const mempoolIndexRegistry = container.get<Contracts.TransactionPool.MempoolIndexRegistry>(
+                Container.Identifiers.TransactionPoolMempoolIndexRegistry,
+            );
+            const spyOnIndexHas = jest.spyOn(mempoolIndexRegistry.get(MempoolIndexes.EntityName), "has");
+
             await expect(entityHandler.throwIfCannotEnterPool(transaction)).toResolve();
-            expect(poolQuery.getAll).toHaveBeenCalled();
+
+            expect(spyOnIndexHas).toHaveBeenCalledTimes(1);
+            expect(spyOnIndexHas).toHaveBeenCalledWith(transaction.data.asset.data.name.toLowerCase());
         });
 
         it("should resolve if transaction action is update or resign", async () => {
+            const mempoolIndexRegistry = container.get<Contracts.TransactionPool.MempoolIndexRegistry>(
+                Container.Identifiers.TransactionPoolMempoolIndexRegistry,
+            );
+            const spyOnIndexHas = jest.spyOn(mempoolIndexRegistry.get(MempoolIndexes.EntityName), "has");
+
             transaction.data.asset!.action = Enums.EntityAction.Update;
 
             await expect(entityHandler.throwIfCannotEnterPool(transaction)).toResolve();
-            expect(poolQuery.getAll).not.toHaveBeenCalled();
+            expect(spyOnIndexHas).not.toHaveBeenCalled();
 
             transaction.data.asset!.action = Enums.EntityAction.Resign;
 
             await expect(entityHandler.throwIfCannotEnterPool(transaction)).toResolve();
-            expect(poolQuery.getAll).not.toHaveBeenCalled();
+            expect(spyOnIndexHas).not.toHaveBeenCalled();
         });
 
         it("should throw if transaction with same type and name is already in the pool", async () => {
-            poolQuery.has.mockReturnValue(true);
+            const mempoolIndexRegistry = container.get<Contracts.TransactionPool.MempoolIndexRegistry>(
+                Container.Identifiers.TransactionPoolMempoolIndexRegistry,
+            );
+            const spyOnIndexHas = jest
+                .spyOn(mempoolIndexRegistry.get(MempoolIndexes.EntityName), "has")
+                .mockReturnValue(true);
 
             await expect(entityHandler.throwIfCannotEnterPool(transaction)).rejects.toBeInstanceOf(PoolError);
 
-            expect(poolQuery.wherePredicate).toHaveBeenCalledTimes(2);
+            expect(spyOnIndexHas).toHaveBeenCalledTimes(1);
+        });
+    });
 
-            const transactionClone = cloneDeep(transaction);
-            const wherePredicateCallback1 = poolQuery.wherePredicate.mock.calls[0][0];
-            const wherePredicateCallback2 = poolQuery.wherePredicate.mock.calls[1][0];
+    describe("onPoolEnter", () => {
+        let transaction: EntityTransaction;
+        let entityHandler: EntityTransactionHandler;
 
-            expect(wherePredicateCallback1(transactionClone)).toBeTrue();
-            expect(wherePredicateCallback2(transactionClone)).toBeTrue();
+        beforeEach(() => {
+            const builder = new EntityBuilder();
+            transaction = builder.asset(validRegisters[0]).sign("passphrase").build() as EntityTransaction;
 
-            delete transactionClone.data.asset;
-            expect(wherePredicateCallback1(transactionClone)).toBeFalse();
-            expect(wherePredicateCallback2(transactionClone)).toBeFalse();
+            entityHandler = container.resolve(EntityTransactionHandler);
+        });
+
+        it("should set name on EntityName index, when action is Register", () => {
+            const mempoolIndexRegistry = container.get<Contracts.TransactionPool.MempoolIndexRegistry>(
+                Container.Identifiers.TransactionPoolMempoolIndexRegistry,
+            );
+            const spyOnIndexSet = jest.spyOn(mempoolIndexRegistry.get(MempoolIndexes.EntityName), "set");
+
+            expect(entityHandler.onPoolEnter(transaction)).toResolve();
+
+            expect(spyOnIndexSet).toBeCalledTimes(1);
+            expect(spyOnIndexSet).toBeCalledWith(transaction.data.asset.data.name.toLowerCase(), transaction);
+        });
+
+        it("should not set name on EntityName index, when action is not Register", () => {
+            const mempoolIndexRegistry = container.get<Contracts.TransactionPool.MempoolIndexRegistry>(
+                Container.Identifiers.TransactionPoolMempoolIndexRegistry,
+            );
+            const spyOnIndexSet = jest.spyOn(mempoolIndexRegistry.get(MempoolIndexes.EntityName), "set");
+
+            transaction.data.asset.action = Enums.EntityAction.Update;
+            expect(entityHandler.onPoolEnter(transaction)).toResolve();
+            expect(spyOnIndexSet).not.toBeCalled();
+
+            transaction.data.asset.action = Enums.EntityAction.Resign;
+            expect(entityHandler.onPoolEnter(transaction)).toResolve();
+            expect(spyOnIndexSet).not.toBeCalled();
+        });
+    });
+
+    describe("onPoolLeave", () => {
+        let transaction: EntityTransaction;
+        let entityHandler: EntityTransactionHandler;
+
+        beforeEach(() => {
+            const builder = new EntityBuilder();
+            transaction = builder.asset(validRegisters[0]).sign("passphrase").build() as EntityTransaction;
+
+            entityHandler = container.resolve(EntityTransactionHandler);
+        });
+
+        it("should forget name on EntityName index, when action is Register", () => {
+            const mempoolIndexRegistry = container.get<Contracts.TransactionPool.MempoolIndexRegistry>(
+                Container.Identifiers.TransactionPoolMempoolIndexRegistry,
+            );
+            const spyOnIndexSet = jest.spyOn(mempoolIndexRegistry.get(MempoolIndexes.EntityName), "forget");
+
+            expect(entityHandler.onPoolLeave(transaction)).toResolve();
+            expect(spyOnIndexSet).toBeCalledTimes(1);
+            expect(spyOnIndexSet).toBeCalledWith(transaction.data.asset.data.name.toLowerCase());
+        });
+
+        it("should not forget name on EntityName index, when action is not Register", () => {
+            const mempoolIndexRegistry = container.get<Contracts.TransactionPool.MempoolIndexRegistry>(
+                Container.Identifiers.TransactionPoolMempoolIndexRegistry,
+            );
+            const spyOnIndexSet = jest.spyOn(mempoolIndexRegistry.get(MempoolIndexes.EntityName), "forget");
+
+            transaction.data.asset.action = Enums.EntityAction.Update;
+            expect(entityHandler.onPoolLeave(transaction)).toResolve();
+            expect(spyOnIndexSet).not.toBeCalled();
+
+            transaction.data.asset.action = Enums.EntityAction.Resign;
+            expect(entityHandler.onPoolLeave(transaction)).toResolve();
+            expect(spyOnIndexSet).not.toBeCalled();
         });
     });
 
