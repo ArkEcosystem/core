@@ -417,7 +417,7 @@ describe("Htlc claim", () => {
         });
 
         describe("onPoolEnter", () => {
-            it("should set username on DelegateUsername index", () => {
+            it("should set lockTransactionId on HtlcClaimTransactionId index", () => {
                 const mempoolIndexRegistry = app.get<Contracts.TransactionPool.MempoolIndexRegistry>(
                     Identifiers.TransactionPoolMempoolIndexRegistry,
                 );
@@ -437,7 +437,7 @@ describe("Htlc claim", () => {
         });
 
         describe("onPoolLeave", () => {
-            it("should forget username on DelegateUsername index", () => {
+            it("should forget lockTransactionId on HtlcClaimTransactionId index", () => {
                 const mempoolIndexRegistry = app.get<Contracts.TransactionPool.MempoolIndexRegistry>(
                     Identifiers.TransactionPoolMempoolIndexRegistry,
                 );
