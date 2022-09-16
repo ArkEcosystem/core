@@ -120,7 +120,7 @@ export const initApp = (): Application => {
     app.bind(Container.Identifiers.TransactionPoolDynamicFeeMatcher).to(DynamicFeeMatcher);
     app.bind(Container.Identifiers.TransactionPoolExpirationService).to(ExpirationService);
 
-    app.bind(Container.Identifiers.TransactionPoolMempoolIndexRegistry).to(MempoolIndexRegistry);
+    app.bind(Container.Identifiers.TransactionPoolMempoolIndexRegistry).to(MempoolIndexRegistry).inSingletonScope();
     app.bind(Container.Identifiers.TransactionPoolSenderMempool).to(SenderMempool);
     app.bind(Container.Identifiers.TransactionPoolSenderMempoolFactory).toAutoFactory(
         Container.Identifiers.TransactionPoolSenderMempool,
