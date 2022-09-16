@@ -25,14 +25,11 @@ describe("MempoolIndex", () => {
         expect(mempoolIndexRegistry.get(index2)).toBeInstanceOf(MempoolIndex);
     });
 
-    it("should throw if index is not registered", () => {
+    it("get should throw if index is not registered", () => {
         const index1 = "index1";
-        const index2 = "index2";
-
-        app.bind(Container.Identifiers.TransactionPoolMempoolIndex).toConstantValue(index1);
 
         const mempoolIndexRegistry = app.resolve(MempoolIndexRegistry);
 
-        expect(() => mempoolIndexRegistry.get(index2)).toThrowError(`Index ${index2} does not exists`);
+        expect(() => mempoolIndexRegistry.get(index1)).toThrowError(`Index ${index1} does not exists`);
     });
 });
