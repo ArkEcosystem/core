@@ -8,6 +8,7 @@ import {
     ThrowIfCannotEnterPoolAction,
     VerifyTransactionAction,
 } from "./actions";
+import { MempoolIndexRegistry } from "./mempool-index-registry";
 import { Collator } from "./collator";
 import { DynamicFeeMatcher } from "./dynamic-fee-matcher";
 import { ExpirationService } from "./expiration-service";
@@ -100,6 +101,10 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.app.bind(Container.Identifiers.TransactionPoolDynamicFeeMatcher).to(DynamicFeeMatcher);
         this.app.bind(Container.Identifiers.TransactionPoolExpirationService).to(ExpirationService);
         this.app.bind(Container.Identifiers.TransactionPoolMempool).to(Mempool).inSingletonScope();
+        this.app
+            .bind(Container.Identifiers.TransactionPoolMempoolIndexRegistry)
+            .to(MempoolIndexRegistry)
+            .inSingletonScope();
         this.app.bind(Container.Identifiers.TransactionPoolProcessor).to(Processor);
         this.app
             .bind(Container.Identifiers.TransactionPoolProcessorFactory)
