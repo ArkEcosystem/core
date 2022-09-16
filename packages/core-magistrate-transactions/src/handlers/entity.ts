@@ -63,10 +63,10 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
     }
 
     public async throwIfCannotEnterPool(transaction: Interfaces.ITransaction): Promise<void> {
-        KernelUtils.assert.defined<object>(transaction.data.asset);
+        KernelUtils.assert.defined<MagistrateInterfaces.IEntityAsset>(transaction.data.asset);
 
         if (transaction.data.asset.action === Enums.EntityAction.Register) {
-            KernelUtils.assert.defined<object>(transaction.data.asset.data.name);
+            KernelUtils.assert.defined<string>(transaction.data.asset.data.name);
             const name = transaction.data.asset.data.name;
 
             const hasName: boolean = this.poolQuery
@@ -100,7 +100,7 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
 
         await super.throwIfCannotBeApplied(transaction, wallet);
 
-        KernelUtils.assert.defined<object>(transaction.data.asset);
+        KernelUtils.assert.defined<MagistrateInterfaces.IEntityAsset>(transaction.data.asset);
 
         const walletEntities = wallet.getAttribute("entities", {});
         if (transaction.data.asset.action === Enums.EntityAction.Register) {
@@ -127,6 +127,7 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
                 }
             }
         } else {
+            KernelUtils.assert.defined<string>(transaction.data.asset.registrationId);
             // Resign or update share the same checks
             if (!walletEntities[transaction.data.asset.registrationId]) {
                 throw new EntityNotRegisteredError();
@@ -156,7 +157,7 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
     }
 
     public async revertForSender(transaction: Interfaces.ITransaction): Promise<void> {
-        KernelUtils.assert.defined<object>(transaction.data.asset);
+        KernelUtils.assert.defined<MagistrateInterfaces.IEntityAsset>(transaction.data.asset);
 
         await super.revertForSender(transaction);
 
@@ -177,6 +178,7 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
             case Enums.EntityAction.Update:
                 return this.revertForSenderUpdate(transaction, this.walletRepository);
             case Enums.EntityAction.Resign:
+                KernelUtils.assert.defined<string>(transaction.data.asset.registrationId);
                 delete entities[transaction.data.asset.registrationId].resigned;
                 break;
         }
@@ -199,7 +201,8 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
         walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
         KernelUtils.assert.defined<string>(transaction.data.senderPublicKey);
-        KernelUtils.assert.defined<object>(transaction.data.asset);
+        KernelUtils.assert.defined<MagistrateInterfaces.IEntityAsset>(transaction.data.asset);
+        KernelUtils.assert.defined<string>(transaction.data.asset.registrationId);
 
         // Here we have to "replay" entity registration and update transactions associated with the registration id
         // (except the current one being reverted) to rebuild previous wallet state.
@@ -253,7 +256,7 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
     ): void {
         const entities: IEntitiesWallet = wallet.getAttribute<IEntitiesWallet>("entities", {});
 
-        KernelUtils.assert.defined<object>(transaction.asset);
+        KernelUtils.assert.defined<MagistrateInterfaces.IEntityAsset>(transaction.asset);
 
         switch (transaction.asset.action) {
             case Enums.EntityAction.Register:
@@ -271,6 +274,7 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
                 this.walletRepository.setOnIndex(MagistrateIndex.Entities, transaction.id!, wallet);
                 break;
             case Enums.EntityAction.Update:
+                KernelUtils.assert.defined<string>(transaction.asset.registrationId);
                 entities[transaction.asset.registrationId] = {
                     type: entities[transaction.asset.registrationId].type,
                     subType: entities[transaction.asset.registrationId].subType,
@@ -278,6 +282,7 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
                 };
                 break;
             case Enums.EntityAction.Resign:
+                KernelUtils.assert.defined<string>(transaction.asset.registrationId);
                 entities[transaction.asset.registrationId] = {
                     ...entities[transaction.asset.registrationId],
                     resigned: true,
