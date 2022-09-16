@@ -7,6 +7,7 @@ import {
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces as CryptoInterfaces, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 
+import { MempoolIndexes } from "../enums";
 import {
     EntityAlreadyRegisteredError,
     EntityAlreadyResignedError,
@@ -23,8 +24,8 @@ import { MagistrateIndex } from "../wallet-indexes";
 
 @Container.injectable()
 export class EntityTransactionHandler extends Handlers.TransactionHandler {
-    @Container.inject(Container.Identifiers.TransactionPoolQuery)
-    private readonly poolQuery!: Contracts.TransactionPool.Query;
+    @Container.inject(Container.Identifiers.TransactionPoolMempoolIndexRegistry)
+    private readonly mempoolIndexRegistry!: Contracts.TransactionPool.MempoolIndexRegistry;
 
     @Container.inject(Container.Identifiers.TransactionHistoryService)
     private readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
@@ -69,19 +70,36 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
             KernelUtils.assert.defined<string>(transaction.data.asset.data.name);
             const name = transaction.data.asset.data.name;
 
-            const hasName: boolean = this.poolQuery
-                .getAll()
-                .whereKind(transaction)
-                .wherePredicate((t) => t.data.asset?.type === transaction.data.asset!.type)
-                .wherePredicate((t) => t.data.asset?.data.name.toLowerCase() === name.toLowerCase())
-                .has();
-
-            if (hasName) {
+            if (this.mempoolIndexRegistry.get(MempoolIndexes.EntityName).has(name.toLowerCase())) {
                 throw new Contracts.TransactionPool.PoolError(
                     `Entity registration for "${name}" already in the pool`,
                     "ERR_PENDING",
                 );
             }
+        }
+    }
+
+    public async onPoolEnter(transaction: Interfaces.ITransaction): Promise<void> {
+        KernelUtils.assert.defined<MagistrateInterfaces.IEntityAsset>(transaction.data.asset);
+
+        if (transaction.data.asset.action === Enums.EntityAction.Register) {
+            KernelUtils.assert.defined<string>(transaction.data.asset.data.name);
+
+            this.mempoolIndexRegistry
+                .get(MempoolIndexes.EntityName)
+                .set(transaction.data.asset.data.name.toLowerCase(), transaction);
+        }
+    }
+
+    public async onPoolLeave(transaction: Interfaces.ITransaction): Promise<void> {
+        KernelUtils.assert.defined<MagistrateInterfaces.IEntityAsset>(transaction.data.asset);
+
+        if (transaction.data.asset.action === Enums.EntityAction.Register) {
+            KernelUtils.assert.defined<string>(transaction.data.asset.data.name);
+
+            this.mempoolIndexRegistry
+                .get(MempoolIndexes.EntityName)
+                .forget(transaction.data.asset.data.name.toLowerCase());
         }
     }
 
