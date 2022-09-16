@@ -1,9 +1,9 @@
-import { Container } from "@arkecosystem/core-kernel";
+import { Container, Contracts } from "@arkecosystem/core-kernel";
 
 import { MempoolIndex } from "./mempool-index";
 
 @Container.injectable()
-export class MempoolIndexRegistry {
+export class MempoolIndexRegistry implements Contracts.TransactionPool.MempoolIndexRegistry {
     @Container.multiInject(Container.Identifiers.TransactionPoolMempoolIndex)
     @Container.optional()
     private readonly indexNames?: string[];

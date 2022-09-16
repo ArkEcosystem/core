@@ -1,6 +1,7 @@
+import { Contracts } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 
-export class MempoolIndex {
+export class MempoolIndex implements Contracts.TransactionPool.MempoolIndex {
     private keyToTransaction: Map<string, Interfaces.ITransaction> = new Map();
 
     public set(key: string, transaction: Interfaces.ITransaction): void {
