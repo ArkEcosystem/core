@@ -3,4 +3,5 @@ export enum MempoolIndexes {
     HtlcClaimTransactionId = "htlc-claim-transaction-id",
     HtlcRefundTransactionId = "htlc-refund-transaction-id",
     Ipfs = "ipfs",
+    MultiSignatureAddress = "multi-signature-address",
 }

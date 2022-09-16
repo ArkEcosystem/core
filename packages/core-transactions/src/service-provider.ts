@@ -73,6 +73,9 @@ export class ServiceProvider extends Providers.ServiceProvider {
             .bind(Container.Identifiers.TransactionPoolMempoolIndex)
             .toConstantValue(MempoolIndexes.HtlcRefundTransactionId);
         this.app.bind(Container.Identifiers.TransactionPoolMempoolIndex).toConstantValue(MempoolIndexes.Ipfs);
+        this.app
+            .bind(Container.Identifiers.TransactionPoolMempoolIndex)
+            .toConstantValue(MempoolIndexes.MultiSignatureAddress);
 
         this.app.bind(Container.Identifiers.TransactionHandler).to(One.TransferTransactionHandler);
         this.app.bind(Container.Identifiers.TransactionHandler).to(Two.TransferTransactionHandler);
