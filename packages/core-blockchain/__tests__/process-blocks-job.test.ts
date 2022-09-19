@@ -15,6 +15,10 @@ describe("Blockchain", () => {
     const stateMachine: any = {
         getState: jest.fn(),
     };
+    const transactionPool: any = {
+        readdTransactionsFromMempool: jest.fn(),
+        cleanUp: jest.fn(),
+    };
     const blockProcessor: any = {};
     const stateStore: any = {};
     const databaseService: any = {};
@@ -33,6 +37,7 @@ describe("Blockchain", () => {
 
         sandbox.app.bind(Container.Identifiers.BlockchainService).toConstantValue(blockchainService);
         sandbox.app.bind(Container.Identifiers.StateMachine).toConstantValue(stateMachine);
+        sandbox.app.bind(Container.Identifiers.TransactionPoolService).toConstantValue(transactionPool);
         sandbox.app.bind(Container.Identifiers.BlockProcessor).toConstantValue(blockProcessor);
         sandbox.app.bind(Container.Identifiers.StateStore).toConstantValue(stateStore);
         sandbox.app.bind(Container.Identifiers.DatabaseService).toConstantValue(databaseService);
@@ -92,6 +97,8 @@ describe("Blockchain", () => {
             expect(databaseBlockRepository.saveBlocks).toHaveBeenCalledTimes(1);
             expect(stateStore.setLastStoredBlockHeight).toHaveBeenCalledTimes(1);
             expect(stateStore.setLastStoredBlockHeight).toHaveBeenCalledWith(currentBlock.height);
+            expect(transactionPool.readdTransactionsFromMempool).toHaveBeenCalledTimes(1);
+            expect(transactionPool.cleanUp).toHaveBeenCalledTimes(1);
         });
 
         it("should process a valid block already known", async () => {
@@ -104,6 +111,8 @@ describe("Blockchain", () => {
 
             expect(blockchainService.clearQueue).toBeCalledTimes(1);
             expect(blockchainService.resetLastDownloadedBlock).toBeCalledTimes(1);
+            expect(transactionPool.readdTransactionsFromMempool).not.toBeCalled();
+            expect(transactionPool.cleanUp).not.toBeCalled();
         });
 
         it("should not process the remaining blocks if one is not accepted (BlockProcessorResult.Rollback)", async () => {
@@ -117,6 +126,8 @@ describe("Blockchain", () => {
 
             expect(blockProcessor.process).toBeCalledTimes(1); // only 1 out of the 2 blocks
             expect(blockchainService.forkBlock).toBeCalledTimes(1); // because Rollback
+            expect(transactionPool.readdTransactionsFromMempool).not.toBeCalled();
+            expect(transactionPool.cleanUp).not.toBeCalled();
         });
 
         it("should not process the remaining blocks if one is not accepted (BlockProcessorResult.Rejected)", async () => {
@@ -136,6 +147,8 @@ describe("Blockchain", () => {
             expect(blockProcessor.process).toBeCalledTimes(1);
             expect(blockchainService.clearQueue).toBeCalledTimes(1);
             expect(blockchainService.resetLastDownloadedBlock).toBeCalledTimes(1);
+            expect(transactionPool.readdTransactionsFromMempool).not.toBeCalled();
+            expect(transactionPool.cleanUp).not.toBeCalled();
         });
 
         it("should not process the remaining blocks if second is not accepted (BlockProcessorResult.Rejected)", async () => {
@@ -168,6 +181,8 @@ describe("Blockchain", () => {
             expect(blockchainService.resetLastDownloadedBlock).toBeCalledTimes(1);
             expect(stateStore.setLastStoredBlockHeight).toBeCalledTimes(1);
             expect(stateStore.setLastStoredBlockHeight).toHaveBeenCalledWith(lastBlock.height);
+            expect(transactionPool.readdTransactionsFromMempool).toBeCalledTimes(1);
+            expect(transactionPool.cleanUp).toBeCalledTimes(1);
         });
 
         it("should not process the remaining blocks if one is not accepted (BlockProcessorResult.Corrupted)", async () => {
@@ -190,6 +205,8 @@ describe("Blockchain", () => {
             expect(blockProcessor.process).toBeCalledTimes(1);
             expect(blockchainService.clearQueue).not.toBeCalled();
             expect(blockchainService.resetLastDownloadedBlock).not.toBeCalled();
+            expect(transactionPool.readdTransactionsFromMempool).not.toBeCalled();
+            expect(transactionPool.cleanUp).not.toBeCalled();
 
             expect(process.exit).toHaveBeenCalled();
         });
@@ -218,6 +235,8 @@ describe("Blockchain", () => {
             expect(blockchainService.resetLastDownloadedBlock).toBeCalledTimes(1);
             expect(databaseInteraction.restoreCurrentRound).toBeCalledTimes(1);
             expect(stateStore.setLastStoredBlockHeight).not.toBeCalled();
+            expect(transactionPool.readdTransactionsFromMempool).not.toBeCalled();
+            expect(transactionPool.cleanUp).not.toBeCalled();
         });
 
         it("should stop app when revertBlockHandler return Corrupted", async () => {
@@ -247,6 +266,8 @@ describe("Blockchain", () => {
             expect(blockchainService.resetLastDownloadedBlock).toBeCalledTimes(1);
             expect(databaseInteraction.restoreCurrentRound).toBeCalledTimes(1);
             expect(stateStore.setLastStoredBlockHeight).not.toHaveBeenCalled();
+            expect(transactionPool.readdTransactionsFromMempool).not.toBeCalled();
+            expect(transactionPool.cleanUp).not.toBeCalled();
 
             expect(process.exit).toHaveBeenCalled();
         });
@@ -290,6 +311,8 @@ describe("Blockchain", () => {
             expect(databaseBlockRepository.saveBlocks).toBeCalledTimes(1);
             expect(stateStore.setLastStoredBlockHeight).toBeCalledTimes(1);
             expect(stateStore.setLastStoredBlockHeight).toBeCalledWith(block.height);
+            expect(transactionPool.readdTransactionsFromMempool).toHaveBeenCalledTimes(1);
+            expect(transactionPool.cleanUp).toHaveBeenCalledTimes(1);
 
             expect(peerNetworkMonitor.broadcastBlock).toBeCalledTimes(1);
         });
@@ -333,6 +356,8 @@ describe("Blockchain", () => {
             expect(databaseBlockRepository.saveBlocks).toBeCalledTimes(1);
             expect(stateStore.setLastStoredBlockHeight).toBeCalledTimes(1);
             expect(stateStore.setLastStoredBlockHeight).toBeCalledWith(block.height);
+            expect(transactionPool.readdTransactionsFromMempool).toBeCalledTimes(1);
+            expect(transactionPool.cleanUp).toBeCalledTimes(1);
 
             expect(peerNetworkMonitor.broadcastBlock).toBeCalledTimes(0);
         });
