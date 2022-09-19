@@ -203,9 +203,9 @@ export class Service implements Contracts.TransactionPool.Service {
                 return;
             }
 
-            let previouslyStoredSuccesses = 0;
-            let previouslyStoredExpirations = 0;
-            let previouslyStoredFailures = 0;
+            const previouslyStoredSuccesses: Interfaces.ITransaction[] = [];
+            const previouslyStoredExpirations: Interfaces.ITransaction[] = [];
+            const previouslyStoredFailures: Interfaces.ITransaction[] = [];
 
             let transactions: Interfaces.ITransaction[] = [];
             for (const senderMempool of this.mempool.getSenderMempools()) {
@@ -234,17 +234,17 @@ export class Service implements Contracts.TransactionPool.Service {
                 ) {
                     try {
                         await this.addTransactionToMempool(transaction);
-                        previouslyStoredSuccesses++;
+                        previouslyStoredSuccesses.push(transaction);
                         removeFromStore = false;
                     } catch (error) {
                         this.logger.debug(
                             `Failed to re-add previously stored transaction ${transaction.id}: ${error.message}`,
                         );
-                        previouslyStoredFailures++;
+                        previouslyStoredFailures.push(transaction);
                     }
                 } else {
                     this.logger.debug(`Not re-adding previously stored expired transaction ${transaction.id}`);
-                    previouslyStoredExpirations++;
+                    previouslyStoredExpirations.push(transaction);
                 }
 
                 if (removeFromStore) {
@@ -252,14 +252,24 @@ export class Service implements Contracts.TransactionPool.Service {
                 }
             }
 
-            if (previouslyStoredSuccesses >= 1) {
-                this.logger.info(`${previouslyStoredSuccesses} previously stored transactions re-added`);
+            if (previouslyStoredSuccesses.length >= 1) {
+                this.logger.info(`${previouslyStoredSuccesses.length} previously stored transactions re-added`);
             }
-            if (previouslyStoredExpirations >= 1) {
-                this.logger.info(`${previouslyStoredExpirations} previously stored transactions expired`);
+            if (previouslyStoredExpirations.length >= 1) {
+                this.logger.info(`${previouslyStoredExpirations.length} previously stored transactions expired`);
             }
-            if (previouslyStoredFailures >= 1) {
-                this.logger.warning(`${previouslyStoredFailures} previously stored transactions failed re-adding`);
+            if (previouslyStoredFailures.length >= 1) {
+                this.logger.warning(
+                    `${previouslyStoredFailures.length} previously stored transactions failed re-adding`,
+                );
+            }
+
+            for (const transaction of previouslyStoredExpirations) {
+                this.events.dispatch(Enums.TransactionEvent.Expired, transaction.data);
+            }
+
+            for (const transaction of previouslyStoredFailures) {
+                this.events.dispatch(Enums.TransactionEvent.RemovedFromPool, transaction.data);
             }
         });
     }
