@@ -27,6 +27,9 @@ export class ProcessBlocksJob implements Contracts.Kernel.QueueJob {
     @Container.inject(Container.Identifiers.DatabaseInteraction)
     private readonly databaseInteraction!: DatabaseInteraction;
 
+    @Container.inject(Container.Identifiers.TransactionPoolService)
+    private readonly transactionPool!: Contracts.TransactionPool.Service;
+
     @Container.inject(Container.Identifiers.PeerNetworkMonitor)
     private readonly networkMonitor!: Contracts.P2P.NetworkMonitor;
 
@@ -154,6 +157,9 @@ export class ProcessBlocksJob implements Contracts.Kernel.QueueJob {
 
                 return;
             }
+
+            await this.transactionPool.readdTransactionsFromMempool();
+            await this.transactionPool.cleanUp();
         }
 
         if (
