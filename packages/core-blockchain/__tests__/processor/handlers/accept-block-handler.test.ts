@@ -21,6 +21,7 @@ describe("AcceptBlockHandler", () => {
     const transactionPool = {
         removeForgedTransaction: jest.fn(),
         readdTransactionsFromMempool: jest.fn(),
+        cleanUp: jest.fn(),
     };
     const databaseInteractions = {
         walletRepository: {
@@ -77,6 +78,7 @@ describe("AcceptBlockHandler", () => {
             expect(transactionPool.removeForgedTransaction).toHaveBeenCalledWith(block.transactions[1]);
 
             expect(transactionPool.readdTransactionsFromMempool).toBeCalledTimes(1);
+            expect(transactionPool.cleanUp).toBeCalledTimes(1);
         });
 
         it("should clear forkedBlock if incoming block has same height", async () => {
