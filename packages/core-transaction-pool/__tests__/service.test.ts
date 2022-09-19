@@ -685,6 +685,9 @@ describe("Service.readdTransactionsFromMempool", () => {
 
         expect(storage.removeTransaction).toBeCalledTimes(1);
         expect(storage.removeTransaction).toBeCalledWith(transaction1.id);
+
+        expect(events.dispatch).toHaveBeenCalledTimes(1);
+        expect(events.dispatch).toHaveBeenCalledWith(Enums.TransactionEvent.RemovedFromPool, transaction1.data);
     });
 
     it("should remove all transactions from storage that cannot be added to mempool", async () => {
@@ -721,6 +724,9 @@ describe("Service.readdTransactionsFromMempool", () => {
         expect(storage.removeTransaction).toBeCalledTimes(2);
         expect(storage.removeTransaction).toBeCalledWith(transaction1.id);
         expect(storage.removeTransaction).toBeCalledWith(transaction2.id);
+
+        expect(events.dispatch).toHaveBeenCalledTimes(2);
+        expect(events.dispatch).toHaveBeenCalledWith(Enums.TransactionEvent.RemovedFromPool, expect.anything());
     });
 
     it("should remove expired transaction from storage", async () => {
@@ -750,6 +756,9 @@ describe("Service.readdTransactionsFromMempool", () => {
 
         expect(storage.removeTransaction).toBeCalledTimes(1);
         expect(storage.removeTransaction).toBeCalledWith(transaction1.id);
+
+        expect(events.dispatch).toHaveBeenCalledTimes(1);
+        expect(events.dispatch).toHaveBeenCalledWith(Enums.TransactionEvent.Expired, transaction1.data);
     });
 });
 
