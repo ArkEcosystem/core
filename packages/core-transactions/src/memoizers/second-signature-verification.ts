@@ -1,4 +1,4 @@
-import { Container, Providers, Contracts } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
 import LRUCache from "lru-cache";
 

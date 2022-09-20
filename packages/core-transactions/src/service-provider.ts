@@ -4,7 +4,7 @@ import Joi from "joi";
 import { One, TransactionHandlerConstructor, Two } from "./handlers";
 import { TransactionHandlerProvider } from "./handlers/handler-provider";
 import { TransactionHandlerRegistry } from "./handlers/handler-registry";
-import { SecondSignatureVerificationMemoizer, MultiSignatureVerificationMemoizer } from "./memoizers";
+import { MultiSignatureVerificationMemoizer, SecondSignatureVerificationMemoizer } from "./memoizers";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public static getTransactionHandlerConstructorsBinding(): (
