@@ -24,4 +24,10 @@ export class MempoolIndexRegistry implements Contracts.TransactionPool.MempoolIn
 
         throw new Error(`Index ${indexName} does not exists`);
     }
+
+    public clear(): void {
+        for (const index of this.indexes.values()) {
+            index.clear();
+        }
+    }
 }

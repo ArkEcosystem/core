@@ -32,4 +32,17 @@ describe("MempoolIndex", () => {
 
         expect(() => mempoolIndexRegistry.get(index1)).toThrowError(`Index ${index1} does not exists`);
     });
+
+    it("clear should clear indexes", () => {
+        const spyOnClear = jest.spyOn(MempoolIndex.prototype, "clear");
+
+        const index1 = "index1";
+        app.bind(Container.Identifiers.TransactionPoolMempoolIndex).toConstantValue(index1);
+
+        const mempoolIndexRegistry = app.resolve(MempoolIndexRegistry);
+
+        mempoolIndexRegistry.clear();
+
+        expect(spyOnClear).toBeCalledTimes(1);
+    });
 });
