@@ -28,7 +28,9 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.app.get<Server>(Identifiers.Server).register(this.config().get<Types.JsonObject>("server")!);
 
         // Setup Listeners...
-        this.startListeners();
+        if (this.config().get("enabled") === true) {
+            this.startListeners();
+        }
     }
 
     /**
