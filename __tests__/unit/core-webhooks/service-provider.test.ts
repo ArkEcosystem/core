@@ -2,7 +2,7 @@ import "jest-extended";
 
 import { Identifiers, Server, ServiceProvider as CoreApiServiceProvider } from "@packages/core-api/src";
 import { defaults } from "@packages/core-api/src/defaults";
-import { Application, Container, Providers } from "@packages/core-kernel";
+import { Application, Container, Contracts, Providers } from "@packages/core-kernel";
 import { NullEventDispatcher } from "@packages/core-kernel/src/services/events/drivers/null";
 import { ServiceProvider } from "@packages/core-webhooks/src";
 import { defaults as webhooksDefaults } from "@packages/core-webhooks/src/defaults";
@@ -54,7 +54,7 @@ beforeEach(() => {
 
     app.bind(Container.Identifiers.PaginationService).toConstantValue({});
 
-    app.bind(Container.Identifiers.EventDispatcherService).to(NullEventDispatcher);
+    app.bind(Container.Identifiers.EventDispatcherService).to(NullEventDispatcher).inSingletonScope();
 
     app.bind(Container.Identifiers.LogService).toConstantValue(logger);
 
@@ -79,6 +79,11 @@ describe("ServiceProvider", () => {
     });
 
     it("should register", async () => {
+        const spyOnListen = jest.spyOn(
+            app.get<Contracts.Kernel.EventDispatcher>(Container.Identifiers.EventDispatcherService),
+            "listen",
+        );
+
         await expect(coreApiServiceProvider.register()).toResolve();
 
         expect(app.isBound<Server>(Identifiers.HTTP)).toBeTrue();
@@ -89,6 +94,29 @@ describe("ServiceProvider", () => {
         serviceProvider.setConfig(instance);
 
         await expect(serviceProvider.register()).toResolve();
+
+        expect(spyOnListen).not.toBeCalled();
+    });
+
+    it("should register and start listening, when enabled", async () => {
+        const spyOnListen = jest.spyOn(
+            app.get<Contracts.Kernel.EventDispatcher>(Container.Identifiers.EventDispatcherService),
+            "listen",
+        );
+
+        await expect(coreApiServiceProvider.register()).toResolve();
+
+        expect(app.isBound<Server>(Identifiers.HTTP)).toBeTrue();
+
+        const pluginConfiguration = app.get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration);
+        webhooksDefaults.enabled = true;
+
+        const instance = pluginConfiguration.from("core-webhooks", webhooksDefaults);
+        serviceProvider.setConfig(instance);
+
+        await expect(serviceProvider.register()).toResolve();
+
+        expect(spyOnListen).toBeCalled();
     });
 
     it("should boot", async () => {
