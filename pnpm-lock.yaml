@@ -753,10 +753,10 @@ importers:
       '@arkecosystem/core-database': link:../core-database
       '@arkecosystem/core-kernel': link:../core-kernel
       '@arkecosystem/crypto': link:../crypto
+      joi: 17.4.2
       lru-cache: 7.14.0
     devDependencies:
       bytebuffer: 5.0.1
-      joi: 17.4.2
 
   packages/core-webhooks:
     specifiers:

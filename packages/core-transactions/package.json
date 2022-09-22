@@ -25,11 +25,12 @@
         "@arkecosystem/core-database": "workspace:*",
         "@arkecosystem/core-kernel": "workspace:*",
         "@arkecosystem/crypto": "workspace:*",
+        "joi": "17.4.2",
         "lru-cache": "7.14.0"
+
     },
     "devDependencies": {
-        "bytebuffer": "5.0.1",
-        "joi": "17.4.2"
+        "bytebuffer": "5.0.1"
     },
     "engines": {
         "node": ">=10.x"
