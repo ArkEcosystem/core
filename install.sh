@@ -53,6 +53,9 @@ GLIBC_VERSION=$(ldd --version | grep ldd | awk '{print $NF}')
 # Detect Debian/Ubuntu derivative
 DEB_ID=$( (grep DISTRIB_CODENAME /etc/upstream-release/lsb-release || grep DISTRIB_CODENAME /etc/lsb-release || grep VERSION_CODENAME /etc/os-release)  2>/dev/null | cut -d'=' -f2 )
 
+#APT Vars
+APT_ENV="DEBIAN_FRONTEND=noninteractive NEEDRESTART_MODE=a"
+
 if [[ ! -z $DEB ]]; then
     success "Running install for Debian derivative"
 elif [[ ! -z $RPM ]]; then
@@ -98,7 +101,7 @@ heading "Installing system dependencies..."
 
 if [[ ! -z $DEB ]]; then
     sudo apt-get update
-    sudo apt-get install -y git curl apt-transport-https update-notifier bc wget gnupg
+    sudo $APT_ENV apt-get install git curl apt-transport-https bc wget gnupg -yq
 elif [[ ! -z $RPM ]]; then
     sudo yum update -y
     sudo yum install git curl epel-release bc wget --skip-broken -y
@@ -120,7 +123,7 @@ if [[ ! -z $DEB ]]; then
     sudo wget --quiet -O - https://deb.nodesource.com/gpgkey/nodesource.gpg.key | sudo apt-key add -
     (echo "deb https://deb.nodesource.com/node_14.x ${DEB_ID} main" | sudo tee /etc/apt/sources.list.d/nodesource.list)
     sudo apt-get update
-    sudo apt-get install nodejs -y
+    sudo $APT_ENV apt-get install nodejs -yq
 
 elif [[ ! -z $RPM ]]; then
     sudo yum install gcc-c++ make -y
@@ -155,7 +158,7 @@ success "Installed PM2!"
 heading "Installing program dependencies..."
 
 if [[ ! -z $DEB ]]; then
-    sudo apt-get install build-essential libcairo2-dev pkg-config libtool autoconf automake python libpq-dev jq libjemalloc-dev net-tools -y
+    sudo $APT_ENV apt-get install build-essential pkg-config libtool autoconf automake libpq-dev jq libjemalloc-dev net-tools -yq
 elif [[ ! -z $RPM ]]; then
     sudo yum groupinstall "Development Tools" -y -q
     sudo yum install postgresql-devel jq jemalloc-devel -y -q
@@ -167,7 +170,7 @@ heading "Installing PostgreSQL..."
 
 if [[ ! -z $DEB ]]; then
     sudo apt-get update
-    sudo apt-get install postgresql postgresql-contrib -y
+    sudo $APT_ENV apt-get install postgresql postgresql-contrib -yq
 elif [[ ! -z $RPM ]]; then
     sudo yum install postgresql-server postgresql-contrib -y
 
@@ -186,7 +189,7 @@ success "Installed PostgreSQL!"
 heading "Installing NTP..."
 
 if [[ ! -z $DEB ]]; then
-    sudo apt-get install ntp -yyq
+    sudo $APT_ENV apt-get install ntp -yq
     if [ -z "$(sudo service ntp status |grep running)" ] ; then
        sudo ntpd -gq
     fi
@@ -205,9 +208,9 @@ heading "Installing system updates..."
 
 if [[ ! -z $DEB ]]; then
     sudo apt-get update
-    sudo apt-get upgrade -yqq
-    sudo apt-get dist-upgrade -yq
-    sudo apt-get autoremove -yyq
+    sudo $APT_ENV apt-get upgrade -yq
+    sudo $APT_ENV apt-get dist-upgrade -yq
+    sudo apt-get autoremove -yq
     sudo apt-get autoclean -yq
 elif [[ ! -z $RPM ]]; then
     sudo yum update -y
