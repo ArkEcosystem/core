@@ -1,7 +1,5 @@
-import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
-import cloneDepp from "lodash.clonedeep";
-import isEqual from "lodash.isequal";
 import LRUCache from "lru-cache";
 
 interface CacheValue {
@@ -29,13 +27,13 @@ export class MultiSignatureVerificationMemoizer implements Contracts.Transaction
         const key = this.getKey(transaction);
 
         const value = this.lruCache.get(key)!;
-        if (value && isEqual(value.multiSignatureAsset, multiSignatureAsset)) {
+        if (value && Utils.isEqual(value.multiSignatureAsset, multiSignatureAsset)) {
             return value.result;
         }
 
         const result = Transactions.Verifier.verifySignatures(transaction, multiSignatureAsset);
 
-        this.lruCache.set(key, { multiSignatureAsset: cloneDepp(multiSignatureAsset), result });
+        this.lruCache.set(key, { multiSignatureAsset: Utils.cloneDeep(multiSignatureAsset), result });
 
         return result;
     }

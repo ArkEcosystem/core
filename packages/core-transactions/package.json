@@ -29,8 +29,6 @@
     "devDependencies": {
         "bytebuffer": "5.0.1",
         "joi": "17.4.2",
-        "lodash.clonedeep": "4.5.0",
-        "lodash.isequal": "4.5.0",
         "lru-cache": "7.14.0"
     },
     "engines": {
