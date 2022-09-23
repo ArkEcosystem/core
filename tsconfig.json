@@ -3,6 +3,7 @@
         "assumeChangesOnlyAffectDirectDependencies": true,
         "baseUrl": "./",
         "declaration": true,
+        "declarationMap": true,
         "emitDecoratorMetadata": true,
         "esModuleInterop": true,
         "experimentalDecorators": true,
