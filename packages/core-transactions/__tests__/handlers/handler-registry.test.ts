@@ -1,8 +1,8 @@
 import "jest-extended";
 
-import { Services } from "@packages/core-kernel";
+import { Container, Providers, Services } from "@packages/core-kernel";
 import { Application } from "@packages/core-kernel/src/application";
-import { Container, Identifiers } from "@packages/core-kernel/src/ioc";
+import { Identifiers } from "@packages/core-kernel/src/ioc";
 import {
     DeactivatedTransactionHandlerError,
     InvalidTransactionTypeError,
@@ -10,6 +10,10 @@ import {
 import { One, TransactionHandler, TransactionHandlerConstructor, Two } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerProvider } from "@packages/core-transactions/src/handlers/handler-provider";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
+import {
+    MultiSignatureVerificationMemoizer,
+    SecondSignatureVerificationMemoizer,
+} from "@packages/core-transactions/src/memoizers";
 import { ServiceProvider } from "@packages/core-transactions/src/service-provider";
 import { Crypto, Enums, Identities, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
 import { TransactionSchema } from "@packages/crypto/src/transactions/types/schemas";
@@ -114,7 +118,7 @@ class TestWithDependencyTransactionHandler extends TransactionHandler {
 }
 
 beforeEach(() => {
-    app = new Application(new Container());
+    app = new Application(new Container.Container());
     app.bind(Identifiers.TransactionHistoryService).toConstantValue(null);
     app.bind(Identifiers.ApplicationNamespace).toConstantValue("ark-unitnet");
     app.bind(Identifiers.LogService).toConstantValue({});
@@ -126,6 +130,10 @@ beforeEach(() => {
     app.bind(Identifiers.DatabaseTransactionRepository).toConstantValue({});
     app.bind(Identifiers.WalletRepository).toConstantValue({});
     app.bind(Identifiers.TransactionPoolQuery).toConstantValue({});
+    app.bind(Identifiers.SecondSignatureVerificationMemoizer)
+        .to(SecondSignatureVerificationMemoizer)
+        .inSingletonScope();
+    app.bind(Identifiers.MultiSignatureVerificationMemoizer).to(MultiSignatureVerificationMemoizer).inSingletonScope();
 
     app.bind(Identifiers.TransactionHandler).to(One.TransferTransactionHandler);
     app.bind(Identifiers.TransactionHandler).to(Two.TransferTransactionHandler);
@@ -149,6 +157,14 @@ beforeEach(() => {
     app.bind(Identifiers.TransactionHandlerConstructors).toDynamicValue(
         ServiceProvider.getTransactionHandlerConstructorsBinding(),
     );
+
+    const pluginConfiguration = app.resolve<Providers.PluginConfiguration>(Providers.PluginConfiguration);
+    const pluginConfigurationInstance: Providers.PluginConfiguration = pluginConfiguration.from("core-transactions", {
+        memoizerCacheSize: 20000,
+    });
+    app.bind(Identifiers.PluginConfiguration)
+        .toConstantValue(pluginConfigurationInstance)
+        .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("plugin", "@arkecosystem/core-transactions"));
 
     Managers.configManager.getMilestone().aip11 = false;
 });

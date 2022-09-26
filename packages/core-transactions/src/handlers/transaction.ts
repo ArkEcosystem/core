@@ -35,6 +35,12 @@ export abstract class TransactionHandler {
     @Container.inject(Container.Identifiers.LogService)
     protected readonly logger!: Contracts.Kernel.Logger;
 
+    @Container.inject(Container.Identifiers.SecondSignatureVerificationMemoizer)
+    protected readonly secondSignatureVerificationMemoizer!: Contracts.Transactions.SecondSignatureVerificationMemoizer;
+
+    @Container.inject(Container.Identifiers.MultiSignatureVerificationMemoizer)
+    protected readonly multiSignatureVerificationMemoizer!: Contracts.Transactions.MultiSignatureVerificationMemoizer;
+
     public async verify(transaction: Interfaces.ITransaction): Promise<boolean> {
         AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
@@ -175,7 +181,7 @@ export abstract class TransactionHandler {
         transaction: Interfaces.ITransactionData,
         multiSignature?: Interfaces.IMultiSignatureAsset,
     ): boolean {
-        return Transactions.Verifier.verifySignatures(
+        return this.multiSignatureVerificationMemoizer.verifySignatures(
             transaction,
             multiSignature || wallet.getAttribute("multiSignature"),
         );
@@ -211,7 +217,12 @@ export abstract class TransactionHandler {
                 throw new UnexpectedSecondSignatureError();
             }
 
-            if (!Transactions.Verifier.verifySecondSignature(data, dbSender.getAttribute("secondPublicKey"))) {
+            if (
+                !this.secondSignatureVerificationMemoizer.verifySecondSignature(
+                    data,
+                    dbSender.getAttribute("secondPublicKey"),
+                )
+            ) {
                 throw new InvalidSecondSignatureError();
             }
         } else if (data.secondSignature || data.signSignature) {

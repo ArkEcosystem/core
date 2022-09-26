@@ -84,6 +84,9 @@ export const initApp = (): Application => {
 
     app.bind(Container.Identifiers.EventDispatcherService).toConstantValue({});
 
+    app.bind(Container.Identifiers.SecondSignatureVerificationMemoizer).toConstantValue({});
+    app.bind(Container.Identifiers.MultiSignatureVerificationMemoizer).toConstantValue({});
+
     app.bind(Identifiers.TransactionHandler).to(One.TransferTransactionHandler);
     app.bind(Identifiers.TransactionHandler).to(Two.TransferTransactionHandler);
     app.bind(Identifiers.TransactionHandler).to(One.SecondSignatureRegistrationTransactionHandler);

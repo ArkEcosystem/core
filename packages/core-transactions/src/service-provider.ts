@@ -1,8 +1,10 @@
 import { Container, Providers, Services } from "@arkecosystem/core-kernel";
+import Joi from "joi";
 
 import { One, TransactionHandlerConstructor, Two } from "./handlers";
 import { TransactionHandlerProvider } from "./handlers/handler-provider";
 import { TransactionHandlerRegistry } from "./handlers/handler-registry";
+import { MultiSignatureVerificationMemoizer, SecondSignatureVerificationMemoizer } from "./memoizers";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public static getTransactionHandlerConstructorsBinding(): (
@@ -50,6 +52,16 @@ export class ServiceProvider extends Providers.ServiceProvider {
             .toConstantValue(null)
             .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("state", "null"));
 
+        this.app
+            .bind(Container.Identifiers.SecondSignatureVerificationMemoizer)
+            .to(SecondSignatureVerificationMemoizer)
+            .inSingletonScope();
+
+        this.app
+            .bind(Container.Identifiers.MultiSignatureVerificationMemoizer)
+            .to(MultiSignatureVerificationMemoizer)
+            .inSingletonScope();
+
         this.app.bind(Container.Identifiers.TransactionHandler).to(One.TransferTransactionHandler);
         this.app.bind(Container.Identifiers.TransactionHandler).to(Two.TransferTransactionHandler);
         this.app.bind(Container.Identifiers.TransactionHandler).to(One.SecondSignatureRegistrationTransactionHandler);
@@ -80,5 +92,13 @@ export class ServiceProvider extends Providers.ServiceProvider {
      */
     public async required(): Promise<boolean> {
         return true;
+    }
+
+    public configSchema(): object {
+        return Joi.object({
+            memoizerCacheSize: Joi.number().integer().min(1).required(),
+        })
+            .required()
+            .unknown(true);
     }
 }
