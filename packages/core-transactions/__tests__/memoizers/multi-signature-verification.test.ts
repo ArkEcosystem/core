@@ -116,14 +116,4 @@ describe("MultiSignatureVerificationMemoizer", () => {
 
         expect(spyOnVerifier).toBeCalledTimes(4);
     });
-
-    it("should clear cache", () => {
-        const spyOnVerifier = jest.spyOn(Transactions.Verifier, "verifySignatures");
-
-        memoizer.verifySignatures(transaction.data, multiSignatureAsset);
-        memoizer.clear();
-        memoizer.verifySignatures(transaction.data, multiSignatureAsset);
-
-        expect(spyOnVerifier).toBeCalledTimes(2);
-    });
 });

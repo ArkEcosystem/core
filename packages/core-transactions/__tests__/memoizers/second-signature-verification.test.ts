@@ -111,14 +111,4 @@ describe("SecondSignatureVerificationMemoizer", () => {
 
         expect(spyOnVerifier).toBeCalledTimes(4);
     });
-
-    it("should clear cache", () => {
-        const spyOnVerifier = jest.spyOn(Transactions.Verifier, "verifySecondSignature");
-
-        memoizer.verifySecondSignature(transaction.data, "publicKey");
-        memoizer.clear();
-        memoizer.verifySecondSignature(transaction.data, "publicKey");
-
-        expect(spyOnVerifier).toBeCalledTimes(2);
-    });
 });
