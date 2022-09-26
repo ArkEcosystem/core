@@ -22,7 +22,9 @@
     "dependencies": {
         "@arkecosystem/core-database": "3.5.2",
         "@arkecosystem/core-kernel": "3.5.2",
-        "@arkecosystem/crypto": "3.5.2"
+        "@arkecosystem/crypto": "3.5.2",
+        "joi": "17.4.2",
+        "lru-cache": "7.14.0"
     },
     "engines": {
         "node": ">=10.x"
