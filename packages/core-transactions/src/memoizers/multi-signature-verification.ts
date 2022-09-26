@@ -38,10 +38,6 @@ export class MultiSignatureVerificationMemoizer implements Contracts.Transaction
         return result;
     }
 
-    public clear() {
-        this.lruCache.clear();
-    }
-
     private getKey(transaction: Interfaces.ITransactionData): string {
         if (!transaction.id) {
             throw new Error("Missing transaction id");
