@@ -19,11 +19,12 @@ import {
 } from "@packages/core-state/src/wallets/indexers/indexers";
 import { Mocks } from "@packages/core-test-framework";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
+import { MempoolIndexRegistry } from "@packages/core-transaction-pool/src/mempool-index-registry";
 import { One, Two } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerProvider } from "@packages/core-transactions/src/handlers/handler-provider";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
-import { Identities, Utils } from "@packages/crypto";
 import { ServiceProvider } from "@packages/core-transactions/src/service-provider";
+import { Identities, Utils } from "@packages/crypto";
 
 export type PaginatedResponse = {
     totalCount: number;
@@ -86,6 +87,8 @@ export const initApp = (): Application => {
 
     app.bind(Container.Identifiers.SecondSignatureVerificationMemoizer).toConstantValue({});
     app.bind(Container.Identifiers.MultiSignatureVerificationMemoizer).toConstantValue({});
+
+    app.bind(Container.Identifiers.TransactionPoolMempoolIndexRegistry).to(MempoolIndexRegistry).inSingletonScope();
 
     app.bind(Identifiers.TransactionHandler).to(One.TransferTransactionHandler);
     app.bind(Identifiers.TransactionHandler).to(Two.TransferTransactionHandler);
