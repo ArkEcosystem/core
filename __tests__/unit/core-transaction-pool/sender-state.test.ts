@@ -177,6 +177,8 @@ describe("SenderState.apply", () => {
         expect(triggers.call).toBeCalledWith("verifyTransaction", { handler, transaction });
         expect(triggers.call).toBeCalledWith("throwIfCannotEnterPool", { handler, transaction });
         expect(triggers.call).toBeCalledWith("applyTransaction", { handler, transaction });
+
+        expect(triggers.call).not.toBeCalledWith("onPoolEnter", { handler, transaction });
     });
 
     it("should call handler to apply transaction", async () => {
@@ -198,6 +200,7 @@ describe("SenderState.apply", () => {
         expect(triggers.call).toBeCalledWith("verifyTransaction", { handler, transaction });
         expect(triggers.call).toBeCalledWith("throwIfCannotEnterPool", { handler, transaction });
         expect(triggers.call).toBeCalledWith("applyTransaction", { handler, transaction });
+        expect(triggers.call).toBeCalledWith("onPoolEnter", { handler, transaction });
     });
 });
 
@@ -213,5 +216,6 @@ describe("SenderState.revert", () => {
 
         expect(handlerRegistry.getActivatedHandlerForData).toBeCalledWith(transaction.data);
         expect(triggers.call).toBeCalledWith("revertTransaction", { handler, transaction });
+        expect(triggers.call).toBeCalledWith("onPoolLeave", { handler, transaction });
     });
 });

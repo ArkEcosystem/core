@@ -1,6 +1,7 @@
 import { Container, Contracts, Enums as AppEnums, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Enums, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 
+import { MempoolIndexes } from "../../enums";
 import {
     NotSupportedForMultiSignatureWalletError,
     WalletIsAlreadyDelegateError,
@@ -14,6 +15,9 @@ import { TransactionHandler, TransactionHandlerConstructor } from "../transactio
 export class DelegateRegistrationTransactionHandler extends TransactionHandler {
     @Container.inject(Container.Identifiers.TransactionPoolQuery)
     private readonly poolQuery!: Contracts.TransactionPool.Query;
+
+    @Container.inject(Container.Identifiers.TransactionPoolMempoolIndexRegistry)
+    private readonly mempoolIndexRegistry!: Contracts.TransactionPool.MempoolIndexRegistry;
 
     public dependencies(): ReadonlyArray<TransactionHandlerConstructor> {
         return [];
@@ -95,18 +99,29 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
 
         AppUtils.assert.defined<string>(transaction.data.asset?.delegate?.username);
         const username: string = transaction.data.asset.delegate.username;
-        const hasUsername: boolean = this.poolQuery
-            .getAll()
-            .whereKind(transaction)
-            .wherePredicate(/* istanbul ignore next */ (t) => t.data.asset?.delegate?.username === username)
-            .has();
 
-        if (hasUsername) {
+        if (
+            this.mempoolIndexRegistry.get(MempoolIndexes.DelegateUsername).has(transaction.data.asset.delegate.username)
+        ) {
             throw new Contracts.TransactionPool.PoolError(
                 `Delegate registration for "${username}" already in the pool`,
                 "ERR_PENDING",
             );
         }
+    }
+
+    public async onPoolEnter(transaction: Interfaces.ITransaction): Promise<void> {
+        AppUtils.assert.defined<string>(transaction.data.asset?.delegate?.username);
+
+        this.mempoolIndexRegistry
+            .get(MempoolIndexes.DelegateUsername)
+            .set(transaction.data.asset.delegate.username, transaction);
+    }
+
+    public async onPoolLeave(transaction: Interfaces.ITransaction): Promise<void> {
+        AppUtils.assert.defined<string>(transaction.data.asset?.delegate?.username);
+
+        this.mempoolIndexRegistry.get(MempoolIndexes.DelegateUsername).forget(transaction.data.asset.delegate.username);
     }
 
     public async applyToSender(transaction: Interfaces.ITransaction): Promise<void> {

@@ -9,6 +9,7 @@ import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/fac
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
 import { getWalletAttributeSet } from "@packages/core-test-framework/src/internal/wallet-attributes";
 import { Mempool } from "@packages/core-transaction-pool/src/mempool";
+import { MempoolIndexes } from "@packages/core-transactions/src/enums";
 import {
     InsufficientBalanceError,
     InvalidMultiSignatureError,
@@ -51,6 +52,7 @@ beforeEach(() => {
     Managers.configManager.setConfig(config);
 
     app = initApp();
+    app.bind(Identifiers.TransactionPoolMempoolIndex).toConstantValue(MempoolIndexes.MultiSignatureAddress);
     app.bind(Identifiers.TransactionHistoryService).toConstantValue(transactionHistoryService);
 
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
@@ -395,6 +397,39 @@ describe("MultiSignatureRegistrationTransaction", () => {
                     "MultiSignatureRegistration for address ANexvVGYLYUbmTPHAtJ7sb1LxNZwEqKeSv already in the pool",
                     "ERR_PENDING",
                 ),
+            );
+        });
+    });
+
+    describe("onPoolEnter", () => {
+        it("should set multiSignatureAddress on MultiSignatureAddress index", () => {
+            const mempoolIndexRegistry = app.get<Contracts.TransactionPool.MempoolIndexRegistry>(
+                Identifiers.TransactionPoolMempoolIndexRegistry,
+            );
+
+            const spyOnIndexSet = jest.spyOn(mempoolIndexRegistry.get(MempoolIndexes.MultiSignatureAddress), "set");
+
+            expect(handler.onPoolEnter(multiSignatureTransaction)).toResolve();
+            expect(spyOnIndexSet).toBeCalledTimes(1);
+            expect(spyOnIndexSet).toBeCalledWith(
+                Identities.Address.fromMultiSignatureAsset(multiSignatureTransaction.data.asset.multiSignature),
+                multiSignatureTransaction,
+            );
+        });
+    });
+
+    describe("onPoolLeave", () => {
+        it("should forget multiSignatureAddress on MultiSignatureAddress index", () => {
+            const mempoolIndexRegistry = app.get<Contracts.TransactionPool.MempoolIndexRegistry>(
+                Identifiers.TransactionPoolMempoolIndexRegistry,
+            );
+
+            const spyOnIndexSet = jest.spyOn(mempoolIndexRegistry.get(MempoolIndexes.MultiSignatureAddress), "forget");
+
+            expect(handler.onPoolLeave(multiSignatureTransaction)).toResolve();
+            expect(spyOnIndexSet).toBeCalledTimes(1);
+            expect(spyOnIndexSet).toBeCalledWith(
+                Identities.Address.fromMultiSignatureAsset(multiSignatureTransaction.data.asset.multiSignature),
             );
         });
     });

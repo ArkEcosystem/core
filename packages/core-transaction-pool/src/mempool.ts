@@ -3,6 +3,9 @@ import { Identities, Interfaces } from "@arkecosystem/crypto";
 
 @Container.injectable()
 export class Mempool implements Contracts.TransactionPool.Mempool {
+    @Container.inject(Container.Identifiers.TransactionPoolMempoolIndexRegistry)
+    private readonly mempoolIndexRegistry!: Contracts.TransactionPool.MempoolIndexRegistry;
+
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
 
@@ -87,5 +90,6 @@ export class Mempool implements Contracts.TransactionPool.Mempool {
 
     public flush(): void {
         this.senderMempools.clear();
+        this.mempoolIndexRegistry.clear();
     }
 }

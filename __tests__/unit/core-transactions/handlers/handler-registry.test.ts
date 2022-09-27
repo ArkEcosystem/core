@@ -130,6 +130,7 @@ beforeEach(() => {
     app.bind(Identifiers.DatabaseTransactionRepository).toConstantValue({});
     app.bind(Identifiers.WalletRepository).toConstantValue({});
     app.bind(Identifiers.TransactionPoolQuery).toConstantValue({});
+    app.bind(Container.Identifiers.TransactionPoolMempoolIndexRegistry).toConstantValue({});
     app.bind(Identifiers.SecondSignatureVerificationMemoizer)
         .to(SecondSignatureVerificationMemoizer)
         .inSingletonScope();

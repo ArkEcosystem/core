@@ -4,6 +4,8 @@ import Joi from "joi";
 
 import {
     ApplyTransactionAction,
+    OnPoolEnterAction,
+    OnPoolLeaveAction,
     RevertTransactionAction,
     ThrowIfCannotEnterPoolAction,
     VerifyTransactionAction,
@@ -12,6 +14,7 @@ import { Collator } from "./collator";
 import { DynamicFeeMatcher } from "./dynamic-fee-matcher";
 import { ExpirationService } from "./expiration-service";
 import { Mempool } from "./mempool";
+import { MempoolIndexRegistry } from "./mempool-index-registry";
 import { Processor } from "./processor";
 import { Query } from "./query";
 import { SenderMempool } from "./sender-mempool";
@@ -100,6 +103,10 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.app.bind(Container.Identifiers.TransactionPoolDynamicFeeMatcher).to(DynamicFeeMatcher);
         this.app.bind(Container.Identifiers.TransactionPoolExpirationService).to(ExpirationService);
         this.app.bind(Container.Identifiers.TransactionPoolMempool).to(Mempool).inSingletonScope();
+        this.app
+            .bind(Container.Identifiers.TransactionPoolMempoolIndexRegistry)
+            .to(MempoolIndexRegistry)
+            .inSingletonScope();
         this.app.bind(Container.Identifiers.TransactionPoolProcessor).to(Processor);
         this.app
             .bind(Container.Identifiers.TransactionPoolProcessorFactory)
@@ -144,5 +151,13 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.app
             .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
             .bind("verifyTransaction", new VerifyTransactionAction());
+
+        this.app
+            .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+            .bind("onPoolEnter", new OnPoolEnterAction());
+
+        this.app
+            .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+            .bind("onPoolLeave", new OnPoolLeaveAction());
     }
 }

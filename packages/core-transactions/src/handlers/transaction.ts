@@ -169,6 +169,10 @@ export abstract class TransactionHandler {
      */
     public async throwIfCannotEnterPool(transaction: Interfaces.ITransaction): Promise<void> {}
 
+    public async onPoolEnter(transaction: Interfaces.ITransaction): Promise<void> {}
+
+    public async onPoolLeave(transaction: Interfaces.ITransaction): Promise<void> {}
+
     /**
      * @param {Contracts.State.Wallet} wallet
      * @param {Interfaces.ITransactionData} transaction

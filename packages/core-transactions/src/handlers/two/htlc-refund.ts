@@ -2,14 +2,15 @@ import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kern
 import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import assert from "assert";
 
+import { MempoolIndexes } from "../../enums";
 import { HtlcLockNotExpiredError, HtlcLockTransactionNotFoundError } from "../../errors";
 import { TransactionHandler, TransactionHandlerConstructor } from "../transaction";
 import { HtlcLockTransactionHandler } from "./htlc-lock";
 
 @Container.injectable()
 export class HtlcRefundTransactionHandler extends TransactionHandler {
-    @Container.inject(Container.Identifiers.TransactionPoolQuery)
-    private readonly poolQuery!: Contracts.TransactionPool.Query;
+    @Container.inject(Container.Identifiers.TransactionPoolMempoolIndexRegistry)
+    private readonly mempoolIndexRegistry!: Contracts.TransactionPool.MempoolIndexRegistry;
 
     public dependencies(): ReadonlyArray<TransactionHandlerConstructor> {
         return [HtlcLockTransactionHandler];
@@ -87,18 +88,32 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
             );
         }
 
-        const hasRefund = this.poolQuery
-            .getAll()
-            .whereKind(transaction)
-            .wherePredicate(/* istanbul ignore next */ (t) => t.data.asset?.refund?.lockTransactionId === lockId)
-            .has();
-
-        if (hasRefund) {
+        if (
+            this.mempoolIndexRegistry
+                .get(MempoolIndexes.HtlcRefundTransactionId)
+                .has(transaction.data.asset.refund.lockTransactionId)
+        ) {
             throw new Contracts.TransactionPool.PoolError(
                 `HtlcRefund for "${lockId}" already in the pool`,
                 "ERR_PENDING",
             );
         }
+    }
+
+    public async onPoolEnter(transaction: Interfaces.ITransaction): Promise<void> {
+        AppUtils.assert.defined<string>(transaction.data.asset?.refund?.lockTransactionId);
+
+        this.mempoolIndexRegistry
+            .get(MempoolIndexes.HtlcRefundTransactionId)
+            .set(transaction.data.asset.refund.lockTransactionId, transaction);
+    }
+
+    public async onPoolLeave(transaction: Interfaces.ITransaction): Promise<void> {
+        AppUtils.assert.defined<string>(transaction.data.asset?.refund?.lockTransactionId);
+
+        this.mempoolIndexRegistry
+            .get(MempoolIndexes.HtlcRefundTransactionId)
+            .forget(transaction.data.asset.refund.lockTransactionId);
     }
 
     public async applyToSender(transaction: Interfaces.ITransaction): Promise<void> {

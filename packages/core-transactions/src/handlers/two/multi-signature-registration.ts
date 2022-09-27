@@ -1,6 +1,7 @@
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Enums, Identities, Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 
+import { MempoolIndexes } from "../../enums";
 import {
     InvalidMultiSignatureError,
     MultiSignatureAlreadyRegisteredError,
@@ -13,6 +14,9 @@ import { TransactionHandler, TransactionHandlerConstructor } from "../transactio
 export class MultiSignatureRegistrationTransactionHandler extends TransactionHandler {
     @Container.inject(Container.Identifiers.TransactionPoolQuery)
     private readonly poolQuery!: Contracts.TransactionPool.Query;
+
+    @Container.inject(Container.Identifiers.TransactionPoolMempoolIndexRegistry)
+    private readonly mempoolIndexRegistry!: Contracts.TransactionPool.MempoolIndexRegistry;
 
     @Container.inject(Container.Identifiers.TransactionHistoryService)
     private readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
@@ -109,23 +113,29 @@ export class MultiSignatureRegistrationTransactionHandler extends TransactionHan
         }
 
         const address = Identities.Address.fromMultiSignatureAsset(transaction.data.asset.multiSignature);
-        const hasAddress: boolean = this.poolQuery
-            .getAll()
-            .whereKind(transaction)
-            .wherePredicate(
-                (t) =>
-                    Identities.Address.fromMultiSignatureAsset(
-                        t.data.asset!.multiSignature as Interfaces.IMultiSignatureAsset,
-                    ) === address,
-            )
-            .has();
 
-        if (hasAddress) {
+        if (this.mempoolIndexRegistry.get(MempoolIndexes.MultiSignatureAddress).has(address)) {
             throw new Contracts.TransactionPool.PoolError(
                 `MultiSignatureRegistration for address ${address} already in the pool`,
                 "ERR_PENDING",
             );
         }
+    }
+
+    public async onPoolEnter(transaction: Interfaces.ITransaction): Promise<void> {
+        AppUtils.assert.defined<Interfaces.IMultiSignatureAsset>(transaction.data.asset?.multiSignature);
+
+        this.mempoolIndexRegistry
+            .get(MempoolIndexes.MultiSignatureAddress)
+            .set(Identities.Address.fromMultiSignatureAsset(transaction.data.asset.multiSignature), transaction);
+    }
+
+    public async onPoolLeave(transaction: Interfaces.ITransaction): Promise<void> {
+        AppUtils.assert.defined<Interfaces.IMultiSignatureAsset>(transaction.data.asset?.multiSignature);
+
+        this.mempoolIndexRegistry
+            .get(MempoolIndexes.MultiSignatureAddress)
+            .forget(Identities.Address.fromMultiSignatureAsset(transaction.data.asset.multiSignature));
     }
 
     public async applyToSender(transaction: Interfaces.ITransaction): Promise<void> {

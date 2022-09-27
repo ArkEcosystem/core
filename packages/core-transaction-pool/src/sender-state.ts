@@ -68,6 +68,7 @@ export class SenderState implements Contracts.TransactionPool.SenderState {
             try {
                 await this.triggers.call("throwIfCannotEnterPool", { handler, transaction });
                 await this.triggers.call("applyTransaction", { handler, transaction });
+                await this.triggers.call("onPoolEnter", { handler, transaction });
             } catch (error) {
                 throw new TransactionFailedToApplyError(transaction, error);
             }
@@ -83,6 +84,7 @@ export class SenderState implements Contracts.TransactionPool.SenderState {
             );
 
             await this.triggers.call("revertTransaction", { handler, transaction });
+            await this.triggers.call("onPoolLeave", { handler, transaction });
         } catch (error) {
             this.corrupt = true;
             throw error;
