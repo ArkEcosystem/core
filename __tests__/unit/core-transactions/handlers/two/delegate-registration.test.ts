@@ -18,6 +18,7 @@ import {
     WalletUsernameAlreadyRegisteredError,
 } from "@packages/core-transactions/src/errors";
 import { TransactionHandler } from "@packages/core-transactions/src/handlers";
+import { MempoolIndexes } from "@packages/core-transactions/src/enums";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
 import { Crypto, Enums, Identities, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
 import { BuilderFactory } from "@packages/crypto/dist/transactions";
@@ -57,6 +58,7 @@ beforeEach(() => {
     Managers.configManager.setConfig(config);
 
     app = initApp();
+    app.bind(Identifiers.TransactionPoolMempoolIndex).toConstantValue(MempoolIndexes.DelegateUsername);
     app.bind(Identifiers.TransactionHistoryService).toConstantValue(transactionHistoryService);
 
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
@@ -474,6 +476,37 @@ describe("DelegateRegistrationTransaction", () => {
             await expect(handler.throwIfCannotEnterPool(delegateRegistrationTransaction)).rejects.toThrow(
                 Exceptions.Runtime.AssertionException,
             );
+        });
+    });
+
+    describe("onPoolEnter", () => {
+        it("should set username on DelegateUsername index", () => {
+            const mempoolIndexRegistry = app.get<Contracts.TransactionPool.MempoolIndexRegistry>(
+                Identifiers.TransactionPoolMempoolIndexRegistry,
+            );
+
+            const spyOnIndexSet = jest.spyOn(mempoolIndexRegistry.get(MempoolIndexes.DelegateUsername), "set");
+
+            expect(handler.onPoolEnter(delegateRegistrationTransaction)).toResolve();
+            expect(spyOnIndexSet).toBeCalledTimes(1);
+            expect(spyOnIndexSet).toBeCalledWith(
+                delegateRegistrationTransaction.data.asset.delegate.username,
+                delegateRegistrationTransaction,
+            );
+        });
+    });
+
+    describe("onPoolLeave", () => {
+        it("should forget username on DelegateUsername index", () => {
+            const mempoolIndexRegistry = app.get<Contracts.TransactionPool.MempoolIndexRegistry>(
+                Identifiers.TransactionPoolMempoolIndexRegistry,
+            );
+
+            const spyOnIndexSet = jest.spyOn(mempoolIndexRegistry.get(MempoolIndexes.DelegateUsername), "forget");
+
+            expect(handler.onPoolLeave(delegateRegistrationTransaction)).toResolve();
+            expect(spyOnIndexSet).toBeCalledTimes(1);
+            expect(spyOnIndexSet).toBeCalledWith(delegateRegistrationTransaction.data.asset.delegate.username);
         });
     });
 

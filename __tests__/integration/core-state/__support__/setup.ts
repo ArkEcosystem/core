@@ -7,6 +7,7 @@ EventEmitter.prototype.constructor = Object.prototype.constructor;
 
 const sandbox: Sandbox = new Sandbox();
 
+const transactionPoolIndexRegistry = null;
 const transactionPoolQuery = null;
 const transactionPoolService = null;
 const peerNetworkMonitor = {
@@ -45,6 +46,9 @@ export const setUp = async (): Promise<Application> => {
             },
         })
         .boot(async ({ app }) => {
+            app.bind(Container.Identifiers.TransactionPoolMempoolIndexRegistry).toConstantValue(
+                transactionPoolIndexRegistry,
+            );
             app.bind(Container.Identifiers.TransactionPoolQuery).toConstantValue(transactionPoolQuery);
             app.bind(Container.Identifiers.TransactionPoolService).toConstantValue(transactionPoolService);
             app.bind(Container.Identifiers.PeerNetworkMonitor).toConstantValue(peerNetworkMonitor);

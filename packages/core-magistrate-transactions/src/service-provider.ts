@@ -1,5 +1,6 @@
 import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
 
+import { MempoolIndexes } from "./enums";
 import {
     BridgechainRegistrationTransactionHandler,
     BridgechainResignationTransactionHandler,
@@ -14,6 +15,8 @@ import { bridgechainIndexer, businessIndexer, entityIndexer, entityNameTypeIndex
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
         this.registerIndexers();
+
+        this.app.bind(Container.Identifiers.TransactionPoolMempoolIndex).toConstantValue(MempoolIndexes.EntityName);
 
         this.app.bind(Container.Identifiers.TransactionHandler).to(BusinessRegistrationTransactionHandler);
         this.app.bind(Container.Identifiers.TransactionHandler).to(BusinessResignationTransactionHandler);
