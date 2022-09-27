@@ -1,6 +1,7 @@
 import { Container, Providers, Services } from "@arkecosystem/core-kernel";
 import Joi from "joi";
 
+import { MempoolIndexes } from "./enums";
 import { One, TransactionHandlerConstructor, Two } from "./handlers";
 import { TransactionHandlerProvider } from "./handlers/handler-provider";
 import { TransactionHandlerRegistry } from "./handlers/handler-registry";
@@ -61,6 +62,20 @@ export class ServiceProvider extends Providers.ServiceProvider {
             .bind(Container.Identifiers.MultiSignatureVerificationMemoizer)
             .to(MultiSignatureVerificationMemoizer)
             .inSingletonScope();
+
+        this.app
+            .bind(Container.Identifiers.TransactionPoolMempoolIndex)
+            .toConstantValue(MempoolIndexes.DelegateUsername);
+        this.app
+            .bind(Container.Identifiers.TransactionPoolMempoolIndex)
+            .toConstantValue(MempoolIndexes.HtlcClaimTransactionId);
+        this.app
+            .bind(Container.Identifiers.TransactionPoolMempoolIndex)
+            .toConstantValue(MempoolIndexes.HtlcRefundTransactionId);
+        this.app.bind(Container.Identifiers.TransactionPoolMempoolIndex).toConstantValue(MempoolIndexes.Ipfs);
+        this.app
+            .bind(Container.Identifiers.TransactionPoolMempoolIndex)
+            .toConstantValue(MempoolIndexes.MultiSignatureAddress);
 
         this.app.bind(Container.Identifiers.TransactionHandler).to(One.TransferTransactionHandler);
         this.app.bind(Container.Identifiers.TransactionHandler).to(Two.TransferTransactionHandler);

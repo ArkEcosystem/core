@@ -1,6 +1,7 @@
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 
+import { MempoolIndexes } from "../../enums";
 import { IpfsHashAlreadyExists } from "../../errors";
 import { TransactionHandler, TransactionHandlerConstructor } from "../transaction";
 
@@ -8,8 +9,8 @@ import { TransactionHandler, TransactionHandlerConstructor } from "../transactio
 // todo: replace unnecessary function arguments with dependency injection to avoid passing around references
 @Container.injectable()
 export class IpfsTransactionHandler extends TransactionHandler {
-    @Container.inject(Container.Identifiers.TransactionPoolQuery)
-    private readonly poolQuery!: Contracts.TransactionPool.Query;
+    @Container.inject(Container.Identifiers.TransactionPoolMempoolIndexRegistry)
+    private readonly mempoolIndexRegistry!: Contracts.TransactionPool.MempoolIndexRegistry;
 
     @Container.inject(Container.Identifiers.TransactionHistoryService)
     private readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
@@ -54,18 +55,24 @@ export class IpfsTransactionHandler extends TransactionHandler {
     public async throwIfCannotEnterPool(transaction: Interfaces.ITransaction): Promise<void> {
         AppUtils.assert.defined<string>(transaction.data.asset?.ipfs);
 
-        const hasIPFS: boolean = this.poolQuery
-            .getAll()
-            .whereKind(transaction)
-            .wherePredicate((t) => t.data.asset!.ipfs === transaction.data.asset!.ipfs)
-            .has();
-
-        if (hasIPFS) {
+        if (this.mempoolIndexRegistry.get(MempoolIndexes.Ipfs).has(transaction.data.asset.ipfs)) {
             throw new Contracts.TransactionPool.PoolError(
                 `IPFS transaction with IPFS address "${transaction.data.asset.ipfs}" already in the pool`,
                 "ERR_PENDING",
             );
         }
+    }
+
+    public async onPoolEnter(transaction: Interfaces.ITransaction): Promise<void> {
+        AppUtils.assert.defined<string>(transaction.data.asset?.ipfs);
+
+        this.mempoolIndexRegistry.get(MempoolIndexes.Ipfs).set(transaction.data.asset.ipfs, transaction);
+    }
+
+    public async onPoolLeave(transaction: Interfaces.ITransaction): Promise<void> {
+        AppUtils.assert.defined<string>(transaction.data.asset?.ipfs);
+
+        this.mempoolIndexRegistry.get(MempoolIndexes.Ipfs).forget(transaction.data.asset.ipfs);
     }
 
     public async throwIfCannotBeApplied(

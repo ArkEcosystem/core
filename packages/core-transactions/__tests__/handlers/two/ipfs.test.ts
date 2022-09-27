@@ -14,6 +14,7 @@ import { TransactionHandlerRegistry } from "@packages/core-transactions/src/hand
 import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
 import { configManager } from "@packages/crypto/dist/managers";
 import { BuilderFactory } from "@packages/crypto/dist/transactions";
+import { MempoolIndexes } from "@packages/core-transactions/src/enums";
 
 import {
     buildMultiSignatureWallet,
@@ -49,6 +50,7 @@ beforeEach(() => {
     Managers.configManager.setConfig(config);
 
     app = initApp();
+    app.bind(Identifiers.TransactionPoolMempoolIndex).toConstantValue(MempoolIndexes.Ipfs);
     app.bind(Identifiers.TransactionHistoryService).toConstantValue(transactionHistoryService);
 
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
@@ -210,6 +212,34 @@ describe("Ipfs", () => {
             await expect(handler.throwIfCannotEnterPool(ipfsTransaction)).rejects.toBeInstanceOf(
                 Contracts.TransactionPool.PoolError,
             );
+        });
+    });
+
+    describe("onPoolEnter", () => {
+        it("should set lockTransactionId on HtlcClaimTransactionId index", () => {
+            const mempoolIndexRegistry = app.get<Contracts.TransactionPool.MempoolIndexRegistry>(
+                Identifiers.TransactionPoolMempoolIndexRegistry,
+            );
+
+            const spyOnIndexSet = jest.spyOn(mempoolIndexRegistry.get(MempoolIndexes.Ipfs), "set");
+
+            expect(handler.onPoolEnter(ipfsTransaction)).toResolve();
+            expect(spyOnIndexSet).toBeCalledTimes(1);
+            expect(spyOnIndexSet).toBeCalledWith(ipfsTransaction.data.asset.ipfs, ipfsTransaction);
+        });
+    });
+
+    describe("onPoolLeave", () => {
+        it("should forget lockTransactionId on HtlcClaimTransactionId index", () => {
+            const mempoolIndexRegistry = app.get<Contracts.TransactionPool.MempoolIndexRegistry>(
+                Identifiers.TransactionPoolMempoolIndexRegistry,
+            );
+
+            const spyOnIndexSet = jest.spyOn(mempoolIndexRegistry.get(MempoolIndexes.Ipfs), "forget");
+
+            expect(handler.onPoolLeave(ipfsTransaction)).toResolve();
+            expect(spyOnIndexSet).toBeCalledTimes(1);
+            expect(spyOnIndexSet).toBeCalledWith(ipfsTransaction.data.asset.ipfs);
         });
     });
 

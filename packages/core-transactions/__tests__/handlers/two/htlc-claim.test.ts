@@ -9,6 +9,7 @@ import { Generators } from "@packages/core-test-framework/src";
 import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
 import { Mempool } from "@packages/core-transaction-pool/src/mempool";
+import { MempoolIndexes } from "@packages/core-transactions/src/enums";
 import {
     HtlcLockExpiredError,
     HtlcLockTransactionNotFoundError,
@@ -58,6 +59,7 @@ beforeEach(() => {
     Managers.configManager.setConfig(config);
 
     app = initApp();
+    app.bind(Identifiers.TransactionPoolMempoolIndex).toConstantValue(MempoolIndexes.HtlcClaimTransactionId);
     app.bind(Identifiers.TransactionHistoryService).toConstantValue(null);
 
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
@@ -411,6 +413,43 @@ describe("Htlc claim", () => {
                 await expect(handler.throwIfCannotEnterPool(htlcClaimTransaction)).rejects.toThrow(
                     Contracts.TransactionPool.PoolError,
                 );
+            });
+        });
+
+        describe("onPoolEnter", () => {
+            it("should set lockTransactionId on HtlcClaimTransactionId index", () => {
+                const mempoolIndexRegistry = app.get<Contracts.TransactionPool.MempoolIndexRegistry>(
+                    Identifiers.TransactionPoolMempoolIndexRegistry,
+                );
+
+                const spyOnIndexSet = jest.spyOn(
+                    mempoolIndexRegistry.get(MempoolIndexes.HtlcClaimTransactionId),
+                    "set",
+                );
+
+                expect(handler.onPoolEnter(htlcClaimTransaction)).toResolve();
+                expect(spyOnIndexSet).toBeCalledTimes(1);
+                expect(spyOnIndexSet).toBeCalledWith(
+                    htlcClaimTransaction.data.asset.claim.lockTransactionId,
+                    htlcClaimTransaction,
+                );
+            });
+        });
+
+        describe("onPoolLeave", () => {
+            it("should forget lockTransactionId on HtlcClaimTransactionId index", () => {
+                const mempoolIndexRegistry = app.get<Contracts.TransactionPool.MempoolIndexRegistry>(
+                    Identifiers.TransactionPoolMempoolIndexRegistry,
+                );
+
+                const spyOnIndexSet = jest.spyOn(
+                    mempoolIndexRegistry.get(MempoolIndexes.HtlcClaimTransactionId),
+                    "forget",
+                );
+
+                expect(handler.onPoolLeave(htlcClaimTransaction)).toResolve();
+                expect(spyOnIndexSet).toBeCalledTimes(1);
+                expect(spyOnIndexSet).toBeCalledWith(htlcClaimTransaction.data.asset.claim.lockTransactionId);
             });
         });
 

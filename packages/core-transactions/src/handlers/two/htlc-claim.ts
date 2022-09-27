@@ -2,14 +2,15 @@ import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kern
 import { Crypto, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import { strict } from "assert";
 
+import { MempoolIndexes } from "../../enums";
 import { HtlcLockExpiredError, HtlcLockTransactionNotFoundError, HtlcSecretHashMismatchError } from "../../errors";
 import { TransactionHandler, TransactionHandlerConstructor } from "../transaction";
 import { HtlcLockTransactionHandler } from "./htlc-lock";
 
 @Container.injectable()
 export class HtlcClaimTransactionHandler extends TransactionHandler {
-    @Container.inject(Container.Identifiers.TransactionPoolQuery)
-    private readonly poolQuery!: Contracts.TransactionPool.Query;
+    @Container.inject(Container.Identifiers.TransactionPoolMempoolIndexRegistry)
+    private readonly mempoolIndexRegistry!: Contracts.TransactionPool.MempoolIndexRegistry;
 
     public dependencies(): ReadonlyArray<TransactionHandlerConstructor> {
         return [HtlcLockTransactionHandler];
@@ -93,18 +94,32 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
             );
         }
 
-        const hasClaim: boolean = this.poolQuery
-            .getAll()
-            .whereKind(transaction)
-            .wherePredicate(/* istanbul ignore next */ (t) => t.data.asset?.claim?.lockTransactionId === lockId)
-            .has();
-
-        if (hasClaim) {
+        if (
+            this.mempoolIndexRegistry
+                .get(MempoolIndexes.HtlcClaimTransactionId)
+                .has(transaction.data.asset.claim.lockTransactionId)
+        ) {
             throw new Contracts.TransactionPool.PoolError(
                 `HtlcClaim for "${lockId}" already in the pool`,
                 "ERR_PENDING",
             );
         }
+    }
+
+    public async onPoolEnter(transaction: Interfaces.ITransaction): Promise<void> {
+        AppUtils.assert.defined<string>(transaction.data.asset?.claim?.lockTransactionId);
+
+        this.mempoolIndexRegistry
+            .get(MempoolIndexes.HtlcClaimTransactionId)
+            .set(transaction.data.asset.claim.lockTransactionId, transaction);
+    }
+
+    public async onPoolLeave(transaction: Interfaces.ITransaction): Promise<void> {
+        AppUtils.assert.defined<string>(transaction.data.asset?.claim?.lockTransactionId);
+
+        this.mempoolIndexRegistry
+            .get(MempoolIndexes.HtlcClaimTransactionId)
+            .forget(transaction.data.asset.claim.lockTransactionId);
     }
 
     public async applyToSender(transaction: Interfaces.ITransaction): Promise<void> {

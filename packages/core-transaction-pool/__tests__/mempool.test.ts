@@ -5,9 +5,11 @@ import { Mempool } from "@packages/core-transaction-pool/src/mempool";
 
 const createSenderMempool = jest.fn();
 const logger = { debug: jest.fn() };
+const mempoolIndexRegistry = { clear: jest.fn() };
 
 const container = new Container.Container();
 container.bind(Container.Identifiers.TransactionPoolSenderMempoolFactory).toConstantValue(createSenderMempool);
+container.bind(Container.Identifiers.TransactionPoolMempoolIndexRegistry).toConstantValue(mempoolIndexRegistry);
 container.bind(Container.Identifiers.LogService).toConstantValue(logger);
 
 beforeEach(() => {
@@ -368,5 +370,6 @@ describe("Mempool.flush", () => {
         const has = memory.hasSenderMempool(transaction.data.senderPublicKey);
 
         expect(has).toBe(false);
+        expect(mempoolIndexRegistry.clear).toBeCalled();
     });
 });
