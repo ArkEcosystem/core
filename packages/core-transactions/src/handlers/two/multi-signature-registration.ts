@@ -122,6 +122,28 @@ export class MultiSignatureRegistrationTransactionHandler extends TransactionHan
         }
     }
 
+    public async getInvalidPoolTransactions(transaction: Interfaces.ITransaction): Promise<Interfaces.ITransaction[]> {
+        AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
+        AppUtils.assert.defined<Interfaces.IMultiSignatureAsset>(transaction.data.asset?.multiSignature);
+
+        const transactions = [
+            ...this.poolQuery.getAllBySender(transaction.data.senderPublicKey).whereKind(transaction),
+        ];
+
+        const address = Identities.Address.fromMultiSignatureAsset(transaction.data.asset.multiSignature);
+
+        const multiSignatureAddressIndex = this.mempoolIndexRegistry.get(MempoolIndexes.MultiSignatureAddress);
+        if (multiSignatureAddressIndex.has(address)) {
+            const invalidTransaction = multiSignatureAddressIndex.get(address);
+
+            if (!transactions.includes(invalidTransaction)) {
+                transactions.push(invalidTransaction);
+            }
+        }
+
+        return transactions;
+    }
+
     public async onPoolEnter(transaction: Interfaces.ITransaction): Promise<void> {
         AppUtils.assert.defined<Interfaces.IMultiSignatureAsset>(transaction.data.asset?.multiSignature);
 
