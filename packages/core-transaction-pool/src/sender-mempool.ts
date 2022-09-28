@@ -91,7 +91,16 @@ export class SenderMempool implements Contracts.TransactionPool.SenderMempool {
         try {
             this.concurrency++;
 
-            return true;
+            if (!this.transactions.length) {
+                throw new Error("No transactions in sender mempool");
+            }
+
+            if (this.transactions[0].id === id) {
+                this.transactions.shift();
+                return true;
+            }
+
+            return false;
         } finally {
             this.concurrency--;
         }
