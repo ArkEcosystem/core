@@ -110,8 +110,7 @@ export class Mempool implements Contracts.TransactionPool.Mempool {
             const handler: Handlers.TransactionHandler = await handlerRegistry.getActivatedHandlerForData(
                 transaction.data,
             );
-            const invalidTransactions = await handler.getInvalidPoolTransactions(transaction);
-            for (const invalidTransaction of invalidTransactions) {
+            for (const invalidTransaction of await handler.getInvalidPoolTransactions(transaction)) {
                 AppUtils.assert.defined<string>(invalidTransaction.data.senderPublicKey);
                 sendersForReadd.add(invalidTransaction.data.senderPublicKey);
             }
