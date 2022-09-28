@@ -326,7 +326,7 @@ describe("applyBlock", () => {
 
     it("should return empty list when block contains transactions that are in pool", async () => {
         const handler = {
-            onPoolLeave: jest.fn(),
+            onPoolLeave: jest.fn().mockImplementation(async () => console.trace()),
             getInvalidPoolTransactions: jest.fn().mockResolvedValue([]),
         };
 
@@ -334,7 +334,7 @@ describe("applyBlock", () => {
 
         const senderMempool = {
             addTransaction: jest.fn(),
-            isDisposable: jest.fn().mockReturnValue(true),
+            isDisposable: jest.fn().mockReturnValueOnce(false).mockReturnValueOnce(true),
             removeForgedTransaction: jest.fn().mockReturnValue(true),
         };
         createSenderMempool.mockReturnValueOnce(senderMempool);
@@ -344,13 +344,12 @@ describe("applyBlock", () => {
             data: { senderPublicKey: Identities.PublicKey.fromPassphrase("sender1") },
         } as Interfaces.ITransaction;
 
+        const mempool = app.resolve(Mempool);
+        await mempool.addTransaction(transaction);
+
         const block = {
             transactions: [transaction],
         } as Interfaces.IBlock;
-
-        const mempool = app.resolve(Mempool);
-
-        mempool.addTransaction(transaction);
 
         await expect(mempool.applyBlock(block)).resolves.toEqual([]);
 
@@ -399,7 +398,7 @@ describe("applyBlock", () => {
 
         const mempool = app.resolve(Mempool);
 
-        mempool.addTransaction(invalidTransaction);
+        await mempool.addTransaction(invalidTransaction);
 
         await expect(mempool.applyBlock(block)).resolves.toEqual([invalidTransaction]);
 
@@ -460,8 +459,8 @@ describe("applyBlock", () => {
 
         const mempool = app.resolve(Mempool);
 
-        mempool.addTransaction(transaction);
-        mempool.addTransaction(invalidTransaction);
+        await mempool.addTransaction(transaction);
+        await mempool.addTransaction(invalidTransaction);
 
         await expect(mempool.applyBlock(block)).resolves.toEqual([invalidTransaction]);
 
@@ -475,7 +474,7 @@ describe("applyBlock", () => {
         expect(logger.debug).toHaveBeenCalledWith(expect.stringContaining("Removed invalid"));
     });
 
-    it("should return list of invalid transactions when getInvalidTransactions returns transaction and try to readd all sender transactions", async () => {
+    it("should return list of invalid transactions when getInvalidTransactions returns transaction and try to readd sender transactions", async () => {
         const transaction = {
             id: "transaction-id",
             data: { senderPublicKey: Identities.PublicKey.fromPassphrase("sender1") },
@@ -531,8 +530,8 @@ describe("applyBlock", () => {
 
         const mempool = app.resolve(Mempool);
 
-        mempool.addTransaction(transaction);
-        mempool.addTransaction(secondTransaction);
+        await mempool.addTransaction(transaction);
+        await mempool.addTransaction(secondTransaction);
 
         await expect(mempool.applyBlock(block)).resolves.toEqual([invalidTransaction]);
 
