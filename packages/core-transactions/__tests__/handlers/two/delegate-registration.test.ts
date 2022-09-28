@@ -10,6 +10,7 @@ import { Generators } from "@packages/core-test-framework/src";
 import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
 import { Mempool } from "@packages/core-transaction-pool/src/mempool";
+import { MempoolIndexes } from "@packages/core-transactions/src/enums";
 import {
     InsufficientBalanceError,
     NotSupportedForMultiSignatureWalletError,
@@ -18,7 +19,6 @@ import {
     WalletUsernameAlreadyRegisteredError,
 } from "@packages/core-transactions/src/errors";
 import { TransactionHandler } from "@packages/core-transactions/src/handlers";
-import { MempoolIndexes } from "@packages/core-transactions/src/enums";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
 import { Crypto, Enums, Identities, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
 import { BuilderFactory } from "@packages/crypto/dist/transactions";
@@ -480,14 +480,14 @@ describe("DelegateRegistrationTransaction", () => {
     });
 
     describe("onPoolEnter", () => {
-        it("should set username on DelegateUsername index", () => {
+        it("should set username on DelegateUsername index", async () => {
             const mempoolIndexRegistry = app.get<Contracts.TransactionPool.MempoolIndexRegistry>(
                 Identifiers.TransactionPoolMempoolIndexRegistry,
             );
 
             const spyOnIndexSet = jest.spyOn(mempoolIndexRegistry.get(MempoolIndexes.DelegateUsername), "set");
 
-            expect(handler.onPoolEnter(delegateRegistrationTransaction)).toResolve();
+            await expect(handler.onPoolEnter(delegateRegistrationTransaction)).toResolve();
             expect(spyOnIndexSet).toBeCalledTimes(1);
             expect(spyOnIndexSet).toBeCalledWith(
                 delegateRegistrationTransaction.data.asset.delegate.username,
@@ -497,16 +497,122 @@ describe("DelegateRegistrationTransaction", () => {
     });
 
     describe("onPoolLeave", () => {
-        it("should forget username on DelegateUsername index", () => {
+        it("should forget username on DelegateUsername index", async () => {
             const mempoolIndexRegistry = app.get<Contracts.TransactionPool.MempoolIndexRegistry>(
                 Identifiers.TransactionPoolMempoolIndexRegistry,
             );
 
             const spyOnIndexSet = jest.spyOn(mempoolIndexRegistry.get(MempoolIndexes.DelegateUsername), "forget");
 
-            expect(handler.onPoolLeave(delegateRegistrationTransaction)).toResolve();
+            await expect(handler.onPoolLeave(delegateRegistrationTransaction)).toResolve();
             expect(spyOnIndexSet).toBeCalledTimes(1);
             expect(spyOnIndexSet).toBeCalledWith(delegateRegistrationTransaction.data.asset.delegate.username);
+        });
+    });
+
+    describe("getInvalidPoolTransactions", () => {
+        let invalidTransactionByUsername: Interfaces.ITransaction;
+        let invalidTransactionBySender: Interfaces.ITransaction;
+        let invalidTransactionByUsernameAndSender: Interfaces.ITransaction;
+
+        beforeEach(() => {
+            invalidTransactionByUsername = BuilderFactory.delegateRegistration()
+                .usernameAsset("dummy")
+                .nonce("1")
+                .sign(passphrases[1])
+                .build();
+
+            invalidTransactionBySender = BuilderFactory.delegateRegistration()
+                .usernameAsset("another_username")
+                .nonce("1")
+                .sign(passphrases[0])
+                .build();
+
+            invalidTransactionByUsernameAndSender = BuilderFactory.delegateRegistration()
+                .usernameAsset("dummy")
+                .nonce("1")
+                .sign(passphrases[0])
+                .build();
+        });
+
+        it("should return empty array if there are no invalid transactions", async () => {
+            const mempoolIndexRegistry = app.get<Contracts.TransactionPool.MempoolIndexRegistry>(
+                Identifiers.TransactionPoolMempoolIndexRegistry,
+            );
+
+            const spyOnIndexHas = jest
+                .spyOn(mempoolIndexRegistry.get(MempoolIndexes.DelegateUsername), "has")
+                .mockReturnValueOnce(false);
+
+            await expect(handler.getInvalidPoolTransactions(delegateRegistrationTransaction)).resolves.toEqual([]);
+            expect(spyOnIndexHas).toBeCalledTimes(1);
+            expect(spyOnIndexHas).toBeCalledWith(delegateRegistrationTransaction.data.asset.delegate.username);
+        });
+
+        it("should return invalid transaction if transaction with same username is indexed", async () => {
+            const mempoolIndexRegistry = app.get<Contracts.TransactionPool.MempoolIndexRegistry>(
+                Identifiers.TransactionPoolMempoolIndexRegistry,
+            );
+
+            const spyOnIndexHas = jest
+                .spyOn(mempoolIndexRegistry.get(MempoolIndexes.DelegateUsername), "has")
+                .mockReturnValueOnce(true);
+
+            const spyOnIndexGet = jest
+                .spyOn(mempoolIndexRegistry.get(MempoolIndexes.DelegateUsername), "get")
+                .mockReturnValueOnce(invalidTransactionByUsername);
+
+            await expect(handler.getInvalidPoolTransactions(delegateRegistrationTransaction)).resolves.toEqual([
+                invalidTransactionByUsername,
+            ]);
+            expect(spyOnIndexHas).toBeCalledTimes(1);
+            expect(spyOnIndexHas).toBeCalledWith(delegateRegistrationTransaction.data.asset.delegate.username);
+            expect(spyOnIndexGet).toBeCalledTimes(1);
+            expect(spyOnIndexGet).toBeCalledWith(delegateRegistrationTransaction.data.asset.delegate.username);
+        });
+
+        it("should return invalid transactions if transactions with same type and sender are in pool", async () => {
+            await app.get<Mempool>(Identifiers.TransactionPoolMempool).addTransaction(invalidTransactionBySender);
+
+            const mempoolIndexRegistry = app.get<Contracts.TransactionPool.MempoolIndexRegistry>(
+                Identifiers.TransactionPoolMempoolIndexRegistry,
+            );
+
+            const spyOnIndexHas = jest
+                .spyOn(mempoolIndexRegistry.get(MempoolIndexes.DelegateUsername), "has")
+                .mockReturnValueOnce(false);
+
+            await expect(handler.getInvalidPoolTransactions(delegateRegistrationTransaction)).resolves.toEqual([
+                invalidTransactionBySender,
+            ]);
+            expect(spyOnIndexHas).toBeCalledTimes(1);
+            expect(spyOnIndexHas).toBeCalledWith(delegateRegistrationTransaction.data.asset.delegate.username);
+        });
+
+        it("should return invalid transactions only once if transactions with same type and sender are in pool and registered on index", async () => {
+            await app
+                .get<Mempool>(Identifiers.TransactionPoolMempool)
+                .addTransaction(invalidTransactionByUsernameAndSender);
+
+            const mempoolIndexRegistry = app.get<Contracts.TransactionPool.MempoolIndexRegistry>(
+                Identifiers.TransactionPoolMempoolIndexRegistry,
+            );
+
+            const spyOnIndexHas = jest
+                .spyOn(mempoolIndexRegistry.get(MempoolIndexes.DelegateUsername), "has")
+                .mockReturnValueOnce(true);
+
+            const spyOnIndexGet = jest
+                .spyOn(mempoolIndexRegistry.get(MempoolIndexes.DelegateUsername), "get")
+                .mockReturnValueOnce(invalidTransactionByUsernameAndSender);
+
+            await expect(handler.getInvalidPoolTransactions(delegateRegistrationTransaction)).resolves.toEqual([
+                invalidTransactionByUsernameAndSender,
+            ]);
+            expect(spyOnIndexHas).toBeCalledTimes(1);
+            expect(spyOnIndexHas).toBeCalledWith(delegateRegistrationTransaction.data.asset.delegate.username);
+            expect(spyOnIndexGet).toBeCalledTimes(1);
+            expect(spyOnIndexGet).toBeCalledWith(delegateRegistrationTransaction.data.asset.delegate.username);
         });
     });
 
