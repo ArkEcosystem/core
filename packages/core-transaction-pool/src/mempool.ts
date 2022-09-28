@@ -72,6 +72,10 @@ export class Mempool implements Contracts.TransactionPool.Mempool {
         }
     }
 
+    public async applyBlock(block: Interfaces.IBlock): Promise<Interfaces.ITransaction[]> {
+        return [];
+    }
+
     public async removeForgedTransaction(senderPublicKey: string, id: string): Promise<Interfaces.ITransaction[]> {
         const senderMempool = this.senderMempools.get(senderPublicKey);
         if (!senderMempool) {
@@ -79,7 +83,8 @@ export class Mempool implements Contracts.TransactionPool.Mempool {
         }
 
         try {
-            return await senderMempool.removeForgedTransaction(id);
+            await senderMempool.removeForgedTransaction(id);
+            return [];
         } finally {
             if (senderMempool.isDisposable()) {
                 this.senderMempools.delete(senderPublicKey);

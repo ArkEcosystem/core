@@ -200,6 +200,8 @@ export class Service implements Contracts.TransactionPool.Service {
         });
     }
 
+    public async applyBlock(block: Interfaces.IBlock): Promise<void> {}
+
     public async removeTransaction(transaction: Interfaces.ITransaction): Promise<void> {
         await this.lock.runNonExclusive(async () => {
             if (this.disposed) {
