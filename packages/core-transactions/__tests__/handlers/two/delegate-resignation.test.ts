@@ -284,27 +284,6 @@ describe("DelegateResignationTransaction", () => {
         });
     });
 
-    describe("getInvalidPoolTransactions", () => {
-        it("should return empty array if there are no invalid transactions", async () => {
-            await expect(handler.getInvalidPoolTransactions(delegateResignationTransaction)).resolves.toEqual([]);
-        });
-
-        it("should return invalid transactions if transactions with same type and sender are in pool", async () => {
-            const invalidDelegateResignationTransaction = BuilderFactory.delegateResignation()
-                .nonce("1")
-                .sign(delegatePassphrase)
-                .build();
-
-            await app
-                .get<Mempool>(Identifiers.TransactionPoolMempool)
-                .addTransaction(invalidDelegateResignationTransaction);
-
-            await expect(handler.getInvalidPoolTransactions(delegateResignationTransaction)).resolves.toEqual([
-                invalidDelegateResignationTransaction,
-            ]);
-        });
-    });
-
     describe("apply", () => {
         it("should apply delegate resignation", async () => {
             await expect(handler.throwIfCannotBeApplied(delegateResignationTransaction, delegateWallet)).toResolve();

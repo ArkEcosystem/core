@@ -511,30 +511,6 @@ describe("DelegateRegistrationTransaction", () => {
     });
 
     describe("getInvalidPoolTransactions", () => {
-        let invalidTransactionByUsername: Interfaces.ITransaction;
-        let invalidTransactionBySender: Interfaces.ITransaction;
-        let invalidTransactionByUsernameAndSender: Interfaces.ITransaction;
-
-        beforeEach(() => {
-            invalidTransactionByUsername = BuilderFactory.delegateRegistration()
-                .usernameAsset("dummy")
-                .nonce("1")
-                .sign(passphrases[1])
-                .build();
-
-            invalidTransactionBySender = BuilderFactory.delegateRegistration()
-                .usernameAsset("another_username")
-                .nonce("1")
-                .sign(passphrases[0])
-                .build();
-
-            invalidTransactionByUsernameAndSender = BuilderFactory.delegateRegistration()
-                .usernameAsset("dummy")
-                .nonce("1")
-                .sign(passphrases[0])
-                .build();
-        });
-
         it("should return empty array if there are no invalid transactions", async () => {
             const mempoolIndexRegistry = app.get<Contracts.TransactionPool.MempoolIndexRegistry>(
                 Identifiers.TransactionPoolMempoolIndexRegistry,
@@ -550,49 +526,11 @@ describe("DelegateRegistrationTransaction", () => {
         });
 
         it("should return invalid transaction if transaction with same username is indexed", async () => {
-            const mempoolIndexRegistry = app.get<Contracts.TransactionPool.MempoolIndexRegistry>(
-                Identifiers.TransactionPoolMempoolIndexRegistry,
-            );
-
-            const spyOnIndexHas = jest
-                .spyOn(mempoolIndexRegistry.get(MempoolIndexes.DelegateUsername), "has")
-                .mockReturnValueOnce(true);
-
-            const spyOnIndexGet = jest
-                .spyOn(mempoolIndexRegistry.get(MempoolIndexes.DelegateUsername), "get")
-                .mockReturnValueOnce(invalidTransactionByUsername);
-
-            await expect(handler.getInvalidPoolTransactions(delegateRegistrationTransaction)).resolves.toEqual([
-                invalidTransactionByUsername,
-            ]);
-            expect(spyOnIndexHas).toBeCalledTimes(1);
-            expect(spyOnIndexHas).toBeCalledWith(delegateRegistrationTransaction.data.asset.delegate.username);
-            expect(spyOnIndexGet).toBeCalledTimes(1);
-            expect(spyOnIndexGet).toBeCalledWith(delegateRegistrationTransaction.data.asset.delegate.username);
-        });
-
-        it("should return invalid transactions if transactions with same type and sender are in pool", async () => {
-            await app.get<Mempool>(Identifiers.TransactionPoolMempool).addTransaction(invalidTransactionBySender);
-
-            const mempoolIndexRegistry = app.get<Contracts.TransactionPool.MempoolIndexRegistry>(
-                Identifiers.TransactionPoolMempoolIndexRegistry,
-            );
-
-            const spyOnIndexHas = jest
-                .spyOn(mempoolIndexRegistry.get(MempoolIndexes.DelegateUsername), "has")
-                .mockReturnValueOnce(false);
-
-            await expect(handler.getInvalidPoolTransactions(delegateRegistrationTransaction)).resolves.toEqual([
-                invalidTransactionBySender,
-            ]);
-            expect(spyOnIndexHas).toBeCalledTimes(1);
-            expect(spyOnIndexHas).toBeCalledWith(delegateRegistrationTransaction.data.asset.delegate.username);
-        });
-
-        it("should return invalid transactions only once if transactions with same type and sender are in pool and registered on index", async () => {
-            await app
-                .get<Mempool>(Identifiers.TransactionPoolMempool)
-                .addTransaction(invalidTransactionByUsernameAndSender);
+            const invalidDelegateRegistrationTransaction = BuilderFactory.delegateRegistration()
+                .usernameAsset("dummy")
+                .nonce("1")
+                .sign(passphrases[1])
+                .build();
 
             const mempoolIndexRegistry = app.get<Contracts.TransactionPool.MempoolIndexRegistry>(
                 Identifiers.TransactionPoolMempoolIndexRegistry,
@@ -604,10 +542,10 @@ describe("DelegateRegistrationTransaction", () => {
 
             const spyOnIndexGet = jest
                 .spyOn(mempoolIndexRegistry.get(MempoolIndexes.DelegateUsername), "get")
-                .mockReturnValueOnce(invalidTransactionByUsernameAndSender);
+                .mockReturnValueOnce(invalidDelegateRegistrationTransaction);
 
             await expect(handler.getInvalidPoolTransactions(delegateRegistrationTransaction)).resolves.toEqual([
-                invalidTransactionByUsernameAndSender,
+                invalidDelegateRegistrationTransaction,
             ]);
             expect(spyOnIndexHas).toBeCalledTimes(1);
             expect(spyOnIndexHas).toBeCalledWith(delegateRegistrationTransaction.data.asset.delegate.username);

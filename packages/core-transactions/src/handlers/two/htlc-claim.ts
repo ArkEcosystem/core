@@ -111,11 +111,9 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
 
         const htlcClaimTransactionIdIndex = this.mempoolIndexRegistry.get(MempoolIndexes.HtlcClaimTransactionId);
 
-        if (htlcClaimTransactionIdIndex.has(transaction.data.asset.claim.lockTransactionId)) {
-            return [htlcClaimTransactionIdIndex.get(transaction.data.asset.claim.lockTransactionId)];
-        }
-
-        return [];
+        return htlcClaimTransactionIdIndex.has(transaction.data.asset.claim.lockTransactionId)
+            ? [htlcClaimTransactionIdIndex.get(transaction.data.asset.claim.lockTransactionId)]
+            : [];
     }
 
     public async onPoolEnter(transaction: Interfaces.ITransaction): Promise<void> {

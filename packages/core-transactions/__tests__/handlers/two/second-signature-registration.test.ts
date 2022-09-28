@@ -198,28 +198,6 @@ describe("SecondSignatureRegistrationTransaction", () => {
         });
     });
 
-    describe("getInvalidPoolTransactions", () => {
-        it("should return empty array if there are no invalid transactions", async () => {
-            await expect(handler.getInvalidPoolTransactions(secondSignatureTransaction)).resolves.toEqual([]);
-        });
-
-        it("should return invalid transactions if transactions with same type and sender are in pool", async () => {
-            const invalidSecondSignatureTransaction = BuilderFactory.secondSignature()
-                .nonce("1")
-                .signatureAsset(passphrases[1])
-                .sign(passphrases[0])
-                .build();
-
-            await app
-                .get<Mempool>(Identifiers.TransactionPoolMempool)
-                .addTransaction(invalidSecondSignatureTransaction);
-
-            await expect(handler.getInvalidPoolTransactions(secondSignatureTransaction)).resolves.toEqual([
-                invalidSecondSignatureTransaction,
-            ]);
-        });
-    });
-
     describe("throwIfCannotEnterPool", () => {
         it("should not throw", async () => {
             await expect(handler.throwIfCannotEnterPool(secondSignatureTransaction)).toResolve();

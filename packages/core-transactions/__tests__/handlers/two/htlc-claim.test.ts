@@ -468,7 +468,7 @@ describe("Htlc claim", () => {
                 expect(spyOnIndexHas).toBeCalledWith(htlcClaimTransaction.data.asset.claim.lockTransactionId);
             });
 
-            it("should return invalid transaction if transaction with same username is indexed", async () => {
+            it("should return invalid transaction if transaction with same transaction id is indexed", async () => {
                 const invalidHtlcClaimTransaction = BuilderFactory.htlcClaim()
                     .htlcClaimAsset({
                         unlockSecret: htlcSecretHex,

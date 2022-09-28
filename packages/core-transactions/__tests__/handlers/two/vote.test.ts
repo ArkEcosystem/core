@@ -432,18 +432,6 @@ describe("VoteTransaction", () => {
         });
     });
 
-    describe("getInvalidPoolTransactions", () => {
-        it("should return empty array if there are no invalid transactions", async () => {
-            await expect(handler.getInvalidPoolTransactions(voteTransaction)).resolves.toEqual([]);
-        });
-
-        it("should return invalid transactions if transactions with same type and sender are in pool", async () => {
-            await app.get<Mempool>(Identifiers.TransactionPoolMempool).addTransaction(voteTransaction);
-
-            await expect(handler.getInvalidPoolTransactions(unvoteTransaction)).resolves.toEqual([voteTransaction]);
-        });
-    });
-
     describe("apply", () => {
         describe("vote", () => {
             it("should be ok", async () => {

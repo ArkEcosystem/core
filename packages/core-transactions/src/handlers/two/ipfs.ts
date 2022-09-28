@@ -68,11 +68,7 @@ export class IpfsTransactionHandler extends TransactionHandler {
 
         const ipfsIndex = this.mempoolIndexRegistry.get(MempoolIndexes.Ipfs);
 
-        if (ipfsIndex.has(transaction.data.asset.ipfs)) {
-            return [ipfsIndex.get(transaction.data.asset.ipfs)];
-        }
-
-        return [];
+        return ipfsIndex.has(transaction.data.asset.ipfs) ? [ipfsIndex.get(transaction.data.asset.ipfs)] : [];
     }
 
     public async onPoolEnter(transaction: Interfaces.ITransaction): Promise<void> {
