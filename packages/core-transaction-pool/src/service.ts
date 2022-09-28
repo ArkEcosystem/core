@@ -234,7 +234,26 @@ export class Service implements Contracts.TransactionPool.Service {
         });
     }
 
-    public async applyBlock(block: Interfaces.IBlock): Promise<void> {}
+    public async applyBlock(block: Interfaces.IBlock): Promise<void> {
+        await this.lock.runNonExclusive(async () => {
+            const removedTransactions = await this.mempool.applyBlock(block);
+
+            if (removedTransactions.length >= 1) {
+                this.logger.warning(`${removedTransactions.length} previously stored transactions failed re-adding`);
+            }
+
+            for (const removedTransaction of removedTransactions) {
+                AppUtils.assert.defined<string>(removedTransaction.id);
+                this.storage.removeTransaction(removedTransaction.id);
+                this.events.dispatch(Enums.TransactionEvent.RemovedFromPool, removedTransaction.data);
+            }
+
+            for (const transaction of block.transactions) {
+                AppUtils.assert.defined<string>(transaction.id);
+                this.storage.removeTransaction(transaction.id);
+            }
+        });
+    }
 
     public async cleanUp(): Promise<void> {
         await this.lock.runNonExclusive(async () => {
