@@ -51,12 +51,7 @@ export class Mempool implements Contracts.TransactionPool.Mempool {
         try {
             await senderMempool.addTransaction(transaction);
         } finally {
-            if (senderMempool.isDisposable()) {
-                this.senderMempools.delete(transaction.data.senderPublicKey);
-                this.logger.debug(
-                    `${Identities.Address.fromPublicKey(transaction.data.senderPublicKey)} state disposed`,
-                );
-            }
+            this.removeDisposableMempool(transaction.data.senderPublicKey);
         }
     }
 
@@ -69,10 +64,7 @@ export class Mempool implements Contracts.TransactionPool.Mempool {
         try {
             return await senderMempool.removeTransaction(id);
         } finally {
-            if (senderMempool.isDisposable()) {
-                this.senderMempools.delete(senderPublicKey);
-                this.logger.debug(`${Identities.Address.fromPublicKey(senderPublicKey)} state disposed`);
-            }
+            this.removeDisposableMempool(senderPublicKey);
         }
     }
 
