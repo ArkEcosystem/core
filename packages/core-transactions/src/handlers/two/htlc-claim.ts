@@ -106,6 +106,18 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         }
     }
 
+    public async getInvalidPoolTransactions(transaction: Interfaces.ITransaction): Promise<Interfaces.ITransaction[]> {
+        AppUtils.assert.defined<string>(transaction.data.asset?.claim?.lockTransactionId);
+
+        const htlcClaimTransactionIdIndex = this.mempoolIndexRegistry.get(MempoolIndexes.HtlcClaimTransactionId);
+
+        if (htlcClaimTransactionIdIndex.has(transaction.data.asset.claim.lockTransactionId)) {
+            return [htlcClaimTransactionIdIndex.get(transaction.data.asset.claim.lockTransactionId)];
+        }
+
+        return [];
+    }
+
     public async onPoolEnter(transaction: Interfaces.ITransaction): Promise<void> {
         AppUtils.assert.defined<string>(transaction.data.asset?.claim?.lockTransactionId);
 
