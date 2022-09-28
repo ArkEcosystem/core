@@ -67,6 +67,12 @@ export class SecondSignatureRegistrationTransactionHandler extends TransactionHa
         }
     }
 
+    public async getInvalidPoolTransactions(transaction: Interfaces.ITransaction): Promise<Interfaces.ITransaction[]> {
+        Utils.assert.defined<string>(transaction.data.senderPublicKey);
+
+        return [...this.poolQuery.getAllBySender(transaction.data.senderPublicKey).whereKind(transaction)];
+    }
+
     public async applyToSender(transaction: Interfaces.ITransaction): Promise<void> {
         await super.applyToSender(transaction);
 
