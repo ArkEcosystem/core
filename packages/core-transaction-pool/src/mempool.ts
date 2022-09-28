@@ -76,23 +76,6 @@ export class Mempool implements Contracts.TransactionPool.Mempool {
         return [];
     }
 
-    public async removeForgedTransaction(senderPublicKey: string, id: string): Promise<Interfaces.ITransaction[]> {
-        const senderMempool = this.senderMempools.get(senderPublicKey);
-        if (!senderMempool) {
-            return [];
-        }
-
-        try {
-            await senderMempool.removeForgedTransaction(id);
-            return [];
-        } finally {
-            if (senderMempool.isDisposable()) {
-                this.senderMempools.delete(senderPublicKey);
-                this.logger.debug(`${Identities.Address.fromPublicKey(senderPublicKey)} state disposed`);
-            }
-        }
-    }
-
     public flush(): void {
         this.senderMempools.clear();
         this.mempoolIndexRegistry.clear();

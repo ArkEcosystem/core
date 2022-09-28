@@ -12,7 +12,6 @@ export interface Mempool {
     applyBlock(block: Interfaces.IBlock): Promise<Interfaces.ITransaction[]>;
     addTransaction(transaction: Interfaces.ITransaction): Promise<void>;
     removeTransaction(senderPublicKey: string, id: string): Promise<Interfaces.ITransaction[]>;
-    removeForgedTransaction(senderPublicKey: string, id: string): Promise<Interfaces.ITransaction[]>;
 
     flush(): void;
 }
