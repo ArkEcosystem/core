@@ -1,8 +1,12 @@
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Handlers } from "@arkecosystem/core-transactions";
 import { Identities, Interfaces } from "@arkecosystem/crypto";
 
 @Container.injectable()
 export class Mempool implements Contracts.TransactionPool.Mempool {
+    @Container.inject(Container.Identifiers.Application)
+    private readonly app!: Contracts.Kernel.Application;
+
     @Container.inject(Container.Identifiers.TransactionPoolMempoolIndexRegistry)
     private readonly mempoolIndexRegistry!: Contracts.TransactionPool.MempoolIndexRegistry;
 
@@ -73,11 +77,96 @@ export class Mempool implements Contracts.TransactionPool.Mempool {
     }
 
     public async applyBlock(block: Interfaces.IBlock): Promise<Interfaces.ITransaction[]> {
-        return [];
+        const sendersForReadd: Set<string> = new Set();
+
+        const handlerRegistry = this.app.getTagged<Handlers.Registry>(
+            Container.Identifiers.TransactionHandlerRegistry,
+            "state",
+            "copy-on-write",
+        );
+
+        for (const transaction of block.transactions) {
+            AppUtils.assert.defined<string>(transaction.id);
+            AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
+
+            const senderMempool = this.senderMempools.get(transaction.data.senderPublicKey);
+            if (!senderMempool) {
+                continue;
+            }
+
+            if (await senderMempool.removeForgedTransaction(transaction.id)) {
+                const handler: Handlers.TransactionHandler = await handlerRegistry.getActivatedHandlerForData(
+                    transaction.data,
+                );
+                handler.onPoolLeave(transaction);
+                this.logger.debug(`Removed forged ${transaction}`);
+                this.removeDisposableMempool(transaction.data.senderPublicKey);
+            } else {
+                sendersForReadd.add(transaction.data.senderPublicKey);
+            }
+        }
+
+        for (const transaction of block.transactions) {
+            const handler: Handlers.TransactionHandler = await handlerRegistry.getActivatedHandlerForData(
+                transaction.data,
+            );
+            const invalidTransactions = await handler.getInvalidPoolTransactions(transaction);
+            for (const invalidTransaction of invalidTransactions) {
+                AppUtils.assert.defined<string>(invalidTransaction.data.senderPublicKey);
+                sendersForReadd.add(invalidTransaction.data.senderPublicKey);
+            }
+        }
+
+        const removedTransactions: Interfaces.ITransaction[] = [];
+
+        for (const senderPublicKey of sendersForReadd.keys()) {
+            const senderMempool = this.getSenderMempool(senderPublicKey);
+
+            for (const transaction of senderMempool.getFromLatest()) {
+                const handler: Handlers.TransactionHandler = await handlerRegistry.getActivatedHandlerForData(
+                    transaction.data,
+                );
+                await handler.onPoolLeave(transaction);
+            }
+
+            const newSenderMempool = this.createSenderMempool();
+
+            const transactionsForReadd = [...senderMempool.getFromEarliest()];
+
+            for (let i = 0; i < transactionsForReadd.length; i++) {
+                const transaction = transactionsForReadd[i];
+
+                try {
+                    await newSenderMempool.addTransaction(transaction);
+                } catch {
+                    transactionsForReadd.slice(i).map((tx) => {
+                        removedTransactions.push(tx);
+                        this.logger.debug(`Removed invalid ${transaction}`);
+                    });
+                    break;
+                }
+            }
+
+            this.senderMempools.delete(senderPublicKey);
+            if (newSenderMempool.getSize()) {
+                this.senderMempools.set(senderPublicKey, newSenderMempool);
+            }
+        }
+
+        return removedTransactions;
     }
 
     public flush(): void {
         this.senderMempools.clear();
         this.mempoolIndexRegistry.clear();
+    }
+
+    private removeDisposableMempool(senderPublicKey: string): void {
+        const senderMempool = this.senderMempools.get(senderPublicKey);
+
+        if (senderMempool && senderMempool.isDisposable()) {
+            this.senderMempools.delete(senderPublicKey);
+            this.logger.debug(`${Identities.Address.fromPublicKey(senderPublicKey)} state disposed`);
+        }
     }
 }
