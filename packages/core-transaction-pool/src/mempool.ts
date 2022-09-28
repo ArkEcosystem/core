@@ -85,22 +85,20 @@ export class Mempool implements Contracts.TransactionPool.Mempool {
                 transaction.data,
             );
 
+            const senderMempool = this.senderMempools.get(transaction.data.senderPublicKey);
+            if (senderMempool) {
+                if (await senderMempool.removeForgedTransaction(transaction.id)) {
+                    await handler.onPoolLeave(transaction);
+                    this.logger.debug(`Removed forged ${transaction}`);
+                    this.removeDisposableMempool(transaction.data.senderPublicKey);
+                } else {
+                    sendersForReadd.add(transaction.data.senderPublicKey);
+                }
+            }
+
             for (const invalidTransaction of await handler.getInvalidPoolTransactions(transaction)) {
                 AppUtils.assert.defined<string>(invalidTransaction.data.senderPublicKey);
                 sendersForReadd.add(invalidTransaction.data.senderPublicKey);
-            }
-
-            const senderMempool = this.senderMempools.get(transaction.data.senderPublicKey);
-            if (!senderMempool) {
-                continue;
-            }
-
-            if (await senderMempool.removeForgedTransaction(transaction.id)) {
-                await handler.onPoolLeave(transaction);
-                this.logger.debug(`Removed forged ${transaction}`);
-                this.removeDisposableMempool(transaction.data.senderPublicKey);
-            } else {
-                sendersForReadd.add(transaction.data.senderPublicKey);
             }
         }
 
