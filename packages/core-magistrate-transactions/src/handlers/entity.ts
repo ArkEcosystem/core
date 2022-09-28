@@ -103,6 +103,23 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
         }
     }
 
+    public async getInvalidPoolTransactions(
+        transaction: CryptoInterfaces.ITransaction,
+    ): Promise<CryptoInterfaces.ITransaction[]> {
+        KernelUtils.assert.defined<MagistrateInterfaces.IEntityAsset>(transaction.data.asset);
+
+        if (transaction.data.asset.action === Enums.EntityAction.Register) {
+            KernelUtils.assert.defined<string>(transaction.data.asset.data.name);
+
+            const entityNameIndex = this.mempoolIndexRegistry.get(MempoolIndexes.EntityName);
+            const name = transaction.data.asset.data.name.toLowerCase();
+
+            return entityNameIndex.has(name) ? [entityNameIndex.get(name)] : [];
+        }
+
+        return [];
+    }
+
     public async throwIfCannotBeApplied(
         transaction: CryptoInterfaces.ITransaction,
         wallet: Contracts.State.Wallet,

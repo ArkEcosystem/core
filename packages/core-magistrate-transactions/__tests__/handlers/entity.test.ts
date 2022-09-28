@@ -321,6 +321,75 @@ describe("Entity handler", () => {
         });
     });
 
+    describe("getInvalidPoolTransactions", () => {
+        let transaction: EntityTransaction;
+        let invalidTransaction: EntityTransaction;
+        let entityHandler: EntityTransactionHandler;
+
+        beforeEach(() => {
+            const builder = new EntityBuilder();
+            transaction = builder.asset(validRegisters[0]).sign("passphrase").build() as EntityTransaction;
+            invalidTransaction = builder
+                .asset(validRegisters[0])
+                .sign("another_passphrase")
+                .build() as EntityTransaction;
+
+            entityHandler = container.resolve(EntityTransactionHandler);
+        });
+
+        it("should return empty array if there are no invalid transactions", async () => {
+            const mempoolIndexRegistry = container.get<Contracts.TransactionPool.MempoolIndexRegistry>(
+                Container.Identifiers.TransactionPoolMempoolIndexRegistry,
+            );
+
+            const spyOnIndexHas = jest
+                .spyOn(mempoolIndexRegistry.get(MempoolIndexes.EntityName), "has")
+                .mockReturnValueOnce(false);
+
+            await expect(entityHandler.getInvalidPoolTransactions(transaction)).resolves.toEqual([]);
+            expect(spyOnIndexHas).toBeCalledTimes(1);
+            expect(spyOnIndexHas).toBeCalledWith(transaction.data.asset.data.name.toLowerCase());
+        });
+
+        it("should return invalid transaction if transaction with same username is indexed", async () => {
+            const mempoolIndexRegistry = container.get<Contracts.TransactionPool.MempoolIndexRegistry>(
+                Container.Identifiers.TransactionPoolMempoolIndexRegistry,
+            );
+
+            const spyOnIndexHas = jest
+                .spyOn(mempoolIndexRegistry.get(MempoolIndexes.EntityName), "has")
+                .mockReturnValueOnce(true);
+
+            transaction.data.asset.action = Enums.EntityAction.Update;
+            await expect(entityHandler.getInvalidPoolTransactions(transaction)).resolves.toEqual([]);
+            expect(spyOnIndexHas).not.toBeCalled();
+
+            transaction.data.asset.action = Enums.EntityAction.Resign;
+            await expect(entityHandler.getInvalidPoolTransactions(transaction)).resolves.toEqual([]);
+            expect(spyOnIndexHas).not.toBeCalled();
+        });
+
+        it("should return empty array  if transaction is not Register", async () => {
+            const mempoolIndexRegistry = container.get<Contracts.TransactionPool.MempoolIndexRegistry>(
+                Container.Identifiers.TransactionPoolMempoolIndexRegistry,
+            );
+
+            const spyOnIndexHas = jest
+                .spyOn(mempoolIndexRegistry.get(MempoolIndexes.EntityName), "has")
+                .mockReturnValueOnce(true);
+
+            const spyOnIndexGet = jest
+                .spyOn(mempoolIndexRegistry.get(MempoolIndexes.EntityName), "get")
+                .mockReturnValueOnce(invalidTransaction);
+
+            await expect(entityHandler.getInvalidPoolTransactions(transaction)).resolves.toEqual([invalidTransaction]);
+            expect(spyOnIndexHas).toBeCalledTimes(1);
+            expect(spyOnIndexHas).toBeCalledWith(transaction.data.asset.data.name.toLowerCase());
+            expect(spyOnIndexGet).toBeCalledTimes(1);
+            expect(spyOnIndexGet).toBeCalledWith(transaction.data.asset.data.name.toLowerCase());
+        });
+    });
+
     describe("throwIfCannotBeApplied", () => {
         let transaction: EntityTransaction;
         let entityHandler: EntityTransactionHandler;
