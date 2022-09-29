@@ -27,6 +27,14 @@ export class Service implements Contracts.TransactionPool.Service {
     @Container.inject(Container.Identifiers.TransactionPoolExpirationService)
     private readonly expirationService!: Contracts.TransactionPool.ExpirationService;
 
+    @Container.inject(Container.Identifiers.TransactionSecondSignatureVerification)
+    @Container.tagged("state", "copy-on-write")
+    private readonly secondSignatureVerification!: Contracts.Transactions.SecondSignatureVerification;
+
+    @Container.inject(Container.Identifiers.TransactionMultiSignatureVerification)
+    @Container.tagged("state", "copy-on-write")
+    private readonly multiSignatureVerification!: Contracts.Transactions.MultiSignatureVerification;
+
     @Container.inject(Container.Identifiers.EventDispatcherService)
     private readonly events!: Contracts.Kernel.EventDispatcher;
 
@@ -105,6 +113,7 @@ export class Service implements Contracts.TransactionPool.Service {
                 this.events.dispatch(Enums.TransactionEvent.AddedToPool, transaction.data);
             } catch (error) {
                 this.storage.removeTransaction(transaction.id);
+                this.clearCache(transaction.id);
                 this.logger.warning(`${transaction} failed to enter pool: ${error.message}`);
                 this.events.dispatch(Enums.TransactionEvent.RejectedByPool, transaction.data);
 
@@ -151,6 +160,7 @@ export class Service implements Contracts.TransactionPool.Service {
 
                     previouslyForgedSuccesses++;
                 } catch (error) {
+                    this.clearCache(id!);
                     this.logger.debug(`Failed to re-add previously forged transaction ${id}: ${error.message}`);
                     previouslyForgedFailures++;
                 }
@@ -172,11 +182,13 @@ export class Service implements Contracts.TransactionPool.Service {
                         previouslyStoredSuccesses++;
                     } catch (error) {
                         this.storage.removeTransaction(id);
+                        this.clearCache(id);
                         this.logger.debug(`Failed to re-add previously stored transaction ${id}: ${error.message}`);
                         previouslyStoredFailures++;
                     }
                 } else {
                     this.storage.removeTransaction(id);
+                    this.clearCache(id);
                     this.logger.debug(`Not re-adding previously stored expired transaction ${id}`);
                     previouslyStoredExpirations++;
                 }
@@ -222,12 +234,14 @@ export class Service implements Contracts.TransactionPool.Service {
             for (const removedTransaction of removedTransactions) {
                 AppUtils.assert.defined<string>(removedTransaction.id);
                 this.storage.removeTransaction(removedTransaction.id);
+                this.clearCache(removedTransaction.id);
                 this.logger.debug(`Removed ${removedTransaction}`);
                 this.events.dispatch(Enums.TransactionEvent.RemovedFromPool, removedTransaction.data);
             }
 
             if (!removedTransactions.find((t) => t.id === transaction.id)) {
                 this.storage.removeTransaction(transaction.id);
+                this.clearCache(transaction.id);
                 this.logger.error(`Removed ${transaction} from storage`);
                 this.events.dispatch(Enums.TransactionEvent.RemovedFromPool, transaction.data);
             }
@@ -245,12 +259,14 @@ export class Service implements Contracts.TransactionPool.Service {
             for (const removedTransaction of removedTransactions) {
                 AppUtils.assert.defined<string>(removedTransaction.id);
                 this.storage.removeTransaction(removedTransaction.id);
+                this.clearCache(removedTransaction.id);
                 this.events.dispatch(Enums.TransactionEvent.RemovedFromPool, removedTransaction.data);
             }
 
             for (const transaction of block.transactions) {
                 AppUtils.assert.defined<string>(transaction.id);
                 this.storage.removeTransaction(transaction.id);
+                this.clearCache(transaction.id);
             }
         });
     }
@@ -289,6 +305,7 @@ export class Service implements Contracts.TransactionPool.Service {
             for (const removedTransaction of removedTransactions) {
                 AppUtils.assert.defined<string>(removedTransaction.id);
                 this.storage.removeTransaction(removedTransaction.id);
+                this.clearCache(removedTransaction.id);
                 this.logger.info(`Removed old ${removedTransaction}`);
                 this.events.dispatch(Enums.TransactionEvent.Expired, removedTransaction.data);
             }
@@ -309,6 +326,7 @@ export class Service implements Contracts.TransactionPool.Service {
                 for (const removedTransaction of removedTransactions) {
                     AppUtils.assert.defined<string>(removedTransaction.id);
                     this.storage.removeTransaction(removedTransaction.id);
+                    this.clearCache(removedTransaction.id);
                     this.logger.info(`Removed expired ${removedTransaction}`);
                     this.events.dispatch(Enums.TransactionEvent.Expired, removedTransaction.data);
                 }
@@ -334,6 +352,7 @@ export class Service implements Contracts.TransactionPool.Service {
         for (const removedTransaction of removedTransactions) {
             AppUtils.assert.defined<string>(removedTransaction.id);
             this.storage.removeTransaction(removedTransaction.id);
+            this.clearCache(removedTransaction.id);
             this.logger.info(`Removed lowest priority ${removedTransaction}`);
             this.events.dispatch(Enums.TransactionEvent.RemovedFromPool, removedTransaction.data);
         }
@@ -368,5 +387,10 @@ export class Service implements Contracts.TransactionPool.Service {
         }
 
         await this.mempool.addTransaction(transaction);
+    }
+
+    private clearCache(transactionId: string): void {
+        this.secondSignatureVerification.clear(transactionId);
+        this.multiSignatureVerification.clear(transactionId);
     }
 }
