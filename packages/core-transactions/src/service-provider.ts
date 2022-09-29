@@ -5,7 +5,12 @@ import { MempoolIndexes } from "./enums";
 import { One, TransactionHandlerConstructor, Two } from "./handlers";
 import { TransactionHandlerProvider } from "./handlers/handler-provider";
 import { TransactionHandlerRegistry } from "./handlers/handler-registry";
-import { MultiSignatureVerificationMemoized, SecondSignatureVerificationMemoized } from "./verification";
+import {
+    MultiSignatureVerification,
+    MultiSignatureVerificationMemoized,
+    SecondSignatureVerification,
+    SecondSignatureVerificationMemoized,
+} from "./verification";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public static getTransactionHandlerConstructorsBinding(): (
@@ -56,12 +61,24 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.app
             .bind(Container.Identifiers.TransactionSecondSignatureVerification)
             .to(SecondSignatureVerificationMemoized)
-            .inSingletonScope();
+            .inSingletonScope()
+            .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("state", "copy-on-write"));
+
+        this.app
+            .bind(Container.Identifiers.TransactionSecondSignatureVerification)
+            .to(SecondSignatureVerification)
+            .inSingletonScope()
+            .when((req) => !Container.Selectors.anyAncestorOrTargetTaggedFirst("state", "copy-on-write")(req));
 
         this.app
             .bind(Container.Identifiers.TransactionMultiSignatureVerification)
             .to(MultiSignatureVerificationMemoized)
-            .inSingletonScope();
+            .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("state", "copy-on-write"));
+
+        this.app
+            .bind(Container.Identifiers.TransactionMultiSignatureVerification)
+            .to(MultiSignatureVerification)
+            .when((req) => !Container.Selectors.anyAncestorOrTargetTaggedFirst("state", "copy-on-write")(req));
 
         this.app
             .bind(Container.Identifiers.TransactionPoolMempoolIndex)
