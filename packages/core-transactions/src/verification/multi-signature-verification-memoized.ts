@@ -38,6 +38,8 @@ export class MultiSignatureVerificationMemoized implements Contracts.Transaction
         return result;
     }
 
+    public clear(transaction: Interfaces.ITransactionData): void {}
+
     private getKey(transaction: Interfaces.ITransactionData): string {
         if (!transaction.id) {
             throw new Error("Missing transaction id");

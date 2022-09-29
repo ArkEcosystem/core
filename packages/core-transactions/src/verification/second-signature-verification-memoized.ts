@@ -29,6 +29,8 @@ export class SecondSignatureVerificationMemoized implements Contracts.Transactio
         return result;
     }
 
+    public clear(transaction: Interfaces.ITransactionData): void {}
+
     private getKey(transaction: Interfaces.ITransactionData, publicKey: string): string {
         if (!transaction.id) {
             throw new Error("Missing transaction id");
