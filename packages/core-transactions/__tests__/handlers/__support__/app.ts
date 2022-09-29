@@ -135,11 +135,13 @@ export const initApp = (): Application => {
 
     app.bind(Identifiers.DatabaseTransactionRepository).toConstantValue(Mocks.TransactionRepository.instance);
 
-    app.bind(Identifiers.SecondSignatureVerificationMemoizer)
+    app.bind(Identifiers.TransactionSecondSignatureVerification)
         .to(SecondSignatureVerificationMemoized)
         .inSingletonScope();
 
-    app.bind(Identifiers.MultiSignatureVerificationMemoizer).to(MultiSignatureVerificationMemoized).inSingletonScope();
+    app.bind(Identifiers.TransactionMultiSignatureVerification)
+        .to(MultiSignatureVerificationMemoized)
+        .inSingletonScope();
 
     app.bind(Identifiers.TransactionHandler).to(One.TransferTransactionHandler);
     app.bind(Identifiers.TransactionHandler).to(Two.TransferTransactionHandler);

@@ -54,12 +54,12 @@ export class ServiceProvider extends Providers.ServiceProvider {
             .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("state", "null"));
 
         this.app
-            .bind(Container.Identifiers.SecondSignatureVerificationMemoizer)
+            .bind(Container.Identifiers.TransactionSecondSignatureVerification)
             .to(SecondSignatureVerificationMemoized)
             .inSingletonScope();
 
         this.app
-            .bind(Container.Identifiers.MultiSignatureVerificationMemoizer)
+            .bind(Container.Identifiers.TransactionMultiSignatureVerification)
             .to(MultiSignatureVerificationMemoized)
             .inSingletonScope();
 

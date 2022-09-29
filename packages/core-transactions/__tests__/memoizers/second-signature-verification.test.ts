@@ -6,7 +6,7 @@ import { Identities, Interfaces, Transactions } from "@packages/crypto";
 import { BuilderFactory } from "@packages/crypto/dist/transactions";
 import { Application, Container, Providers } from "@packages/core-kernel";
 
-describe("SecondSignatureVerificationMemoizer", () => {
+describe("SecondSignatureVerificationMemoized", () => {
     let transaction: Interfaces.ITransaction;
 
     let app: Application;
