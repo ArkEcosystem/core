@@ -3,7 +3,7 @@ import { Interfaces, Transactions } from "@arkecosystem/crypto";
 import LRUCache from "lru-cache";
 
 @Container.injectable()
-export class SecondSignatureVerificationMemoizer implements Contracts.Transactions.SecondSignatureVerificationMemoizer {
+export class SecondSignatureVerificationMemoizer implements Contracts.Transactions.SecondSignatureVerification {
     @Container.inject(Container.Identifiers.PluginConfiguration)
     @Container.tagged("plugin", "@arkecosystem/core-transactions")
     private readonly configuration!: Providers.PluginConfiguration;

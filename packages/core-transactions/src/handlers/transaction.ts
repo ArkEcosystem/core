@@ -36,10 +36,10 @@ export abstract class TransactionHandler {
     protected readonly logger!: Contracts.Kernel.Logger;
 
     @Container.inject(Container.Identifiers.SecondSignatureVerificationMemoizer)
-    protected readonly secondSignatureVerificationMemoizer!: Contracts.Transactions.SecondSignatureVerificationMemoizer;
+    protected readonly secondSignatureVerificationMemoizer!: Contracts.Transactions.SecondSignatureVerification;
 
     @Container.inject(Container.Identifiers.MultiSignatureVerificationMemoizer)
-    protected readonly multiSignatureVerificationMemoizer!: Contracts.Transactions.MultiSignatureVerificationMemoizer;
+    protected readonly multiSignatureVerificationMemoizer!: Contracts.Transactions.MultiSignatureVerification;
 
     public async verify(transaction: Interfaces.ITransaction): Promise<boolean> {
         AppUtils.assert.defined<string>(transaction.data.senderPublicKey);

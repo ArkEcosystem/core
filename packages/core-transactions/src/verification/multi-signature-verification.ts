@@ -8,7 +8,7 @@ interface CacheValue {
 }
 
 @Container.injectable()
-export class MultiSignatureVerificationMemoizer implements Contracts.Transactions.MultiSignatureVerificationMemoizer {
+export class MultiSignatureVerificationMemoizer implements Contracts.Transactions.MultiSignatureVerification {
     @Container.inject(Container.Identifiers.PluginConfiguration)
     @Container.tagged("plugin", "@arkecosystem/core-transactions")
     private readonly configuration!: Providers.PluginConfiguration;

@@ -1,10 +1,10 @@
 import { Interfaces } from "@arkecosystem/crypto";
 
-export interface SecondSignatureVerificationMemoizer {
+export interface SecondSignatureVerification {
     verifySecondSignature(transaction: Interfaces.ITransactionData, publicKey: string): boolean;
 }
 
-export interface MultiSignatureVerificationMemoizer {
+export interface MultiSignatureVerification {
     verifySignatures(
         transaction: Interfaces.ITransactionData,
         multiSignatureAsset: Interfaces.IMultiSignatureAsset,
