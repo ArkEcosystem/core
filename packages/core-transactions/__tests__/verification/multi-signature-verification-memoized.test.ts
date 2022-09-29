@@ -101,17 +101,12 @@ describe("MultiSignatureVerificationMemoized", () => {
             expect(spyOnVerifier).toBeCalledTimes(1);
             expect(result1).toEqual(result2);
 
-            verification.clear(transaction.data);
+            verification.clear(transaction.data.id);
 
             const result3 = verification.verifySignatures(transaction.data, multiSignatureAsset);
 
             expect(spyOnVerifier).toBeCalledTimes(2);
             expect(result1).toEqual(result3);
-        });
-
-        it("should throw error if transaction.id is undefined", () => {
-            transaction.data.id = undefined;
-            expect(() => verification.clear(transaction.data)).toThrowError();
         });
     });
 });

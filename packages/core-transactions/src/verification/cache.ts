@@ -5,8 +5,8 @@ import { Interfaces } from "@arkecosystem/crypto";
 export class Cache<T> {
     protected cache: Map<string, T> = new Map();
 
-    public clear(transaction: Interfaces.ITransactionData): void {
-        this.cache.delete(this.getKey(transaction));
+    public clear(transactionId: string): void {
+        this.cache.delete(transactionId);
     }
 
     protected getKey(transaction: Interfaces.ITransactionData): string {

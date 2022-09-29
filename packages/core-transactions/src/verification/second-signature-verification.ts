@@ -7,7 +7,7 @@ export class SecondSignatureVerification implements Contracts.Transactions.Secon
         return Transactions.Verifier.verifySecondSignature(transaction, publicKey);
     }
 
-    public clear(transaction: Interfaces.ITransactionData): void {
+    public clear(transactionId: string): void {
         throw new Exceptions.Runtime.NotImplemented(this.constructor.name, "clear");
     }
 }

@@ -49,7 +49,7 @@ describe("MultiSignatureVerificationMemoized", () => {
 
     describe("clear", () => {
         it("should throw error", () => {
-            expect(() => verification.clear(transaction.data)).toThrowError(Exceptions.Runtime.NotImplemented);
+            expect(() => verification.clear(transaction.data.id)).toThrowError(Exceptions.Runtime.NotImplemented);
         });
     });
 });

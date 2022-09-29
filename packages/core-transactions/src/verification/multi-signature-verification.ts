@@ -10,7 +10,7 @@ export class MultiSignatureVerification implements Contracts.Transactions.MultiS
         return Transactions.Verifier.verifySignatures(transaction, multiSignatureAsset);
     }
 
-    public clear(transaction: Interfaces.ITransactionData): void {
+    public clear(transactionId: string): void {
         throw new Exceptions.Runtime.NotImplemented(this.constructor.name, "clear");
     }
 }

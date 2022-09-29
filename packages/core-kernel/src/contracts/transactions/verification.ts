@@ -3,7 +3,7 @@ import { Interfaces } from "@arkecosystem/crypto";
 export interface SecondSignatureVerification {
     verifySecondSignature(transaction: Interfaces.ITransactionData, publicKey: string): boolean;
 
-    clear(transaction: Interfaces.ITransactionData): void;
+    clear(transactionId: string): void;
 }
 
 export interface MultiSignatureVerification {
@@ -12,5 +12,5 @@ export interface MultiSignatureVerification {
         multiSignatureAsset: Interfaces.IMultiSignatureAsset,
     ): boolean;
 
-    clear(transaction: Interfaces.ITransactionData): void;
+    clear(transactionId: string): void;
 }
