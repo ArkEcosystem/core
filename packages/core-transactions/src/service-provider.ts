@@ -5,7 +5,7 @@ import { MempoolIndexes } from "./enums";
 import { One, TransactionHandlerConstructor, Two } from "./handlers";
 import { TransactionHandlerProvider } from "./handlers/handler-provider";
 import { TransactionHandlerRegistry } from "./handlers/handler-registry";
-import { MultiSignatureVerificationMemoizer, SecondSignatureVerificationMemoizer } from "./verification";
+import { MultiSignatureVerificationMemoized, SecondSignatureVerificationMemoized } from "./verification";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public static getTransactionHandlerConstructorsBinding(): (
@@ -55,12 +55,12 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
         this.app
             .bind(Container.Identifiers.SecondSignatureVerificationMemoizer)
-            .to(SecondSignatureVerificationMemoizer)
+            .to(SecondSignatureVerificationMemoized)
             .inSingletonScope();
 
         this.app
             .bind(Container.Identifiers.MultiSignatureVerificationMemoizer)
-            .to(MultiSignatureVerificationMemoizer)
+            .to(MultiSignatureVerificationMemoized)
             .inSingletonScope();
 
         this.app
