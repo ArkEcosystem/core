@@ -1,14 +1,16 @@
-import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
 
-interface CachedValue {
-    publicKey: string;
-    result: boolean;
-}
-@Container.injectable()
-export class SecondSignatureVerificationMemoized implements Contracts.Transactions.SecondSignatureVerification {
-    private cache: Map<string, CachedValue> = new Map();
+import { Cache } from "./cache";
 
+@Container.injectable()
+export class SecondSignatureVerificationMemoized
+    extends Cache<{
+        publicKey: string;
+        result: boolean;
+    }>
+    implements Contracts.Transactions.SecondSignatureVerification
+{
     public verifySecondSignature(transaction: Interfaces.ITransactionData, publicKey: string): boolean {
         const value = this.cache.get(this.getKey(transaction))!;
 
@@ -21,14 +23,5 @@ export class SecondSignatureVerificationMemoized implements Contracts.Transactio
         this.cache.set(this.getKey(transaction), { publicKey, result });
 
         return result;
-    }
-
-    public clear(transaction: Interfaces.ITransactionData): void {
-        this.cache.delete(this.getKey(transaction));
-    }
-
-    private getKey(transaction: Interfaces.ITransactionData): string {
-        Utils.assert.defined<string>(transaction.id);
-        return transaction.id;
     }
 }

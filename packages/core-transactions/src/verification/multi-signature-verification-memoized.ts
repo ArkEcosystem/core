@@ -1,15 +1,16 @@
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
 
-interface CachedValue {
-    multiSignatureAsset: Interfaces.IMultiSignatureAsset;
-    result: boolean;
-}
+import { Cache } from "./cache";
 
 @Container.injectable()
-export class MultiSignatureVerificationMemoized implements Contracts.Transactions.MultiSignatureVerification {
-    private cache: Map<string, CachedValue> = new Map();
-
+export class MultiSignatureVerificationMemoized
+    extends Cache<{
+        multiSignatureAsset: Interfaces.IMultiSignatureAsset;
+        result: boolean;
+    }>
+    implements Contracts.Transactions.MultiSignatureVerification
+{
     public verifySignatures(
         transaction: Interfaces.ITransactionData,
         multiSignatureAsset: Interfaces.IMultiSignatureAsset,
@@ -24,14 +25,5 @@ export class MultiSignatureVerificationMemoized implements Contracts.Transaction
         this.cache.set(this.getKey(transaction), { multiSignatureAsset: Utils.cloneDeep(multiSignatureAsset), result });
 
         return result;
-    }
-
-    public clear(transaction: Interfaces.ITransactionData): void {
-        this.cache.delete(this.getKey(transaction));
-    }
-
-    private getKey(transaction: Interfaces.ITransactionData): string {
-        Utils.assert.defined<string>(transaction.id);
-        return transaction.id;
     }
 }
