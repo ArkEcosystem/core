@@ -1,7 +1,7 @@
 import "jest-extended";
 
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
-import { MultiSignatureVerificationMemoizer } from "@packages/core-transactions/src/verification/multi-signature-verification";
+import { MultiSignatureVerificationMemoized } from "@packages/core-transactions/src/verification/multi-signature-verification-memoized";
 import { Identities, Interfaces, Transactions } from "@packages/crypto";
 import { BuilderFactory } from "@packages/crypto/dist/transactions";
 import { Application, Container, Providers } from "@packages/core-kernel";
@@ -11,7 +11,7 @@ describe("MultiSignatureVerificationMemoizer", () => {
     let multiSignatureAsset: Interfaces.IMultiSignatureAsset;
 
     let app: Application;
-    let memoizer: MultiSignatureVerificationMemoizer;
+    let memoizer: MultiSignatureVerificationMemoized;
 
     const createTransaction = (amount: string) => {
         return BuilderFactory.transfer()
@@ -41,7 +41,7 @@ describe("MultiSignatureVerificationMemoizer", () => {
             .toConstantValue(pluginConfigurationInstance)
             .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("plugin", "@arkecosystem/core-transactions"));
 
-        memoizer = app.resolve(MultiSignatureVerificationMemoizer);
+        memoizer = app.resolve(MultiSignatureVerificationMemoized);
     });
 
     afterEach(() => {

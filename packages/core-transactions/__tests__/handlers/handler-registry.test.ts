@@ -11,8 +11,8 @@ import { One, TransactionHandler, TransactionHandlerConstructor, Two } from "@pa
 import { TransactionHandlerProvider } from "@packages/core-transactions/src/handlers/handler-provider";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
 import {
-    MultiSignatureVerificationMemoizer,
-    SecondSignatureVerificationMemoizer,
+    MultiSignatureVerificationMemoized,
+    SecondSignatureVerificationMemoized,
 } from "@packages/core-transactions/src/verification";
 import { ServiceProvider } from "@packages/core-transactions/src/service-provider";
 import { Crypto, Enums, Identities, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
@@ -132,9 +132,9 @@ beforeEach(() => {
     app.bind(Identifiers.TransactionPoolQuery).toConstantValue({});
     app.bind(Container.Identifiers.TransactionPoolMempoolIndexRegistry).toConstantValue({});
     app.bind(Identifiers.SecondSignatureVerificationMemoizer)
-        .to(SecondSignatureVerificationMemoizer)
+        .to(SecondSignatureVerificationMemoized)
         .inSingletonScope();
-    app.bind(Identifiers.MultiSignatureVerificationMemoizer).to(MultiSignatureVerificationMemoizer).inSingletonScope();
+    app.bind(Identifiers.MultiSignatureVerificationMemoizer).to(MultiSignatureVerificationMemoized).inSingletonScope();
 
     app.bind(Identifiers.TransactionHandler).to(One.TransferTransactionHandler);
     app.bind(Identifiers.TransactionHandler).to(Two.TransferTransactionHandler);

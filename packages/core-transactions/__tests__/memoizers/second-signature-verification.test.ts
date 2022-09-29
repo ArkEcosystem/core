@@ -1,7 +1,7 @@
 import "jest-extended";
 
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
-import { SecondSignatureVerificationMemoizer } from "@packages/core-transactions/src/verification/second-signature-verification";
+import { SecondSignatureVerificationMemoized } from "@packages/core-transactions/src/verification/second-signature-verification-memoized";
 import { Identities, Interfaces, Transactions } from "@packages/crypto";
 import { BuilderFactory } from "@packages/crypto/dist/transactions";
 import { Application, Container, Providers } from "@packages/core-kernel";
@@ -10,7 +10,7 @@ describe("SecondSignatureVerificationMemoizer", () => {
     let transaction: Interfaces.ITransaction;
 
     let app: Application;
-    let memoizer: SecondSignatureVerificationMemoizer;
+    let memoizer: SecondSignatureVerificationMemoized;
 
     const createTransaction = (amount: string) => {
         return BuilderFactory.transfer()
@@ -36,7 +36,7 @@ describe("SecondSignatureVerificationMemoizer", () => {
             .toConstantValue(pluginConfigurationInstance)
             .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("plugin", "@arkecosystem/core-transactions"));
 
-        memoizer = app.resolve(SecondSignatureVerificationMemoizer);
+        memoizer = app.resolve(SecondSignatureVerificationMemoized);
     });
 
     afterEach(() => {
