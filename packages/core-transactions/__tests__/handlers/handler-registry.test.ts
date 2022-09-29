@@ -13,7 +13,7 @@ import { TransactionHandlerRegistry } from "@packages/core-transactions/src/hand
 import {
     MultiSignatureVerificationMemoizer,
     SecondSignatureVerificationMemoizer,
-} from "@packages/core-transactions/src/memoizers";
+} from "@packages/core-transactions/src/verification";
 import { ServiceProvider } from "@packages/core-transactions/src/service-provider";
 import { Crypto, Enums, Identities, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
 import { TransactionSchema } from "@packages/crypto/src/transactions/types/schemas";

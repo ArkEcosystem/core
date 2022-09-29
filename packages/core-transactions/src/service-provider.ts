@@ -5,7 +5,7 @@ import { MempoolIndexes } from "./enums";
 import { One, TransactionHandlerConstructor, Two } from "./handlers";
 import { TransactionHandlerProvider } from "./handlers/handler-provider";
 import { TransactionHandlerRegistry } from "./handlers/handler-registry";
-import { MultiSignatureVerificationMemoizer, SecondSignatureVerificationMemoizer } from "./memoizers";
+import { MultiSignatureVerificationMemoizer, SecondSignatureVerificationMemoizer } from "./verification";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public static getTransactionHandlerConstructorsBinding(): (

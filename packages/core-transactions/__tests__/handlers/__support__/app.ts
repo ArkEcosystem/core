@@ -39,7 +39,7 @@ import { ServiceProvider } from "@packages/core-transactions/src/service-provide
 import {
     SecondSignatureVerificationMemoizer,
     MultiSignatureVerificationMemoizer,
-} from "@packages/core-transactions/src/memoizers";
+} from "@packages/core-transactions/src/verification";
 
 const logger = {
     notice: jest.fn(),

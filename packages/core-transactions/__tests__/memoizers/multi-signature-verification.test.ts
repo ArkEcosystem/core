@@ -1,7 +1,7 @@
 import "jest-extended";
 
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
-import { MultiSignatureVerificationMemoizer } from "@packages/core-transactions/src/memoizers/multi-signature-verification";
+import { MultiSignatureVerificationMemoizer } from "@packages/core-transactions/src/verification/multi-signature-verification";
 import { Identities, Interfaces, Transactions } from "@packages/crypto";
 import { BuilderFactory } from "@packages/crypto/dist/transactions";
 import { Application, Container, Providers } from "@packages/core-kernel";
