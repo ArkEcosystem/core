@@ -11,7 +11,6 @@ describe("AcceptBlockHandler", () => {
         getLastBlocks: jest.fn(),
         setLastBlock: jest.fn(),
     };
-    const transactionPool = { addTransaction: jest.fn() };
     const databaseInteractions = {
         revertBlock: jest.fn(),
     };
@@ -25,7 +24,6 @@ describe("AcceptBlockHandler", () => {
         container.bind(Container.Identifiers.StateStore).toConstantValue(state);
         container.bind(Container.Identifiers.DatabaseInteraction).toConstantValue(databaseInteractions);
         container.bind(Container.Identifiers.DatabaseService).toConstantValue(databaseService);
-        container.bind(Container.Identifiers.TransactionPoolService).toConstantValue(transactionPool);
     });
 
     beforeEach(() => {
@@ -59,10 +57,6 @@ describe("AcceptBlockHandler", () => {
             expect(databaseInteractions.revertBlock).toBeCalledTimes(1);
             expect(databaseInteractions.revertBlock).toHaveBeenCalledWith(block);
 
-            expect(transactionPool.addTransaction).toBeCalledTimes(2);
-            expect(transactionPool.addTransaction).toHaveBeenCalledWith(block.transactions[0]);
-            expect(transactionPool.addTransaction).toHaveBeenCalledWith(block.transactions[1]);
-
             expect(databaseService.getLastBlock).not.toHaveBeenCalled();
             expect(state.setLastBlock).toHaveBeenCalledWith(previousBlock);
         });
@@ -79,10 +73,6 @@ describe("AcceptBlockHandler", () => {
 
             expect(databaseInteractions.revertBlock).toBeCalledTimes(1);
             expect(databaseInteractions.revertBlock).toHaveBeenCalledWith(block);
-
-            expect(transactionPool.addTransaction).toBeCalledTimes(2);
-            expect(transactionPool.addTransaction).toHaveBeenCalledWith(block.transactions[0]);
-            expect(transactionPool.addTransaction).toHaveBeenCalledWith(block.transactions[1]);
 
             expect(databaseService.getLastBlock).toHaveBeenCalledTimes(1);
             expect(state.setLastBlock).toHaveBeenCalledWith(previousBlock);
@@ -113,10 +103,6 @@ describe("AcceptBlockHandler", () => {
 
             expect(databaseInteractions.revertBlock).toBeCalledTimes(1);
             expect(databaseInteractions.revertBlock).toHaveBeenCalledWith(block);
-
-            expect(transactionPool.addTransaction).toBeCalledTimes(2);
-            expect(transactionPool.addTransaction).toHaveBeenCalledWith(block.transactions[0]);
-            expect(transactionPool.addTransaction).toHaveBeenCalledWith(block.transactions[1]);
 
             expect(databaseService.getLastBlock).toHaveBeenCalledTimes(1);
             expect(state.setLastBlock).not.toHaveBeenCalled();
