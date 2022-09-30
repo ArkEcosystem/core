@@ -119,7 +119,6 @@ describe("Service.boot", () => {
         await service.boot();
 
         expect(events.listen).toBeCalledWith(Enums.CryptoEvent.MilestoneChanged, service);
-        expect(events.listen).toBeCalledWith(Enums.BlockEvent.Applied, service);
     });
 });
 
@@ -129,7 +128,6 @@ describe("Service.dispose", () => {
         service.dispose();
 
         expect(events.forget).toBeCalledWith(Enums.CryptoEvent.MilestoneChanged, service);
-        expect(events.forget).toBeCalledWith(Enums.BlockEvent.Applied, service);
     });
 });
 
@@ -141,15 +139,6 @@ describe("Service.handle", () => {
         await service.handle({ name: Enums.CryptoEvent.MilestoneChanged });
 
         expect(service.readdTransactions).toBeCalled();
-    });
-
-    it("should cleanup transactions after block is applied", async () => {
-        const service = container.resolve(Service);
-        jest.spyOn(service, "cleanUp").mockImplementation(() => Promise.resolve());
-
-        await service.handle({ name: Enums.BlockEvent.Applied });
-
-        expect(service.cleanUp).toBeCalled();
     });
 });
 

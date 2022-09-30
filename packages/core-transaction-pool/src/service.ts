@@ -47,7 +47,6 @@ export class Service implements Contracts.TransactionPool.Service {
 
     public async boot(): Promise<void> {
         this.events.listen(Enums.CryptoEvent.MilestoneChanged, this);
-        this.events.listen(Enums.BlockEvent.Applied, this);
 
         if (process.env.CORE_RESET_DATABASE || process.env.CORE_RESET_POOL) {
             await this.flush();
@@ -56,21 +55,13 @@ export class Service implements Contracts.TransactionPool.Service {
 
     public dispose(): void {
         this.events.forget(Enums.CryptoEvent.MilestoneChanged, this);
-        this.events.forget(Enums.BlockEvent.Applied, this);
 
         this.disposed = true;
     }
 
     public async handle({ name }): Promise<void> {
         try {
-            switch (name) {
-                case Enums.CryptoEvent.MilestoneChanged:
-                    await this.readdTransactions();
-                    break;
-                case Enums.BlockEvent.Applied:
-                    await this.cleanUp();
-                    break;
-            }
+            await this.readdTransactions();
         } catch (error) {
             this.logger.critical(error.stack);
             throw error;
