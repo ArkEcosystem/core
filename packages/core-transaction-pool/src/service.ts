@@ -46,7 +46,6 @@ export class Service implements Contracts.TransactionPool.Service {
     private disposed = false;
 
     public async boot(): Promise<void> {
-        this.events.listen(Enums.StateEvent.BuilderFinished, this);
         this.events.listen(Enums.CryptoEvent.MilestoneChanged, this);
         this.events.listen(Enums.BlockEvent.Applied, this);
 
@@ -57,7 +56,6 @@ export class Service implements Contracts.TransactionPool.Service {
 
     public dispose(): void {
         this.events.forget(Enums.CryptoEvent.MilestoneChanged, this);
-        this.events.forget(Enums.StateEvent.BuilderFinished, this);
         this.events.forget(Enums.BlockEvent.Applied, this);
 
         this.disposed = true;
@@ -66,9 +64,6 @@ export class Service implements Contracts.TransactionPool.Service {
     public async handle({ name }): Promise<void> {
         try {
             switch (name) {
-                case Enums.StateEvent.BuilderFinished:
-                    await this.readdTransactions();
-                    break;
                 case Enums.CryptoEvent.MilestoneChanged:
                     await this.readdTransactions();
                     break;
