@@ -234,33 +234,23 @@ export class Service implements Contracts.TransactionPool.Service {
         });
     }
 
-    public async removeForgedTransaction(transaction: Interfaces.ITransaction): Promise<void> {
+    public async applyBlock(block: Interfaces.IBlock): Promise<void> {
         await this.lock.runNonExclusive(async () => {
-            if (this.disposed) {
-                return;
+            const removedTransactions = await this.mempool.applyBlock(block);
+
+            if (removedTransactions.length >= 1) {
+                this.logger.warning(`${removedTransactions.length} previously stored transactions failed re-adding`);
             }
-
-            AppUtils.assert.defined<string>(transaction.id);
-            AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
-
-            if (this.storage.hasTransaction(transaction.id) === false) {
-                return;
-            }
-
-            const removedTransactions = await this.mempool.removeForgedTransaction(
-                transaction.data.senderPublicKey,
-                transaction.id,
-            );
 
             for (const removedTransaction of removedTransactions) {
                 AppUtils.assert.defined<string>(removedTransaction.id);
                 this.storage.removeTransaction(removedTransaction.id);
-                this.logger.debug(`Removed forged ${removedTransaction}`);
+                this.events.dispatch(Enums.TransactionEvent.RemovedFromPool, removedTransaction.data);
             }
 
-            if (!removedTransactions.find((t) => t.id === transaction.id)) {
+            for (const transaction of block.transactions) {
+                AppUtils.assert.defined<string>(transaction.id);
                 this.storage.removeTransaction(transaction.id);
-                this.logger.error(`Removed forged ${transaction} from storage`);
             }
         });
     }

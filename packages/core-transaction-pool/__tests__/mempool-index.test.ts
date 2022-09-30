@@ -23,6 +23,20 @@ describe("MempoolIndex", () => {
         expect(index.has(key)).toBeTrue();
     });
 
+    it("should get key", () => {
+        const key = "key";
+
+        index.set(key, transaction);
+
+        expect(index.get(key)).toEqual(transaction);
+
+        index.forget(key);
+
+        expect(() => {
+            index.get(key);
+        }).toThrow();
+    });
+
     it("should forget key", () => {
         const key = "key";
 

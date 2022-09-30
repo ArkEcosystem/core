@@ -100,6 +100,16 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         }
     }
 
+    public async getInvalidPoolTransactions(transaction: Interfaces.ITransaction): Promise<Interfaces.ITransaction[]> {
+        AppUtils.assert.defined<string>(transaction.data.asset?.refund?.lockTransactionId);
+
+        const htlcRefundTransactionIdIndex = this.mempoolIndexRegistry.get(MempoolIndexes.HtlcRefundTransactionId);
+
+        return htlcRefundTransactionIdIndex.has(transaction.data.asset.refund.lockTransactionId)
+            ? [htlcRefundTransactionIdIndex.get(transaction.data.asset.refund.lockTransactionId)]
+            : [];
+    }
+
     public async onPoolEnter(transaction: Interfaces.ITransaction): Promise<void> {
         AppUtils.assert.defined<string>(transaction.data.asset?.refund?.lockTransactionId);
 

@@ -1,7 +1,8 @@
-import { Container, Contracts, Enums } from "@packages/core-kernel";
-import { Identities, Managers, Transactions } from "@packages/crypto";
+import "jest-extended";
 
+import { Container, Contracts, Enums } from "@packages/core-kernel";
 import { Service } from "@packages/core-transaction-pool/src/service";
+import { Identities, Interfaces, Managers, Transactions } from "@packages/crypto";
 
 const configuration = {
     getRequired: jest.fn(),
@@ -25,6 +26,7 @@ const mempool = {
     addTransaction: jest.fn(),
     removeTransaction: jest.fn(),
     removeForgedTransaction: jest.fn(),
+    applyBlock: jest.fn(),
     flush: jest.fn(),
 };
 const poolQuery = {
@@ -374,42 +376,6 @@ describe("Service.removeTransaction", () => {
     });
 });
 
-describe("Service.removeForgedTransaction", () => {
-    it("should do nothing if transaction wasn't added previously", async () => {
-        storage.hasTransaction.mockReturnValueOnce(false);
-
-        const service = container.resolve(Service);
-        await service.removeForgedTransaction(transaction1);
-
-        expect(mempool.removeForgedTransaction).not.toBeCalled();
-    });
-
-    it("should remove from storage every transaction removed by mempool", async () => {
-        storage.hasTransaction.mockReturnValueOnce(true);
-        mempool.removeForgedTransaction.mockReturnValueOnce([transaction1, transaction2]);
-
-        const service = container.resolve(Service);
-        await service.removeForgedTransaction(transaction1);
-
-        expect(mempool.removeForgedTransaction).toBeCalledWith(transaction1.data.senderPublicKey, transaction1.id);
-        expect(storage.removeTransaction).toBeCalledWith(transaction1.id);
-        expect(storage.removeTransaction).toBeCalledWith(transaction2.id);
-    });
-
-    it("should log error if transaction wasn't found in mempool", async () => {
-        storage.hasTransaction.mockReturnValueOnce(true);
-        mempool.removeForgedTransaction.mockReturnValueOnce([transaction2]);
-
-        const service = container.resolve(Service);
-        await service.removeForgedTransaction(transaction1);
-
-        expect(mempool.removeForgedTransaction).toBeCalledWith(transaction1.data.senderPublicKey, transaction1.id);
-        expect(storage.removeTransaction).toBeCalledWith(transaction1.id);
-        expect(storage.removeTransaction).toBeCalledWith(transaction2.id);
-        expect(logger.error).toBeCalled();
-    });
-});
-
 describe("Service.readdTransactions", () => {
     it("should flush mempool", async () => {
         storage.getAllTransactions.mockReturnValueOnce([]);
@@ -679,5 +645,29 @@ describe("Service.cleanUp", () => {
 
         expect(mempool.removeTransaction).toBeCalledWith(transaction1.data.senderPublicKey, transaction1.id);
         expect(storage.removeTransaction).toBeCalledWith(transaction1.id);
+    });
+});
+
+describe("Service.applyBlock", () => {
+    it("should remove invalid and block transactions from store and dispatch event for removed transactions", async () => {
+        const block = {
+            transactions: [transaction1],
+        } as Interfaces.IBlock;
+
+        mempool.applyBlock.mockResolvedValueOnce([transaction2]);
+
+        const service = container.resolve(Service);
+
+        await expect(service.applyBlock(block)).toResolve();
+
+        expect(storage.removeTransaction).toBeCalledTimes(2);
+        expect(storage.removeTransaction).toBeCalledWith(transaction1.id);
+        expect(storage.removeTransaction).toBeCalledWith(transaction2.id);
+
+        expect(events.dispatch).toBeCalledTimes(1);
+        expect(events.dispatch).toBeCalledWith(Enums.TransactionEvent.RemovedFromPool, transaction2.data);
+
+        expect(logger.warning).toBeCalledTimes(1);
+        expect(logger.warning).toBeCalledWith("1 previously stored transactions failed re-adding");
     });
 });

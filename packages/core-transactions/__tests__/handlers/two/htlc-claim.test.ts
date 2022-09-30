@@ -453,6 +453,53 @@ describe("Htlc claim", () => {
             });
         });
 
+        describe("getInvalidPoolTransactions", () => {
+            it("should return empty array if there are no invalid transactions", async () => {
+                const mempoolIndexRegistry = app.get<Contracts.TransactionPool.MempoolIndexRegistry>(
+                    Identifiers.TransactionPoolMempoolIndexRegistry,
+                );
+
+                const spyOnIndexHas = jest
+                    .spyOn(mempoolIndexRegistry.get(MempoolIndexes.HtlcClaimTransactionId), "has")
+                    .mockReturnValueOnce(false);
+
+                await expect(handler.getInvalidPoolTransactions(htlcClaimTransaction)).resolves.toEqual([]);
+                expect(spyOnIndexHas).toBeCalledTimes(1);
+                expect(spyOnIndexHas).toBeCalledWith(htlcClaimTransaction.data.asset.claim.lockTransactionId);
+            });
+
+            it("should return invalid transaction if transaction with same transaction id is indexed", async () => {
+                const invalidHtlcClaimTransaction = BuilderFactory.htlcClaim()
+                    .htlcClaimAsset({
+                        unlockSecret: htlcSecretHex,
+                        lockTransactionId: htlcLockTransaction.id!,
+                    })
+                    .nonce("2")
+                    .sign(claimPassphrase)
+                    .build();
+
+                const mempoolIndexRegistry = app.get<Contracts.TransactionPool.MempoolIndexRegistry>(
+                    Identifiers.TransactionPoolMempoolIndexRegistry,
+                );
+
+                const spyOnIndexHas = jest
+                    .spyOn(mempoolIndexRegistry.get(MempoolIndexes.HtlcClaimTransactionId), "has")
+                    .mockReturnValueOnce(true);
+
+                const spyOnIndexGet = jest
+                    .spyOn(mempoolIndexRegistry.get(MempoolIndexes.HtlcClaimTransactionId), "get")
+                    .mockReturnValueOnce(invalidHtlcClaimTransaction);
+
+                await expect(handler.getInvalidPoolTransactions(htlcClaimTransaction)).resolves.toEqual([
+                    invalidHtlcClaimTransaction,
+                ]);
+                expect(spyOnIndexHas).toBeCalledTimes(1);
+                expect(spyOnIndexHas).toBeCalledWith(htlcClaimTransaction.data.asset.claim.lockTransactionId);
+                expect(spyOnIndexGet).toBeCalledTimes(1);
+                expect(spyOnIndexGet).toBeCalledWith(htlcClaimTransaction.data.asset.claim.lockTransactionId);
+            });
+        });
+
         describe("apply", () => {
             let pubKeyHash: number;
 

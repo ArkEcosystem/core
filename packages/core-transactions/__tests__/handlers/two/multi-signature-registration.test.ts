@@ -434,6 +434,61 @@ describe("MultiSignatureRegistrationTransaction", () => {
         });
     });
 
+    describe("getInvalidPoolTransactions", () => {
+        it("should return empty array if there are no invalid transactions", async () => {
+            const mempoolIndexRegistry = app.get<Contracts.TransactionPool.MempoolIndexRegistry>(
+                Identifiers.TransactionPoolMempoolIndexRegistry,
+            );
+
+            const spyOnIndexHas = jest
+                .spyOn(mempoolIndexRegistry.get(MempoolIndexes.MultiSignatureAddress), "has")
+                .mockReturnValueOnce(false);
+
+            await expect(handler.getInvalidPoolTransactions(multiSignatureTransaction)).resolves.toEqual([]);
+            expect(spyOnIndexHas).toBeCalledTimes(1);
+            expect(spyOnIndexHas).toBeCalledWith(
+                Identities.Address.fromMultiSignatureAsset(multiSignatureTransaction.data.asset.multiSignature),
+            );
+        });
+
+        it("should return invalid transaction if transaction with same multi signature address is indexed", async () => {
+            const invalidMultiSignatureTransaction = BuilderFactory.multiSignature()
+                .multiSignatureAsset(multiSignatureAsset)
+                .senderPublicKey(senderWallet.getPublicKey()!)
+                .nonce("1")
+                .recipientId(recipientWallet.getPublicKey()!)
+                .multiSign(passphrases[0], 0)
+                .multiSign(passphrases[1], 1)
+                .multiSign(passphrases[2], 2)
+                .sign(passphrases[0])
+                .build();
+
+            const mempoolIndexRegistry = app.get<Contracts.TransactionPool.MempoolIndexRegistry>(
+                Identifiers.TransactionPoolMempoolIndexRegistry,
+            );
+
+            const spyOnIndexHas = jest
+                .spyOn(mempoolIndexRegistry.get(MempoolIndexes.MultiSignatureAddress), "has")
+                .mockReturnValueOnce(true);
+
+            const spyOnIndexGet = jest
+                .spyOn(mempoolIndexRegistry.get(MempoolIndexes.MultiSignatureAddress), "get")
+                .mockReturnValueOnce(invalidMultiSignatureTransaction);
+
+            await expect(handler.getInvalidPoolTransactions(multiSignatureTransaction)).resolves.toEqual([
+                invalidMultiSignatureTransaction,
+            ]);
+            expect(spyOnIndexHas).toBeCalledTimes(1);
+            expect(spyOnIndexHas).toBeCalledWith(
+                Identities.Address.fromMultiSignatureAsset(multiSignatureTransaction.data.asset.multiSignature),
+            );
+            expect(spyOnIndexGet).toBeCalledTimes(1);
+            expect(spyOnIndexGet).toBeCalledWith(
+                Identities.Address.fromMultiSignatureAsset(multiSignatureTransaction.data.asset.multiSignature),
+            );
+        });
+    });
+
     describe("apply", () => {
         it("should be ok", async () => {
             recipientWallet.forgetAttribute("multiSignature");

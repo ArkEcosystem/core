@@ -173,6 +173,10 @@ export abstract class TransactionHandler {
 
     public async onPoolLeave(transaction: Interfaces.ITransaction): Promise<void> {}
 
+    public async getInvalidPoolTransactions(transaction: Interfaces.ITransaction): Promise<Interfaces.ITransaction[]> {
+        return [];
+    }
+
     /**
      * @param {Contracts.State.Wallet} wallet
      * @param {Interfaces.ITransactionData} transaction
