@@ -177,6 +177,9 @@ export class ProcessBlocksJob implements Contracts.Kernel.QueueJob {
         for (const block of acceptedBlocks) {
             await this.transactionPool.applyBlock(block);
         }
+        if (acceptedBlocks.length) {
+            await this.transactionPool.cleanUp();
+        }
 
         return;
     }

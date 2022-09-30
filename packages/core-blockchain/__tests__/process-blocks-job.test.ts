@@ -18,6 +18,7 @@ describe("Blockchain", () => {
     const blockProcessor: any = {};
     const transactionPool: any = {
         applyBlock: jest.fn(),
+        cleanUp: jest.fn(),
     };
     const stateStore: any = {};
     const databaseService: any = {};
@@ -97,6 +98,7 @@ describe("Blockchain", () => {
             expect(stateStore.setLastStoredBlockHeight).toHaveBeenCalledTimes(1);
             expect(stateStore.setLastStoredBlockHeight).toHaveBeenCalledWith(currentBlock.height);
             expect(transactionPool.applyBlock).toHaveBeenCalledTimes(1);
+            expect(transactionPool.cleanUp).toHaveBeenCalledTimes(1);
         });
 
         it("should process a valid block already known", async () => {
@@ -110,6 +112,7 @@ describe("Blockchain", () => {
             expect(blockchainService.clearQueue).toBeCalledTimes(1);
             expect(blockchainService.resetLastDownloadedBlock).toBeCalledTimes(1);
             expect(transactionPool.applyBlock).not.toBeCalled();
+            expect(transactionPool.cleanUp).not.toBeCalled();
         });
 
         it("should not process the remaining blocks if one is not accepted (BlockProcessorResult.Rollback)", async () => {
@@ -124,6 +127,7 @@ describe("Blockchain", () => {
             expect(blockProcessor.process).toBeCalledTimes(1); // only 1 out of the 2 blocks
             expect(blockchainService.forkBlock).toBeCalledTimes(1); // because Rollback
             expect(transactionPool.applyBlock).not.toBeCalled();
+            expect(transactionPool.cleanUp).not.toBeCalled();
         });
 
         it("should not process the remaining blocks if one is not accepted (BlockProcessorResult.Rejected)", async () => {
@@ -144,6 +148,7 @@ describe("Blockchain", () => {
             expect(blockchainService.clearQueue).toBeCalledTimes(1);
             expect(blockchainService.resetLastDownloadedBlock).toBeCalledTimes(1);
             expect(transactionPool.applyBlock).not.toBeCalled();
+            expect(transactionPool.cleanUp).not.toBeCalled();
         });
 
         it("should not process the remaining blocks if second is not accepted (BlockProcessorResult.Rejected)", async () => {
@@ -177,6 +182,7 @@ describe("Blockchain", () => {
             expect(stateStore.setLastStoredBlockHeight).toBeCalledTimes(1);
             expect(stateStore.setLastStoredBlockHeight).toHaveBeenCalledWith(lastBlock.height);
             expect(transactionPool.applyBlock).toBeCalledTimes(1);
+            expect(transactionPool.cleanUp).toBeCalledTimes(1);
         });
 
         it("should not process the remaining blocks if one is not accepted (BlockProcessorResult.Corrupted)", async () => {
@@ -200,6 +206,7 @@ describe("Blockchain", () => {
             expect(blockchainService.clearQueue).not.toBeCalled();
             expect(blockchainService.resetLastDownloadedBlock).not.toBeCalled();
             expect(transactionPool.applyBlock).not.toBeCalled();
+            expect(transactionPool.cleanUp).not.toBeCalled();
 
             expect(process.exit).toHaveBeenCalled();
         });
@@ -229,6 +236,7 @@ describe("Blockchain", () => {
             expect(databaseInteraction.restoreCurrentRound).toBeCalledTimes(1);
             expect(stateStore.setLastStoredBlockHeight).not.toBeCalled();
             expect(transactionPool.applyBlock).not.toBeCalled();
+            expect(transactionPool.cleanUp).not.toBeCalled();
         });
 
         it("should stop app when revertBlockHandler return Corrupted", async () => {
@@ -259,6 +267,7 @@ describe("Blockchain", () => {
             expect(databaseInteraction.restoreCurrentRound).toBeCalledTimes(1);
             expect(stateStore.setLastStoredBlockHeight).not.toHaveBeenCalled();
             expect(transactionPool.applyBlock).not.toBeCalled();
+            expect(transactionPool.cleanUp).not.toBeCalled();
 
             expect(process.exit).toHaveBeenCalled();
         });
@@ -305,6 +314,7 @@ describe("Blockchain", () => {
 
             expect(peerNetworkMonitor.broadcastBlock).toBeCalledTimes(1);
             expect(transactionPool.applyBlock).toBeCalledTimes(1);
+            expect(transactionPool.cleanUp).toBeCalledTimes(1);
         });
 
         it("should skip broadcasting if state is downloadFinished", async () => {
@@ -347,6 +357,7 @@ describe("Blockchain", () => {
             expect(stateStore.setLastStoredBlockHeight).toBeCalledTimes(1);
             expect(stateStore.setLastStoredBlockHeight).toBeCalledWith(block.height);
             expect(transactionPool.applyBlock).toBeCalledTimes(1);
+            expect(transactionPool.cleanUp).toBeCalledTimes(1);
 
             expect(peerNetworkMonitor.broadcastBlock).toBeCalledTimes(0);
         });
