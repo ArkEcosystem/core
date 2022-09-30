@@ -30,6 +30,9 @@ export class ProcessBlocksJob implements Contracts.Kernel.QueueJob {
     @Container.inject(Container.Identifiers.PeerNetworkMonitor)
     private readonly networkMonitor!: Contracts.P2P.NetworkMonitor;
 
+    @Container.inject(Container.Identifiers.TransactionPoolService)
+    private readonly transactionPool!: Contracts.TransactionPool.Service;
+
     @Container.inject(Container.Identifiers.TriggerService)
     private readonly triggers!: Services.Triggers.Triggers;
 
@@ -169,6 +172,10 @@ export class ProcessBlocksJob implements Contracts.Kernel.QueueJob {
         } else {
             this.blockchain.clearQueue();
             this.blockchain.resetLastDownloadedBlock();
+        }
+
+        for (const block of acceptedBlocks) {
+            await this.transactionPool.applyBlock(block);
         }
 
         return;
