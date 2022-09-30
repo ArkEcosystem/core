@@ -25,9 +25,7 @@
         "@arkecosystem/core-database": "workspace:*",
         "@arkecosystem/core-kernel": "workspace:*",
         "@arkecosystem/crypto": "workspace:*",
-        "joi": "17.4.2",
-        "lru-cache": "7.14.0"
-
+        "joi": "17.4.2"
     },
     "devDependencies": {
         "bytebuffer": "5.0.1"
