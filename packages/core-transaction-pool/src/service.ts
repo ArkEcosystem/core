@@ -235,7 +235,7 @@ export class Service implements Contracts.TransactionPool.Service {
     }
 
     public async applyBlock(block: Interfaces.IBlock): Promise<void> {
-        await this.lock.runNonExclusive(async () => {
+        await this.lock.runExclusive(async () => {
             const removedTransactions = await this.mempool.applyBlock(block);
 
             if (removedTransactions.length >= 1) {
