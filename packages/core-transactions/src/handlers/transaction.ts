@@ -35,11 +35,11 @@ export abstract class TransactionHandler {
     @Container.inject(Container.Identifiers.LogService)
     protected readonly logger!: Contracts.Kernel.Logger;
 
-    @Container.inject(Container.Identifiers.SecondSignatureVerificationMemoizer)
-    protected readonly secondSignatureVerificationMemoizer!: Contracts.Transactions.SecondSignatureVerificationMemoizer;
+    @Container.inject(Container.Identifiers.TransactionSecondSignatureVerification)
+    protected readonly secondSignatureVerification!: Contracts.Transactions.SecondSignatureVerification;
 
-    @Container.inject(Container.Identifiers.MultiSignatureVerificationMemoizer)
-    protected readonly multiSignatureVerificationMemoizer!: Contracts.Transactions.MultiSignatureVerificationMemoizer;
+    @Container.inject(Container.Identifiers.TransactionMultiSignatureVerification)
+    protected readonly multiSignatureVerification!: Contracts.Transactions.MultiSignatureVerification;
 
     public async verify(transaction: Interfaces.ITransaction): Promise<boolean> {
         AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
@@ -189,7 +189,7 @@ export abstract class TransactionHandler {
         transaction: Interfaces.ITransactionData,
         multiSignature?: Interfaces.IMultiSignatureAsset,
     ): boolean {
-        return this.multiSignatureVerificationMemoizer.verifySignatures(
+        return this.multiSignatureVerification.verifySignatures(
             transaction,
             multiSignature || wallet.getAttribute("multiSignature"),
         );
@@ -226,10 +226,7 @@ export abstract class TransactionHandler {
             }
 
             if (
-                !this.secondSignatureVerificationMemoizer.verifySecondSignature(
-                    data,
-                    dbSender.getAttribute("secondPublicKey"),
-                )
+                !this.secondSignatureVerification.verifySecondSignature(data, dbSender.getAttribute("secondPublicKey"))
             ) {
                 throw new InvalidSecondSignatureError();
             }
