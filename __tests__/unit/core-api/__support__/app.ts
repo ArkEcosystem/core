@@ -85,8 +85,8 @@ export const initApp = (): Application => {
 
     app.bind(Container.Identifiers.EventDispatcherService).toConstantValue({});
 
-    app.bind(Container.Identifiers.SecondSignatureVerificationMemoizer).toConstantValue({});
-    app.bind(Container.Identifiers.MultiSignatureVerificationMemoizer).toConstantValue({});
+    app.bind(Container.Identifiers.TransactionSecondSignatureVerification).toConstantValue({});
+    app.bind(Container.Identifiers.TransactionMultiSignatureVerification).toConstantValue({});
 
     app.bind(Container.Identifiers.TransactionPoolMempoolIndexRegistry).to(MempoolIndexRegistry).inSingletonScope();
 

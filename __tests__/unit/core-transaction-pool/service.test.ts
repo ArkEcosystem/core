@@ -29,6 +29,12 @@ const mempool = {
     applyBlock: jest.fn(),
     flush: jest.fn(),
 };
+const secondSignatureVerification = {
+    clear: jest.fn(),
+};
+const multiSignatureVerification = {
+    clear: jest.fn(),
+};
 const poolQuery = {
     getAll: jest.fn(),
     getFromLowestPriority: jest.fn(),
@@ -56,6 +62,10 @@ container.bind(Container.Identifiers.TransactionPoolStorage).toConstantValue(sto
 container.bind(Container.Identifiers.TransactionPoolMempool).toConstantValue(mempool);
 container.bind(Container.Identifiers.TransactionPoolQuery).toConstantValue(poolQuery);
 container.bind(Container.Identifiers.TransactionPoolExpirationService).toConstantValue(expirationService);
+container
+    .bind(Container.Identifiers.TransactionSecondSignatureVerification)
+    .toConstantValue(secondSignatureVerification);
+container.bind(Container.Identifiers.TransactionMultiSignatureVerification).toConstantValue(multiSignatureVerification);
 container.bind(Container.Identifiers.EventDispatcherService).toConstantValue(events);
 container.bind(Container.Identifiers.LogService).toConstantValue(logger);
 
@@ -217,6 +227,8 @@ describe("Service.addTransaction", () => {
             serialized: transaction1.serialized,
         });
         expect(storage.removeTransaction).toBeCalledWith(transaction1.id);
+        expect(secondSignatureVerification.clear).toBeCalledWith(transaction1.id);
+        expect(multiSignatureVerification.clear).toBeCalledWith(transaction1.id);
 
         expect(events.dispatch).toHaveBeenCalledWith(Enums.TransactionEvent.RejectedByPool, expect.anything());
     });
@@ -240,6 +252,8 @@ describe("Service.addTransaction", () => {
             serialized: transaction1.serialized,
         });
         expect(storage.removeTransaction).toBeCalledWith(transaction1.id);
+        expect(secondSignatureVerification.clear).toBeCalledWith(transaction1.id);
+        expect(multiSignatureVerification.clear).toBeCalledWith(transaction1.id);
 
         expect(events.dispatch).toHaveBeenCalledWith(Enums.TransactionEvent.RejectedByPool, expect.anything());
     });
@@ -263,6 +277,8 @@ describe("Service.addTransaction", () => {
         expect(storage.getOldTransactions).toBeCalledWith(900);
         expect(mempool.removeTransaction).toBeCalledWith(transaction2.data.senderPublicKey, transaction2.id);
         expect(storage.removeTransaction).toBeCalledWith(transaction2.id);
+        expect(secondSignatureVerification.clear).toBeCalledWith(transaction2.id);
+        expect(multiSignatureVerification.clear).toBeCalledWith(transaction2.id);
 
         expect(events.dispatch).toHaveBeenCalledWith(Enums.TransactionEvent.Expired, expect.anything());
     });
@@ -284,6 +300,8 @@ describe("Service.addTransaction", () => {
         expect(expirationService.isExpired).toBeCalledWith(transaction2);
         expect(mempool.removeTransaction).toBeCalledWith(transaction2.data.senderPublicKey, transaction2.id);
         expect(storage.removeTransaction).toBeCalledWith(transaction2.id);
+        expect(secondSignatureVerification.clear).toBeCalledWith(transaction2.id);
+        expect(multiSignatureVerification.clear).toBeCalledWith(transaction2.id);
 
         expect(events.dispatch).toHaveBeenCalledWith(Enums.TransactionEvent.Expired, expect.anything());
     });
@@ -333,6 +351,8 @@ describe("Service.addTransaction", () => {
 
         expect(mempool.removeTransaction).toBeCalledWith(transaction1.data.senderPublicKey, transaction1.id);
         expect(storage.removeTransaction).toBeCalledWith(transaction1.id);
+        expect(secondSignatureVerification.clear).toBeCalledWith(transaction1.id);
+        expect(multiSignatureVerification.clear).toBeCalledWith(transaction1.id);
 
         expect(events.dispatch).toHaveBeenCalledWith(Enums.TransactionEvent.RemovedFromPool, expect.anything());
     });
@@ -358,6 +378,10 @@ describe("Service.removeTransaction", () => {
         expect(mempool.removeTransaction).toBeCalledWith(transaction1.data.senderPublicKey, transaction1.id);
         expect(storage.removeTransaction).toBeCalledWith(transaction1.id);
         expect(storage.removeTransaction).toBeCalledWith(transaction2.id);
+        expect(secondSignatureVerification.clear).toBeCalledWith(transaction1.id);
+        expect(multiSignatureVerification.clear).toBeCalledWith(transaction1.id);
+        expect(secondSignatureVerification.clear).toBeCalledWith(transaction2.id);
+        expect(multiSignatureVerification.clear).toBeCalledWith(transaction2.id);
 
         expect(events.dispatch).toHaveBeenCalledWith(Enums.TransactionEvent.RemovedFromPool, expect.anything());
     });
@@ -372,6 +396,10 @@ describe("Service.removeTransaction", () => {
         expect(mempool.removeTransaction).toBeCalledWith(transaction1.data.senderPublicKey, transaction1.id);
         expect(storage.removeTransaction).toBeCalledWith(transaction1.id);
         expect(storage.removeTransaction).toBeCalledWith(transaction2.id);
+        expect(secondSignatureVerification.clear).toBeCalledWith(transaction1.id);
+        expect(multiSignatureVerification.clear).toBeCalledWith(transaction1.id);
+        expect(secondSignatureVerification.clear).toBeCalledWith(transaction2.id);
+        expect(multiSignatureVerification.clear).toBeCalledWith(transaction2.id);
         expect(logger.error).toBeCalled();
     });
 });
@@ -411,6 +439,8 @@ describe("Service.readdTransactions", () => {
         expect(mempool.addTransaction).toBeCalledWith(transaction3);
 
         expect(storage.removeTransaction).toBeCalledTimes(0);
+        expect(secondSignatureVerification.clear).toBeCalledTimes(0);
+        expect(multiSignatureVerification.clear).toBeCalledTimes(0);
     });
 
     it("should remove transaction from storage that cannot be added to mempool", async () => {
@@ -436,6 +466,9 @@ describe("Service.readdTransactions", () => {
 
         expect(storage.removeTransaction).toBeCalledTimes(1);
         expect(storage.removeTransaction).toBeCalledWith(transaction1.id);
+
+        expect(secondSignatureVerification.clear).toBeCalledWith(transaction1.id);
+        expect(multiSignatureVerification.clear).toBeCalledWith(transaction1.id);
     });
 
     it("should remove all transactions from storage that cannot be added to mempool", async () => {
@@ -466,6 +499,10 @@ describe("Service.readdTransactions", () => {
         expect(storage.removeTransaction).toBeCalledTimes(2);
         expect(storage.removeTransaction).toBeCalledWith(transaction1.id);
         expect(storage.removeTransaction).toBeCalledWith(transaction2.id);
+        expect(secondSignatureVerification.clear).toBeCalledWith(transaction1.id);
+        expect(multiSignatureVerification.clear).toBeCalledWith(transaction1.id);
+        expect(secondSignatureVerification.clear).toBeCalledWith(transaction2.id);
+        expect(multiSignatureVerification.clear).toBeCalledWith(transaction2.id);
     });
 
     it("should add previously forged transactions first", async () => {
@@ -505,6 +542,8 @@ describe("Service.readdTransactions", () => {
         });
 
         expect(storage.removeTransaction).toBeCalledTimes(0);
+        expect(secondSignatureVerification.clear).toBeCalledTimes(0);
+        expect(multiSignatureVerification.clear).toBeCalledTimes(0);
     });
 
     it("should ignore error when adding previously forged transactions", async () => {
@@ -539,6 +578,8 @@ describe("Service.readdTransactions", () => {
         });
 
         expect(storage.removeTransaction).toBeCalledTimes(0);
+        expect(secondSignatureVerification.clear).toBeCalledWith(transaction1.id);
+        expect(multiSignatureVerification.clear).toBeCalledWith(transaction1.id);
     });
 
     it("should ignore all errors when adding previously forged", async () => {
@@ -568,6 +609,10 @@ describe("Service.readdTransactions", () => {
         expect(storage.addTransaction).toBeCalledTimes(0);
 
         expect(storage.removeTransaction).toBeCalledTimes(0);
+        expect(secondSignatureVerification.clear).toBeCalledWith(transaction1.id);
+        expect(multiSignatureVerification.clear).toBeCalledWith(transaction1.id);
+        expect(secondSignatureVerification.clear).toBeCalledWith(transaction2.id);
+        expect(multiSignatureVerification.clear).toBeCalledWith(transaction2.id);
     });
 });
 
@@ -593,6 +638,8 @@ describe("Service.cleanUp", () => {
 
         expect(mempool.removeTransaction).toBeCalledWith(transaction3.data.senderPublicKey, transaction3.id);
         expect(storage.removeTransaction).toBeCalledWith(transaction3.id);
+        expect(secondSignatureVerification.clear).toBeCalledWith(transaction3.id);
+        expect(multiSignatureVerification.clear).toBeCalledWith(transaction3.id);
 
         expect(events.dispatch).toHaveBeenCalledWith(Enums.TransactionEvent.Expired, expect.anything());
     });
@@ -617,6 +664,8 @@ describe("Service.cleanUp", () => {
 
         expect(mempool.removeTransaction).toBeCalledWith(transaction2.data.senderPublicKey, transaction2.id);
         expect(storage.removeTransaction).toBeCalledWith(transaction2.id);
+        expect(secondSignatureVerification.clear).toBeCalledWith(transaction2.id);
+        expect(multiSignatureVerification.clear).toBeCalledWith(transaction2.id);
 
         expect(events.dispatch).toHaveBeenCalledWith(Enums.TransactionEvent.Expired, expect.anything());
     });
@@ -645,6 +694,8 @@ describe("Service.cleanUp", () => {
 
         expect(mempool.removeTransaction).toBeCalledWith(transaction1.data.senderPublicKey, transaction1.id);
         expect(storage.removeTransaction).toBeCalledWith(transaction1.id);
+        expect(secondSignatureVerification.clear).toBeCalledWith(transaction1.id);
+        expect(multiSignatureVerification.clear).toBeCalledWith(transaction1.id);
     });
 });
 
@@ -663,6 +714,10 @@ describe("Service.applyBlock", () => {
         expect(storage.removeTransaction).toBeCalledTimes(2);
         expect(storage.removeTransaction).toBeCalledWith(transaction1.id);
         expect(storage.removeTransaction).toBeCalledWith(transaction2.id);
+        expect(secondSignatureVerification.clear).toBeCalledWith(transaction1.id);
+        expect(multiSignatureVerification.clear).toBeCalledWith(transaction1.id);
+        expect(secondSignatureVerification.clear).toBeCalledWith(transaction2.id);
+        expect(multiSignatureVerification.clear).toBeCalledWith(transaction2.id);
 
         expect(events.dispatch).toBeCalledTimes(1);
         expect(events.dispatch).toBeCalledWith(Enums.TransactionEvent.RemovedFromPool, transaction2.data);
