@@ -43,9 +43,9 @@ import { Identities, Utils } from "@packages/crypto";
 import { IMultiSignatureAsset } from "@packages/crypto/src/interfaces";
 import { ServiceProvider } from "@packages/core-transactions/src/service-provider";
 import {
-    SecondSignatureVerificationMemoizer,
-    MultiSignatureVerificationMemoizer,
-} from "@packages/core-transactions/src/memoizers";
+    SecondSignatureVerificationMemoized,
+    MultiSignatureVerificationMemoized,
+} from "@packages/core-transactions/src/verification";
 import { MempoolIndexRegistry } from "@packages/core-transaction-pool/src/mempool-index-registry";
 
 const logger = {
@@ -166,11 +166,13 @@ export const initApp = (): Application => {
 
     app.bind(Identifiers.DatabaseTransactionRepository).toConstantValue(Mocks.TransactionRepository.instance);
 
-    app.bind(Identifiers.SecondSignatureVerificationMemoizer)
-        .to(SecondSignatureVerificationMemoizer)
+    app.bind(Identifiers.TransactionSecondSignatureVerification)
+        .to(SecondSignatureVerificationMemoized)
         .inSingletonScope();
 
-    app.bind(Identifiers.MultiSignatureVerificationMemoizer).to(MultiSignatureVerificationMemoizer).inSingletonScope();
+    app.bind(Identifiers.TransactionMultiSignatureVerification)
+        .to(MultiSignatureVerificationMemoized)
+        .inSingletonScope();
 
     app.bind(Identifiers.TransactionHandler).to(One.TransferTransactionHandler);
     app.bind(Identifiers.TransactionHandler).to(Two.TransferTransactionHandler);
