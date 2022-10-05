@@ -23,9 +23,6 @@ export class AcceptBlockHandler implements BlockHandler {
     @Container.inject(Container.Identifiers.DatabaseInteraction)
     private readonly databaseInteraction!: DatabaseInteraction;
 
-    @Container.inject(Container.Identifiers.TransactionPoolService)
-    private readonly transactionPool!: Contracts.TransactionPool.Service;
-
     public async execute(block: Interfaces.IBlock): Promise<BlockProcessorResult> {
         try {
             await this.databaseInteraction.applyBlock(block);
@@ -50,8 +47,6 @@ export class AcceptBlockHandler implements BlockHandler {
             if (lastDownloadedBock && lastDownloadedBock.height < block.data.height) {
                 this.state.setLastDownloadedBlock(block.data);
             }
-
-            await this.transactionPool.applyBlock(block);
 
             return BlockProcessorResult.Accepted;
         } catch (error) {

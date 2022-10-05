@@ -118,9 +118,7 @@ describe("Service.boot", () => {
         const service = container.resolve(Service);
         await service.boot();
 
-        expect(events.listen).toBeCalledWith(Enums.StateEvent.BuilderFinished, service);
         expect(events.listen).toBeCalledWith(Enums.CryptoEvent.MilestoneChanged, service);
-        expect(events.listen).toBeCalledWith(Enums.BlockEvent.Applied, service);
     });
 });
 
@@ -129,22 +127,11 @@ describe("Service.dispose", () => {
         const service = container.resolve(Service);
         service.dispose();
 
-        expect(events.forget).toBeCalledWith(Enums.StateEvent.BuilderFinished, service);
         expect(events.forget).toBeCalledWith(Enums.CryptoEvent.MilestoneChanged, service);
-        expect(events.forget).toBeCalledWith(Enums.BlockEvent.Applied, service);
     });
 });
 
 describe("Service.handle", () => {
-    it("should re-add transactions after state builder had finished", async () => {
-        const service = container.resolve(Service);
-        jest.spyOn(service, "readdTransactions").mockImplementation(() => Promise.resolve());
-
-        await service.handle({ name: Enums.StateEvent.BuilderFinished });
-
-        expect(service.readdTransactions).toBeCalled();
-    });
-
     it("should re-add transactions after milestone had changed", async () => {
         const service = container.resolve(Service);
         jest.spyOn(service, "readdTransactions").mockImplementation(() => Promise.resolve());
@@ -152,15 +139,6 @@ describe("Service.handle", () => {
         await service.handle({ name: Enums.CryptoEvent.MilestoneChanged });
 
         expect(service.readdTransactions).toBeCalled();
-    });
-
-    it("should cleanup transactions after block is applied", async () => {
-        const service = container.resolve(Service);
-        jest.spyOn(service, "cleanUp").mockImplementation(() => Promise.resolve());
-
-        await service.handle({ name: Enums.BlockEvent.Applied });
-
-        expect(service.cleanUp).toBeCalled();
     });
 });
 
