@@ -20,17 +20,9 @@ export class RevertBlockHandler implements BlockHandler {
     @Container.inject(Container.Identifiers.DatabaseService)
     private readonly database!: DatabaseService;
 
-    @Container.inject(Container.Identifiers.TransactionPoolService)
-    private readonly transactionPool!: Contracts.TransactionPool.Service;
-
     public async execute(block: Interfaces.IBlock): Promise<BlockProcessorResult> {
         try {
             await this.databaseInteraction.revertBlock(block);
-
-            // TODO: Check if same situation applies to fork revert
-            for (const transaction of block.transactions) {
-                await this.transactionPool.addTransaction(transaction);
-            }
 
             // Remove last block, take from DB if list is empty
             let previousBlock: Interfaces.IBlock | undefined = this.state
