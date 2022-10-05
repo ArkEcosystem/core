@@ -18,7 +18,6 @@ describe("AcceptBlockHandler", () => {
         setForkedBlock: jest.fn(),
         clearForkedBlock: jest.fn(),
     };
-    const transactionPool = { applyBlock: jest.fn() };
     const databaseInteractions = {
         walletRepository: {
             getNonce: jest.fn(),
@@ -43,7 +42,6 @@ describe("AcceptBlockHandler", () => {
         container.bind(Container.Identifiers.BlockchainService).toConstantValue(blockchain);
         container.bind(Container.Identifiers.StateStore).toConstantValue(state);
         container.bind(Container.Identifiers.DatabaseInteraction).toConstantValue(databaseInteractions);
-        container.bind(Container.Identifiers.TransactionPoolService).toConstantValue(transactionPool);
     });
 
     beforeEach(() => {
@@ -68,8 +66,6 @@ describe("AcceptBlockHandler", () => {
             expect(databaseInteractions.applyBlock).toHaveBeenCalledWith(block);
 
             expect(blockchain.resetWakeUp).toBeCalledTimes(1);
-
-            expect(transactionPool.applyBlock).toBeCalledTimes(1);
         });
 
         it("should clear forkedBlock if incoming block has same height", async () => {
