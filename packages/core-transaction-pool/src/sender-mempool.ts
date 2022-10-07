@@ -88,17 +88,20 @@ export class SenderMempool implements Contracts.TransactionPool.SenderMempool {
         }
     }
 
-    public async removeForgedTransaction(id: string): Promise<Interfaces.ITransaction[]> {
+    public async removeForgedTransaction(id: string): Promise<boolean> {
         try {
             this.concurrency++;
 
-            const index: number = this.transactions.findIndex((t) => t.id === id);
-
-            if (index !== -1) {
-                return this.transactions.splice(0, index + 1);
-            } else {
-                return []; // TODO: implement this.reboot();
+            if (!this.transactions.length) {
+                throw new Error("No transactions in sender mempool");
             }
+
+            if (this.transactions[0].id === id) {
+                this.transactions.shift();
+                return true;
+            }
+
+            return false;
         } finally {
             this.concurrency--;
         }

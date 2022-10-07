@@ -37,10 +37,6 @@ export class AcceptBlockHandler implements BlockHandler {
                 this.state.clearForkedBlock();
             }
 
-            for (const transaction of block.transactions) {
-                await this.transactionPool.removeForgedTransaction(transaction);
-            }
-
             // Reset wake-up timer after chaining a block, since there's no need to
             // wake up at all if blocks arrive periodically. Only wake up when there are
             // no new blocks.
@@ -54,6 +50,8 @@ export class AcceptBlockHandler implements BlockHandler {
             if (lastDownloadedBock && lastDownloadedBock.height < block.data.height) {
                 this.state.setLastDownloadedBlock(block.data);
             }
+
+            await this.transactionPool.applyBlock(block);
 
             return BlockProcessorResult.Accepted;
         } catch (error) {

@@ -399,6 +399,52 @@ describe("Htlc refund", () => {
             });
         });
 
+        describe("getInvalidPoolTransactions", () => {
+            it("should return empty array if there are no invalid transactions", async () => {
+                const mempoolIndexRegistry = app.get<Contracts.TransactionPool.MempoolIndexRegistry>(
+                    Identifiers.TransactionPoolMempoolIndexRegistry,
+                );
+
+                const spyOnIndexHas = jest
+                    .spyOn(mempoolIndexRegistry.get(MempoolIndexes.HtlcRefundTransactionId), "has")
+                    .mockReturnValueOnce(false);
+
+                await expect(handler.getInvalidPoolTransactions(htlcRefundTransaction)).resolves.toEqual([]);
+                expect(spyOnIndexHas).toBeCalledTimes(1);
+                expect(spyOnIndexHas).toBeCalledWith(htlcRefundTransaction.data.asset.refund.lockTransactionId);
+            });
+
+            it("should return invalid transaction if transaction with same transactionId is indexed", async () => {
+                const invalidRefundTransaction = BuilderFactory.htlcRefund()
+                    .htlcRefundAsset({
+                        lockTransactionId: htlcLockTransaction.id!,
+                    })
+                    .nonce("2")
+                    .sign(lockPassphrase)
+                    .build();
+
+                const mempoolIndexRegistry = app.get<Contracts.TransactionPool.MempoolIndexRegistry>(
+                    Identifiers.TransactionPoolMempoolIndexRegistry,
+                );
+
+                const spyOnIndexHas = jest
+                    .spyOn(mempoolIndexRegistry.get(MempoolIndexes.HtlcRefundTransactionId), "has")
+                    .mockReturnValueOnce(true);
+
+                const spyOnIndexGet = jest
+                    .spyOn(mempoolIndexRegistry.get(MempoolIndexes.HtlcRefundTransactionId), "get")
+                    .mockReturnValueOnce(invalidRefundTransaction);
+
+                await expect(handler.getInvalidPoolTransactions(htlcRefundTransaction)).resolves.toEqual([
+                    invalidRefundTransaction,
+                ]);
+                expect(spyOnIndexHas).toBeCalledTimes(1);
+                expect(spyOnIndexHas).toBeCalledWith(htlcRefundTransaction.data.asset.refund.lockTransactionId);
+                expect(spyOnIndexGet).toBeCalledTimes(1);
+                expect(spyOnIndexGet).toBeCalledWith(htlcRefundTransaction.data.asset.refund.lockTransactionId);
+            });
+        });
+
         describe("apply", () => {
             let pubKeyHash: number;
 
