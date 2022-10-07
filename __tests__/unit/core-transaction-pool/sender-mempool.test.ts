@@ -1,7 +1,8 @@
-import { Container, Contracts } from "@arkecosystem/core-kernel";
-import { Identities, Managers, Transactions } from "@arkecosystem/crypto";
+import "jest-extended";
 
-import { SenderMempool } from "../../../packages/core-transaction-pool/src/sender-mempool";
+import { Container, Contracts } from "@packages/core-kernel";
+import { SenderMempool } from "@packages/core-transaction-pool/src/sender-mempool";
+import { Identities, Managers, Transactions } from "@packages/crypto";
 
 const configuration = { getRequired: jest.fn(), getOptional: jest.fn() };
 const senderState = { apply: jest.fn(), revert: jest.fn() };
@@ -192,32 +193,29 @@ describe("SenderMempool.removeTransaction", () => {
 });
 
 describe("SenderMempool.removeForgedTransaction", () => {
-    it("should return all transactions that were added before transaction being accepted", async () => {
-        configuration.getRequired.mockReturnValueOnce(10); // maxTransactionsPerSender
-
+    it("should throw an error if there is no transactions in sender mempool", async () => {
         const senderMempool = container.resolve(SenderMempool);
-        await senderMempool.addTransaction(transaction1);
-        await senderMempool.addTransaction(transaction2);
-        await senderMempool.addTransaction(transaction3);
 
-        const removedTransactions = await senderMempool.removeForgedTransaction(transaction2.id);
-        const remainingTransactions = senderMempool.getFromEarliest();
-
-        expect(removedTransactions).toStrictEqual([transaction1, transaction2]);
-        expect(remainingTransactions).toStrictEqual([transaction3]);
+        await expect(senderMempool.removeForgedTransaction(transaction1.id)).rejects.toThrowError(
+            "No transactions in sender mempool",
+        );
     });
 
-    it("should return no transactions when accepting unknown transaction", async () => {
-        configuration.getRequired.mockReturnValueOnce(10); // maxTransactionsPerSender
-
+    it("should return true when forged transaction is earliest", async () => {
         const senderMempool = container.resolve(SenderMempool);
+
         await senderMempool.addTransaction(transaction1);
         await senderMempool.addTransaction(transaction2);
 
-        const removedTransactions = await senderMempool.removeForgedTransaction(transaction3.id);
-        const remainingTransactions = senderMempool.getFromEarliest();
+        await expect(senderMempool.removeForgedTransaction(transaction1.id)).resolves.toBeTrue();
+    });
 
-        expect(removedTransactions).toStrictEqual([]);
-        expect(remainingTransactions).toStrictEqual([transaction1, transaction2]);
+    it("should return false when forged transaction is not earliest", async () => {
+        const senderMempool = container.resolve(SenderMempool);
+
+        await senderMempool.addTransaction(transaction1);
+        await senderMempool.addTransaction(transaction2);
+
+        await expect(senderMempool.removeForgedTransaction(transaction2.id)).resolves.toBeFalse();
     });
 });

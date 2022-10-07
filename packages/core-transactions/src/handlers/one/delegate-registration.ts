@@ -110,6 +110,17 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
         }
     }
 
+    public async getInvalidPoolTransactions(transaction: Interfaces.ITransaction): Promise<Interfaces.ITransaction[]> {
+        AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
+        AppUtils.assert.defined<string>(transaction.data.asset?.delegate?.username);
+
+        const delegateUsernameIndex = this.mempoolIndexRegistry.get(MempoolIndexes.DelegateUsername);
+
+        return delegateUsernameIndex.has(transaction.data.asset.delegate.username)
+            ? [delegateUsernameIndex.get(transaction.data.asset.delegate.username)]
+            : [];
+    }
+
     public async onPoolEnter(transaction: Interfaces.ITransaction): Promise<void> {
         AppUtils.assert.defined<string>(transaction.data.asset?.delegate?.username);
 

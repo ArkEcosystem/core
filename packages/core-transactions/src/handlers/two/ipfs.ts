@@ -63,6 +63,14 @@ export class IpfsTransactionHandler extends TransactionHandler {
         }
     }
 
+    public async getInvalidPoolTransactions(transaction: Interfaces.ITransaction): Promise<Interfaces.ITransaction[]> {
+        AppUtils.assert.defined<string>(transaction.data.asset?.ipfs);
+
+        const ipfsIndex = this.mempoolIndexRegistry.get(MempoolIndexes.Ipfs);
+
+        return ipfsIndex.has(transaction.data.asset.ipfs) ? [ipfsIndex.get(transaction.data.asset.ipfs)] : [];
+    }
+
     public async onPoolEnter(transaction: Interfaces.ITransaction): Promise<void> {
         AppUtils.assert.defined<string>(transaction.data.asset?.ipfs);
 

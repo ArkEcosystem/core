@@ -1,4 +1,4 @@
-import { Contracts } from "@arkecosystem/core-kernel";
+import { Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 
 export class MempoolIndex implements Contracts.TransactionPool.MempoolIndex {
@@ -10,6 +10,13 @@ export class MempoolIndex implements Contracts.TransactionPool.MempoolIndex {
 
     public has(key: string): boolean {
         return this.keyToTransaction.has(key);
+    }
+
+    public get(key: string): Interfaces.ITransaction {
+        const transaction = this.keyToTransaction.get(key);
+        Utils.assert.defined<Interfaces.ITransaction>(transaction);
+
+        return transaction;
     }
 
     public forget(key: string): void {

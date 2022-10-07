@@ -8,13 +8,13 @@ import { Generators } from "@packages/core-test-framework/src";
 import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
 import { Mempool } from "@packages/core-transaction-pool";
+import { MempoolIndexes } from "@packages/core-transactions/src/enums";
 import { InsufficientBalanceError, IpfsHashAlreadyExists } from "@packages/core-transactions/src/errors";
 import { TransactionHandler } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
 import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
 import { configManager } from "@packages/crypto/dist/managers";
 import { BuilderFactory } from "@packages/crypto/dist/transactions";
-import { MempoolIndexes } from "@packages/core-transactions/src/enums";
 
 import {
     buildMultiSignatureWallet,
@@ -240,6 +240,50 @@ describe("Ipfs", () => {
             expect(handler.onPoolLeave(ipfsTransaction)).toResolve();
             expect(spyOnIndexSet).toBeCalledTimes(1);
             expect(spyOnIndexSet).toBeCalledWith(ipfsTransaction.data.asset.ipfs);
+        });
+    });
+
+    describe("getInvalidPoolTransactions", () => {
+        it("should return empty array if there are no invalid transactions", async () => {
+            const mempoolIndexRegistry = app.get<Contracts.TransactionPool.MempoolIndexRegistry>(
+                Identifiers.TransactionPoolMempoolIndexRegistry,
+            );
+
+            const spyOnIndexHas = jest
+                .spyOn(mempoolIndexRegistry.get(MempoolIndexes.Ipfs), "has")
+                .mockReturnValueOnce(false);
+
+            await expect(handler.getInvalidPoolTransactions(ipfsTransaction)).resolves.toEqual([]);
+            expect(spyOnIndexHas).toBeCalledTimes(1);
+            expect(spyOnIndexHas).toBeCalledWith(ipfsTransaction.data.asset.ipfs);
+        });
+
+        it("should return invalid transaction if transaction with same ipfs address is indexed", async () => {
+            const invalidIpfsTransaction = BuilderFactory.ipfs()
+                .ipfsAsset("QmR45FmbVVrixReBwJkhEKde2qwHYaQzGxu4ZoDeswuF9w")
+                .nonce("1")
+                .sign(passphrases[0])
+                .build();
+
+            const mempoolIndexRegistry = app.get<Contracts.TransactionPool.MempoolIndexRegistry>(
+                Identifiers.TransactionPoolMempoolIndexRegistry,
+            );
+
+            const spyOnIndexHas = jest
+                .spyOn(mempoolIndexRegistry.get(MempoolIndexes.Ipfs), "has")
+                .mockReturnValueOnce(true);
+
+            const spyOnIndexGet = jest
+                .spyOn(mempoolIndexRegistry.get(MempoolIndexes.Ipfs), "get")
+                .mockReturnValueOnce(invalidIpfsTransaction);
+
+            await expect(handler.getInvalidPoolTransactions(ipfsTransaction)).resolves.toEqual([
+                invalidIpfsTransaction,
+            ]);
+            expect(spyOnIndexHas).toBeCalledTimes(1);
+            expect(spyOnIndexHas).toBeCalledWith(ipfsTransaction.data.asset.ipfs);
+            expect(spyOnIndexGet).toBeCalledTimes(1);
+            expect(spyOnIndexGet).toBeCalledWith(ipfsTransaction.data.asset.ipfs);
         });
     });
 
