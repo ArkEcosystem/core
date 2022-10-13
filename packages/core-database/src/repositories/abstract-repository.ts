@@ -143,7 +143,7 @@ export abstract class AbstractRepository<TEntity extends ObjectLiteral> extends 
     private addOrderBy(queryBuilder: SelectQueryBuilder<TEntity>, sorting: Contracts.Search.Sorting): void {
         if (sorting.length) {
             const column = this.queryHelper.getColumnName(this.metadata, sorting[0].property);
-            queryBuilder.orderBy(column, sorting[0].direction === "desc" ? "DESC" : "ASC");
+            queryBuilder.orderBy(`${column}+0`, sorting[0].direction === "desc" ? "DESC" : "ASC");
 
             for (const item of sorting.slice(1)) {
                 const column = this.queryHelper.getColumnName(this.metadata, item.property);
