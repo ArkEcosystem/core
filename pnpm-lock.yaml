@@ -225,7 +225,7 @@ importers:
       '@arkecosystem/crypto': workspace:*
       '@hapi/boom': 10.0.0
       '@hapi/hapi': 20.2.2
-      '@hapi/hoek': 9.x.x
+      '@hapi/hoek': 10.x.x
       '@types/hapi__hapi': 20.0.13
       '@types/hapi__joi': 17.1.7
       '@types/ip': 1.1.0
@@ -244,7 +244,7 @@ importers:
       '@arkecosystem/crypto': link:../crypto
       '@hapi/boom': 10.0.0
       '@hapi/hapi': 20.2.2
-      '@hapi/hoek': 9.2.1
+      '@hapi/hoek': 10.0.1
       joi: 17.4.2
       nanomatch: 1.2.13
       node-cache: 5.1.2
@@ -556,7 +556,7 @@ importers:
       '@hapi/boom': 10.0.0
       '@hapi/bounce': 2.0.0
       '@hapi/hapi': 20.2.2
-      '@hapi/hoek': 9.x.x
+      '@hapi/hoek': 10.x.x
       '@hapi/sntp': 4.0.0
       '@hapi/teamwork': 5.1.0
       '@types/better-sqlite3': 5.4.3
@@ -585,7 +585,7 @@ importers:
       '@hapi/boom': 10.0.0
       '@hapi/bounce': 2.0.0
       '@hapi/hapi': 20.2.2
-      '@hapi/hoek': 9.2.1
+      '@hapi/hoek': 10.0.1
       '@hapi/sntp': 4.0.0
       '@hapi/teamwork': 5.1.0
       dayjs: 1.10.7
