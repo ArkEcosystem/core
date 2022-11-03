@@ -25,7 +25,7 @@
         "@arkecosystem/core-kernel": "workspace:*",
         "@arkecosystem/crypto": "workspace:*",
         "@hapi/boom": "10.0.0",
-        "@hapi/hapi": "20.2.1",
+        "@hapi/hapi": "20.2.2",
         "fs-extra": "8.1.0",
         "joi": "17.4.2",
         "lowdb": "1.0.0",

@@ -30,7 +30,7 @@
         "@arkecosystem/core-magistrate-transactions": "workspace:*",
         "@arkecosystem/crypto": "workspace:*",
         "@hapi/boom": "10.0.0",
-        "@hapi/hapi": "20.2.1",
+        "@hapi/hapi": "20.2.2",
         "joi": "17.4.2"
     },
     "devDependencies": {
