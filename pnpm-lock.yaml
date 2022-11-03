@@ -558,7 +558,7 @@ importers:
       '@hapi/hapi': 20.2.2
       '@hapi/hoek': 10.x.x
       '@hapi/sntp': 4.0.0
-      '@hapi/teamwork': 5.1.0
+      '@hapi/teamwork': 6.0.0
       '@types/better-sqlite3': 5.4.3
       '@types/fs-extra': 8.1.2
       '@types/hapi__hapi': 20.0.13
@@ -587,7 +587,7 @@ importers:
       '@hapi/hapi': 20.2.2
       '@hapi/hoek': 10.0.1
       '@hapi/sntp': 4.0.0
-      '@hapi/teamwork': 5.1.0
+      '@hapi/teamwork': 6.0.0
       dayjs: 1.10.7
       delay: 4.4.1
       ip: 1.1.5
@@ -2529,7 +2529,7 @@ packages:
       '@hapi/wreck': 17.1.0
 
   /@hapi/teamwork/4.0.0:
-    resolution: {integrity: sha512-V6xYOrr5aFv/IJqNPneaYCu8vuGTKisamqHVRS3JJnbZr18TrpXdsJOYk9pjPhFti+M2YETPebQLUr820N5NoQ==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.com/@hapi/teamwork/-/teamwork-4.0.0.tgz}
+    resolution: {integrity: sha512-V6xYOrr5aFv/IJqNPneaYCu8vuGTKisamqHVRS3JJnbZr18TrpXdsJOYk9pjPhFti+M2YETPebQLUr820N5NoQ==}
     deprecated: This version has been deprecated and is no longer supported or maintained
     dev: false
 
@@ -2540,6 +2540,11 @@ packages:
   /@hapi/teamwork/5.1.1:
     resolution: {integrity: sha512-1oPx9AE5TIv+V6Ih54RP9lTZBso3rP8j4Xhb6iSVwPXtAM+sDopl5TFMv5Paw73UnpZJ9gjcrTE1BXrWt9eQrg==}
     engines: {node: '>=12.0.0'}
+
+  /@hapi/teamwork/6.0.0:
+    resolution: {integrity: sha512-05HumSy3LWfXpmJ9cr6HzwhAavrHkJ1ZRCmNE2qJMihdM5YcWreWPfyN0yKT2ZjCM92au3ZkuodjBxOibxM67A==}
+    engines: {node: '>=14.0.0'}
+    dev: false
 
   /@hapi/topo/5.1.0:
     resolution: {integrity: sha512-foQZKJig7Ob0BMAYBfcJk8d77QtOe7Wo4ox7ff1lQYoNNAb6jwcY1ncdoy2e9wQZzvNy7ODZCYJkK8kzmcAnAg==}
