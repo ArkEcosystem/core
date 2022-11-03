@@ -226,7 +226,6 @@ importers:
       '@hapi/boom': 10.0.0
       '@hapi/hapi': 20.2.2
       '@hapi/hoek': 9.x.x
-      '@types/hapi__boom': 7.4.1
       '@types/hapi__hapi': 20.0.9
       '@types/hapi__joi': 17.1.7
       '@types/ip': 1.1.0
@@ -253,7 +252,6 @@ importers:
       rate-limiter-flexible: 1.3.2
       semver: 6.3.0
     devDependencies:
-      '@types/hapi__boom': 7.4.1
       '@types/hapi__hapi': 20.0.9
       '@types/hapi__joi': 17.1.7
       '@types/ip': 1.1.0
@@ -510,7 +508,6 @@ importers:
       '@arkecosystem/crypto': workspace:*
       '@hapi/boom': 10.0.0
       '@hapi/hapi': 20.2.2
-      '@types/hapi__boom': 7.4.1
       '@types/hapi__hapi': 20.0.9
       '@types/hapi__joi': 17.1.7
       joi: 17.4.2
@@ -524,7 +521,6 @@ importers:
       '@hapi/hapi': 20.2.2
       joi: 17.4.2
     devDependencies:
-      '@types/hapi__boom': 7.4.1
       '@types/hapi__hapi': 20.0.9
       '@types/hapi__joi': 17.1.7
 
@@ -763,7 +759,6 @@ importers:
       '@hapi/boom': 10.0.0
       '@hapi/hapi': 20.2.2
       '@types/fs-extra': 8.1.2
-      '@types/hapi__boom': 7.4.1
       '@types/hapi__hapi': 20.0.9
       '@types/hapi__joi': 17.1.7
       '@types/uuid': 8.3.1
@@ -782,7 +777,6 @@ importers:
       uuid: 8.3.2
     devDependencies:
       '@types/fs-extra': 8.1.2
-      '@types/hapi__boom': 7.4.1
       '@types/hapi__hapi': 20.0.9
       '@types/hapi__joi': 17.1.7
       '@types/uuid': 8.3.1
@@ -3484,10 +3478,6 @@ packages:
     resolution: {integrity: sha512-anKkLmZZ+xm4p8JWBf4hElkM4XR+EZeA2M9BAkkTldmcyDY4mbdIJnRghDJH3Ov5ooY7/UAoENtmdMSkaAd7Cw==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.com/@types/graceful-fs/-/graceful-fs-4.1.5.tgz}
     dependencies:
       '@types/node': 16.11.6
-    dev: true
-
-  /@types/hapi__boom/7.4.1:
-    resolution: {integrity: sha512-x/ZK824GomII7Yoei/nMoB46NQcSfGe0iVpZK3uUivxIAfUUSzRvu8RQO7ZkKapIgzgshHZc+GR+z/BQ8l2VLg==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.com/@types/hapi__boom/-/hapi__boom-7.4.1.tgz}
     dev: true
 
   /@types/hapi__catbox/10.2.4:
