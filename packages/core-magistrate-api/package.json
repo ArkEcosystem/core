@@ -34,7 +34,7 @@
         "joi": "17.4.2"
     },
     "devDependencies": {
-        "@types/hapi__hapi": "20.0.9",
+        "@types/hapi__hapi": "20.0.13",
         "@types/hapi__joi": "17.1.7"
     },
     "engines": {

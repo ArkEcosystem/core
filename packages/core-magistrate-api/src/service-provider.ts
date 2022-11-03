@@ -42,7 +42,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
         const originalNodeFeesHandler = nodeFeesRoute.settings.handler as Hapi.Lifecycle.Method;
         nodeFeesRoute.settings.handler = async (request, h) => {
-            const originalResponse = (await originalNodeFeesHandler(request, h)) as { data: any };
+            const originalResponse = (await originalNodeFeesHandler.bind(null)(request, h)) as { data: any };
 
             if (Managers.configManager.getMilestone().aip36 !== true) {
                 return originalResponse;
@@ -83,7 +83,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
         const originalTransactionsFeesHandler = transactionsFeesRoute.settings.handler as Hapi.Lifecycle.Method;
         transactionsFeesRoute.settings.handler = async (request, h) => {
-            const originalResponse = (await originalTransactionsFeesHandler(request, h)) as { data: object };
+            const originalResponse = (await originalTransactionsFeesHandler.bind(null)(request, h)) as { data: object };
 
             if (Managers.configManager.getMilestone().aip36 !== true) {
                 return originalResponse;
