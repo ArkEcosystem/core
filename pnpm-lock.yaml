@@ -554,7 +554,7 @@ importers:
       '@arkecosystem/core-state': workspace:*
       '@arkecosystem/crypto': workspace:*
       '@hapi/boom': 10.0.0
-      '@hapi/bounce': 2.0.0
+      '@hapi/bounce': 3.0.0
       '@hapi/hapi': 20.2.2
       '@hapi/hoek': 10.x.x
       '@hapi/sntp': 4.0.0
@@ -583,7 +583,7 @@ importers:
       '@arkecosystem/core-state': link:../core-state
       '@arkecosystem/crypto': link:../crypto
       '@hapi/boom': 10.0.0
-      '@hapi/bounce': 2.0.0
+      '@hapi/bounce': 3.0.0
       '@hapi/hapi': 20.2.2
       '@hapi/hoek': 10.0.1
       '@hapi/sntp': 4.0.0
@@ -2361,10 +2361,17 @@ packages:
       '@hapi/hoek': 9.2.1
 
   /@hapi/bounce/2.0.0:
-    resolution: {integrity: sha512-JesW92uyzOOyuzJKjoLHM1ThiOvHPOLDHw01YV8yh5nCso7sDwJho1h0Ad2N+E62bZyz46TG3xhAi/78Gsct6A==, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.com/@hapi/bounce/-/bounce-2.0.0.tgz}
+    resolution: {integrity: sha512-JesW92uyzOOyuzJKjoLHM1ThiOvHPOLDHw01YV8yh5nCso7sDwJho1h0Ad2N+E62bZyz46TG3xhAi/78Gsct6A==}
     dependencies:
       '@hapi/boom': 9.1.4
       '@hapi/hoek': 9.2.1
+
+  /@hapi/bounce/3.0.0:
+    resolution: {integrity: sha512-L0G4NcwwOYRhpcXeL76hNrLTUcObqtZMB3z4kcRVUZcR/w3v6C5Q1cTElV4/V7og1fG+wOyDR55UMFA+tWfhtA==}
+    dependencies:
+      '@hapi/boom': 10.0.0
+      '@hapi/hoek': 10.0.1
+    dev: false
 
   /@hapi/bourne/2.0.0:
     resolution: {integrity: sha512-WEezM1FWztfbzqIUbsDzFRVMxSoLy3HugVcux6KDDtTqzPsLE8NDRHfXvev66aH1i2oOKKar3/XDjbvh/OUBdg==}
