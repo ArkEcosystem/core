@@ -33,7 +33,7 @@
         "@arkecosystem/core-kernel": "workspace:*",
         "@arkecosystem/core-state": "workspace:*",
         "@arkecosystem/crypto": "workspace:*",
-        "@hapi/boom": "9.1.4",
+        "@hapi/boom": "10.0.0",
         "@hapi/bounce": "2.0.0",
         "@hapi/hapi": "20.2.1",
         "@hapi/hoek": "9.x.x",
