@@ -1,9 +1,9 @@
-name: Publish (Master)
+name: Publish (4.x)
 
 on:
     push:
         branches:
-            - "master"
+            - "4.x"
 
 permissions:
   contents: read
@@ -16,11 +16,6 @@ jobs:
 
         steps:
             - uses: actions/checkout@v2
-
-            - name: Set up Python 2.7
-              uses: actions/setup-python@v2
-              with:
-                  python-version: "2.7"
 
             - uses: actions/setup-node@v1
               with:
@@ -37,6 +32,6 @@ jobs:
                 run: pnpm run build
 
             - name: Publish to NPM
-              run: pnpm run publish:latest
+              run: pnpm run publish:next
               env:
                   NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
