@@ -32,7 +32,7 @@
     },
     "dependencies": {
         "@arkecosystem/crypto-identities": "1.2.0",
-        "@arkecosystem/crypto-networks": "1.3.0",
+        "@arkecosystem/crypto-networks": "1.2.2",
         "@arkecosystem/utils": "1.3.1",
         "ajv": "6.12.6",
         "ajv-keywords": "3.4.1",
