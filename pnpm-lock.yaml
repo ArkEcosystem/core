@@ -223,6 +223,7 @@ importers:
       '@types/ip': 1.1.0
       '@types/semver': 6.2.3
       joi: 17.4.2
+      lodash.clonedeep: 4.5.0
       nanomatch: 1.2.13
       node-cache: 5.1.2
       qs: 6.10.3
@@ -247,6 +248,7 @@ importers:
       '@types/hapi__joi': 17.1.7
       '@types/ip': 1.1.0
       '@types/semver': 6.2.3
+      lodash.clonedeep: 4.5.0
 
   packages/core-blockchain:
     specifiers:
@@ -5723,7 +5725,7 @@ packages:
     hasBin: true
     dependencies:
       binary: 0.3.0
-      graceful-fs: 4.2.8
+      graceful-fs: 4.2.10
       mkpath: 0.1.0
       nopt: 3.0.6
       q: 1.5.1
@@ -8940,14 +8942,14 @@ packages:
   /jsonfile/4.0.0:
     resolution: {integrity: sha1-h3Gq4HmbZAdrdmQPygWPnBDjPss=, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.com/jsonfile/-/jsonfile-4.0.0.tgz}
     optionalDependencies:
-      graceful-fs: 4.2.8
+      graceful-fs: 4.2.10
 
   /jsonfile/6.1.0:
     resolution: {integrity: sha512-5dgndWOriYSm5cnYaJNhalLNDKOqFwyDB/rr1E9ZsGciGvKPs8R2xYGCacuf3z6K1YKDz182fd+fY3cn3pMqXQ==}
     dependencies:
       universalify: 2.0.0
     optionalDependencies:
-      graceful-fs: 4.2.8
+      graceful-fs: 4.2.10
     dev: true
 
   /jsonlines/0.1.1:
@@ -12044,7 +12046,7 @@ packages:
   /steno/0.4.4:
     resolution: {integrity: sha1-BxEFvfwobmYVwEA8J+nXtdy4Vcs=, registry: https://registry.npmjs.com/, tarball: https://registry.npmjs.com/steno/-/steno-0.4.4.tgz}
     dependencies:
-      graceful-fs: 4.2.8
+      graceful-fs: 4.2.10
     dev: false
 
   /stream-shift/1.0.1:
