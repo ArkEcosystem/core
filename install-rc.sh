@@ -47,18 +47,8 @@ RPM=$(which yum || :)
 # Detect SystemV / SystemD
 SYS=$([[ -L "/sbin/init" ]] && echo 'SystemD' || echo 'SystemV')
 
-# Detect GLIBC version
-GLIBC_VERSION=$(ldd --version | grep ldd | awk '{print $NF}')
-
 # Detect Debian/Ubuntu derivative
-DEB_ID=$( (grep DISTRIB_CODENAME /etc/upstream-release/lsb-release || grep DISTRIB_CODENAME /etc/lsb-release || grep VERSION_CODENAME /etc/os-release)  2>/dev/null | cut -d'=' -f2 )
-
-#APT Vars
-APT_ENV="DEBIAN_FRONTEND=noninteractive NEEDRESTART_MODE=a"
-
-#APT Vars
-APT_ENV="DEBIAN_FRONTEND=noninteractive NEEDRESTART_MODE=a"
-
+DEB_ID=$( (grep DISTRIB_CODENAME /etc/upstream-release/lsb-release || grep DISTRIB_CODENAME /etc/lsb-release) 2>/dev/null | cut -d'=' -f2 )
 
 if [[ ! -z $DEB ]]; then
     success "Running install for Debian derivative"
@@ -105,15 +95,10 @@ heading "Installing system dependencies..."
 
 if [[ ! -z $DEB ]]; then
     sudo apt-get update
-    sudo $APT_ENV apt-get install git curl apt-transport-https bc wget gnupg -yq
+    sudo apt-get install -y git curl apt-transport-https update-notifier
 elif [[ ! -z $RPM ]]; then
     sudo yum update -y
-    sudo yum install git curl epel-release bc wget --skip-broken -y
-fi
-
-if [[ $(echo "$GLIBC_VERSION < 2.25" | bc -l) -eq 1 ]]; then
-    heading "Unsupported GLIBC version - required >= 2.25"
-    exit 1;
+    sudo yum install git curl epel-release --skip-broken -y
 fi
 
 success "Installed system dependencies!"
@@ -127,31 +112,33 @@ if [[ ! -z $DEB ]]; then
     sudo wget --quiet -O - https://deb.nodesource.com/gpgkey/nodesource.gpg.key | sudo apt-key add -
     (echo "deb https://deb.nodesource.com/node_14.x ${DEB_ID} main" | sudo tee /etc/apt/sources.list.d/nodesource.list)
     sudo apt-get update
-    sudo $APT_ENV apt-get install nodejs -yq
+    sudo apt-get install nodejs -y
 
 elif [[ ! -z $RPM ]]; then
     sudo yum install gcc-c++ make -y
     curl -sL https://rpm.nodesource.com/setup_14.x | sudo -E bash - > /dev/null 2>&1
-    sudo sed -i '/^failovermethod=/d' /etc/yum.repos.d/*.repo > /dev/null 2>&1
-    sudo yum install nodejs -y
 fi
 
 success "Installed node.js & npm!"
 
-heading "Installing Pnpm..."
+heading "Installing Yarn..."
 
-npm config set prefix '~/.pnpm'
-npm config set global-dir ~/.pnpm
-npm config set global-bin-dir ~/.pnpm/bin
-export PATH=$(npm config get global-bin-dir):$PATH
-echo 'export PATH=$(npm config get global-bin-dir):$PATH' >> ~/.bashrc
-npm install -g pnpm
+if [[ ! -z $DEB ]]; then
+    curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+    (echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list)
 
-success "Installed Pnpm!"
+    sudo apt-get update
+    sudo apt-get install -y yarn
+elif [[ ! -z $RPM ]]; then
+    curl -sL https://dl.yarnpkg.com/rpm/yarn.repo | sudo tee /etc/yum.repos.d/yarn.repo
+    sudo yum install yarn -y
+fi
+
+success "Installed Yarn!"
 
 heading "Installing PM2..."
 
-pnpm install -g pm2
+sudo yarn global add pm2
 pm2 install pm2-logrotate
 pm2 set pm2-logrotate:max_size 500M
 pm2 set pm2-logrotate:compress true
@@ -162,7 +149,7 @@ success "Installed PM2!"
 heading "Installing program dependencies..."
 
 if [[ ! -z $DEB ]]; then
-    sudo $APT_ENV apt-get install build-essential pkg-config libtool autoconf automake libpq-dev jq libjemalloc-dev net-tools -yq
+    sudo apt-get install build-essential libcairo2-dev pkg-config libtool autoconf automake python libpq-dev jq libjemalloc-dev -y
 elif [[ ! -z $RPM ]]; then
     sudo yum groupinstall "Development Tools" -y -q
     sudo yum install postgresql-devel jq jemalloc-devel -y -q
@@ -174,7 +161,7 @@ heading "Installing PostgreSQL..."
 
 if [[ ! -z $DEB ]]; then
     sudo apt-get update
-    sudo $APT_ENV apt-get install postgresql postgresql-contrib -yq
+    sudo apt-get install postgresql postgresql-contrib -y
 elif [[ ! -z $RPM ]]; then
     sudo yum install postgresql-server postgresql-contrib -y
 
@@ -182,7 +169,7 @@ elif [[ ! -z $RPM ]]; then
         sudo service postgresql initdb
         sudo service postgresql start
     else
-        sudo postgresql-setup initdb  || true
+        sudo postgresql-setup initdb || true
         sudo sed -i  '/^host    all             all             127.0.0.1\/32            ident/ s/ident/md5/' /var/lib/pgsql/data/pg_hba.conf > /dev/null 2>&1 || true
         sudo systemctl start postgresql
     fi
@@ -192,8 +179,10 @@ success "Installed PostgreSQL!"
 
 heading "Installing NTP..."
 
+sudo timedatectl set-ntp off > /dev/null 2>&1 || true # disable the default systemd timesyncd service
+
 if [[ ! -z $DEB ]]; then
-    sudo $APT_ENV apt-get install ntp -yq
+    sudo apt-get install ntp -yyq
     if [ -z "$(sudo service ntp status |grep running)" ] ; then
        sudo ntpd -gq
     fi
@@ -212,52 +201,29 @@ heading "Installing system updates..."
 
 if [[ ! -z $DEB ]]; then
     sudo apt-get update
-    sudo $APT_ENV apt-get upgrade -yq
-    sudo $APT_ENV apt-get dist-upgrade -yq
-    sudo apt-get autoremove -yq
+    sudo apt-get upgrade -yqq
+    sudo apt-get dist-upgrade -yq
+    sudo apt-get autoremove -yyq
     sudo apt-get autoclean -yq
 elif [[ ! -z $RPM ]]; then
-    sudo yum update -y
-    sudo yum clean all -y
+    sudo yum update
+    sudo yum clean all
 fi
 
 success "Installed system updates!"
 
 heading "Installing ARK Core..."
 
-ARK=$(which ark || :)
-
-if [ ! -z "$ARK" ] ; then
-    warning "Cleaning up previous installations..."
-     pnpm remove -g @arkecosystem/core > /dev/null 2>&1 || true
-     #make sure there isn't old yarn install
-     yarn global remove @arkecosystem/core > /dev/null 2>&1 || true
-
-fi
-
-addCore() {
-    while ! pnpm install -g @arkecosystem/core@${channel:-latest} ; do
-        read -p "Installing ARK Core failed, do you want to retry? [y/N]: " choice
-            if [[ ! "$choice" =~ ^(yes|y|Y) ]] ; then
-                 exit 1
-            fi
-        done
-}
-
-heading "Select Network:"
-
-select coreNetwork in "MainNet" "DevNet" "TestNet"; do
-    case $coreNetwork in
-        MainNet)
-            addCore && rm -rf ~/.config/*-core/ && ark config:publish --network=mainnet; break;;
-        DevNet)
-            channel=next addCore ${channel} && rm -rf ~/.config/*-core/ && ark config:publish --network=devnet; break;;
-        TestNet)
-            channel=next addCore ${channel} && rm -rf ~/.config/*-core/ && ark config:publish --network=testnet; break;;
-        *)
-            echo "Invalid selection";
-    esac
+while ! yarn global add @arkecosystem/core@rc ; do
+    read -p "Installing ARK Core failed, do you want to retry? [y/N]: " choice
+    if [[ ! "$choice" =~ ^(yes|y|Y) ]] ; then
+        exit 1
+    fi
 done
+
+echo 'export PATH=$(yarn global bin):$PATH' >> ~/.bashrc
+export PATH=$(yarn global bin):$PATH
+ark config:publish --network=devnet
 
 success "Installed ARK Core!"
 
@@ -286,36 +252,26 @@ if [[ "$choice" =~ ^(yes|y|Y) ]]; then
         read -p "Proceed? [y/N]: " choice
     done
 
-    ark config:database --username="${databaseUsername}"
-    ark config:database --password="${databasePassword}"
-    ark config:database --database="${databaseName}"
+    ark env:set --key=CORE_DB_USERNAME --value="${databaseUsername}"
+    ark env:set --key=CORE_DB_PASSWORD --value="${databasePassword}"
+    ark env:set --key=CORE_DB_DATABASE --value="${databaseName}"
 
     userExists=$(sudo -i -u postgres psql -tAc "SELECT 1 FROM pg_user WHERE usename = '${databaseUsername}'")
-    userExistingDBs=$(sudo -i -u postgres psql -tAc "SELECT datname FROM pg_database JOIN pg_authid ON pg_database.datdba = pg_authid.oid WHERE rolname = '${databaseUsername}'")
+    databaseExists=$(sudo -i -u postgres psql -tAc "SELECT 1 FROM pg_database WHERE datname = '${databaseName}'")
 
     if [[ $userExists == 1 ]]; then
-            read -p "The database user ${databaseUsername} already exists, do you want to recreate it? [y/N]: " choice
-
+        read -p "The database user ${databaseUsername} already exists, do you want to recreate it? [y/N]: " choice
 
         if [[ "$choice" =~ ^(yes|y|Y) ]]; then
-            read -p "$(echo "${red}WARNING! Any databases belonging to that user will be wiped out!!! Are you sure?${reset}") [y/N]: " confirm
-            if [[ "$confirm" =~ ^(yes|y|Y) ]]; then
-
-                if [[ "$userExistingDBs" != "" ]]; then
-                    for dbn in ${userExistingDBs}; do
-                        #sudo -i -u postgres psql -c "ALTER DATABASE ${dbn} OWNER TO postgres;"
-                        sudo -i -u postgres psql -c "DROP DATABASE ${dbn};"
-                    done
-                fi
+            if [[ $databaseExists == 1 ]]; then
+                sudo -i -u postgres psql -c "ALTER DATABASE ${databaseName} OWNER TO postgres;"
+            fi
             sudo -i -u postgres psql -c "DROP USER ${databaseUsername}"
             sudo -i -u postgres psql -c "CREATE USER ${databaseUsername} WITH PASSWORD '${databasePassword}' CREATEDB;"
-            fi
         fi
     else
         sudo -i -u postgres psql -c "CREATE USER ${databaseUsername} WITH PASSWORD '${databasePassword}' CREATEDB;"
     fi
-
-    databaseExists=$(sudo -i -u postgres psql -tAc "SELECT 1 FROM pg_database WHERE datname = '${databaseName}'")
 
     if [[ $databaseExists == 1 ]]; then
         read -p "The database ${databaseName} already exists, do you want to overwrite it? [y/N]: " choice

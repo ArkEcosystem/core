@@ -389,7 +389,7 @@ describe("BlockProcessor", () => {
 
             expect(walletRepository.hasByPublicKey).toHaveBeenCalledWith(block.data.generatorPublicKey);
             expect(walletRepository.findByPublicKey).toHaveBeenCalledWith(block.data.generatorPublicKey);
-            expect(generatorWallet.getAttribute).toHaveBeenCalledOnce();
+            expect(generatorWallet.getAttribute).toHaveBeenCalledTimes(1);
         });
     });
 
