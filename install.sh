@@ -56,10 +56,6 @@ DEB_ID=$( (grep DISTRIB_CODENAME /etc/upstream-release/lsb-release || grep DISTR
 #APT Vars
 APT_ENV="DEBIAN_FRONTEND=noninteractive NEEDRESTART_MODE=a"
 
-#APT Vars
-APT_ENV="DEBIAN_FRONTEND=noninteractive NEEDRESTART_MODE=a"
-
-
 if [[ ! -z $DEB ]]; then
     success "Running install for Debian derivative"
 elif [[ ! -z $RPM ]]; then
