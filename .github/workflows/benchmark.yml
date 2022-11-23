@@ -21,13 +21,8 @@ jobs:
 
         steps:
             - uses: actions/checkout@v2
-            - name: Set up Python 2.7
-              uses: actions/setup-python@v2
-              with:
-                  python-version: '2.7'
-
-            - name: Cache pnpm modules
-              uses: actions/cache@v2
+            - name: Cache node modules
+              uses: actions/cache@v1
               with:
                   path: ~/.pnpm-store
                   key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
