@@ -234,6 +234,32 @@ describe("ServiceProvider", () => {
             });
         });
 
+        describe("process.env.CORE_TRANSACTION_POOL_WORKERS", () => {
+            it("should parse process.env.CORE_TRANSACTION_POOL_WORKERS", async () => {
+                process.env.CORE_TRANSACTION_POOL_WORKERS = "20";
+
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-transaction-pool/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.workerPool.workerCount).toEqual(20);
+            });
+
+            it("should throw if process.env.CORE_TRANSACTION_POOL_WORKERS is not number", async () => {
+                process.env.CORE_TRANSACTION_POOL_WORKERS = "false";
+
+                jest.resetModules();
+                const result = (serviceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-transaction-pool/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeDefined();
+                expect(result.error!.message).toEqual('"workerPool.workerCount" must be a number');
+            });
+        });
+
         describe("schema restrictions", () => {
             let defaults;
 
