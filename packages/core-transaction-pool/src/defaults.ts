@@ -35,7 +35,7 @@ export const defaults = {
         },
     },
     workerPool: {
-        workerCount: process.env.CORE_TRANSACTION_POOL_WORKERS || Math.max(1, Math.floor(cpus().length / 2)),
+        workerCount: process.env.CORE_TRANSACTION_POOL_WORKERS || Math.min(4, cpus().length),
         cryptoPackages: [{ typeGroup: 2, packageName: "@arkecosystem/core-magistrate-crypto" }],
     },
 };
