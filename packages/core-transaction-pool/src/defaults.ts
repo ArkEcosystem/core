@@ -1,3 +1,5 @@
+import { cpus } from "os";
+
 export const defaults = {
     enabled: !process.env.CORE_TRANSACTION_POOL_DISABLED,
     storage: `${process.env.CORE_PATH_DATA}/transaction-pool.sqlite`,
@@ -33,7 +35,7 @@ export const defaults = {
         },
     },
     workerPool: {
-        workerCount: 3,
+        workerCount: process.env.CORE_TRANSACTION_POOL_WORKERS || Math.max(1, Math.floor(cpus().length / 2)),
         cryptoPackages: [{ typeGroup: 2, packageName: "@arkecosystem/core-magistrate-crypto" }],
     },
 };
