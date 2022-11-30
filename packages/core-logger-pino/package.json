@@ -27,7 +27,6 @@
         "pino-pretty": "9.1.1",
         "pump": "3.0.0",
         "pumpify": "2.0.1",
-        "readable-stream": "3.6.0",
         "rotating-file-stream": "3.0.4",
         "split2": "3.2.2"
     },
@@ -39,7 +38,6 @@
     },
     "devDependencies": {
         "@types/pump": "1.1.1",
-        "@types/readable-stream": "2.3.11",
         "@types/split2": "2.1.6"
     }
 }

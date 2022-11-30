@@ -5,10 +5,9 @@ import pino from "pino";
 import { prettyFactory, PrettyOptions } from "pino-pretty";
 import pump from "pump";
 import pumpify from "pumpify";
-import { Transform } from "readable-stream";
 import { createStream } from "rotating-file-stream";
 import split from "split2";
-import { PassThrough, Writable } from "stream";
+import { PassThrough, Transform, Writable } from "stream";
 import { inspect } from "util";
 
 /**
@@ -110,7 +109,6 @@ export class PinoLogger implements Contracts.Kernel.Logger {
             pump(
                 this.stream,
                 split(),
-                // @ts-ignore - Object literal may only specify known properties, and 'colorize' does not exist in type 'PrettyOptions'.
                 this.createPrettyTransport(options.levels.console, { colorize: true }),
                 process.stdout,
                 /* istanbul ignore next */
