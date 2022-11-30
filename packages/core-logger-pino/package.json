@@ -28,7 +28,7 @@
         "pump": "3.0.0",
         "pumpify": "2.0.1",
         "readable-stream": "3.6.0",
-        "rotating-file-stream": "2.1.5",
+        "rotating-file-stream": "3.0.4",
         "split2": "3.2.2"
     },
     "engines": {
