@@ -4,7 +4,7 @@ import * as console from "console";
 import pino from "pino";
 import { prettyFactory, PrettyOptions } from "pino-pretty";
 import pump from "pump";
-import pumpify from "pumpify";
+import Pumpify from "pumpify";
 import { createStream } from "rotating-file-stream";
 import split from "split2";
 import { PassThrough, Transform, Writable } from "stream";
@@ -56,7 +56,7 @@ export class PinoLogger implements Contracts.Kernel.Logger {
      * @type {Writable}
      * @memberof PinoLogger
      */
-    private combinedFileStream?: Writable;
+    private combinedFileStream?: Pumpify;
 
     /**
      * @private
@@ -119,17 +119,17 @@ export class PinoLogger implements Contracts.Kernel.Logger {
         }
 
         if (this.isValidLevel(options.levels.file)) {
-            this.combinedFileStream = pumpify(
+            this.combinedFileStream = new Pumpify(
                 split(),
                 this.createPrettyTransport(options.levels.file, { colorize: false }),
                 this.getFileStream(options.fileRotator),
             );
 
-            this.combinedFileStream!.on("error", (err) => {
+            this.combinedFileStream.on("error", (err) => {
                 console.error("File stream closed due to an error:", err);
             });
 
-            this.stream.pipe(this.combinedFileStream!);
+            this.stream.pipe(this.combinedFileStream);
         }
 
         return this;
