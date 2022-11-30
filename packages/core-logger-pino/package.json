@@ -23,7 +23,7 @@
         "@arkecosystem/core-kernel": "3.6.2-rc.0",
         "chalk": "4.1.2",
         "joi": "17.4.2",
-        "pino": "6.13.2",
+        "pino": "8.7.0",
         "pino-pretty": "4.8.0",
         "pump": "3.0.0",
         "pumpify": "2.0.1",

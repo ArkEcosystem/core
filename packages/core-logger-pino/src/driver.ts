@@ -1,7 +1,7 @@
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import chalk, { Chalk } from "chalk";
 import * as console from "console";
-import pino, { PrettyOptions } from "pino";
+import pino from "pino";
 import PinoPretty from "pino-pretty";
 import pump from "pump";
 import pumpify from "pumpify";
@@ -251,11 +251,11 @@ export class PinoLogger implements Contracts.Kernel.Logger {
     /**
      * @private
      * @param {string} level
-     * @param {PrettyOptions} [prettyOptions]
+     * @param {any} [prettyOptions]
      * @returns {Transform}
      * @memberof PinoLogger
      */
-    private createPrettyTransport(level: string, prettyOptions?: PrettyOptions): Transform {
+    private createPrettyTransport(level: string, prettyOptions?: any): Transform {
         const pinoPretty = PinoPretty({
             ...{
                 levelFirst: false,
