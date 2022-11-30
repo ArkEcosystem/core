@@ -2,7 +2,7 @@ import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import chalk, { Chalk } from "chalk";
 import * as console from "console";
 import pino from "pino";
-import PinoPretty from "pino-pretty";
+import { prettyFactory, PrettyOptions } from "pino-pretty";
 import pump from "pump";
 import pumpify from "pumpify";
 import { Transform } from "readable-stream";
@@ -123,7 +123,6 @@ export class PinoLogger implements Contracts.Kernel.Logger {
         if (this.isValidLevel(options.levels.file)) {
             this.combinedFileStream = pumpify(
                 split(),
-                // @ts-ignore - Object literal may only specify known properties, and 'colorize' does not exist in type 'PrettyOptions'.
                 this.createPrettyTransport(options.levels.file, { colorize: false }),
                 this.getFileStream(options.fileRotator),
             );
@@ -255,8 +254,8 @@ export class PinoLogger implements Contracts.Kernel.Logger {
      * @returns {Transform}
      * @memberof PinoLogger
      */
-    private createPrettyTransport(level: string, prettyOptions?: any): Transform {
-        const pinoPretty = PinoPretty({
+    private createPrettyTransport(level: string, prettyOptions?: PrettyOptions): Transform {
+        const pinoPretty = prettyFactory({
             ...{
                 levelFirst: false,
                 translateTime: "yyyy-mm-dd HH:MM:ss.l",
