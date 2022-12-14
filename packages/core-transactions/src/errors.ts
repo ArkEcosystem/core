@@ -247,3 +247,9 @@ export class HtlcLockExpiredError extends TransactionError {
         super(`Failed to apply transaction, because the associated HTLC lock transaction expired.`);
     }
 }
+
+export class SentFromBurnWalletError extends TransactionError {
+    public constructor() {
+        super(`Failed to apply transaction, because the transaction is sent by burn wallet.`);
+    }
+}

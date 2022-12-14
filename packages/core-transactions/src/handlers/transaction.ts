@@ -12,6 +12,7 @@ import {
     LegacyMultiSignatureRegistrationError,
     MissingMultiSignatureOnSenderError,
     SenderWalletMismatchError,
+    SentFromBurnWalletError,
     UnexpectedNonceError,
     UnexpectedSecondSignatureError,
     UnsupportedMultiSignatureTransactionError,
@@ -74,6 +75,13 @@ export abstract class TransactionHandler {
         transaction: Interfaces.ITransaction,
         sender: Contracts.State.Wallet,
     ): Promise<void> {
+        const burnAddress = Managers.configManager.get("network.burnAddress");
+        AppUtils.assert.defined(burnAddress);
+
+        if (sender.getAddress() === burnAddress) {
+            throw new SentFromBurnWalletError();
+        }
+
         const senderWallet: Contracts.State.Wallet = this.walletRepository.findByAddress(sender.getAddress());
 
         AppUtils.assert.defined<string>(sender.getPublicKey());
