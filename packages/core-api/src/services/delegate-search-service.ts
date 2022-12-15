@@ -66,6 +66,7 @@ export class DelegateSearchService {
             production: {
                 approval: AppUtils.delegateCalculator.calculateApproval(
                     wallet,
+                    this.walletRepository.getBurnWallet().getBalance(),
                     this.stateStore.getLastBlock().data.height,
                 ),
             },
