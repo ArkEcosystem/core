@@ -22,7 +22,7 @@ export class BlockchainController extends Controller {
                     height: data.height,
                     id: data.id,
                 },
-                supply: supply,
+                supply: supply.toFixed(),
                 burned: burnWallet.getBalance(),
             },
         };
