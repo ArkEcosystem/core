@@ -24,7 +24,7 @@ export class BlockchainController extends Controller {
                 },
                 supply: supply.minus(burnWallet.getBalance()).toFixed(),
                 generated: supply.toFixed(),
-                burned: burnWallet.getBalance(),
+                burned: burnWallet.getBalance().toFixed(),
             },
         };
     }

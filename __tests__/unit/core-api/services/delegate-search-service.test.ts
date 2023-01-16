@@ -4,9 +4,14 @@ import { Wallets } from "@packages/core-state";
 
 import { Delegates } from "./__fixtures__";
 
+const burnWallet = {
+    getBalance: jest.fn().mockReturnValue(AppUtils.BigNumber.ZERO),
+};
+
 const walletRepository = {
     findByAddress: jest.fn(),
     allByUsername: jest.fn(),
+    getBurnWallet: jest.fn().mockReturnValue(burnWallet),
 };
 
 const standardCriteriaService = {
@@ -77,7 +82,7 @@ describe("DelegateSearchService", () => {
                 Delegates.delegateResource,
             );
 
-            expect(spyOnCalculateApproval).toHaveBeenCalledWith(delegate, 100);
+            expect(spyOnCalculateApproval).toHaveBeenCalledWith(delegate, AppUtils.BigNumber.ZERO, 100);
         });
 
         it("should return delegate by wallet address with produced blocks", () => {
@@ -103,7 +108,7 @@ describe("DelegateSearchService", () => {
             expect(delegateSearchService.getDelegate("ANBkoGqWeTSiaEVgVzSKZd3jS7UWzv9PSo")).toEqual(
                 Delegates.delegateResourceWithLastBlock,
             );
-            expect(spyOnCalculateApproval).toHaveBeenCalledWith(delegate, 100);
+            expect(spyOnCalculateApproval).toHaveBeenCalledWith(delegate, AppUtils.BigNumber.ZERO, 100);
         });
 
         it("should return undefined if walled is not delegate", () => {
@@ -146,7 +151,7 @@ describe("DelegateSearchService", () => {
 
             expect(walletRepository.allByUsername).toHaveBeenCalled();
             expect(standardCriteriaService.testStandardCriterias).toHaveBeenCalled();
-            expect(spyOnCalculateApproval).toHaveBeenCalledWith(delegate, 100);
+            expect(spyOnCalculateApproval).toHaveBeenCalledWith(delegate, AppUtils.BigNumber.ZERO, 100);
         });
 
         it("should return empty array if all tested criterias are false", () => {
