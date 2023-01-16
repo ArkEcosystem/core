@@ -1,14 +1,13 @@
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import chalk, { Chalk } from "chalk";
 import * as console from "console";
-import pino, { PrettyOptions } from "pino";
-import PinoPretty from "pino-pretty";
+import pino from "pino";
+import { prettyFactory, PrettyOptions } from "pino-pretty";
 import pump from "pump";
-import pumpify from "pumpify";
-import { Transform } from "readable-stream";
+import Pumpify from "pumpify";
 import { createStream } from "rotating-file-stream";
 import split from "split2";
-import { PassThrough, Writable } from "stream";
+import { PassThrough, Transform, Writable } from "stream";
 import { inspect } from "util";
 
 /**
@@ -57,7 +56,7 @@ export class PinoLogger implements Contracts.Kernel.Logger {
      * @type {Writable}
      * @memberof PinoLogger
      */
-    private combinedFileStream?: Writable;
+    private combinedFileStream?: Pumpify;
 
     /**
      * @private
@@ -110,7 +109,6 @@ export class PinoLogger implements Contracts.Kernel.Logger {
             pump(
                 this.stream,
                 split(),
-                // @ts-ignore - Object literal may only specify known properties, and 'colorize' does not exist in type 'PrettyOptions'.
                 this.createPrettyTransport(options.levels.console, { colorize: true }),
                 process.stdout,
                 /* istanbul ignore next */
@@ -121,18 +119,17 @@ export class PinoLogger implements Contracts.Kernel.Logger {
         }
 
         if (this.isValidLevel(options.levels.file)) {
-            this.combinedFileStream = pumpify(
+            this.combinedFileStream = new Pumpify(
                 split(),
-                // @ts-ignore - Object literal may only specify known properties, and 'colorize' does not exist in type 'PrettyOptions'.
                 this.createPrettyTransport(options.levels.file, { colorize: false }),
                 this.getFileStream(options.fileRotator),
             );
 
-            this.combinedFileStream!.on("error", (err) => {
+            this.combinedFileStream.on("error", (err) => {
                 console.error("File stream closed due to an error:", err);
             });
 
-            this.stream.pipe(this.combinedFileStream!);
+            this.stream.pipe(this.combinedFileStream);
         }
 
         return this;
@@ -251,12 +248,12 @@ export class PinoLogger implements Contracts.Kernel.Logger {
     /**
      * @private
      * @param {string} level
-     * @param {PrettyOptions} [prettyOptions]
+     * @param {any} [prettyOptions]
      * @returns {Transform}
      * @memberof PinoLogger
      */
     private createPrettyTransport(level: string, prettyOptions?: PrettyOptions): Transform {
-        const pinoPretty = PinoPretty({
+        const pinoPretty = prettyFactory({
             ...{
                 levelFirst: false,
                 translateTime: "yyyy-mm-dd HH:MM:ss.l",
