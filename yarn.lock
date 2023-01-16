@@ -22,7 +22,7 @@
 
 "@arkecosystem/crypto-networks@git+https://github.com/sebastijankuzner/crypto-networks-burn.git#burn":
   version "1.4.0"
-  resolved "git+https://github.com/sebastijankuzner/crypto-networks-burn.git#51b2f6ba08eb6268dc2e36640e2bc22e4e392b0b"
+  resolved "git+https://github.com/sebastijankuzner/crypto-networks-burn.git#e536fad8968598464b06d99688ffe12ab670eaf3"
 
 "@arkecosystem/utils@1.3.1":
   version "1.3.1"
