@@ -42,7 +42,7 @@ describe("Delegate Calculator", () => {
                 voteBalance: Utils.BigNumber.make(10000 * 1e8),
             });
 
-            expect(calculateApproval(delegate, 1)).toBe(1);
+            expect(calculateApproval(delegate, Utils.BigNumber.ZERO, 1)).toBe(1);
         });
 
         it("should calculate correctly with default height 1", () => {
@@ -53,7 +53,7 @@ describe("Delegate Calculator", () => {
                 voteBalance: Utils.BigNumber.make(10000 * 1e8),
             });
 
-            expect(calculateApproval(delegate)).toBe(1);
+            expect(calculateApproval(delegate, Utils.BigNumber.ZERO)).toBe(1);
         });
 
         it("should calculate correctly with 2 decimals", () => {
@@ -64,7 +64,7 @@ describe("Delegate Calculator", () => {
                 voteBalance: Utils.BigNumber.make(16500 * 1e8),
             });
 
-            expect(calculateApproval(delegate, 1)).toBe(1.65);
+            expect(calculateApproval(delegate, Utils.BigNumber.ZERO, 1)).toBe(1.65);
         });
     });
 
