@@ -7,7 +7,7 @@ import { StateStore } from "@packages/core-state/src/stores/state";
 import { Generators } from "@packages/core-test-framework/src";
 import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
-import { InsufficientBalanceError } from "@packages/core-transactions/src/errors";
+import { InsufficientBalanceError, SentToBurnWalletError } from "@packages/core-transactions/src/errors";
 import { TransactionHandler } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
 import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
@@ -181,6 +181,22 @@ describe("MultiPaymentTransaction", () => {
             senderWallet.setBalance(Utils.BigNumber.make(150)); // short by the fee
             await expect(handler.throwIfCannotBeApplied(multiPaymentTransaction, senderWallet)).rejects.toThrow(
                 InsufficientBalanceError,
+            );
+        });
+
+        it("should throw if recipient is burn wallet", async () => {
+            const burnWallet = buildSenderWallet(factoryBuilder, "burn");
+
+            const multiPaymentTransaction = BuilderFactory.multiPayment()
+                .addPayment("ARYJmeYHSUTgbxaiqsgoPwf6M3CYukqdKN", "10")
+                .addPayment("AFyjB5jULQiYNsp37wwipCm9c7V1xEzTJD", "20")
+                .addPayment(burnWallet.getAddress(), "20")
+                .nonce("1")
+                .sign(passphrases[0])
+                .build();
+
+            await expect(handler.throwIfCannotBeApplied(multiPaymentTransaction, senderWallet)).rejects.toThrow(
+                SentToBurnWalletError,
             );
         });
     });
