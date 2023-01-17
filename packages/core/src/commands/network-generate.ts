@@ -589,6 +589,7 @@ export class Command extends Commands.Command {
             wif: options.wif,
             slip44: 1,
             aip20: 0,
+            burnAddress: this.createWallet(options.pubKeyHash).address,
             client: {
                 token: options.token,
                 symbol: options.symbol,
