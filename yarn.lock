@@ -20,9 +20,10 @@
     fast-memoize "^2.5.1"
     wif "^2.0.6"
 
-"@arkecosystem/crypto-networks@git+https://github.com/sebastijankuzner/crypto-networks-burn.git#burn":
-  version "1.4.0"
-  resolved "git+https://github.com/sebastijankuzner/crypto-networks-burn.git#e536fad8968598464b06d99688ffe12ab670eaf3"
+"@arkecosystem/crypto-networks@1.5.0":
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/@arkecosystem/crypto-networks/-/crypto-networks-1.5.0.tgz#a63841e6e59653487b198e77d3a2ad151a12db8e"
+  integrity sha512-nxYnM3+Cc8lyZ0kv8u4eObX6ZXqYGMVafmJp/22BLGjXc+8URyUS/ac9wQGZ+dbNQkdu06/l2DEHqK0c8KJhjQ==
 
 "@arkecosystem/utils@1.3.1":
   version "1.3.1"
