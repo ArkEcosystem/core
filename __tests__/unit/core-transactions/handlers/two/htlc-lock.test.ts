@@ -8,7 +8,11 @@ import { Mapper, Mocks } from "@packages/core-test-framework";
 import { Generators } from "@packages/core-test-framework/src";
 import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
-import { HtlcLockExpiredError, InsufficientBalanceError } from "@packages/core-transactions/src/errors";
+import {
+    HtlcLockExpiredError,
+    InsufficientBalanceError,
+    SentToBurnWalletError,
+} from "@packages/core-transactions/src/errors";
 import { TransactionHandler } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
 import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
@@ -273,6 +277,25 @@ describe("Htlc lock", () => {
                 await expect(handler.throwIfCannotBeApplied(htlcLockTransaction, senderWallet)).toResolve();
 
                 process.env.CORE_ENV = "test";
+            });
+
+            it("should throw if recipient is burn wallet", async () => {
+                const burnWallet = buildSenderWallet(factoryBuilder, "burn");
+
+                htlcLockTransaction = BuilderFactory.htlcLock()
+                    .htlcLockAsset({
+                        secretHash: htlcSecretHashHex,
+                        expiration: expiration,
+                    })
+                    .recipientId(burnWallet.getAddress())
+                    .amount("1")
+                    .nonce("1")
+                    .sign(passphrases[0])
+                    .build();
+
+                await expect(handler.throwIfCannotBeApplied(htlcLockTransaction, senderWallet)).rejects.toThrow(
+                    SentToBurnWalletError,
+                );
             });
         });
 
