@@ -632,6 +632,7 @@ export class Command extends Commands.Command {
                 vendorFieldLength: options.vendorFieldLength,
                 multiPaymentLimit: 256,
                 htlcEnabled: options.htlcEnabled,
+                blockBurnAddress: true,
                 aip11: true,
             },
             {

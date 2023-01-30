@@ -83,6 +83,7 @@ describe("GenerateCommand", () => {
                     },
                     vendorFieldLength: 255,
                     multiPaymentLimit: 256,
+                    blockBurnAddress: true,
                     aip11: true,
                 },
                 {
@@ -386,6 +387,7 @@ describe("GenerateCommand", () => {
                     },
                     vendorFieldLength: 64,
                     multiPaymentLimit: 256,
+                    blockBurnAddress: true,
                     htlcEnabled: true,
                     aip11: true,
                 },
