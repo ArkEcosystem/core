@@ -60,7 +60,12 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
         const burnAddress = Managers.configManager.get("network.burnAddress");
         AppUtils.assert.defined(burnAddress);
 
-        if (transaction.data.asset.payments.some((payment) => payment.recipientId === burnAddress)) {
+        const { blockBurnAddress } = Managers.configManager.getMilestone();
+
+        if (
+            blockBurnAddress &&
+            transaction.data.asset.payments.some((payment) => payment.recipientId === burnAddress)
+        ) {
             throw new SentToBurnWalletError();
         }
 

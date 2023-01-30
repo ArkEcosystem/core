@@ -69,14 +69,16 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
 
         const burnAddress = Managers.configManager.get("network.burnAddress");
         AppUtils.assert.defined(burnAddress);
-        if (transaction.data.recipientId === burnAddress) {
+
+        let { activeDelegates, blockBurnAddress } = Managers.configManager.getMilestone();
+
+        if (blockBurnAddress && transaction.data.recipientId === burnAddress) {
             throw new SentToBurnWalletError();
         }
 
         const lock: Interfaces.IHtlcLockAsset = transaction.data.asset.lock;
         const lastBlock: Interfaces.IBlock = this.app.get<any>(Container.Identifiers.StateStore).getLastBlock();
 
-        let { activeDelegates } = Managers.configManager.getMilestone();
         let blocktime = Utils.calculateBlockTime(lastBlock.data.height);
         const expiration: Interfaces.IHtlcExpiration = lock.expiration;
 
