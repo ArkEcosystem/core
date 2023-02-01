@@ -19,6 +19,7 @@ import {
     UnexpectedNonceError,
     UnexpectedSecondSignatureError,
     UnsupportedMultiSignatureTransactionError,
+    SentFromBurnWalletError,
 } from "@packages/core-transactions/src/errors";
 import { TransactionHandler, TransactionHandlerConstructor } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
@@ -327,6 +328,22 @@ describe("General Tests", () => {
                 transferTransaction.data,
             );
             await expect(handler.throwIfCannotBeApplied(instance, senderWallet)).toResolve();
+        });
+
+        it("should throw if sender is burn wallet", async () => {
+            const transferTransaction = BuilderFactory.transfer()
+                .recipientId(recipientWallet.getAddress())
+                .amount("10000000")
+                .nonce("1")
+                .sign("burn")
+                .build();
+
+            const burnWallet = buildSenderWallet(factoryBuilder, "burn");
+
+            burnWallet.setBalance(transferTransaction.data.amount.plus(transferTransaction.data.fee));
+            await expect(handler.throwIfCannotBeApplied(transferTransaction, burnWallet)).rejects.toThrow(
+                SentFromBurnWalletError,
+            );
         });
     });
 

@@ -1,7 +1,7 @@
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 
-import { HtlcLockExpiredError } from "../../errors";
+import { HtlcLockExpiredError, SentToBurnWalletError } from "../../errors";
 import { TransactionHandler, TransactionHandlerConstructor } from "../transaction";
 
 // todo: revisit the implementation, container usage and arguments after core-database rework
@@ -67,10 +67,18 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
     ): Promise<void> {
         AppUtils.assert.defined<Interfaces.IHtlcLockAsset>(transaction.data.asset?.lock);
 
+        const burnAddress = Managers.configManager.get("network.burnAddress");
+        AppUtils.assert.defined(burnAddress);
+
+        let { activeDelegates, blockBurnAddress } = Managers.configManager.getMilestone();
+
+        if (blockBurnAddress && transaction.data.recipientId === burnAddress) {
+            throw new SentToBurnWalletError();
+        }
+
         const lock: Interfaces.IHtlcLockAsset = transaction.data.asset.lock;
         const lastBlock: Interfaces.IBlock = this.app.get<any>(Container.Identifiers.StateStore).getLastBlock();
 
-        let { activeDelegates } = Managers.configManager.getMilestone();
         let blocktime = Utils.calculateBlockTime(lastBlock.data.height);
         const expiration: Interfaces.IHtlcExpiration = lock.expiration;
 

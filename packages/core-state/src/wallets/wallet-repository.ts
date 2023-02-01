@@ -1,5 +1,5 @@
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Identities, Utils } from "@arkecosystem/crypto";
+import { Identities, Managers, Utils } from "@arkecosystem/crypto";
 
 import { WalletIndexAlreadyRegisteredError, WalletIndexNotFoundError } from "./errors";
 import { WalletIndex } from "./wallet-index";
@@ -34,6 +34,13 @@ export class WalletRepository implements Contracts.State.WalletRepository {
             throw new WalletIndexNotFoundError(name);
         }
         return this.indexes[name];
+    }
+
+    public getBurnWallet(): Contracts.State.Wallet {
+        const burnAddress = Managers.configManager.get<string>("network.burnAddress");
+        AppUtils.assert.defined(burnAddress);
+
+        return this.findByAddress(burnAddress);
     }
 
     public getIndexNames(): string[] {

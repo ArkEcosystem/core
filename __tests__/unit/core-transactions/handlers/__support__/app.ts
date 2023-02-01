@@ -208,7 +208,7 @@ export const buildSenderWallet = (
     const wallet: Wallets.Wallet = factoryBuilder
         .get("Wallet")
         .withOptions({
-            passphrase: passphrases[0],
+            passphrase: passphrase,
             nonce: 0,
         })
         .make();

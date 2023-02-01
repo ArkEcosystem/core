@@ -77,6 +77,7 @@ export class CryptoGenerator extends Generator {
             wif,
             slip44: 1,
             aip20: 0,
+            burnAddress: this.createWallet(pubKeyHash, "burn").address,
             client: {
                 token,
                 symbol,
@@ -125,6 +126,7 @@ export class CryptoGenerator extends Generator {
                 aip11: true,
                 aip37: true,
                 htlcEnabled: true,
+                blockBurnAddress: true,
             },
             {
                 height: rewardHeight,

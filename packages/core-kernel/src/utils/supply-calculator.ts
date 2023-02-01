@@ -3,7 +3,7 @@ import { Interfaces, Managers, Utils } from "@arkecosystem/crypto";
 import { assert } from "./assert";
 
 // todo: review the implementation
-export const calculate = (height: number): string => {
+export const calculate = (height: number): Utils.BigNumber => {
     const config: Interfaces.NetworkConfig | undefined = Managers.configManager.all();
 
     assert.defined<Interfaces.NetworkConfig>(config);
@@ -13,7 +13,7 @@ export const calculate = (height: number): string => {
     const totalAmount: Utils.BigNumber = Utils.BigNumber.make(genesisBlock.totalAmount);
 
     if (height === 0 || milestones.length === 0) {
-        return totalAmount.toFixed();
+        return totalAmount;
     }
 
     let rewards: Utils.BigNumber = Utils.BigNumber.ZERO;
@@ -38,5 +38,5 @@ export const calculate = (height: number): string => {
         }
     }
 
-    return totalAmount.plus(rewards).toFixed();
+    return totalAmount.plus(rewards);
 };

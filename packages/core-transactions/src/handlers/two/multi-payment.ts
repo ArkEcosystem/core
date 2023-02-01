@@ -1,7 +1,7 @@
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 
-import { InsufficientBalanceError } from "../../errors";
+import { InsufficientBalanceError, SentToBurnWalletError } from "../../errors";
 import { TransactionHandler, TransactionHandlerConstructor } from "../transaction";
 
 @Container.injectable()
@@ -55,6 +55,18 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
 
         if (wallet.getBalance().minus(totalPaymentsAmount).minus(transaction.data.fee).isNegative()) {
             throw new InsufficientBalanceError();
+        }
+
+        const burnAddress = Managers.configManager.get("network.burnAddress");
+        AppUtils.assert.defined(burnAddress);
+
+        const { blockBurnAddress } = Managers.configManager.getMilestone();
+
+        if (
+            blockBurnAddress &&
+            transaction.data.asset.payments.some((payment) => payment.recipientId === burnAddress)
+        ) {
+            throw new SentToBurnWalletError();
         }
 
         return super.throwIfCannotBeApplied(transaction, wallet);

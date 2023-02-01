@@ -18,14 +18,16 @@ beforeEach(() => {
 describe("Supply calculator", () => {
     it("should calculate supply with milestone at height 2", () => {
         mockConfig.milestones[0].height = 2;
-        expect(calculate(1)).toBe(toString(mockConfig.genesisBlock.totalAmount));
+        expect(calculate(1).toString()).toBe(toString(mockConfig.genesisBlock.totalAmount));
         mockConfig.milestones[0].height = 1;
     });
 
     describe.each([0, 5, 100, 2000, 4000, 8000])("at height %s", (height) => {
         it("should calculate the genesis supply without milestone", () => {
             const genesisSupply = mockConfig.genesisBlock.totalAmount;
-            expect(calculate(height)).toBe(toString(genesisSupply + height * mockConfig.milestones[0].reward));
+            expect(calculate(height).toString()).toBe(
+                toString(genesisSupply + height * mockConfig.milestones[0].reward),
+            );
         });
     });
 
@@ -42,7 +44,7 @@ describe("Supply calculator", () => {
             };
 
             const genesisSupply = mockConfig.genesisBlock.totalAmount;
-            expect(calculate(height)).toBe(toString(genesisSupply + reward(height)));
+            expect(calculate(height).toString()).toBe(toString(genesisSupply + reward(height)));
 
             mockConfig.milestones = [{ height: 1, reward: 2 }];
         });
@@ -76,7 +78,7 @@ describe("Supply calculator", () => {
             };
 
             const genesisSupply = mockConfig.genesisBlock.totalAmount;
-            expect(calculate(height)).toBe(toString(genesisSupply + reward(height)));
+            expect(calculate(height).toString()).toBe(toString(genesisSupply + reward(height)));
 
             mockConfig.milestones = [{ height: 1, reward: 2 }];
         });

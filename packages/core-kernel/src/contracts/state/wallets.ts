@@ -163,6 +163,8 @@ export interface WalletRepository {
 
     getIndex(name: string): WalletIndex;
 
+    getBurnWallet(): Wallet;
+
     allByAddress(): ReadonlyArray<Wallet>;
 
     allByPublicKey(): ReadonlyArray<Wallet>;
