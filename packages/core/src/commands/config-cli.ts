@@ -52,7 +52,7 @@ export class Command extends Commands.Command {
             .setFlag(
                 "channel",
                 "The NPM registry channel that should be used.",
-                Joi.string().valid(...["next", "latest"]),
+                Joi.string().valid(...["next", "latest", "rc"]),
             );
     }
 
