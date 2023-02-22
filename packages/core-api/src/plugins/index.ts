@@ -4,6 +4,7 @@ import { hapiAjv } from "./hapi-ajv";
 import { log } from "./log";
 import { responseHeaders } from "./response-headers";
 import { whitelist } from "./whitelist";
+import { semaphore } from "./semaphore";
 
 export const preparePlugins = (config) => [
     {
@@ -23,6 +24,7 @@ export const preparePlugins = (config) => [
     },
     { plugin: commaArrayQuery },
     { plugin: dotSeparatedQuery },
+    { plugin: semaphore },
     {
         plugin: require("./cache"),
         options: config.cache,
