@@ -1,3 +1,4 @@
+import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 import makeSemaphore, { Semaphore } from "semaphore";
 
@@ -18,23 +19,27 @@ export const semaphore = {
         semaphores.set(Level.One, makeSemaphore(1));
         semaphores.set(Level.Two, makeSemaphore(1));
 
+        const semaphoresQueueLimit = new Map<Level, number>();
+        semaphoresQueueLimit.set(Level.One, 10);
+        semaphoresQueueLimit.set(Level.Two, 10);
+
         const requestLevels = new Map<Hapi.Request, Level>();
 
         server.ext("onPreHandler", async (request: Hapi.Request, h: Hapi.ResponseToolkit) => {
-            // console.log("semaphore");
-
-            // console.log(request.query);
-            // console.log("Semaphore opt", getRouteSemaphoreOptions(request));
-
             const options = getRouteSemaphoreOptions(request);
 
             console.log("PRE HANDLER: ");
 
             if (options) {
                 const level = getLevel(request, options);
-                requestLevels.set(request, level);
-
                 const sem = semaphores.get(level)!;
+
+                // @ts-ignore
+                if (sem.queue.length >= semaphoresQueueLimit.get(level)!) {
+                    return Boom.tooManyRequests();
+                }
+
+                requestLevels.set(request, level);
 
                 console.log("RequestLevels: ", requestLevels.size);
                 console.log("Capacity: ", level, sem.capacity);
