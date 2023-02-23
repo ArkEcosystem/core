@@ -24,7 +24,7 @@ export const preparePlugins = (config) => [
     },
     { plugin: commaArrayQuery },
     { plugin: dotSeparatedQuery },
-    { plugin: semaphore },
+    { plugin: semaphore, options: config.semaphore },
     {
         plugin: require("./cache"),
         options: config.cache,

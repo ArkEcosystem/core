@@ -2,6 +2,16 @@ import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 import makeSemaphore, { Semaphore } from "semaphore";
 
+type PluginOptions = {
+    levelOne: LevelOptions;
+    levelTwo: LevelOptions;
+};
+
+type LevelOptions = {
+    concurrency: number;
+    queueLimit: number;
+};
+
 type SemaphoreOptions = {
     nonIndexedFields: string[];
 };
@@ -14,14 +24,14 @@ enum Level {
 export const semaphore = {
     name: "onPreHandler",
     version: "1.0.0",
-    register(server: Hapi.Server, options: {}): void {
+    register(server: Hapi.Server, options: PluginOptions): void {
         const semaphores = new Map<Level, Semaphore>();
-        semaphores.set(Level.One, makeSemaphore(1));
-        semaphores.set(Level.Two, makeSemaphore(1));
+        semaphores.set(Level.One, makeSemaphore(options.levelOne.concurrency));
+        semaphores.set(Level.Two, makeSemaphore(options.levelTwo.concurrency));
 
         const semaphoresQueueLimit = new Map<Level, number>();
-        semaphoresQueueLimit.set(Level.One, 10);
-        semaphoresQueueLimit.set(Level.Two, 10);
+        semaphoresQueueLimit.set(Level.One, options.levelOne.queueLimit);
+        semaphoresQueueLimit.set(Level.Two, options.levelTwo.queueLimit);
 
         const requestLevels = new Map<Hapi.Request, Level>();
 

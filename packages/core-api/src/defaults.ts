@@ -25,6 +25,16 @@ export const defaults = {
             stdTTL: 8,
             checkperiod: 120,
         },
+        semaphore: {
+            levelOne: {
+                concurrency: 10,
+                queueLimit: 10,
+            },
+            levelTwo: {
+                concurrency: 1,
+                queueLimit: 10,
+            },
+        },
         rateLimit: {
             enabled: !process.env.CORE_API_RATE_LIMIT_DISABLED,
             points: process.env.CORE_API_RATE_LIMIT_USER_LIMIT || 100,

@@ -69,6 +69,16 @@ export class ServiceProvider extends Providers.ServiceProvider {
                     stdTTL: Joi.number().integer().min(0).required(),
                     checkperiod: Joi.number().integer().min(0).required(),
                 }).required(),
+                semaphore: Joi.object({
+                    levelOne: Joi.object({
+                        concurrency: Joi.number().integer().min(1).required(),
+                        queueLimit: Joi.number().integer().min(0).required(),
+                    }),
+                    levelTwo: Joi.object({
+                        concurrency: Joi.number().integer().min(1).required(),
+                        queueLimit: Joi.number().integer().min(0).required(),
+                    }),
+                }).required(),
                 rateLimit: Joi.object({
                     enabled: Joi.bool().required(),
                     points: Joi.number().integer().min(0).required(),
