@@ -19,3 +19,5 @@ export const transactionCriteriaSchemaObject = {
 
 export const transactionParamSchema = transactionIdSchema;
 export const transactionSortingSchema = Schemas.createSortingSchema(Schemas.transactionCriteriaSchemas, [], false);
+
+export const transactionLevelTwoFields = ["sequence"];

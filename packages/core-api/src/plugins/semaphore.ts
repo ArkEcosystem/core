@@ -13,7 +13,7 @@ type LevelOptions = {
 };
 
 type SemaphoreOptions = {
-    nonIndexedFields: string[];
+    levelTwoFields: string[];
 };
 
 enum Level {
@@ -102,7 +102,7 @@ const orderByLevel = (request: Hapi.Request, options: SemaphoreOptions): Level =
     if (request.query.orderBy && request.query.orderBy.length) {
         const field = request.query.orderBy[0].split(":")[0];
 
-        if (options.nonIndexedFields.includes(field)) {
+        if (options.levelTwoFields.includes(field)) {
             return Level.Two;
         }
     }
@@ -123,7 +123,7 @@ const offsetLevel = (request: Hapi.Request, options: SemaphoreOptions): Level =>
 };
 
 const queryLevel = (request: Hapi.Request, options: SemaphoreOptions): Level => {
-    if (Object.keys(request.query).some((key) => options.nonIndexedFields.includes(key))) {
+    if (Object.keys(request.query).some((key) => options.levelTwoFields.includes(key))) {
         return Level.Two;
     }
 
@@ -131,5 +131,9 @@ const queryLevel = (request: Hapi.Request, options: SemaphoreOptions): Level => 
 };
 
 const getRouteSemaphoreOptions = (request): SemaphoreOptions | undefined => {
-    return request.route.settings.plugins.semaphore;
+    if (request.route.settings.plugins.semaphore && request.route.settings.plugins.semaphore.levelTwoFields) {
+        return request.route.settings.plugins.semaphore;
+    }
+
+    return undefined;
 };

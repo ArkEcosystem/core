@@ -33,3 +33,5 @@ export const blockCriteriaSchemaObject = {
 
 export const blockParamSchema = Joi.alternatives(blockIdSchema, blockHeightSchema);
 export const blockSortingSchema = Schemas.createSortingSchema(Schemas.blockCriteriaSchemas, [], false);
+
+export const blocksLevelTwoFields = ["payloadLength", "payloadHash", "payloadSignature"];
