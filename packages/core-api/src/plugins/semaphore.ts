@@ -1,4 +1,5 @@
 import Hapi from "@hapi/hapi";
+import makeSemaphore, { Semaphore } from "semaphore";
 
 type SemaphoreOptions = {
     nonIndexedFields: string[];
@@ -13,19 +14,62 @@ export const semaphore = {
     name: "onPreHandler",
     version: "1.0.0",
     register(server: Hapi.Server, options: {}): void {
-        server.ext("onPreHandler", (request: Hapi.Request, h: Hapi.ResponseToolkit) => {
-            console.log("semaphore");
+        const semaphores = new Map<Level, Semaphore>();
+        semaphores.set(Level.One, makeSemaphore(1));
+        semaphores.set(Level.Two, makeSemaphore(1));
 
-            console.log(request.query);
-            console.log("Semaphore opt", getRouteSemaphoreOptions(request));
+        const requestLevels = new Map<Hapi.Request, Level>();
+
+        server.ext("onPreHandler", async (request: Hapi.Request, h: Hapi.ResponseToolkit) => {
+            // console.log("semaphore");
+
+            // console.log(request.query);
+            // console.log("Semaphore opt", getRouteSemaphoreOptions(request));
 
             const options = getRouteSemaphoreOptions(request);
 
+            console.log("PRE HANDLER: ");
+
             if (options) {
-                console.log("orderByLevel: ", orderByLevel(request, options));
-                console.log("offsetLevel: ", offsetLevel(request, options));
-                console.log("queryLevel: ", queryLevel(request, options));
-                console.log("getLevel: ", getLevel(request, options));
+                const level = getLevel(request, options);
+                requestLevels.set(request, level);
+
+                const sem = semaphores.get(level)!;
+
+                console.log("RequestLevels: ", requestLevels.size);
+                console.log("Capacity: ", level, sem.capacity);
+                console.log("Current: ", level, sem.current);
+                // @ts-ignore
+                console.log("Queue: ", level, sem.queue.length);
+
+                await new Promise<void>((resolve) => {
+                    sem.take(() => {
+                        resolve();
+                    });
+                });
+
+                console.log("ENTER");
+            }
+
+            return h.continue;
+        });
+
+        server.ext("onPreResponse", async (request: Hapi.Request, h: Hapi.ResponseToolkit) => {
+            console.log("POST HANDLER: ");
+
+            const level = requestLevels.get(request);
+
+            if (level) {
+                requestLevels.delete(request);
+                const sem = semaphores.get(level)!;
+
+                sem.leave();
+
+                console.log("RequestLevels: ", requestLevels.size);
+                console.log("Capacity: ", level, sem.capacity);
+                console.log("Current: ", level, sem.current);
+                // @ts-ignore
+                console.log("Queue: ", level, sem.queue.length);
             }
 
             return h.continue;
