@@ -24,6 +24,9 @@ export const register = (server: Hapi.Server): void => {
                     .concat(Schemas.pagination),
             },
             plugins: {
+                semaphore: {
+                    nonIndexedFields: ["payloadLength", "payloadHash", "payloadSignature"],
+                },
                 pagination: {
                     enabled: true,
                 },
