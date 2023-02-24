@@ -37,6 +37,7 @@ export class DatabaseService {
             if (process.env.CORE_RESET_DATABASE) {
                 await this.reset();
             }
+            await this.analyze();
         } catch (error) {
             this.logger.error(error.stack);
             this.app.terminate("Failed to initialize database service.", error);
@@ -58,11 +59,15 @@ export class DatabaseService {
         await this.connection.query("TRUNCATE TABLE blocks, rounds, transactions RESTART IDENTITY;");
     }
 
+    public async analyze(): Promise<void> {
+        await this.connection.query("ANALYZE;");
+    }
+
     public async getBlock(id: string): Promise<Interfaces.IBlock | undefined> {
         // TODO: caching the last 1000 blocks, in combination with `saveBlock` could help to optimise
-        const block: Interfaces.IBlockData = ((await this.blockRepository.findOne(
+        const block: Interfaces.IBlockData = (await this.blockRepository.findOne(
             id,
-        )) as unknown) as Interfaces.IBlockData;
+        )) as unknown as Interfaces.IBlockData;
 
         if (!block) {
             return undefined;
@@ -101,16 +106,16 @@ export class DatabaseService {
         // ! method is identical to getBlocks, but skips faster stateStore.getLastBlocksByHeight
 
         if (headersOnly) {
-            return (this.blockRepository.findByHeightRange(offset, offset + limit - 1) as unknown) as Promise<
+            return this.blockRepository.findByHeightRange(offset, offset + limit - 1) as unknown as Promise<
                 Contracts.Shared.DownloadBlock[]
             >;
         }
 
         // TODO: fix types
-        return (this.blockRepository.findByHeightRangeWithTransactionsForDownload(
+        return this.blockRepository.findByHeightRangeWithTransactionsForDownload(
             offset,
             offset + limit - 1,
-        ) as unknown) as Promise<Contracts.Shared.DownloadBlock[]>;
+        ) as unknown as Promise<Contracts.Shared.DownloadBlock[]>;
     }
 
     public async findBlockByHeights(heights: number[]) {
@@ -146,9 +151,9 @@ export class DatabaseService {
     public async getTopBlocks(count: number): Promise<Interfaces.IBlockData[]> {
         // ! blockRepository.findTop returns blocks in reverse order
         // ! where recent block is first in array
-        const blocks: Interfaces.IBlockData[] = ((await this.blockRepository.findTop(
+        const blocks: Interfaces.IBlockData[] = (await this.blockRepository.findTop(
             count,
-        )) as unknown) as Interfaces.IBlockData[];
+        )) as unknown as Interfaces.IBlockData[];
 
         await this.loadTransactionsForBlocks(blocks);
 
@@ -172,7 +177,7 @@ export class DatabaseService {
     }
 
     public async findBlockByID(ids: any[]): Promise<Interfaces.IBlockData[] | undefined> {
-        return ((await this.blockRepository.findByIds(ids)) as unknown) as Interfaces.IBlockData[];
+        return (await this.blockRepository.findByIds(ids)) as unknown as Interfaces.IBlockData[];
     }
 
     public async findRecentBlocks(limit: number): Promise<{ id: string }[]> {
@@ -279,9 +284,7 @@ export class DatabaseService {
         }
     }
 
-    private async getTransactionsForBlocks(
-        blocks: Interfaces.IBlockData[],
-    ): Promise<
+    private async getTransactionsForBlocks(blocks: Interfaces.IBlockData[]): Promise<
         Array<{
             id: string;
             blockId: string;
