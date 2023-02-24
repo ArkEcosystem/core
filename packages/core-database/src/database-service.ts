@@ -37,6 +37,7 @@ export class DatabaseService {
             if (process.env.CORE_RESET_DATABASE) {
                 await this.reset();
             }
+            this.logger.info("Analyzing database");
             await this.analyze();
         } catch (error) {
             this.logger.error(error.stack);
