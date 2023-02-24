@@ -142,13 +142,7 @@ export abstract class AbstractRepository<TEntity extends ObjectLiteral> extends 
 
     private addOrderBy(queryBuilder: SelectQueryBuilder<TEntity>, sorting: Contracts.Search.Sorting): void {
         if (sorting.length) {
-            let column = this.queryHelper.getColumnName(this.metadata, sorting[0].property);
-
-            // Forces PostgreSQL query optimizer to take faster route
-            if (this.metadata.name === "Transaction" && column === "timestamp") {
-                column = `${column}+0`;
-            }
-
+            const column = this.queryHelper.getColumnName(this.metadata, sorting[0].property);
             queryBuilder.orderBy(column, sorting[0].direction === "desc" ? "DESC" : "ASC");
 
             for (const item of sorting.slice(1)) {
