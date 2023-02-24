@@ -83,6 +83,18 @@ describe("DatabaseService.initialize", () => {
         }
     });
 
+    it("should analyze database", async () => {
+        try {
+            const databaseService = container.resolve(DatabaseService);
+
+            await databaseService.initialize();
+
+            expect(connection.query).toBeCalledWith("ANALYZE;");
+        } finally {
+            delete process.env.CORE_RESET_DATABASE;
+        }
+    });
+
     it("should terminate app if exception was raised", async () => {
         try {
             const databaseService = container.resolve(DatabaseService);
