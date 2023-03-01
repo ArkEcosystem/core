@@ -70,6 +70,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
                     checkperiod: Joi.number().integer().min(0).required(),
                 }).required(),
                 semaphore: Joi.object({
+                    enabled: Joi.bool().required(),
                     levelOne: Joi.object({
                         concurrency: Joi.number().integer().min(1).required(),
                         queueLimit: Joi.number().integer().min(0).required(),

@@ -26,6 +26,7 @@ export const defaults = {
             checkperiod: 120,
         },
         semaphore: {
+            enabled: !process.env.CORE_API_SEMAPHORE_DISABLED,
             levelOne: {
                 concurrency: 10,
                 queueLimit: 10,

@@ -3,6 +3,7 @@ import Hapi from "@hapi/hapi";
 import makeSemaphore, { Semaphore } from "semaphore";
 
 type PluginOptions = {
+    enabled: boolean;
     levelOne: LevelOptions;
     levelTwo: LevelOptions;
 };
@@ -25,6 +26,10 @@ export const semaphore = {
     name: "onPreHandler",
     version: "1.0.0",
     register(server: Hapi.Server, options: PluginOptions): void {
+        if (!options.enabled) {
+            return;
+        }
+
         const semaphores = new Map<Level, Semaphore>();
         semaphores.set(Level.One, makeSemaphore(options.levelOne.concurrency));
         semaphores.set(Level.Two, makeSemaphore(options.levelTwo.concurrency));
