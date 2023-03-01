@@ -194,6 +194,12 @@ describe("ServiceProvider", () => {
             expect(result.value.plugins.cache.stdTTL).toBeNumber();
             expect(result.value.plugins.cache.checkperiod).toBeNumber();
 
+            expect(result.value.plugins.semaphore.enabled).toBeTrue();
+            expect(result.value.plugins.semaphore.levelOne.concurrency).toBeNumber();
+            expect(result.value.plugins.semaphore.levelOne.queueLimit).toBeNumber();
+            expect(result.value.plugins.semaphore.levelTwo.concurrency).toBeNumber();
+            expect(result.value.plugins.semaphore.levelTwo.queueLimit).toBeNumber();
+
             expect(result.value.plugins.rateLimit.enabled).toBeTrue();
             expect(result.value.plugins.rateLimit.points).toBeNumber();
             expect(result.value.plugins.rateLimit.duration).toBeNumber();
@@ -380,6 +386,30 @@ describe("ServiceProvider", () => {
 
                 expect(result.error).toBeUndefined();
                 expect(result.value.plugins.cache.enabled).toEqual(true);
+            });
+        });
+
+        describe("process.env.CORE_API_SEMAPHORE_DISABLED", () => {
+            it("should return true if process.env.CORE_API_SEMAPHORE_DISABLED is undefined", async () => {
+                jest.resetModules();
+                const result = (coreApiServiceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-api/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.plugins.semaphore.enabled).toEqual(true);
+            });
+
+            it("should return false if process.env.CORE_API_SEMAPHORE_DISABLED is defined", async () => {
+                process.env.CORE_API_SEMAPHORE_DISABLED = "true";
+
+                jest.resetModules();
+                const result = (coreApiServiceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-api/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.plugins.semaphore.enabled).toEqual(false);
             });
         });
 

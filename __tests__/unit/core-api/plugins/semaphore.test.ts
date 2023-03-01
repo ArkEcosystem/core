@@ -30,6 +30,7 @@ describe("Semaphore", () => {
                 },
                 socketTimeout: 5000,
                 semaphore: {
+                    enabled: true,
                     levelOne: {
                         concurrency: 2,
                         queueLimit: 0,
@@ -265,6 +266,7 @@ describe("Semaphore", () => {
                     },
                     socketTimeout: 5000,
                     semaphore: {
+                        enabled: true,
                         levelOne: {
                             concurrency: 2,
                             queueLimit: 2,
