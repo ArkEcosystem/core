@@ -56,7 +56,6 @@ describe("Semaphore", () => {
             method: "GET",
             path: "/test",
             handler: jest.fn().mockImplementation(async () => {
-                console.log("HANDLER");
                 await promise;
                 return customResponse;
             }),
@@ -254,5 +253,52 @@ describe("Semaphore", () => {
         expect((await responses[0]).statusCode).toBe(200);
         expect((await responses[1]).statusCode).toBe(429);
         expect(customRoute.handler).toHaveBeenCalledTimes(1);
+    });
+
+    it("should should respond with 429 when queue is full", async () => {
+        const server = await initServer(
+            app,
+            (defaults = {
+                plugins: {
+                    pagination: {
+                        limit: 100,
+                    },
+                    socketTimeout: 5000,
+                    semaphore: {
+                        levelOne: {
+                            concurrency: 2,
+                            queueLimit: 2,
+                        },
+                        levelTwo: {
+                            concurrency: 1,
+                            queueLimit: 0,
+                        },
+                    },
+                },
+            }),
+            customRoute,
+        );
+
+        const customInjectOptions = {
+            method: "GET",
+            url: "/test",
+        };
+
+        const responses: Promise<any>[] = [
+            server.inject(customInjectOptions),
+            server.inject(customInjectOptions),
+            server.inject(customInjectOptions),
+            server.inject(customInjectOptions),
+            server.inject(customInjectOptions),
+        ];
+
+        resolve();
+
+        // 2 x concurrent + 2x queue
+        for (let i = 0; i < 4; i++) {
+            expect((await responses[i]).statusCode).toBe(200);
+        }
+        expect((await responses[4]).statusCode).toBe(429);
+        expect(customRoute.handler).toHaveBeenCalledTimes(2);
     });
 });
