@@ -2,7 +2,7 @@ import Hapi from "@hapi/hapi";
 import Joi from "joi";
 
 import { VotesController } from "../controllers/votes";
-import { transactionLevelTwoFields, transactionSortingSchema } from "../resources-new";
+import { transactionQueryLevelOptions, transactionSortingSchema } from "../resources-new";
 import * as Schemas from "../schemas";
 
 export const register = (server: Hapi.Server): void => {
@@ -25,7 +25,7 @@ export const register = (server: Hapi.Server): void => {
             },
             plugins: {
                 semaphore: {
-                    levelTwoFields: transactionLevelTwoFields,
+                    queryLevelOptions: transactionQueryLevelOptions,
                 },
                 pagination: {
                     enabled: true,

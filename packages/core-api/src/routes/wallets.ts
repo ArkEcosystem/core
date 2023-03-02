@@ -5,7 +5,7 @@ import { WalletsController } from "../controllers/wallets";
 import {
     lockCriteriaSchema,
     lockSortingSchema,
-    transactionLevelTwoFields,
+    transactionQueryLevelOptions,
     transactionSortingSchema,
     walletCriteriaSchema,
     walletParamSchema,
@@ -94,7 +94,7 @@ export const register = (server: Hapi.Server): void => {
             },
             plugins: {
                 semaphore: {
-                    levelTwoFields: transactionLevelTwoFields,
+                    queryLevelOptions: transactionQueryLevelOptions,
                 },
                 pagination: {
                     enabled: true,
@@ -122,7 +122,7 @@ export const register = (server: Hapi.Server): void => {
             },
             plugins: {
                 semaphore: {
-                    levelTwoFields: transactionLevelTwoFields,
+                    queryLevelOptions: transactionQueryLevelOptions,
                 },
                 pagination: {
                     enabled: true,
@@ -150,7 +150,7 @@ export const register = (server: Hapi.Server): void => {
             },
             plugins: {
                 semaphore: {
-                    levelTwoFields: transactionLevelTwoFields,
+                    queryLevelOptions: transactionQueryLevelOptions,
                 },
                 pagination: {
                     enabled: true,
@@ -178,7 +178,7 @@ export const register = (server: Hapi.Server): void => {
             },
             plugins: {
                 semaphore: {
-                    levelTwoFields: transactionLevelTwoFields,
+                    queryLevelOptions: transactionQueryLevelOptions,
                 },
                 pagination: {
                     enabled: true,

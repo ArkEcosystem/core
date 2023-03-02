@@ -3,7 +3,7 @@ import Joi from "joi";
 
 import { DelegatesController } from "../controllers/delegates";
 import {
-    blocksLevelTwoFields,
+    blockQueryLevelOptions,
     blockSortingSchema,
     delegateCriteriaSchema,
     delegateSortingSchema,
@@ -83,7 +83,7 @@ export const register = (server: Hapi.Server): void => {
             },
             plugins: {
                 semaphore: {
-                    levelTwoFields: blocksLevelTwoFields,
+                    queryLevelOptions: blockQueryLevelOptions,
                 },
                 pagination: {
                     enabled: true,
