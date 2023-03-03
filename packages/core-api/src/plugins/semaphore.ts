@@ -96,9 +96,27 @@ export const semaphore = {
 };
 
 const getLevel = (request: Hapi.Request, options: SemaphoreOptions): Level => {
+    if (usesDiverseIndex(request, options)) {
+        return Level.One;
+    }
+
     const levels = [orderByLevel(request, options), offsetLevel(request, options), queryLevel(request, options)];
 
     return levels.includes(Level.Two) ? Level.Two : Level.One;
+};
+
+const usesDiverseIndex = (request: Hapi.Request, options: SemaphoreOptions): boolean => {
+    const distributedIndices = options.queryLevelOptions
+        .filter((option) => option.diverse)
+        .map((option) => option.field);
+
+    for (const key of Object.keys(request.query)) {
+        if (distributedIndices.includes(key) && ["number", "string"].includes(typeof request.query[key])) {
+            return true;
+        }
+    }
+
+    return false;
 };
 
 const orderByLevel = (request: Hapi.Request, options: SemaphoreOptions): Level => {
