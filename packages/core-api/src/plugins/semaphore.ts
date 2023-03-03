@@ -103,8 +103,6 @@ const getLevel = (request: Hapi.Request, options: SemaphoreOptions): Level => {
 
 const orderByLevel = (request: Hapi.Request, options: SemaphoreOptions): Level => {
     if (request.query.orderBy && request.query.orderBy.length) {
-        console.log("OB: ", request.query.orderBy);
-
         const orderBy = Array.isArray(request.query.orderBy) ? request.query.orderBy : [request.query.orderBy];
 
         const [field, sortOrder]: [string, "asc" | "desc"] = orderBy[0].split(":");
@@ -116,6 +114,10 @@ const orderByLevel = (request: Hapi.Request, options: SemaphoreOptions): Level =
         }
 
         if (!fieldOptions[sortOrder]) {
+            return Level.Two;
+        }
+
+        if (!fieldOptions.allowSecondOrderBy && orderBy.length > 1) {
             return Level.Two;
         }
     }

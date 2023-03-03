@@ -126,7 +126,7 @@ describe("Semaphore", () => {
         "/test?version=0,1,2", // Indexed field from
         "/test?orderBy=version:asc", // Indexed field asc = true
         "/test?orderBy=version:desc", // Indexed field desc = true
-        // "/test?orderBy=timestamp:asc,version:asc", // Indexed field asc = true
+        "/test?orderBy=timestamp:asc,version:asc", // allowSecondOrderBy = true
     ];
 
     const levelTwoQueries = [
@@ -140,10 +140,11 @@ describe("Semaphore", () => {
         "/test?orderBy=id:asc", // Indexed field asc = false
         "/test?orderBy=id:desc", // Indexed field desc = false
         "/test?orderBy=payloadHash:asc", // Non indexed field orderBy asc
-        "/test?orderBy=payloadHash:desc", // Non indexed field orderBy desc
+        "/test?orderBy=payloadHash:desc", // Non indexed field orderBy desc,
+        "/test?orderBy=version:asc,timestamp:asc", // allowSecondOrderBy = false
     ];
 
-    it.only.each(levelOneQueries)("should use level 1 semaphore", async (url) => {
+    it.each(levelOneQueries)("should use level 1 semaphore", async (url) => {
         const server = await initServer(app, defaults, customRoute);
 
         const customInjectOptions = {
@@ -168,7 +169,7 @@ describe("Semaphore", () => {
         expect(customRoute.handler).toHaveBeenCalledTimes(2);
     });
 
-    it.each(levelTwoQueries)("should use level 2 semaphore", async (url) => {
+    it.only.each(levelTwoQueries)("should use level 2 semaphore", async (url) => {
         const server = await initServer(app, defaults, customRoute);
 
         const customInjectOptions = {
