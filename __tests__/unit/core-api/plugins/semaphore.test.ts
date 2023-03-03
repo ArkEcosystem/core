@@ -163,8 +163,6 @@ describe("Semaphore", () => {
 
         resolve();
 
-        // console.log(await responses[0]);
-
         for (let i = 0; i < 2; i++) {
             expect((await responses[i]).statusCode).toBe(200);
         }
@@ -189,172 +187,51 @@ describe("Semaphore", () => {
         expect(customRoute.handler).toHaveBeenCalledTimes(1);
     });
 
-    // it("should use level 1 semaphore when level two field is not used in order by", async () => {
-    //     const server = await initServer(app, defaults, customRoute);
+    it("should should respond with 429 when queue is full", async () => {
+        const server = await initServer(
+            app,
+            (defaults = {
+                plugins: {
+                    pagination: {
+                        limit: 100,
+                    },
+                    socketTimeout: 5000,
+                    semaphore: {
+                        enabled: true,
+                        levelOne: {
+                            concurrency: 2,
+                            queueLimit: 2,
+                        },
+                        levelTwo: {
+                            concurrency: 1,
+                            queueLimit: 0,
+                        },
+                    },
+                },
+            }),
+            customRoute,
+        );
 
-    //     const customInjectOptions = {
-    //         method: "GET",
-    //         url: "/test?orderBy=version:asc",
-    //     };
-    //     const responses: Promise<any>[] = [
-    //         server.inject(customInjectOptions),
-    //         server.inject(customInjectOptions),
-    //         server.inject(customInjectOptions),
-    //     ];
+        const customInjectOptions = {
+            method: "GET",
+            url: "/test",
+        };
 
-    //     resolve();
+        const responses: Promise<any>[] = [
+            server.inject(customInjectOptions),
+            server.inject(customInjectOptions),
+            server.inject(customInjectOptions),
+            server.inject(customInjectOptions),
+            server.inject(customInjectOptions),
+        ];
 
-    //     for (let i = 0; i < 2; i++) {
-    //         expect((await responses[i]).statusCode).toBe(200);
-    //     }
-    //     expect((await responses[2]).statusCode).toBe(429);
-    //     expect(customRoute.handler).toHaveBeenCalledTimes(2);
-    // });
+        resolve();
 
-    // it("should use level 2 semaphore when level two field is used in order by", async () => {
-    //     const server = await initServer(app, defaults, customRoute);
-
-    //     const customInjectOptions = {
-    //         method: "GET",
-    //         url: "/test?orderBy=payloadHash:asc",
-    //     };
-
-    //     const responses: Promise<any>[] = [server.inject(customInjectOptions), server.inject(customInjectOptions)];
-
-    //     resolve();
-
-    //     expect((await responses[0]).statusCode).toBe(200);
-    //     expect((await responses[1]).statusCode).toBe(429);
-    //     expect(customRoute.handler).toHaveBeenCalledTimes(1);
-    // });
-
-    // // TODO: Second order by
-
-    // it("should use level 1 semaphore when level two field is not used in query", async () => {
-    //     const server = await initServer(app, defaults, customRoute);
-
-    //     const customInjectOptions = {
-    //         method: "GET",
-    //         url: "/test?version=1",
-    //     };
-
-    //     const responses: Promise<any>[] = [
-    //         server.inject(customInjectOptions),
-    //         server.inject(customInjectOptions),
-    //         server.inject(customInjectOptions),
-    //     ];
-
-    //     resolve();
-
-    //     for (let i = 0; i < 2; i++) {
-    //         expect((await responses[i]).statusCode).toBe(200);
-    //     }
-    //     expect((await responses[2]).statusCode).toBe(429);
-    //     expect(customRoute.handler).toHaveBeenCalledTimes(2);
-    // });
-
-    // it("should use level 2 semaphore when level two field is used in query", async () => {
-    //     const server = await initServer(app, defaults, customRoute);
-
-    //     const customInjectOptions = {
-    //         method: "GET",
-    //         url: "/test?payloadHash=1",
-    //     };
-
-    //     const responses: Promise<any>[] = [server.inject(customInjectOptions), server.inject(customInjectOptions)];
-
-    //     resolve();
-
-    //     expect((await responses[0]).statusCode).toBe(200);
-    //     expect((await responses[1]).statusCode).toBe(429);
-    //     expect(customRoute.handler).toHaveBeenCalledTimes(1);
-    // });
-
-    // it("should use level 1 semaphore when offset is < 10_000", async () => {
-    //     const server = await initServer(app, defaults, customRoute);
-
-    //     const customInjectOptions = {
-    //         method: "GET",
-    //         url: "/test?limit=100&page=99", // 9_900
-    //     };
-
-    //     const responses: Promise<any>[] = [
-    //         server.inject(customInjectOptions),
-    //         server.inject(customInjectOptions),
-    //         server.inject(customInjectOptions),
-    //     ];
-
-    //     resolve();
-
-    //     for (let i = 0; i < 2; i++) {
-    //         expect((await responses[i]).statusCode).toBe(200);
-    //     }
-    //     expect((await responses[2]).statusCode).toBe(429);
-    //     expect(customRoute.handler).toHaveBeenCalledTimes(2);
-    // });
-
-    // it("should use level 2 semaphore when offset is > 10_000", async () => {
-    //     const server = await initServer(app, defaults, customRoute);
-
-    //     const customInjectOptions = {
-    //         method: "GET",
-    //         url: "/test?limit=100&page=101", // 10_100
-    //     };
-
-    //     const responses: Promise<any>[] = [server.inject(customInjectOptions), server.inject(customInjectOptions)];
-
-    //     resolve();
-
-    //     expect((await responses[0]).statusCode).toBe(200);
-    //     expect((await responses[1]).statusCode).toBe(429);
-    //     expect(customRoute.handler).toHaveBeenCalledTimes(1);
-    // });
-
-    // it("should should respond with 429 when queue is full", async () => {
-    //     const server = await initServer(
-    //         app,
-    //         (defaults = {
-    //             plugins: {
-    //                 pagination: {
-    //                     limit: 100,
-    //                 },
-    //                 socketTimeout: 5000,
-    //                 semaphore: {
-    //                     enabled: true,
-    //                     levelOne: {
-    //                         concurrency: 2,
-    //                         queueLimit: 2,
-    //                     },
-    //                     levelTwo: {
-    //                         concurrency: 1,
-    //                         queueLimit: 0,
-    //                     },
-    //                 },
-    //             },
-    //         }),
-    //         customRoute,
-    //     );
-
-    //     const customInjectOptions = {
-    //         method: "GET",
-    //         url: "/test",
-    //     };
-
-    //     const responses: Promise<any>[] = [
-    //         server.inject(customInjectOptions),
-    //         server.inject(customInjectOptions),
-    //         server.inject(customInjectOptions),
-    //         server.inject(customInjectOptions),
-    //         server.inject(customInjectOptions),
-    //     ];
-
-    //     resolve();
-
-    //     // 2 x concurrent + 2x queue
-    //     for (let i = 0; i < 4; i++) {
-    //         expect((await responses[i]).statusCode).toBe(200);
-    //     }
-    //     expect((await responses[4]).statusCode).toBe(429);
-    //     expect(customRoute.handler).toHaveBeenCalledTimes(2);
-    // });
+        // 2 x concurrent + 2x queue
+        for (let i = 0; i < 4; i++) {
+            expect((await responses[i]).statusCode).toBe(200);
+        }
+        expect((await responses[4]).statusCode).toBe(429);
+        expect(customRoute.handler).toHaveBeenCalledTimes(2);
+    });
 });

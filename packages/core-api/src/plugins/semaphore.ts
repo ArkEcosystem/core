@@ -58,8 +58,6 @@ export const semaphore = {
             if (options) {
                 const level = getLevel(request, options);
 
-                console.log("LEVEL: ", level);
-
                 const sem = semaphores.get(level)!;
 
                 if (
@@ -160,8 +158,6 @@ const offsetLevel = (request: Hapi.Request, options: SemaphoreOptions): Level =>
 };
 
 const queryLevel = (request: Hapi.Request, options: SemaphoreOptions): Level => {
-    console.log("QUERY: ", request.query);
-
     const reservedFields = ["page", "limit", "transform", "offset", "orderBy"];
     const indices = options.queryLevelOptions.map((options) => options.field);
 
