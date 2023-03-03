@@ -13,8 +13,16 @@ type LevelOptions = {
     queueLimit: number;
 };
 
+type QueryLevelOptions = {
+    field: string;
+    asc: boolean;
+    desc: boolean;
+    allowSecondOrderBy: boolean;
+    diverse: boolean;
+};
+
 type SemaphoreOptions = {
-    levelTwoFields: string[];
+    queryLevelOptions: QueryLevelOptions[];
 };
 
 enum Level {
@@ -49,6 +57,9 @@ export const semaphore = {
 
             if (options) {
                 const level = getLevel(request, options);
+
+                console.log("LEVEL: ", level);
+
                 const sem = semaphores.get(level)!;
 
                 if (
@@ -92,9 +103,19 @@ const getLevel = (request: Hapi.Request, options: SemaphoreOptions): Level => {
 
 const orderByLevel = (request: Hapi.Request, options: SemaphoreOptions): Level => {
     if (request.query.orderBy && request.query.orderBy.length) {
-        const field = request.query.orderBy[0].split(":")[0];
+        console.log("OB: ", request.query.orderBy);
 
-        if (options.levelTwoFields.includes(field)) {
+        const orderBy = Array.isArray(request.query.orderBy) ? request.query.orderBy : [request.query.orderBy];
+
+        const [field, sortOrder]: [string, "asc" | "desc"] = orderBy[0].split(":");
+
+        const fieldOptions = options.queryLevelOptions.find((options) => options.field === field);
+
+        if (!fieldOptions) {
+            return Level.Two;
+        }
+
+        if (!fieldOptions[sortOrder]) {
             return Level.Two;
         }
     }
@@ -103,6 +124,10 @@ const orderByLevel = (request: Hapi.Request, options: SemaphoreOptions): Level =
 };
 
 const offsetLevel = (request: Hapi.Request, options: SemaphoreOptions): Level => {
+    if (request.query.offset && request.query.offset > 10_000) {
+        return Level.Two;
+    }
+
     if (request.query.page && request.query.limit) {
         const offset = request.query.page * request.query.limit;
 
@@ -115,15 +140,26 @@ const offsetLevel = (request: Hapi.Request, options: SemaphoreOptions): Level =>
 };
 
 const queryLevel = (request: Hapi.Request, options: SemaphoreOptions): Level => {
-    if (Object.keys(request.query).some((key) => options.levelTwoFields.includes(key))) {
-        return Level.Two;
+    console.log("QUERY: ", request.query);
+
+    const reservedFields = ["page", "limit", "transform", "offset", "orderBy"];
+    const indices = options.queryLevelOptions.map((options) => options.field);
+
+    for (let key of Object.keys(request.query)) {
+        if (reservedFields.includes(key)) {
+            continue;
+        }
+
+        if (!indices.includes(key)) {
+            return Level.Two;
+        }
     }
 
     return Level.One;
 };
 
 const getRouteSemaphoreOptions = (request): SemaphoreOptions | undefined => {
-    if (request.route.settings.plugins.semaphore && request.route.settings.plugins.semaphore.levelTwoFields) {
+    if (request.route.settings.plugins.semaphore && request.route.settings.plugins.semaphore.queryLevelOptions) {
         return request.route.settings.plugins.semaphore;
     }
 
