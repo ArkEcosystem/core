@@ -8,11 +8,9 @@ import { TransactionRepository } from "./repositories/transaction-repository";
 @Container.injectable()
 export class TransactionHistoryService implements Contracts.Shared.TransactionHistoryService {
     @Container.inject(Container.Identifiers.DatabaseBlockRepository)
-    @Container.tagged("connection", "default")
     private readonly blockRepository!: BlockRepository;
 
     @Container.inject(Container.Identifiers.DatabaseTransactionRepository)
-    @Container.tagged("connection", "default")
     private readonly transactionRepository!: TransactionRepository;
 
     @Container.inject(Container.Identifiers.DatabaseTransactionFilter)

@@ -16,6 +16,7 @@ export class BlocksController extends Controller {
     private readonly blockHistoryService!: Contracts.Shared.BlockHistoryService;
 
     @Container.inject(Container.Identifiers.TransactionHistoryService)
+    @Container.tagged("connection", "default")
     private readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
 
     @Container.inject(Container.Identifiers.StateStore)
