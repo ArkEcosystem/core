@@ -15,6 +15,7 @@ export class DatabaseService {
     private readonly app!: Contracts.Kernel.Application;
 
     @Container.inject(Container.Identifiers.DatabaseConnection)
+    @Container.tagged("connection", "default")
     private readonly connection!: Connection;
 
     @Container.inject(Container.Identifiers.DatabaseBlockRepository)

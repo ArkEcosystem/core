@@ -1,6 +1,6 @@
 import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
-import { Connection, createConnection, getCustomRepository } from "typeorm";
 import Joi from "joi";
+import { Connection, createConnection, getCustomRepository } from "typeorm";
 
 import { BlockFilter } from "./block-filter";
 import { BlockHistoryService } from "./block-history-service";
@@ -19,7 +19,17 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
         logger.info("Connecting to database: " + (this.config().all().connection as any).database);
 
-        this.app.bind(Container.Identifiers.DatabaseConnection).toConstantValue(await this.connect());
+        this.app
+            .bind(Container.Identifiers.DatabaseConnection)
+            .toConstantValue(await this.connect())
+            .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("connection", "default"));
+
+        this.app
+            .bind(Container.Identifiers.DatabaseConnection)
+            .toConstantValue(await this.connect("api"))
+            .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("connection", "api"));
+
+        // await this.connect("api_connection");
 
         logger.debug("Connection established.");
 
@@ -52,7 +62,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
         return true;
     }
 
-    public async connect(): Promise<Connection> {
+    public async connect(connectionName = "default"): Promise<Connection> {
         const connection: Record<string, any> = this.config().all().connection as any;
         this.app
             .get<Contracts.Kernel.EventDispatcher>(Container.Identifiers.EventDispatcherService)
@@ -65,6 +75,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
         return createConnection({
             ...(connection as any),
+            name: connectionName,
             namingStrategy: new SnakeNamingStrategy(),
             migrations: [__dirname + "/migrations/*.js"],
             migrationsRun: true,
