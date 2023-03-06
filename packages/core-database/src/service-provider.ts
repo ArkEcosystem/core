@@ -25,7 +25,11 @@ export class ServiceProvider extends Providers.ServiceProvider {
             .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("connection", "default"));
         this.app
             .bind(Container.Identifiers.DatabaseConnection)
-            .toConstantValue(await this.connect("api"))
+            .toConstantValue(
+                await this.connect("api", {
+                    options: "-c statement_timeout=5000ms",
+                }),
+            )
             .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("connection", "api"));
 
         logger.debug("Connection established.");
@@ -80,7 +84,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
         return true;
     }
 
-    public async connect(connectionName = "default"): Promise<Connection> {
+    public async connect(connectionName = "default", extra = {}): Promise<Connection> {
         const connection: Record<string, any> = this.config().all().connection as any;
         this.app
             .get<Contracts.Kernel.EventDispatcher>(Container.Identifiers.EventDispatcherService)
