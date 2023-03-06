@@ -23,6 +23,7 @@ export class TransactionsController extends Controller {
     private readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
 
     @Container.inject(Container.Identifiers.BlockHistoryService)
+    @Container.tagged("connection", "default")
     private readonly blockHistoryService!: Contracts.Shared.BlockHistoryService;
 
     @Container.inject(Container.Identifiers.TransactionPoolProcessor)
