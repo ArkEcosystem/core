@@ -27,6 +27,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
     private readonly database!: DatabaseService;
 
     @Container.inject(Container.Identifiers.DatabaseBlockRepository)
+    @Container.tagged("connection", "default")
     private readonly blockRepository!: Repositories.BlockRepository;
 
     @Container.inject(Container.Identifiers.TransactionPoolService)

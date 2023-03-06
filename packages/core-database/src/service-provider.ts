@@ -39,7 +39,15 @@ export class ServiceProvider extends Providers.ServiceProvider {
             .toConstantValue(this.getRoundRepository("api"))
             .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("connection", "api"));
 
-        this.app.bind(Container.Identifiers.DatabaseBlockRepository).toConstantValue(this.getBlockRepository());
+        this.app
+            .bind(Container.Identifiers.DatabaseBlockRepository)
+            .toConstantValue(this.getBlockRepository())
+            .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("connection", "default"));
+        this.app
+            .bind(Container.Identifiers.DatabaseBlockRepository)
+            .toConstantValue(this.getBlockRepository("api"))
+            .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("connection", "api"));
+
         this.app.bind(Container.Identifiers.DatabaseBlockFilter).to(BlockFilter);
         this.app.bind(Container.Identifiers.BlockHistoryService).to(BlockHistoryService);
 
@@ -92,8 +100,8 @@ export class ServiceProvider extends Providers.ServiceProvider {
         return getCustomRepository(RoundRepository, connectionName);
     }
 
-    public getBlockRepository(): BlockRepository {
-        return getCustomRepository(BlockRepository);
+    public getBlockRepository(connectionName = "default"): BlockRepository {
+        return getCustomRepository(BlockRepository, connectionName);
     }
 
     public getTransactionRepository(): TransactionRepository {

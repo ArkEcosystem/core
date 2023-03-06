@@ -19,6 +19,7 @@ export class DatabaseService {
     private readonly connection!: Connection;
 
     @Container.inject(Container.Identifiers.DatabaseBlockRepository)
+    @Container.tagged("connection", "default")
     private readonly blockRepository!: BlockRepository;
 
     @Container.inject(Container.Identifiers.DatabaseTransactionRepository)
