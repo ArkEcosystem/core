@@ -101,6 +101,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
             namingStrategy: new SnakeNamingStrategy(),
             migrations: [__dirname + "/migrations/*.js"],
             migrationsRun: true,
+            extra,
             // TODO: expose entities to allow extending the models by plugins
             entities: [__dirname + "/models/*.js"],
         });
