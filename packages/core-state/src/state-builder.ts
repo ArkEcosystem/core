@@ -14,6 +14,7 @@ export class StateBuilder {
     private blockRepository!: Repositories.BlockRepository;
 
     @Container.inject(Container.Identifiers.DatabaseTransactionRepository)
+    @Container.tagged("connection", "default")
     private transactionRepository!: Repositories.TransactionRepository;
 
     @Container.inject(Container.Identifiers.WalletRepository)

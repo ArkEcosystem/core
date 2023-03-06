@@ -12,6 +12,7 @@ export class BlockHistoryService implements Contracts.Shared.BlockHistoryService
     private readonly blockRepository!: BlockRepository;
 
     @Container.inject(Container.Identifiers.DatabaseTransactionRepository)
+    @Container.tagged("connection", "default")
     private readonly transactionRepository!: TransactionRepository;
 
     @Container.inject(Container.Identifiers.DatabaseBlockFilter)

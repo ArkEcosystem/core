@@ -53,7 +53,13 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
         this.app
             .bind(Container.Identifiers.DatabaseTransactionRepository)
-            .toConstantValue(this.getTransactionRepository());
+            .toConstantValue(this.getTransactionRepository())
+            .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("connection", "default"));
+        this.app
+            .bind(Container.Identifiers.DatabaseTransactionRepository)
+            .toConstantValue(this.getTransactionRepository("api"))
+            .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("connection", "api"));
+
         this.app.bind(Container.Identifiers.DatabaseTransactionFilter).to(TransactionFilter);
         this.app.bind(Container.Identifiers.TransactionHistoryService).to(TransactionHistoryService);
 
@@ -104,8 +110,8 @@ export class ServiceProvider extends Providers.ServiceProvider {
         return getCustomRepository(BlockRepository, connectionName);
     }
 
-    public getTransactionRepository(): TransactionRepository {
-        return getCustomRepository(TransactionRepository);
+    public getTransactionRepository(connectionName = "default"): TransactionRepository {
+        return getCustomRepository(TransactionRepository, connectionName);
     }
 
     public configSchema(): object {
