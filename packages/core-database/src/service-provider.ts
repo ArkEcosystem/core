@@ -23,17 +23,21 @@ export class ServiceProvider extends Providers.ServiceProvider {
             .bind(Container.Identifiers.DatabaseConnection)
             .toConstantValue(await this.connect())
             .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("connection", "default"));
-
         this.app
             .bind(Container.Identifiers.DatabaseConnection)
             .toConstantValue(await this.connect("api"))
             .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("connection", "api"));
 
-        // await this.connect("api_connection");
-
         logger.debug("Connection established.");
 
-        this.app.bind(Container.Identifiers.DatabaseRoundRepository).toConstantValue(this.getRoundRepository());
+        this.app
+            .bind(Container.Identifiers.DatabaseRoundRepository)
+            .toConstantValue(this.getRoundRepository())
+            .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("connection", "default"));
+        this.app
+            .bind(Container.Identifiers.DatabaseRoundRepository)
+            .toConstantValue(this.getRoundRepository("api"))
+            .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("connection", "api"));
 
         this.app.bind(Container.Identifiers.DatabaseBlockRepository).toConstantValue(this.getBlockRepository());
         this.app.bind(Container.Identifiers.DatabaseBlockFilter).to(BlockFilter);
@@ -84,8 +88,8 @@ export class ServiceProvider extends Providers.ServiceProvider {
         });
     }
 
-    public getRoundRepository(): RoundRepository {
-        return getCustomRepository(RoundRepository);
+    public getRoundRepository(connectionName = "default"): RoundRepository {
+        return getCustomRepository(RoundRepository, connectionName);
     }
 
     public getBlockRepository(): BlockRepository {

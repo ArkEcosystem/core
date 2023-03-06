@@ -25,6 +25,7 @@ export class DatabaseService {
     private readonly transactionRepository!: TransactionRepository;
 
     @Container.inject(Container.Identifiers.DatabaseRoundRepository)
+    @Container.tagged("connection", "default")
     private readonly roundRepository!: RoundRepository;
 
     @Container.inject(Container.Identifiers.LogService)
