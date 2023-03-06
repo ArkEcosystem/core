@@ -26,7 +26,7 @@ export class DelegatesController extends Controller {
     private readonly walletSearchService!: WalletSearchService;
 
     @Container.inject(Container.Identifiers.BlockHistoryService)
-    @Container.tagged("connection", "default")
+    @Container.tagged("connection", "api")
     private readonly blockHistoryService!: Contracts.Shared.BlockHistoryService;
 
     public index(request: Hapi.Request): Contracts.Search.ResultsPage<DelegateResource> {
