@@ -43,7 +43,7 @@ describe("ServiceProvider.register", () => {
         await serviceProvider.register();
 
         expect(createConnection).toBeCalled();
-        expect(getCustomRepository).toBeCalledTimes(3);
+        expect(getCustomRepository).toBeCalledTimes(6);
 
         expect(events.dispatch).toBeCalled();
 
