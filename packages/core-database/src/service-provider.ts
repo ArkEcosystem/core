@@ -27,7 +27,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
             .bind(Container.Identifiers.DatabaseConnection)
             .toConstantValue(
                 await this.connect("api", {
-                    options: "-c statement_timeout=5000ms",
+                    options: `-c statement_timeout=${this.config().getRequired("apiConnectionTimeout")}ms`,
                 }),
             )
             .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("connection", "api"));
@@ -132,6 +132,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
                 synchronize: Joi.bool().required(),
                 logging: Joi.bool().required(),
             }).required(),
+            apiConnectionTimeout: Joi.number().integer().min(1).required(),
         }).unknown(true);
     }
 }
