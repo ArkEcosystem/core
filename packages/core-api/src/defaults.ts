@@ -29,7 +29,7 @@ export const defaults = {
             enabled: !process.env.CORE_API_SEMAPHORE_DISABLED,
             levelOne: {
                 concurrency: 10,
-                queueLimit: 10,
+                queueLimit: 100,
             },
             levelTwo: {
                 concurrency: 1,
