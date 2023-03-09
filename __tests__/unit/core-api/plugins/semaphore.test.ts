@@ -31,13 +31,25 @@ describe("Semaphore", () => {
                 socketTimeout: 5000,
                 semaphore: {
                     enabled: true,
-                    levelOne: {
-                        concurrency: 2,
-                        queueLimit: 0,
+                    database: {
+                        levelOne: {
+                            concurrency: 2,
+                            queueLimit: 0,
+                        },
+                        levelTwo: {
+                            concurrency: 1,
+                            queueLimit: 0,
+                        },
                     },
-                    levelTwo: {
-                        concurrency: 1,
-                        queueLimit: 0,
+                    memory: {
+                        levelOne: {
+                            concurrency: 2,
+                            queueLimit: 0,
+                        },
+                        levelTwo: {
+                            concurrency: 1,
+                            queueLimit: 0,
+                        },
                     },
                 },
             },
@@ -271,13 +283,25 @@ describe("Semaphore", () => {
                     socketTimeout: 5000,
                     semaphore: {
                         enabled: true,
-                        levelOne: {
-                            concurrency: 2,
-                            queueLimit: 2,
+                        database: {
+                            levelOne: {
+                                concurrency: 2,
+                                queueLimit: 2,
+                            },
+                            levelTwo: {
+                                concurrency: 1,
+                                queueLimit: 0,
+                            },
                         },
-                        levelTwo: {
-                            concurrency: 1,
-                            queueLimit: 0,
+                        memory: {
+                            levelOne: {
+                                concurrency: 2,
+                                queueLimit: 2,
+                            },
+                            levelTwo: {
+                                concurrency: 1,
+                                queueLimit: 0,
+                            },
                         },
                     },
                 },

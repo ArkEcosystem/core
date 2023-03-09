@@ -195,10 +195,14 @@ describe("ServiceProvider", () => {
             expect(result.value.plugins.cache.checkperiod).toBeNumber();
 
             expect(result.value.plugins.semaphore.enabled).toBeTrue();
-            expect(result.value.plugins.semaphore.levelOne.concurrency).toBeNumber();
-            expect(result.value.plugins.semaphore.levelOne.queueLimit).toBeNumber();
-            expect(result.value.plugins.semaphore.levelTwo.concurrency).toBeNumber();
-            expect(result.value.plugins.semaphore.levelTwo.queueLimit).toBeNumber();
+            expect(result.value.plugins.semaphore.database.levelOne.concurrency).toBeNumber();
+            expect(result.value.plugins.semaphore.database.levelOne.queueLimit).toBeNumber();
+            expect(result.value.plugins.semaphore.database.levelTwo.concurrency).toBeNumber();
+            expect(result.value.plugins.semaphore.database.levelTwo.queueLimit).toBeNumber();
+            expect(result.value.plugins.semaphore.memory.levelOne.concurrency).toBeNumber();
+            expect(result.value.plugins.semaphore.memory.levelOne.queueLimit).toBeNumber();
+            expect(result.value.plugins.semaphore.memory.levelTwo.concurrency).toBeNumber();
+            expect(result.value.plugins.semaphore.memory.levelTwo.queueLimit).toBeNumber();
 
             expect(result.value.plugins.rateLimit.enabled).toBeTrue();
             expect(result.value.plugins.rateLimit.points).toBeNumber();
@@ -836,6 +840,314 @@ describe("ServiceProvider", () => {
                 result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
 
                 expect(result.error!.message).toEqual('"plugins.cache.checkperiod" is required');
+            });
+
+            it("plugins.semaphore is required && is object", async () => {
+                defaults.plugins.semaphore = false;
+                let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.semaphore" must be of type object');
+
+                delete defaults.plugins.semaphore;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.semaphore" is required');
+            });
+
+            it("plugins.semaphore.database is required && is object", async () => {
+                defaults.plugins.semaphore.database = false;
+                let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.semaphore.database" must be of type object');
+
+                delete defaults.plugins.semaphore.database;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.semaphore.database" is required');
+            });
+
+            it("plugins.semaphore.database.levelOne is required && is object", async () => {
+                defaults.plugins.semaphore.database.levelOne = false;
+                let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.semaphore.database.levelOne" must be of type object');
+
+                delete defaults.plugins.semaphore.database.levelOne;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.semaphore.database.levelOne" is required');
+            });
+
+            it("plugins.semaphore.database.levelOne.concurrency is required && is integer && >= 1", async () => {
+                defaults.plugins.semaphore.database.levelOne.concurrency = false;
+                let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual(
+                    '"plugins.semaphore.database.levelOne.concurrency" must be a number',
+                );
+
+                defaults.plugins.semaphore.database.levelOne.concurrency = 1.12;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual(
+                    '"plugins.semaphore.database.levelOne.concurrency" must be an integer',
+                );
+
+                defaults.plugins.semaphore.database.levelOne.concurrency = -1;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual(
+                    '"plugins.semaphore.database.levelOne.concurrency" must be greater than or equal to 1',
+                );
+
+                delete defaults.plugins.semaphore.database.levelOne.concurrency;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.semaphore.database.levelOne.concurrency" is required');
+            });
+
+            it("plugins.semaphore.database.levelOne.queueLimit is required && is integer && >= 0", async () => {
+                defaults.plugins.semaphore.database.levelOne.queueLimit = false;
+                let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual(
+                    '"plugins.semaphore.database.levelOne.queueLimit" must be a number',
+                );
+
+                defaults.plugins.semaphore.database.levelOne.queueLimit = 1.12;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual(
+                    '"plugins.semaphore.database.levelOne.queueLimit" must be an integer',
+                );
+
+                defaults.plugins.semaphore.database.levelOne.queueLimit = -1;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual(
+                    '"plugins.semaphore.database.levelOne.queueLimit" must be greater than or equal to 0',
+                );
+
+                delete defaults.plugins.semaphore.database.levelOne.queueLimit;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.semaphore.database.levelOne.queueLimit" is required');
+            });
+
+            it("plugins.semaphore.database.levelTwo is required && is object", async () => {
+                defaults.plugins.semaphore.database.levelTwo = false;
+                let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.semaphore.database.levelTwo" must be of type object');
+
+                delete defaults.plugins.semaphore.database.levelTwo;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.semaphore.database.levelTwo" is required');
+            });
+
+            it("plugins.semaphore.database.levelTwo.concurrency is required && is integer && >= 1", async () => {
+                defaults.plugins.semaphore.database.levelTwo.concurrency = false;
+                let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual(
+                    '"plugins.semaphore.database.levelTwo.concurrency" must be a number',
+                );
+
+                defaults.plugins.semaphore.database.levelTwo.concurrency = 1.12;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual(
+                    '"plugins.semaphore.database.levelTwo.concurrency" must be an integer',
+                );
+
+                defaults.plugins.semaphore.database.levelTwo.concurrency = -1;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual(
+                    '"plugins.semaphore.database.levelTwo.concurrency" must be greater than or equal to 1',
+                );
+
+                delete defaults.plugins.semaphore.database.levelTwo.concurrency;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.semaphore.database.levelTwo.concurrency" is required');
+            });
+
+            it("plugins.semaphore.database.levelTwo.queueLimit is required && is integer && >= 0", async () => {
+                defaults.plugins.semaphore.database.levelTwo.queueLimit = false;
+                let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual(
+                    '"plugins.semaphore.database.levelTwo.queueLimit" must be a number',
+                );
+
+                defaults.plugins.semaphore.database.levelTwo.queueLimit = 1.12;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual(
+                    '"plugins.semaphore.database.levelTwo.queueLimit" must be an integer',
+                );
+
+                defaults.plugins.semaphore.database.levelTwo.queueLimit = -1;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual(
+                    '"plugins.semaphore.database.levelTwo.queueLimit" must be greater than or equal to 0',
+                );
+
+                delete defaults.plugins.semaphore.database.levelTwo.queueLimit;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.semaphore.database.levelTwo.queueLimit" is required');
+            });
+
+            it("plugins.semaphore.memory is required && is object", async () => {
+                defaults.plugins.semaphore.memory = false;
+                let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.semaphore.memory" must be of type object');
+
+                delete defaults.plugins.semaphore.memory;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.semaphore.memory" is required');
+            });
+
+            it("plugins.semaphore.memory.levelOne is required && is object", async () => {
+                defaults.plugins.semaphore.memory.levelOne = false;
+                let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.semaphore.memory.levelOne" must be of type object');
+
+                delete defaults.plugins.semaphore.memory.levelOne;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.semaphore.memory.levelOne" is required');
+            });
+
+            it("plugins.semaphore.memory.levelOne.concurrency is required && is integer && >= 1", async () => {
+                defaults.plugins.semaphore.memory.levelOne.concurrency = false;
+                let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual(
+                    '"plugins.semaphore.memory.levelOne.concurrency" must be a number',
+                );
+
+                defaults.plugins.semaphore.memory.levelOne.concurrency = 1.12;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual(
+                    '"plugins.semaphore.memory.levelOne.concurrency" must be an integer',
+                );
+
+                defaults.plugins.semaphore.memory.levelOne.concurrency = -1;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual(
+                    '"plugins.semaphore.memory.levelOne.concurrency" must be greater than or equal to 1',
+                );
+
+                delete defaults.plugins.semaphore.memory.levelOne.concurrency;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.semaphore.memory.levelOne.concurrency" is required');
+            });
+
+            it("plugins.semaphore.memory.levelOne.queueLimit is required && is integer && >= 0", async () => {
+                defaults.plugins.semaphore.memory.levelOne.queueLimit = false;
+                let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual(
+                    '"plugins.semaphore.memory.levelOne.queueLimit" must be a number',
+                );
+
+                defaults.plugins.semaphore.memory.levelOne.queueLimit = 1.12;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual(
+                    '"plugins.semaphore.memory.levelOne.queueLimit" must be an integer',
+                );
+
+                defaults.plugins.semaphore.memory.levelOne.queueLimit = -1;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual(
+                    '"plugins.semaphore.memory.levelOne.queueLimit" must be greater than or equal to 0',
+                );
+
+                delete defaults.plugins.semaphore.memory.levelOne.queueLimit;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.semaphore.memory.levelOne.queueLimit" is required');
+            });
+
+            it("plugins.semaphore.memory.levelTwo is required && is object", async () => {
+                defaults.plugins.semaphore.memory.levelTwo = false;
+                let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.semaphore.memory.levelTwo" must be of type object');
+
+                delete defaults.plugins.semaphore.memory.levelTwo;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.semaphore.memory.levelTwo" is required');
+            });
+
+            it("plugins.semaphore.memory.levelTwo.concurrency is required && is integer && >= 1", async () => {
+                defaults.plugins.semaphore.memory.levelTwo.concurrency = false;
+                let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual(
+                    '"plugins.semaphore.memory.levelTwo.concurrency" must be a number',
+                );
+
+                defaults.plugins.semaphore.memory.levelTwo.concurrency = 1.12;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual(
+                    '"plugins.semaphore.memory.levelTwo.concurrency" must be an integer',
+                );
+
+                defaults.plugins.semaphore.memory.levelTwo.concurrency = -1;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual(
+                    '"plugins.semaphore.memory.levelTwo.concurrency" must be greater than or equal to 1',
+                );
+
+                delete defaults.plugins.semaphore.memory.levelTwo.concurrency;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.semaphore.memory.levelTwo.concurrency" is required');
+            });
+
+            it("plugins.semaphore.memory.levelTwo.queueLimit is required && is integer && >= 0", async () => {
+                defaults.plugins.semaphore.memory.levelTwo.queueLimit = false;
+                let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual(
+                    '"plugins.semaphore.memory.levelTwo.queueLimit" must be a number',
+                );
+
+                defaults.plugins.semaphore.memory.levelTwo.queueLimit = 1.12;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual(
+                    '"plugins.semaphore.memory.levelTwo.queueLimit" must be an integer',
+                );
+
+                defaults.plugins.semaphore.memory.levelTwo.queueLimit = -1;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual(
+                    '"plugins.semaphore.memory.levelTwo.queueLimit" must be greater than or equal to 0',
+                );
+
+                delete defaults.plugins.semaphore.memory.levelTwo.queueLimit;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.semaphore.memory.levelTwo.queueLimit" is required');
             });
 
             it("plugins.rateLimit is required && is object", async () => {

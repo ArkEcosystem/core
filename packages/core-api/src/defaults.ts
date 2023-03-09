@@ -27,13 +27,25 @@ export const defaults = {
         },
         semaphore: {
             enabled: !process.env.CORE_API_SEMAPHORE_DISABLED,
-            levelOne: {
-                concurrency: 10,
-                queueLimit: 100,
+            database: {
+                levelOne: {
+                    concurrency: 10,
+                    queueLimit: 100,
+                },
+                levelTwo: {
+                    concurrency: 1,
+                    queueLimit: 10,
+                },
             },
-            levelTwo: {
-                concurrency: 1,
-                queueLimit: 10,
+            memory: {
+                levelOne: {
+                    concurrency: 10,
+                    queueLimit: 100,
+                },
+                levelTwo: {
+                    concurrency: 1,
+                    queueLimit: 10,
+                },
             },
         },
         rateLimit: {

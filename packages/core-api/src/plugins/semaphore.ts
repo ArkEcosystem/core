@@ -4,8 +4,14 @@ import makeSemaphore, { Semaphore } from "semaphore";
 
 type PluginOptions = {
     enabled: boolean;
-    levelOne: LevelOptions;
-    levelTwo: LevelOptions;
+    database: {
+        levelOne: LevelOptions;
+        levelTwo: LevelOptions;
+    };
+    memory: {
+        levelOne: LevelOptions;
+        levelTwo: LevelOptions;
+    };
 };
 
 type LevelOptions = {
@@ -42,16 +48,16 @@ export const semaphore = {
         }
 
         const semaphores = new Map<Level, Semaphore>();
-        semaphores.set(Level.One, makeSemaphore(options.levelOne.concurrency));
-        semaphores.set(Level.Two, makeSemaphore(options.levelTwo.concurrency));
+        semaphores.set(Level.One, makeSemaphore(options.database.levelOne.concurrency));
+        semaphores.set(Level.Two, makeSemaphore(options.database.levelTwo.concurrency));
 
         const semaphoresConcurrency = new Map<Level, number>();
-        semaphoresConcurrency.set(Level.One, options.levelOne.concurrency);
-        semaphoresConcurrency.set(Level.Two, options.levelTwo.concurrency);
+        semaphoresConcurrency.set(Level.One, options.database.levelOne.concurrency);
+        semaphoresConcurrency.set(Level.Two, options.database.levelTwo.concurrency);
 
         const semaphoresQueueLimit = new Map<Level, number>();
-        semaphoresQueueLimit.set(Level.One, options.levelOne.queueLimit);
-        semaphoresQueueLimit.set(Level.Two, options.levelTwo.queueLimit);
+        semaphoresQueueLimit.set(Level.One, options.database.levelOne.queueLimit);
+        semaphoresQueueLimit.set(Level.Two, options.database.levelTwo.queueLimit);
 
         const requestLevels = new Map<Hapi.Request, Level>();
 
