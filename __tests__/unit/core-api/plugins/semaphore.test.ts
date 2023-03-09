@@ -206,6 +206,60 @@ describe("Semaphore", () => {
         expect(customRoute.handler).toHaveBeenCalledTimes(1);
     });
 
+    it.each(levelTwoQueries.slice(0, 1))(
+        "should use level 1 semaphore when queryLevelSchema is not defined",
+        async (url) => {
+            customRoute = {
+                method: "GET",
+                path: "/test",
+                handler: jest.fn().mockImplementation(async () => {
+                    await promise;
+                    return customResponse;
+                }),
+                options: {
+                    validate: {
+                        query: Joi.object({
+                            ...Schemas.blockCriteriaSchemas,
+                            orderBy: Schemas.blocksOrderBy,
+                            transform: Joi.bool().default(true),
+                        })
+                            .concat(blockSortingSchema)
+                            .concat(Schemas.pagination),
+                    },
+                    plugins: {
+                        pagination: {
+                            enabled: true,
+                        },
+                        semaphore: {
+                            enabled: true,
+                        },
+                    },
+                },
+            };
+
+            const server = await initServer(app, defaults, customRoute);
+
+            const customInjectOptions = {
+                ...injectOptions,
+                url: url,
+            };
+
+            const responses: Promise<any>[] = [
+                server.inject(customInjectOptions),
+                server.inject(customInjectOptions),
+                server.inject(customInjectOptions),
+            ];
+
+            resolve();
+
+            for (let i = 0; i < 2; i++) {
+                expect((await responses[i]).statusCode).toBe(200);
+            }
+            expect((await responses[2]).statusCode).toBe(429);
+            expect(customRoute.handler).toHaveBeenCalledTimes(2);
+        },
+    );
+
     it("should should respond with 429 when queue is full", async () => {
         const server = await initServer(
             app,

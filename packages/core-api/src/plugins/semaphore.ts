@@ -23,8 +23,10 @@ type QueryLevelOptions = {
 
 type SemaphoreOptions = {
     enabled: boolean;
-    queryLevelOptions: QueryLevelOptions[];
+    queryLevelOptions?: QueryLevelOptions[];
 };
+
+type FullSemaphoreOptions = Required<SemaphoreOptions>;
 
 enum Level {
     One = 1,
@@ -56,9 +58,8 @@ export const semaphore = {
         server.ext("onPreHandler", async (request: Hapi.Request, h: Hapi.ResponseToolkit) => {
             const options = getRouteSemaphoreOptions(request);
 
-            if (options) {
+            if (options.enabled) {
                 const level = getLevel(request, options);
-
                 const sem = semaphores.get(level)!;
 
                 if (
@@ -94,17 +95,25 @@ export const semaphore = {
     },
 };
 
-const getLevel = (request: Hapi.Request, options: SemaphoreOptions): Level => {
-    if (usesDiverseIndex(request, options)) {
-        return Level.One;
-    }
-
-    const levels = [orderByLevel(request, options), offsetLevel(request, options), queryLevel(request, options)];
-
-    return levels.includes(Level.Two) ? Level.Two : Level.One;
+const isFullSemaphoreOptions = (b: SemaphoreOptions): b is FullSemaphoreOptions => {
+    return !!b.queryLevelOptions;
 };
 
-const usesDiverseIndex = (request: Hapi.Request, options: SemaphoreOptions): boolean => {
+const getLevel = (request: Hapi.Request, options: SemaphoreOptions): Level => {
+    if (isFullSemaphoreOptions(options)) {
+        if (usesDiverseIndex(request, options)) {
+            return Level.One;
+        }
+
+        const levels = [orderByLevel(request, options), offsetLevel(request, options), queryLevel(request, options)];
+
+        return levels.includes(Level.Two) ? Level.Two : Level.One;
+    }
+
+    return Level.One;
+};
+
+const usesDiverseIndex = (request: Hapi.Request, options: FullSemaphoreOptions): boolean => {
     const distributedIndices = options.queryLevelOptions
         .filter((option) => option.diverse)
         .map((option) => option.field);
@@ -118,7 +127,7 @@ const usesDiverseIndex = (request: Hapi.Request, options: SemaphoreOptions): boo
     return false;
 };
 
-const orderByLevel = (request: Hapi.Request, options: SemaphoreOptions): Level => {
+const orderByLevel = (request: Hapi.Request, options: FullSemaphoreOptions): Level => {
     if (request.query.orderBy && request.query.orderBy.length) {
         const orderBy = Array.isArray(request.query.orderBy) ? request.query.orderBy : [request.query.orderBy];
 
@@ -142,7 +151,7 @@ const orderByLevel = (request: Hapi.Request, options: SemaphoreOptions): Level =
     return Level.One;
 };
 
-const offsetLevel = (request: Hapi.Request, options: SemaphoreOptions): Level => {
+const offsetLevel = (request: Hapi.Request, options: FullSemaphoreOptions): Level => {
     if (request.query.offset && request.query.offset > 10_000) {
         return Level.Two;
     }
@@ -158,11 +167,11 @@ const offsetLevel = (request: Hapi.Request, options: SemaphoreOptions): Level =>
     return Level.One;
 };
 
-const queryLevel = (request: Hapi.Request, options: SemaphoreOptions): Level => {
+const queryLevel = (request: Hapi.Request, options: FullSemaphoreOptions): Level => {
     const reservedFields = ["page", "limit", "transform", "offset", "orderBy"];
     const indices = options.queryLevelOptions.map((options) => options.field);
 
-    for (let key of Object.keys(request.query)) {
+    for (const key of Object.keys(request.query)) {
         if (reservedFields.includes(key)) {
             continue;
         }
@@ -175,14 +184,16 @@ const queryLevel = (request: Hapi.Request, options: SemaphoreOptions): Level => 
     return Level.One;
 };
 
-const getRouteSemaphoreOptions = (request): SemaphoreOptions | undefined => {
-    if (
-        request.route.settings.plugins.semaphore &&
-        request.route.settings.plugins.semaphore.enabled &&
-        request.route.settings.plugins.semaphore.queryLevelOptions
-    ) {
-        return request.route.settings.plugins.semaphore;
+const getRouteSemaphoreOptions = (request): SemaphoreOptions => {
+    const result = {
+        enabled: false,
+    };
+
+    if (request.route.settings.plugins.semaphore) {
+        return { ...result, ...request.route.settings.plugins.semaphore };
     }
 
-    return undefined;
+    return {
+        enabled: false,
+    };
 };

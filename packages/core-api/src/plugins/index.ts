@@ -3,8 +3,8 @@ import { dotSeparatedQuery } from "./dot-separated-query";
 import { hapiAjv } from "./hapi-ajv";
 import { log } from "./log";
 import { responseHeaders } from "./response-headers";
-import { whitelist } from "./whitelist";
 import { semaphore } from "./semaphore";
+import { whitelist } from "./whitelist";
 
 export const preparePlugins = (config) => [
     {
