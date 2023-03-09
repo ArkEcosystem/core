@@ -17,6 +17,11 @@ export const register = (server: Hapi.Server): void => {
                     id: Joi.number().integer().min(1),
                 }),
             },
+            plugins: {
+                semaphore: {
+                    enabled: true,
+                },
+            },
         },
     });
 };

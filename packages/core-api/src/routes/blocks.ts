@@ -74,6 +74,11 @@ export const register = (server: Hapi.Server): void => {
                     transform: Joi.bool().default(true),
                 }),
             },
+            plugins: {
+                semaphore: {
+                    enabled: true,
+                },
+            },
         },
     });
 
@@ -95,6 +100,9 @@ export const register = (server: Hapi.Server): void => {
                     .concat(Schemas.pagination),
             },
             plugins: {
+                semaphore: {
+                    enabled: true,
+                },
                 pagination: {
                     enabled: true,
                 },
