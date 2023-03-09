@@ -68,7 +68,7 @@ describe("WalletSearchService.getWallet", () => {
 });
 
 describe("WalletSearchService.getWalletsPage", () => {
-    it("should get first three wallets sorted by balance:desc", () => {
+    it("should get first three wallets sorted by balance:desc", async () => {
         const wallet1 = walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase("secret1"));
         const wallet2 = walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase("secret2"));
         const wallet3 = walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase("secret3"));
@@ -81,7 +81,7 @@ describe("WalletSearchService.getWalletsPage", () => {
         wallet4.setBalance(Utils.BigNumber.make("40"));
         wallet5.setBalance(Utils.BigNumber.make("50"));
 
-        const page = walletSearchService.getWalletsPage({ limit: 3, offset: 0 }, []);
+        const page = await walletSearchService.getWalletsPage({ limit: 3, offset: 0 }, []);
 
         expect(page.results.length).toBe(3);
         expect(page.results[0].address).toBe(wallet3.getAddress());
@@ -90,7 +90,7 @@ describe("WalletSearchService.getWalletsPage", () => {
         expect(page.totalCount).toBe(5);
     });
 
-    it("should get last two wallets sorted by balance:desc", () => {
+    it("should get last two wallets sorted by balance:desc", async () => {
         const wallet1 = walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase("secret1"));
         const wallet2 = walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase("secret2"));
         const wallet3 = walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase("secret3"));
@@ -103,7 +103,7 @@ describe("WalletSearchService.getWalletsPage", () => {
         wallet4.setBalance(Utils.BigNumber.make("40"));
         wallet5.setBalance(Utils.BigNumber.make("50"));
 
-        const page = walletSearchService.getWalletsPage({ limit: 3, offset: 3 }, []);
+        const page = await walletSearchService.getWalletsPage({ limit: 3, offset: 3 }, []);
 
         expect(page.results.length).toBe(2);
         expect(page.results[0].address).toBe(wallet5.getAddress());
@@ -111,7 +111,7 @@ describe("WalletSearchService.getWalletsPage", () => {
         expect(page.totalCount).toBe(5);
     });
 
-    it("should get only three wallets sorted by balance:desc", () => {
+    it("should get only three wallets sorted by balance:desc", async () => {
         const wallet1 = walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase("secret1"));
         const wallet2 = walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase("secret2"));
         const wallet3 = walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase("secret3"));
@@ -124,7 +124,9 @@ describe("WalletSearchService.getWalletsPage", () => {
         wallet4.setBalance(Utils.BigNumber.make("40"));
         wallet5.setBalance(Utils.BigNumber.make("50"));
 
-        const page = walletSearchService.getWalletsPage({ limit: 5, offset: 0 }, [], { balance: { from: "100" } });
+        const page = await walletSearchService.getWalletsPage({ limit: 5, offset: 0 }, [], {
+            balance: { from: "100" },
+        });
 
         expect(page.results.length).toBe(3);
         expect(page.results[0].address).toBe(wallet3.getAddress());
@@ -135,7 +137,7 @@ describe("WalletSearchService.getWalletsPage", () => {
 });
 
 describe("WalletSearchService.getActiveWalletsPage", () => {
-    it("should only get wallets with public keys", () => {
+    it("should only get wallets with public keys", async () => {
         const wallet1 = walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase("secret1"));
         const wallet2 = walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase("secret2"));
         const wallet3 = walletRepository.findByAddress(Identities.Address.fromPassphrase("secret3"));
@@ -148,7 +150,7 @@ describe("WalletSearchService.getActiveWalletsPage", () => {
         wallet4.setBalance(Utils.BigNumber.make("400"));
         wallet5.setBalance(Utils.BigNumber.make("500"));
 
-        const page = walletSearchService.getActiveWalletsPage({ offset: 0, limit: 100 }, [
+        const page = await walletSearchService.getActiveWalletsPage({ offset: 0, limit: 100 }, [
             { property: "balance", direction: "asc" },
         ]);
 
