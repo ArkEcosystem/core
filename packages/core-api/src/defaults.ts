@@ -31,6 +31,7 @@ export const defaults = {
                 levelOne: {
                     concurrency: 10,
                     queueLimit: 100,
+                    maxOffset: 10_000,
                 },
                 levelTwo: {
                     concurrency: 1,
@@ -41,6 +42,7 @@ export const defaults = {
                 levelOne: {
                     concurrency: 10,
                     queueLimit: 100,
+                    maxOffset: 1_000,
                 },
                 levelTwo: {
                     concurrency: 1,

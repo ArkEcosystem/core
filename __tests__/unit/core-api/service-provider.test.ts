@@ -197,10 +197,12 @@ describe("ServiceProvider", () => {
             expect(result.value.plugins.semaphore.enabled).toBeTrue();
             expect(result.value.plugins.semaphore.database.levelOne.concurrency).toBeNumber();
             expect(result.value.plugins.semaphore.database.levelOne.queueLimit).toBeNumber();
+            expect(result.value.plugins.semaphore.database.levelOne.maxOffset).toBeNumber();
             expect(result.value.plugins.semaphore.database.levelTwo.concurrency).toBeNumber();
             expect(result.value.plugins.semaphore.database.levelTwo.queueLimit).toBeNumber();
             expect(result.value.plugins.semaphore.memory.levelOne.concurrency).toBeNumber();
             expect(result.value.plugins.semaphore.memory.levelOne.queueLimit).toBeNumber();
+            expect(result.value.plugins.semaphore.memory.levelOne.maxOffset).toBeNumber();
             expect(result.value.plugins.semaphore.memory.levelTwo.concurrency).toBeNumber();
             expect(result.value.plugins.semaphore.memory.levelTwo.queueLimit).toBeNumber();
 
@@ -934,6 +936,34 @@ describe("ServiceProvider", () => {
                 expect(result.error!.message).toEqual('"plugins.semaphore.database.levelOne.queueLimit" is required');
             });
 
+            it("plugins.semaphore.database.levelOne.maxOffset is required && is integer && >= 0", async () => {
+                defaults.plugins.semaphore.database.levelOne.maxOffset = false;
+                let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual(
+                    '"plugins.semaphore.database.levelOne.maxOffset" must be a number',
+                );
+
+                defaults.plugins.semaphore.database.levelOne.maxOffset = 1.12;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual(
+                    '"plugins.semaphore.database.levelOne.maxOffset" must be an integer',
+                );
+
+                defaults.plugins.semaphore.database.levelOne.maxOffset = -1;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual(
+                    '"plugins.semaphore.database.levelOne.maxOffset" must be greater than or equal to 0',
+                );
+
+                delete defaults.plugins.semaphore.database.levelOne.maxOffset;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.semaphore.database.levelOne.maxOffset" is required');
+            });
+
             it("plugins.semaphore.database.levelTwo is required && is object", async () => {
                 defaults.plugins.semaphore.database.levelTwo = false;
                 let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
@@ -1052,6 +1082,32 @@ describe("ServiceProvider", () => {
                 result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
 
                 expect(result.error!.message).toEqual('"plugins.semaphore.memory.levelOne.concurrency" is required');
+            });
+
+            it("plugins.semaphore.memory.levelOne.maxOffset is required && is integer && >= 0", async () => {
+                defaults.plugins.semaphore.memory.levelOne.maxOffset = false;
+                let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.semaphore.memory.levelOne.maxOffset" must be a number');
+
+                defaults.plugins.semaphore.memory.levelOne.maxOffset = 1.12;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual(
+                    '"plugins.semaphore.memory.levelOne.maxOffset" must be an integer',
+                );
+
+                defaults.plugins.semaphore.memory.levelOne.maxOffset = -1;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual(
+                    '"plugins.semaphore.memory.levelOne.maxOffset" must be greater than or equal to 0',
+                );
+
+                delete defaults.plugins.semaphore.memory.levelOne.maxOffset;
+                result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
+
+                expect(result.error!.message).toEqual('"plugins.semaphore.memory.levelOne.maxOffset" is required');
             });
 
             it("plugins.semaphore.memory.levelOne.queueLimit is required && is integer && >= 0", async () => {
