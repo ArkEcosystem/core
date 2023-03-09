@@ -26,6 +26,7 @@ export const register = (server: Hapi.Server): void => {
             },
             plugins: {
                 semaphore: {
+                    enabled: true,
                     queryLevelOptions: transactionQueryLevelOptions,
                 },
                 pagination: {

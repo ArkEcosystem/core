@@ -22,6 +22,7 @@ type QueryLevelOptions = {
 };
 
 type SemaphoreOptions = {
+    enabled: boolean;
     queryLevelOptions: QueryLevelOptions[];
 };
 
@@ -175,7 +176,11 @@ const queryLevel = (request: Hapi.Request, options: SemaphoreOptions): Level => 
 };
 
 const getRouteSemaphoreOptions = (request): SemaphoreOptions | undefined => {
-    if (request.route.settings.plugins.semaphore && request.route.settings.plugins.semaphore.queryLevelOptions) {
+    if (
+        request.route.settings.plugins.semaphore &&
+        request.route.settings.plugins.semaphore.enabled &&
+        request.route.settings.plugins.semaphore.queryLevelOptions
+    ) {
         return request.route.settings.plugins.semaphore;
     }
 

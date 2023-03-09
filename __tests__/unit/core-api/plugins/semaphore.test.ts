@@ -75,6 +75,7 @@ describe("Semaphore", () => {
                         enabled: true,
                     },
                     semaphore: {
+                        enabled: true,
                         queryLevelOptions: blockQueryLevelOptions,
                     },
                 },
@@ -89,6 +90,24 @@ describe("Semaphore", () => {
 
     it("should not use semaphore if semaphore plugin is not on route", async () => {
         customRoute.options.plugins = {};
+
+        const server = await initServer(app, defaults, customRoute);
+
+        const responses: Promise<any>[] = [server.inject(injectOptions), server.inject(injectOptions)];
+
+        resolve();
+
+        for (let i = 0; i < 2; i++) {
+            expect((await responses[i]).statusCode).toBe(200);
+        }
+        expect(customRoute.handler).toHaveBeenCalledTimes(2);
+    });
+
+    it("should not use semaphore if not enabled", async () => {
+        customRoute.options.plugins.semaphore = {
+            ...customRoute.options.plugins.semaphore,
+            enabled: false,
+        };
 
         const server = await initServer(app, defaults, customRoute);
 
