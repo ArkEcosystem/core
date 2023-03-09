@@ -35,6 +35,7 @@ describe("Semaphore", () => {
                         levelOne: {
                             concurrency: 2,
                             queueLimit: 0,
+                            maxOffset: 10_000,
                         },
                         levelTwo: {
                             concurrency: 1,
@@ -45,9 +46,10 @@ describe("Semaphore", () => {
                         levelOne: {
                             concurrency: 2,
                             queueLimit: 0,
+                            maxOffset: 100,
                         },
                         levelTwo: {
-                            concurrency: 1,
+                            concurrency: 3,
                             queueLimit: 0,
                         },
                     },
@@ -272,6 +274,60 @@ describe("Semaphore", () => {
         },
     );
 
+    it("should use memory semaphore when type = memory", async () => {
+        customRoute = {
+            method: "GET",
+            path: "/test",
+            handler: jest.fn().mockImplementation(async () => {
+                await promise;
+                return customResponse;
+            }),
+            options: {
+                validate: {
+                    query: Joi.object({
+                        ...Schemas.blockCriteriaSchemas,
+                        orderBy: Schemas.blocksOrderBy,
+                        transform: Joi.bool().default(true),
+                    })
+                        .concat(blockSortingSchema)
+                        .concat(Schemas.pagination),
+                },
+                plugins: {
+                    pagination: {
+                        enabled: true,
+                    },
+                    semaphore: {
+                        enabled: true,
+                        type: "memory",
+                        queryLevelOptions: blockQueryLevelOptions,
+                    },
+                },
+            },
+        };
+
+        const server = await initServer(app, defaults, customRoute);
+
+        const customInjectOptions = {
+            ...injectOptions,
+            url: "/test?page=10&limit=11", // Offset is > 100,
+        };
+
+        const responses: Promise<any>[] = [
+            server.inject(customInjectOptions),
+            server.inject(customInjectOptions),
+            server.inject(customInjectOptions),
+            server.inject(customInjectOptions),
+        ];
+
+        resolve();
+
+        expect((await responses[0]).statusCode).toBe(200);
+        expect((await responses[1]).statusCode).toBe(200);
+        expect((await responses[2]).statusCode).toBe(200);
+        expect((await responses[3]).statusCode).toBe(429);
+        expect(customRoute.handler).toHaveBeenCalledTimes(3);
+    });
+
     it("should should respond with 429 when queue is full", async () => {
         const server = await initServer(
             app,
@@ -287,6 +343,7 @@ describe("Semaphore", () => {
                             levelOne: {
                                 concurrency: 2,
                                 queueLimit: 2,
+                                maxOffset: 10_000,
                             },
                             levelTwo: {
                                 concurrency: 1,
@@ -297,6 +354,7 @@ describe("Semaphore", () => {
                             levelOne: {
                                 concurrency: 2,
                                 queueLimit: 2,
+                                maxOffset: 100,
                             },
                             levelTwo: {
                                 concurrency: 1,
