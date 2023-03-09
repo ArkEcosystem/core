@@ -29,6 +29,7 @@ type QueryLevelOptions = {
 
 type SemaphoreOptions = {
     enabled: boolean;
+    type: "database" | "memory";
     queryLevelOptions?: QueryLevelOptions[];
 };
 
@@ -47,17 +48,23 @@ export const semaphore = {
             return;
         }
 
-        const semaphores = new Map<Level, Semaphore>();
-        semaphores.set(Level.One, makeSemaphore(options.database.levelOne.concurrency));
-        semaphores.set(Level.Two, makeSemaphore(options.database.levelTwo.concurrency));
+        const semaphores = { database: new Map<Level, Semaphore>(), memory: new Map<Level, Semaphore>() };
+        semaphores.database.set(Level.One, makeSemaphore(options.database.levelOne.concurrency));
+        semaphores.database.set(Level.Two, makeSemaphore(options.database.levelTwo.concurrency));
+        semaphores.memory.set(Level.One, makeSemaphore(options.memory.levelOne.concurrency));
+        semaphores.memory.set(Level.Two, makeSemaphore(options.memory.levelTwo.concurrency));
 
-        const semaphoresConcurrency = new Map<Level, number>();
-        semaphoresConcurrency.set(Level.One, options.database.levelOne.concurrency);
-        semaphoresConcurrency.set(Level.Two, options.database.levelTwo.concurrency);
+        const semaphoresConcurrency = { database: new Map<Level, number>(), memory: new Map<Level, number>() };
+        semaphoresConcurrency.database.set(Level.One, options.database.levelOne.concurrency);
+        semaphoresConcurrency.database.set(Level.Two, options.database.levelTwo.concurrency);
+        semaphoresConcurrency.memory.set(Level.One, options.memory.levelOne.concurrency);
+        semaphoresConcurrency.memory.set(Level.Two, options.memory.levelTwo.concurrency);
 
-        const semaphoresQueueLimit = new Map<Level, number>();
-        semaphoresQueueLimit.set(Level.One, options.database.levelOne.queueLimit);
-        semaphoresQueueLimit.set(Level.Two, options.database.levelTwo.queueLimit);
+        const semaphoresQueueLimit = { database: new Map<Level, number>(), memory: new Map<Level, number>() };
+        semaphoresQueueLimit.database.set(Level.One, options.database.levelOne.queueLimit);
+        semaphoresQueueLimit.database.set(Level.Two, options.database.levelTwo.queueLimit);
+        semaphoresQueueLimit.memory.set(Level.One, options.memory.levelOne.queueLimit);
+        semaphoresQueueLimit.memory.set(Level.Two, options.memory.levelTwo.queueLimit);
 
         const requestLevels = new Map<Hapi.Request, Level>();
 
@@ -66,12 +73,12 @@ export const semaphore = {
 
             if (options.enabled) {
                 const level = getLevel(request, options);
-                const sem = semaphores.get(level)!;
+                const sem = semaphores[options.type].get(level)!;
 
                 if (
                     // @ts-ignore
-                    sem.queue.length + (sem.current - semaphoresConcurrency.get(level)!) >=
-                    semaphoresQueueLimit.get(level)!
+                    sem.queue.length + (sem.current - semaphoresConcurrency[options.type].get(level)!) >=
+                    semaphoresQueueLimit[options.type].get(level)!
                 ) {
                     return Boom.tooManyRequests();
                 }
@@ -89,11 +96,13 @@ export const semaphore = {
         });
 
         server.events.on("response", (request: Hapi.Request) => {
+            const options = getRouteSemaphoreOptions(request);
+
             const level = requestLevels.get(request);
 
             if (level) {
                 requestLevels.delete(request);
-                const sem = semaphores.get(level)!;
+                const sem = semaphores[options.type].get(level)!;
 
                 sem.leave();
             }
@@ -191,15 +200,14 @@ const queryLevel = (request: Hapi.Request, options: FullSemaphoreOptions): Level
 };
 
 const getRouteSemaphoreOptions = (request): SemaphoreOptions => {
-    const result = {
+    const result: SemaphoreOptions = {
         enabled: false,
+        type: "database",
     };
 
     if (request.route.settings.plugins.semaphore) {
         return { ...result, ...request.route.settings.plugins.semaphore };
     }
 
-    return {
-        enabled: false,
-    };
+    return result;
 };
