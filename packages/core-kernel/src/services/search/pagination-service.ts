@@ -1,10 +1,9 @@
 import { Utils } from "@arkecosystem/crypto";
+import createTree from "functional-red-black-tree";
 
 import { Pagination, ResultsPage, Sorting } from "../../contracts/search";
 import { injectable } from "../../ioc";
 import { get } from "../../utils";
-
-import createTree from "functional-red-black-tree";
 
 @injectable()
 export class PaginationService {
@@ -12,13 +11,13 @@ export class PaginationService {
         return { results: [], totalCount: 0, meta: { totalCountIsEstimate: false } };
     }
 
-    public getPage<T>(pagination: Pagination, sorting: Sorting, items: Iterable<T>): ResultsPage<T> {
+    public async getPage<T>(pagination: Pagination, sorting: Sorting, items: Iterable<T>): Promise<ResultsPage<T>> {
         const all = Array.from(items);
 
         const results =
             sorting.length === 0
                 ? all.slice(pagination.offset, pagination.offset + pagination.limit)
-                : this.getTop(sorting, pagination.offset + pagination.limit, all).slice(pagination.offset);
+                : (await this.getTop(sorting, pagination.offset + pagination.limit, all)).slice(pagination.offset);
 
         return {
             results,
@@ -27,7 +26,7 @@ export class PaginationService {
         };
     }
 
-    public getTop<T>(sorting: Sorting, count: number, items: Iterable<T>): T[] {
+    public async getTop<T>(sorting: Sorting, count: number, items: Iterable<T>): Promise<T[]> {
         if (count < 0) {
             throw new RangeError(`Count should be greater or equal than zero.`);
         }
@@ -42,6 +41,12 @@ export class PaginationService {
 
         let i = 0;
         for (const item of items) {
+            if (i % 1000 === 0) {
+                await new Promise<void>((resolve) => {
+                    setImmediate(() => resolve());
+                });
+            }
+
             const key = {
                 index: i++,
                 item: item,

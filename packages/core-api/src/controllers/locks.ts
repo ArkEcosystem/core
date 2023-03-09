@@ -17,7 +17,7 @@ export class LocksController extends Controller {
     @Container.inject(Container.Identifiers.TransactionHistoryService)
     private readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
 
-    public index(request: Hapi.Request): Contracts.Search.ResultsPage<LockResource> {
+    public async index(request: Hapi.Request): Promise<Contracts.Search.ResultsPage<LockResource>> {
         const pagination = this.getQueryPagination(request.query);
         const sorting = request.query.orderBy as Contracts.Search.Sorting;
         const criteria = this.getQueryCriteria(request.query, lockCriteriaSchemaObject) as LockCriteria;
