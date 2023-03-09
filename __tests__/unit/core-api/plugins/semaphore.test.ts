@@ -163,9 +163,12 @@ describe("Semaphore", () => {
         "/test?orderBy=payloadHash:asc&height=2", // Uses diverse index direct value
     ];
 
-    const levelTwoQueries = [
+    const levelTwoOffsetQueries = [
         "/test?page=101&limit=100", // Offset is > 10_000
         "/test?offset=10001", // Offset is > 10_000
+    ];
+
+    const levelTwoQueries = [
         "/test?payloadLength=1", // Non indexed field value
         "/test?payloadLength.from=1", // Non indexed field from
         "/test?payloadLength.to=1", // Non indexed field to
@@ -203,7 +206,7 @@ describe("Semaphore", () => {
         expect(customRoute.handler).toHaveBeenCalledTimes(2);
     });
 
-    it.each(levelTwoQueries)("should use level 2 semaphore", async (url) => {
+    it.each([...levelTwoOffsetQueries, ...levelTwoQueries])("should use level 2 semaphore", async (url) => {
         const server = await initServer(app, defaults, customRoute);
 
         const customInjectOptions = {
@@ -220,59 +223,57 @@ describe("Semaphore", () => {
         expect(customRoute.handler).toHaveBeenCalledTimes(1);
     });
 
-    it.each(levelTwoQueries.slice(0, 1))(
-        "should use level 1 semaphore when queryLevelSchema is not defined",
-        async (url) => {
-            customRoute = {
-                method: "GET",
-                path: "/test",
-                handler: jest.fn().mockImplementation(async () => {
-                    await promise;
-                    return customResponse;
-                }),
-                options: {
-                    validate: {
-                        query: Joi.object({
-                            ...Schemas.blockCriteriaSchemas,
-                            orderBy: Schemas.blocksOrderBy,
-                            transform: Joi.bool().default(true),
-                        })
-                            .concat(blockSortingSchema)
-                            .concat(Schemas.pagination),
+    // Skip offsets
+    it.each(levelTwoQueries)("should use level 1 semaphore when queryLevelSchema is not defined", async (url) => {
+        customRoute = {
+            method: "GET",
+            path: "/test",
+            handler: jest.fn().mockImplementation(async () => {
+                await promise;
+                return customResponse;
+            }),
+            options: {
+                validate: {
+                    query: Joi.object({
+                        ...Schemas.blockCriteriaSchemas,
+                        orderBy: Schemas.blocksOrderBy,
+                        transform: Joi.bool().default(true),
+                    })
+                        .concat(blockSortingSchema)
+                        .concat(Schemas.pagination),
+                },
+                plugins: {
+                    pagination: {
+                        enabled: true,
                     },
-                    plugins: {
-                        pagination: {
-                            enabled: true,
-                        },
-                        semaphore: {
-                            enabled: true,
-                        },
+                    semaphore: {
+                        enabled: true,
                     },
                 },
-            };
+            },
+        };
 
-            const server = await initServer(app, defaults, customRoute);
+        const server = await initServer(app, defaults, customRoute);
 
-            const customInjectOptions = {
-                ...injectOptions,
-                url: url,
-            };
+        const customInjectOptions = {
+            ...injectOptions,
+            url: url,
+        };
 
-            const responses: Promise<any>[] = [
-                server.inject(customInjectOptions),
-                server.inject(customInjectOptions),
-                server.inject(customInjectOptions),
-            ];
+        const responses: Promise<any>[] = [
+            server.inject(customInjectOptions),
+            server.inject(customInjectOptions),
+            server.inject(customInjectOptions),
+        ];
 
-            resolve();
+        resolve();
 
-            for (let i = 0; i < 2; i++) {
-                expect((await responses[i]).statusCode).toBe(200);
-            }
-            expect((await responses[2]).statusCode).toBe(429);
-            expect(customRoute.handler).toHaveBeenCalledTimes(2);
-        },
-    );
+        for (let i = 0; i < 2; i++) {
+            expect((await responses[i]).statusCode).toBe(200);
+        }
+        expect((await responses[2]).statusCode).toBe(429);
+        expect(customRoute.handler).toHaveBeenCalledTimes(2);
+    });
 
     it("should use memory semaphore when type = memory", async () => {
         customRoute = {
@@ -299,7 +300,6 @@ describe("Semaphore", () => {
                     semaphore: {
                         enabled: true,
                         type: "memory",
-                        queryLevelOptions: blockQueryLevelOptions,
                     },
                 },
             },

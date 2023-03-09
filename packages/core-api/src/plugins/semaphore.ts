@@ -131,7 +131,7 @@ export const semaphore = {
                 return levels.includes(Level.Two) ? Level.Two : Level.One;
             }
 
-            return Level.One;
+            return offsetLevel(request, options);
         };
 
         const usesDiverseIndex = (request: Hapi.Request, options: FullSemaphoreOptions): boolean => {
@@ -172,7 +172,7 @@ export const semaphore = {
             return Level.One;
         };
 
-        const offsetLevel = (request: Hapi.Request, options: FullSemaphoreOptions): Level => {
+        const offsetLevel = (request: Hapi.Request, options: SemaphoreOptions): Level => {
             const offset = pluginOptions[options.type].levelOne.maxOffset;
 
             if (request.query.offset && request.query.offset > offset) {
