@@ -94,11 +94,11 @@ describe("LockSearchService", () => {
             });
         });
 
-        it("should check all locks in locks index", () => {
+        it("should check all locks in locks index", async () => {
             standardCriteriaService.testStandardCriterias.mockReturnValue(true);
             AppUtils.expirationCalculator.calculateLockExpirationStatus = jest.fn().mockReturnValue(false);
 
-            const result = lockSearchService.getLocksPage(
+            const result = await lockSearchService.getLocksPage(
                 {
                     offset: 0,
                     limit: 100,
@@ -110,11 +110,11 @@ describe("LockSearchService", () => {
             expect(result.results).toEqual([Locks.lockResource]);
         });
 
-        it("should return empty array if all tested criterias are false", () => {
+        it("should return empty array if all tested criterias are false", async () => {
             standardCriteriaService.testStandardCriterias.mockReturnValue(false);
             AppUtils.expirationCalculator.calculateLockExpirationStatus = jest.fn().mockReturnValue(false);
 
-            const result = lockSearchService.getLocksPage(
+            const result = await lockSearchService.getLocksPage(
                 {
                     offset: 0,
                     limit: 100,
@@ -140,11 +140,11 @@ describe("LockSearchService", () => {
             walletRepository.findByAddress.mockReturnValue(walletWithLock);
         });
 
-        it("should check and return all wallet locks", () => {
+        it("should check and return all wallet locks", async () => {
             standardCriteriaService.testStandardCriterias.mockReturnValue(true);
             AppUtils.expirationCalculator.calculateLockExpirationStatus = jest.fn().mockReturnValue(false);
 
-            const result = lockSearchService.getWalletLocksPage(
+            const result = await lockSearchService.getWalletLocksPage(
                 {
                     offset: 0,
                     limit: 100,
@@ -157,11 +157,11 @@ describe("LockSearchService", () => {
             expect(result.results).toEqual([Locks.lockResource]);
         });
 
-        it("should return empty array if all tested criterias are false", () => {
+        it("should return empty array if all tested criterias are false", async () => {
             standardCriteriaService.testStandardCriterias.mockReturnValue(false);
             AppUtils.expirationCalculator.calculateLockExpirationStatus = jest.fn().mockReturnValue(false);
 
-            const result = lockSearchService.getWalletLocksPage(
+            const result = await lockSearchService.getWalletLocksPage(
                 {
                     offset: 0,
                     limit: 100,

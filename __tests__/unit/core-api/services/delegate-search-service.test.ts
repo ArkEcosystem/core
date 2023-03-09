@@ -122,7 +122,7 @@ describe("DelegateSearchService", () => {
     });
 
     describe("getDelegatesPage", () => {
-        it("should return results with delegate", () => {
+        it("should return results with delegate", async () => {
             const delegate = new Wallets.Wallet("ANBkoGqWeTSiaEVgVzSKZd3jS7UWzv9PSo", attributeMap);
             delegate.setPublicKey("03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37");
 
@@ -138,7 +138,7 @@ describe("DelegateSearchService", () => {
             walletRepository.allByUsername.mockReturnValue([delegate]);
             standardCriteriaService.testStandardCriterias.mockReturnValue(true);
 
-            const result = delegateSearchService.getDelegatesPage(
+            const result = await delegateSearchService.getDelegatesPage(
                 {
                     offset: 0,
                     limit: 100,
@@ -154,7 +154,7 @@ describe("DelegateSearchService", () => {
             expect(spyOnCalculateApproval).toHaveBeenCalledWith(delegate, AppUtils.BigNumber.ZERO, 100);
         });
 
-        it("should return empty array if all tested criterias are false", () => {
+        it("should return empty array if all tested criterias are false", async () => {
             const delegate = new Wallets.Wallet("ANBkoGqWeTSiaEVgVzSKZd3jS7UWzv9PSo", attributeMap);
             delegate.setPublicKey("03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37");
 
@@ -170,7 +170,7 @@ describe("DelegateSearchService", () => {
             walletRepository.allByUsername.mockReturnValue([delegate]);
             standardCriteriaService.testStandardCriterias.mockReturnValue(false);
 
-            const result = delegateSearchService.getDelegatesPage(
+            const result = await delegateSearchService.getDelegatesPage(
                 {
                     offset: 0,
                     limit: 100,
