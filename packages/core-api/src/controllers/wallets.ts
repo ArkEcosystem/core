@@ -28,6 +28,7 @@ export class WalletsController extends Controller {
     private readonly lockSearchService!: LockSearchService;
 
     @Container.inject(Container.Identifiers.TransactionHistoryService)
+    @Container.tagged("connection", "api")
     private readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
 
     public async index(request: Hapi.Request): Promise<Contracts.Search.ResultsPage<WalletResource>> {

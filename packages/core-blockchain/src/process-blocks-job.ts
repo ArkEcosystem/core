@@ -25,6 +25,7 @@ export class ProcessBlocksJob implements Contracts.Kernel.QueueJob {
     private readonly database!: DatabaseService;
 
     @Container.inject(Container.Identifiers.DatabaseBlockRepository)
+    @Container.tagged("connection", "default")
     private readonly blockRepository!: Repositories.BlockRepository;
 
     @Container.inject(Container.Identifiers.DatabaseInteraction)

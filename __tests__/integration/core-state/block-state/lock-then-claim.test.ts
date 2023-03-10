@@ -33,8 +33,10 @@ test("BlockState handling [lock], [claim] blocks", async () => {
         "blockchain",
     );
 
-    const transactionRepository = app.get<Repositories.TransactionRepository>(
+    const transactionRepository = app.getTagged<Repositories.TransactionRepository>(
         Container.Identifiers.DatabaseTransactionRepository,
+        "connection",
+        "default",
     );
 
     const lockSecret = Buffer.from("a".repeat(32), "utf-8");
