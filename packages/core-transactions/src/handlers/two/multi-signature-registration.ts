@@ -19,6 +19,7 @@ export class MultiSignatureRegistrationTransactionHandler extends TransactionHan
     private readonly mempoolIndexRegistry!: Contracts.TransactionPool.MempoolIndexRegistry;
 
     @Container.inject(Container.Identifiers.TransactionHistoryService)
+    @Container.tagged("connection", "default")
     private readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
 
     public dependencies(): ReadonlyArray<TransactionHandlerConstructor> {

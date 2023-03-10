@@ -17,6 +17,7 @@ export class BusinessRegistrationTransactionHandler extends MagistrateTransactio
     private readonly poolQuery!: Contracts.TransactionPool.Query;
 
     @Container.inject(Container.Identifiers.TransactionHistoryService)
+    @Container.tagged("connection", "default")
     private readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
 
     public dependencies(): ReadonlyArray<Handlers.TransactionHandlerConstructor> {

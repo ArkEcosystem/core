@@ -20,9 +20,11 @@ export class TransactionsController extends Controller {
     private readonly poolQuery!: Contracts.TransactionPool.Query;
 
     @Container.inject(Container.Identifiers.TransactionHistoryService)
+    @Container.tagged("connection", "api")
     private readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
 
     @Container.inject(Container.Identifiers.BlockHistoryService)
+    @Container.tagged("connection", "api")
     private readonly blockHistoryService!: Contracts.Shared.BlockHistoryService;
 
     @Container.inject(Container.Identifiers.TransactionPoolProcessor)

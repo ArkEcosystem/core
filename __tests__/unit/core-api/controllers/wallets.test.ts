@@ -83,16 +83,16 @@ const wallet1LockResource1: Resources.LockResource = {
 
 describe("WalletsController", () => {
     describe("Index", () => {
-        it("should get criteria from query and return wallets page from WalletSearchService", () => {
+        it("should get criteria from query and return wallets page from WalletSearchService", async () => {
             const walletsPage: Contracts.Search.ResultsPage<Resources.WalletResource> = {
                 results: [walletResource1],
                 totalCount: 1,
                 meta: { totalCountIsEstimate: false },
             };
-            walletSearchService.getWalletsPage.mockReturnValueOnce(walletsPage);
+            walletSearchService.getWalletsPage.mockResolvedValueOnce(walletsPage);
 
             const walletsController = container.resolve(WalletsController);
-            const result = walletsController.index({
+            const result = await walletsController.index({
                 query: {
                     page: 1,
                     limit: 100,
@@ -114,16 +114,16 @@ describe("WalletsController", () => {
     describe("Top", () => {
         // it is exact duplicate of WalletsController.index
 
-        it("should get criteria from query and return wallets page from WalletSearchService", () => {
+        it("should get criteria from query and return wallets page from WalletSearchService", async () => {
             const walletsPage: Contracts.Search.ResultsPage<Resources.WalletResource> = {
                 results: [walletResource1],
                 totalCount: 1,
                 meta: { totalCountIsEstimate: false },
             };
-            walletSearchService.getWalletsPage.mockReturnValueOnce(walletsPage);
+            walletSearchService.getWalletsPage.mockResolvedValueOnce(walletsPage);
 
             const walletsController = container.resolve(WalletsController);
-            const result = walletsController.top({
+            const result = await walletsController.top({
                 query: {
                     page: 1,
                     limit: 100,
@@ -173,7 +173,7 @@ describe("WalletsController", () => {
     });
 
     describe("Locks", () => {
-        it("should get wallet id from pathname and criteria from query and return locks page from LockSearchService", () => {
+        it("should get wallet id from pathname and criteria from query and return locks page from LockSearchService", async () => {
             walletSearchService.getWallet.mockReturnValueOnce(walletResource1);
 
             const locksPage: Contracts.Search.ResultsPage<Resources.LockResource> = {
@@ -181,10 +181,10 @@ describe("WalletsController", () => {
                 totalCount: 1,
                 meta: { totalCountIsEstimate: false },
             };
-            lockSearchService.getWalletLocksPage.mockReturnValueOnce(locksPage);
+            lockSearchService.getWalletLocksPage.mockResolvedValueOnce(locksPage);
 
             const walletsController = container.resolve(WalletsController);
-            const result = walletsController.locks({
+            const result = await walletsController.locks({
                 params: {
                     id: walletResource1.publicKey,
                 },
@@ -208,11 +208,11 @@ describe("WalletsController", () => {
             expect(result).toBe(locksPage);
         });
 
-        it("should return 404 when wallet wasn't found", () => {
+        it("should return 404 when wallet wasn't found", async () => {
             walletSearchService.getWallet.mockReturnValueOnce(undefined);
 
             const walletsController = container.resolve(WalletsController);
-            const result = walletsController.locks({
+            const result = await walletsController.locks({
                 params: {
                     id: "non-existing-wallet-id",
                 },

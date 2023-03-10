@@ -60,7 +60,7 @@ describe("API 2.0 - Delegates", () => {
             const response = await api.request("GET", `delegates`, { address });
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
-            expect(response.data.data.map(d => d.address).sort()).toEqual(address.sort());
+            expect(response.data.data.map((d) => d.address).sort()).toEqual(address.sort());
         });
     });
 
@@ -74,7 +74,11 @@ describe("API 2.0 - Delegates", () => {
 
             // save a new block so that we can make the request with generatorPublicKey
             await app
-                .get<Repositories.BlockRepository>(Container.Identifiers.DatabaseBlockRepository)
+                .getTagged<Repositories.BlockRepository>(
+                    Container.Identifiers.DatabaseBlockRepository,
+                    "connection",
+                    "api",
+                )
                 .saveBlocks([block2]);
 
             const response = await api.request("GET", `delegates/${block2.data.generatorPublicKey}/blocks`);
@@ -86,7 +90,11 @@ describe("API 2.0 - Delegates", () => {
             }
 
             await app
-                .get<Repositories.BlockRepository>(Container.Identifiers.DatabaseBlockRepository)
+                .getTagged<Repositories.BlockRepository>(
+                    Container.Identifiers.DatabaseBlockRepository,
+                    "connection",
+                    "api",
+                )
                 .deleteBlocks([block2.data]); // reset to genesis block
         });
 

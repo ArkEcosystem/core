@@ -10,9 +10,11 @@ export class StateBuilder {
     private readonly app!: Application;
 
     @Container.inject(Container.Identifiers.DatabaseBlockRepository)
+    @Container.tagged("connection", "default")
     private blockRepository!: Repositories.BlockRepository;
 
     @Container.inject(Container.Identifiers.DatabaseTransactionRepository)
+    @Container.tagged("connection", "default")
     private transactionRepository!: Repositories.TransactionRepository;
 
     @Container.inject(Container.Identifiers.WalletRepository)

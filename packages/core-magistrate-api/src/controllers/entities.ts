@@ -12,7 +12,7 @@ export class EntityController extends Controller {
     @Container.inject(Identifiers.EntitySearchService)
     private readonly entitySearchService!: EntitySearchService;
 
-    public index(request: Hapi.Request): Contracts.Search.ResultsPage<EntityResource> {
+    public async index(request: Hapi.Request): Promise<Contracts.Search.ResultsPage<EntityResource>> {
         const pagination = this.getQueryPagination(request.query);
         const sorting = request.query.orderBy as Contracts.Search.Sorting;
         const criteria = this.getQueryCriteria(request.query, entityCriteriaSchemaObject) as EntityCriteria;

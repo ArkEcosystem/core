@@ -28,9 +28,10 @@ export class WalletsController extends Controller {
     private readonly lockSearchService!: LockSearchService;
 
     @Container.inject(Container.Identifiers.TransactionHistoryService)
+    @Container.tagged("connection", "api")
     private readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
 
-    public index(request: Hapi.Request): Contracts.Search.ResultsPage<WalletResource> {
+    public async index(request: Hapi.Request): Promise<Contracts.Search.ResultsPage<WalletResource>> {
         const pagination = this.getQueryPagination(request.query);
         const sorting = request.query.orderBy as Contracts.Search.Sorting;
         const criteria = this.getQueryCriteria(request.query, walletCriteriaSchemaObject) as WalletCriteria;
@@ -38,7 +39,7 @@ export class WalletsController extends Controller {
         return this.walletSearchService.getWalletsPage(pagination, sorting, criteria);
     }
 
-    public top(request: Hapi.Request): Contracts.Search.ResultsPage<WalletResource> {
+    public async top(request: Hapi.Request): Promise<Contracts.Search.ResultsPage<WalletResource>> {
         const pagination = this.getQueryPagination(request.query);
         const sorting = request.query.orderBy as Contracts.Search.Sorting;
         const criteria = this.getQueryCriteria(request.query, walletCriteriaSchemaObject) as WalletCriteria;
@@ -57,7 +58,7 @@ export class WalletsController extends Controller {
         return { data: walletResource };
     }
 
-    public locks(request: Hapi.Request): Contracts.Search.ResultsPage<LockResource> | Boom {
+    public async locks(request: Hapi.Request): Promise<Contracts.Search.ResultsPage<LockResource> | Boom> {
         const walletId = request.params.id as string;
         const walletResource = this.walletSearchService.getWallet(walletId);
 
