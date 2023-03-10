@@ -27,22 +27,22 @@ export class LockSearchService {
         }
     }
 
-    public getLocksPage(
+    public async getLocksPage(
         pagination: Contracts.Search.Pagination,
         sorting: Contracts.Search.Sorting,
         ...criterias: LockCriteria[]
-    ): Contracts.Search.ResultsPage<LockResource> {
+    ): Promise<Contracts.Search.ResultsPage<LockResource>> {
         sorting = [...sorting, { property: "timestamp.unix", direction: "desc" }];
 
         return this.paginationService.getPage(pagination, sorting, this.getLocks(...criterias));
     }
 
-    public getWalletLocksPage(
+    public async getWalletLocksPage(
         pagination: Contracts.Search.Pagination,
         sorting: Contracts.Search.Sorting,
         walletAddress: string,
         ...criterias: LockCriteria[]
-    ): Contracts.Search.ResultsPage<LockResource> {
+    ): Promise<Contracts.Search.ResultsPage<LockResource>> {
         sorting = [...sorting, { property: "timestamp.unix", direction: "desc" }];
 
         return this.paginationService.getPage(pagination, sorting, this.getWalletLocks(walletAddress, ...criterias));

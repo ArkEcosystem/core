@@ -57,16 +57,16 @@ const lockResource1: Resources.LockResource = {
 
 describe("LocksController", () => {
     describe("Index", () => {
-        it("should get criteria from query and return locks page from LockSearchService", () => {
+        it("should get criteria from query and return locks page from LockSearchService", async () => {
             const locksPage: Contracts.Search.ResultsPage<Resources.LockResource> = {
                 results: [lockResource1],
                 totalCount: 1,
                 meta: { totalCountIsEstimate: false },
             };
-            lockSearchService.getLocksPage.mockReturnValueOnce(locksPage);
+            lockSearchService.getLocksPage.mockResolvedValueOnce(locksPage);
 
             const locksController = container.resolve(LocksController);
-            const result = locksController.index({
+            const result = await locksController.index({
                 query: {
                     page: 1,
                     limit: 100,

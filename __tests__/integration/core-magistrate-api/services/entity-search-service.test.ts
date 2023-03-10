@@ -1,10 +1,10 @@
-import { EntitySearchService, Identifiers as MagistrateApiIdentifiers } from "@arkecosystem/core-magistrate-api/src";
 import { Container, Contracts } from "@arkecosystem/core-kernel";
-
-import { setUp } from "./__support__/setup";
-import { setIndexes } from "../__support__/set-indexes";
+import { EntitySearchService, Identifiers as MagistrateApiIdentifiers } from "@arkecosystem/core-magistrate-api/src";
 import { Enums } from "@arkecosystem/core-magistrate-crypto";
 import { Identities } from "@arkecosystem/crypto";
+
+import { setIndexes } from "../__support__/set-indexes";
+import { setUp } from "./__support__/setup";
 
 const entityId1 = "2a2498072a798318f5e321b312dfc7dcb87f33e10a251baf07ed8f950bd499ec";
 const entityAttribute1 = {
@@ -56,7 +56,7 @@ describe("EntitySearchService.getEntity", () => {
 });
 
 describe("EntitySearchService.getEntitiesPage", () => {
-    it("should return all entities", () => {
+    it("should return all entities", async () => {
         const wallet1 = walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase("wallet1"));
         wallet1.setAttribute("entities", { [entityId1]: entityAttribute1 });
         setIndexes(walletRepository, wallet1);
@@ -65,14 +65,14 @@ describe("EntitySearchService.getEntitiesPage", () => {
         wallet2.setAttribute("entities", { [entityId2]: entityAttribute2 });
         setIndexes(walletRepository, wallet2);
 
-        const entitiesPage = entitySearchService.getEntitiesPage({ offset: 0, limit: 100 }, []);
+        const entitiesPage = await entitySearchService.getEntitiesPage({ offset: 0, limit: 100 }, []);
 
         expect(entitiesPage.totalCount).toBe(2);
         expect(entitiesPage.results[0].data.name).toBe("entity 1");
         expect(entitiesPage.results[1].data.name).toBe("entity 2");
     });
 
-    it("should entities that match criteria", () => {
+    it("should entities that match criteria", async () => {
         const wallet1 = walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase("wallet1"));
         wallet1.setAttribute("entities", { [entityId1]: entityAttribute1 });
         setIndexes(walletRepository, wallet1);
@@ -81,7 +81,7 @@ describe("EntitySearchService.getEntitiesPage", () => {
         wallet2.setAttribute("entities", { [entityId2]: entityAttribute2 });
         setIndexes(walletRepository, wallet2);
 
-        const entitiesPage = entitySearchService.getEntitiesPage({ offset: 0, limit: 100 }, [], {
+        const entitiesPage = await entitySearchService.getEntitiesPage({ offset: 0, limit: 100 }, [], {
             data: { name: "entity 1" },
         });
 

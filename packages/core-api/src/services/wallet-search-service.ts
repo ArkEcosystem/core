@@ -36,21 +36,21 @@ export class WalletSearchService {
         }
     }
 
-    public getWalletsPage(
+    public async getWalletsPage(
         pagination: Contracts.Search.Pagination,
         sorting: Contracts.Search.Sorting,
         ...criterias: WalletCriteria[]
-    ): Contracts.Search.ResultsPage<WalletResource> {
+    ): Promise<Contracts.Search.ResultsPage<WalletResource>> {
         sorting = [...sorting, { property: "balance", direction: "desc" }];
 
         return this.paginationService.getPage(pagination, sorting, this.getWallets(...criterias));
     }
 
-    public getActiveWalletsPage(
+    public async getActiveWalletsPage(
         pagination: Contracts.Search.Pagination,
         sorting: Contracts.Search.Sorting,
         ...criterias: WalletCriteria[]
-    ): Contracts.Search.ResultsPage<WalletResource> {
+    ): Promise<Contracts.Search.ResultsPage<WalletResource>> {
         sorting = [...sorting, { property: "balance", direction: "desc" }];
 
         return this.paginationService.getPage(pagination, sorting, this.getActiveWallets(...criterias));

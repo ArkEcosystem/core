@@ -39,17 +39,17 @@ const entityResource1 = {
 };
 
 describe("EntityController.index", () => {
-    it("should get criteria from query and return page from EntitySearchService", () => {
+    it("should get criteria from query and return page from EntitySearchService", async () => {
         const entitiesPage: Contracts.Search.ResultsPage<Resources.EntityResource> = {
             results: [entityResource1],
             totalCount: 1,
             meta: { totalCountIsEstimate: false },
         };
 
-        entitySearchService.getEntitiesPage.mockReturnValueOnce(entitiesPage);
+        entitySearchService.getEntitiesPage.mockResolvedValueOnce(entitiesPage);
 
         const entityController = container.resolve(EntityController);
-        const result = entityController.index({
+        const result = await entityController.index({
             query: {
                 type: Enums.EntityType.Business,
                 page: 1,

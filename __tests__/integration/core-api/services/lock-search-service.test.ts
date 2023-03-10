@@ -59,13 +59,13 @@ beforeEach(async () => {
 });
 
 describe("LockSearchService.getLock", () => {
-    it("should return lock resource by id", () => {
+    it("should return lock resource by id", async () => {
         const wallet1 = walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase("wallet1"));
         wallet1.setAttribute("htlc.locks", { [lockId1]: lockAttribute1 });
         walletRepository.index(wallet1);
 
         stateStore.getLastBlock.mockReturnValue({ data: { height: 1000 } } as any);
-        const lockResource1 = lockSearchService.getLock(lockId1);
+        const lockResource1 = await lockSearchService.getLock(lockId1);
 
         expect(lockResource1.lockId).toEqual(lockId1);
     });
@@ -77,7 +77,7 @@ describe("LockSearchService.getLock", () => {
 });
 
 describe("LockSearchService.getLocksPage", () => {
-    it("should return all locks", () => {
+    it("should return all locks", async () => {
         const wallet1 = walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase("wallet1"));
         wallet1.setAttribute("htlc.locks", { [lockId1]: lockAttribute1 });
         walletRepository.index(wallet1);
@@ -87,7 +87,7 @@ describe("LockSearchService.getLocksPage", () => {
         walletRepository.index(wallet2);
 
         stateStore.getLastBlock.mockReturnValue({ data: { height: 1000 } } as any);
-        const locksPage = lockSearchService.getLocksPage({ offset: 0, limit: 100 }, [
+        const locksPage = await lockSearchService.getLocksPage({ offset: 0, limit: 100 }, [
             { property: "amount", direction: "asc" },
         ]);
 
@@ -96,7 +96,7 @@ describe("LockSearchService.getLocksPage", () => {
         expect(locksPage.results[1].lockId).toBe(lockId2);
     });
 
-    it("should return locks that match criteria", () => {
+    it("should return locks that match criteria", async () => {
         const wallet1 = walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase("wallet1"));
         wallet1.setAttribute("htlc.locks", { [lockId1]: lockAttribute1 });
         walletRepository.index(wallet1);
@@ -106,7 +106,7 @@ describe("LockSearchService.getLocksPage", () => {
         walletRepository.index(wallet2);
 
         stateStore.getLastBlock.mockReturnValue({ data: { height: 1000 } } as any);
-        const locksPage = lockSearchService.getLocksPage(
+        const locksPage = await lockSearchService.getLocksPage(
             { offset: 0, limit: 100 },
             [{ property: "amount", direction: "asc" }],
             { amount: "1000" },
@@ -118,13 +118,13 @@ describe("LockSearchService.getLocksPage", () => {
 });
 
 describe("LockSearchService.getWalletLocksPage", () => {
-    it("should return all wallet locks", () => {
+    it("should return all wallet locks", async () => {
         const wallet1 = walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase("wallet1"));
         wallet1.setAttribute("htlc.locks", { [lockId1]: lockAttribute1, [lockId2]: lockAttribute2 });
         walletRepository.index(wallet1);
 
         stateStore.getLastBlock.mockReturnValue({ data: { height: 1000 } } as any);
-        const locksPage = lockSearchService.getWalletLocksPage(
+        const locksPage = await lockSearchService.getWalletLocksPage(
             { offset: 0, limit: 100 },
             [{ property: "amount", direction: "asc" }],
             wallet1.getAddress(),
@@ -135,13 +135,13 @@ describe("LockSearchService.getWalletLocksPage", () => {
         expect(locksPage.results[1].lockId).toBe(lockId2);
     });
 
-    it("should return all wallet locks that match criteria", () => {
+    it("should return all wallet locks that match criteria", async () => {
         const wallet1 = walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase("wallet1"));
         wallet1.setAttribute("htlc.locks", { [lockId1]: lockAttribute1, [lockId2]: lockAttribute2 });
         walletRepository.index(wallet1);
 
         stateStore.getLastBlock.mockReturnValue({ data: { height: 1000 } } as any);
-        const locksPage = lockSearchService.getWalletLocksPage(
+        const locksPage = await lockSearchService.getWalletLocksPage(
             { offset: 0, limit: 100 },
             [{ property: "amount", direction: "asc" }],
             wallet1.getAddress(),
@@ -152,7 +152,7 @@ describe("LockSearchService.getWalletLocksPage", () => {
         expect(locksPage.results[0].lockId).toBe(lockId1);
     });
 
-    it("should return only wallet locks", () => {
+    it("should return only wallet locks", async () => {
         const wallet1 = walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase("wallet1"));
         wallet1.setAttribute("htlc.locks", { [lockId1]: lockAttribute1 });
         walletRepository.index(wallet1);
@@ -162,7 +162,7 @@ describe("LockSearchService.getWalletLocksPage", () => {
         walletRepository.index(wallet2);
 
         stateStore.getLastBlock.mockReturnValue({ data: { height: 1000 } } as any);
-        const locksPage = lockSearchService.getWalletLocksPage(
+        const locksPage = await lockSearchService.getWalletLocksPage(
             { offset: 0, limit: 100 },
             [{ property: "amount", direction: "asc" }],
             wallet1.getAddress(),
