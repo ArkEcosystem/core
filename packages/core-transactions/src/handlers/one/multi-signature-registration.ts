@@ -9,6 +9,7 @@ import { TransactionHandler, TransactionHandlerConstructor } from "../transactio
 @Container.injectable()
 export class MultiSignatureRegistrationTransactionHandler extends TransactionHandler {
     @Container.inject(Container.Identifiers.TransactionHistoryService)
+    @Container.tagged("connection", "default")
     private readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
 
     public dependencies(): ReadonlyArray<TransactionHandlerConstructor> {

@@ -6,6 +6,7 @@ import { One } from "../index";
 @Container.injectable()
 export class SecondSignatureRegistrationTransactionHandler extends One.SecondSignatureRegistrationTransactionHandler {
     @Container.inject(Container.Identifiers.TransactionHistoryService)
+    @Container.tagged("connection", "default")
     private readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
 
     public getConstructor(): Transactions.TransactionConstructor {

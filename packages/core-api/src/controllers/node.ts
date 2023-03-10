@@ -27,6 +27,7 @@ export class NodeController extends Controller {
     private readonly networkMonitor!: Contracts.P2P.NetworkMonitor;
 
     @Container.inject(Container.Identifiers.DatabaseTransactionRepository)
+    @Container.tagged("connection", "api")
     private readonly transactionRepository!: Repositories.TransactionRepository;
 
     public async status(request: Hapi.Request, h: Hapi.ResponseToolkit) {
@@ -80,15 +81,12 @@ export class NodeController extends Controller {
                 constants: Managers.configManager.getMilestone(this.blockchain.getLastHeight()),
                 transactionPool: {
                     dynamicFees: dynamicFees.enabled ? dynamicFees : { enabled: false },
-                    maxTransactionsInPool: this.transactionPoolConfiguration.getRequired<number>(
-                        "maxTransactionsInPool",
-                    ),
-                    maxTransactionsPerSender: this.transactionPoolConfiguration.getRequired<number>(
-                        "maxTransactionsPerSender",
-                    ),
-                    maxTransactionsPerRequest: this.transactionPoolConfiguration.getRequired<number>(
-                        "maxTransactionsPerRequest",
-                    ),
+                    maxTransactionsInPool:
+                        this.transactionPoolConfiguration.getRequired<number>("maxTransactionsInPool"),
+                    maxTransactionsPerSender:
+                        this.transactionPoolConfiguration.getRequired<number>("maxTransactionsPerSender"),
+                    maxTransactionsPerRequest:
+                        this.transactionPoolConfiguration.getRequired<number>("maxTransactionsPerRequest"),
                     maxTransactionAge: this.transactionPoolConfiguration.getRequired<number>("maxTransactionAge"),
                     maxTransactionBytes: this.transactionPoolConfiguration.getRequired<number>("maxTransactionBytes"),
                 },
@@ -106,12 +104,11 @@ export class NodeController extends Controller {
         // @ts-ignore
         const handlers = this.nullHandlerRegistry.getRegisteredHandlers();
         const handlersKey = {};
-        const txsTypes: Array<{ type: number, typeGroup: number }> = [];
+        const txsTypes: Array<{ type: number; typeGroup: number }> = [];
         for (const handler of handlers) {
-            handlersKey[
-                `${handler.getConstructor().type}-${handler.getConstructor().typeGroup}`
-            ] = handler.getConstructor().key;
-            txsTypes.push({ type: handler.getConstructor().type!, typeGroup: handler.getConstructor().typeGroup!});
+            handlersKey[`${handler.getConstructor().type}-${handler.getConstructor().typeGroup}`] =
+                handler.getConstructor().key;
+            txsTypes.push({ type: handler.getConstructor().type!, typeGroup: handler.getConstructor().typeGroup! });
         }
 
         const results = await this.transactionRepository.getFeeStatistics(txsTypes, request.query.days);
