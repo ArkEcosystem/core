@@ -97,16 +97,16 @@ const voterWalletResource: Resources.WalletResource = {
 
 describe("DelegatesController", () => {
     describe("Index", () => {
-        it("should get criteria from query and return delegates page from DelegateSearchService", () => {
+        it("should get criteria from query and return delegates page from DelegateSearchService", async () => {
             const delegatesPage: Contracts.Search.ResultsPage<Resources.DelegateResource> = {
                 results: [delegateResource],
                 totalCount: 1,
                 meta: { totalCountIsEstimate: false },
             };
-            delegateSearchService.getDelegatesPage.mockReturnValueOnce(delegatesPage);
+            delegateSearchService.getDelegatesPage.mockResolvedValueOnce(delegatesPage);
 
             const delegatesController = container.resolve(DelegatesController);
-            const result = delegatesController.index({
+            const result = await delegatesController.index({
                 query: {
                     page: 1,
                     limit: 100,
@@ -174,7 +174,7 @@ describe("DelegatesController", () => {
     });
 
     describe("Voters", () => {
-        it("should get delegate id from pathname and criteria from query and return voter wallets from WalletSearchService", () => {
+        it("should get delegate id from pathname and criteria from query and return voter wallets from WalletSearchService", async () => {
             walletSearchService.getWallet.mockReturnValueOnce(delegateWalletResource);
             delegateSearchService.getDelegate.mockReturnValueOnce(delegateResource);
 
@@ -183,10 +183,10 @@ describe("DelegatesController", () => {
                 totalCount: 1,
                 meta: { totalCountIsEstimate: false },
             };
-            walletSearchService.getActiveWalletsPage.mockReturnValueOnce(voterWalletsPage);
+            walletSearchService.getActiveWalletsPage.mockResolvedValueOnce(voterWalletsPage);
 
             const delegatesController = container.resolve(DelegatesController);
-            const result = delegatesController.voters({
+            const result = await delegatesController.voters({
                 params: {
                     id: "biz_classic",
                 },
@@ -211,11 +211,11 @@ describe("DelegatesController", () => {
             expect(result).toBe(voterWalletsPage);
         });
 
-        it("should return 404 when wallet wasn't found", () => {
+        it("should return 404 when wallet wasn't found", async () => {
             walletSearchService.getWallet.mockReturnValueOnce(undefined);
 
             const delegatesController = container.resolve(DelegatesController);
-            const result = delegatesController.voters({
+            const result = await delegatesController.voters({
                 params: {
                     id: "non-existing-wallet-id",
                 },
@@ -231,12 +231,12 @@ describe("DelegatesController", () => {
             expect(result).toBeInstanceOf(Boom);
         });
 
-        it("should return 404 when wallet isn't delegate", () => {
+        it("should return 404 when wallet isn't delegate", async () => {
             walletSearchService.getWallet.mockReturnValueOnce(voterWalletResource);
             delegateSearchService.getDelegate.mockReturnValueOnce(undefined);
 
             const delegatesController = container.resolve(DelegatesController);
-            const result = delegatesController.voters({
+            const result = await delegatesController.voters({
                 params: {
                     id: "ATL9kyo71wjPPXqvGMUD89t5RazmQfQMc6",
                 },
