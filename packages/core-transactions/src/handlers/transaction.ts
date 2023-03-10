@@ -24,9 +24,11 @@ export abstract class TransactionHandler {
     protected readonly app!: Contracts.Kernel.Application;
 
     @Container.inject(Container.Identifiers.DatabaseBlockRepository)
+    @Container.tagged("connection", "default")
     protected readonly blockRepository!: Repositories.BlockRepository;
 
     @Container.inject(Container.Identifiers.DatabaseTransactionRepository)
+    @Container.tagged("connection", "default")
     protected readonly transactionRepository!: Repositories.TransactionRepository;
 
     @Container.inject(Container.Identifiers.WalletRepository)

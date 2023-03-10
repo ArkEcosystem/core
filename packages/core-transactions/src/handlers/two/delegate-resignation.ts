@@ -13,6 +13,7 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
     private readonly poolQuery!: Contracts.TransactionPool.Query;
 
     @Container.inject(Container.Identifiers.TransactionHistoryService)
+    @Container.tagged("connection", "default")
     private readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
 
     public dependencies(): ReadonlyArray<TransactionHandlerConstructor> {

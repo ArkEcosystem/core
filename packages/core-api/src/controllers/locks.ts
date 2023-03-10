@@ -15,6 +15,7 @@ export class LocksController extends Controller {
     private readonly lockSearchService!: LockSearchService;
 
     @Container.inject(Container.Identifiers.TransactionHistoryService)
+    @Container.tagged("connection", "api")
     private readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
 
     public index(request: Hapi.Request): Contracts.Search.ResultsPage<LockResource> {

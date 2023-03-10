@@ -15,15 +15,19 @@ export class DatabaseService {
     private readonly app!: Contracts.Kernel.Application;
 
     @Container.inject(Container.Identifiers.DatabaseConnection)
+    @Container.tagged("connection", "default")
     private readonly connection!: Connection;
 
     @Container.inject(Container.Identifiers.DatabaseBlockRepository)
+    @Container.tagged("connection", "default")
     private readonly blockRepository!: BlockRepository;
 
     @Container.inject(Container.Identifiers.DatabaseTransactionRepository)
+    @Container.tagged("connection", "default")
     private readonly transactionRepository!: TransactionRepository;
 
     @Container.inject(Container.Identifiers.DatabaseRoundRepository)
+    @Container.tagged("connection", "default")
     private readonly roundRepository!: RoundRepository;
 
     @Container.inject(Container.Identifiers.LogService)

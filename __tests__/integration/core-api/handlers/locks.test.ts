@@ -68,8 +68,10 @@ describe("API 2.0 - Locks", () => {
                 })
                 .build()[0];
 
-            const transactionRepository = app.get<Repositories.TransactionRepository>(
+            const transactionRepository = app.getTagged<Repositories.TransactionRepository>(
                 Container.Identifiers.DatabaseTransactionRepository,
+                "connection",
+                "api",
             );
 
             jest.spyOn(transactionRepository, "listByExpression").mockResolvedValueOnce({

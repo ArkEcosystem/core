@@ -10,4 +10,5 @@ export const defaults = {
         synchronize: false,
         logging: false,
     },
+    apiConnectionTimeout: 3000,
 };

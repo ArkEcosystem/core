@@ -8,6 +8,7 @@ import { Controller } from "./controller";
 
 export class RoundsController extends Controller {
     @Container.inject(Container.Identifiers.DatabaseRoundRepository)
+    @Container.tagged("connection", "api")
     private readonly roundRepository!: Repositories.RoundRepository;
 
     public async delegates(request: Hapi.Request, h: Hapi.ResponseToolkit) {

@@ -35,6 +35,7 @@ export class BlockProcessor {
     private readonly blockchain!: Contracts.Blockchain.Blockchain;
 
     @Container.inject(Container.Identifiers.DatabaseTransactionRepository)
+    @Container.tagged("connection", "default")
     private readonly transactionRepository!: Repositories.TransactionRepository;
 
     @Container.inject(Container.Identifiers.WalletRepository)
