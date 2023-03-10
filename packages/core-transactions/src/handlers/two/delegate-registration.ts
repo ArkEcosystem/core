@@ -7,6 +7,7 @@ import { One } from "../index";
 @Container.injectable()
 export class DelegateRegistrationTransactionHandler extends One.DelegateRegistrationTransactionHandler {
     @Container.inject(Container.Identifiers.TransactionHistoryService)
+    @Container.tagged("connection", "default")
     private readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
 
     public getConstructor(): Transactions.TransactionConstructor {

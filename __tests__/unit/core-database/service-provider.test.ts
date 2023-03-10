@@ -43,7 +43,7 @@ describe("ServiceProvider.register", () => {
         await serviceProvider.register();
 
         expect(createConnection).toBeCalled();
-        expect(getCustomRepository).toBeCalledTimes(3);
+        expect(getCustomRepository).toBeCalledTimes(6);
 
         expect(events.dispatch).toBeCalled();
 
@@ -127,6 +127,7 @@ describe("ServiceProvider.configSchema", () => {
         expect(result.value.connection.entityPrefix).toBeString();
         expect(result.value.connection.synchronize).toBeFalse();
         expect(result.value.connection.logging).toBeFalse();
+        expect(result.value.apiConnectionTimeout).toEqual(3000);
     });
 
     it("should allow configuration extension", async () => {
@@ -348,6 +349,28 @@ describe("ServiceProvider.configSchema", () => {
             result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
 
             expect(result.error!.message).toEqual('"connection.logging" is required');
+        });
+
+        it("apiConnectionTimeout is required && is integer && is >= 1", async () => {
+            defaults.apiConnectionTimeout = false;
+            let result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+            expect(result.error!.message).toEqual('"apiConnectionTimeout" must be a number');
+
+            defaults.apiConnectionTimeout = 1.12;
+            result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+            expect(result.error!.message).toEqual('"apiConnectionTimeout" must be an integer');
+
+            defaults.apiConnectionTimeout = 0;
+            result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+            expect(result.error!.message).toEqual('"apiConnectionTimeout" must be greater than or equal to 1');
+
+            delete defaults.apiConnectionTimeout;
+            result = (serviceProvider.configSchema() as AnySchema).validate(defaults);
+
+            expect(result.error!.message).toEqual('"apiConnectionTimeout" is required');
         });
     });
 });

@@ -4,6 +4,7 @@ import { Connection } from "typeorm";
 @Container.injectable()
 export class WalletsTableService implements Contracts.Database.WalletsTableService {
     @Container.inject(Container.Identifiers.DatabaseConnection)
+    @Container.tagged("connection", "default")
     private readonly connection!: Connection;
 
     public async flush(): Promise<void> {
@@ -38,7 +39,13 @@ export class WalletsTableService implements Contracts.Database.WalletsTableServi
                     const batchWallets = wallets.slice(i, i + batchSize);
 
                     const params = batchWallets
-                        .map((w) => [w.getAddress(), w.getPublicKey(), w.getBalance().toFixed(), w.getNonce().toFixed(), w.getAttributes()])
+                        .map((w) => [
+                            w.getAddress(),
+                            w.getPublicKey(),
+                            w.getBalance().toFixed(),
+                            w.getNonce().toFixed(),
+                            w.getAttributes(),
+                        ])
                         .flat();
 
                     const values = batchWallets

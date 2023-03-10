@@ -21,6 +21,7 @@ export class BridgechainResignationTransactionHandler extends MagistrateTransact
     private readonly poolQuery!: Contracts.TransactionPool.Query;
 
     @Container.inject(Container.Identifiers.TransactionHistoryService)
+    @Container.tagged("connection", "default")
     private readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
 
     public dependencies(): ReadonlyArray<Handlers.TransactionHandlerConstructor> {
@@ -48,13 +49,11 @@ export class BridgechainResignationTransactionHandler extends MagistrateTransact
             );
 
             const wallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.senderPublicKey);
-            const businessAttributes: IBusinessWalletAttributes = wallet.getAttribute<IBusinessWalletAttributes>(
-                "business",
-            );
+            const businessAttributes: IBusinessWalletAttributes =
+                wallet.getAttribute<IBusinessWalletAttributes>("business");
 
-            const bridgechainAsset = businessAttributes.bridgechains![
-                transaction.asset.bridgechainResignation.bridgechainId
-            ];
+            const bridgechainAsset =
+                businessAttributes.bridgechains![transaction.asset.bridgechainResignation.bridgechainId];
             bridgechainAsset.resigned = true;
 
             wallet.setAttribute<IBusinessWalletAttributes>("business", businessAttributes);
@@ -70,9 +69,8 @@ export class BridgechainResignationTransactionHandler extends MagistrateTransact
             throw new WalletIsNotBusinessError();
         }
 
-        const businessAttributes: IBusinessWalletAttributes = wallet.getAttribute<IBusinessWalletAttributes>(
-            "business",
-        );
+        const businessAttributes: IBusinessWalletAttributes =
+            wallet.getAttribute<IBusinessWalletAttributes>("business");
 
         if (businessAttributes.resigned) {
             throw new BusinessIsResignedError();
@@ -139,8 +137,8 @@ export class BridgechainResignationTransactionHandler extends MagistrateTransact
         //     transaction.data.asset?.bridgechainResignation,
         // );
 
-        const bridgechainResignation: MagistrateInterfaces.IBridgechainResignationAsset = transaction.data.asset!
-            .bridgechainResignation;
+        const bridgechainResignation: MagistrateInterfaces.IBridgechainResignationAsset =
+            transaction.data.asset!.bridgechainResignation;
 
         AppUtils.assert.defined<Record<string, IBridgechainWalletAttributes>>(businessAttributes.bridgechains);
 
