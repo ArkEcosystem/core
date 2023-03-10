@@ -46,7 +46,7 @@ describe("EntityController.index", () => {
             meta: { totalCountIsEstimate: false },
         };
 
-        entitySearchService.getEntitiesPage.mockReturnValueOnce(entitiesPage);
+        entitySearchService.getEntitiesPage.mockResolvedValueOnce(entitiesPage);
 
         const entityController = container.resolve(EntityController);
         const result = await entityController.index({
