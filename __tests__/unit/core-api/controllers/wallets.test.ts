@@ -89,7 +89,7 @@ describe("WalletsController", () => {
                 totalCount: 1,
                 meta: { totalCountIsEstimate: false },
             };
-            walletSearchService.getWalletsPage.mockReturnValueOnce(walletsPage);
+            walletSearchService.getWalletsPage.mockResolvedValueOnce(walletsPage);
 
             const walletsController = container.resolve(WalletsController);
             const result = await walletsController.index({
@@ -120,7 +120,7 @@ describe("WalletsController", () => {
                 totalCount: 1,
                 meta: { totalCountIsEstimate: false },
             };
-            walletSearchService.getWalletsPage.mockReturnValueOnce(walletsPage);
+            walletSearchService.getWalletsPage.mockResolvedValueOnce(walletsPage);
 
             const walletsController = container.resolve(WalletsController);
             const result = await walletsController.top({
@@ -181,7 +181,7 @@ describe("WalletsController", () => {
                 totalCount: 1,
                 meta: { totalCountIsEstimate: false },
             };
-            lockSearchService.getWalletLocksPage.mockReturnValueOnce(locksPage);
+            lockSearchService.getWalletLocksPage.mockResolvedValueOnce(locksPage);
 
             const walletsController = container.resolve(WalletsController);
             const result = await walletsController.locks({

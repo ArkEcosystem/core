@@ -103,7 +103,7 @@ describe("DelegatesController", () => {
                 totalCount: 1,
                 meta: { totalCountIsEstimate: false },
             };
-            delegateSearchService.getDelegatesPage.mockReturnValueOnce(delegatesPage);
+            delegateSearchService.getDelegatesPage.mockResolvedValueOnce(delegatesPage);
 
             const delegatesController = container.resolve(DelegatesController);
             const result = await delegatesController.index({
@@ -183,7 +183,7 @@ describe("DelegatesController", () => {
                 totalCount: 1,
                 meta: { totalCountIsEstimate: false },
             };
-            walletSearchService.getActiveWalletsPage.mockReturnValueOnce(voterWalletsPage);
+            walletSearchService.getActiveWalletsPage.mockResolvedValueOnce(voterWalletsPage);
 
             const delegatesController = container.resolve(DelegatesController);
             const result = await delegatesController.voters({
