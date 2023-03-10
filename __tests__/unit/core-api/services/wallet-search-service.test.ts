@@ -135,11 +135,11 @@ describe("WalletSearchService", () => {
     });
 
     describe("getWalletsPage", () => {
-        it("should return wallets page with wallet on positive criteria tests", () => {
+        it("should return wallets page with wallet on positive criteria tests", async () => {
             walletRepository.allByAddress.mockReturnValue([wallet]);
             standardCriteriaService.testStandardCriterias.mockReturnValue(true);
 
-            const result = walletSearchService.getWalletsPage(
+            const result = await walletSearchService.getWalletsPage(
                 {
                     offset: 0,
                     limit: 100,
@@ -151,11 +151,11 @@ describe("WalletSearchService", () => {
             expect(result.results).toEqual([walletResource]);
         });
 
-        it("should return wallets page with empty array on negative criteria tests", () => {
+        it("should return wallets page with empty array on negative criteria tests", async () => {
             walletRepository.allByAddress.mockReturnValue([wallet]);
             standardCriteriaService.testStandardCriterias.mockReturnValue(false);
 
-            const result = walletSearchService.getWalletsPage(
+            const result = await walletSearchService.getWalletsPage(
                 {
                     offset: 0,
                     limit: 100,
@@ -169,11 +169,11 @@ describe("WalletSearchService", () => {
     });
 
     describe("getActiveWalletsPage", () => {
-        it("should return wallets page with wallet on positive criteria tests", () => {
+        it("should return wallets page with wallet on positive criteria tests", async () => {
             walletRepository.allByPublicKey.mockReturnValue([wallet]);
             standardCriteriaService.testStandardCriterias.mockReturnValue(true);
 
-            const result = walletSearchService.getActiveWalletsPage(
+            const result = await walletSearchService.getActiveWalletsPage(
                 {
                     offset: 0,
                     limit: 100,
@@ -185,11 +185,11 @@ describe("WalletSearchService", () => {
             expect(result.results).toEqual([walletResource]);
         });
 
-        it("should return wallets page with empty array on negative criteria tests", () => {
+        it("should return wallets page with empty array on negative criteria tests", async () => {
             walletRepository.allByPublicKey.mockReturnValue([wallet]);
             standardCriteriaService.testStandardCriterias.mockReturnValue(false);
 
-            const result = walletSearchService.getActiveWalletsPage(
+            const result = await walletSearchService.getActiveWalletsPage(
                 {
                     offset: 0,
                     limit: 100,

@@ -18,12 +18,12 @@ describe("PaginationService.getEmptyPage", () => {
 });
 
 describe("PaginationService.getPage", () => {
-    it("should leave items order intact when sorting isn't provided", () => {
+    it("should leave items order intact when sorting isn't provided", async () => {
         const paginationService = container.resolve(PaginationService);
         const pagination = { offset: 0, limit: 100 };
         const items = [{ v: 1 }, { v: 3 }, {}, { v: 2 }];
         const sorting = [];
-        const resultsPage = paginationService.getPage(pagination, sorting, items);
+        const resultsPage = await paginationService.getPage(pagination, sorting, items);
 
         expect(resultsPage).toEqual({
             results: [{ v: 1 }, { v: 3 }, {}, { v: 2 }],
@@ -32,12 +32,12 @@ describe("PaginationService.getPage", () => {
         });
     });
 
-    it("should leave items order intact when sorting by undefined property", () => {
+    it("should leave items order intact when sorting by undefined property", async () => {
         const paginationService = container.resolve(PaginationService);
         const pagination = { offset: 0, limit: 100 };
         const items = [{ v: 1 }, { v: 3 }, {}, { v: 2 }];
         const sorting = [{ property: "dummy", direction: "asc" as const }];
-        const resultsPage = paginationService.getPage(pagination, sorting, items);
+        const resultsPage = await paginationService.getPage(pagination, sorting, items);
 
         expect(resultsPage).toEqual({
             results: [{ v: 1 }, { v: 3 }, {}, { v: 2 }],
@@ -46,12 +46,12 @@ describe("PaginationService.getPage", () => {
         });
     });
 
-    it("should return items with undefined properties at the end", () => {
+    it("should return items with undefined properties at the end", async () => {
         const paginationService = container.resolve(PaginationService);
         const pagination = { offset: 0, limit: 100 };
         const items = [{ v: 1 }, {}, { v: 3 }, {}, { v: 2 }];
         const sorting = [{ property: "v", direction: "asc" as const }];
-        const resultsPage = paginationService.getPage(pagination, sorting, items);
+        const resultsPage = await paginationService.getPage(pagination, sorting, items);
 
         expect(resultsPage).toEqual({
             results: [{ v: 1 }, { v: 2 }, { v: 3 }, {}, {}],
@@ -60,12 +60,12 @@ describe("PaginationService.getPage", () => {
         });
     });
 
-    it("should return items with undefined properties at the end regardless of direction", () => {
+    it("should return items with undefined properties at the end regardless of direction", async () => {
         const paginationService = container.resolve(PaginationService);
         const pagination = { offset: 0, limit: 100 };
         const items = [{ v: 1 }, { v: 3 }, {}, { v: 2 }];
         const sorting = [{ property: "v", direction: "desc" as const }];
-        const resultsPage = paginationService.getPage(pagination, sorting, items);
+        const resultsPage = await paginationService.getPage(pagination, sorting, items);
 
         expect(resultsPage).toEqual({
             results: [{ v: 3 }, { v: 2 }, { v: 1 }, {}],
@@ -74,12 +74,12 @@ describe("PaginationService.getPage", () => {
         });
     });
 
-    it("should return items with null properties at the end before items with undefined properties", () => {
+    it("should return items with null properties at the end before items with undefined properties", async () => {
         const paginationService = container.resolve(PaginationService);
         const pagination = { offset: 0, limit: 100 };
         const items = [{ v: 1 }, { v: 3 }, {}, { v: null }, { v: 2 }, { v: null }];
         const sorting = [{ property: "v", direction: "asc" as const }];
-        const resultsPage = paginationService.getPage(pagination, sorting, items);
+        const resultsPage = await paginationService.getPage(pagination, sorting, items);
 
         expect(resultsPage).toEqual({
             results: [{ v: 1 }, { v: 2 }, { v: 3 }, { v: null }, { v: null }, {}],
@@ -88,12 +88,12 @@ describe("PaginationService.getPage", () => {
         });
     });
 
-    it("should return items with null properties at the end before items with undefined properties regardless of direction", () => {
+    it("should return items with null properties at the end before items with undefined properties regardless of direction", async () => {
         const paginationService = container.resolve(PaginationService);
         const pagination = { offset: 0, limit: 100 };
         const items = [{ v: 1 }, { v: null }, { v: 3 }, {}, { v: 2 }];
         const sorting = [{ property: "v", direction: "desc" as const }];
-        const resultsPage = paginationService.getPage(pagination, sorting, items);
+        const resultsPage = await paginationService.getPage(pagination, sorting, items);
 
         expect(resultsPage).toEqual({
             results: [{ v: 3 }, { v: 2 }, { v: 1 }, { v: null }, {}],
@@ -102,7 +102,7 @@ describe("PaginationService.getPage", () => {
         });
     });
 
-    it("should sort using second sorting instruction when first properties are equal booleans", () => {
+    it("should sort using second sorting instruction when first properties are equal booleans", async () => {
         const paginationService = container.resolve(PaginationService);
         const pagination = { offset: 0, limit: 100 };
         const items = [
@@ -114,7 +114,7 @@ describe("PaginationService.getPage", () => {
             { property: "a", direction: "asc" as const },
             { property: "b", direction: "asc" as const },
         ];
-        const resultsPage = paginationService.getPage(pagination, sorting, items);
+        const resultsPage = await paginationService.getPage(pagination, sorting, items);
 
         expect(resultsPage).toEqual({
             results: [
@@ -127,7 +127,7 @@ describe("PaginationService.getPage", () => {
         });
     });
 
-    it("should sort using second sorting instruction when first properties are equal strings", () => {
+    it("should sort using second sorting instruction when first properties are equal strings", async () => {
         const paginationService = container.resolve(PaginationService);
         const pagination = { offset: 0, limit: 100 };
         const items = [
@@ -139,7 +139,7 @@ describe("PaginationService.getPage", () => {
             { property: "a", direction: "asc" as const },
             { property: "b", direction: "asc" as const },
         ];
-        const resultsPage = paginationService.getPage(pagination, sorting, items);
+        const resultsPage = await paginationService.getPage(pagination, sorting, items);
 
         expect(resultsPage).toEqual({
             results: [
@@ -152,7 +152,7 @@ describe("PaginationService.getPage", () => {
         });
     });
 
-    it("should sort using second sorting instruction when first properties are equal numbers", () => {
+    it("should sort using second sorting instruction when first properties are equal numbers", async () => {
         const paginationService = container.resolve(PaginationService);
         const pagination = { offset: 0, limit: 100 };
         const items = [
@@ -164,7 +164,7 @@ describe("PaginationService.getPage", () => {
             { property: "a", direction: "asc" as const },
             { property: "b", direction: "asc" as const },
         ];
-        const resultsPage = paginationService.getPage(pagination, sorting, items);
+        const resultsPage = await paginationService.getPage(pagination, sorting, items);
 
         expect(resultsPage).toEqual({
             results: [
@@ -177,7 +177,7 @@ describe("PaginationService.getPage", () => {
         });
     });
 
-    it("should sort using second sorting instruction when first properties are equal bigints", () => {
+    it("should sort using second sorting instruction when first properties are equal bigints", async () => {
         const paginationService = container.resolve(PaginationService);
         const pagination = { offset: 0, limit: 100 };
         const items = [
@@ -189,7 +189,7 @@ describe("PaginationService.getPage", () => {
             { property: "a", direction: "asc" as const },
             { property: "b", direction: "asc" as const },
         ];
-        const resultsPage = paginationService.getPage(pagination, sorting, items);
+        const resultsPage = await paginationService.getPage(pagination, sorting, items);
 
         expect(resultsPage).toEqual({
             results: [
@@ -202,7 +202,7 @@ describe("PaginationService.getPage", () => {
         });
     });
 
-    it("should sort using second sorting instruction when first properties are equal Utils.BigNumber instances", () => {
+    it("should sort using second sorting instruction when first properties are equal Utils.BigNumber instances", async () => {
         const paginationService = container.resolve(PaginationService);
         const pagination = { offset: 0, limit: 100 };
         const items = [
@@ -214,7 +214,7 @@ describe("PaginationService.getPage", () => {
             { property: "a", direction: "asc" as const },
             { property: "b", direction: "asc" as const },
         ];
-        const resultsPage = paginationService.getPage(pagination, sorting, items);
+        const resultsPage = await paginationService.getPage(pagination, sorting, items);
 
         expect(resultsPage).toEqual({
             results: [
@@ -227,7 +227,7 @@ describe("PaginationService.getPage", () => {
         });
     });
 
-    it("should sort using second sorting instruction when first properties are null", () => {
+    it("should sort using second sorting instruction when first properties are null", async () => {
         const paginationService = container.resolve(PaginationService);
         const pagination = { offset: 0, limit: 100 };
         const items = [
@@ -239,7 +239,7 @@ describe("PaginationService.getPage", () => {
             { property: "a", direction: "asc" as const },
             { property: "b", direction: "asc" as const },
         ];
-        const resultsPage = paginationService.getPage(pagination, sorting, items);
+        const resultsPage = await paginationService.getPage(pagination, sorting, items);
 
         expect(resultsPage).toEqual({
             results: [
@@ -252,7 +252,7 @@ describe("PaginationService.getPage", () => {
         });
     });
 
-    it("should sort using second sorting instruction when first properties are undefined", () => {
+    it("should sort using second sorting instruction when first properties are undefined", async () => {
         const paginationService = container.resolve(PaginationService);
         const pagination = { offset: 0, limit: 100 };
         const items = [
@@ -264,7 +264,7 @@ describe("PaginationService.getPage", () => {
             { property: "a", direction: "asc" as const },
             { property: "b", direction: "asc" as const },
         ];
-        const resultsPage = paginationService.getPage(pagination, sorting, items);
+        const resultsPage = await paginationService.getPage(pagination, sorting, items);
 
         expect(resultsPage).toEqual({
             results: [
@@ -277,12 +277,12 @@ describe("PaginationService.getPage", () => {
         });
     });
 
-    it("should sort by Utils.BigNumber property", () => {
+    it("should sort by Utils.BigNumber property", async () => {
         const paginationService = container.resolve(PaginationService);
         const pagination = { offset: 0, limit: 100 };
         const items = [{ v: Utils.BigNumber.make(1) }, { v: Utils.BigNumber.make(3) }, { v: Utils.BigNumber.make(2) }];
         const sorting = [{ property: "v", direction: "asc" as const }];
-        const resultsPage = paginationService.getPage(pagination, sorting, items);
+        const resultsPage = await paginationService.getPage(pagination, sorting, items);
 
         expect(resultsPage).toEqual({
             results: [{ v: Utils.BigNumber.make(1) }, { v: Utils.BigNumber.make(2) }, { v: Utils.BigNumber.make(3) }],
@@ -291,23 +291,25 @@ describe("PaginationService.getPage", () => {
         });
     });
 
-    it("should throw when sorting over property with union type", () => {
+    it("should throw when sorting over property with union type", async () => {
         const paginationService = container.resolve(PaginationService);
         const pagination = { offset: 0, limit: 100 };
         const items: { v: number | string }[] = [{ v: 1 }, { v: "2" }];
         const sorting = [{ property: "v", direction: "asc" as const }];
 
-        expect(() => paginationService.getPage(pagination, sorting, items)).toThrowError(
+        await expect(() => paginationService.getPage(pagination, sorting, items)).rejects.toThrowError(
             "Mismatched types 'string' and 'number' at 'v'",
         );
     });
 
-    it("should throw when sorting over property with invalid type", () => {
+    it("should throw when sorting over property with invalid type", async () => {
         const paginationService = container.resolve(PaginationService);
         const pagination = { offset: 0, limit: 100 };
         const items = [{ v: Symbol() }, { v: Symbol() }];
         const sorting = [{ property: "v", direction: "asc" as const }];
 
-        expect(() => paginationService.getPage(pagination, sorting, items)).toThrowError("Unexpected type at 'v'");
+        await expect(() => paginationService.getPage(pagination, sorting, items)).rejects.toThrowError(
+            "Unexpected type at 'v'",
+        );
     });
 });

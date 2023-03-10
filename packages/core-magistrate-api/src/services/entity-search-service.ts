@@ -24,11 +24,11 @@ export class EntitySearchService {
         }
     }
 
-    public getEntitiesPage(
+    public async getEntitiesPage(
         pagination: Contracts.Search.Pagination,
         sorting: Contracts.Search.Sorting,
         ...criterias: EntityCriteria[]
-    ): Contracts.Search.ResultsPage<EntityResource> {
+    ): Promise<Contracts.Search.ResultsPage<EntityResource>> {
         sorting = [...sorting, { property: "data.name", direction: "asc" }];
 
         return this.paginationService.getPage(pagination, sorting, this.getEntities(...criterias));

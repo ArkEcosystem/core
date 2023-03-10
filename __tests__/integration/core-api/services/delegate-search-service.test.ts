@@ -94,7 +94,7 @@ describe("DelegateSearchService.getDelegate", () => {
 });
 
 describe("DelegateSearchService.getDelegatesPage", () => {
-    it("should get all delegates when criteria is empty", () => {
+    it("should get all delegates when criteria is empty", async () => {
         const wallet1 = walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase("secret1"));
         wallet1.setAttribute("delegate", delegateAttribute1);
         walletRepository.index(wallet1);
@@ -103,7 +103,7 @@ describe("DelegateSearchService.getDelegatesPage", () => {
         wallet2.setAttribute("delegate", delegateAttribute2);
         walletRepository.index(wallet2);
 
-        const delegatesPage = delegateSearchService.getDelegatesPage({ offset: 0, limit: 100 }, [
+        const delegatesPage = await delegateSearchService.getDelegatesPage({ offset: 0, limit: 100 }, [
             { property: "username", direction: "asc" },
         ]);
 
@@ -112,7 +112,7 @@ describe("DelegateSearchService.getDelegatesPage", () => {
         expect(delegatesPage.results[1].username).toBe("cryptology");
     });
 
-    it("should get delegates that match criteria", () => {
+    it("should get delegates that match criteria", async () => {
         const wallet1 = walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase("secret1"));
         wallet1.setAttribute("delegate", delegateAttribute1);
         walletRepository.index(wallet1);
@@ -121,7 +121,7 @@ describe("DelegateSearchService.getDelegatesPage", () => {
         wallet2.setAttribute("delegate", delegateAttribute2);
         walletRepository.index(wallet2);
 
-        const delegatesPage = delegateSearchService.getDelegatesPage(
+        const delegatesPage = await delegateSearchService.getDelegatesPage(
             { offset: 0, limit: 100 },
             [{ property: "username", direction: "asc" }],
             { username: "binance_staking" },
