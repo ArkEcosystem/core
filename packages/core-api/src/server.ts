@@ -67,7 +67,7 @@ export class Server {
 
         const timeout: number = this.configuration.getRequired<number>("plugins.socketTimeout");
         this.server.listener.timeout = timeout;
-        this.server.listener.keepAliveTimeout = timeout;
+        this.server.listener.keepAliveTimeout = 0;
         this.server.listener.headersTimeout = timeout;
 
         this.server.app.app = this.app;
