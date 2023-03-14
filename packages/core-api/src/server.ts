@@ -73,6 +73,13 @@ export class Server {
         this.server.app.app = this.app;
         this.server.app.schemas = Schemas;
 
+        this.server.ext("onRequest", (request, h) => {
+            request.raw.req.on("end", () => {
+                request.raw.req.socket.destroy();
+            });
+            return h.continue;
+        });
+
         this.server.ext("onPreHandler", (request, h) => {
             request.headers["content-type"] = "application/json";
             return h.continue;
