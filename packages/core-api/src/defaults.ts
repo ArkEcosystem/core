@@ -40,13 +40,13 @@ export const defaults = {
             },
             memory: {
                 levelOne: {
-                    concurrency: 10,
-                    queueLimit: 100,
+                    concurrency: 3,
+                    queueLimit: 30,
                     maxOffset: 1_000,
                 },
                 levelTwo: {
                     concurrency: 1,
-                    queueLimit: 10,
+                    queueLimit: 5,
                 },
             },
         },
