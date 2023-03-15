@@ -74,8 +74,8 @@ export class Server {
         this.server.app.schemas = Schemas;
 
         this.server.ext("onRequest", (request, h) => {
-            request.raw.req.on("end", () => {
-                request.raw.req.socket.destroy();
+            request.raw.res.on("finish", () => {
+                request.raw.req.socket?.destroy();
             });
             return h.continue;
         });
