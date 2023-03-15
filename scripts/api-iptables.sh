@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 #mainnet_ports API_GLOBAL=4003 / devnet_ports API_GLOBAL=4003 / testnet_ports API_GLOBAL=4003
 API_GLOBAL=4003
-API_GLOBAL_RATE=10/minute
-API_GLOBAL_BURST=1
+API_GLOBAL_RATE=300/second
+API_GLOBAL_BURST=100
 
 #Initialize api limiter
 start_limit() {
