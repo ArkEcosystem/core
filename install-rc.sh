@@ -114,13 +114,13 @@ sudo rm -rf ~/{.npm,.forever,.node*,.cache,.nvm}
 
 if [[ ! -z $DEB ]]; then
     sudo wget --quiet -O - https://deb.nodesource.com/gpgkey/nodesource.gpg.key | sudo apt-key add -
-    (echo "deb https://deb.nodesource.com/node_14.x ${DEB_ID} main" | sudo tee /etc/apt/sources.list.d/nodesource.list)
+    (echo "deb https://deb.nodesource.com/node_16.x ${DEB_ID} main" | sudo tee /etc/apt/sources.list.d/nodesource.list)
     sudo apt-get update
     sudo $APT_ENV apt-get install nodejs -yq
 
 elif [[ ! -z $RPM ]]; then
     sudo yum install gcc-c++ make -y
-    curl -sL https://rpm.nodesource.com/setup_14.x | sudo -E bash - > /dev/null 2>&1
+    curl -sL https://rpm.nodesource.com/setup_16.x | sudo -E bash - > /dev/null 2>&1
 fi
 
 success "Installed node.js & npm!"
