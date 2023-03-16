@@ -18,6 +18,10 @@ export const register = (server: Hapi.Server): void => {
                 query: Joi.object().concat(lockCriteriaSchema).concat(lockSortingSchema).concat(Schemas.pagination),
             },
             plugins: {
+                semaphore: {
+                    enabled: true,
+                    type: "memory",
+                },
                 pagination: { enabled: true },
             },
         },
@@ -50,6 +54,10 @@ export const register = (server: Hapi.Server): void => {
                 }).required(),
             },
             plugins: {
+                semaphore: {
+                    enabled: true,
+                    type: "database",
+                },
                 pagination: {
                     enabled: true,
                 },

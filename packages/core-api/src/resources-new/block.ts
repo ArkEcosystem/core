@@ -33,3 +33,15 @@ export const blockCriteriaSchemaObject = {
 
 export const blockParamSchema = Joi.alternatives(blockIdSchema, blockHeightSchema);
 export const blockSortingSchema = Schemas.createSortingSchema(Schemas.blockCriteriaSchemas, [], false);
+
+export const blockQueryLevelOptions = [
+    { field: "version", asc: true, desc: true, allowSecondOrderBy: false, diverse: false },
+    { field: "timestamp", asc: true, desc: true, allowSecondOrderBy: true, diverse: true },
+    { field: "height", asc: true, desc: true, allowSecondOrderBy: true, diverse: true },
+    { field: "numberOfTransactions", asc: true, desc: false, allowSecondOrderBy: false, diverse: false },
+    { field: "totalAmount", asc: true, desc: false, allowSecondOrderBy: false, diverse: false },
+    { field: "totalFee", asc: true, desc: false, allowSecondOrderBy: false, diverse: false },
+    { field: "reward", asc: true, desc: true, allowSecondOrderBy: false, diverse: false },
+    { field: "id", asc: false, desc: false, allowSecondOrderBy: false, diverse: true },
+    { field: "previousBlock", asc: false, desc: false, allowSecondOrderBy: false, diverse: true },
+];
