@@ -88,10 +88,12 @@ export const createSortingSchema = (
 
                 if (transform) {
                     sorting.push({ property, direction: direction as "asc" | "desc" });
-                } else {
-                    sorting.push(value);
                 }
             }
+        }
+
+        if (!transform) {
+            return value;
         }
 
         return sorting;

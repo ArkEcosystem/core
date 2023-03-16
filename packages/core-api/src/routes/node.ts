@@ -41,6 +41,12 @@ export const register = (server: Hapi.Server): void => {
                     days: Joi.number().integer().min(1).max(30),
                 }),
             },
+            plugins: {
+                semaphore: {
+                    enabled: true,
+                    type: "database",
+                },
+            },
         },
     });
 };

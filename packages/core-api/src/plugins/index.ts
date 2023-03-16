@@ -3,6 +3,7 @@ import { dotSeparatedQuery } from "./dot-separated-query";
 import { hapiAjv } from "./hapi-ajv";
 import { log } from "./log";
 import { responseHeaders } from "./response-headers";
+import { semaphore } from "./semaphore";
 import { whitelist } from "./whitelist";
 
 export const preparePlugins = (config) => [
@@ -23,6 +24,7 @@ export const preparePlugins = (config) => [
     },
     { plugin: commaArrayQuery },
     { plugin: dotSeparatedQuery },
+    { plugin: semaphore, options: config.semaphore },
     {
         plugin: require("./cache"),
         options: config.cache,
