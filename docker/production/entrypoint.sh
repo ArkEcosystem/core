@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-sudo /usr/sbin/ntpd -s
+sudo /usr/sbin/ntpd
 
 sudo rm -rf /home/node/.config/ark-core/*
 sudo rm -rf /home/node/.local/state/ark-core/*
