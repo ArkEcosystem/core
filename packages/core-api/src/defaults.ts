@@ -35,7 +35,7 @@ export const defaults = {
                 },
                 levelTwo: {
                     concurrency: 1,
-                    queueLimit: 10,
+                    queueLimit: 5,
                 },
             },
             memory: {
