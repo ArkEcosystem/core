@@ -86,7 +86,7 @@ export class Server {
         });
 
         this.server.ext("onPreResponse", (request, h) => {
-            if (request.response.isBoom && request.response.isServer) {
+            if (request.response.isBoom && request.response.isServer && request.response.name !== "QueryFailedError") {
                 this.logger.error(request.response.stack);
             }
             return h.continue;
