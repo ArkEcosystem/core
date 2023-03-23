@@ -880,7 +880,7 @@ describe("ServiceProvider", () => {
                 expect(result.error!.message).toEqual('"plugins.semaphore.database.levelOne" is required');
             });
 
-            it("plugins.semaphore.database.levelOne.concurrency is required && is integer && >= 1", async () => {
+            it("plugins.semaphore.database.levelOne.concurrency is required && is integer && >= 0", async () => {
                 defaults.plugins.semaphore.database.levelOne.concurrency = false;
                 let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
 
@@ -899,7 +899,7 @@ describe("ServiceProvider", () => {
                 result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
 
                 expect(result.error!.message).toEqual(
-                    '"plugins.semaphore.database.levelOne.concurrency" must be greater than or equal to 1',
+                    '"plugins.semaphore.database.levelOne.concurrency" must be greater than or equal to 0',
                 );
 
                 delete defaults.plugins.semaphore.database.levelOne.concurrency;
@@ -976,7 +976,7 @@ describe("ServiceProvider", () => {
                 expect(result.error!.message).toEqual('"plugins.semaphore.database.levelTwo" is required');
             });
 
-            it("plugins.semaphore.database.levelTwo.concurrency is required && is integer && >= 1", async () => {
+            it("plugins.semaphore.database.levelTwo.concurrency is required && is integer && >= 0", async () => {
                 defaults.plugins.semaphore.database.levelTwo.concurrency = false;
                 let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
 
@@ -995,7 +995,7 @@ describe("ServiceProvider", () => {
                 result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
 
                 expect(result.error!.message).toEqual(
-                    '"plugins.semaphore.database.levelTwo.concurrency" must be greater than or equal to 1',
+                    '"plugins.semaphore.database.levelTwo.concurrency" must be greater than or equal to 0',
                 );
 
                 delete defaults.plugins.semaphore.database.levelTwo.concurrency;
@@ -1056,7 +1056,7 @@ describe("ServiceProvider", () => {
                 expect(result.error!.message).toEqual('"plugins.semaphore.memory.levelOne" is required');
             });
 
-            it("plugins.semaphore.memory.levelOne.concurrency is required && is integer && >= 1", async () => {
+            it("plugins.semaphore.memory.levelOne.concurrency is required && is integer && >= 0", async () => {
                 defaults.plugins.semaphore.memory.levelOne.concurrency = false;
                 let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
 
@@ -1075,7 +1075,7 @@ describe("ServiceProvider", () => {
                 result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
 
                 expect(result.error!.message).toEqual(
-                    '"plugins.semaphore.memory.levelOne.concurrency" must be greater than or equal to 1',
+                    '"plugins.semaphore.memory.levelOne.concurrency" must be greater than or equal to 0',
                 );
 
                 delete defaults.plugins.semaphore.memory.levelOne.concurrency;
@@ -1150,7 +1150,7 @@ describe("ServiceProvider", () => {
                 expect(result.error!.message).toEqual('"plugins.semaphore.memory.levelTwo" is required');
             });
 
-            it("plugins.semaphore.memory.levelTwo.concurrency is required && is integer && >= 1", async () => {
+            it("plugins.semaphore.memory.levelTwo.concurrency is required && is integer && >= 0", async () => {
                 defaults.plugins.semaphore.memory.levelTwo.concurrency = false;
                 let result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
 
@@ -1169,7 +1169,7 @@ describe("ServiceProvider", () => {
                 result = (coreApiServiceProvider.configSchema() as AnySchema).validate(defaults);
 
                 expect(result.error!.message).toEqual(
-                    '"plugins.semaphore.memory.levelTwo.concurrency" must be greater than or equal to 1',
+                    '"plugins.semaphore.memory.levelTwo.concurrency" must be greater than or equal to 0',
                 );
 
                 delete defaults.plugins.semaphore.memory.levelTwo.concurrency;
