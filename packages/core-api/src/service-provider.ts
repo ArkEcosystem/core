@@ -73,23 +73,23 @@ export class ServiceProvider extends Providers.ServiceProvider {
                     enabled: Joi.bool().required(),
                     database: Joi.object({
                         levelOne: Joi.object({
-                            concurrency: Joi.number().integer().min(1).required(),
+                            concurrency: Joi.number().integer().min(0).required(),
                             queueLimit: Joi.number().integer().min(0).required(),
                             maxOffset: Joi.number().integer().min(0).required(),
                         }).required(),
                         levelTwo: Joi.object({
-                            concurrency: Joi.number().integer().min(1).required(),
+                            concurrency: Joi.number().integer().min(0).required(),
                             queueLimit: Joi.number().integer().min(0).required(),
                         }).required(),
                     }).required(),
                     memory: Joi.object({
                         levelOne: Joi.object({
-                            concurrency: Joi.number().integer().min(1).required(),
+                            concurrency: Joi.number().integer().min(0).required(),
                             queueLimit: Joi.number().integer().min(0).required(),
                             maxOffset: Joi.number().integer().min(0).required(),
                         }).required(),
                         levelTwo: Joi.object({
-                            concurrency: Joi.number().integer().min(1).required(),
+                            concurrency: Joi.number().integer().min(0).required(),
                             queueLimit: Joi.number().integer().min(0).required(),
                         }).required(),
                     }).required(),
