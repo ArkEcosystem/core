@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-magistrate-api",
-    "version": "3.6.1",
+    "version": "3.7.0",
     "description": "Magistrate API for ARK Core",
     "license": "MIT",
     "contributors": [
@@ -22,11 +22,11 @@
         "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
-        "@arkecosystem/core-api": "3.6.1",
-        "@arkecosystem/core-kernel": "3.6.1",
-        "@arkecosystem/core-magistrate-crypto": "3.6.1",
-        "@arkecosystem/core-magistrate-transactions": "3.6.1",
-        "@arkecosystem/crypto": "3.6.1",
+        "@arkecosystem/core-api": "3.7.0",
+        "@arkecosystem/core-kernel": "3.7.0",
+        "@arkecosystem/core-magistrate-crypto": "3.7.0",
+        "@arkecosystem/core-magistrate-transactions": "3.7.0",
+        "@arkecosystem/crypto": "3.7.0",
         "@hapi/boom": "9.1.4",
         "@hapi/hapi": "20.1.5",
         "joi": "17.4.2"

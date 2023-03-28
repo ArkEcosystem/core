@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-database",
-    "version": "3.6.1",
+    "version": "3.7.0",
     "description": "Database Interface for ARK Core",
     "license": "MIT",
     "contributors": [
@@ -22,8 +22,8 @@
         "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
-        "@arkecosystem/core-kernel": "3.6.1",
-        "@arkecosystem/crypto": "3.6.1",
+        "@arkecosystem/core-kernel": "3.7.0",
+        "@arkecosystem/crypto": "3.7.0",
         "@arkecosystem/utils": "1.3.1",
         "dayjs": "1.10.7",
         "joi": "17.4.2",

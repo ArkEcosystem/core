@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-kernel",
     "description": "Kernel of ARK Core",
-    "version": "3.6.1",
+    "version": "3.7.0",
     "contributors": [
         "Brian Faust <brian@ark.io>"
     ],
@@ -21,7 +21,7 @@
         "clean": "rimraf dist"
     },
     "dependencies": {
-        "@arkecosystem/crypto": "3.6.1",
+        "@arkecosystem/crypto": "3.7.0",
         "@arkecosystem/utils": "1.3.1",
         "@pm2/io": "5.0.0",
         "chalk": "4.1.2",
