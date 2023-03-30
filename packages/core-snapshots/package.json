@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-snapshots",
-    "version": "3.6.1",
+    "version": "3.7.0",
     "description": "Provides live local streamed snapshots functionality for ARK Core",
     "license": "MIT",
     "contributors": [
@@ -20,9 +20,9 @@
         "prepublishOnly": "yarn build"
     },
     "dependencies": {
-        "@arkecosystem/core-database": "3.6.1",
-        "@arkecosystem/core-kernel": "3.6.1",
-        "@arkecosystem/crypto": "3.6.1",
+        "@arkecosystem/core-database": "3.7.0",
+        "@arkecosystem/core-kernel": "3.7.0",
+        "@arkecosystem/crypto": "3.7.0",
         "bytebuffer": "5.0.1",
         "fs-extra": "8.1.0",
         "joi": "17.4.2",
