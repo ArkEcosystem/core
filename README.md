@@ -6,6 +6,9 @@
 
 [![License: MIT](https://badgen.now.sh/badge/license/MIT/green)](https://opensource.org/licenses/MIT)
 
+> **Note**
+> Please checkout [MainSail](https://github.com/ArkEcosystem/mainsail) for the next generation of the ARK-Core blockchain protocol featuring a new DPoS consensus engine that is more reliable and efficient. Currently in development.
+
 ## Introduction
 
 > This repository contains all plugins that make up the ARK Core.
