@@ -23,7 +23,7 @@ Check our [dedicated documentation site](https://ark.dev/docs/core) for informat
 
 ## API Documentation
 
--   API v2 : https://api.ark.dev
+-   API v2 : https://ark.dev/docs/api
 
 ## Security
 
