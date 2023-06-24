@@ -46,7 +46,7 @@
         "pretty-ms": "7.0.1",
         "protobufjs": "6.11.3",
         "rate-limiter-flexible": "1.3.2",
-        "semver": "6.3.0",
+        "semver": "7.5.2",
         "ws": "7.5.5"
     },
     "devDependencies": {
