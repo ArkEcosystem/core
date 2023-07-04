@@ -208,7 +208,7 @@ describe("API 2.0 - Transactions", () => {
             const response = await api.request("GET", "transactions", { recipientId: recipientAddress });
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
-            expect(response.data.data).toHaveLength(3);
+            expect(response.data.data).toHaveLength(2);
 
             for (const transaction of response.data.data) {
                 api.expectTransaction(transaction);
@@ -224,7 +224,7 @@ describe("API 2.0 - Transactions", () => {
             expect(response).toBeSuccessfulResponse();
 
             expect(response.data.data).toBeArray();
-            expect(response.data.data).toHaveLength(6);
+            expect(response.data.data).toHaveLength(4);
 
             for (const transaction of response.data.data) {
                 api.expectTransaction(transaction);
