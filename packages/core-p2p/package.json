@@ -44,7 +44,7 @@
         "joi": "17.4.2",
         "pluralize": "8.0.0",
         "pretty-ms": "7.0.1",
-        "protobufjs": "6.11.3",
+        "protobufjs": "7.2.4",
         "rate-limiter-flexible": "1.3.2",
         "semver": "6.3.0",
         "ws": "7.5.5"
