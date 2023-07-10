@@ -121,12 +121,14 @@ $root.blocks = (function() {
             while (reader.pos < end) {
                 var tag = reader.uint32();
                 switch (tag >>> 3) {
-                case 1:
-                    message.block = reader.bytes();
-                    break;
-                case 2:
-                    message.headers = $root.shared.Headers.decode(reader, reader.uint32());
-                    break;
+                case 1: {
+                        message.block = reader.bytes();
+                        break;
+                    }
+                case 2: {
+                        message.headers = $root.shared.Headers.decode(reader, reader.uint32());
+                        break;
+                    }
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -188,7 +190,7 @@ $root.blocks = (function() {
             if (object.block != null)
                 if (typeof object.block === "string")
                     $util.base64.decode(object.block, message.block = $util.newBuffer($util.base64.length(object.block)), 0);
-                else if (object.block.length)
+                else if (object.block.length >= 0)
                     message.block = object.block;
             if (object.headers != null) {
                 if (typeof object.headers !== "object")
@@ -237,6 +239,21 @@ $root.blocks = (function() {
          */
         PostBlockRequest.prototype.toJSON = function toJSON() {
             return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        /**
+         * Gets the default type url for PostBlockRequest
+         * @function getTypeUrl
+         * @memberof blocks.PostBlockRequest
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        PostBlockRequest.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/blocks.PostBlockRequest";
         };
 
         return PostBlockRequest;
@@ -345,12 +362,14 @@ $root.blocks = (function() {
             while (reader.pos < end) {
                 var tag = reader.uint32();
                 switch (tag >>> 3) {
-                case 1:
-                    message.status = reader.bool();
-                    break;
-                case 2:
-                    message.height = reader.uint32();
-                    break;
+                case 1: {
+                        message.status = reader.bool();
+                        break;
+                    }
+                case 2: {
+                        message.height = reader.uint32();
+                        break;
+                    }
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -447,6 +466,21 @@ $root.blocks = (function() {
          */
         PostBlockResponse.prototype.toJSON = function toJSON() {
             return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        /**
+         * Gets the default type url for PostBlockResponse
+         * @function getTypeUrl
+         * @memberof blocks.PostBlockResponse
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        PostBlockResponse.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/blocks.PostBlockResponse";
         };
 
         return PostBlockResponse;
@@ -588,21 +622,26 @@ $root.blocks = (function() {
             while (reader.pos < end) {
                 var tag = reader.uint32();
                 switch (tag >>> 3) {
-                case 1:
-                    message.lastBlockHeight = reader.uint32();
-                    break;
-                case 2:
-                    message.blockLimit = reader.uint32();
-                    break;
-                case 3:
-                    message.headersOnly = reader.bool();
-                    break;
-                case 4:
-                    message.serialized = reader.bool();
-                    break;
-                case 5:
-                    message.headers = $root.shared.Headers.decode(reader, reader.uint32());
-                    break;
+                case 1: {
+                        message.lastBlockHeight = reader.uint32();
+                        break;
+                    }
+                case 2: {
+                        message.blockLimit = reader.uint32();
+                        break;
+                    }
+                case 3: {
+                        message.headersOnly = reader.bool();
+                        break;
+                    }
+                case 4: {
+                        message.serialized = reader.bool();
+                        break;
+                    }
+                case 5: {
+                        message.headers = $root.shared.Headers.decode(reader, reader.uint32());
+                        break;
+                    }
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -730,6 +769,21 @@ $root.blocks = (function() {
             return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
         };
 
+        /**
+         * Gets the default type url for GetBlocksRequest
+         * @function getTypeUrl
+         * @memberof blocks.GetBlocksRequest
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        GetBlocksRequest.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/blocks.GetBlocksRequest";
+        };
+
         return GetBlocksRequest;
     })();
 
@@ -825,9 +879,10 @@ $root.blocks = (function() {
             while (reader.pos < end) {
                 var tag = reader.uint32();
                 switch (tag >>> 3) {
-                case 1:
-                    message.blocks = reader.bytes();
-                    break;
+                case 1: {
+                        message.blocks = reader.bytes();
+                        break;
+                    }
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -884,7 +939,7 @@ $root.blocks = (function() {
             if (object.blocks != null)
                 if (typeof object.blocks === "string")
                     $util.base64.decode(object.blocks, message.blocks = $util.newBuffer($util.base64.length(object.blocks)), 0);
-                else if (object.blocks.length)
+                else if (object.blocks.length >= 0)
                     message.blocks = object.blocks;
             return message;
         };
@@ -924,6 +979,21 @@ $root.blocks = (function() {
          */
         GetBlocksResponse.prototype.toJSON = function toJSON() {
             return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        /**
+         * Gets the default type url for GetBlocksResponse
+         * @function getTypeUrl
+         * @memberof blocks.GetBlocksResponse
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        GetBlocksResponse.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/blocks.GetBlocksResponse";
         };
 
         GetBlocksResponse.BlockHeader = (function() {
@@ -1183,54 +1253,70 @@ $root.blocks = (function() {
                 while (reader.pos < end) {
                     var tag = reader.uint32();
                     switch (tag >>> 3) {
-                    case 1:
-                        message.id = reader.string();
-                        break;
-                    case 2:
-                        message.idHex = reader.string();
-                        break;
-                    case 3:
-                        message.version = reader.uint32();
-                        break;
-                    case 4:
-                        message.timestamp = reader.uint32();
-                        break;
-                    case 5:
-                        message.previousBlock = reader.string();
-                        break;
-                    case 6:
-                        message.previousBlockHex = reader.string();
-                        break;
-                    case 7:
-                        message.height = reader.uint32();
-                        break;
-                    case 8:
-                        message.numberOfTransactions = reader.uint32();
-                        break;
-                    case 9:
-                        message.totalAmount = reader.string();
-                        break;
-                    case 10:
-                        message.totalFee = reader.string();
-                        break;
-                    case 11:
-                        message.reward = reader.string();
-                        break;
-                    case 12:
-                        message.payloadLength = reader.uint32();
-                        break;
-                    case 13:
-                        message.payloadHash = reader.string();
-                        break;
-                    case 14:
-                        message.generatorPublicKey = reader.string();
-                        break;
-                    case 15:
-                        message.blockSignature = reader.string();
-                        break;
-                    case 16:
-                        message.transactions = reader.bytes();
-                        break;
+                    case 1: {
+                            message.id = reader.string();
+                            break;
+                        }
+                    case 2: {
+                            message.idHex = reader.string();
+                            break;
+                        }
+                    case 3: {
+                            message.version = reader.uint32();
+                            break;
+                        }
+                    case 4: {
+                            message.timestamp = reader.uint32();
+                            break;
+                        }
+                    case 5: {
+                            message.previousBlock = reader.string();
+                            break;
+                        }
+                    case 6: {
+                            message.previousBlockHex = reader.string();
+                            break;
+                        }
+                    case 7: {
+                            message.height = reader.uint32();
+                            break;
+                        }
+                    case 8: {
+                            message.numberOfTransactions = reader.uint32();
+                            break;
+                        }
+                    case 9: {
+                            message.totalAmount = reader.string();
+                            break;
+                        }
+                    case 10: {
+                            message.totalFee = reader.string();
+                            break;
+                        }
+                    case 11: {
+                            message.reward = reader.string();
+                            break;
+                        }
+                    case 12: {
+                            message.payloadLength = reader.uint32();
+                            break;
+                        }
+                    case 13: {
+                            message.payloadHash = reader.string();
+                            break;
+                        }
+                    case 14: {
+                            message.generatorPublicKey = reader.string();
+                            break;
+                        }
+                    case 15: {
+                            message.blockSignature = reader.string();
+                            break;
+                        }
+                    case 16: {
+                            message.transactions = reader.bytes();
+                            break;
+                        }
                     default:
                         reader.skipType(tag & 7);
                         break;
@@ -1362,7 +1448,7 @@ $root.blocks = (function() {
                 if (object.transactions != null)
                     if (typeof object.transactions === "string")
                         $util.base64.decode(object.transactions, message.transactions = $util.newBuffer($util.base64.length(object.transactions)), 0);
-                    else if (object.transactions.length)
+                    else if (object.transactions.length >= 0)
                         message.transactions = object.transactions;
                 return message;
             };
@@ -1448,6 +1534,21 @@ $root.blocks = (function() {
              */
             BlockHeader.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+
+            /**
+             * Gets the default type url for BlockHeader
+             * @function getTypeUrl
+             * @memberof blocks.GetBlocksResponse.BlockHeader
+             * @static
+             * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns {string} The default type url
+             */
+            BlockHeader.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+                if (typeUrlPrefix === undefined) {
+                    typeUrlPrefix = "type.googleapis.com";
+                }
+                return typeUrlPrefix + "/blocks.GetBlocksResponse.BlockHeader";
             };
 
             return BlockHeader;
@@ -1560,9 +1661,10 @@ $root.peer = (function() {
             while (reader.pos < end) {
                 var tag = reader.uint32();
                 switch (tag >>> 3) {
-                case 1:
-                    message.headers = $root.shared.Headers.decode(reader, reader.uint32());
-                    break;
+                case 1: {
+                        message.headers = $root.shared.Headers.decode(reader, reader.uint32());
+                        break;
+                    }
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -1655,6 +1757,21 @@ $root.peer = (function() {
          */
         GetPeersRequest.prototype.toJSON = function toJSON() {
             return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        /**
+         * Gets the default type url for GetPeersRequest
+         * @function getTypeUrl
+         * @memberof peer.GetPeersRequest
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        GetPeersRequest.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/peer.GetPeersRequest";
         };
 
         return GetPeersRequest;
@@ -1754,11 +1871,12 @@ $root.peer = (function() {
             while (reader.pos < end) {
                 var tag = reader.uint32();
                 switch (tag >>> 3) {
-                case 1:
-                    if (!(message.peers && message.peers.length))
-                        message.peers = [];
-                    message.peers.push($root.peer.GetPeersResponse.Peer.decode(reader, reader.uint32()));
-                    break;
+                case 1: {
+                        if (!(message.peers && message.peers.length))
+                            message.peers = [];
+                        message.peers.push($root.peer.GetPeersResponse.Peer.decode(reader, reader.uint32()));
+                        break;
+                    }
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -1865,6 +1983,21 @@ $root.peer = (function() {
             return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
         };
 
+        /**
+         * Gets the default type url for GetPeersResponse
+         * @function getTypeUrl
+         * @memberof peer.GetPeersResponse
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        GetPeersResponse.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/peer.GetPeersResponse";
+        };
+
         GetPeersResponse.Peer = (function() {
 
             /**
@@ -1968,12 +2101,14 @@ $root.peer = (function() {
                 while (reader.pos < end) {
                     var tag = reader.uint32();
                     switch (tag >>> 3) {
-                    case 1:
-                        message.ip = reader.string();
-                        break;
-                    case 2:
-                        message.port = reader.uint32();
-                        break;
+                    case 1: {
+                            message.ip = reader.string();
+                            break;
+                        }
+                    case 2: {
+                            message.port = reader.uint32();
+                            break;
+                        }
                     default:
                         reader.skipType(tag & 7);
                         break;
@@ -2070,6 +2205,21 @@ $root.peer = (function() {
              */
             Peer.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+
+            /**
+             * Gets the default type url for Peer
+             * @function getTypeUrl
+             * @memberof peer.GetPeersResponse.Peer
+             * @static
+             * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns {string} The default type url
+             */
+            Peer.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+                if (typeUrlPrefix === undefined) {
+                    typeUrlPrefix = "type.googleapis.com";
+                }
+                return typeUrlPrefix + "/peer.GetPeersResponse.Peer";
             };
 
             return Peer;
@@ -2183,14 +2333,16 @@ $root.peer = (function() {
             while (reader.pos < end) {
                 var tag = reader.uint32();
                 switch (tag >>> 3) {
-                case 1:
-                    if (!(message.ids && message.ids.length))
-                        message.ids = [];
-                    message.ids.push(reader.string());
-                    break;
-                case 2:
-                    message.headers = $root.shared.Headers.decode(reader, reader.uint32());
-                    break;
+                case 1: {
+                        if (!(message.ids && message.ids.length))
+                            message.ids = [];
+                        message.ids.push(reader.string());
+                        break;
+                    }
+                case 2: {
+                        message.headers = $root.shared.Headers.decode(reader, reader.uint32());
+                        break;
+                    }
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -2306,6 +2458,21 @@ $root.peer = (function() {
             return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
         };
 
+        /**
+         * Gets the default type url for GetCommonBlocksRequest
+         * @function getTypeUrl
+         * @memberof peer.GetCommonBlocksRequest
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        GetCommonBlocksRequest.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/peer.GetCommonBlocksRequest";
+        };
+
         return GetCommonBlocksRequest;
     })();
 
@@ -2401,9 +2568,10 @@ $root.peer = (function() {
             while (reader.pos < end) {
                 var tag = reader.uint32();
                 switch (tag >>> 3) {
-                case 1:
-                    message.common = $root.peer.GetCommonBlocksResponse.Common.decode(reader, reader.uint32());
-                    break;
+                case 1: {
+                        message.common = $root.peer.GetCommonBlocksResponse.Common.decode(reader, reader.uint32());
+                        break;
+                    }
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -2496,6 +2664,21 @@ $root.peer = (function() {
          */
         GetCommonBlocksResponse.prototype.toJSON = function toJSON() {
             return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        /**
+         * Gets the default type url for GetCommonBlocksResponse
+         * @function getTypeUrl
+         * @memberof peer.GetCommonBlocksResponse
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        GetCommonBlocksResponse.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/peer.GetCommonBlocksResponse";
         };
 
         GetCommonBlocksResponse.Common = (function() {
@@ -2601,12 +2784,14 @@ $root.peer = (function() {
                 while (reader.pos < end) {
                     var tag = reader.uint32();
                     switch (tag >>> 3) {
-                    case 1:
-                        message.height = reader.uint32();
-                        break;
-                    case 2:
-                        message.id = reader.string();
-                        break;
+                    case 1: {
+                            message.height = reader.uint32();
+                            break;
+                        }
+                    case 2: {
+                            message.id = reader.string();
+                            break;
+                        }
                     default:
                         reader.skipType(tag & 7);
                         break;
@@ -2703,6 +2888,21 @@ $root.peer = (function() {
              */
             Common.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+
+            /**
+             * Gets the default type url for Common
+             * @function getTypeUrl
+             * @memberof peer.GetCommonBlocksResponse.Common
+             * @static
+             * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns {string} The default type url
+             */
+            Common.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+                if (typeUrlPrefix === undefined) {
+                    typeUrlPrefix = "type.googleapis.com";
+                }
+                return typeUrlPrefix + "/peer.GetCommonBlocksResponse.Common";
             };
 
             return Common;
@@ -2803,9 +3003,10 @@ $root.peer = (function() {
             while (reader.pos < end) {
                 var tag = reader.uint32();
                 switch (tag >>> 3) {
-                case 1:
-                    message.headers = $root.shared.Headers.decode(reader, reader.uint32());
-                    break;
+                case 1: {
+                        message.headers = $root.shared.Headers.decode(reader, reader.uint32());
+                        break;
+                    }
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -2898,6 +3099,21 @@ $root.peer = (function() {
          */
         GetStatusRequest.prototype.toJSON = function toJSON() {
             return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        /**
+         * Gets the default type url for GetStatusRequest
+         * @function getTypeUrl
+         * @memberof peer.GetStatusRequest
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        GetStatusRequest.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/peer.GetStatusRequest";
         };
 
         return GetStatusRequest;
@@ -3006,12 +3222,14 @@ $root.peer = (function() {
             while (reader.pos < end) {
                 var tag = reader.uint32();
                 switch (tag >>> 3) {
-                case 1:
-                    message.state = $root.peer.GetStatusResponse.State.decode(reader, reader.uint32());
-                    break;
-                case 2:
-                    message.config = $root.peer.GetStatusResponse.Config.decode(reader, reader.uint32());
-                    break;
+                case 1: {
+                        message.state = $root.peer.GetStatusResponse.State.decode(reader, reader.uint32());
+                        break;
+                    }
+                case 2: {
+                        message.config = $root.peer.GetStatusResponse.Config.decode(reader, reader.uint32());
+                        break;
+                    }
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -3118,6 +3336,21 @@ $root.peer = (function() {
          */
         GetStatusResponse.prototype.toJSON = function toJSON() {
             return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        /**
+         * Gets the default type url for GetStatusResponse
+         * @function getTypeUrl
+         * @memberof peer.GetStatusResponse
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        GetStatusResponse.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/peer.GetStatusResponse";
         };
 
         GetStatusResponse.State = (function() {
@@ -3245,18 +3478,22 @@ $root.peer = (function() {
                 while (reader.pos < end) {
                     var tag = reader.uint32();
                     switch (tag >>> 3) {
-                    case 1:
-                        message.height = reader.uint32();
-                        break;
-                    case 2:
-                        message.forgingAllowed = reader.bool();
-                        break;
-                    case 3:
-                        message.currentSlot = reader.uint32();
-                        break;
-                    case 4:
-                        message.header = $root.peer.GetStatusResponse.State.BlockHeader.decode(reader, reader.uint32());
-                        break;
+                    case 1: {
+                            message.height = reader.uint32();
+                            break;
+                        }
+                    case 2: {
+                            message.forgingAllowed = reader.bool();
+                            break;
+                        }
+                    case 3: {
+                            message.currentSlot = reader.uint32();
+                            break;
+                        }
+                    case 4: {
+                            message.header = $root.peer.GetStatusResponse.State.BlockHeader.decode(reader, reader.uint32());
+                            break;
+                        }
                     default:
                         reader.skipType(tag & 7);
                         break;
@@ -3374,6 +3611,21 @@ $root.peer = (function() {
              */
             State.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+
+            /**
+             * Gets the default type url for State
+             * @function getTypeUrl
+             * @memberof peer.GetStatusResponse.State
+             * @static
+             * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns {string} The default type url
+             */
+            State.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+                if (typeUrlPrefix === undefined) {
+                    typeUrlPrefix = "type.googleapis.com";
+                }
+                return typeUrlPrefix + "/peer.GetStatusResponse.State";
             };
 
             State.BlockHeader = (function() {
@@ -3622,51 +3874,66 @@ $root.peer = (function() {
                     while (reader.pos < end) {
                         var tag = reader.uint32();
                         switch (tag >>> 3) {
-                        case 1:
-                            message.id = reader.string();
-                            break;
-                        case 2:
-                            message.idHex = reader.string();
-                            break;
-                        case 3:
-                            message.version = reader.uint32();
-                            break;
-                        case 4:
-                            message.timestamp = reader.uint32();
-                            break;
-                        case 5:
-                            message.previousBlock = reader.string();
-                            break;
-                        case 6:
-                            message.previousBlockHex = reader.string();
-                            break;
-                        case 7:
-                            message.height = reader.uint32();
-                            break;
-                        case 8:
-                            message.numberOfTransactions = reader.uint32();
-                            break;
-                        case 9:
-                            message.totalAmount = reader.string();
-                            break;
-                        case 10:
-                            message.totalFee = reader.string();
-                            break;
-                        case 11:
-                            message.reward = reader.string();
-                            break;
-                        case 12:
-                            message.payloadLength = reader.uint32();
-                            break;
-                        case 13:
-                            message.payloadHash = reader.string();
-                            break;
-                        case 14:
-                            message.generatorPublicKey = reader.string();
-                            break;
-                        case 15:
-                            message.blockSignature = reader.string();
-                            break;
+                        case 1: {
+                                message.id = reader.string();
+                                break;
+                            }
+                        case 2: {
+                                message.idHex = reader.string();
+                                break;
+                            }
+                        case 3: {
+                                message.version = reader.uint32();
+                                break;
+                            }
+                        case 4: {
+                                message.timestamp = reader.uint32();
+                                break;
+                            }
+                        case 5: {
+                                message.previousBlock = reader.string();
+                                break;
+                            }
+                        case 6: {
+                                message.previousBlockHex = reader.string();
+                                break;
+                            }
+                        case 7: {
+                                message.height = reader.uint32();
+                                break;
+                            }
+                        case 8: {
+                                message.numberOfTransactions = reader.uint32();
+                                break;
+                            }
+                        case 9: {
+                                message.totalAmount = reader.string();
+                                break;
+                            }
+                        case 10: {
+                                message.totalFee = reader.string();
+                                break;
+                            }
+                        case 11: {
+                                message.reward = reader.string();
+                                break;
+                            }
+                        case 12: {
+                                message.payloadLength = reader.uint32();
+                                break;
+                            }
+                        case 13: {
+                                message.payloadHash = reader.string();
+                                break;
+                            }
+                        case 14: {
+                                message.generatorPublicKey = reader.string();
+                                break;
+                            }
+                        case 15: {
+                                message.blockSignature = reader.string();
+                                break;
+                            }
                         default:
                             reader.skipType(tag & 7);
                             break;
@@ -3869,6 +4136,21 @@ $root.peer = (function() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
                 };
 
+                /**
+                 * Gets the default type url for BlockHeader
+                 * @function getTypeUrl
+                 * @memberof peer.GetStatusResponse.State.BlockHeader
+                 * @static
+                 * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+                 * @returns {string} The default type url
+                 */
+                BlockHeader.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+                    if (typeUrlPrefix === undefined) {
+                        typeUrlPrefix = "type.googleapis.com";
+                    }
+                    return typeUrlPrefix + "/peer.GetStatusResponse.State.BlockHeader";
+                };
+
                 return BlockHeader;
             })();
 
@@ -3993,34 +4275,37 @@ $root.peer = (function() {
                 while (reader.pos < end) {
                     var tag = reader.uint32();
                     switch (tag >>> 3) {
-                    case 1:
-                        message.version = reader.string();
-                        break;
-                    case 2:
-                        message.network = $root.peer.GetStatusResponse.Config.Network.decode(reader, reader.uint32());
-                        break;
-                    case 3:
-                        if (message.plugins === $util.emptyObject)
-                            message.plugins = {};
-                        var end2 = reader.uint32() + reader.pos;
-                        key = "";
-                        value = null;
-                        while (reader.pos < end2) {
-                            var tag2 = reader.uint32();
-                            switch (tag2 >>> 3) {
-                            case 1:
-                                key = reader.string();
-                                break;
-                            case 2:
-                                value = $root.peer.GetStatusResponse.Config.Plugin.decode(reader, reader.uint32());
-                                break;
-                            default:
-                                reader.skipType(tag2 & 7);
-                                break;
-                            }
+                    case 1: {
+                            message.version = reader.string();
+                            break;
                         }
-                        message.plugins[key] = value;
-                        break;
+                    case 2: {
+                            message.network = $root.peer.GetStatusResponse.Config.Network.decode(reader, reader.uint32());
+                            break;
+                        }
+                    case 3: {
+                            if (message.plugins === $util.emptyObject)
+                                message.plugins = {};
+                            var end2 = reader.uint32() + reader.pos;
+                            key = "";
+                            value = null;
+                            while (reader.pos < end2) {
+                                var tag2 = reader.uint32();
+                                switch (tag2 >>> 3) {
+                                case 1:
+                                    key = reader.string();
+                                    break;
+                                case 2:
+                                    value = $root.peer.GetStatusResponse.Config.Plugin.decode(reader, reader.uint32());
+                                    break;
+                                default:
+                                    reader.skipType(tag2 & 7);
+                                    break;
+                                }
+                            }
+                            message.plugins[key] = value;
+                            break;
+                        }
                     default:
                         reader.skipType(tag & 7);
                         break;
@@ -4150,6 +4435,21 @@ $root.peer = (function() {
              */
             Config.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+
+            /**
+             * Gets the default type url for Config
+             * @function getTypeUrl
+             * @memberof peer.GetStatusResponse.Config
+             * @static
+             * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns {string} The default type url
+             */
+            Config.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+                if (typeUrlPrefix === undefined) {
+                    typeUrlPrefix = "type.googleapis.com";
+                }
+                return typeUrlPrefix + "/peer.GetStatusResponse.Config";
             };
 
             Config.Network = (function() {
@@ -4288,21 +4588,26 @@ $root.peer = (function() {
                     while (reader.pos < end) {
                         var tag = reader.uint32();
                         switch (tag >>> 3) {
-                        case 1:
-                            message.name = reader.string();
-                            break;
-                        case 2:
-                            message.nethash = reader.string();
-                            break;
-                        case 3:
-                            message.explorer = reader.string();
-                            break;
-                        case 4:
-                            message.token = $root.peer.GetStatusResponse.Config.Network.Token.decode(reader, reader.uint32());
-                            break;
-                        case 5:
-                            message.version = reader.uint32();
-                            break;
+                        case 1: {
+                                message.name = reader.string();
+                                break;
+                            }
+                        case 2: {
+                                message.nethash = reader.string();
+                                break;
+                            }
+                        case 3: {
+                                message.explorer = reader.string();
+                                break;
+                            }
+                        case 4: {
+                                message.token = $root.peer.GetStatusResponse.Config.Network.Token.decode(reader, reader.uint32());
+                                break;
+                            }
+                        case 5: {
+                                message.version = reader.uint32();
+                                break;
+                            }
                         default:
                             reader.skipType(tag & 7);
                             break;
@@ -4430,6 +4735,21 @@ $root.peer = (function() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
                 };
 
+                /**
+                 * Gets the default type url for Network
+                 * @function getTypeUrl
+                 * @memberof peer.GetStatusResponse.Config.Network
+                 * @static
+                 * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+                 * @returns {string} The default type url
+                 */
+                Network.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+                    if (typeUrlPrefix === undefined) {
+                        typeUrlPrefix = "type.googleapis.com";
+                    }
+                    return typeUrlPrefix + "/peer.GetStatusResponse.Config.Network";
+                };
+
                 Network.Token = (function() {
 
                     /**
@@ -4533,12 +4853,14 @@ $root.peer = (function() {
                         while (reader.pos < end) {
                             var tag = reader.uint32();
                             switch (tag >>> 3) {
-                            case 1:
-                                message.name = reader.string();
-                                break;
-                            case 2:
-                                message.symbol = reader.string();
-                                break;
+                            case 1: {
+                                    message.name = reader.string();
+                                    break;
+                                }
+                            case 2: {
+                                    message.symbol = reader.string();
+                                    break;
+                                }
                             default:
                                 reader.skipType(tag & 7);
                                 break;
@@ -4635,6 +4957,21 @@ $root.peer = (function() {
                      */
                     Token.prototype.toJSON = function toJSON() {
                         return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                    };
+
+                    /**
+                     * Gets the default type url for Token
+                     * @function getTypeUrl
+                     * @memberof peer.GetStatusResponse.Config.Network.Token
+                     * @static
+                     * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+                     * @returns {string} The default type url
+                     */
+                    Token.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+                        if (typeUrlPrefix === undefined) {
+                            typeUrlPrefix = "type.googleapis.com";
+                        }
+                        return typeUrlPrefix + "/peer.GetStatusResponse.Config.Network.Token";
                     };
 
                     return Token;
@@ -4757,15 +5094,18 @@ $root.peer = (function() {
                     while (reader.pos < end) {
                         var tag = reader.uint32();
                         switch (tag >>> 3) {
-                        case 1:
-                            message.port = reader.uint32();
-                            break;
-                        case 2:
-                            message.enabled = reader.bool();
-                            break;
-                        case 3:
-                            message.estimateTotalCount = reader.bool();
-                            break;
+                        case 1: {
+                                message.port = reader.uint32();
+                                break;
+                            }
+                        case 2: {
+                                message.enabled = reader.bool();
+                                break;
+                            }
+                        case 3: {
+                                message.estimateTotalCount = reader.bool();
+                                break;
+                            }
                         default:
                             reader.skipType(tag & 7);
                             break;
@@ -4870,6 +5210,21 @@ $root.peer = (function() {
                  */
                 Plugin.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                };
+
+                /**
+                 * Gets the default type url for Plugin
+                 * @function getTypeUrl
+                 * @memberof peer.GetStatusResponse.Config.Plugin
+                 * @static
+                 * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+                 * @returns {string} The default type url
+                 */
+                Plugin.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+                    if (typeUrlPrefix === undefined) {
+                        typeUrlPrefix = "type.googleapis.com";
+                    }
+                    return typeUrlPrefix + "/peer.GetStatusResponse.Config.Plugin";
                 };
 
                 return Plugin;
@@ -4985,9 +5340,10 @@ $root.shared = (function() {
             while (reader.pos < end) {
                 var tag = reader.uint32();
                 switch (tag >>> 3) {
-                case 1:
-                    message.version = reader.string();
-                    break;
+                case 1: {
+                        message.version = reader.string();
+                        break;
+                    }
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -5075,6 +5431,21 @@ $root.shared = (function() {
          */
         Headers.prototype.toJSON = function toJSON() {
             return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        /**
+         * Gets the default type url for Headers
+         * @function getTypeUrl
+         * @memberof shared.Headers
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        Headers.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/shared.Headers";
         };
 
         return Headers;
@@ -5195,12 +5566,14 @@ $root.transactions = (function() {
             while (reader.pos < end) {
                 var tag = reader.uint32();
                 switch (tag >>> 3) {
-                case 1:
-                    message.transactions = reader.bytes();
-                    break;
-                case 2:
-                    message.headers = $root.shared.Headers.decode(reader, reader.uint32());
-                    break;
+                case 1: {
+                        message.transactions = reader.bytes();
+                        break;
+                    }
+                case 2: {
+                        message.headers = $root.shared.Headers.decode(reader, reader.uint32());
+                        break;
+                    }
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -5262,7 +5635,7 @@ $root.transactions = (function() {
             if (object.transactions != null)
                 if (typeof object.transactions === "string")
                     $util.base64.decode(object.transactions, message.transactions = $util.newBuffer($util.base64.length(object.transactions)), 0);
-                else if (object.transactions.length)
+                else if (object.transactions.length >= 0)
                     message.transactions = object.transactions;
             if (object.headers != null) {
                 if (typeof object.headers !== "object")
@@ -5311,6 +5684,21 @@ $root.transactions = (function() {
          */
         PostTransactionsRequest.prototype.toJSON = function toJSON() {
             return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        /**
+         * Gets the default type url for PostTransactionsRequest
+         * @function getTypeUrl
+         * @memberof transactions.PostTransactionsRequest
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        PostTransactionsRequest.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/transactions.PostTransactionsRequest";
         };
 
         return PostTransactionsRequest;
@@ -5410,11 +5798,12 @@ $root.transactions = (function() {
             while (reader.pos < end) {
                 var tag = reader.uint32();
                 switch (tag >>> 3) {
-                case 1:
-                    if (!(message.accept && message.accept.length))
-                        message.accept = [];
-                    message.accept.push(reader.string());
-                    break;
+                case 1: {
+                        if (!(message.accept && message.accept.length))
+                            message.accept = [];
+                        message.accept.push(reader.string());
+                        break;
+                    }
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -5514,6 +5903,21 @@ $root.transactions = (function() {
          */
         PostTransactionsResponse.prototype.toJSON = function toJSON() {
             return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        /**
+         * Gets the default type url for PostTransactionsResponse
+         * @function getTypeUrl
+         * @memberof transactions.PostTransactionsResponse
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        PostTransactionsResponse.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/transactions.PostTransactionsResponse";
         };
 
         return PostTransactionsResponse;
