@@ -26,7 +26,7 @@ describe("TransactionFilter.getExpression", () => {
     });
 
     describe("TransactionCriteria.address", () => {
-        it("should compare senderPublicKey, recipientId, multipayment recipientId, delegate registration sender", async () => {
+        it("should compare senderPublicKey, recipientId, multipayment recipientId", async () => {
             walletRepository.hasByAddress.mockReturnValue(true);
             walletRepository.findByAddress
                 .mockReturnValueOnce({
@@ -56,14 +56,6 @@ describe("TransactionFilter.getExpression", () => {
                             { property: "typeGroup", op: "equal", value: Enums.TransactionTypeGroup.Core },
                             { property: "type", op: "equal", value: Enums.TransactionType.MultiPayment },
                             { property: "asset", op: "contains", value: { payments: [{ recipientId: "123" }] } },
-                        ],
-                    },
-                    {
-                        op: "and",
-                        expressions: [
-                            { property: "typeGroup", op: "equal", value: Enums.TransactionTypeGroup.Core },
-                            { property: "type", op: "equal", value: Enums.TransactionType.DelegateRegistration },
-                            { property: "senderPublicKey", op: "equal", value: "456" },
                         ],
                     },
                 ],
@@ -125,7 +117,7 @@ describe("TransactionFilter.getExpression", () => {
     });
 
     describe("TransactionCriteria.recipientId", () => {
-        it("should compare using equal expression and include multipayment and include delegate registration transaction", async () => {
+        it("should compare using equal expression and include multipayment", async () => {
             walletRepository.hasByAddress.mockReturnValue(true);
             walletRepository.findByAddress.mockReturnValueOnce({
                 getPublicKey: () => {
@@ -136,40 +128,6 @@ describe("TransactionFilter.getExpression", () => {
             const transactionFilter = container.resolve(TransactionFilter);
             const expression = await transactionFilter.getExpression({ recipientId: "123" });
 
-            expect(walletRepository.hasByAddress).toBeCalledWith("123");
-            expect(walletRepository.findByAddress).toBeCalledWith("123");
-            expect(expression).toEqual({
-                op: "or",
-                expressions: [
-                    { property: "recipientId", op: "equal", value: "123" },
-                    {
-                        op: "and",
-                        expressions: [
-                            { property: "typeGroup", op: "equal", value: Enums.TransactionTypeGroup.Core },
-                            { property: "type", op: "equal", value: Enums.TransactionType.MultiPayment },
-                            { property: "asset", op: "contains", value: { payments: [{ recipientId: "123" }] } },
-                        ],
-                    },
-                    {
-                        op: "and",
-                        expressions: [
-                            { property: "typeGroup", op: "equal", value: Enums.TransactionTypeGroup.Core },
-                            { property: "type", op: "equal", value: Enums.TransactionType.DelegateRegistration },
-                            { property: "senderPublicKey", op: "equal", value: "456" },
-                        ],
-                    },
-                ],
-            });
-        });
-
-        it("should compare using equal expression and include multipayment when wallet not found", async () => {
-            walletRepository.hasByAddress.mockReturnValue(false);
-
-            const transactionFilter = container.resolve(TransactionFilter);
-            const expression = await transactionFilter.getExpression({ recipientId: "123" });
-
-            expect(walletRepository.hasByAddress).toBeCalledWith("123");
-            expect(walletRepository.findByAddress).not.toBeCalled();
             expect(expression).toEqual({
                 op: "or",
                 expressions: [
