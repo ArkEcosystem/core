@@ -133,13 +133,10 @@ export class TransactionFilter implements Contracts.Database.TransactionFilter {
             value: criteria,
         };
 
-        const multipaymentRecipientIdExpression: Contracts.Search.AndExpression<Transaction> = {
-            op: "and",
-            expressions: [
-                { op: "equal", property: "typeGroup", value: Enums.TransactionTypeGroup.Core },
-                { op: "equal", property: "type", value: Enums.TransactionType.MultiPayment },
-                { op: "contains", property: "asset", value: { payments: [{ recipientId: criteria }] } },
-            ],
+        const multipaymentRecipientIdExpression: Contracts.Search.ContainsExpression<Transaction> = {
+            op: "contains",
+            property: "asset",
+            value: { payments: [{ recipientId: criteria }] },
         };
 
         return {

@@ -50,14 +50,7 @@ describe("TransactionFilter.getExpression", () => {
                 expressions: [
                     { property: "senderPublicKey", op: "equal", value: "456" },
                     { property: "recipientId", op: "equal", value: "123" },
-                    {
-                        op: "and",
-                        expressions: [
-                            { property: "typeGroup", op: "equal", value: Enums.TransactionTypeGroup.Core },
-                            { property: "type", op: "equal", value: Enums.TransactionType.MultiPayment },
-                            { property: "asset", op: "contains", value: { payments: [{ recipientId: "123" }] } },
-                        ],
-                    },
+                    { property: "asset", op: "contains", value: { payments: [{ recipientId: "123" }] } },
                 ],
             });
         });
@@ -74,14 +67,7 @@ describe("TransactionFilter.getExpression", () => {
                 op: "or",
                 expressions: [
                     { property: "recipientId", op: "equal", value: "123" },
-                    {
-                        op: "and",
-                        expressions: [
-                            { property: "typeGroup", op: "equal", value: Enums.TransactionTypeGroup.Core },
-                            { property: "type", op: "equal", value: Enums.TransactionType.MultiPayment },
-                            { property: "asset", op: "contains", value: { payments: [{ recipientId: "123" }] } },
-                        ],
-                    },
+                    { property: "asset", op: "contains", value: { payments: [{ recipientId: "123" }] } },
                 ],
             });
         });
@@ -132,14 +118,7 @@ describe("TransactionFilter.getExpression", () => {
                 op: "or",
                 expressions: [
                     { property: "recipientId", op: "equal", value: "123" },
-                    {
-                        op: "and",
-                        expressions: [
-                            { property: "typeGroup", op: "equal", value: Enums.TransactionTypeGroup.Core },
-                            { property: "type", op: "equal", value: Enums.TransactionType.MultiPayment },
-                            { property: "asset", op: "contains", value: { payments: [{ recipientId: "123" }] } },
-                        ],
-                    },
+                    { property: "asset", op: "contains", value: { payments: [{ recipientId: "123" }] } },
                 ],
             });
         });
