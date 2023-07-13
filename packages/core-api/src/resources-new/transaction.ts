@@ -32,4 +32,5 @@ export const transactionQueryLevelOptions = [
     { field: "blockId", asc: false, desc: false, allowSecondOrderBy: false, diverse: true },
     { field: "senderPublicKey", asc: false, desc: false, allowSecondOrderBy: false, diverse: true },
     { field: "recipientId", asc: false, desc: false, allowSecondOrderBy: false, diverse: true },
+    { field: "address", asc: false, desc: false, allowSecondOrderBy: false, diverse: true },
 ];
