@@ -3,7 +3,7 @@
   "name": "core",
   "description": "The packages that make up the ARK Core",
   "scripts": {
-    "setup": "yarn && yarn bootstrap && yarn build",
+    "setup": "yarn && yarn build",
     "setup:clean": "yarn && yarn clean && yarn build",
     "clean": "yarn lerna clean --yes",
     "build": "yarn lerna run build",
