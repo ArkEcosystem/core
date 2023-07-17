@@ -45,7 +45,7 @@ describe("TestWorkerAction", () => {
 
         const promise = testWorkerAction.start();
 
-        await new Promise((resolve) => {
+        await new Promise<void>((resolve) => {
             setTimeout(() => {
                 resolve();
             }, 10);
@@ -53,7 +53,7 @@ describe("TestWorkerAction", () => {
 
         testWorkerAction.sync({});
 
-        await new Promise((resolve) => {
+        await new Promise<void>((resolve) => {
             setTimeout(() => {
                 resolve();
             }, 10);

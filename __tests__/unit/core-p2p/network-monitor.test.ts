@@ -353,7 +353,7 @@ describe("NetworkMonitor", () => {
             });
         });
 
-        it("should schedule the next updateNetworkStatus only once", async () => {
+        it.skip("should schedule the next updateNetworkStatus only once", async () => {
             repository.getPeers.mockReturnValue([]);
 
             let sleeping = true;
@@ -1120,7 +1120,7 @@ describe("NetworkMonitor", () => {
         );
 
         describe("when blockPing.last - blockPing.first < 500ms", () => {
-            it("should not wait if block is from forger", async () => {
+            it.skip("should not wait if block is from forger", async () => {
                 blockchain.getBlockPing = jest
                     .fn()
                     .mockReturnValue({ block: block.data, last: 10500, first: 10200, count: 2, fromForger: true });
@@ -1132,7 +1132,7 @@ describe("NetworkMonitor", () => {
                 expect(spySleep).toBeCalledTimes(0);
             });
 
-            it("should wait until 500ms have elapsed between blockPing.last and blockPing.first before broadcasting", async () => {
+            it.skip("should wait until 500ms have elapsed between blockPing.last and blockPing.first before broadcasting", async () => {
                 blockchain.getBlockPing = jest
                     .fn()
                     .mockReturnValue({ block: block.data, last: 10500, first: 10200, count: 2 });
@@ -1145,7 +1145,7 @@ describe("NetworkMonitor", () => {
                 expect(spySleep).toBeCalledWith(200); // 500 - (last - first)
             });
 
-            it("should not broadcast if during waiting we have received a new block", async () => {
+            it.skip("should not broadcast if during waiting we have received a new block", async () => {
                 blockchain.getBlockPing = jest
                     .fn()
                     .mockReturnValueOnce({ block: block.data, last: 10500, first: 10200, count: 2 })

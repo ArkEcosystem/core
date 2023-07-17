@@ -41,7 +41,7 @@ describe("WorkerWrapper", () => {
 
             const promise = workerWrapper.start();
 
-            await new Promise((resolve) => {
+            await new Promise<void>((resolve) => {
                 setTimeout(() => {
                     mockWorker.emit("message", {
                         action: "started",
@@ -59,7 +59,7 @@ describe("WorkerWrapper", () => {
 
             const promise = workerWrapper.start();
 
-            await new Promise((resolve) => {
+            await new Promise<void>((resolve) => {
                 setTimeout(() => {
                     mockWorker.emit("exit", 0);
                     resolve();
@@ -74,7 +74,7 @@ describe("WorkerWrapper", () => {
 
             const promise = workerWrapper.start();
 
-            await new Promise((resolve) => {
+            await new Promise<void>((resolve) => {
                 setTimeout(() => {
                     mockWorker.emit("message", {
                         action: "exception",
@@ -92,7 +92,7 @@ describe("WorkerWrapper", () => {
 
             const promise = workerWrapper.start();
 
-            await new Promise((resolve) => {
+            await new Promise<void>((resolve) => {
                 setTimeout(() => {
                     mockWorker.emit("message", {
                         action: "any",
@@ -110,7 +110,7 @@ describe("WorkerWrapper", () => {
 
             const promise = workerWrapper.start();
 
-            await new Promise((resolve) => {
+            await new Promise<void>((resolve) => {
                 setTimeout(() => {
                     mockWorker.emit("error", {});
                     resolve();
@@ -131,7 +131,7 @@ describe("WorkerWrapper", () => {
                 dummy: "dummy_data",
             };
 
-            await new Promise((resolve) => {
+            await new Promise<void>((resolve) => {
                 setTimeout(() => {
                     mockWorker.emit("message", {
                         action: "synchronized",
@@ -149,7 +149,7 @@ describe("WorkerWrapper", () => {
 
             const promise = workerWrapper.sync({});
 
-            await new Promise((resolve) => {
+            await new Promise<void>((resolve) => {
                 setTimeout(() => {
                     mockWorker.emit("exit", 0);
                     resolve();
@@ -175,7 +175,7 @@ describe("WorkerWrapper", () => {
 
             const promise = workerWrapper.sync({});
 
-            await new Promise((resolve) => {
+            await new Promise<void>((resolve) => {
                 setTimeout(() => {
                     mockWorker.emit("message", {
                         action: "exception",
@@ -193,7 +193,7 @@ describe("WorkerWrapper", () => {
 
             const promise = workerWrapper.sync({});
 
-            await new Promise((resolve) => {
+            await new Promise<void>((resolve) => {
                 setTimeout(() => {
                     mockWorker.emit("message", {
                         action: "any",
@@ -211,7 +211,7 @@ describe("WorkerWrapper", () => {
 
             const promise = workerWrapper.sync({});
 
-            await new Promise((resolve) => {
+            await new Promise<void>((resolve) => {
                 setTimeout(() => {
                     mockWorker.emit("error", {});
                     resolve();

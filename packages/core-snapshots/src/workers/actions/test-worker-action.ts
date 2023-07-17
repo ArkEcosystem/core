@@ -34,12 +34,12 @@ export class TestWorkerAction implements Worker.WorkerAction {
                 action: "started",
             });
 
-            await new Promise((resolve) => {
+            await new Promise<void>((resolve) => {
                 this.resume = () => {
                     resolve();
                 };
             });
-            await new Promise((resolve) => {
+            await new Promise<void>((resolve) => {
                 this.resume = () => {
                     resolve();
                 };
