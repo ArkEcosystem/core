@@ -630,6 +630,7 @@ describe("RoundState", () => {
             const spyOnCalcPreviousActiveDelegates = jest
                 // @ts-ignore
                 .spyOn(roundState, "calcPreviousActiveDelegates")
+                // @ts-ignore
                 .mockReturnValue(delegates);
 
             // @ts-ignore
@@ -667,6 +668,7 @@ describe("RoundState", () => {
             const spyOnCalcPreviousActiveDelegates = jest
                 // @ts-ignore
                 .spyOn(roundState, "calcPreviousActiveDelegates")
+                // @ts-ignore
                 .mockReturnValue(delegates);
 
             databaseService.deleteRound.mockImplementation(async () => {
