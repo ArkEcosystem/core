@@ -223,7 +223,7 @@ describe("Socket", () => {
             const client = new Ws("http://localhost:" + server.info.port);
             client.onerror = Hoek.ignore;
 
-            const sendInvalid = async () => new Promise((resolve, reject) => {
+            const sendInvalid = async () => new Promise<void>((resolve, reject) => {
                 client.on("open", () => {
                     client.send("{", {} as any, () => resolve());
                 });
@@ -301,7 +301,7 @@ describe("Socket", () => {
             client.onerror = Hoek.ignore;
 
             client.on("open", () => client.send(stringifyNesMessage({ id: 1, type: "??", version: "2" }), Hoek.ignore));
-            
+
             await delay(1000);
 
             expect(client.readyState).toEqual(client.CLOSED);
@@ -337,7 +337,7 @@ describe("Socket", () => {
             client.onerror = Hoek.ignore;
 
             client.on("open", () => client.send(stringifyNesMessage({ id: 1, type: "hello" }), Hoek.ignore));
-            
+
             await delay(1000);
 
             expect(client.readyState).toEqual(client.CLOSED);
@@ -359,7 +359,7 @@ describe("Socket", () => {
             const client = new Ws("http://localhost:" + server.info.port);
             client.onerror = Hoek.ignore;
 
-            const sendPingOrPong = async () => new Promise((resolve, reject) => {
+            const sendPingOrPong = async () => new Promise<void>((resolve, reject) => {
                 client.on("open", () => {
                     client[method]("", true, () => resolve());
                 });

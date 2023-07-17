@@ -969,7 +969,7 @@ describe("Client", () => {
 
                 await expect(client.request("/")).rejects.toThrowError("Request timed out");
 
-                await new Promise((resolve) => {
+                await new Promise<void>((resolve) => {
                     setTimeout(() => {
                         resolve();
                     }, 300);

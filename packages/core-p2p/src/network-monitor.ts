@@ -130,7 +130,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
 
         // we use Promise.race to cut loose in case some communicator.ping() does not resolve within the delay
         // in that case we want to keep on with our program execution while ping promises can finish in the background
-        await new Promise((resolve) => {
+        await new Promise<void>((resolve) => {
             let isResolved = false;
 
             // Simulates Promise.race, but doesn't cause "multipleResolvers" process error
