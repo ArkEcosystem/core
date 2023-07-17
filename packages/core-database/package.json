@@ -29,7 +29,7 @@
         "joi": "17.4.2",
         "pg": "8.7.1",
         "reflect-metadata": "0.1.13",
-        "typeorm": "0.2.25"
+        "typeorm": "0.3.17"
     },
     "engines": {
         "node": ">=10.x"
