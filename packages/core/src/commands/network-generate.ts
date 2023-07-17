@@ -787,6 +787,7 @@ export class Command extends Commands.Command {
         }
 
         if (!Object.keys(dynamicFees.addonBytes).length) {
+            // @ts-ignore
             delete dynamicFees.addonBytes;
         }
 

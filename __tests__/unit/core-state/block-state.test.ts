@@ -259,6 +259,7 @@ describe("BlockState", () => {
     it("should create forger wallet if it doesn't exist genesis block", async () => {
         //@ts-ignore
         const spyApplyBlockToForger = jest.spyOn(blockState, "applyBlockToForger");
+        //@ts-ignore
         spyApplyBlockToForger.mockImplementationOnce(() => {});
         const spyCreateWallet = jest.spyOn(walletRepo, "createWallet");
         blocks[0].data.height = 1;

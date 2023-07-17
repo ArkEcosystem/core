@@ -8,6 +8,15 @@ let mockSnapshotService;
 let mockEventListener;
 let spyOnTerminate;
 
+jest.mock("@packages/core-cli", () => {
+    const original = jest.requireActual("@packages/core-cli");
+    return {
+        __esModule: true,
+        ...original,
+        Utils: { ...original.Utils, buildApplication: jest.fn() },
+    };
+});
+
 beforeEach(() => {
     cli = new Console();
 
