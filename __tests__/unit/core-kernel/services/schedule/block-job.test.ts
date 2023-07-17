@@ -11,7 +11,7 @@ let job: BlockJob;
 let eventDispatcher: MemoryEventDispatcher;
 
 const delay = async (timeout) => {
-    await new Promise((resolve) => {
+    await new Promise<void>((resolve) => {
         setTimeout(() => {
             resolve();
         }, timeout);
