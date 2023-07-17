@@ -228,5 +228,5 @@ export abstract class ServiceProvider {
      * @returns {Promise<void>}
      * @memberof ServiceProvider
      */
-    public abstract async register(): Promise<void>;
+    public abstract register(): Promise<void>;
 }
