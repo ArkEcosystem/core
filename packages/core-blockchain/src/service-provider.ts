@@ -29,6 +29,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
     public configSchema(): object {
         return Joi.object({
+            fastSync: Joi.bool().required(),
             databaseRollback: Joi.object({
                 maxBlockRewind: Joi.number().integer().min(1).required(),
                 steps: Joi.number().integer().min(1).required(),
