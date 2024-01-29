@@ -18,7 +18,9 @@ EventEmitter.prototype.constructor = Object.prototype.constructor;
 describe("Blockchain", () => {
     let sandbox: Sandbox;
 
-    const configuration: any = {};
+    const configuration: any = {
+        getRequired: jest.fn(),
+    };
     const logService: any = {};
     const stateStore: any = {};
     const databaseService: any = {};
@@ -59,11 +61,11 @@ describe("Blockchain", () => {
             .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
             .bind("getActiveDelegates", new GetActiveDelegatesAction(sandbox.app));
 
-        sandbox.app
-            .bind(Identifiers.QueueFactory)
-            .toFactory((context: interfaces.Context) => async <K, T>(name?: string): Promise<Queue> =>
-                sandbox.app.resolve<Queue>(MemoryQueue).make(),
-            );
+        sandbox.app.bind(Identifiers.QueueFactory).toFactory(
+            (context: interfaces.Context) =>
+                async <K, T>(name?: string): Promise<Queue> =>
+                    sandbox.app.resolve<Queue>(MemoryQueue).make(),
+        );
 
         Managers.configManager.setFromPreset("testnet");
     });
@@ -278,18 +280,40 @@ describe("Blockchain", () => {
         it("should set wakeUpTimeout on stateStore", () => {
             const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
 
+            configuration.getRequired.mockReturnValueOnce(false);
+
             blockchain.setWakeUp();
             expect(stateStore.setWakeUpTimeout).toHaveBeenCalled();
         });
 
-        it("should dispatch WAKEUP when wake up function is called", () => {
+        it("should dispatch WAKEUP when wake up function is called after 60 second", () => {
             const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
             const spyDispatch = jest.spyOn(blockchain, "dispatch");
+
+            configuration.getRequired.mockReturnValueOnce(false);
 
             blockchain.setWakeUp();
             expect(spyDispatch).toBeCalledTimes(0);
 
             expect(stateStore.setWakeUpTimeout).toHaveBeenCalledWith(expect.toBeFunction(), 60000);
+
+            // Call given callback function
+            stateStore.setWakeUpTimeout.mock.calls[0][0]();
+
+            expect(spyDispatch).toBeCalledTimes(1);
+            expect(spyDispatch).toBeCalledWith("WAKEUP");
+        });
+
+        it("should dispatch WAKEUP when wake up function is called after 8 second, when fastSync === true", () => {
+            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
+            const spyDispatch = jest.spyOn(blockchain, "dispatch");
+
+            configuration.getRequired.mockReturnValueOnce(true);
+
+            blockchain.setWakeUp();
+            expect(spyDispatch).toBeCalledTimes(0);
+
+            expect(stateStore.setWakeUpTimeout).toHaveBeenCalledWith(expect.toBeFunction(), 8000);
 
             // Call given callback function
             stateStore.setWakeUpTimeout.mock.calls[0][0]();
@@ -829,8 +853,20 @@ describe("Blockchain", () => {
         it("should return false if last block is more than 3 blocktimes away from current slot time", () => {
             const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
 
+            configuration.getRequired.mockReturnValueOnce(false);
             peerRepository.hasPeers = jest.fn().mockReturnValue(true);
             const mockBlock = { data: { id: "123", height: 444, timestamp: Crypto.Slots.getTime() - 25 } };
+            stateStore.getLastBlock = jest.fn().mockReturnValue(mockBlock);
+
+            expect(blockchain.isSynced()).toBeFalse();
+        });
+
+        it("should return false if last block is more than 1 blocktimes away from current slot time and fastSync === true", () => {
+            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
+
+            configuration.getRequired.mockReturnValueOnce(true);
+            peerRepository.hasPeers = jest.fn().mockReturnValue(true);
+            const mockBlock = { data: { id: "123", height: 444, timestamp: Crypto.Slots.getTime() - 8 } };
             stateStore.getLastBlock = jest.fn().mockReturnValue(mockBlock);
 
             expect(blockchain.isSynced()).toBeFalse();
