@@ -4,7 +4,7 @@ const child_process = require("child_process");
 
 const jemallocPath = child_process
     .spawnSync(
-        `ls -d1H $(gcc -print-search-dirs | grep libraries: | awk '{print $2}' | sed -e 's/:/* /g' -e 's/$/*/' -e 's/^.//') | grep libjemalloc.so`,
+        `ls -d1H $(gcc -print-search-dirs | grep libraries: | awk '{print $2}' | sed -e 's/:/* /g' -e 's/$/*/' -e 's/^.//') | grep libjemalloc.so || ls -d1H /usr/lib/* | grep libjemalloc.so`,
         { shell: true },
     )
     .stdout.toString()
