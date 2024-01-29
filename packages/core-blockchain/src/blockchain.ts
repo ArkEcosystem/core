@@ -161,9 +161,12 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
      * Set wakeup timeout to check the network for new blocks.
      */
     public setWakeUp(): void {
-        this.stateStore.setWakeUpTimeout(() => {
-            this.dispatch("WAKEUP");
-        }, 60000);
+        this.stateStore.setWakeUpTimeout(
+            () => {
+                this.dispatch("WAKEUP");
+            },
+            this.configuration.getRequired<boolean>("fastSync") ? 8000 : 60000,
+        );
     }
 
     /**
@@ -437,8 +440,11 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
         block = block || this.getLastBlock().data;
 
+        const blockCount = this.configuration.getRequired<boolean>("fastSync") ? 1 : 3;
+
         return (
-            Crypto.Slots.getTime() - block.timestamp < 3 * Managers.configManager.getMilestone(block.height).blocktime
+            Crypto.Slots.getTime() - block.timestamp <
+            blockCount * Managers.configManager.getMilestone(block.height).blocktime
         );
     }
 
