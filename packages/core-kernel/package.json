@@ -27,7 +27,7 @@
         "chalk": "4.1.2",
         "cron": "1.8.2",
         "dayjs": "1.11.10",
-        "deepmerge": "4.2.2",
+        "deepmerge": "4.3.1",
         "env-paths": "2.2.0",
         "fs-extra": "8.1.0",
         "functional-red-black-tree": "1.0.1",
@@ -38,7 +38,7 @@
         "joi": "17.12.1",
         "log-process-errors": "5.1.2",
         "nanomatch": "1.2.13",
-        "nsfw": "2.1.2",
+        "nsfw": "2.2.4",
         "reflect-metadata": "0.2.1",
         "semver": "6.3.1",
         "type-fest": "0.21.3"
