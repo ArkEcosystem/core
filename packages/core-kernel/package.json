@@ -46,7 +46,7 @@
     "devDependencies": {
         "@types/cron": "1.7.3",
         "@types/fs-extra": "8.1.2",
-        "@types/functional-red-black-tree": "1.0.1",
+        "@types/functional-red-black-tree": "1.0.6",
         "@types/got": "9.6.12",
         "@types/log-process-errors": "4.1.0",
         "@types/semver": "6.2.3"

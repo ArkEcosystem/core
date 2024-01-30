@@ -3103,10 +3103,10 @@
   dependencies:
     "@types/node" "*"
 
-"@types/functional-red-black-tree@1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@types/functional-red-black-tree/-/functional-red-black-tree-1.0.1.tgz#5e776b74ff706b307e861a9fb3cb5ce98bc2d0e5"
-  integrity sha512-gUXkc6hiRJ2yPyiidbDbtU5YDt0c8JjYjq671QPYmJg2kiYS53/814Hg2SY4wqL/hfCzfa3NZzeh2e30YhALww==
+"@types/functional-red-black-tree@1.0.6":
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/@types/functional-red-black-tree/-/functional-red-black-tree-1.0.6.tgz#29c8c3f2bb3ea931eec9615b49cf9913f7732f8b"
+  integrity sha512-h7W9Mjozzx+HA9L7CSKAm3dSCa9vBea2U5kWfDuXedAjOb/Sy7VXWL4qUi7H03IJvwHEJ/vf2P2agw9XNTWZxg==
 
 "@types/glob@*":
   version "8.1.0"
