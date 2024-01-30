@@ -69,7 +69,7 @@
     "capture-console": "1.0.2",
     "create-hash": "1.2.0",
     "cross-env": "7.0.3",
-    "depcheck": "1.4.3",
+    "depcheck": "1.4.7",
     "eslint-config-prettier": "6.15.0",
     "eslint-plugin-jest": "24.4.0",
     "eslint-plugin-prettier": "3.4.1",
