@@ -39,7 +39,7 @@
     },
     "devDependencies": {
         "@types/hapi__boom": "7.4.1",
-        "@types/semaphore": "1.1.1",
+        "@types/semaphore": "1.1.4",
         "@types/semver": "6.2.3"
     },
     "engines": {

@@ -3378,10 +3378,10 @@
     "@types/glob" "*"
     "@types/node" "*"
 
-"@types/semaphore@1.1.1":
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/@types/semaphore/-/semaphore-1.1.1.tgz#035baeec703fe8cf9f56a2b7af22bdda4f22d6ea"
-  integrity sha512-jmFpMslMtBGOXY2s7x6O8vBebcj6zhkwl0Pd/viZApo1uZaPk733P8doPvaiBbCG+R7201OLOl4QP7l1mFyuyw==
+"@types/semaphore@1.1.4":
+  version "1.1.4"
+  resolved "https://registry.yarnpkg.com/@types/semaphore/-/semaphore-1.1.4.tgz#fe9a0deb4c680ec23e8ce6283b3bb94ab7744c64"
+  integrity sha512-W+KOVSGHKo5yoPXG69RFIKOdmvAcrAo2qnRrcDv80kIcxDnEUQ+c3IVKq0Jkp+BhhYfrbthPY9cXWFL0L9uzuw==
 
 "@types/semver@6.2.3":
   version "6.2.3"
