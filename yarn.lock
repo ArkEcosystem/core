@@ -3160,10 +3160,10 @@
   resolved "https://registry.yarnpkg.com/@types/integer/-/integer-4.0.1.tgz#022f2c77a899e383e6d3dd374142416c22a5b9df"
   integrity sha512-QQojPymFcV1hrvWXA1h0pP9RmFBFNuWikZcUEjjVsS19IyKO+jqOX24lp2ZHF4A21EmkosJhJDX7CLG67F2s7A==
 
-"@types/ip@1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@types/ip/-/ip-1.1.0.tgz#aec4f5bfd49e4a4c53b590d88c36eb078827a7c0"
-  integrity sha512-dwNe8gOoF70VdL6WJBwVHtQmAX4RMd62M+mAB9HQFjG1/qiCLM/meRy95Pd14FYBbEDwCq7jgJs89cHpLBu4HQ==
+"@types/ip@1.1.3":
+  version "1.1.3"
+  resolved "https://registry.yarnpkg.com/@types/ip/-/ip-1.1.3.tgz#5d8634b3514a51768adda5e17c91a11cdb2e5247"
+  integrity sha512-64waoJgkXFTYnCYDUWgSATJ/dXEBanVkaP5d4Sbk7P6U7cTTMhxVyROTckc6JKdwCrgnAjZMn0k3177aQxtDEA==
   dependencies:
     "@types/node" "*"
 
@@ -8059,10 +8059,10 @@ inversify@5.1.1:
   resolved "https://registry.yarnpkg.com/inversify/-/inversify-5.1.1.tgz#6fbd668c591337404e005a1946bfe0d802c08730"
   integrity sha512-j8grHGDzv1v+8T1sAQ+3boTCntFPfvxLCkNcxB1J8qA0lUN+fAlSyYd+RXKvaPRL4AGyPxViutBEJHNXOyUdFQ==
 
-ip@1.1.5:
-  version "1.1.5"
-  resolved "https://registry.yarnpkg.com/ip/-/ip-1.1.5.tgz#bdded70114290828c0a039e72ef25f5aaec4354a"
-  integrity sha512-rBtCAQAJm8A110nbwn6YdveUnuZH3WrC36IwkRXxDnq53JvXA2NVQvB7IHyKomxK1MJ4VDNw3UtFDdXQ+AvLYA==
+ip@1.1.8:
+  version "1.1.8"
+  resolved "https://registry.yarnpkg.com/ip/-/ip-1.1.8.tgz#ae05948f6b075435ed3307acce04629da8cdbf48"
+  integrity sha512-PuExPYUiu6qMBQb4l06ecm6T6ujzhmh+MeJcW9wa89PoAz5pvd4zPgN5WJV104mb6S2T1AwNIAaB70JNrLQWhg==
 
 ip@^2.0.0:
   version "2.0.0"
