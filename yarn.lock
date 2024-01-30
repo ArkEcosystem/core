@@ -3329,17 +3329,17 @@
   resolved "https://registry.yarnpkg.com/@types/prettier/-/prettier-2.7.3.tgz#3e51a17e291d01d17d3fc61422015a933af7a08f"
   integrity sha512-+68kP9yzs4LMp7VNh8gdzMSPZFL44MLGqiHWvttYJe+6qnuVr4Ek9wSBQoveqY/r+LwjCcU29kNVkidwim+kYA==
 
-"@types/pump@1.1.1":
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/@types/pump/-/pump-1.1.1.tgz#edb3475e2bad0f4552bdaa91c6c43b82e08ff15e"
-  integrity sha512-wpRerjHDxFBQ4r8XNv3xHJZeuqrBBoeQ/fhgkooV2F7KsPIYRROb/+f9ODgZfOEyO5/w2ej4YQdpPPXipT8DAA==
+"@types/pump@1.1.3":
+  version "1.1.3"
+  resolved "https://registry.yarnpkg.com/@types/pump/-/pump-1.1.3.tgz#127eeed2f416f89ef60697003486ae27c7f0b49e"
+  integrity sha512-ZyooTTivmOwPfOwLVaszkF8Zq6mvavgjuHYitZhrIjfQAJDH+kIP3N+MzpG1zDAslsHvVz6Q8ECfivix3qLJaQ==
   dependencies:
     "@types/node" "*"
 
-"@types/pumpify@1.4.1":
-  version "1.4.1"
-  resolved "https://registry.yarnpkg.com/@types/pumpify/-/pumpify-1.4.1.tgz#5a0650f39a3f8f077c7e544d0c5ae2899b28394c"
-  integrity sha512-l7u/Dnh1OG9T7VH6TvulR0g8oE8hgIW5409mSUKi8Vxw2+JV18aTa06Sv5bvNjrD0zbsB/cuZ/iTFQgFNfzIuw==
+"@types/pumpify@1.4.4":
+  version "1.4.4"
+  resolved "https://registry.yarnpkg.com/@types/pumpify/-/pumpify-1.4.4.tgz#2246750e9380a1f885bf43c58cb31ddbb280d4a7"
+  integrity sha512-+cWbQUecD04MQYkjNBhPmcUIP368aloYmqm+ImdMKA8rMpxRNAhZAD6gIj+sAVTF1DliqrT/qUp6aGNi/9U3tw==
   dependencies:
     "@types/duplexify" "*"
     "@types/node" "*"
