@@ -40,7 +40,7 @@
         "nanomatch": "1.2.13",
         "nsfw": "2.2.4",
         "reflect-metadata": "0.2.1",
-        "semver": "6.3.1",
+        "semver": "7.5.4",
         "type-fest": "0.21.3"
     },
     "devDependencies": {
@@ -49,7 +49,7 @@
         "@types/functional-red-black-tree": "1.0.6",
         "@types/got": "9.6.12",
         "@types/log-process-errors": "4.1.0",
-        "@types/semver": "6.2.3"
+        "@types/semver": "7.5.6"
     },
     "publishConfig": {
         "access": "public"

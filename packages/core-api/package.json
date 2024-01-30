@@ -35,12 +35,12 @@
         "qs": "6.11.2",
         "rate-limiter-flexible": "4.0.1",
         "semaphore": "1.1.0",
-        "semver": "6.3.1"
+        "semver": "7.5.4"
     },
     "devDependencies": {
         "@types/hapi__boom": "7.4.1",
         "@types/semaphore": "1.1.4",
-        "@types/semver": "6.2.3"
+        "@types/semver": "7.5.6"
     },
     "engines": {
         "node": ">=10.x"
