@@ -27,7 +27,7 @@
         "fs-extra": "8.1.0",
         "joi": "17.12.1",
         "lowdb": "1.0.0",
-        "uuid": "8.3.2"
+        "uuid": "9.0.1"
     },
     "devDependencies": {
         "@types/fs-extra": "8.1.2",
