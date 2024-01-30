@@ -72,11 +72,11 @@ export class Storage implements Contracts.TransactionPool.Storage {
     }
 
     public getAllTransactions(): Iterable<Contracts.TransactionPool.StoredTransaction> {
-        return this.getAllTransactionsStmt.all();
+        return this.getAllTransactionsStmt.all() as Contracts.TransactionPool.StoredTransaction[];
     }
 
     public getOldTransactions(height: number): Iterable<Contracts.TransactionPool.StoredTransaction> {
-        return this.getOldTransactionsStmt.all({ height });
+        return this.getOldTransactionsStmt.all({ height }) as Contracts.TransactionPool.StoredTransaction[];
     }
 
     public removeTransaction(id: string): void {
