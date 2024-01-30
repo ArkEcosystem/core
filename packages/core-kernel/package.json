@@ -39,7 +39,7 @@
         "log-process-errors": "5.1.2",
         "nanomatch": "1.2.13",
         "nsfw": "2.1.2",
-        "reflect-metadata": "0.1.13",
+        "reflect-metadata": "0.2.1",
         "semver": "6.3.1",
         "type-fest": "0.21.3"
     },

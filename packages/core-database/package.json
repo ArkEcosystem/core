@@ -28,7 +28,7 @@
         "dayjs": "1.11.10",
         "joi": "17.12.1",
         "pg": "8.7.1",
-        "reflect-metadata": "0.1.13",
+        "reflect-metadata": "0.2.1",
         "typeorm": "0.2.25"
     },
     "engines": {
