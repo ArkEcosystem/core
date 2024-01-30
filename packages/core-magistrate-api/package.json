@@ -29,11 +29,10 @@
         "@arkecosystem/crypto": "3.8.2-rc.0",
         "@hapi/boom": "9.1.4",
         "@hapi/hapi": "20.1.5",
-        "joi": "17.4.2"
+        "joi": "17.12.1"
     },
     "devDependencies": {
-        "@types/hapi__boom": "7.4.1",
-        "@types/hapi__joi": "17.1.7"
+        "@types/hapi__boom": "7.4.1"
     },
     "engines": {
         "node": ">=10.x"

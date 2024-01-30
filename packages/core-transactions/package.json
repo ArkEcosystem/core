@@ -23,7 +23,7 @@
         "@arkecosystem/core-database": "3.8.2-rc.0",
         "@arkecosystem/core-kernel": "3.8.2-rc.0",
         "@arkecosystem/crypto": "3.8.2-rc.0",
-        "joi": "17.4.2"
+        "joi": "17.12.1"
     },
     "engines": {
         "node": ">=10.x"

@@ -22,7 +22,7 @@
     "dependencies": {
         "@arkecosystem/core-kernel": "3.8.2-rc.0",
         "chalk": "4.1.2",
-        "joi": "17.4.2",
+        "joi": "17.12.1",
         "pino": "8.7.0",
         "pino-pretty": "9.1.1",
         "pump": "3.0.0",
