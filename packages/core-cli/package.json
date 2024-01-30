@@ -36,7 +36,7 @@
         "got": "11.8.5",
         "inversify": "5.1.1",
         "joi": "17.12.1",
-        "kleur": "4.0.0",
+        "kleur": "4.1.5",
         "latest-version": "5.1.0",
         "listr": "0.14.3",
         "nodejs-tail": "1.1.1",
