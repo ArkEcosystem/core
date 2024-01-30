@@ -37,7 +37,7 @@
         "@hapi/hoek": "9.2.0",
         "@hapi/sntp": "4.0.0",
         "@hapi/teamwork": "5.1.0",
-        "dayjs": "1.10.7",
+        "dayjs": "1.11.10",
         "delay": "4.4.1",
         "ip": "1.1.5",
         "ipaddr.js": "2.0.1",
