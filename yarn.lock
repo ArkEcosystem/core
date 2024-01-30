@@ -3023,10 +3023,10 @@
   dependencies:
     bip32 "*"
 
-"@types/buffer-xor@2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@types/buffer-xor/-/buffer-xor-2.0.0.tgz#15738051e0720b68120cd2cc3f204aa4dc16bab1"
-  integrity sha512-NEJkIKUE/xboduuIAJmdtUvbXgUOfMkjOo6lWsiBVUIWBC5fVWGT+50yEw9W1Xp4ga76khg57pHELXw5Xm3Y+A==
+"@types/buffer-xor@2.0.2":
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/@types/buffer-xor/-/buffer-xor-2.0.2.tgz#d8c463583b8fbb322ea824562dc78a0c3cea2ca6"
+  integrity sha512-OqdCua7QCTupPnJgmyGJUpxWgbuOi0IMIVslXTSePS2o+qDrDB6f2Pg44zRyqhUA5GbFAf39U8z0+mH4WG0fLQ==
   dependencies:
     "@types/node" "*"
 
