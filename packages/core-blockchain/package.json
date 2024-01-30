@@ -31,9 +31,6 @@
         "joi": "17.12.1",
         "xstate": "4.23.4"
     },
-    "devDependencies": {
-        "@types/async": "3.2.7"
-    },
     "engines": {
         "node": ">=10.x"
     },

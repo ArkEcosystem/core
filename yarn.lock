@@ -2965,11 +2965,6 @@
     "@tufjs/canonical-json" "1.0.0"
     minimatch "^9.0.0"
 
-"@types/async@3.2.7":
-  version "3.2.7"
-  resolved "https://registry.yarnpkg.com/@types/async/-/async-3.2.7.tgz#f784478440d313941e7b12c2e4db53b0ed55637b"
-  integrity sha512-a+MBBfOTs3ShFMlbH9qsRVFkjIUunEtxrBT0gxRx1cntjKRg2WApuGmNYzHkwKaIhMi3SMbKktaD/rLObQMwIw==
-
 "@types/babel__core@7.1.16":
   version "7.1.16"
   resolved "https://registry.yarnpkg.com/@types/babel__core/-/babel__core-7.1.16.tgz#bc12c74b7d65e82d29876b5d0baf5c625ac58702"
