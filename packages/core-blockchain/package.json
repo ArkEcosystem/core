@@ -29,7 +29,7 @@
         "@arkecosystem/core-transactions": "3.8.2-rc.0",
         "@arkecosystem/crypto": "3.8.2-rc.0",
         "joi": "17.12.1",
-        "xstate": "4.23.4"
+        "xstate": "4.38.3"
     },
     "engines": {
         "node": ">=10.x"
