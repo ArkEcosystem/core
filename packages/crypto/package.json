@@ -45,7 +45,7 @@
         "builtin-modules": "3.3.0",
         "bytebuffer": "5.0.1",
         "dayjs": "1.11.10",
-        "deepmerge": "4.2.2",
+        "deepmerge": "4.3.1",
         "fast-memoize": "2.5.2",
         "ipaddr.js": "2.0.1",
         "lodash.get": "4.4.2",
