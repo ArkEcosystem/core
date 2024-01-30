@@ -27,7 +27,7 @@
         "pino-pretty": "9.1.1",
         "pump": "3.0.0",
         "pumpify": "2.0.1",
-        "rotating-file-stream": "3.0.4",
+        "rotating-file-stream": "3.2.1",
         "split2": "4.1.0"
     },
     "engines": {
