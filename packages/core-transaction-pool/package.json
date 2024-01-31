@@ -28,12 +28,12 @@
         "@arkecosystem/core-kernel": "3.8.2",
         "@arkecosystem/core-transactions": "3.8.2",
         "@arkecosystem/crypto": "3.8.2",
-        "better-sqlite3": "7.4.3",
+        "better-sqlite3": "9.3.0",
         "fs-extra": "8.1.0",
-        "joi": "17.4.2"
+        "joi": "17.12.1"
     },
     "devDependencies": {
-        "@types/better-sqlite3": "5.4.3",
+        "@types/better-sqlite3": "7.6.9",
         "@types/fs-extra": "8.1.2"
     },
     "engines": {

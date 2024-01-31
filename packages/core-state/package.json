@@ -26,8 +26,8 @@
         "@arkecosystem/core-kernel": "3.8.2",
         "@arkecosystem/core-transactions": "3.8.2",
         "@arkecosystem/crypto": "3.8.2",
-        "immutable": "4.0.0-rc.14",
-        "joi": "17.4.2"
+        "immutable": "5.0.0-beta.5",
+        "joi": "17.12.1"
     },
     "engines": {
         "node": ">=10.x"
