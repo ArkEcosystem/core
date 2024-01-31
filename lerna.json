@@ -4,6 +4,6 @@
     "packages/*",
     "plugins/*"
   ],
-  "version": "3.8.2-rc.0",
+  "version": "3.9.0-rc.0",
   "$schema": "node_modules/lerna/schemas/lerna-schema.json"
 }
