@@ -39,7 +39,7 @@
         "@hapi/teamwork": "5.1.0",
         "dayjs": "1.11.10",
         "delay": "4.4.1",
-        "ip": "1.1.8",
+        "ip": "2.0.1",
         "ipaddr.js": "2.1.0",
         "joi": "17.12.1",
         "pluralize": "8.0.0",
@@ -47,7 +47,7 @@
         "protobufjs": "7.2.6",
         "rate-limiter-flexible": "4.0.1",
         "semver": "7.5.4",
-        "ws": "7.5.5"
+        "ws": "7.5.10"
     },
     "devDependencies": {
         "@types/fs-extra": "8.1.2",
