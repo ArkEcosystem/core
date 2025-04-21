@@ -4,4 +4,5 @@ export enum MempoolIndexes {
     HtlcRefundTransactionId = "htlc-refund-transaction-id",
     Ipfs = "ipfs",
     MultiSignatureAddress = "multi-signature-address",
+    BlsPublicKeys = "bls-public-key",
 }

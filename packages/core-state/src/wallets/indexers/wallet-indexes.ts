@@ -2,6 +2,7 @@ import { Container, Contracts } from "@arkecosystem/core-kernel";
 
 import {
     addressesIndexer,
+    blsPublicKeysIndexer,
     ipfsIndexer,
     locksIndexer,
     publicKeysIndexer,
@@ -43,6 +44,12 @@ export const registerIndexers = (app: Contracts.Kernel.Application): void => {
     app.bind(Container.Identifiers.WalletRepositoryIndexerIndex).toConstantValue({
         name: Contracts.State.WalletIndexes.Ipfs,
         indexer: ipfsIndexer,
+        autoIndex: true,
+    });
+
+    app.bind(Container.Identifiers.WalletRepositoryIndexerIndex).toConstantValue({
+        name: Contracts.State.WalletIndexes.BlsPublicKeys,
+        indexer: blsPublicKeysIndexer,
         autoIndex: true,
     });
 };

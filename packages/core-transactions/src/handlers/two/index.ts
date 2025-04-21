@@ -9,3 +9,4 @@ export * from "./delegate-resignation";
 export * from "./htlc-lock";
 export * from "./htlc-claim";
 export * from "./htlc-refund";
+export * from "./bls-public-key-registration";
