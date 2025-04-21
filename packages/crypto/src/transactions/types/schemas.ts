@@ -378,4 +378,23 @@ export const delegateResignation = extend(transactionBaseSchema, {
     },
 });
 
+export const blsPublicKeyRegistration = extend(transactionBaseSchema, {
+    $id: "blsPublicKeyRegistation",
+    properties: {
+        type: { transactionType: TransactionType.BlsPublicKeyRegistration },
+        amount: { bignumber: { minimum: 0, maximum: 0 } },
+        fee: { bignumber: { minimum: 1 } },
+        asset: {
+            type: "object",
+            required: ["blsPublicKey"],
+            properties: {
+                blsPublicKey: {
+                    type: "string",
+                    allOf: [{ minLength: 192, maxLength: 192 }, { $ref: "alphanumeric" }],
+                },
+            },
+        },
+    },
+});
+
 export type TransactionSchema = typeof transactionBaseSchema;

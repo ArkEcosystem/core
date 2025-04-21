@@ -40,6 +40,8 @@ class TransactionRegistry {
         this.registerTransactionType(Two.HtlcLockTransaction);
         this.registerTransactionType(Two.HtlcClaimTransaction);
         this.registerTransactionType(Two.HtlcRefundTransaction);
+
+        this.registerTransactionType(Two.BlsPublicKeyRegistrationTransaction);
     }
 
     public registerTransactionType(constructor: TransactionConstructor): void {

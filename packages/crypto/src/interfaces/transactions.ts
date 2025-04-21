@@ -45,6 +45,7 @@ export interface ITransactionAsset {
     lock?: IHtlcLockAsset;
     claim?: IHtlcClaimAsset;
     refund?: IHtlcRefundAsset;
+    blsPublicKey?: string;
 }
 
 export interface ITransactionData {
