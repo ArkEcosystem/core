@@ -6,7 +6,6 @@ import {
     BlsPublicKeyAlreadyExists,
     BlsPublicKeyNonDelegateError,
     NotSupportedForMultiSignatureWalletError,
-    NotSupportedForSecondSignatureWalletError,
 } from "../../errors";
 import { TransactionHandler, TransactionHandlerConstructor } from "../transaction";
 
@@ -103,10 +102,6 @@ export class BlsPublicKeyRegistrationTransactionHandler extends TransactionHandl
 
         if (wallet.hasMultiSignature()) {
             throw new NotSupportedForMultiSignatureWalletError();
-        }
-
-        if (wallet.hasSecondSignature()) {
-            throw new NotSupportedForSecondSignatureWalletError();
         }
 
         if (!wallet.isDelegate()) {

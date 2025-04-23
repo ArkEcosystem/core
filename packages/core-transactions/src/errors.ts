@@ -131,12 +131,6 @@ export class SecondSignatureAlreadyRegisteredError extends TransactionError {
     }
 }
 
-export class NotSupportedForSecondSignatureWalletError extends TransactionError {
-    public constructor() {
-        super(`Failed to apply transaction, because second signature is enabled.`);
-    }
-}
-
 export class NotSupportedForMultiSignatureWalletError extends TransactionError {
     public constructor() {
         super(`Failed to apply transaction, because multi signature is enabled.`);
