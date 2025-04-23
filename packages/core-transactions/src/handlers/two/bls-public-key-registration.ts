@@ -98,8 +98,8 @@ export class BlsPublicKeyRegistrationTransactionHandler extends TransactionHandl
             return;
         }
 
-        AppUtils.assert.defined<Interfaces.IHtlcLockAsset>(transaction.data.senderPublicKey);
-        AppUtils.assert.defined<Interfaces.IHtlcLockAsset>(transaction.data.asset?.blsPublicKey);
+        AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
+        AppUtils.assert.defined<string>(transaction.data.asset?.blsPublicKey);
 
         if (wallet.hasMultiSignature()) {
             throw new NotSupportedForMultiSignatureWalletError();
