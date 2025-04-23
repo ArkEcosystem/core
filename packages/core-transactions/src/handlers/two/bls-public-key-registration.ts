@@ -2,11 +2,7 @@ import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kern
 import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 
 import { MempoolIndexes } from "../../enums";
-import {
-    BlsPublicKeyAlreadyExists,
-    BlsPublicKeyNonDelegateError,
-    NotSupportedForMultiSignatureWalletError,
-} from "../../errors";
+import { BlsPublicKeyAlreadyExists, BlsPublicKeyNonDelegateError } from "../../errors";
 import { TransactionHandler, TransactionHandlerConstructor } from "../transaction";
 
 @Container.injectable()
@@ -99,10 +95,6 @@ export class BlsPublicKeyRegistrationTransactionHandler extends TransactionHandl
 
         AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
         AppUtils.assert.defined<string>(transaction.data.asset?.blsPublicKey);
-
-        if (wallet.hasMultiSignature()) {
-            throw new NotSupportedForMultiSignatureWalletError();
-        }
 
         if (!wallet.isDelegate()) {
             throw new BlsPublicKeyNonDelegateError();
