@@ -58,7 +58,7 @@ export class BlsPublicKeyRegistrationTransactionHandler extends TransactionHandl
         AppUtils.assert.defined<string>(data.asset?.blsPublicKey);
         AppUtils.assert.defined<string>(data.senderPublicKey);
 
-        if (this.mempoolIndexRegistry.get(MempoolIndexes.BlsPublicKeys).has(data.asset.blsPublicKey)) {
+        if (this.mempoolIndexRegistry.get(MempoolIndexes.BlsPublicKey).has(data.asset.blsPublicKey)) {
             throw new Contracts.TransactionPool.PoolError(
                 `BLS Public Key "${data.asset.blsPublicKey}" already in the pool`,
                 "ERR_PENDING",
@@ -69,7 +69,7 @@ export class BlsPublicKeyRegistrationTransactionHandler extends TransactionHandl
     public async getInvalidPoolTransactions(transaction: Interfaces.ITransaction): Promise<Interfaces.ITransaction[]> {
         AppUtils.assert.defined<string>(transaction.data.asset?.blsPublicKey);
 
-        const blsPublicKeyIndex = this.mempoolIndexRegistry.get(MempoolIndexes.BlsPublicKeys);
+        const blsPublicKeyIndex = this.mempoolIndexRegistry.get(MempoolIndexes.BlsPublicKey);
 
         return blsPublicKeyIndex.has(transaction.data.asset.blsPublicKey)
             ? [blsPublicKeyIndex.get(transaction.data.asset.blsPublicKey)]
@@ -80,14 +80,14 @@ export class BlsPublicKeyRegistrationTransactionHandler extends TransactionHandl
         AppUtils.assert.defined<string>(transaction.data.asset?.blsPublicKey);
 
         this.mempoolIndexRegistry
-            .get(MempoolIndexes.BlsPublicKeys)
+            .get(MempoolIndexes.BlsPublicKey)
             .set(transaction.data.asset.blsPublicKey, transaction);
     }
 
     public async onPoolLeave(transaction: Interfaces.ITransaction): Promise<void> {
         AppUtils.assert.defined<string>(transaction.data.asset?.blsPublicKey);
 
-        this.mempoolIndexRegistry.get(MempoolIndexes.BlsPublicKeys).forget(transaction.data.asset.blsPublicKey);
+        this.mempoolIndexRegistry.get(MempoolIndexes.BlsPublicKey).forget(transaction.data.asset.blsPublicKey);
     }
 
     public async throwIfCannotBeApplied(
