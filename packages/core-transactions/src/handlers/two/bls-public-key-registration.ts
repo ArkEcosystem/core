@@ -43,6 +43,7 @@ export class BlsPublicKeyRegistrationTransactionHandler extends TransactionHandl
 
             const wallet = this.walletRepository.findByPublicKey(transaction.senderPublicKey);
 
+            wallet.setAttribute("blsPublicKey", transaction.asset.blsPublicKey);
             this.walletRepository.index(wallet);
         }
     }
