@@ -5,6 +5,14 @@ export const schemas = {
         pattern: "^[0123456789A-Fa-f]+$",
     },
 
+    blsPublicKey: {
+        $id: "blsPublicKey",
+        type: "string",
+        pattern: "^[0123456789a-f]+$",
+        minLength: 96,
+        maxLength: 96,
+    },
+
     base58: {
         $id: "base58",
         type: "string",

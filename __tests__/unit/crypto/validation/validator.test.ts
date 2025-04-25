@@ -50,7 +50,7 @@ describe("validator", () => {
             });
         });
 
-        describe("transaction ", () => {
+        describe("transaction", () => {
             const transaction = {
                 type: 0,
                 amount: BigNumber.make(1000),
@@ -128,6 +128,53 @@ describe("validator", () => {
                 // tslint:disable-next-line: no-null-keyword
                 expect(validator.validate("hex", null).error).not.toBeUndefined();
                 expect(validator.validate("hex", undefined).error).not.toBeUndefined();
+            });
+        });
+
+        describe("blsPublicKey", () => {
+            it("should be ok", () => {
+                expect(
+                    validator.validate(
+                        "blsPublicKey",
+                        "b2519f3fd7c398bcae97f8af87e0249e1d21c23def81c3690815b74d40eb37603e2e555ed927cdcfd85fbd418ac2585d",
+                    ).error,
+                ).toBeUndefined();
+            });
+
+            it("should not be ok", () => {
+                // Uppercase
+                expect(
+                    validator.validate(
+                        "blsPublicKey",
+                        "B2519F3FD7C398BCAE97F8AF87E0249E1D21C23DEF81C3690815B74D40EB37603E2E555ED927CDCFD85FBD418AC2585D",
+                    ).error,
+                ).not.toBeUndefined();
+
+                // Invalid length
+                expect(
+                    validator.validate(
+                        "blsPublicKey",
+                        "1b2519f3fd7c398bcae97f8af87e0249e1d21c23def81c3690815b74d40eb37603e2e555ed927cdcfd85fbd418ac2585d",
+                    ).error,
+                ).not.toBeUndefined();
+                expect(
+                    validator.validate(
+                        "blsPublicKey",
+                        "2519f3fd7c398bcae97f8af87e0249e1d21c23def81c3690815b74d40eb37603e2e555ed927cdcfd85fbd418ac2585d",
+                    ).error,
+                ).not.toBeUndefined();
+
+                expect(
+                    validator.validate(
+                        "blsPublicKey",
+                        "€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€",
+                    ).error,
+                ).not.toBeUndefined();
+                expect(validator.validate("blsPublicKey", 1).error).not.toBeUndefined();
+                expect(validator.validate("blsPublicKey", "").error).not.toBeUndefined();
+                // tslint:disable-next-line: no-null-keyword
+                expect(validator.validate("blsPublicKey", null).error).not.toBeUndefined();
+                expect(validator.validate("blsPublicKey", undefined).error).not.toBeUndefined();
             });
         });
 
