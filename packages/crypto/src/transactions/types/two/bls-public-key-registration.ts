@@ -11,7 +11,7 @@ export class BlsPublicKeyRegistrationTransaction extends Transaction {
     public static key = "blsPublicKeyRegistration";
     public static version: number = 2;
 
-    protected static defaultStaticFee: BigNumber = BigNumber.make("500000000"); // TODO: pick fee
+    protected static defaultStaticFee: BigNumber = BigNumber.make("500000000");
 
     public static getSchema(): schemas.TransactionSchema {
         return schemas.blsPublicKeyRegistration;
