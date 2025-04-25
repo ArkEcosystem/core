@@ -24,11 +24,10 @@ export class BlsPublicKeyRegistrationTransaction extends Transaction {
     public serialize(options?: ISerializeOptions): ByteBuffer | undefined {
         const { data } = this;
 
-        if (data.asset) {
-            // TODO: handle decoding
-            const blsPublicKeyBytes = data.asset.blsPublicKey as unknown as Buffer;
+        if (data.asset && data.asset.blsPublicKey) {
+            const blsPublicKeyBytes = Buffer.from(data.asset.blsPublicKey, "hex");
 
-            const buff: ByteBuffer = new ByteBuffer(Buffer.alloc(96));
+            const buff: ByteBuffer = new ByteBuffer(Buffer.alloc(48));
             buff.writeBuffer(blsPublicKeyBytes);
 
             return buff;
@@ -40,10 +39,10 @@ export class BlsPublicKeyRegistrationTransaction extends Transaction {
     public deserialize(buf: ByteBuffer): void {
         const { data } = this;
 
-        const blsPublicKeyBytes = buf.readBuffer(96);
+        const blsPublicKeyBytes = buf.readBuffer(48);
 
         data.asset = {
-            blsPublicKey: blsPublicKeyBytes.toString(), // TODO: handle encoding
+            blsPublicKey: blsPublicKeyBytes.toString("hex"),
         };
     }
 }
