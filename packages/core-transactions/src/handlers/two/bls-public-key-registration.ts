@@ -2,7 +2,7 @@ import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kern
 import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 
 import { MempoolIndexes } from "../../enums";
-import { BlsPublicKeyAlreadyExists, BlsPublicKeyNonDelegateError } from "../../errors";
+import { BlsPublicKeyAlreadyExists, BlsPublicKeyNonDelegateError, WalletAlreadyResignedError } from "../../errors";
 import { TransactionHandler, TransactionHandlerConstructor } from "../transaction";
 
 @Container.injectable()
@@ -99,6 +99,10 @@ export class BlsPublicKeyRegistrationTransactionHandler extends TransactionHandl
 
         if (!wallet.isDelegate()) {
             throw new BlsPublicKeyNonDelegateError();
+        }
+
+        if (wallet.hasAttribute("delegate.resigned")) {
+            throw new WalletAlreadyResignedError();
         }
 
         if (

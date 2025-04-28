@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { Application, Contracts, Exceptions } from "@packages/core-kernel";
+import { Application, Contracts, Exceptions, Utils } from "@packages/core-kernel";
 // import { DelegateEvent } from "@packages/core-kernel/src/enums";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Wallets } from "@packages/core-state";
@@ -11,13 +11,13 @@ import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/fac
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
 // import { Mempool } from "@packages/core-transaction-pool/src/mempool";
 import { MempoolIndexes } from "@packages/core-transactions/src/enums";
-// import {
-//     InsufficientBalanceError,
-//     NotSupportedForMultiSignatureWalletError,
-//     UnexpectedNonceError,
-//     WalletIsAlreadyDelegateError,
-//     WalletUsernameAlreadyRegisteredError,
-// } from "@packages/core-transactions/src/errors";
+import {
+    BlsPublicKeyAlreadyExists,
+    BlsPublicKeyNonDelegateError,
+    InsufficientBalanceError,
+    UnexpectedNonceError,
+    WalletAlreadyResignedError,
+} from "@packages/core-transactions/src/errors";
 import { TransactionHandler } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
 import { Crypto, Enums, Interfaces, Managers, Transactions } from "@packages/crypto";
@@ -67,7 +67,25 @@ beforeEach(() => {
     Factories.registerTransactionFactory(factoryBuilder);
 
     senderWallet = buildSenderWallet(factoryBuilder);
+    senderWallet.setAttribute("delegate", {
+        username: "username",
+        voteBalance: Utils.BigNumber.ZERO,
+        forgedFees: Utils.BigNumber.ZERO,
+        forgedRewards: Utils.BigNumber.ZERO,
+        producedBlocks: 0,
+        rank: undefined,
+    });
+
     secondSignatureWallet = buildSecondSignatureWallet(factoryBuilder);
+    secondSignatureWallet.setAttribute("delegate", {
+        username: "username2",
+        voteBalance: Utils.BigNumber.ZERO,
+        forgedFees: Utils.BigNumber.ZERO,
+        forgedRewards: Utils.BigNumber.ZERO,
+        producedBlocks: 0,
+        rank: undefined,
+    });
+
     multiSignatureWallet = buildMultiSignatureWallet();
     recipientWallet = buildRecipientWallet(factoryBuilder);
 
@@ -83,7 +101,7 @@ afterEach(() => {
 
 describe("BlsPublicKeyRegistrationTransaction", () => {
     let blsPublicKeyRegistrationTransaction: Interfaces.ITransaction;
-    // let secondSignaturedDelegateRegistrationTransaction: Interfaces.ITransaction;
+    let secondBlsPublicKeyRegistrationTransaction: Interfaces.ITransaction;
     let handler: TransactionHandler;
 
     beforeEach(async () => {
@@ -104,12 +122,12 @@ describe("BlsPublicKeyRegistrationTransaction", () => {
             .sign(passphrases[0])
             .build();
 
-        // secondSignaturedDelegateRegistrationTransaction = BuilderFactory.delegateRegistration()
-        //     .usernameAsset("dummy")
-        //     .nonce("1")
-        //     .sign(passphrases[1])
-        //     .secondSign(passphrases[2])
-        //     .build();
+        secondBlsPublicKeyRegistrationTransaction = BuilderFactory.blsPublicKeyRegistration()
+            .blsPublicKeyAsset("b".repeat(96))
+            .nonce("1")
+            .sign(passphrases[1])
+            .secondSign(passphrases[2])
+            .build();
     });
 
     describe("dependencies", () => {
@@ -213,120 +231,84 @@ describe("BlsPublicKeyRegistrationTransaction", () => {
     //     });
     // });
 
-    // describe("throwIfCannotBeApplied", () => {
-    //     it("should not throw", async () => {
-    //         jest.spyOn(TransactionHandler.prototype, "throwIfCannotBeApplied");
+    describe("throwIfCannotBeApplied", () => {
+        it("should not throw", async () => {
+            jest.spyOn(TransactionHandler.prototype, "throwIfCannotBeApplied");
 
-    //         await expect(handler.throwIfCannotBeApplied(delegateRegistrationTransaction, senderWallet)).toResolve();
+            await expect(handler.throwIfCannotBeApplied(blsPublicKeyRegistrationTransaction, senderWallet)).toResolve();
 
-    //         expect(TransactionHandler.prototype.throwIfCannotBeApplied).toHaveBeenCalledTimes(1);
-    //     });
+            expect(TransactionHandler.prototype.throwIfCannotBeApplied).toHaveBeenCalledTimes(1);
+        });
 
-    //     it("should not throw - second sign", async () => {
-    //         jest.spyOn(TransactionHandler.prototype, "throwIfCannotBeApplied");
+        it("should not throw - second sign", async () => {
+            jest.spyOn(TransactionHandler.prototype, "throwIfCannotBeApplied");
 
-    //         await expect(
-    //             handler.throwIfCannotBeApplied(secondSignaturedDelegateRegistrationTransaction, secondSignatureWallet),
-    //         ).toResolve();
+            await expect(
+                handler.throwIfCannotBeApplied(secondBlsPublicKeyRegistrationTransaction, secondSignatureWallet),
+            ).toResolve();
 
-    //         expect(TransactionHandler.prototype.throwIfCannotBeApplied).toHaveBeenCalledTimes(1);
-    //     });
+            expect(TransactionHandler.prototype.throwIfCannotBeApplied).toHaveBeenCalledTimes(1);
+        });
 
-    //     it("should throw if wallet has a multi signature", async () => {
-    //         const multiSignatureAsset: IMultiSignatureAsset = {
-    //             min: 2,
-    //             publicKeys: [
-    //                 Identities.PublicKey.fromPassphrase(passphrases[21]),
-    //                 Identities.PublicKey.fromPassphrase(passphrases[22]),
-    //                 Identities.PublicKey.fromPassphrase(passphrases[23]),
-    //             ],
-    //         };
+        it("should throw if asset.blsPublicKey is undefined", async () => {
+            // @ts-ignore
+            blsPublicKeyRegistrationTransaction.data.asset.blsPublicKey = undefined;
 
-    //         senderWallet.setAttribute("multiSignature", multiSignatureAsset);
+            await expect(
+                handler.throwIfCannotBeApplied(blsPublicKeyRegistrationTransaction, senderWallet),
+            ).rejects.toThrow(Exceptions.Runtime.AssertionException);
+        });
 
-    //         await expect(handler.throwIfCannotBeApplied(delegateRegistrationTransaction, senderWallet)).rejects.toThrow(
-    //             NotSupportedForMultiSignatureWalletError,
-    //         );
-    //     });
+        it("should throw if asset is undefined", async () => {
+            blsPublicKeyRegistrationTransaction.data.asset = undefined;
 
-    //     it("should throw if asset.delegate.username is undefined", async () => {
-    //         // @ts-ignore
-    //         delegateRegistrationTransaction.data.asset.delegate.username = undefined;
+            await expect(
+                handler.throwIfCannotBeApplied(blsPublicKeyRegistrationTransaction, senderWallet),
+            ).rejects.toThrow(Exceptions.Runtime.AssertionException);
+        });
 
-    //         await expect(handler.throwIfCannotBeApplied(delegateRegistrationTransaction, senderWallet)).rejects.toThrow(
-    //             Exceptions.Runtime.AssertionException,
-    //         );
-    //     });
+        it("should throw if wallet is not delegate", async () => {
+            senderWallet.forgetAttribute("delegate");
+            walletRepository.index(senderWallet);
 
-    //     it("should throw if asset.delegate is undefined", async () => {
-    //         delegateRegistrationTransaction.data.asset!.delegate = undefined;
+            await expect(
+                handler.throwIfCannotBeApplied(blsPublicKeyRegistrationTransaction, senderWallet),
+            ).rejects.toThrow(BlsPublicKeyNonDelegateError);
+        });
 
-    //         await expect(handler.throwIfCannotBeApplied(delegateRegistrationTransaction, senderWallet)).rejects.toThrow(
-    //             Exceptions.Runtime.AssertionException,
-    //         );
-    //     });
+        it("should throw if wallet is resigned delegate", async () => {
+            senderWallet.setAttribute("delegate.resigned", true);
+            walletRepository.index(senderWallet);
 
-    //     it("should throw if asset is undefined", async () => {
-    //         delegateRegistrationTransaction.data.asset = undefined;
+            await expect(
+                handler.throwIfCannotBeApplied(blsPublicKeyRegistrationTransaction, senderWallet),
+            ).rejects.toThrow(WalletAlreadyResignedError);
+        });
 
-    //         await expect(handler.throwIfCannotBeApplied(delegateRegistrationTransaction, senderWallet)).rejects.toThrow(
-    //             Exceptions.Runtime.AssertionException,
-    //         );
-    //     });
+        it("should throw if bls key is already regsitered", async () => {
+            walletRepository.getIndex(Contracts.State.WalletIndexes.BlsPublicKeys).set("a".repeat(96), senderWallet);
 
-    //     it("should throw if wallet is delegate", async () => {
-    //         senderWallet.setAttribute("delegate", { username: "dummy" });
-    //         walletRepository.index(senderWallet);
+            await expect(
+                handler.throwIfCannotBeApplied(blsPublicKeyRegistrationTransaction, senderWallet),
+            ).rejects.toThrow(BlsPublicKeyAlreadyExists);
+        });
 
-    //         await expect(handler.throwIfCannotBeApplied(delegateRegistrationTransaction, senderWallet)).rejects.toThrow(
-    //             WalletIsAlreadyDelegateError,
-    //         );
-    //     });
+        it("should throw if wallet has insufficient funds", async () => {
+            senderWallet.setBalance(Utils.BigNumber.ZERO);
 
-    //     it("should throw if wallet is resigned delegate", async () => {
-    //         senderWallet.setAttribute("delegate", { username: "dummy" });
-    //         senderWallet.setAttribute("delegate.resigned", true);
-    //         walletRepository.index(senderWallet);
+            await expect(
+                handler.throwIfCannotBeApplied(blsPublicKeyRegistrationTransaction, senderWallet),
+            ).rejects.toThrow(InsufficientBalanceError);
+        });
 
-    //         await expect(handler.throwIfCannotBeApplied(delegateRegistrationTransaction, senderWallet)).rejects.toThrow(
-    //             WalletIsAlreadyDelegateError,
-    //         );
-    //     });
+        it("should throw if wallet nonce is invalid", async () => {
+            senderWallet.setNonce(Utils.BigNumber.ONE);
 
-    //     it("should throw if another wallet already registered a username", async () => {
-    //         const delegateWallet: Wallets.Wallet = factoryBuilder
-    //             .get("Wallet")
-    //             .withOptions({
-    //                 passphrase: "delegate passphrase",
-    //                 nonce: 0,
-    //             })
-    //             .make();
-
-    //         delegateWallet.setAttribute("delegate", { username: "dummy" });
-
-    //         walletRepository.index(delegateWallet);
-
-    //         await expect(handler.throwIfCannotBeApplied(delegateRegistrationTransaction, senderWallet)).rejects.toThrow(
-    //             WalletUsernameAlreadyRegisteredError,
-    //         );
-    //     });
-
-    //     it("should throw if wallet has insufficient funds", async () => {
-    //         senderWallet.setBalance(Utils.BigNumber.ZERO);
-
-    //         await expect(handler.throwIfCannotBeApplied(delegateRegistrationTransaction, senderWallet)).rejects.toThrow(
-    //             InsufficientBalanceError,
-    //         );
-    //     });
-
-    //     it("should throw if wallet nonce is invalid", async () => {
-    //         senderWallet.setNonce(Utils.BigNumber.ONE);
-
-    //         await expect(handler.throwIfCannotBeApplied(delegateRegistrationTransaction, senderWallet)).rejects.toThrow(
-    //             UnexpectedNonceError,
-    //         );
-    //     });
-    // });
+            await expect(
+                handler.throwIfCannotBeApplied(blsPublicKeyRegistrationTransaction, senderWallet),
+            ).rejects.toThrow(UnexpectedNonceError);
+        });
+    });
 
     // describe("throwIfCannotEnterPool", () => {
     //     it("should not throw", async () => {
