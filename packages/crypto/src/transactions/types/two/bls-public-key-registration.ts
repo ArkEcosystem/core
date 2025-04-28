@@ -25,10 +25,18 @@ export class BlsPublicKeyRegistrationTransaction extends Transaction {
         const { data } = this;
 
         if (data.asset && data.asset.blsPublicKey) {
-            const blsPublicKeyBytes = Buffer.from(data.asset.blsPublicKey, "hex");
+            const bufferSize = data.asset.blsPublicKey.oldBlsPublicKey ? 48 + 48 + 1 : 48 + 1;
 
-            const buff: ByteBuffer = new ByteBuffer(Buffer.alloc(48));
-            buff.writeBuffer(blsPublicKeyBytes);
+            const buff: ByteBuffer = new ByteBuffer(Buffer.alloc(bufferSize));
+
+            if (data.asset.blsPublicKey.oldBlsPublicKey) {
+                buff.writeInt8(1);
+                buff.writeBuffer(Buffer.from(data.asset.blsPublicKey.oldBlsPublicKey, "hex"));
+                buff.writeBuffer(Buffer.from(data.asset.blsPublicKey.newBlsPublicKey, "hex"));
+            } else {
+                buff.writeInt8(0);
+                buff.writeBuffer(Buffer.from(data.asset.blsPublicKey.newBlsPublicKey, "hex"));
+            }
 
             return buff;
         }
@@ -39,10 +47,22 @@ export class BlsPublicKeyRegistrationTransaction extends Transaction {
     public deserialize(buf: ByteBuffer): void {
         const { data } = this;
 
-        const blsPublicKeyBytes = buf.readBuffer(48);
+        const oldExists: number = buf.readInt8();
 
-        data.asset = {
-            blsPublicKey: blsPublicKeyBytes.toString("hex"),
-        };
+        if (oldExists === 1) {
+            data.asset = {
+                blsPublicKey: {
+                    oldBlsPublicKey: buf.readBuffer(48).toString("hex"),
+                    newBlsPublicKey: buf.readBuffer(48).toString("hex"),
+                },
+            };
+        } else {
+            data.asset = {
+                blsPublicKey: {
+                    oldBlsPublicKey: undefined,
+                    newBlsPublicKey: buf.readBuffer(48).toString("hex"),
+                },
+            };
+        }
     }
 }

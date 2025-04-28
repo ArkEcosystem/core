@@ -1,4 +1,4 @@
-import { ITransactionData } from "../../../interfaces";
+import { IBlsPublicKeyAsset, ITransactionData } from "../../../interfaces";
 import { BigNumber } from "../../../utils";
 import { Two } from "../../types";
 import { TransactionBuilder } from "./transaction";
@@ -18,7 +18,7 @@ export class BlsPublicKeyRegistrationBuilder extends TransactionBuilder<BlsPubli
         this.signWithSenderAsRecipient = true;
     }
 
-    public blsPublicKeyAsset(blsPublicKey: string): BlsPublicKeyRegistrationBuilder {
+    public blsPublicKeyAsset(blsPublicKey: IBlsPublicKeyAsset): BlsPublicKeyRegistrationBuilder {
         this.data.asset = {
             blsPublicKey,
         };

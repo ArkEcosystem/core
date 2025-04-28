@@ -2,7 +2,13 @@ import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kern
 import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 
 import { MempoolIndexes } from "../../enums";
-import { BlsPublicKeyAlreadyExists, BlsPublicKeyNonDelegateError, WalletAlreadyResignedError } from "../../errors";
+import {
+    BlsPublicKeyAlreadyExists,
+    BlsPublicKeyIsMissing,
+    BlsPublicKeyMismatch,
+    BlsPublicKeyNonDelegateError,
+    WalletAlreadyResignedError,
+} from "../../errors";
 import { TransactionHandler, TransactionHandlerConstructor } from "../transaction";
 
 @Container.injectable()
@@ -34,14 +40,23 @@ export class BlsPublicKeyRegistrationTransactionHandler extends TransactionHandl
 
         for await (const transaction of this.transactionHistoryService.streamByCriteria(criteria)) {
             AppUtils.assert.defined<string>(transaction.senderPublicKey);
-            AppUtils.assert.defined<string>(transaction.asset?.blsPublicKey);
+            AppUtils.assert.defined<Interfaces.IBlsPublicKeyAsset>(transaction.asset?.blsPublicKey);
 
             const wallet = this.walletRepository.findByPublicKey(transaction.senderPublicKey);
 
+            // Remove old BLS public key if it exists
+            if (transaction.asset.blsPublicKey.oldBlsPublicKey) {
+                this.walletRepository.forgetOnIndex(
+                    Contracts.State.WalletIndexes.BlsPublicKeys,
+                    transaction.asset.blsPublicKey.oldBlsPublicKey,
+                );
+            }
+
+            // Set new BLS public key
             wallet.setAttribute("blsPublicKey", transaction.asset.blsPublicKey);
             this.walletRepository.setOnIndex(
                 Contracts.State.WalletIndexes.BlsPublicKeys,
-                transaction.asset.blsPublicKey,
+                transaction.asset.blsPublicKey.newBlsPublicKey,
                 wallet,
             );
         }
@@ -55,39 +70,41 @@ export class BlsPublicKeyRegistrationTransactionHandler extends TransactionHandl
     public async throwIfCannotEnterPool(transaction: Interfaces.ITransaction): Promise<void> {
         const { data }: Interfaces.ITransaction = transaction;
 
-        AppUtils.assert.defined<string>(data.asset?.blsPublicKey);
+        AppUtils.assert.defined<Interfaces.IBlsPublicKeyAsset>(data.asset?.blsPublicKey);
         AppUtils.assert.defined<string>(data.senderPublicKey);
 
-        if (this.mempoolIndexRegistry.get(MempoolIndexes.BlsPublicKey).has(data.asset.blsPublicKey)) {
+        if (this.mempoolIndexRegistry.get(MempoolIndexes.BlsPublicKey).has(data.asset.blsPublicKey.newBlsPublicKey)) {
             throw new Contracts.TransactionPool.PoolError(
-                `BLS Public Key "${data.asset.blsPublicKey}" already in the pool`,
+                `BLS Public Key "${data.asset.blsPublicKey.newBlsPublicKey}" already in the pool`,
                 "ERR_PENDING",
             );
         }
     }
 
     public async getInvalidPoolTransactions(transaction: Interfaces.ITransaction): Promise<Interfaces.ITransaction[]> {
-        AppUtils.assert.defined<string>(transaction.data.asset?.blsPublicKey);
+        AppUtils.assert.defined<Interfaces.IBlsPublicKeyAsset>(transaction.data.asset?.blsPublicKey);
 
         const blsPublicKeyIndex = this.mempoolIndexRegistry.get(MempoolIndexes.BlsPublicKey);
 
-        return blsPublicKeyIndex.has(transaction.data.asset.blsPublicKey)
-            ? [blsPublicKeyIndex.get(transaction.data.asset.blsPublicKey)]
+        return blsPublicKeyIndex.has(transaction.data.asset.blsPublicKey.newBlsPublicKey)
+            ? [blsPublicKeyIndex.get(transaction.data.asset.blsPublicKey.newBlsPublicKey)]
             : [];
     }
 
     public async onPoolEnter(transaction: Interfaces.ITransaction): Promise<void> {
-        AppUtils.assert.defined<string>(transaction.data.asset?.blsPublicKey);
+        AppUtils.assert.defined<Interfaces.IBlsPublicKeyAsset>(transaction.data.asset?.blsPublicKey);
 
         this.mempoolIndexRegistry
             .get(MempoolIndexes.BlsPublicKey)
-            .set(transaction.data.asset.blsPublicKey, transaction);
+            .set(transaction.data.asset.blsPublicKey.newBlsPublicKey, transaction);
     }
 
     public async onPoolLeave(transaction: Interfaces.ITransaction): Promise<void> {
-        AppUtils.assert.defined<string>(transaction.data.asset?.blsPublicKey);
+        AppUtils.assert.defined<Interfaces.IBlsPublicKeyAsset>(transaction.data.asset?.blsPublicKey);
 
-        this.mempoolIndexRegistry.get(MempoolIndexes.BlsPublicKey).forget(transaction.data.asset.blsPublicKey);
+        this.mempoolIndexRegistry
+            .get(MempoolIndexes.BlsPublicKey)
+            .forget(transaction.data.asset.blsPublicKey.newBlsPublicKey);
     }
 
     public async throwIfCannotBeApplied(
@@ -99,7 +116,7 @@ export class BlsPublicKeyRegistrationTransactionHandler extends TransactionHandl
         }
 
         AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
-        AppUtils.assert.defined<string>(transaction.data.asset?.blsPublicKey);
+        AppUtils.assert.defined<Interfaces.IBlsPublicKeyAsset>(transaction.data.asset?.blsPublicKey);
 
         if (!wallet.isDelegate()) {
             throw new BlsPublicKeyNonDelegateError();
@@ -109,10 +126,26 @@ export class BlsPublicKeyRegistrationTransactionHandler extends TransactionHandl
             throw new WalletAlreadyResignedError();
         }
 
+        // Check if old BLS public key matches delegate's BLS public key
+        if (transaction.data.asset.blsPublicKey.oldBlsPublicKey) {
+            if (!wallet.hasAttribute("blsPublicKey")) {
+                throw new BlsPublicKeyIsMissing();
+            }
+
+            if (transaction.data.asset.blsPublicKey.oldBlsPublicKey !== wallet.getAttribute("blsPublicKey")) {
+                throw new BlsPublicKeyMismatch();
+            }
+        } else {
+            if (wallet.hasAttribute("blsPublicKey")) {
+                throw new BlsPublicKeyMismatch();
+            }
+        }
+
+        // Prevent duplicate BLS public key registration
         if (
             this.walletRepository.hasByIndex(
                 Contracts.State.WalletIndexes.BlsPublicKeys,
-                transaction.data.asset.blsPublicKey,
+                transaction.data.asset.blsPublicKey.newBlsPublicKey,
             )
         ) {
             throw new BlsPublicKeyAlreadyExists();
@@ -128,13 +161,21 @@ export class BlsPublicKeyRegistrationTransactionHandler extends TransactionHandl
 
         const sender: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
-        AppUtils.assert.defined<string>(transaction.data.asset?.blsPublicKey);
+        AppUtils.assert.defined<Interfaces.IBlsPublicKeyAsset>(transaction.data.asset?.blsPublicKey);
 
-        sender.setAttribute("blsPublicKey", transaction.data.asset.blsPublicKey);
+        // Remove old BLS public key if it exists
+        if (transaction.data.asset.blsPublicKey.oldBlsPublicKey) {
+            this.walletRepository.forgetOnIndex(
+                Contracts.State.WalletIndexes.BlsPublicKeys,
+                transaction.data.asset.blsPublicKey.oldBlsPublicKey,
+            );
+        }
 
+        // Set new BLS public key
+        sender.setAttribute("blsPublicKey", transaction.data.asset.blsPublicKey.newBlsPublicKey);
         this.walletRepository.setOnIndex(
             Contracts.State.WalletIndexes.BlsPublicKeys,
-            transaction.data.asset.blsPublicKey,
+            transaction.data.asset.blsPublicKey.newBlsPublicKey,
             sender,
         );
     }
@@ -142,18 +183,28 @@ export class BlsPublicKeyRegistrationTransactionHandler extends TransactionHandl
     public async revertForSender(transaction: Interfaces.ITransaction): Promise<void> {
         await super.revertForSender(transaction);
 
-        AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
+        AppUtils.assert.defined<Interfaces.IBlsPublicKeyAsset>(transaction.data.senderPublicKey);
 
         const sender: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
         AppUtils.assert.defined<Interfaces.ITransactionAsset>(transaction.data.asset?.blsPublicKey);
 
         sender.forgetAttribute("blsPublicKey");
-
         this.walletRepository.forgetOnIndex(
             Contracts.State.WalletIndexes.BlsPublicKeys,
-            transaction.data.asset.blsPublicKey,
+            transaction.data.asset.blsPublicKey.newBlsPublicKey,
         );
+
+        // Set back old BLS public key if exists
+        if (transaction.data.asset.blsPublicKey.oldBlsPublicKey) {
+            sender.setAttribute("blsPublicKey", transaction.data.asset.blsPublicKey.oldBlsPublicKey);
+
+            this.walletRepository.setOnIndex(
+                Contracts.State.WalletIndexes.BlsPublicKeys,
+                transaction.data.asset.blsPublicKey.oldBlsPublicKey,
+                sender,
+            );
+        }
     }
 
     public async applyToRecipient(transaction: Interfaces.ITransaction): Promise<void> {}

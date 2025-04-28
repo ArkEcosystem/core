@@ -388,7 +388,14 @@ export const blsPublicKeyRegistration = extend(transactionBaseSchema, {
             type: "object",
             required: ["blsPublicKey"],
             properties: {
-                blsPublicKey: { $ref: "blsPublicKey" },
+                blsPublicKey: {
+                    type: "object",
+                    required: ["newBlsPublicKey"],
+                    properties: {
+                        newBlsPublicKey: { $ref: "blsPublicKey" },
+                        oldBlsPublicKey: { $ref: "blsPublicKey" },
+                    },
+                },
             },
         },
     },

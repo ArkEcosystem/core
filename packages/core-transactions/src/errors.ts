@@ -267,6 +267,18 @@ export class BlsPublicKeyAlreadyExists extends TransactionError {
     }
 }
 
+export class BlsPublicKeyIsMissing extends TransactionError {
+    public constructor() {
+        super(`Failed to apply transaction, because the BLS Public Key is migging on delegate.`);
+    }
+}
+
+export class BlsPublicKeyMismatch extends TransactionError {
+    public constructor() {
+        super(`Failed to apply transaction, because the BLS Public Key does not match delegates BLS public key.`);
+    }
+}
+
 export class BlsPublicKeyNonDelegateError extends TransactionError {
     public constructor() {
         super(`Failed to apply transaction, because BLS Public Key can only be registered as a delegate.`);
