@@ -350,80 +350,74 @@ describe("BlsPublicKeyRegistrationTransaction", () => {
         });
     });
 
-    // describe("onPoolEnter", () => {
-    //     it("should set username on DelegateUsername index", async () => {
-    //         const mempoolIndexRegistry = app.get<Contracts.TransactionPool.MempoolIndexRegistry>(
-    //             Identifiers.TransactionPoolMempoolIndexRegistry,
-    //         );
+    describe("onPoolEnter", () => {
+        it("should set blsPublicKey on BlsPublicKey index", async () => {
+            const mempoolIndexRegistry = app.get<Contracts.TransactionPool.MempoolIndexRegistry>(
+                Identifiers.TransactionPoolMempoolIndexRegistry,
+            );
 
-    //         const spyOnIndexSet = jest.spyOn(mempoolIndexRegistry.get(MempoolIndexes.DelegateUsername), "set");
+            const spyOnIndexSet = jest.spyOn(mempoolIndexRegistry.get(MempoolIndexes.BlsPublicKey), "set");
 
-    //         await expect(handler.onPoolEnter(delegateRegistrationTransaction)).toResolve();
-    //         expect(spyOnIndexSet).toBeCalledTimes(1);
-    //         expect(spyOnIndexSet).toBeCalledWith(
-    //             delegateRegistrationTransaction.data.asset.delegate.username,
-    //             delegateRegistrationTransaction,
-    //         );
-    //     });
-    // });
+            await expect(handler.onPoolEnter(blsPublicKeyRegistrationTransaction)).toResolve();
+            expect(spyOnIndexSet).toBeCalledTimes(1);
+            expect(spyOnIndexSet).toBeCalledWith(
+                blsPublicKeyRegistrationTransaction.data.asset.blsPublicKey,
+                blsPublicKeyRegistrationTransaction,
+            );
+        });
+    });
 
-    // describe("onPoolLeave", () => {
-    //     it("should forget username on DelegateUsername index", async () => {
-    //         const mempoolIndexRegistry = app.get<Contracts.TransactionPool.MempoolIndexRegistry>(
-    //             Identifiers.TransactionPoolMempoolIndexRegistry,
-    //         );
+    describe("onPoolLeave", () => {
+        it("should forget username on DelegateUsername index", async () => {
+            const mempoolIndexRegistry = app.get<Contracts.TransactionPool.MempoolIndexRegistry>(
+                Identifiers.TransactionPoolMempoolIndexRegistry,
+            );
 
-    //         const spyOnIndexSet = jest.spyOn(mempoolIndexRegistry.get(MempoolIndexes.DelegateUsername), "forget");
+            const spyOnIndexSet = jest.spyOn(mempoolIndexRegistry.get(MempoolIndexes.BlsPublicKey), "forget");
 
-    //         await expect(handler.onPoolLeave(delegateRegistrationTransaction)).toResolve();
-    //         expect(spyOnIndexSet).toBeCalledTimes(1);
-    //         expect(spyOnIndexSet).toBeCalledWith(delegateRegistrationTransaction.data.asset.delegate.username);
-    //     });
-    // });
+            await expect(handler.onPoolLeave(blsPublicKeyRegistrationTransaction)).toResolve();
+            expect(spyOnIndexSet).toBeCalledTimes(1);
+            expect(spyOnIndexSet).toBeCalledWith(blsPublicKeyRegistrationTransaction.data.asset.blsPublicKey);
+        });
+    });
 
-    // describe("getInvalidPoolTransactions", () => {
-    //     it("should return empty array if there are no invalid transactions", async () => {
-    //         const mempoolIndexRegistry = app.get<Contracts.TransactionPool.MempoolIndexRegistry>(
-    //             Identifiers.TransactionPoolMempoolIndexRegistry,
-    //         );
+    describe("getInvalidPoolTransactions", () => {
+        it("should return empty array if there are no invalid transactions", async () => {
+            const mempoolIndexRegistry = app.get<Contracts.TransactionPool.MempoolIndexRegistry>(
+                Identifiers.TransactionPoolMempoolIndexRegistry,
+            );
 
-    //         const spyOnIndexHas = jest
-    //             .spyOn(mempoolIndexRegistry.get(MempoolIndexes.DelegateUsername), "has")
-    //             .mockReturnValueOnce(false);
+            const spyOnIndexHas = jest
+                .spyOn(mempoolIndexRegistry.get(MempoolIndexes.BlsPublicKey), "has")
+                .mockReturnValueOnce(false);
 
-    //         await expect(handler.getInvalidPoolTransactions(delegateRegistrationTransaction)).resolves.toEqual([]);
-    //         expect(spyOnIndexHas).toBeCalledTimes(1);
-    //         expect(spyOnIndexHas).toBeCalledWith(delegateRegistrationTransaction.data.asset.delegate.username);
-    //     });
+            await expect(handler.getInvalidPoolTransactions(blsPublicKeyRegistrationTransaction)).resolves.toEqual([]);
+            expect(spyOnIndexHas).toBeCalledTimes(1);
+            expect(spyOnIndexHas).toBeCalledWith(blsPublicKeyRegistrationTransaction.data.asset.blsPublicKey);
+        });
 
-    //     it("should return invalid transaction if transaction with same username is indexed", async () => {
-    //         const invalidDelegateRegistrationTransaction = BuilderFactory.delegateRegistration()
-    //             .usernameAsset("dummy")
-    //             .nonce("1")
-    //             .sign(passphrases[1])
-    //             .build();
+        it("should return invalid transaction if transaction with same username is indexed", async () => {
+            const mempoolIndexRegistry = app.get<Contracts.TransactionPool.MempoolIndexRegistry>(
+                Identifiers.TransactionPoolMempoolIndexRegistry,
+            );
 
-    //         const mempoolIndexRegistry = app.get<Contracts.TransactionPool.MempoolIndexRegistry>(
-    //             Identifiers.TransactionPoolMempoolIndexRegistry,
-    //         );
+            const spyOnIndexHas = jest
+                .spyOn(mempoolIndexRegistry.get(MempoolIndexes.BlsPublicKey), "has")
+                .mockReturnValueOnce(true);
 
-    //         const spyOnIndexHas = jest
-    //             .spyOn(mempoolIndexRegistry.get(MempoolIndexes.DelegateUsername), "has")
-    //             .mockReturnValueOnce(true);
+            const spyOnIndexGet = jest
+                .spyOn(mempoolIndexRegistry.get(MempoolIndexes.BlsPublicKey), "get")
+                .mockReturnValueOnce(anotherBlsPublicKeyRegistrationTransaction);
 
-    //         const spyOnIndexGet = jest
-    //             .spyOn(mempoolIndexRegistry.get(MempoolIndexes.DelegateUsername), "get")
-    //             .mockReturnValueOnce(invalidDelegateRegistrationTransaction);
-
-    //         await expect(handler.getInvalidPoolTransactions(delegateRegistrationTransaction)).resolves.toEqual([
-    //             invalidDelegateRegistrationTransaction,
-    //         ]);
-    //         expect(spyOnIndexHas).toBeCalledTimes(1);
-    //         expect(spyOnIndexHas).toBeCalledWith(delegateRegistrationTransaction.data.asset.delegate.username);
-    //         expect(spyOnIndexGet).toBeCalledTimes(1);
-    //         expect(spyOnIndexGet).toBeCalledWith(delegateRegistrationTransaction.data.asset.delegate.username);
-    //     });
-    // });
+            await expect(handler.getInvalidPoolTransactions(blsPublicKeyRegistrationTransaction)).resolves.toEqual([
+                anotherBlsPublicKeyRegistrationTransaction,
+            ]);
+            expect(spyOnIndexHas).toBeCalledTimes(1);
+            expect(spyOnIndexHas).toBeCalledWith(blsPublicKeyRegistrationTransaction.data.asset.blsPublicKey);
+            expect(spyOnIndexGet).toBeCalledTimes(1);
+            expect(spyOnIndexGet).toBeCalledWith(blsPublicKeyRegistrationTransaction.data.asset.blsPublicKey);
+        });
+    });
 
     // describe("apply and revert", () => {
     //     it("should resolve", async () => {
