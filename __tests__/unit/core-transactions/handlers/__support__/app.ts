@@ -5,6 +5,7 @@ import { Wallets } from "@packages/core-state";
 import { StateStore } from "@packages/core-state/src/stores/state";
 import {
     addressesIndexer,
+    blsPublicKeysIndexer,
     ipfsIndexer,
     locksIndexer,
     publicKeysIndexer,
@@ -17,29 +18,29 @@ import { getWalletAttributeSet } from "@packages/core-test-framework/src/interna
 import { Collator } from "@packages/core-transaction-pool/src";
 import {
     ApplyTransactionAction,
+    OnPoolEnterAction,
+    OnPoolLeaveAction,
     RevertTransactionAction,
     ThrowIfCannotEnterPoolAction,
     VerifyTransactionAction,
-    OnPoolEnterAction,
-    OnPoolLeaveAction,
 } from "@packages/core-transaction-pool/src/actions";
 import { DynamicFeeMatcher } from "@packages/core-transaction-pool/src/dynamic-fee-matcher";
 import { ExpirationService } from "@packages/core-transaction-pool/src/expiration-service";
 import { Mempool } from "@packages/core-transaction-pool/src/mempool";
-import { Query } from "@packages/core-transaction-pool/src/query";
 import { MempoolIndexRegistry } from "@packages/core-transaction-pool/src/mempool-index-registry";
+import { Query } from "@packages/core-transaction-pool/src/query";
 import { SenderMempool } from "@packages/core-transaction-pool/src/sender-mempool";
 import { SenderState } from "@packages/core-transaction-pool/src/sender-state";
 import { One, Two } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerProvider } from "@packages/core-transactions/src/handlers/handler-provider";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
-import { Identities, Utils } from "@packages/crypto";
-import { IMultiSignatureAsset } from "@packages/crypto/src/interfaces";
 import { ServiceProvider } from "@packages/core-transactions/src/service-provider";
 import {
-    SecondSignatureVerificationMemoized,
     MultiSignatureVerificationMemoized,
+    SecondSignatureVerificationMemoized,
 } from "@packages/core-transactions/src/verification";
+import { Identities, Utils } from "@packages/crypto";
+import { IMultiSignatureAsset } from "@packages/crypto/src/interfaces";
 
 const logger = {
     notice: jest.fn(),
@@ -84,6 +85,12 @@ export const initApp = (): Application => {
     app.bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex).toConstantValue({
         name: Contracts.State.WalletIndexes.Locks,
         indexer: locksIndexer,
+        autoIndex: true,
+    });
+
+    app.bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex).toConstantValue({
+        name: Contracts.State.WalletIndexes.BlsPublicKeys,
+        indexer: blsPublicKeysIndexer,
         autoIndex: true,
     });
 
@@ -159,6 +166,7 @@ export const initApp = (): Application => {
     app.bind(Identifiers.TransactionHandler).to(Two.HtlcLockTransactionHandler);
     app.bind(Identifiers.TransactionHandler).to(Two.HtlcClaimTransactionHandler);
     app.bind(Identifiers.TransactionHandler).to(Two.HtlcRefundTransactionHandler);
+    app.bind(Identifiers.TransactionHandler).to(Two.BlsPublicKeyRegistrationTransactionHandler);
 
     app.bind(Identifiers.TransactionHandlerProvider).to(TransactionHandlerProvider).inSingletonScope();
     app.bind(Identifiers.TransactionHandlerRegistry).to(TransactionHandlerRegistry).inSingletonScope();

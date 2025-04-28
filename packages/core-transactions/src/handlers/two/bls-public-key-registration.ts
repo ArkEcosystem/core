@@ -44,6 +44,7 @@ export class BlsPublicKeyRegistrationTransactionHandler extends TransactionHandl
     }
 
     public async isActivated(): Promise<boolean> {
+        // TODO: Add custom logic
         return Managers.configManager.getMilestone().aip11 === true;
     }
 

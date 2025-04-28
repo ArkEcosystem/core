@@ -2,6 +2,7 @@ import { Services } from "@arkecosystem/core-kernel";
 
 export function getWalletAttributeSet(): Services.Attributes.AttributeSet {
     const attributes: Services.Attributes.AttributeSet = new Services.Attributes.AttributeSet();
+    attributes.set("blsPublicKey");
     attributes.set("delegate.approval");
     attributes.set("delegate.forgedFees");
     attributes.set("delegate.forgedRewards");
@@ -19,8 +20,8 @@ export function getWalletAttributeSet(): Services.Attributes.AttributeSet {
     attributes.set("htlc");
     attributes.set("ipfs.hashes");
     attributes.set("ipfs");
-    attributes.set("multiSignature");
     attributes.set("multiSignature.legacy");
+    attributes.set("multiSignature");
     attributes.set("secondPublicKey");
     attributes.set("vote");
 
