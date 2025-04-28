@@ -9,7 +9,7 @@ import { Mocks } from "@packages/core-test-framework";
 import { Generators } from "@packages/core-test-framework/src";
 import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
-// import { Mempool } from "@packages/core-transaction-pool/src/mempool";
+import { Mempool } from "@packages/core-transaction-pool/src/mempool";
 import { MempoolIndexes } from "@packages/core-transactions/src/enums";
 import {
     BlsPublicKeyAlreadyExists,
@@ -101,6 +101,7 @@ afterEach(() => {
 
 describe("BlsPublicKeyRegistrationTransaction", () => {
     let blsPublicKeyRegistrationTransaction: Interfaces.ITransaction;
+    let anotherBlsPublicKeyRegistrationTransaction: Interfaces.ITransaction;
     let secondBlsPublicKeyRegistrationTransaction: Interfaces.ITransaction;
     let handler: TransactionHandler;
 
@@ -120,6 +121,12 @@ describe("BlsPublicKeyRegistrationTransaction", () => {
             .blsPublicKeyAsset("a".repeat(96))
             .nonce("1")
             .sign(passphrases[0])
+            .build();
+
+        anotherBlsPublicKeyRegistrationTransaction = BuilderFactory.blsPublicKeyRegistration()
+            .blsPublicKeyAsset("a".repeat(96))
+            .nonce("2")
+            .sign(passphrases[2])
             .build();
 
         secondBlsPublicKeyRegistrationTransaction = BuilderFactory.blsPublicKeyRegistration()
@@ -310,72 +317,38 @@ describe("BlsPublicKeyRegistrationTransaction", () => {
         });
     });
 
-    // describe("throwIfCannotEnterPool", () => {
-    //     it("should not throw", async () => {
-    //         await expect(handler.throwIfCannotEnterPool(delegateRegistrationTransaction)).toResolve();
-    //     });
+    describe("throwIfCannotEnterPool", () => {
+        it("should not throw", async () => {
+            await expect(handler.throwIfCannotEnterPool(blsPublicKeyRegistrationTransaction)).toResolve();
+        });
 
-    //     it("should throw if transaction by sender already in pool", async () => {
-    //         await app.get<Mempool>(Identifiers.TransactionPoolMempool).addTransaction(delegateRegistrationTransaction);
+        it("should throw if transaction with same blsPublicKey already in pool", async () => {
+            await app
+                .get<Mempool>(Identifiers.TransactionPoolMempool)
+                .addTransaction(blsPublicKeyRegistrationTransaction);
 
-    //         await expect(handler.throwIfCannotEnterPool(delegateRegistrationTransaction)).rejects.toThrow(
-    //             Contracts.TransactionPool.PoolError,
-    //         );
-    //     });
+            await expect(handler.throwIfCannotEnterPool(anotherBlsPublicKeyRegistrationTransaction)).rejects.toThrow(
+                `BLS Public Key "${"a".repeat(96)}" already in the pool`,
+            );
+        });
 
-    //     it("should throw if transaction with same username already in pool", async () => {
-    //         const anotherWallet: Wallets.Wallet = factoryBuilder
-    //             .get("Wallet")
-    //             .withOptions({
-    //                 passphrase: passphrases[2],
-    //                 nonce: 0,
-    //             })
-    //             .make();
+        it("should throw if asset.blsPublicKey is undefined", async () => {
+            // @ts-ignore
+            blsPublicKeyRegistrationTransaction.data.asset.blsPublicKey = undefined;
 
-    //         anotherWallet.setBalance(Utils.BigNumber.make(7527654310));
+            await expect(handler.throwIfCannotEnterPool(blsPublicKeyRegistrationTransaction)).rejects.toThrow(
+                Exceptions.Runtime.AssertionException,
+            );
+        });
 
-    //         walletRepository.index(anotherWallet);
+        it("should throw if asset is undefined", async () => {
+            blsPublicKeyRegistrationTransaction.data.asset = undefined;
 
-    //         const anotherDelegateRegistrationTransaction = BuilderFactory.delegateRegistration()
-    //             .usernameAsset("dummy")
-    //             .nonce("1")
-    //             .sign(passphrases[2])
-    //             .build();
-
-    //         await app
-    //             .get<Mempool>(Identifiers.TransactionPoolMempool)
-    //             .addTransaction(anotherDelegateRegistrationTransaction);
-
-    //         await expect(handler.throwIfCannotEnterPool(delegateRegistrationTransaction)).rejects.toThrow(
-    //             Contracts.TransactionPool.PoolError,
-    //         );
-    //     });
-
-    //     it("should throw if asset.delegate.username is undefined", async () => {
-    //         // @ts-ignore
-    //         delegateRegistrationTransaction.data.asset.delegate.username = undefined;
-
-    //         await expect(handler.throwIfCannotEnterPool(delegateRegistrationTransaction)).rejects.toThrow(
-    //             Exceptions.Runtime.AssertionException,
-    //         );
-    //     });
-
-    //     it("should throw if asset.delegate is undefined", async () => {
-    //         delegateRegistrationTransaction.data.asset!.delegate = undefined;
-
-    //         await expect(handler.throwIfCannotEnterPool(delegateRegistrationTransaction)).rejects.toThrow(
-    //             Exceptions.Runtime.AssertionException,
-    //         );
-    //     });
-
-    //     it("should throw if asset is undefined", async () => {
-    //         delegateRegistrationTransaction.data.asset = undefined;
-
-    //         await expect(handler.throwIfCannotEnterPool(delegateRegistrationTransaction)).rejects.toThrow(
-    //             Exceptions.Runtime.AssertionException,
-    //         );
-    //     });
-    // });
+            await expect(handler.throwIfCannotEnterPool(blsPublicKeyRegistrationTransaction)).rejects.toThrow(
+                Exceptions.Runtime.AssertionException,
+            );
+        });
+    });
 
     // describe("onPoolEnter", () => {
     //     it("should set username on DelegateUsername index", async () => {
