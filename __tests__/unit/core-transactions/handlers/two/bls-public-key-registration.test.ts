@@ -419,69 +419,70 @@ describe("BlsPublicKeyRegistrationTransaction", () => {
         });
     });
 
-    // describe("apply and revert", () => {
-    //     it("should resolve", async () => {
-    //         const walletBalance = senderWallet.getBalance();
+    describe("apply and revert", () => {
+        it("should resolve", async () => {
+            const walletBalance = senderWallet.getBalance();
 
-    //         jest.spyOn(TransactionHandler.prototype, "applyToSender");
+            jest.spyOn(TransactionHandler.prototype, "applyToSender");
 
-    //         await handler.apply(delegateRegistrationTransaction);
+            await handler.apply(blsPublicKeyRegistrationTransaction);
 
-    //         expect(TransactionHandler.prototype.applyToSender).toHaveBeenCalledTimes(1);
+            expect(TransactionHandler.prototype.applyToSender).toHaveBeenCalledTimes(1);
 
-    //         expect(senderWallet.getBalance()).toEqual(walletBalance.minus(delegateRegistrationTransaction.data.fee));
-    //         expect(senderWallet.getNonce()).toEqual(Utils.BigNumber.ONE);
-    //         expect(senderWallet.getAttribute("delegate.username")).toBe("dummy");
-    //         expect(walletRepository.getIndex(Contracts.State.WalletIndexes.Usernames).has("dummy")).toBeTrue();
-    //         expect(walletRepository.getIndex(Contracts.State.WalletIndexes.Usernames).get("dummy")).toBe(senderWallet);
+            expect(senderWallet.getBalance()).toEqual(
+                walletBalance.minus(blsPublicKeyRegistrationTransaction.data.fee),
+            );
+            expect(senderWallet.getNonce()).toEqual(Utils.BigNumber.ONE);
+            expect(senderWallet.getAttribute("blsPublicKey")).toBe("a".repeat(96));
+            expect(
+                walletRepository.getIndex(Contracts.State.WalletIndexes.BlsPublicKeys).has("a".repeat(96)),
+            ).toBeTrue();
+            expect(walletRepository.getIndex(Contracts.State.WalletIndexes.BlsPublicKeys).get("a".repeat(96))).toBe(
+                senderWallet,
+            );
 
-    //         jest.spyOn(TransactionHandler.prototype, "revertForSender");
+            jest.spyOn(TransactionHandler.prototype, "revertForSender");
 
-    //         await handler.revert(delegateRegistrationTransaction);
+            await handler.revert(blsPublicKeyRegistrationTransaction);
 
-    //         expect(TransactionHandler.prototype.revertForSender).toHaveBeenCalledTimes(1);
+            expect(TransactionHandler.prototype.revertForSender).toHaveBeenCalledTimes(1);
 
-    //         expect(senderWallet.getBalance()).toEqual(walletBalance);
-    //         expect(senderWallet.getNonce()).toEqual(Utils.BigNumber.ZERO);
-    //         expect(senderWallet.hasAttribute("delegate.username")).toBeFalse();
-    //         expect(walletRepository.getIndex(Contracts.State.WalletIndexes.Usernames).has("dummy")).toBeFalse();
-    //     });
-    // });
+            expect(senderWallet.getBalance()).toEqual(walletBalance);
+            expect(senderWallet.getNonce()).toEqual(Utils.BigNumber.ZERO);
+            expect(senderWallet.hasAttribute("blsPublicKey")).toBeFalse();
+            expect(
+                walletRepository.getIndex(Contracts.State.WalletIndexes.BlsPublicKeys).has("a".repeat(96)),
+            ).toBeFalse();
+        });
+    });
 
-    // describe("applyForSender", () => {
-    //     it("should set username to wallet and index", async () => {
-    //         await handler.applyToSender(delegateRegistrationTransaction);
+    describe("applyForSender", () => {
+        it("should set username to wallet and index", async () => {
+            await handler.applyToSender(blsPublicKeyRegistrationTransaction);
 
-    //         expect(senderWallet.getAttribute("delegate.username")).toBe("dummy");
-    //         expect(walletRepository.getIndex(Contracts.State.WalletIndexes.Usernames).has("dummy")).toBeTrue();
-    //     });
+            expect(senderWallet.getAttribute("blsPublicKey")).toBe("a".repeat(96));
+            expect(
+                walletRepository.getIndex(Contracts.State.WalletIndexes.BlsPublicKeys).has("a".repeat(96)),
+            ).toBeTrue();
+        });
 
-    //     it("should throw if asset.delegate.username is undefined", async () => {
-    //         // @ts-ignore
-    //         delegateRegistrationTransaction.data.asset.delegate.username = undefined;
-    //         handler.throwIfCannotBeApplied = jest.fn();
+        it("should throw if asset.blsPublicKey is undefined", async () => {
+            // @ts-ignore
+            blsPublicKeyRegistrationTransaction.data.asset.blsPublicKey = undefined;
+            handler.throwIfCannotBeApplied = jest.fn();
 
-    //         await expect(handler.applyToSender(delegateRegistrationTransaction)).rejects.toThrow(
-    //             Exceptions.Runtime.AssertionException,
-    //         );
-    //     });
+            await expect(handler.applyToSender(blsPublicKeyRegistrationTransaction)).rejects.toThrow(
+                Exceptions.Runtime.AssertionException,
+            );
+        });
 
-    //     it("should throw if asset.delegate is undefined", async () => {
-    //         delegateRegistrationTransaction.data.asset!.delegate = undefined;
-    //         handler.throwIfCannotBeApplied = jest.fn();
+        it("should throw if asset is undefined", async () => {
+            blsPublicKeyRegistrationTransaction.data.asset = undefined;
+            handler.throwIfCannotBeApplied = jest.fn();
 
-    //         await expect(handler.applyToSender(delegateRegistrationTransaction)).rejects.toThrow(
-    //             Exceptions.Runtime.AssertionException,
-    //         );
-    //     });
-
-    //     it("should throw if asset is undefined", async () => {
-    //         delegateRegistrationTransaction.data.asset = undefined;
-    //         handler.throwIfCannotBeApplied = jest.fn();
-
-    //         await expect(handler.applyToSender(delegateRegistrationTransaction)).rejects.toThrow(
-    //             Exceptions.Runtime.AssertionException,
-    //         );
-    //     });
-    // });
+            await expect(handler.applyToSender(blsPublicKeyRegistrationTransaction)).rejects.toThrow(
+                Exceptions.Runtime.AssertionException,
+            );
+        });
+    });
 });
