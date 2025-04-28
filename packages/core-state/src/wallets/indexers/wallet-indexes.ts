@@ -50,6 +50,6 @@ export const registerIndexers = (app: Contracts.Kernel.Application): void => {
     app.bind(Container.Identifiers.WalletRepositoryIndexerIndex).toConstantValue({
         name: Contracts.State.WalletIndexes.BlsPublicKeys,
         indexer: blsPublicKeysIndexer,
-        autoIndex: true,
+        autoIndex: false,
     });
 };

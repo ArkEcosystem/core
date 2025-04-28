@@ -39,7 +39,11 @@ export class BlsPublicKeyRegistrationTransactionHandler extends TransactionHandl
             const wallet = this.walletRepository.findByPublicKey(transaction.senderPublicKey);
 
             wallet.setAttribute("blsPublicKey", transaction.asset.blsPublicKey);
-            this.walletRepository.index(wallet);
+            this.walletRepository.setOnIndex(
+                Contracts.State.WalletIndexes.BlsPublicKeys,
+                transaction.asset.blsPublicKey,
+                wallet,
+            );
         }
     }
 
@@ -128,7 +132,11 @@ export class BlsPublicKeyRegistrationTransactionHandler extends TransactionHandl
 
         sender.setAttribute("blsPublicKey", transaction.data.asset.blsPublicKey);
 
-        this.walletRepository.index(sender);
+        this.walletRepository.setOnIndex(
+            Contracts.State.WalletIndexes.BlsPublicKeys,
+            transaction.data.asset.blsPublicKey,
+            sender,
+        );
     }
 
     public async revertForSender(transaction: Interfaces.ITransaction): Promise<void> {
@@ -142,7 +150,10 @@ export class BlsPublicKeyRegistrationTransactionHandler extends TransactionHandl
 
         sender.forgetAttribute("blsPublicKey");
 
-        this.walletRepository.index(sender);
+        this.walletRepository.forgetOnIndex(
+            Contracts.State.WalletIndexes.BlsPublicKeys,
+            transaction.data.asset.blsPublicKey,
+        );
     }
 
     public async applyToRecipient(transaction: Interfaces.ITransaction): Promise<void> {}
