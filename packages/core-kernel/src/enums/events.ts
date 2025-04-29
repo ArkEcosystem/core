@@ -51,6 +51,7 @@ export enum BlockEvent {
 export enum DelegateEvent {
     Registered = "delegate.registered",
     Resigned = "delegate.resigned",
+    BlsPublicKeyRegistered = "delegate.blsPublicKeyRegistered",
 }
 
 export enum VoteEvent {

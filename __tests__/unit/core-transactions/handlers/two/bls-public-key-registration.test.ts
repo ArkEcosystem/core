@@ -1,7 +1,7 @@
 import "jest-extended";
 
 import { Application, Contracts, Exceptions, Utils } from "@packages/core-kernel";
-// import { DelegateEvent } from "@packages/core-kernel/src/enums";
+import { DelegateEvent } from "@packages/core-kernel/src/enums";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Wallets } from "@packages/core-state";
 import { StateStore } from "@packages/core-state/src/stores/state";
@@ -266,19 +266,19 @@ describe("BlsPublicKeyRegistrationTransaction", () => {
         });
     });
 
-    // describe("emitEvents", () => {
-    //     it("should dispatch", async () => {
-    //         const emitter: Contracts.Kernel.EventDispatcher = app.get<Contracts.Kernel.EventDispatcher>(
-    //             Identifiers.EventDispatcherService,
-    //         );
+    describe("emitEvents", () => {
+        it("should dispatch", async () => {
+            const emitter: Contracts.Kernel.EventDispatcher = app.get<Contracts.Kernel.EventDispatcher>(
+                Identifiers.EventDispatcherService,
+            );
 
-    //         const spy = jest.spyOn(emitter, "dispatch");
+            const spy = jest.spyOn(emitter, "dispatch");
 
-    //         handler.emitEvents(delegateRegistrationTransaction, emitter);
+            handler.emitEvents(blsPublicKeyRegistrationTransaction, emitter);
 
-    //         expect(spy).toHaveBeenCalledWith(DelegateEvent.Registered, expect.anything());
-    //     });
-    // });
+            expect(spy).toHaveBeenCalledWith(DelegateEvent.BlsPublicKeyRegistered, expect.anything());
+        });
+    });
 
     describe("throwIfCannotBeApplied", () => {
         it("should not throw", async () => {

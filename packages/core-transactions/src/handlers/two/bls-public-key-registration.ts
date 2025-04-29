@@ -1,4 +1,4 @@
-import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Enums as AppEnums, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 
 import { MempoolIndexes } from "../../enums";
@@ -65,6 +65,10 @@ export class BlsPublicKeyRegistrationTransactionHandler extends TransactionHandl
     public async isActivated(): Promise<boolean> {
         // TODO: Add custom logic
         return Managers.configManager.getMilestone().aip11 === true;
+    }
+
+    public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.EventDispatcher): void {
+        emitter.dispatch(AppEnums.DelegateEvent.BlsPublicKeyRegistered, transaction.data);
     }
 
     public async throwIfCannotEnterPool(transaction: Interfaces.ITransaction): Promise<void> {
