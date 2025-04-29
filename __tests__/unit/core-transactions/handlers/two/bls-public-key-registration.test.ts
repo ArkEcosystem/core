@@ -505,7 +505,7 @@ describe("BlsPublicKeyRegistrationTransaction", () => {
             );
         });
 
-        it("should return invalid transaction if transaction with same username is indexed", async () => {
+        it("should return invalid transaction if transaction with same bls public key is indexed", async () => {
             const mempoolIndexRegistry = app.get<Contracts.TransactionPool.MempoolIndexRegistry>(
                 Identifiers.TransactionPoolMempoolIndexRegistry,
             );
