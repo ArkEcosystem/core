@@ -13,6 +13,8 @@ import { Mempool } from "@packages/core-transaction-pool/src/mempool";
 import { MempoolIndexes } from "@packages/core-transactions/src/enums";
 import {
     BlsPublicKeyAlreadyExists,
+    BlsPublicKeyIsMissing,
+    BlsPublicKeyMismatch,
     BlsPublicKeyNonDelegateError,
     InsufficientBalanceError,
     UnexpectedNonceError,
@@ -101,6 +103,7 @@ afterEach(() => {
 
 describe("BlsPublicKeyRegistrationTransaction", () => {
     let blsPublicKeyRegistrationTransaction: Interfaces.ITransaction;
+    let replaceBlsPublicKeyRegistrationTransaction: Interfaces.ITransaction;
     let anotherBlsPublicKeyRegistrationTransaction: Interfaces.ITransaction;
     let secondBlsPublicKeyRegistrationTransaction: Interfaces.ITransaction;
     let handler: TransactionHandler;
@@ -122,6 +125,15 @@ describe("BlsPublicKeyRegistrationTransaction", () => {
                 newBlsPublicKey: "a".repeat(96),
             })
             .nonce("1")
+            .sign(passphrases[0])
+            .build();
+
+        replaceBlsPublicKeyRegistrationTransaction = BuilderFactory.blsPublicKeyRegistration()
+            .blsPublicKeyAsset({
+                oldBlsPublicKey: "a".repeat(96),
+                newBlsPublicKey: "c".repeat(96),
+            })
+            .nonce("2")
             .sign(passphrases[0])
             .build();
 
@@ -196,6 +208,30 @@ describe("BlsPublicKeyRegistrationTransaction", () => {
             expect(senderWallet.getAttribute("blsPublicKey")).toEqual("a".repeat(96));
         });
 
+        it("should resolve with replace", async () => {
+            transactionHistoryService.streamByCriteria.mockImplementationOnce(async function* () {
+                yield blsPublicKeyRegistrationTransaction.data;
+                yield replaceBlsPublicKeyRegistrationTransaction.data;
+            });
+
+            expect(senderWallet.hasAttribute("blsPublicKey")).toBeFalse();
+
+            await expect(handler.bootstrap()).toResolve();
+
+            expect(transactionHistoryService.streamByCriteria).toBeCalledWith({
+                typeGroup: Enums.TransactionTypeGroup.Core,
+                type: Enums.TransactionType.BlsPublicKeyRegistration,
+            });
+            expect(
+                walletRepository.getIndex(Contracts.State.WalletIndexes.BlsPublicKeys).has("a".repeat(96)),
+            ).toBeFalse();
+            expect(
+                walletRepository.getIndex(Contracts.State.WalletIndexes.BlsPublicKeys).has("c".repeat(96)),
+            ).toBeTrue();
+            expect(senderWallet.hasAttribute("blsPublicKey")).toBeTrue();
+            expect(senderWallet.getAttribute("blsPublicKey")).toEqual("c".repeat(96));
+        });
+
         it("should not resolve if asset.blsPublicKey is undefined", async () => {
             // @ts-ignore
             blsPublicKeyRegistrationTransaction.data.asset.blsPublicKey = undefined;
@@ -263,6 +299,19 @@ describe("BlsPublicKeyRegistrationTransaction", () => {
             expect(TransactionHandler.prototype.throwIfCannotBeApplied).toHaveBeenCalledTimes(1);
         });
 
+        it("should not throw - replace", async () => {
+            jest.spyOn(TransactionHandler.prototype, "throwIfCannotBeApplied");
+
+            senderWallet.setAttribute("blsPublicKey", "a".repeat(96));
+            senderWallet.setNonce(Utils.BigNumber.ONE);
+
+            await expect(
+                handler.throwIfCannotBeApplied(replaceBlsPublicKeyRegistrationTransaction, senderWallet),
+            ).toResolve();
+
+            expect(TransactionHandler.prototype.throwIfCannotBeApplied).toHaveBeenCalledTimes(1);
+        });
+
         it("should throw if asset.blsPublicKey is undefined", async () => {
             // @ts-ignore
             blsPublicKeyRegistrationTransaction.data.asset.blsPublicKey = undefined;
@@ -296,6 +345,31 @@ describe("BlsPublicKeyRegistrationTransaction", () => {
             await expect(
                 handler.throwIfCannotBeApplied(blsPublicKeyRegistrationTransaction, senderWallet),
             ).rejects.toThrow(WalletAlreadyResignedError);
+        });
+
+        it("should throw if bls key is missing on wallet", async () => {
+            senderWallet.setNonce(Utils.BigNumber.ONE);
+
+            await expect(
+                handler.throwIfCannotBeApplied(replaceBlsPublicKeyRegistrationTransaction, senderWallet),
+            ).rejects.toThrow(BlsPublicKeyIsMissing);
+        });
+
+        it("should throw if bls key doesn match old bls key", async () => {
+            senderWallet.setAttribute("blsPublicKey", "b".repeat(96));
+            senderWallet.setNonce(Utils.BigNumber.ONE);
+
+            await expect(
+                handler.throwIfCannotBeApplied(replaceBlsPublicKeyRegistrationTransaction, senderWallet),
+            ).rejects.toThrow(BlsPublicKeyMismatch);
+        });
+
+        it("should throw if bls key doesn match old bls key, because it is missing on tx", async () => {
+            senderWallet.setAttribute("blsPublicKey", "b".repeat(96));
+
+            await expect(
+                handler.throwIfCannotBeApplied(blsPublicKeyRegistrationTransaction, senderWallet),
+            ).rejects.toThrow(BlsPublicKeyMismatch);
         });
 
         it("should throw if bls key is already regsitered", async () => {
@@ -466,6 +540,88 @@ describe("BlsPublicKeyRegistrationTransaction", () => {
             expect(senderWallet.hasAttribute("blsPublicKey")).toBeFalse();
             expect(
                 walletRepository.getIndex(Contracts.State.WalletIndexes.BlsPublicKeys).has("a".repeat(96)),
+            ).toBeFalse();
+        });
+
+        it("should resolve with replace transaction", async () => {
+            // Apply TX 1
+            const walletBalance = senderWallet.getBalance();
+
+            jest.spyOn(TransactionHandler.prototype, "applyToSender");
+
+            await handler.apply(blsPublicKeyRegistrationTransaction);
+
+            expect(TransactionHandler.prototype.applyToSender).toHaveBeenCalledTimes(1);
+
+            expect(senderWallet.getBalance()).toEqual(
+                walletBalance.minus(blsPublicKeyRegistrationTransaction.data.fee),
+            );
+            expect(senderWallet.getNonce()).toEqual(Utils.BigNumber.ONE);
+            expect(senderWallet.getAttribute("blsPublicKey")).toBe("a".repeat(96));
+            expect(
+                walletRepository.getIndex(Contracts.State.WalletIndexes.BlsPublicKeys).has("a".repeat(96)),
+            ).toBeTrue();
+            expect(walletRepository.getIndex(Contracts.State.WalletIndexes.BlsPublicKeys).get("a".repeat(96))).toBe(
+                senderWallet,
+            );
+
+            // Apply TX 2
+            await handler.apply(replaceBlsPublicKeyRegistrationTransaction);
+
+            expect(TransactionHandler.prototype.applyToSender).toHaveBeenCalledTimes(2);
+
+            expect(senderWallet.getBalance()).toEqual(
+                walletBalance
+                    .minus(blsPublicKeyRegistrationTransaction.data.fee)
+                    .minus(anotherBlsPublicKeyRegistrationTransaction.data.fee),
+            );
+            expect(senderWallet.getNonce()).toEqual(Utils.BigNumber.make("2"));
+            expect(senderWallet.getAttribute("blsPublicKey")).toBe("c".repeat(96));
+            expect(
+                walletRepository.getIndex(Contracts.State.WalletIndexes.BlsPublicKeys).has("a".repeat(96)),
+            ).toBeFalse();
+            expect(
+                walletRepository.getIndex(Contracts.State.WalletIndexes.BlsPublicKeys).has("c".repeat(96)),
+            ).toBeTrue();
+            expect(walletRepository.getIndex(Contracts.State.WalletIndexes.BlsPublicKeys).get("c".repeat(96))).toBe(
+                senderWallet,
+            );
+
+            // Revert TX 2
+            jest.spyOn(TransactionHandler.prototype, "revertForSender");
+
+            await handler.revert(replaceBlsPublicKeyRegistrationTransaction);
+
+            expect(TransactionHandler.prototype.revertForSender).toHaveBeenCalledTimes(1);
+
+            expect(senderWallet.getBalance()).toEqual(
+                walletBalance.minus(blsPublicKeyRegistrationTransaction.data.fee),
+            );
+            expect(senderWallet.getNonce()).toEqual(Utils.BigNumber.ONE);
+            expect(senderWallet.hasAttribute("blsPublicKey")).toBeTrue();
+            expect(senderWallet.getAttribute("blsPublicKey")).toBe("a".repeat(96));
+            expect(
+                walletRepository.getIndex(Contracts.State.WalletIndexes.BlsPublicKeys).has("a".repeat(96)),
+            ).toBeTrue();
+            expect(
+                walletRepository.getIndex(Contracts.State.WalletIndexes.BlsPublicKeys).has("c".repeat(96)),
+            ).toBeFalse();
+
+            // Revert TX 1
+            jest.spyOn(TransactionHandler.prototype, "revertForSender");
+
+            await handler.revert(blsPublicKeyRegistrationTransaction);
+
+            expect(TransactionHandler.prototype.revertForSender).toHaveBeenCalledTimes(2);
+
+            expect(senderWallet.getBalance()).toEqual(walletBalance);
+            expect(senderWallet.getNonce()).toEqual(Utils.BigNumber.ZERO);
+            expect(senderWallet.hasAttribute("blsPublicKey")).toBeFalse();
+            expect(
+                walletRepository.getIndex(Contracts.State.WalletIndexes.BlsPublicKeys).has("a".repeat(96)),
+            ).toBeFalse();
+            expect(
+                walletRepository.getIndex(Contracts.State.WalletIndexes.BlsPublicKeys).has("c".repeat(96)),
             ).toBeFalse();
         });
     });
