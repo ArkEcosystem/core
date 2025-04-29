@@ -109,6 +109,9 @@ describe("BlsPublicKeyRegistrationTransaction", () => {
     let handler: TransactionHandler;
 
     beforeEach(async () => {
+        configManager.getMilestone().aip11 = true;
+        configManager.getMilestone().blsPublicKeyRegistrationEnabled = true;
+
         const transactionHandlerRegistry: TransactionHandlerRegistry = app.get<TransactionHandlerRegistry>(
             Identifiers.TransactionHandlerRegistry,
         );
@@ -176,11 +179,33 @@ describe("BlsPublicKeyRegistrationTransaction", () => {
         });
     });
 
-    // describe("isActivated", () => {
-    //     it("should return true", async () => {
-    //         await expect(handler.isActivated()).resolves.toBeTrue();
-    //     });
-    // });
+    describe("isActivated", () => {
+        it("should return false when aip11 is false", async () => {
+            configManager.getMilestone().aip11 = false;
+            configManager.getMilestone().blsPublicKeyRegistrationEnabled = true;
+
+            await expect(handler.isActivated()).resolves.toBe(false);
+        });
+        it("should return true when aip11 is undefined", async () => {
+            configManager.getMilestone().aip11 = undefined;
+            configManager.getMilestone().blsPublicKeyRegistrationEnabled = true;
+
+            await expect(handler.isActivated()).resolves.toBe(false);
+        });
+        it("should return false when aip11 is true and blsPublicKeyRegistrationEnabled is false", async () => {
+            configManager.getMilestone().aip11 = true;
+            configManager.getMilestone().blsPublicKeyRegistrationEnabled = false;
+
+            await expect(handler.isActivated()).resolves.toBe(false);
+        });
+
+        it("should return true when aip11 is true and blsPublicKeyRegistrationEnabled is true", async () => {
+            configManager.getMilestone().aip11 = true;
+            configManager.getMilestone().blsPublicKeyRegistrationEnabled = true;
+
+            await expect(handler.isActivated()).resolves.toBe(true);
+        });
+    });
 
     describe("bootstrap", () => {
         afterEach(() => {

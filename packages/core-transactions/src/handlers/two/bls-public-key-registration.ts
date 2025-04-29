@@ -63,8 +63,8 @@ export class BlsPublicKeyRegistrationTransactionHandler extends TransactionHandl
     }
 
     public async isActivated(): Promise<boolean> {
-        // TODO: Add custom logic
-        return Managers.configManager.getMilestone().aip11 === true;
+        const milestone = Managers.configManager.getMilestone();
+        return milestone.aip11 === true && milestone.blsPublicKeyRegistrationEnabled === true;
     }
 
     public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.EventDispatcher): void {
