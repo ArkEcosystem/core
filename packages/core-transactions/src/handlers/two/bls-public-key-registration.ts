@@ -53,7 +53,7 @@ export class BlsPublicKeyRegistrationTransactionHandler extends TransactionHandl
             }
 
             // Set new BLS public key
-            wallet.setAttribute("blsPublicKey", transaction.asset.blsPublicKey);
+            wallet.setAttribute("blsPublicKey", transaction.asset.blsPublicKey.newBlsPublicKey);
             this.walletRepository.setOnIndex(
                 Contracts.State.WalletIndexes.BlsPublicKeys,
                 transaction.asset.blsPublicKey.newBlsPublicKey,

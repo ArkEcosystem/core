@@ -118,19 +118,25 @@ describe("BlsPublicKeyRegistrationTransaction", () => {
         );
 
         blsPublicKeyRegistrationTransaction = BuilderFactory.blsPublicKeyRegistration()
-            .blsPublicKeyAsset("a".repeat(96))
+            .blsPublicKeyAsset({
+                newBlsPublicKey: "a".repeat(96),
+            })
             .nonce("1")
             .sign(passphrases[0])
             .build();
 
         anotherBlsPublicKeyRegistrationTransaction = BuilderFactory.blsPublicKeyRegistration()
-            .blsPublicKeyAsset("a".repeat(96))
+            .blsPublicKeyAsset({
+                newBlsPublicKey: "a".repeat(96),
+            })
             .nonce("2")
             .sign(passphrases[2])
             .build();
 
         secondBlsPublicKeyRegistrationTransaction = BuilderFactory.blsPublicKeyRegistration()
-            .blsPublicKeyAsset("b".repeat(96))
+            .blsPublicKeyAsset({
+                newBlsPublicKey: "b".repeat(96),
+            })
             .nonce("1")
             .sign(passphrases[1])
             .secondSign(passphrases[2])
@@ -361,14 +367,14 @@ describe("BlsPublicKeyRegistrationTransaction", () => {
             await expect(handler.onPoolEnter(blsPublicKeyRegistrationTransaction)).toResolve();
             expect(spyOnIndexSet).toBeCalledTimes(1);
             expect(spyOnIndexSet).toBeCalledWith(
-                blsPublicKeyRegistrationTransaction.data.asset.blsPublicKey,
+                blsPublicKeyRegistrationTransaction.data.asset.blsPublicKey.newBlsPublicKey,
                 blsPublicKeyRegistrationTransaction,
             );
         });
     });
 
     describe("onPoolLeave", () => {
-        it("should forget username on DelegateUsername index", async () => {
+        it("should forget bls key on BlsPublicKey index", async () => {
             const mempoolIndexRegistry = app.get<Contracts.TransactionPool.MempoolIndexRegistry>(
                 Identifiers.TransactionPoolMempoolIndexRegistry,
             );
@@ -377,7 +383,9 @@ describe("BlsPublicKeyRegistrationTransaction", () => {
 
             await expect(handler.onPoolLeave(blsPublicKeyRegistrationTransaction)).toResolve();
             expect(spyOnIndexSet).toBeCalledTimes(1);
-            expect(spyOnIndexSet).toBeCalledWith(blsPublicKeyRegistrationTransaction.data.asset.blsPublicKey);
+            expect(spyOnIndexSet).toBeCalledWith(
+                blsPublicKeyRegistrationTransaction.data.asset.blsPublicKey.newBlsPublicKey,
+            );
         });
     });
 
@@ -393,7 +401,9 @@ describe("BlsPublicKeyRegistrationTransaction", () => {
 
             await expect(handler.getInvalidPoolTransactions(blsPublicKeyRegistrationTransaction)).resolves.toEqual([]);
             expect(spyOnIndexHas).toBeCalledTimes(1);
-            expect(spyOnIndexHas).toBeCalledWith(blsPublicKeyRegistrationTransaction.data.asset.blsPublicKey);
+            expect(spyOnIndexHas).toBeCalledWith(
+                blsPublicKeyRegistrationTransaction.data.asset.blsPublicKey.newBlsPublicKey,
+            );
         });
 
         it("should return invalid transaction if transaction with same username is indexed", async () => {
@@ -413,9 +423,13 @@ describe("BlsPublicKeyRegistrationTransaction", () => {
                 anotherBlsPublicKeyRegistrationTransaction,
             ]);
             expect(spyOnIndexHas).toBeCalledTimes(1);
-            expect(spyOnIndexHas).toBeCalledWith(blsPublicKeyRegistrationTransaction.data.asset.blsPublicKey);
+            expect(spyOnIndexHas).toBeCalledWith(
+                blsPublicKeyRegistrationTransaction.data.asset.blsPublicKey.newBlsPublicKey,
+            );
             expect(spyOnIndexGet).toBeCalledTimes(1);
-            expect(spyOnIndexGet).toBeCalledWith(blsPublicKeyRegistrationTransaction.data.asset.blsPublicKey);
+            expect(spyOnIndexGet).toBeCalledWith(
+                blsPublicKeyRegistrationTransaction.data.asset.blsPublicKey.newBlsPublicKey,
+            );
         });
     });
 
