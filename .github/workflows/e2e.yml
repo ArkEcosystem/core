@@ -39,16 +39,16 @@ jobs:
               run: sleep 300
             - name: Show logs - node0
               if: always()
-              run: docker logs config_core0_1
+              run: docker logs config-core0-1
             - name: Show logs - node1
               if: always()
-              run: docker logs config_core1_1
+              run: docker logs config-core1-1
             - name: Show logs - node2
               if: always()
-              run: docker logs config_core2_1
+              run: docker logs config-core2-1
             - name: Show logs - node3
               if: always()
-              run: docker logs config_core3_1
+              run: docker logs config-core3-1
             - name: Show logs - node4
               if: always()
-              run: docker logs config_core4_1
+              run: docker logs config-core4-1
