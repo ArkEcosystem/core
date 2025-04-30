@@ -66,7 +66,7 @@ jobs:
               run: yarn test __tests__/functional/core-database/ --coverage --coverageDirectory .coverage/functional/${{ github.job }}
 
             - name: Archive code coverage
-              uses: actions/upload-artifact@v2
+              uses: actions/upload-artifact@v4
               with:
                   name: ${{ github.job }}-coverage
                   path: .coverage/functional/${{ github.job }}/lcov.info
@@ -121,7 +121,7 @@ jobs:
                   CORE_DB_USERNAME: ark
 
             - name: Archive code coverage
-              uses: actions/upload-artifact@v2
+              uses: actions/upload-artifact@v4
               with:
                   name: ${{ github.job }}-coverage
                   path: .coverage/functional/${{ github.job }}/lcov.info
@@ -176,7 +176,7 @@ jobs:
                   CORE_DB_USERNAME: ark
 
             - name: Archive code coverage
-              uses: actions/upload-artifact@v2
+              uses: actions/upload-artifact@v4
               with:
                   name: ${{ github.job }}-coverage
                   path: .coverage/functional/${{ github.job }}/lcov.info
@@ -231,7 +231,7 @@ jobs:
                   CORE_DB_USERNAME: ark
 
             - name: Archive code coverage
-              uses: actions/upload-artifact@v2
+              uses: actions/upload-artifact@v4
               with:
                   name: ${{ github.job }}-coverage
                   path: .coverage/functional/${{ github.job }}/lcov.info
@@ -286,7 +286,7 @@ jobs:
                   CORE_DB_USERNAME: ark
 
             - name: Archive code coverage
-              uses: actions/upload-artifact@v2
+              uses: actions/upload-artifact@v4
               with:
                   name: ${{ github.job }}-coverage
                   path: .coverage/functional/${{ github.job }}/lcov.info
@@ -341,7 +341,7 @@ jobs:
                   CORE_DB_USERNAME: ark
 
             - name: Archive code coverage
-              uses: actions/upload-artifact@v2
+              uses: actions/upload-artifact@v4
               with:
                   name: ${{ github.job }}-coverage
                   path: .coverage/functional/${{ github.job }}/lcov.info
@@ -396,7 +396,7 @@ jobs:
                   CORE_DB_USERNAME: ark
 
             - name: Archive code coverage
-              uses: actions/upload-artifact@v2
+              uses: actions/upload-artifact@v4
               with:
                   name: ${{ github.job }}-coverage
                   path: .coverage/functional/${{ github.job }}/lcov.info
@@ -451,7 +451,7 @@ jobs:
                   CORE_DB_USERNAME: ark
 
             - name: Archive code coverage
-              uses: actions/upload-artifact@v2
+              uses: actions/upload-artifact@v4
               with:
                   name: ${{ github.job }}-coverage
                   path: .coverage/functional/${{ github.job }}/lcov.info
@@ -506,7 +506,7 @@ jobs:
                   CORE_DB_USERNAME: ark
 
             - name: Archive code coverage
-              uses: actions/upload-artifact@v2
+              uses: actions/upload-artifact@v4
               with:
                   name: ${{ github.job }}-coverage
                   path: .coverage/functional/${{ github.job }}/lcov.info
@@ -561,7 +561,7 @@ jobs:
                   CORE_DB_USERNAME: ark
 
             - name: Archive code coverage
-              uses: actions/upload-artifact@v2
+              uses: actions/upload-artifact@v4
               with:
                   name: ${{ github.job }}-coverage
                   path: .coverage/functional/${{ github.job }}/lcov.info
@@ -616,7 +616,7 @@ jobs:
                   CORE_DB_USERNAME: ark
 
             - name: Archive code coverage
-              uses: actions/upload-artifact@v2
+              uses: actions/upload-artifact@v4
               with:
                   name: ${{ github.job }}-coverage
                   path: .coverage/functional/${{ github.job }}/lcov.info
@@ -671,7 +671,7 @@ jobs:
                   CORE_DB_USERNAME: ark
 
             - name: Archive code coverage
-              uses: actions/upload-artifact@v2
+              uses: actions/upload-artifact@v4
               with:
                   name: ${{ github.job }}-coverage
                   path: .coverage/functional/${{ github.job }}/lcov.info
@@ -726,7 +726,7 @@ jobs:
                   CORE_DB_USERNAME: ark
 
             - name: Archive code coverage
-              uses: actions/upload-artifact@v2
+              uses: actions/upload-artifact@v4
               with:
                   name: ${{ github.job }}-coverage
                   path: .coverage/functional/${{ github.job }}/lcov.info
@@ -781,7 +781,7 @@ jobs:
                   CORE_DB_USERNAME: ark
 
             - name: Archive code coverage
-              uses: actions/upload-artifact@v2
+              uses: actions/upload-artifact@v4
               with:
                   name: ${{ github.job }}-coverage
                   path: .coverage/functional/${{ github.job }}/lcov.info
