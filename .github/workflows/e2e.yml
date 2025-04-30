@@ -34,7 +34,7 @@ jobs:
             - name: Install and build packages
               run: yarn setup
             - name: Docker compose up
-              run: cd __tests__/e2e/lib/config && docker-compose up -d
+              run: cd __tests__/e2e/lib/config && docker compose up -d
             - name: Let the network run during 5min
               run: sleep 300
             - name: Show logs - node0
