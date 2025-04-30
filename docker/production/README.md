@@ -23,7 +23,7 @@ Run Relay only node using [Docker Compose](https://docs.docker.com/compose/)
 
 **_DevNet_**
 
-> Create file `docker-compose.yml` with the following content:
+> Create file `docker compose.yml` with the following content:
 
 ```bash
 version: '2'
@@ -97,7 +97,7 @@ CORE_WEBHOOKS_PORT=4004
 
 **_MainNet_**
 
-> Create file `docker-compose.yml` with the following content:
+> Create file `docker compose.yml` with the following content:
 
 ```bash
 version: '2'
@@ -174,7 +174,7 @@ _If you prefer to use custom DB Name, DB User and DB Password simply adjust vari
 > _Time to start the relay node_:
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 ### _ARK Core docker image allows you to run a `forger`. However it requires some additional steps that can be found by visiting our [Documentation page](https://guides.ark.dev/devops-guides/how-to-setup-a-node-with-docker#production-setup)._
