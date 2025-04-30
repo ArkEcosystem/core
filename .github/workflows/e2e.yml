@@ -20,9 +20,9 @@ jobs:
                 node-version: [16.x]
 
         steps:
-            - uses: actions/checkout@v2
+            - uses: actions/checkout@v4
             - name: Cache node modules
-              uses: actions/cache@v1
+              uses: actions/cache@v4
               with:
                   path: node_modules
                   key: ${{ runner.os }}-e2e-${{ hashFiles('**/yarn.lock') }}
@@ -34,21 +34,21 @@ jobs:
             - name: Install and build packages
               run: yarn setup
             - name: Docker compose up
-              run: cd __tests__/e2e/lib/config && docker-compose up -d
+              run: cd __tests__/e2e/lib/config && docker compose up -d
             - name: Let the network run during 5min
               run: sleep 300
             - name: Show logs - node0
               if: always()
-              run: docker logs config_core0_1
+              run: docker logs config-core0-1
             - name: Show logs - node1
               if: always()
-              run: docker logs config_core1_1
+              run: docker logs config-core1-1
             - name: Show logs - node2
               if: always()
-              run: docker logs config_core2_1
+              run: docker logs config-core2-1
             - name: Show logs - node3
               if: always()
-              run: docker logs config_core3_1
+              run: docker logs config-core3-1
             - name: Show logs - node4
               if: always()
-              run: docker logs config_core4_1
+              run: docker logs config-core4-1

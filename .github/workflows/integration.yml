@@ -38,10 +38,10 @@ jobs:
             POSTGRES_DB: ark_unitnet
 
         steps:
-            - uses: actions/checkout@v2
+            - uses: actions/checkout@v4
 
             - name: Cache node modules
-              uses: actions/cache@v1
+              uses: actions/cache@v4
               with:
                   path: node_modules
                   key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
