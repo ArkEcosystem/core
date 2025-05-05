@@ -106,6 +106,7 @@ export const initApp = (): Application => {
     app.bind(Identifiers.TransactionHandler).to(Two.HtlcLockTransactionHandler);
     app.bind(Identifiers.TransactionHandler).to(Two.HtlcClaimTransactionHandler);
     app.bind(Identifiers.TransactionHandler).to(Two.HtlcRefundTransactionHandler);
+    app.bind(Identifiers.TransactionHandler).to(Two.BlsPublicKeyRegistrationTransactionHandler);
 
     app.bind(Identifiers.TransactionHandlerProvider).to(TransactionHandlerProvider).inSingletonScope();
     app.bind(Identifiers.TransactionHandlerRegistry).to(TransactionHandlerRegistry).inSingletonScope();

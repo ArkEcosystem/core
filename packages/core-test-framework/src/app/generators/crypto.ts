@@ -127,6 +127,7 @@ export class CryptoGenerator extends Generator {
                 aip37: true,
                 htlcEnabled: true,
                 blockBurnAddress: true,
+                blsPublicKeyRegistrationEnabled: true,
             },
             {
                 height: rewardHeight,

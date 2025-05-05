@@ -4,6 +4,7 @@ import { Contracts } from "@packages/core-kernel";
 import { Wallet, WalletRepository, WalletRepositoryCopyOnWrite } from "@packages/core-state/src/wallets";
 import {
     addressesIndexer,
+    blsPublicKeysIndexer,
     ipfsIndexer,
     locksIndexer,
     publicKeysIndexer,
@@ -36,7 +37,7 @@ describe("Wallet Repository Copy On Write", () => {
     });
 
     it("should be able to look up indexers", () => {
-        const expected = ["addresses", "publicKeys", "usernames", "resignations", "locks", "ipfs"];
+        const expected = ["addresses", "publicKeys", "usernames", "resignations", "locks", "ipfs", "blsPublicKeys"];
         expect(walletRepoCopyOnWrite.getIndexNames()).toEqual(expected);
         expect(walletRepoCopyOnWrite.getIndex("addresses").indexer).toEqual(addressesIndexer);
         expect(walletRepoCopyOnWrite.getIndex("publicKeys").indexer).toEqual(publicKeysIndexer);
@@ -44,6 +45,7 @@ describe("Wallet Repository Copy On Write", () => {
         expect(walletRepoCopyOnWrite.getIndex("resignations").indexer).toEqual(resignationsIndexer);
         expect(walletRepoCopyOnWrite.getIndex("locks").indexer).toEqual(locksIndexer);
         expect(walletRepoCopyOnWrite.getIndex("ipfs").indexer).toEqual(ipfsIndexer);
+        expect(walletRepoCopyOnWrite.getIndex("blsPublicKeys").indexer).toEqual(blsPublicKeysIndexer);
     });
 
     it("should find wallets by address", () => {
