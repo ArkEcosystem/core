@@ -132,6 +132,14 @@ export class TransactionFactory {
         return this;
     }
 
+    public blsPublicKeyRegistration(blsPublicKeyAsset: Interfaces.IBlsPublicKeyAsset): TransactionFactory {
+        const builder = Transactions.BuilderFactory.blsPublicKeyRegistration().blsPublicKeyAsset(blsPublicKeyAsset);
+
+        this.builder = builder;
+
+        return this;
+    }
+
     public htlcLock(
         lockAsset: Interfaces.IHtlcLockAsset,
         recipientId?: string,
