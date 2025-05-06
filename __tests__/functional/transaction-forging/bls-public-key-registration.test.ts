@@ -41,16 +41,31 @@ describe("Transaction Forging - Bls Public Key Registration", () => {
             await expect(transactionsRegister.id).toBeForged();
 
             // Register bls public key
-            const transactionsResign = TransactionFactory.initialize(app)
+            const transactionsRegisterFirst = TransactionFactory.initialize(app)
                 .blsPublicKeyRegistration({
                     newBlsPublicKey: "a".repeat(96),
                 })
                 .withPassphrase(passphrase)
                 .createOne();
 
-            await expect(transactionsResign).toBeAccepted();
+            await expect(transactionsRegisterFirst).toBeAccepted();
             await snoozeForBlock(1);
-            await expect(transactionsResign.id).toBeForged();
+            await expect(transactionsRegisterFirst.id).toBeForged();
+            await expect(transactionsRegisterFirst).blsPublicKeyRegistered();
+
+            // Overwrite bls public key
+            const transactionsRegisterSecond = TransactionFactory.initialize(app)
+                .blsPublicKeyRegistration({
+                    oldBlsPublicKey: "a".repeat(96),
+                    newBlsPublicKey: "b".repeat(96),
+                })
+                .withPassphrase(passphrase)
+                .createOne();
+
+            await expect(transactionsRegisterSecond).toBeAccepted();
+            await snoozeForBlock(1);
+            await expect(transactionsRegisterSecond.id).toBeForged();
+            await expect(transactionsRegisterSecond).blsPublicKeyRegistered();
         });
     });
 
@@ -91,16 +106,31 @@ describe("Transaction Forging - Bls Public Key Registration", () => {
             await expect(transactionsRegister.id).toBeForged();
 
             // Register bls public key
-            const transactionsResign = TransactionFactory.initialize(app)
+            const transactionsRegisterFirst = TransactionFactory.initialize(app)
                 .blsPublicKeyRegistration({
-                    newBlsPublicKey: "a".repeat(96),
+                    newBlsPublicKey: "c".repeat(96),
                 })
                 .withPassphrasePair({ passphrase, secondPassphrase })
                 .createOne();
 
-            await expect(transactionsResign).toBeAccepted();
+            await expect(transactionsRegisterFirst).toBeAccepted();
             await snoozeForBlock(1);
-            await expect(transactionsResign.id).toBeForged();
+            await expect(transactionsRegisterFirst.id).toBeForged();
+            await expect(transactionsRegisterFirst).blsPublicKeyRegistered();
+
+            // Register bls public key
+            const transactionsRegisterSecond = TransactionFactory.initialize(app)
+                .blsPublicKeyRegistration({
+                    oldBlsPublicKey: "c".repeat(96),
+                    newBlsPublicKey: "d".repeat(96),
+                })
+                .withPassphrasePair({ passphrase, secondPassphrase })
+                .createOne();
+
+            await expect(transactionsRegisterSecond).toBeAccepted();
+            await snoozeForBlock(1);
+            await expect(transactionsRegisterSecond.id).toBeForged();
+            await expect(transactionsRegisterSecond).blsPublicKeyRegistered();
         });
     });
 });
