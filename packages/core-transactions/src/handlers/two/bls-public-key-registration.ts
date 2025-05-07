@@ -25,7 +25,7 @@ export class BlsPublicKeyRegistrationTransactionHandler extends TransactionHandl
     }
 
     public walletAttributes(): ReadonlyArray<string> {
-        return ["blsPublicKey"];
+        return ["delegate.blsPublicKey"];
     }
 
     public getConstructor(): Transactions.TransactionConstructor {
@@ -53,7 +53,7 @@ export class BlsPublicKeyRegistrationTransactionHandler extends TransactionHandl
             }
 
             // Set new BLS public key
-            wallet.setAttribute("blsPublicKey", transaction.asset.blsPublicKey.newBlsPublicKey);
+            wallet.setAttribute("delegate.blsPublicKey", transaction.asset.blsPublicKey.newBlsPublicKey);
             this.walletRepository.setOnIndex(
                 Contracts.State.WalletIndexes.BlsPublicKeys,
                 transaction.asset.blsPublicKey.newBlsPublicKey,
@@ -132,15 +132,15 @@ export class BlsPublicKeyRegistrationTransactionHandler extends TransactionHandl
 
         // Check if old BLS public key matches delegate's BLS public key
         if (transaction.data.asset.blsPublicKey.oldBlsPublicKey) {
-            if (!wallet.hasAttribute("blsPublicKey")) {
+            if (!wallet.hasAttribute("delegate.blsPublicKey")) {
                 throw new BlsPublicKeyIsMissing();
             }
 
-            if (transaction.data.asset.blsPublicKey.oldBlsPublicKey !== wallet.getAttribute("blsPublicKey")) {
+            if (transaction.data.asset.blsPublicKey.oldBlsPublicKey !== wallet.getAttribute("delegate.blsPublicKey")) {
                 throw new BlsPublicKeyMismatch();
             }
         } else {
-            if (wallet.hasAttribute("blsPublicKey")) {
+            if (wallet.hasAttribute("delegate.blsPublicKey")) {
                 throw new BlsPublicKeyMismatch();
             }
         }
@@ -176,7 +176,7 @@ export class BlsPublicKeyRegistrationTransactionHandler extends TransactionHandl
         }
 
         // Set new BLS public key
-        sender.setAttribute("blsPublicKey", transaction.data.asset.blsPublicKey.newBlsPublicKey);
+        sender.setAttribute("delegate.blsPublicKey", transaction.data.asset.blsPublicKey.newBlsPublicKey);
         this.walletRepository.setOnIndex(
             Contracts.State.WalletIndexes.BlsPublicKeys,
             transaction.data.asset.blsPublicKey.newBlsPublicKey,
@@ -193,7 +193,7 @@ export class BlsPublicKeyRegistrationTransactionHandler extends TransactionHandl
 
         AppUtils.assert.defined<Interfaces.ITransactionAsset>(transaction.data.asset?.blsPublicKey);
 
-        sender.forgetAttribute("blsPublicKey");
+        sender.forgetAttribute("delegate.blsPublicKey");
         this.walletRepository.forgetOnIndex(
             Contracts.State.WalletIndexes.BlsPublicKeys,
             transaction.data.asset.blsPublicKey.newBlsPublicKey,
@@ -201,7 +201,7 @@ export class BlsPublicKeyRegistrationTransactionHandler extends TransactionHandl
 
         // Set back old BLS public key if exists
         if (transaction.data.asset.blsPublicKey.oldBlsPublicKey) {
-            sender.setAttribute("blsPublicKey", transaction.data.asset.blsPublicKey.oldBlsPublicKey);
+            sender.setAttribute("delegate.blsPublicKey", transaction.data.asset.blsPublicKey.oldBlsPublicKey);
 
             this.walletRepository.setOnIndex(
                 Contracts.State.WalletIndexes.BlsPublicKeys,

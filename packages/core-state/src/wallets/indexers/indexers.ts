@@ -45,7 +45,7 @@ export const ipfsIndexer = (index: Contracts.State.WalletIndex, wallet: Contract
 };
 
 export const blsPublicKeysIndexer = (index: Contracts.State.WalletIndex, wallet: Contracts.State.Wallet) => {
-    if (wallet.hasAttribute("blsPublicKey")) {
-        index.set(wallet.getAttribute("blsPublicKey"), wallet);
+    if (wallet.hasAttribute("delegate.blsPublicKey")) {
+        index.set(wallet.getAttribute("delegate.blsPublicKey"), wallet);
     }
 };

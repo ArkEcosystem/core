@@ -2,8 +2,8 @@ import { Services } from "@arkecosystem/core-kernel";
 
 export function getWalletAttributeSet(): Services.Attributes.AttributeSet {
     const attributes: Services.Attributes.AttributeSet = new Services.Attributes.AttributeSet();
-    attributes.set("blsPublicKey");
     attributes.set("delegate.approval");
+    attributes.set("delegate.blsPublicKey");
     attributes.set("delegate.forgedFees");
     attributes.set("delegate.forgedRewards");
     attributes.set("delegate.forgedTotal");

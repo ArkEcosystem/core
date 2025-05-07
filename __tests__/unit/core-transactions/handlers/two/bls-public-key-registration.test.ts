@@ -218,7 +218,7 @@ describe("BlsPublicKeyRegistrationTransaction", () => {
                 yield blsPublicKeyRegistrationTransaction.data;
             });
 
-            expect(senderWallet.hasAttribute("blsPublicKey")).toBeFalse();
+            expect(senderWallet.hasAttribute("delegate.blsPublicKey")).toBeFalse();
 
             await expect(handler.bootstrap()).toResolve();
 
@@ -229,8 +229,8 @@ describe("BlsPublicKeyRegistrationTransaction", () => {
             expect(
                 walletRepository.getIndex(Contracts.State.WalletIndexes.BlsPublicKeys).has("a".repeat(96)),
             ).toBeTrue();
-            expect(senderWallet.hasAttribute("blsPublicKey")).toBeTrue();
-            expect(senderWallet.getAttribute("blsPublicKey")).toEqual("a".repeat(96));
+            expect(senderWallet.hasAttribute("delegate.blsPublicKey")).toBeTrue();
+            expect(senderWallet.getAttribute("delegate.blsPublicKey")).toEqual("a".repeat(96));
         });
 
         it("should resolve with replace", async () => {
@@ -239,7 +239,7 @@ describe("BlsPublicKeyRegistrationTransaction", () => {
                 yield replaceBlsPublicKeyRegistrationTransaction.data;
             });
 
-            expect(senderWallet.hasAttribute("blsPublicKey")).toBeFalse();
+            expect(senderWallet.hasAttribute("delegate.blsPublicKey")).toBeFalse();
 
             await expect(handler.bootstrap()).toResolve();
 
@@ -253,8 +253,8 @@ describe("BlsPublicKeyRegistrationTransaction", () => {
             expect(
                 walletRepository.getIndex(Contracts.State.WalletIndexes.BlsPublicKeys).has("c".repeat(96)),
             ).toBeTrue();
-            expect(senderWallet.hasAttribute("blsPublicKey")).toBeTrue();
-            expect(senderWallet.getAttribute("blsPublicKey")).toEqual("c".repeat(96));
+            expect(senderWallet.hasAttribute("delegate.blsPublicKey")).toBeTrue();
+            expect(senderWallet.getAttribute("delegate.blsPublicKey")).toEqual("c".repeat(96));
         });
 
         it("should not resolve if asset.blsPublicKey is undefined", async () => {
@@ -265,13 +265,13 @@ describe("BlsPublicKeyRegistrationTransaction", () => {
                 yield blsPublicKeyRegistrationTransaction.data;
             });
 
-            expect(senderWallet.hasAttribute("blsPublicKey")).toBeFalse();
+            expect(senderWallet.hasAttribute("delegate.blsPublicKey")).toBeFalse();
 
             await expect(handler.bootstrap()).rejects.toThrow(Exceptions.Runtime.AssertionException);
             expect(
                 walletRepository.getIndex(Contracts.State.WalletIndexes.BlsPublicKeys).has("a".repeat(96)),
             ).toBeFalse();
-            expect(senderWallet.hasAttribute("blsPublicKey")).toBeFalse();
+            expect(senderWallet.hasAttribute("delegate.blsPublicKey")).toBeFalse();
         });
 
         it("should not resolve if asset is undefined", async () => {
@@ -281,13 +281,13 @@ describe("BlsPublicKeyRegistrationTransaction", () => {
                 yield blsPublicKeyRegistrationTransaction.data;
             });
 
-            expect(senderWallet.hasAttribute("blsPublicKey")).toBeFalse();
+            expect(senderWallet.hasAttribute("delegate.blsPublicKey")).toBeFalse();
 
             await expect(handler.bootstrap()).rejects.toThrow(Exceptions.Runtime.AssertionException);
             expect(
                 walletRepository.getIndex(Contracts.State.WalletIndexes.BlsPublicKeys).has("a".repeat(96)),
             ).toBeFalse();
-            expect(senderWallet.hasAttribute("blsPublicKey")).toBeFalse();
+            expect(senderWallet.hasAttribute("delegate.blsPublicKey")).toBeFalse();
         });
     });
 
@@ -327,7 +327,7 @@ describe("BlsPublicKeyRegistrationTransaction", () => {
         it("should not throw - replace", async () => {
             jest.spyOn(TransactionHandler.prototype, "throwIfCannotBeApplied");
 
-            senderWallet.setAttribute("blsPublicKey", "a".repeat(96));
+            senderWallet.setAttribute("delegate.blsPublicKey", "a".repeat(96));
             senderWallet.setNonce(Utils.BigNumber.ONE);
 
             await expect(
@@ -381,7 +381,7 @@ describe("BlsPublicKeyRegistrationTransaction", () => {
         });
 
         it("should throw if bls key doesn match old bls key", async () => {
-            senderWallet.setAttribute("blsPublicKey", "b".repeat(96));
+            senderWallet.setAttribute("delegate.blsPublicKey", "b".repeat(96));
             senderWallet.setNonce(Utils.BigNumber.ONE);
 
             await expect(
@@ -390,7 +390,7 @@ describe("BlsPublicKeyRegistrationTransaction", () => {
         });
 
         it("should throw if bls key doesn match old bls key, because it is missing on tx", async () => {
-            senderWallet.setAttribute("blsPublicKey", "b".repeat(96));
+            senderWallet.setAttribute("delegate.blsPublicKey", "b".repeat(96));
 
             await expect(
                 handler.throwIfCannotBeApplied(blsPublicKeyRegistrationTransaction, senderWallet),
@@ -546,7 +546,7 @@ describe("BlsPublicKeyRegistrationTransaction", () => {
                 walletBalance.minus(blsPublicKeyRegistrationTransaction.data.fee),
             );
             expect(senderWallet.getNonce()).toEqual(Utils.BigNumber.ONE);
-            expect(senderWallet.getAttribute("blsPublicKey")).toBe("a".repeat(96));
+            expect(senderWallet.getAttribute("delegate.blsPublicKey")).toBe("a".repeat(96));
             expect(
                 walletRepository.getIndex(Contracts.State.WalletIndexes.BlsPublicKeys).has("a".repeat(96)),
             ).toBeTrue();
@@ -562,7 +562,7 @@ describe("BlsPublicKeyRegistrationTransaction", () => {
 
             expect(senderWallet.getBalance()).toEqual(walletBalance);
             expect(senderWallet.getNonce()).toEqual(Utils.BigNumber.ZERO);
-            expect(senderWallet.hasAttribute("blsPublicKey")).toBeFalse();
+            expect(senderWallet.hasAttribute("delegate.blsPublicKey")).toBeFalse();
             expect(
                 walletRepository.getIndex(Contracts.State.WalletIndexes.BlsPublicKeys).has("a".repeat(96)),
             ).toBeFalse();
@@ -582,7 +582,7 @@ describe("BlsPublicKeyRegistrationTransaction", () => {
                 walletBalance.minus(blsPublicKeyRegistrationTransaction.data.fee),
             );
             expect(senderWallet.getNonce()).toEqual(Utils.BigNumber.ONE);
-            expect(senderWallet.getAttribute("blsPublicKey")).toBe("a".repeat(96));
+            expect(senderWallet.getAttribute("delegate.blsPublicKey")).toBe("a".repeat(96));
             expect(
                 walletRepository.getIndex(Contracts.State.WalletIndexes.BlsPublicKeys).has("a".repeat(96)),
             ).toBeTrue();
@@ -601,7 +601,7 @@ describe("BlsPublicKeyRegistrationTransaction", () => {
                     .minus(anotherBlsPublicKeyRegistrationTransaction.data.fee),
             );
             expect(senderWallet.getNonce()).toEqual(Utils.BigNumber.make("2"));
-            expect(senderWallet.getAttribute("blsPublicKey")).toBe("c".repeat(96));
+            expect(senderWallet.getAttribute("delegate.blsPublicKey")).toBe("c".repeat(96));
             expect(
                 walletRepository.getIndex(Contracts.State.WalletIndexes.BlsPublicKeys).has("a".repeat(96)),
             ).toBeFalse();
@@ -623,8 +623,8 @@ describe("BlsPublicKeyRegistrationTransaction", () => {
                 walletBalance.minus(blsPublicKeyRegistrationTransaction.data.fee),
             );
             expect(senderWallet.getNonce()).toEqual(Utils.BigNumber.ONE);
-            expect(senderWallet.hasAttribute("blsPublicKey")).toBeTrue();
-            expect(senderWallet.getAttribute("blsPublicKey")).toBe("a".repeat(96));
+            expect(senderWallet.hasAttribute("delegate.blsPublicKey")).toBeTrue();
+            expect(senderWallet.getAttribute("delegate.blsPublicKey")).toBe("a".repeat(96));
             expect(
                 walletRepository.getIndex(Contracts.State.WalletIndexes.BlsPublicKeys).has("a".repeat(96)),
             ).toBeTrue();
@@ -641,7 +641,7 @@ describe("BlsPublicKeyRegistrationTransaction", () => {
 
             expect(senderWallet.getBalance()).toEqual(walletBalance);
             expect(senderWallet.getNonce()).toEqual(Utils.BigNumber.ZERO);
-            expect(senderWallet.hasAttribute("blsPublicKey")).toBeFalse();
+            expect(senderWallet.hasAttribute("delegate.blsPublicKey")).toBeFalse();
             expect(
                 walletRepository.getIndex(Contracts.State.WalletIndexes.BlsPublicKeys).has("a".repeat(96)),
             ).toBeFalse();
@@ -655,7 +655,7 @@ describe("BlsPublicKeyRegistrationTransaction", () => {
         it("should set username to wallet and index", async () => {
             await handler.applyToSender(blsPublicKeyRegistrationTransaction);
 
-            expect(senderWallet.getAttribute("blsPublicKey")).toBe("a".repeat(96));
+            expect(senderWallet.getAttribute("delegate.blsPublicKey")).toBe("a".repeat(96));
             expect(
                 walletRepository.getIndex(Contracts.State.WalletIndexes.BlsPublicKeys).has("a".repeat(96)),
             ).toBeTrue();

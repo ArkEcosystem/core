@@ -27,7 +27,7 @@ expect.extend({
             const blsPublicKeyAsset = transaction.asset!.blsPublicKey as Interfaces.IBlsPublicKeyAsset;
             pass =
                 parsedBody.errors === undefined &&
-                parsedBody.data.attributes.blsPublicKey === blsPublicKeyAsset.newBlsPublicKey;
+                parsedBody.data.attributes.delegate.blsPublicKey === blsPublicKeyAsset.newBlsPublicKey;
         } catch (e) {
             errors = e;
         }
