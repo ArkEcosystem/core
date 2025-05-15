@@ -93,6 +93,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.app
             .bind(Container.Identifiers.TransactionPoolMempoolIndex)
             .toConstantValue(MempoolIndexes.MultiSignatureAddress);
+        this.app.bind(Container.Identifiers.TransactionPoolMempoolIndex).toConstantValue(MempoolIndexes.BlsPublicKey);
 
         this.app.bind(Container.Identifiers.TransactionHandler).to(One.TransferTransactionHandler);
         this.app.bind(Container.Identifiers.TransactionHandler).to(Two.TransferTransactionHandler);
@@ -110,6 +111,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.app.bind(Container.Identifiers.TransactionHandler).to(Two.HtlcLockTransactionHandler);
         this.app.bind(Container.Identifiers.TransactionHandler).to(Two.HtlcClaimTransactionHandler);
         this.app.bind(Container.Identifiers.TransactionHandler).to(Two.HtlcRefundTransactionHandler);
+        this.app.bind(Container.Identifiers.TransactionHandler).to(Two.BlsPublicKeyRegistrationTransactionHandler);
 
         this.app
             .bind(Container.Identifiers.TransactionHandlerConstructors)

@@ -1,3 +1,4 @@
+import { BlsPublicKeyRegistrationBuilder } from "./transactions/bls-public-key-registration";
 import { DelegateRegistrationBuilder } from "./transactions/delegate-registration";
 import { DelegateResignationBuilder } from "./transactions/delegate-resignation";
 import { HtlcClaimBuilder } from "./transactions/htlc-claim";
@@ -55,5 +56,9 @@ export class BuilderFactory {
 
     public static htlcRefund(): HtlcRefundBuilder {
         return new HtlcRefundBuilder();
+    }
+
+    public static blsPublicKeyRegistration(): BlsPublicKeyRegistrationBuilder {
+        return new BlsPublicKeyRegistrationBuilder();
     }
 }

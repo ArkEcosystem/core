@@ -11,6 +11,7 @@ import {
 import { Wallet, WalletRepository } from "@packages/core-state/src/wallets";
 import {
     addressesIndexer,
+    blsPublicKeysIndexer,
     ipfsIndexer,
     locksIndexer,
     publicKeysIndexer,
@@ -75,6 +76,7 @@ describe("Wallet Repository", () => {
             "resignations",
             "locks",
             "ipfs",
+            "blsPublicKeys",
             "businesses",
             "bridgechains",
         ];
@@ -85,6 +87,7 @@ describe("Wallet Repository", () => {
         expect(walletRepo.getIndex("resignations").indexer).toEqual(resignationsIndexer);
         expect(walletRepo.getIndex("locks").indexer).toEqual(locksIndexer);
         expect(walletRepo.getIndex("ipfs").indexer).toEqual(ipfsIndexer);
+        expect(walletRepo.getIndex("blsPublicKeys").indexer).toEqual(blsPublicKeysIndexer);
         expect(() => walletRepo.getIndex("iDontExist")).toThrow();
     });
 

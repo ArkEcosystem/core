@@ -10,6 +10,7 @@ export enum TransactionType {
     HtlcLock = 8,
     HtlcClaim = 9,
     HtlcRefund = 10,
+    BlsPublicKeyRegistration = 11,
 }
 
 export enum TransactionTypeGroup {

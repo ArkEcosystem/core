@@ -31,6 +31,7 @@ export enum WalletIndexes {
     Ipfs = "ipfs",
     Businesses = "businesses",
     BridgeChains = "bridgechains",
+    BlsPublicKeys = "blsPublicKeys",
 }
 
 export interface WalletData {

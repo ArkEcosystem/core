@@ -45,6 +45,7 @@ export interface ITransactionAsset {
     lock?: IHtlcLockAsset;
     claim?: IHtlcClaimAsset;
     refund?: IHtlcRefundAsset;
+    blsPublicKey?: IBlsPublicKeyAsset;
 }
 
 export interface ITransactionData {
@@ -129,6 +130,11 @@ export interface IMultiSignatureLegacyAsset {
 export interface IMultiSignatureAsset {
     min: number;
     publicKeys: string[];
+}
+
+export interface IBlsPublicKeyAsset {
+    oldBlsPublicKey?: string;
+    newBlsPublicKey: string;
 }
 
 export interface IHtlcLockAsset {

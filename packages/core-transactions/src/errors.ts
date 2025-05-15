@@ -130,6 +130,7 @@ export class SecondSignatureAlreadyRegisteredError extends TransactionError {
         super(`Failed to apply transaction, because second signature is already enabled.`);
     }
 }
+
 export class NotSupportedForMultiSignatureWalletError extends TransactionError {
     public constructor() {
         super(`Failed to apply transaction, because multi signature is enabled.`);
@@ -257,5 +258,29 @@ export class SentFromBurnWalletError extends TransactionError {
 export class SentToBurnWalletError extends TransactionError {
     public constructor() {
         super(`Failed to apply transaction, because the transaction is sent to burn wallet.`);
+    }
+}
+
+export class BlsPublicKeyAlreadyExists extends TransactionError {
+    public constructor() {
+        super(`Failed to apply transaction, because the BLS Public Key is already registered on the blockchain.`);
+    }
+}
+
+export class BlsPublicKeyIsMissing extends TransactionError {
+    public constructor() {
+        super(`Failed to apply transaction, because the BLS Public Key is migging on delegate.`);
+    }
+}
+
+export class BlsPublicKeyMismatch extends TransactionError {
+    public constructor() {
+        super(`Failed to apply transaction, because the BLS Public Key does not match delegates BLS public key.`);
+    }
+}
+
+export class BlsPublicKeyNonDelegateError extends TransactionError {
+    public constructor() {
+        super(`Failed to apply transaction, because BLS Public Key can only be registered as a delegate.`);
     }
 }
