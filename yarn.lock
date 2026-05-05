@@ -15,6 +15,141 @@
     "@jridgewell/gen-mapping" "^0.3.0"
     "@jridgewell/trace-mapping" "^0.3.9"
 
+"@arkecosystem/core-cli@^3.6.1":
+  version "3.9.1"
+  resolved "https://registry.yarnpkg.com/@arkecosystem/core-cli/-/core-cli-3.9.1.tgz#f4d05d8767840680b9c92d977ef96b1dc9faed61"
+  integrity sha512-7L0hGDb+5cp9BhHWdeK3lVXAzl8kIgzNGne3YyDCIRhrUD9gDOChpcTFYSiJ2/o34XrR+Jbpv5vR0a2cNgYsMw==
+  dependencies:
+    "@arkecosystem/core-kernel" "3.9.1"
+    "@arkecosystem/crypto" "3.9.1"
+    "@arkecosystem/utils" "1.3.1"
+    boxen "4.2.0"
+    cli-table3 "0.6.0"
+    dayjs "1.11.10"
+    env-paths "2.2.0"
+    envfile "5.2.0"
+    execa "3.4.0"
+    fast-levenshtein "2.0.6"
+    fs-extra "8.1.0"
+    glob "7.1.7"
+    got "11.8.5"
+    inversify "5.1.1"
+    joi "17.12.1"
+    kleur "4.1.5"
+    latest-version "5.1.0"
+    listr "0.14.3"
+    nodejs-tail "1.1.1"
+    ora "4.1.1"
+    prompts "2.4.0"
+    read-last-lines "1.8.0"
+    reflect-metadata "0.2.1"
+    semver "7.5.4"
+    tar "6.2.0"
+    type-fest "0.21.3"
+    yargs-parser "21.1.1"
+
+"@arkecosystem/core-database@3.9.1", "@arkecosystem/core-database@^3.6.1":
+  version "3.9.1"
+  resolved "https://registry.yarnpkg.com/@arkecosystem/core-database/-/core-database-3.9.1.tgz#9e667a152c1622f1d48337fc4322cefbf9693c1a"
+  integrity sha512-A9QncbOlouvYelUfvc1ns42xFH5EKnbwcM9dblKtR9q7nALtbiThzwdtvEUwKZT+B2dMO09P45y5ic0NOa78Tw==
+  dependencies:
+    "@arkecosystem/core-kernel" "3.9.1"
+    "@arkecosystem/crypto" "3.9.1"
+    "@arkecosystem/utils" "1.3.1"
+    dayjs "1.11.10"
+    joi "17.12.1"
+    pg "8.11.3"
+    reflect-metadata "0.2.1"
+    typeorm "0.2.25"
+
+"@arkecosystem/core-kernel@3.9.1", "@arkecosystem/core-kernel@^3.6.1":
+  version "3.9.1"
+  resolved "https://registry.yarnpkg.com/@arkecosystem/core-kernel/-/core-kernel-3.9.1.tgz#0798380e7eb21a93a5cfd40e1ab4cc21ed9b693e"
+  integrity sha512-q3kvS8FMstb9uVfMIIUOpDehhPo4OAz/2DUBJxwHjdYJ6ntxaWrlA5qU8ZTg0ZTbMJ1OcpfmFyGwl73dFJqzlA==
+  dependencies:
+    "@arkecosystem/crypto" "3.9.1"
+    "@arkecosystem/utils" "1.3.1"
+    "@pm2/io" "5.0.2"
+    chalk "4.1.2"
+    cron "1.8.2"
+    dayjs "1.11.10"
+    deepmerge "4.3.1"
+    env-paths "2.2.0"
+    fs-extra "8.1.0"
+    functional-red-black-tree "1.0.1"
+    glob "7.1.7"
+    import-fresh "3.3.0"
+    inversify "5.1.1"
+    ipaddr.js "2.1.0"
+    joi "17.12.1"
+    log-process-errors "5.1.2"
+    nanomatch "1.2.13"
+    nsfw "2.2.4"
+    reflect-metadata "0.2.1"
+    semver "7.5.4"
+    type-fest "0.21.3"
+
+"@arkecosystem/core-p2p@^3.6.1":
+  version "3.9.1"
+  resolved "https://registry.yarnpkg.com/@arkecosystem/core-p2p/-/core-p2p-3.9.1.tgz#2c039445e9b45fafbae5a640a44b37412d5c5d94"
+  integrity sha512-KzJRBYPLuE7lZZhm/uzvs1wOZhGjBkSfH7AkR2dy4uZilqHdWYdG/7ALoQwbMyeuIuthwLtkLziZJTuKBJawxA==
+  dependencies:
+    "@arkecosystem/core-database" "3.9.1"
+    "@arkecosystem/core-kernel" "3.9.1"
+    "@arkecosystem/core-state" "3.9.1"
+    "@arkecosystem/crypto" "3.9.1"
+    "@hapi/boom" "9.0.0"
+    "@hapi/bounce" "2.0.0"
+    "@hapi/hapi" "20.1.5"
+    "@hapi/hoek" "9.2.0"
+    "@hapi/sntp" "4.0.0"
+    "@hapi/teamwork" "5.1.0"
+    dayjs "1.11.10"
+    delay "4.4.1"
+    ip "2.0.1"
+    ipaddr.js "2.1.0"
+    joi "17.12.1"
+    pluralize "8.0.0"
+    pretty-ms "7.0.1"
+    protobufjs "7.2.6"
+    rate-limiter-flexible "4.0.1"
+    semver "7.5.4"
+    ws "7.5.10"
+
+"@arkecosystem/core-state@3.9.1":
+  version "3.9.1"
+  resolved "https://registry.yarnpkg.com/@arkecosystem/core-state/-/core-state-3.9.1.tgz#46d2e6c4b62c0ff8823f968273fc364822d4b87e"
+  integrity sha512-YzYjnv6CMJFs3m40IgFfLuPeXloP+evI7OKC7ovu6zaGgnxjst1h7o3eNlxMKLGbX0IHIcOsG7w7dx7lXcyrbg==
+  dependencies:
+    "@arkecosystem/core-database" "3.9.1"
+    "@arkecosystem/core-kernel" "3.9.1"
+    "@arkecosystem/core-transactions" "3.9.1"
+    "@arkecosystem/crypto" "3.9.1"
+    immutable "5.0.0-beta.5"
+    joi "17.12.1"
+
+"@arkecosystem/core-transaction-pool@^3.6.1":
+  version "3.9.1"
+  resolved "https://registry.yarnpkg.com/@arkecosystem/core-transaction-pool/-/core-transaction-pool-3.9.1.tgz#e165b3cd649d04b0a63880325ef3c0488cb9cc26"
+  integrity sha512-0DMnQQ3HlDvR+vAmA1d9SyRHYSurBBq7Y3i+Wb1Xi5hug9RoQRYi45U7QKeP+6PVZPmVx4ayBc1dOgbuc0Bc9A==
+  dependencies:
+    "@arkecosystem/core-kernel" "3.9.1"
+    "@arkecosystem/core-transactions" "3.9.1"
+    "@arkecosystem/crypto" "3.9.1"
+    better-sqlite3 "9.3.0"
+    fs-extra "8.1.0"
+    joi "17.12.1"
+
+"@arkecosystem/core-transactions@3.9.1":
+  version "3.9.1"
+  resolved "https://registry.yarnpkg.com/@arkecosystem/core-transactions/-/core-transactions-3.9.1.tgz#a16f0487ad4c147d35266a299c9ae7b0dd693132"
+  integrity sha512-GhbjJKsu6athx+etm7Y6Smj3u7TPypETcHI5HIVB5AbXbKfbPr+CrvfpjwcgK5V5G94qgfxd4+2Mpsn/eoXdXA==
+  dependencies:
+    "@arkecosystem/core-database" "3.9.1"
+    "@arkecosystem/core-kernel" "3.9.1"
+    "@arkecosystem/crypto" "3.9.1"
+    joi "17.12.1"
+
 "@arkecosystem/crypto-identities@1.2.0":
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/@arkecosystem/crypto-identities/-/crypto-identities-1.2.0.tgz#9301a8c322663dac7759a6759ec8c7a59d73f27e"
@@ -25,10 +160,40 @@
     fast-memoize "^2.5.1"
     wif "^2.0.6"
 
+"@arkecosystem/crypto-networks@1.2.2":
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/@arkecosystem/crypto-networks/-/crypto-networks-1.2.2.tgz#5efb52c161af5a05ee805e2327d58673024b4b5a"
+  integrity sha512-2iVeiYNnqtV9oZxWt/q9LFb/7zEMN2u/3pwTwIvBonrqtJwazorCBP+zbBwxeXivwnM4SxrCQweoTlujjvA+8w==
+
 "@arkecosystem/crypto-networks@1.6.3":
   version "1.6.3"
   resolved "https://registry.yarnpkg.com/@arkecosystem/crypto-networks/-/crypto-networks-1.6.3.tgz#f450818f437e39f16c84c861429f89641bc85f09"
   integrity sha512-vyJPsTaEe3hoRZ9h/TBy+bOxJfWU/NgyVNWobqbk7OIFkTBRs5NygJ3b6Te93bJ8fXYkCpWb/hn9/tF9DXL5Og==
+
+"@arkecosystem/crypto@3.9.1", "@arkecosystem/crypto@^3.6.1":
+  version "3.9.1"
+  resolved "https://registry.yarnpkg.com/@arkecosystem/crypto/-/crypto-3.9.1.tgz#43f6c3dd76835531f84d31ff00ad1dcb76b58aa1"
+  integrity sha512-a6hExqDJARszWW5b03E+fv7D8lGveI/wDXK6ghiE1Ykh87o4QVM1+p2q7Z92ER3PXo40BDE2bytzYWupLj07tQ==
+  dependencies:
+    "@arkecosystem/crypto-identities" "1.2.0"
+    "@arkecosystem/crypto-networks" "1.2.2"
+    "@arkecosystem/utils" "1.3.1"
+    ajv "6.12.6"
+    ajv-keywords "3.4.1"
+    bcrypto "5.5.2"
+    bip32 "2.0.6"
+    bip39 "3.0.4"
+    browserify-aes "1.2.0"
+    bstring "0.3.9"
+    buffer-xor "2.0.2"
+    builtin-modules "3.3.0"
+    bytebuffer "5.0.1"
+    dayjs "1.11.10"
+    deepmerge "4.3.1"
+    fast-memoize "2.5.2"
+    ipaddr.js "2.1.0"
+    lodash.get "4.4.2"
+    lodash.set "4.3.2"
 
 "@arkecosystem/utils@1.3.1":
   version "1.3.1"
@@ -1472,7 +1637,7 @@
   dependencies:
     "@hapi/hoek" "9.x.x"
 
-"@hapi/boom@9.1.4", "@hapi/boom@9.x.x", "@hapi/boom@^9.1.0":
+"@hapi/boom@9.1.4", "@hapi/boom@9.x.x", "@hapi/boom@^9.1.0", "@hapi/boom@^9.1.4":
   version "9.1.4"
   resolved "https://registry.yarnpkg.com/@hapi/boom/-/boom-9.1.4.tgz#1f9dad367c6a7da9f8def24b4a986fc5a7bd9db6"
   integrity sha512-Ls1oH8jaN1vNsqcaHVYJrKmgMcKsC1wcp8bujvXrHaAqD2iDYq3HoOwsxwo09Cuda5R5nC0o0IxlrlTuvPuzSw==
@@ -1557,6 +1722,30 @@
     "@hapi/somever" "^3.0.0"
     "@hapi/statehood" "^7.0.3"
     "@hapi/subtext" "^7.0.3"
+    "@hapi/teamwork" "^5.1.0"
+    "@hapi/topo" "^5.0.0"
+    "@hapi/validate" "^1.1.1"
+
+"@hapi/hapi@^20.1.5":
+  version "20.3.0"
+  resolved "https://registry.yarnpkg.com/@hapi/hapi/-/hapi-20.3.0.tgz#1d620005afeebcb2c8170352286a4664b0107c15"
+  integrity sha512-zvPSRvaQyF3S6Nev9aiAzko2/hIFZmNSJNcs07qdVaVAvj8dGJSV4fVUuQSnufYJAGiSau+U5LxMLhx79se5WA==
+  dependencies:
+    "@hapi/accept" "^5.0.1"
+    "@hapi/ammo" "^5.0.1"
+    "@hapi/boom" "^9.1.0"
+    "@hapi/bounce" "^2.0.0"
+    "@hapi/call" "^8.0.0"
+    "@hapi/catbox" "^11.1.1"
+    "@hapi/catbox-memory" "^5.0.0"
+    "@hapi/heavy" "^7.0.1"
+    "@hapi/hoek" "^9.0.4"
+    "@hapi/mimos" "^6.0.0"
+    "@hapi/podium" "^4.1.1"
+    "@hapi/shot" "^5.0.5"
+    "@hapi/somever" "^3.0.0"
+    "@hapi/statehood" "^7.0.3"
+    "@hapi/subtext" "^7.1.0"
     "@hapi/teamwork" "^5.1.0"
     "@hapi/topo" "^5.0.0"
     "@hapi/validate" "^1.1.1"
@@ -1666,7 +1855,7 @@
     "@hapi/iron" "6.x.x"
     "@hapi/validate" "1.x.x"
 
-"@hapi/subtext@^7.0.3":
+"@hapi/subtext@^7.0.3", "@hapi/subtext@^7.1.0":
   version "7.1.0"
   resolved "https://registry.yarnpkg.com/@hapi/subtext/-/subtext-7.1.0.tgz#b4d1ea2aeab1923ac130a24e75921e38fab5b15b"
   integrity sha512-n94cU6hlvsNRIpXaROzBNEJGwxC+HA69q769pChzej84On8vsU14guHDub7Pphr/pqn5b93zV3IkMPDU5AUiXA==
@@ -2759,14 +2948,14 @@
   resolved "https://registry.yarnpkg.com/@scure/base/-/base-1.1.5.tgz#1d85d17269fe97694b9c592552dd9e5e33552157"
   integrity sha512-Brj9FiG2W1MRQSTB212YVPRrcbjkv48FoZi/u4l/zds/ieRrqsh7aUf6CLwkAq61oKXr/ZlTzlY66gLIj3TFTQ==
 
-"@sideway/address@^4.1.5":
+"@sideway/address@^4.1.0", "@sideway/address@^4.1.5":
   version "4.1.5"
   resolved "https://registry.yarnpkg.com/@sideway/address/-/address-4.1.5.tgz#4bc149a0076623ced99ca8208ba780d65a99b9d5"
   integrity sha512-IqO/DUQHUkPeixNQ8n0JA6102hT9CmaljNTPmQ1u8MEhBo/R4Q8eKLN/vGZxuebwOroDB4cbpjheD4+/sKFK4Q==
   dependencies:
     "@hapi/hoek" "^9.0.0"
 
-"@sideway/formula@^3.0.1":
+"@sideway/formula@^3.0.0", "@sideway/formula@^3.0.1":
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/@sideway/formula/-/formula-3.0.1.tgz#80fcbcbaf7ce031e0ef2dd29b1bfc7c3f583611f"
   integrity sha512-/poHZJJVjx3L+zVD6g9KgHfYnb443oi7wLu/XKojDviHy6HOEOA6z1Trk5aR1dGcmPenJEgb2sK2I80LeS3MIg==
@@ -4225,6 +4414,14 @@ benchmark@^2.1.4:
     lodash "^4.17.4"
     platform "^1.3.3"
 
+better-sqlite3@7.6.2:
+  version "7.6.2"
+  resolved "https://registry.yarnpkg.com/better-sqlite3/-/better-sqlite3-7.6.2.tgz#47cd8cad5b9573cace535f950ac321166bc31384"
+  integrity sha512-S5zIU1Hink2AH4xPsN0W43T1/AJ5jrPh7Oy07ocuW/AKYYY02GWzz9NH0nbSMn/gw6fDZ5jZ1QsHt1BXAwJ6Lg==
+  dependencies:
+    bindings "^1.5.0"
+    prebuild-install "^7.1.0"
+
 better-sqlite3@9.3.0:
   version "9.3.0"
   resolved "https://registry.yarnpkg.com/better-sqlite3/-/better-sqlite3-9.3.0.tgz#2a8aaad65fa0210a4df5e8a0bcbc9156f6138d56"
@@ -5623,6 +5820,11 @@ delay@4.4.1:
   version "4.4.1"
   resolved "https://registry.yarnpkg.com/delay/-/delay-4.4.1.tgz#6e02d02946a1b6ab98b39262ced965acba2ac4d1"
   integrity sha512-aL3AhqtfhOlT/3ai6sWXeqwnw63ATNpnUiN4HL7x9q+My5QtHlO3OIkasmug9LKzpheLdmUKGRKnYXYAS7FQkQ==
+
+delay@5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/delay/-/delay-5.0.0.tgz#137045ef1b96e5071060dd5be60bf9334436bd1d"
+  integrity sha512-ReEBKkIfe4ya47wlPYf/gu5ib6yUG0/Aez0JQZQz94kiWtRQvZIQbTiehsnwHvLSWJnQdhVeqYue7Id1dKr0qw==
 
 delayed-stream@~1.0.0:
   version "1.0.0"
@@ -8785,6 +8987,17 @@ joi@17.12.1:
     "@sideway/formula" "^3.0.1"
     "@sideway/pinpoint" "^2.0.0"
 
+joi@17.4.2:
+  version "17.4.2"
+  resolved "https://registry.yarnpkg.com/joi/-/joi-17.4.2.tgz#02f4eb5cf88e515e614830239379dcbbe28ce7f7"
+  integrity sha512-Lm56PP+n0+Z2A2rfRvsfWVDXGEWjXxatPopkQ8qQ5mxCEhwHG+Ettgg5o98FFaxilOxozoa14cFhrE/hOzh/Nw==
+  dependencies:
+    "@hapi/hoek" "^9.0.0"
+    "@hapi/topo" "^5.0.0"
+    "@sideway/address" "^4.1.0"
+    "@sideway/formula" "^3.0.0"
+    "@sideway/pinpoint" "^2.0.0"
+
 joycon@^3.1.1:
   version "3.1.1"
   resolved "https://registry.yarnpkg.com/joycon/-/joycon-3.1.1.tgz#bce8596d6ae808f8b68168f5fc69280996894f03"
@@ -10064,6 +10277,11 @@ napi-build-utils@^1.0.1:
   resolved "https://registry.yarnpkg.com/napi-build-utils/-/napi-build-utils-1.0.2.tgz#b1fddc0b2c46e380a0b7a76f984dd47c41a13806"
   integrity sha512-ONmRUqK7zj7DWX0D9ADe03wbwOBZxNAfF20PlGfCWQcD3+/MakShIHrMqx9YwPTfxDdF1zLeL+RGZiR9kGMLdg==
 
+napi-build-utils@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/napi-build-utils/-/napi-build-utils-2.0.0.tgz#13c22c0187fcfccce1461844136372a47ddc027e"
+  integrity sha512-GEbrYkbfF7MoNaoh2iGG84Mnf/WZfB0GdGEsM8wz7Expx/LlWf5U8t9nvJKXSp3qr5IsEbK04cBGhol/KwOsWA==
+
 natural-compare@^1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/natural-compare/-/natural-compare-1.4.0.tgz#4abebfeed7541f2c27acfb29bdbbd15c8d5ba4f7"
@@ -11266,6 +11484,24 @@ postgres-interval@^1.1.0:
   integrity sha512-9ZhXKM/rw350N1ovuWHbGxnGh/SNJ4cnxHiM0rxE4VN41wsg8P8zWn9hv/buK00RP4WvlOyr/RBDiptyxVbkZQ==
   dependencies:
     xtend "^4.0.0"
+
+prebuild-install@^7.1.0:
+  version "7.1.3"
+  resolved "https://registry.yarnpkg.com/prebuild-install/-/prebuild-install-7.1.3.tgz#d630abad2b147443f20a212917beae68b8092eec"
+  integrity sha512-8Mf2cbV7x1cXPUILADGI3wuhfqWvtiLA1iclTDbFRZkgRQS0NqsPZphna9V+HyTEadheuPmjaJMsbzKQFOzLug==
+  dependencies:
+    detect-libc "^2.0.0"
+    expand-template "^2.0.3"
+    github-from-package "0.0.0"
+    minimist "^1.2.3"
+    mkdirp-classic "^0.5.3"
+    napi-build-utils "^2.0.0"
+    node-abi "^3.3.0"
+    pump "^3.0.0"
+    rc "^1.2.7"
+    simple-get "^4.0.0"
+    tar-fs "^2.0.0"
+    tunnel-agent "^0.6.0"
 
 prebuild-install@^7.1.1:
   version "7.1.1"
@@ -12754,7 +12990,7 @@ string-length@^4.0.1:
     char-regex "^1.0.2"
     strip-ansi "^6.0.0"
 
-"string-width-cjs@npm:string-width@^4.2.0", "string-width@^1.0.2 || 2 || 3 || 4", string-width@^4.0.0, string-width@^4.1.0, string-width@^4.2.0, string-width@^4.2.3:
+"string-width-cjs@npm:string-width@^4.2.0":
   version "4.2.3"
   resolved "https://registry.yarnpkg.com/string-width/-/string-width-4.2.3.tgz#269c7117d27b05ad2e536830a8ec895ef9c6d010"
   integrity sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==
@@ -12771,6 +13007,15 @@ string-width@^1.0.1:
     code-point-at "^1.0.0"
     is-fullwidth-code-point "^1.0.0"
     strip-ansi "^3.0.0"
+
+"string-width@^1.0.2 || 2 || 3 || 4", string-width@^4.0.0, string-width@^4.1.0, string-width@^4.2.0, string-width@^4.2.3:
+  version "4.2.3"
+  resolved "https://registry.yarnpkg.com/string-width/-/string-width-4.2.3.tgz#269c7117d27b05ad2e536830a8ec895ef9c6d010"
+  integrity sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==
+  dependencies:
+    emoji-regex "^8.0.0"
+    is-fullwidth-code-point "^3.0.0"
+    strip-ansi "^6.0.1"
 
 string-width@^2.1.1:
   version "2.1.1"
@@ -12821,7 +13066,7 @@ stringify-object@^3.2.1:
     is-obj "^1.0.1"
     is-regexp "^1.0.0"
 
-"strip-ansi-cjs@npm:strip-ansi@^6.0.1", strip-ansi@^6.0.0, strip-ansi@^6.0.1:
+"strip-ansi-cjs@npm:strip-ansi@^6.0.1":
   version "6.0.1"
   resolved "https://registry.yarnpkg.com/strip-ansi/-/strip-ansi-6.0.1.tgz#9e26c63d30f53443e9489495b2105d37b67a85d9"
   integrity sha512-Y38VPSHcqkFrCpFnQ9vuSXmquuv5oXOKpGeT6aGrr3o3Gc9AlVa6JBfUSOCnbxGGZF+/0ooI7KrPuUSztUdU5A==
@@ -12848,6 +13093,13 @@ strip-ansi@^5.0.0, strip-ansi@^5.1.0, strip-ansi@^5.2.0:
   integrity sha512-DuRs1gKbBqsMKIZlrffwlug8MHkcnpjs5VPmL1PAh+mA30U0DTotfDZ0d2UUsXpPmPmMMJ6W773MaA3J+lbiWA==
   dependencies:
     ansi-regex "^4.1.0"
+
+strip-ansi@^6.0.0, strip-ansi@^6.0.1:
+  version "6.0.1"
+  resolved "https://registry.yarnpkg.com/strip-ansi/-/strip-ansi-6.0.1.tgz#9e26c63d30f53443e9489495b2105d37b67a85d9"
+  integrity sha512-Y38VPSHcqkFrCpFnQ9vuSXmquuv5oXOKpGeT6aGrr3o3Gc9AlVa6JBfUSOCnbxGGZF+/0ooI7KrPuUSztUdU5A==
+  dependencies:
+    ansi-regex "^5.0.1"
 
 strip-ansi@^7.0.1, strip-ansi@^7.1.0:
   version "7.1.0"
@@ -13890,7 +14142,7 @@ wordwrap@^1.0.0:
   resolved "https://registry.yarnpkg.com/wordwrap/-/wordwrap-1.0.0.tgz#27584810891456a4171c8d0226441ade90cbcaeb"
   integrity sha512-gvVzJFlPycKc5dZN4yPkP8w7Dc37BtP1yczEneOb4uq34pXZcvrtRTmWV8W+Ume+XCxKgbjM+nevkyFPMybd4Q==
 
-"wrap-ansi-cjs@npm:wrap-ansi@^7.0.0", wrap-ansi@^7.0.0:
+"wrap-ansi-cjs@npm:wrap-ansi@^7.0.0":
   version "7.0.0"
   resolved "https://registry.yarnpkg.com/wrap-ansi/-/wrap-ansi-7.0.0.tgz#67e145cff510a6a6984bdf1152911d69d2eb9e43"
   integrity sha512-YVGIj2kamLSTxw6NsZjoBxfSwsn0ycdesmc4p+Q21c5zPuZ1pl+NfxVdxPtdHvmNVOQ6XSYG4AUtyt/Fi7D16Q==
@@ -13920,6 +14172,15 @@ wrap-ansi@^6.0.1, wrap-ansi@^6.2.0:
   version "6.2.0"
   resolved "https://registry.yarnpkg.com/wrap-ansi/-/wrap-ansi-6.2.0.tgz#e9393ba07102e6c91a3b221478f0257cd2856e53"
   integrity sha512-r6lPcBGxZXlIcymEu7InxDMhdW0KDxpLgoFLcguasxCaJ/SOIZwINatK9KY/tf+ZrlywOKU0UDj3ATXUBfxJXA==
+  dependencies:
+    ansi-styles "^4.0.0"
+    string-width "^4.1.0"
+    strip-ansi "^6.0.0"
+
+wrap-ansi@^7.0.0:
+  version "7.0.0"
+  resolved "https://registry.yarnpkg.com/wrap-ansi/-/wrap-ansi-7.0.0.tgz#67e145cff510a6a6984bdf1152911d69d2eb9e43"
+  integrity sha512-YVGIj2kamLSTxw6NsZjoBxfSwsn0ycdesmc4p+Q21c5zPuZ1pl+NfxVdxPtdHvmNVOQ6XSYG4AUtyt/Fi7D16Q==
   dependencies:
     ansi-styles "^4.0.0"
     string-width "^4.1.0"
