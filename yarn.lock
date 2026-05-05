@@ -165,10 +165,10 @@
   resolved "https://registry.yarnpkg.com/@arkecosystem/crypto-networks/-/crypto-networks-1.2.2.tgz#5efb52c161af5a05ee805e2327d58673024b4b5a"
   integrity sha512-2iVeiYNnqtV9oZxWt/q9LFb/7zEMN2u/3pwTwIvBonrqtJwazorCBP+zbBwxeXivwnM4SxrCQweoTlujjvA+8w==
 
-"@arkecosystem/crypto-networks@1.6.3":
-  version "1.6.3"
-  resolved "https://registry.yarnpkg.com/@arkecosystem/crypto-networks/-/crypto-networks-1.6.3.tgz#f450818f437e39f16c84c861429f89641bc85f09"
-  integrity sha512-vyJPsTaEe3hoRZ9h/TBy+bOxJfWU/NgyVNWobqbk7OIFkTBRs5NygJ3b6Te93bJ8fXYkCpWb/hn9/tF9DXL5Og==
+"@arkecosystem/crypto-networks@1.7.0":
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/@arkecosystem/crypto-networks/-/crypto-networks-1.7.0.tgz#ddfbc9c3ca7b50356042abd36d966720a44d566a"
+  integrity sha512-GvaLl/8V9U7DFN56CF6BC2xalWx9Nm4SRopqWR8ehwuZViqF7sJd6KoyrkZ/7NJcR6OIHIdoid3x0cuzCQYXNg==
 
 "@arkecosystem/crypto@3.9.1", "@arkecosystem/crypto@^3.6.1":
   version "3.9.1"
