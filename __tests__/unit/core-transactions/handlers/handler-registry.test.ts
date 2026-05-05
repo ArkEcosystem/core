@@ -170,6 +170,7 @@ beforeEach(() => {
         .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("plugin", "@arkecosystem/core-transactions"));
 
     Managers.configManager.getMilestone().aip11 = false;
+    Managers.configManager.getMilestone().multiSignatureRegistrationEnabled = true;
 });
 
 afterEach(() => {
