@@ -49,7 +49,8 @@ export class MultiSignatureRegistrationTransactionHandler extends TransactionHan
     }
 
     public async isActivated(): Promise<boolean> {
-        return !Managers.configManager.getMilestone().aip11;
+        const milestone = Managers.configManager.getMilestone();
+        return !milestone.aip11 && milestone.multiSignatureRegistrationEnabled;
     }
 
     public async throwIfCannotBeApplied(
