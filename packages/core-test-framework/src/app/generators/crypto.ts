@@ -128,6 +128,7 @@ export class CryptoGenerator extends Generator {
                 htlcEnabled: true,
                 blockBurnAddress: true,
                 blsPublicKeyRegistrationEnabled: true,
+                multiSignatureRegistrationEnabled: true,
             },
             {
                 height: rewardHeight,
