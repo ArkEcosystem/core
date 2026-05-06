@@ -1,13 +1,8 @@
 name: Publish (Develop)
 
-# on:
-    # push:
-    #     branches:
-    #         - "develop"
-
 on:
     pull_request:
-        types: [opened]
+        types: [ready_for_review, synchronize, opened]
 
 permissions:
   contents: read
