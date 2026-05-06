@@ -16,8 +16,8 @@ You can launch and stop a network like this :
 
 ```bash
 cd lib/config
-docker-compose up -d # launches the network
-docker-compose down -v # shuts down the network
+docker compose up -d # launches the network
+docker compose down -v # shuts down the network
 ```
 
 This will launch a network of 5 nodes on testnet.

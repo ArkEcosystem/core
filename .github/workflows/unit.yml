@@ -20,10 +20,10 @@ jobs:
                 node-version: [16.x]
 
         steps:
-            - uses: actions/checkout@v2
+            - uses: actions/checkout@v4
 
             - name: Cache node modules
-              uses: actions/cache@v1
+              uses: actions/cache@v4
               with:
                   path: node_modules
                   key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
@@ -41,7 +41,7 @@ jobs:
               run: yarn test __tests__/unit/core/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
-              uses: actions/upload-artifact@v2
+              uses: actions/upload-artifact@v4
               with:
                   name: ${{ github.job }}-coverage
                   path: .coverage/unit/${{ github.job }}/lcov.info
@@ -54,10 +54,10 @@ jobs:
                 node-version: [16.x]
 
         steps:
-            - uses: actions/checkout@v2
+            - uses: actions/checkout@v4
 
             - name: Cache node modules
-              uses: actions/cache@v1
+              uses: actions/cache@v4
               with:
                   path: node_modules
                   key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
@@ -75,7 +75,7 @@ jobs:
               run: yarn test:parallel __tests__/unit/core-api/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
-              uses: actions/upload-artifact@v2
+              uses: actions/upload-artifact@v4
               with:
                   name: ${{ github.job }}-coverage
                   path: .coverage/unit/${{ github.job }}/lcov.info
@@ -88,10 +88,10 @@ jobs:
                 node-version: [16.x]
 
         steps:
-            - uses: actions/checkout@v2
+            - uses: actions/checkout@v4
 
             - name: Cache node modules
-              uses: actions/cache@v1
+              uses: actions/cache@v4
               with:
                   path: node_modules
                   key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
@@ -109,7 +109,7 @@ jobs:
               run: yarn test:parallel __tests__/unit/core-blockchain/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
-              uses: actions/upload-artifact@v2
+              uses: actions/upload-artifact@v4
               with:
                   name: ${{ github.job }}-coverage
                   path: .coverage/unit/${{ github.job }}/lcov.info
@@ -122,10 +122,10 @@ jobs:
                 node-version: [16.x]
 
         steps:
-            - uses: actions/checkout@v2
+            - uses: actions/checkout@v4
 
             - name: Cache node modules
-              uses: actions/cache@v1
+              uses: actions/cache@v4
               with:
                   path: node_modules
                   key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
@@ -143,7 +143,7 @@ jobs:
               run: yarn test:parallel __tests__/unit/core-cli/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
-              uses: actions/upload-artifact@v2
+              uses: actions/upload-artifact@v4
               with:
                   name: ${{ github.job }}-coverage
                   path: .coverage/unit/${{ github.job }}/lcov.info
@@ -156,10 +156,10 @@ jobs:
                 node-version: [16.x]
 
         steps:
-            - uses: actions/checkout@v2
+            - uses: actions/checkout@v4
 
             - name: Cache node modules
-              uses: actions/cache@v1
+              uses: actions/cache@v4
               with:
                   path: node_modules
                   key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
@@ -177,7 +177,7 @@ jobs:
               run: yarn test:parallel __tests__/unit/core-database/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
-              uses: actions/upload-artifact@v2
+              uses: actions/upload-artifact@v4
               with:
                   name: ${{ github.job }}-coverage
                   path: .coverage/unit/${{ github.job }}/lcov.info
@@ -190,10 +190,10 @@ jobs:
                 node-version: [16.x]
 
         steps:
-            - uses: actions/checkout@v2
+            - uses: actions/checkout@v4
 
             - name: Cache node modules
-              uses: actions/cache@v1
+              uses: actions/cache@v4
               with:
                   path: node_modules
                   key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
@@ -211,7 +211,7 @@ jobs:
               run: yarn test:parallel __tests__/unit/core-forger/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
-              uses: actions/upload-artifact@v2
+              uses: actions/upload-artifact@v4
               with:
                   name: ${{ github.job }}-coverage
                   path: .coverage/unit/${{ github.job }}/lcov.info
@@ -224,10 +224,10 @@ jobs:
                 node-version: [16.x]
 
         steps:
-            - uses: actions/checkout@v2
+            - uses: actions/checkout@v4
 
             - name: Cache node modules
-              uses: actions/cache@v1
+              uses: actions/cache@v4
               with:
                   path: node_modules
                   key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
@@ -245,7 +245,7 @@ jobs:
               run: yarn test:parallel __tests__/unit/core-kernel/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
-              uses: actions/upload-artifact@v2
+              uses: actions/upload-artifact@v4
               with:
                   name: ${{ github.job }}-coverage
                   path: .coverage/unit/${{ github.job }}/lcov.info
@@ -258,10 +258,10 @@ jobs:
                 node-version: [16.x]
 
         steps:
-            - uses: actions/checkout@v2
+            - uses: actions/checkout@v4
 
             - name: Cache node modules
-              uses: actions/cache@v1
+              uses: actions/cache@v4
               with:
                   path: node_modules
                   key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
@@ -279,7 +279,7 @@ jobs:
               run: yarn test:parallel __tests__/unit/core-logger-pino/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
-              uses: actions/upload-artifact@v2
+              uses: actions/upload-artifact@v4
               with:
                   name: ${{ github.job }}-coverage
                   path: .coverage/unit/${{ github.job }}/lcov.info
@@ -292,10 +292,10 @@ jobs:
                 node-version: [16.x]
 
         steps:
-            - uses: actions/checkout@v2
+            - uses: actions/checkout@v4
 
             - name: Cache node modules
-              uses: actions/cache@v1
+              uses: actions/cache@v4
               with:
                   path: node_modules
                   key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
@@ -313,7 +313,7 @@ jobs:
               run: yarn test:parallel __tests__/unit/core-magistrate-api/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
-              uses: actions/upload-artifact@v2
+              uses: actions/upload-artifact@v4
               with:
                   name: ${{ github.job }}-coverage
                   path: .coverage/unit/${{ github.job }}/lcov.info
@@ -326,10 +326,10 @@ jobs:
                 node-version: [16.x]
 
         steps:
-            - uses: actions/checkout@v2
+            - uses: actions/checkout@v4
 
             - name: Cache node modules
-              uses: actions/cache@v1
+              uses: actions/cache@v4
               with:
                   path: node_modules
                   key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
@@ -347,7 +347,7 @@ jobs:
               run: yarn test:parallel __tests__/unit/core-magistrate-crypto/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
-              uses: actions/upload-artifact@v2
+              uses: actions/upload-artifact@v4
               with:
                   name: ${{ github.job }}-coverage
                   path: .coverage/unit/${{ github.job }}/lcov.info
@@ -360,10 +360,10 @@ jobs:
                 node-version: [16.x]
 
         steps:
-            - uses: actions/checkout@v2
+            - uses: actions/checkout@v4
 
             - name: Cache node modules
-              uses: actions/cache@v1
+              uses: actions/cache@v4
               with:
                   path: node_modules
                   key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
@@ -381,7 +381,7 @@ jobs:
               run: yarn test:parallel __tests__/unit/core-magistrate-transactions/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
-              uses: actions/upload-artifact@v2
+              uses: actions/upload-artifact@v4
               with:
                   name: ${{ github.job }}-coverage
                   path: .coverage/unit/${{ github.job }}/lcov.info
@@ -394,10 +394,10 @@ jobs:
                 node-version: [16.x]
 
         steps:
-            - uses: actions/checkout@v2
+            - uses: actions/checkout@v4
 
             - name: Cache node modules
-              uses: actions/cache@v1
+              uses: actions/cache@v4
               with:
                   path: node_modules
                   key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
@@ -415,7 +415,7 @@ jobs:
               run: yarn test __tests__/unit/core-p2p/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
-              uses: actions/upload-artifact@v2
+              uses: actions/upload-artifact@v4
               with:
                   name: ${{ github.job }}-coverage
                   path: .coverage/unit/${{ github.job }}/lcov.info
@@ -428,10 +428,10 @@ jobs:
                 node-version: [16.x]
 
         steps:
-            - uses: actions/checkout@v2
+            - uses: actions/checkout@v4
 
             - name: Cache node modules
-              uses: actions/cache@v1
+              uses: actions/cache@v4
               with:
                   path: node_modules
                   key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
@@ -449,7 +449,7 @@ jobs:
               run: yarn test:parallel __tests__/unit/core-snapshots/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
-              uses: actions/upload-artifact@v2
+              uses: actions/upload-artifact@v4
               with:
                   name: ${{ github.job }}-coverage
                   path: .coverage/unit/${{ github.job }}/lcov.info
@@ -462,10 +462,10 @@ jobs:
                 node-version: [16.x]
 
         steps:
-            - uses: actions/checkout@v2
+            - uses: actions/checkout@v4
 
             - name: Cache node modules
-              uses: actions/cache@v1
+              uses: actions/cache@v4
               with:
                   path: node_modules
                   key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
@@ -483,7 +483,7 @@ jobs:
               run: yarn test:parallel __tests__/unit/core-state/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
-              uses: actions/upload-artifact@v2
+              uses: actions/upload-artifact@v4
               with:
                   name: ${{ github.job }}-coverage
                   path: .coverage/unit/${{ github.job }}/lcov.info
@@ -496,10 +496,10 @@ jobs:
                 node-version: [16.x]
 
         steps:
-            - uses: actions/checkout@v2
+            - uses: actions/checkout@v4
 
             - name: Cache node modules
-              uses: actions/cache@v1
+              uses: actions/cache@v4
               with:
                   path: node_modules
                   key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
@@ -517,7 +517,7 @@ jobs:
               run: yarn test:parallel __tests__/unit/core-test-framework/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
-              uses: actions/upload-artifact@v2
+              uses: actions/upload-artifact@v4
               with:
                   name: ${{ github.job }}-coverage
                   path: .coverage/unit/${{ github.job }}/lcov.info
@@ -530,10 +530,10 @@ jobs:
                 node-version: [16.x]
 
         steps:
-            - uses: actions/checkout@v2
+            - uses: actions/checkout@v4
 
             - name: Cache node modules
-              uses: actions/cache@v1
+              uses: actions/cache@v4
               with:
                   path: node_modules
                   key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
@@ -551,7 +551,7 @@ jobs:
               run: yarn test:parallel __tests__/unit/core-transaction-pool/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
-              uses: actions/upload-artifact@v2
+              uses: actions/upload-artifact@v4
               with:
                   name: ${{ github.job }}-coverage
                   path: .coverage/unit/${{ github.job }}/lcov.info
@@ -564,10 +564,10 @@ jobs:
                 node-version: [16.x]
 
         steps:
-            - uses: actions/checkout@v2
+            - uses: actions/checkout@v4
 
             - name: Cache node modules
-              uses: actions/cache@v1
+              uses: actions/cache@v4
               with:
                   path: node_modules
                   key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
@@ -585,7 +585,7 @@ jobs:
               run: yarn test:parallel __tests__/unit/core-transactions/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
-              uses: actions/upload-artifact@v2
+              uses: actions/upload-artifact@v4
               with:
                   name: ${{ github.job }}-coverage
                   path: .coverage/unit/${{ github.job }}/lcov.info
@@ -598,10 +598,10 @@ jobs:
                 node-version: [16.x]
 
         steps:
-            - uses: actions/checkout@v2
+            - uses: actions/checkout@v4
 
             - name: Cache node modules
-              uses: actions/cache@v1
+              uses: actions/cache@v4
               with:
                   path: node_modules
                   key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
@@ -619,7 +619,7 @@ jobs:
               run: yarn test:parallel __tests__/unit/core-webhooks/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
-              uses: actions/upload-artifact@v2
+              uses: actions/upload-artifact@v4
               with:
                   name: ${{ github.job }}-coverage
                   path: .coverage/unit/${{ github.job }}/lcov.info
@@ -632,10 +632,10 @@ jobs:
                 node-version: [16.x]
 
         steps:
-            - uses: actions/checkout@v2
+            - uses: actions/checkout@v4
 
             - name: Cache node modules
-              uses: actions/cache@v1
+              uses: actions/cache@v4
               with:
                   path: node_modules
                   key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
@@ -652,7 +652,7 @@ jobs:
             - name: Test
               run: yarn test:parallel __tests__/unit/crypto/ --coverage --coverage --coverageDirectory .coverage/unit/${{ github.job }}
             - name: Archive code coverage
-              uses: actions/upload-artifact@v2
+              uses: actions/upload-artifact@v4
               with:
                   name: ${{ github.job }}-coverage
                   path: .coverage/unit/${{ github.job }}/lcov.info
