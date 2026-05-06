@@ -1,6 +1,6 @@
 name: Publish (Develop)
 
-on:
+# on:
     # push:
     #     branches:
     #         - "develop"
