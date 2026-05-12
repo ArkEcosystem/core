@@ -12,6 +12,7 @@ import {
     HtlcLockExpiredError,
     InsufficientBalanceError,
     SentToBurnWalletError,
+    DisabledMultiSignatureSending,
 } from "@packages/core-transactions/src/errors";
 import { TransactionHandler } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
@@ -233,10 +234,18 @@ describe("Htlc lock", () => {
                 ).toResolve();
             });
 
-            it("should not throw - multi sign", async () => {
+            it("should not throw - multi sign if and multiSignatureSendingEnabled=true", async () => {
+                Managers.configManager.getMilestone().multiSignatureSendingEnabled = true;
                 await expect(
                     handler.throwIfCannotBeApplied(multiSignatureHtlcLockTransaction, multiSignatureWallet),
                 ).toResolve();
+            });
+
+            it("should throw - multi sign if and multiSignatureSendingEnabled=false", async () => {
+                Managers.configManager.getMilestone().multiSignatureSendingEnabled = false;
+                await expect(
+                    handler.throwIfCannotBeApplied(multiSignatureHtlcLockTransaction, multiSignatureWallet),
+                ).rejects.toThrow(DisabledMultiSignatureSending);
             });
 
             it("should throw if asset is undefined", async () => {
