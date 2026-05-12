@@ -38,7 +38,7 @@ export class TransferTransactionHandler extends TransactionHandler {
 
         if (recipient.hasMultiSignature()) {
             const milestone = Managers.configManager.getMilestone();
-            if (milestone.enableMultiSignatureReceiving !== true) {
+            if (milestone.multiSignatureReceivingEnabled !== true) {
                 throw new DisabledMultiSignatureReceiving();
             }
         }

@@ -89,7 +89,7 @@ export abstract class TransactionHandler {
 
         if (senderWallet.hasMultiSignature()) {
             const milestone = Managers.configManager.getMilestone();
-            if (milestone.enableMultiSignatureSending !== true) {
+            if (milestone.multiSignatureSendingEnabled !== true) {
                 throw new DisabledMultiSignatureSending();
             }
         }

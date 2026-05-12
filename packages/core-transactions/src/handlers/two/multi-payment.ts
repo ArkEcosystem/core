@@ -59,7 +59,7 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
         }
 
         const milestone = Managers.configManager.getMilestone();
-        if (milestone.enableMultiSignatureReceiving !== true) {
+        if (milestone.multiSignatureReceivingEnabled !== true) {
             for (const payment of payments) {
                 const recipient: Contracts.State.Wallet = this.walletRepository.findByAddress(payment.recipientId);
                 if (recipient.hasMultiSignature()) {
