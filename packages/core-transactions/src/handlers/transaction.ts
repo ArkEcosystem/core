@@ -5,6 +5,7 @@ import assert from "assert";
 
 import {
     ColdWalletError,
+    DisabledMultiSignatureSending,
     InsufficientBalanceError,
     InvalidMultiSignaturesError,
     InvalidSecondSignatureError,
@@ -85,6 +86,13 @@ export abstract class TransactionHandler {
         }
 
         const senderWallet: Contracts.State.Wallet = this.walletRepository.findByAddress(sender.getAddress());
+
+        if (senderWallet.hasMultiSignature()) {
+            const milestone = Managers.configManager.getMilestone();
+            if (milestone.enableMultiSignatureSending !== true) {
+                throw new DisabledMultiSignatureSending();
+            }
+        }
 
         AppUtils.assert.defined<string>(sender.getPublicKey());
 
