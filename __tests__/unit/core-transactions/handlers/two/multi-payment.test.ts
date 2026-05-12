@@ -7,7 +7,7 @@ import { StateStore } from "@packages/core-state/src/stores/state";
 import { Generators } from "@packages/core-test-framework/src";
 import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
-import { InsufficientBalanceError, SentToBurnWalletError } from "@packages/core-transactions/src/errors";
+import { InsufficientBalanceError, DisabledMultiSignatureSending, DisabledMultiSignatureReceiving, SentToBurnWalletError } from "@packages/core-transactions/src/errors";
 import { TransactionHandler } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
 import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
@@ -18,6 +18,7 @@ import {
     buildMultiSignatureWallet,
     buildRecipientWallet,
     buildSecondSignatureWallet,
+    buildMultiSignatureRecipientWallet,
     buildSenderWallet,
     initApp,
 } from "../__support__/app";
@@ -26,6 +27,7 @@ let app: Application;
 let senderWallet: Wallets.Wallet;
 let secondSignatureWallet: Wallets.Wallet;
 let multiSignatureWallet: Wallets.Wallet;
+let multiSignatureRecipientWallet: Wallets.Wallet;
 let recipientWallet: Wallets.Wallet;
 let walletRepository: Contracts.State.WalletRepository;
 let factoryBuilder: FactoryBuilder;
@@ -59,11 +61,13 @@ beforeEach(() => {
     senderWallet = buildSenderWallet(factoryBuilder);
     secondSignatureWallet = buildSecondSignatureWallet(factoryBuilder);
     multiSignatureWallet = buildMultiSignatureWallet();
+    multiSignatureRecipientWallet = buildMultiSignatureRecipientWallet();
     recipientWallet = buildRecipientWallet(factoryBuilder);
 
     walletRepository.index(senderWallet);
     walletRepository.index(secondSignatureWallet);
     walletRepository.index(multiSignatureWallet);
+    walletRepository.index(multiSignatureRecipientWallet);
     walletRepository.index(recipientWallet);
 });
 
@@ -156,10 +160,20 @@ describe("MultiPaymentTransaction", () => {
             ).toResolve();
         });
 
-        it("should not throw - multi sign", async () => {
+        it("should not throw - multi sign if and multiSignatureSendingEnabled=true", async () => {
+            Managers.configManager.getMilestone().multiSignatureSendingEnabled = true;
             await expect(
                 handler.throwIfCannotBeApplied(multiSignatureMultiPaymentTransaction, multiSignatureWallet),
             ).toResolve();
+        });
+
+        it("should throw - multi sign if and multiSignatureSendingEnabled=false", async () => {
+            Managers.configManager.getMilestone().multiSignatureSendingEnabled = false;
+            await expect(
+                handler.throwIfCannotBeApplied(multiSignatureMultiPaymentTransaction, multiSignatureWallet),
+            ).rejects.toThrow(
+                DisabledMultiSignatureSending,
+            );
         });
 
         it("should throw if asset is undefined", async () => {
@@ -197,6 +211,34 @@ describe("MultiPaymentTransaction", () => {
 
             await expect(handler.throwIfCannotBeApplied(multiPaymentTransaction, senderWallet)).rejects.toThrow(
                 SentToBurnWalletError,
+            );
+        });
+
+        it("should not throw if recipient is multisignature wallet and multiSignatureReceivingEnabled=true", async () => {
+            Managers.configManager.getMilestone().multiSignatureReceivingEnabled = true;
+            const multiPaymentTransaction = BuilderFactory.multiPayment()
+                .addPayment("ARYJmeYHSUTgbxaiqsgoPwf6M3CYukqdKN", "10")
+                .addPayment("AFyjB5jULQiYNsp37wwipCm9c7V1xEzTJD", "20")
+                .addPayment(multiSignatureRecipientWallet.getAddress(), "20")
+                .nonce("1")
+                .sign(passphrases[0])
+                .build();
+
+            await expect(handler.throwIfCannotBeApplied(multiPaymentTransaction, senderWallet)).toResolve();
+        });
+
+        it("should throw if recipient is multisignature wallet and multiSignatureReceivingEnabled=false", async () => {            
+            Managers.configManager.getMilestone().multiSignatureReceivingEnabled = false;
+            const multiPaymentTransaction = BuilderFactory.multiPayment()
+                .addPayment("ARYJmeYHSUTgbxaiqsgoPwf6M3CYukqdKN", "10")
+                .addPayment("AFyjB5jULQiYNsp37wwipCm9c7V1xEzTJD", "20")
+                .addPayment(multiSignatureRecipientWallet.getAddress(), "20")
+                .nonce("1")
+                .sign(passphrases[0])
+                .build();
+
+            await expect(handler.throwIfCannotBeApplied(multiPaymentTransaction, senderWallet)).rejects.toThrow(
+                DisabledMultiSignatureReceiving,
             );
         });
 
