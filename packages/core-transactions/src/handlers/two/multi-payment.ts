@@ -1,7 +1,7 @@
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 
-import { InsufficientBalanceError } from "../../errors";
+import { InsufficientBalanceError, DisabledMultiSignatureReceiving } from "../../errors";
 import { TransactionHandler, TransactionHandlerConstructor } from "../transaction";
 
 @Container.injectable()
@@ -56,6 +56,16 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
 
         if (wallet.getBalance().minus(totalPaymentsAmount).minus(transaction.data.fee).isNegative()) {
             throw new InsufficientBalanceError();
+        }
+
+        const milestone = Managers.configManager.getMilestone();
+        if (milestone.multiSignatureReceivingEnabled !== true) {
+            for (const payment of payments) {
+                const recipient: Contracts.State.Wallet = this.walletRepository.findByAddress(payment.recipientId);
+                if (recipient.hasMultiSignature()) {
+                    throw new DisabledMultiSignatureReceiving();
+                }
+            }
         }
 
         return super.throwIfCannotBeApplied(transaction, wallet);
