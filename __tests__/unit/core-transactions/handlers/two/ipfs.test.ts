@@ -9,7 +9,7 @@ import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/fac
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
 import { Mempool } from "@packages/core-transaction-pool";
 import { MempoolIndexes } from "@packages/core-transactions/src/enums";
-import { InsufficientBalanceError, IpfsHashAlreadyExists } from "@packages/core-transactions/src/errors";
+import { InsufficientBalanceError, IpfsHashAlreadyExists, DisabledMultiSignatureSending } from "@packages/core-transactions/src/errors";
 import { TransactionHandler } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
 import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
@@ -309,10 +309,18 @@ describe("Ipfs", () => {
             ).toResolve();
         });
 
-        it("should not throw - multi sign", async () => {
+        it("should not throw - multi sign if and multiSignatureSendingEnabled=true", async () => {
+            Managers.configManager.getMilestone().multiSignatureSendingEnabled = true;
             await expect(
                 handler.throwIfCannotBeApplied(multiSignatureIpfsTransaction, multiSignatureWallet),
             ).toResolve();
+        });
+
+        it("should throw - multi sign if and multiSignatureSendingEnabled=false", async () => {
+            Managers.configManager.getMilestone().multiSignatureSendingEnabled = false;
+            await expect(
+                handler.throwIfCannotBeApplied(multiSignatureIpfsTransaction, multiSignatureWallet),
+            ).rejects.toThrow(DisabledMultiSignatureSending);
         });
 
         it("should throw if wallet has insufficient funds", async () => {

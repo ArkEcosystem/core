@@ -13,6 +13,7 @@ import {
     InsufficientBalanceError,
     NoVoteError,
     UnvoteMismatchError,
+    DisabledMultiSignatureSending,
     VotedForNonDelegateError,
 } from "@packages/core-transactions/src/errors";
 import { TransactionHandler } from "@packages/core-transactions/src/handlers";
@@ -297,10 +298,18 @@ describe("VoteTransaction", () => {
             ).toResolve();
         });
 
-        it("should not throw - multi sign vote", async () => {
+        it("should not throw - multi sign if and multiSignatureSendingEnabled=true", async () => {
+            Managers.configManager.getMilestone().multiSignatureSendingEnabled = true;
             await expect(
                 handler.throwIfCannotBeApplied(multiSignatureVoteTransaction, multiSignatureWallet),
             ).toResolve();
+        });
+
+        it("should throw - multi sign if and multiSignatureSendingEnabled=false", async () => {
+            Managers.configManager.getMilestone().multiSignatureSendingEnabled = false;
+            await expect(
+                handler.throwIfCannotBeApplied(multiSignatureVoteTransaction, multiSignatureWallet),
+            ).rejects.toThrow(DisabledMultiSignatureSending);
         });
 
         it("should not throw if the unvote is valid and the wallet has voted", async () => {

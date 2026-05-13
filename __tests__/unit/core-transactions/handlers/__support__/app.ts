@@ -270,3 +270,23 @@ export const buildMultiSignatureWallet = (): Wallets.Wallet => {
 
     return wallet;
 };
+
+export const buildMultiSignatureRecipientWallet = (): Wallets.Wallet => {
+    const multiSignatureAsset: IMultiSignatureAsset = {
+        publicKeys: [
+            Identities.PublicKey.fromPassphrase(passphrases[1]),
+            Identities.PublicKey.fromPassphrase(passphrases[2]),
+            Identities.PublicKey.fromPassphrase(passphrases[3]),
+        ],
+        min: 2,
+    };
+
+    const wallet = new Wallets.Wallet(
+        Identities.Address.fromMultiSignatureAsset(multiSignatureAsset),
+        new Services.Attributes.AttributeMap(getWalletAttributeSet()),
+    );
+    wallet.setPublicKey(Identities.PublicKey.fromMultiSignatureAsset(multiSignatureAsset));
+    wallet.setAttribute("multiSignature", multiSignatureAsset);
+
+    return wallet;
+};

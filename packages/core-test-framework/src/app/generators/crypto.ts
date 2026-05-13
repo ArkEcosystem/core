@@ -129,6 +129,8 @@ export class CryptoGenerator extends Generator {
                 blockBurnAddress: true,
                 blsPublicKeyRegistrationEnabled: true,
                 multiSignatureRegistrationEnabled: true,
+                multiSignatureSendingEnabled: true,
+                multiSignatureReceivingEnabled: true,
             },
             {
                 height: rewardHeight,
