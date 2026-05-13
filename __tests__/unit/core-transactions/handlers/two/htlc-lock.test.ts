@@ -8,7 +8,11 @@ import { Mapper, Mocks } from "@packages/core-test-framework";
 import { Generators } from "@packages/core-test-framework/src";
 import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
-import { HtlcLockExpiredError, InsufficientBalanceError } from "@packages/core-transactions/src/errors";
+import {
+    HtlcLockExpiredError,
+    InsufficientBalanceError,
+    DisabledMultiSignatureSending,
+} from "@packages/core-transactions/src/errors";
 import { TransactionHandler } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
 import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
@@ -229,10 +233,18 @@ describe("Htlc lock", () => {
                 ).toResolve();
             });
 
-            it("should not throw - multi sign", async () => {
+            it("should not throw - multi sign if and multiSignatureSendingEnabled=true", async () => {
+                Managers.configManager.getMilestone().multiSignatureSendingEnabled = true;
                 await expect(
                     handler.throwIfCannotBeApplied(multiSignatureHtlcLockTransaction, multiSignatureWallet),
                 ).toResolve();
+            });
+
+            it("should throw - multi sign if and multiSignatureSendingEnabled=false", async () => {
+                Managers.configManager.getMilestone().multiSignatureSendingEnabled = false;
+                await expect(
+                    handler.throwIfCannotBeApplied(multiSignatureHtlcLockTransaction, multiSignatureWallet),
+                ).rejects.toThrow(DisabledMultiSignatureSending);
             });
 
             it("should throw if asset is undefined", async () => {

@@ -12,6 +12,8 @@ import {
     ColdWalletError,
     InsufficientBalanceError,
     SenderWalletMismatchError,
+    DisabledMultiSignatureReceiving,
+    DisabledMultiSignatureSending,
 } from "@packages/core-transactions/src/errors";
 import { TransactionHandler } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
@@ -24,6 +26,7 @@ import {
     buildMultiSignatureWallet,
     buildRecipientWallet,
     buildSecondSignatureWallet,
+    buildMultiSignatureRecipientWallet,
     buildSenderWallet,
     initApp,
 } from "../__support__/app";
@@ -32,6 +35,7 @@ let app: Application;
 let senderWallet: Wallets.Wallet;
 let secondSignatureWallet: Wallets.Wallet;
 let multiSignatureWallet: Wallets.Wallet;
+let multiSignatureRecipientWallet: Wallets.Wallet;
 let recipientWallet: Wallets.Wallet;
 let walletRepository: Contracts.State.WalletRepository;
 let factoryBuilder: FactoryBuilder;
@@ -59,11 +63,13 @@ beforeEach(() => {
     senderWallet = buildSenderWallet(factoryBuilder);
     secondSignatureWallet = buildSecondSignatureWallet(factoryBuilder);
     multiSignatureWallet = buildMultiSignatureWallet();
+    multiSignatureRecipientWallet = buildMultiSignatureRecipientWallet();
     recipientWallet = buildRecipientWallet(factoryBuilder);
 
     walletRepository.index(senderWallet);
     walletRepository.index(secondSignatureWallet);
     walletRepository.index(multiSignatureWallet);
+    walletRepository.index(multiSignatureRecipientWallet);
     walletRepository.index(recipientWallet);
 });
 
@@ -116,6 +122,7 @@ describe("TransferTransaction", () => {
 
     afterEach(async () => {
         Managers.configManager.set("network.pubKeyHash", pubKeyHash);
+
     });
 
     describe("bootstrap", () => {
@@ -142,10 +149,21 @@ describe("TransferTransaction", () => {
             ).toResolve();
         });
 
-        it("should not throw - multi sign", async () => {
+        it("should not throw - multi sign if and multiSignatureSendingEnabled=true", async () => {
+            Managers.configManager.getMilestone().multiSignatureSendingEnabled = true;
             await expect(
                 handler.throwIfCannotBeApplied(multiSignatureTransferTransaction, multiSignatureWallet),
             ).toResolve();
+        });
+
+
+        it("should throw - multi sign if and multiSignatureSendingEnabled=false", async () => {
+            Managers.configManager.getMilestone().multiSignatureSendingEnabled = false;
+            await expect(
+                handler.throwIfCannotBeApplied(multiSignatureTransferTransaction, multiSignatureWallet),
+            ).rejects.toThrow(
+                DisabledMultiSignatureSending,
+            );
         });
 
         it("should throw", async () => {
@@ -182,6 +200,34 @@ describe("TransferTransaction", () => {
 
             await expect(handler.throwIfCannotBeApplied(transferTransaction, coldWallet)).rejects.toThrow(
                 ColdWalletError,
+            );
+        });
+
+        it("should pass if recipient is multi signature wallet and multiSignatureReceivingEnabled=true", async () => {
+            Managers.configManager.getMilestone().multiSignatureReceivingEnabled = true;
+
+            transferTransaction = BuilderFactory.transfer()
+                .recipientId(multiSignatureRecipientWallet.getAddress())
+                .amount("10000000")
+                .sign(passphrases[0])
+                .nonce("1")
+                .build();
+
+            await expect(handler.throwIfCannotBeApplied(transferTransaction, senderWallet)).toResolve();
+        });
+
+        it("should throw if recipient is multi signature wallet and multiSignatureReceivingEnabled=false", async () => {
+            Managers.configManager.getMilestone().multiSignatureReceivingEnabled = false;
+
+            transferTransaction = BuilderFactory.transfer()
+                .recipientId(multiSignatureRecipientWallet.getAddress())
+                .amount("10000000")
+                .sign(passphrases[0])
+                .nonce("1")
+                .build();
+
+            await expect(handler.throwIfCannotBeApplied(transferTransaction, senderWallet)).rejects.toThrow(
+                DisabledMultiSignatureReceiving,
             );
         });
 

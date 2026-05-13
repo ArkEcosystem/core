@@ -3,6 +3,9 @@ import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 
 import { isRecipientOnActiveNetwork } from "../../utils";
 import { TransactionHandler, TransactionHandlerConstructor } from "../transaction";
+import {
+    DisabledMultiSignatureReceiving,
+} from "../../errors";
 
 // todo: revisit the implementation, container usage and arguments after core-database rework
 // todo: replace unnecessary function arguments with dependency injection to avoid passing around references
@@ -30,6 +33,16 @@ export class TransferTransactionHandler extends TransactionHandler {
         transaction: Interfaces.ITransaction,
         sender: Contracts.State.Wallet,
     ): Promise<void> {
+        Utils.assert.defined<string>(transaction.data.recipientId);
+        const recipient: Contracts.State.Wallet = this.walletRepository.findByAddress(transaction.data.recipientId);
+
+        if (recipient.hasMultiSignature()) {
+            const milestone = Managers.configManager.getMilestone();
+            if (milestone.multiSignatureReceivingEnabled !== true) {
+                throw new DisabledMultiSignatureReceiving();
+            }
+        }
+
         return super.throwIfCannotBeApplied(transaction, sender);
     }
 

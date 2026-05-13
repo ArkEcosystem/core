@@ -95,6 +95,19 @@ export class UnsupportedMultiSignatureTransactionError extends TransactionError 
     }
 }
 
+export class DisabledMultiSignatureSending extends TransactionError {
+    public constructor() {
+        super(`Failed to apply transaction, because sending from multi signature wallets is disabled.`);
+    }
+}
+
+export class DisabledMultiSignatureReceiving extends TransactionError {
+    public constructor() {
+        super(`Failed to apply transaction, because receiving on multi signature wallets is disabled.`);
+    }
+}
+
+
 export class InvalidSecondSignatureError extends TransactionError {
     public constructor() {
         super(`Failed to apply transaction, because the second signature could not be verified.`);
