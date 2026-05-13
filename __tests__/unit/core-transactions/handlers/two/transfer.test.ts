@@ -122,7 +122,6 @@ describe("TransferTransaction", () => {
 
     afterEach(async () => {
         Managers.configManager.set("network.pubKeyHash", pubKeyHash);
-        // Managers.configManager.getMilestone().multiSignatureReceivingEnabled = true;
 
     });
 
