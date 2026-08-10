@@ -40,7 +40,8 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
     }
 
     public async isActivated(): Promise<boolean> {
-        return Managers.configManager.getMilestone().aip36 === true;
+        const milestone = Managers.configManager.getMilestone();
+        return milestone.aip36 === true && milestone.enabledMagistrate;
     }
 
     public dynamicFee(context: Contracts.Shared.DynamicFeeContext): Utils.BigNumber {
