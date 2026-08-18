@@ -136,6 +136,15 @@ describe("Entity handler", () => {
             const result = await entityHandler.isActivated();
             expect(result).toBeTrue();
         });
+
+        it("should return false if AIP36 is enabled but magistrate is not enabled", async () => {
+            Managers.configManager.setHeight(61);
+            Managers.configManager.getMilestone().magistrateEnabled = false;
+
+            entityHandler = container.resolve(EntityTransactionHandler);
+            const result = await entityHandler.isActivated();
+            expect(result).toBeFalse();
+        });
     });
 
     describe("dynamicFee", () => {
