@@ -25,10 +25,10 @@
     fast-memoize "^2.5.1"
     wif "^2.0.6"
 
-"@arkecosystem/crypto-networks@2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@arkecosystem/crypto-networks/-/crypto-networks-2.0.0.tgz#e878dc337b45f1020e6c9e58f0456ffbfa89d78f"
-  integrity sha512-YxQJbSrCLrgWDHbCoj2m/Baj5Qn5XLYhuvtEeAb8lVIHFxJTso5AXaaDoO2DDc/HSIQrTAhi5627zPoGq54BQQ==
+"@arkecosystem/crypto-networks@2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@arkecosystem/crypto-networks/-/crypto-networks-2.0.1.tgz#ef1832b51b22eb5569f079c5cf85dc49ce2104d4"
+  integrity sha512-XeMwZZv2a/A947d2VyEf8MIwgY69e175+8EbcURfrC5cDQelsHwfwafcuupkOK+ZuYKzqGLHd4FjVM25UunYeQ==
 
 "@arkecosystem/utils@1.3.1":
   version "1.3.1"
