@@ -11,6 +11,7 @@ jest.setTimeout(1200000);
 
 import { StateBuilder } from "@arkecosystem/core-state/src/state-builder";
 import { Sandbox } from "@packages/core-test-framework/src";
+import { snoozeForBlock } from "@packages/core-test-framework/src/utils";
 
 const sandbox: Sandbox = new Sandbox();
 
@@ -65,6 +66,13 @@ export const setUp = async (): Promise<Contracts.Kernel.Application> => {
         Managers.configManager.getMilestone().aip11 = true;
         Managers.configManager.getMilestone().htlcEnabled = true;
         Managers.configManager.getMilestone().blsPublicKeyRegistrationEnabled = true;
+        Managers.configManager.getMilestone().magistrateEnabled = true;
+
+        // The flag above only covers the config that is live right now. TransactionFactory reloads
+        // the testnet preset on every transaction it builds, and there `magistrateEnabled` is only
+        // set from height 2 — so a Magistrate transaction sent at genesis is still rejected with
+        // "Transaction type 2/x is deactivated". Wait for the first block before any test runs.
+        await snoozeForBlock(1);
     });
 
     return sandbox.app;

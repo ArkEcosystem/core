@@ -243,7 +243,7 @@ export class CryptoGenerator extends Generator {
 
     private createGenesisBlock(keys: Interfaces.IKeyPair, transactions, timestamp: number) {
         transactions = transactions.sort((a, b) => {
-           if (a.type === b.type) {
+            if (a.type === b.type) {
                 return a.amount - b.amount;
             }
 
