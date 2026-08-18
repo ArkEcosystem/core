@@ -5,7 +5,7 @@ import { Interfaces as CryptoInterfaces, Managers, Utils } from "@arkecosystem/c
 export abstract class MagistrateTransactionHandler extends Handlers.TransactionHandler {
     public async isActivated(): Promise<boolean> {
         const milestone = Managers.configManager.getMilestone();
-        return milestone.aip11 === true && !milestone.aip36;
+        return milestone.aip11 === true && !milestone.aip36 && milestone.magistrateEnabled === true;
     }
 
     public async throwIfCannotBeApplied(
