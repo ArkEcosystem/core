@@ -130,6 +130,7 @@ export class CryptoGenerator extends Generator {
                 multiSignatureRegistrationEnabled: true,
                 multiSignatureSendingEnabled: true,
                 multiSignatureReceivingEnabled: true,
+                magistrateEnabled: true,
             },
             {
                 height: rewardHeight,
