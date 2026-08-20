@@ -32,7 +32,7 @@
         "joi": "17.12.1",
         "nanomatch": "1.2.13",
         "node-cache": "5.1.2",
-        "qs": "6.11.2",
+        "qs": "6.14.1",
         "rate-limiter-flexible": "4.0.1",
         "semaphore": "1.1.0",
         "semver": "7.5.4"
