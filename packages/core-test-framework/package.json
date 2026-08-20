@@ -42,7 +42,7 @@
         "got": "11.8.5",
         "jest-extended": "0.11.5",
         "lodash.clonedeep": "4.5.0",
-        "tmp": "0.2.1",
+        "tmp": "0.2.4",
         "xstate": "4.23.4"
     },
     "devDependencies": {
