@@ -114,14 +114,15 @@ sudo rm -rf ~/{.npm,.forever,.node*,.cache,.nvm}
 
 if [[ ! -z $DEB ]]; then
     (echo -e "Package: nodejs\nPin: origin deb.nodesource.com\nPin-Priority: 999" | sudo tee /etc/apt/preferences.d/nodesource)
-    curl -sL  https://deb.nodesource.com/gpgkey/nodesource.gpg.key | gpg --dearmor | sudo tee /usr/share/keyrings/nodesource.gpg >/dev/null
-    (echo "deb [signed-by=/usr/share/keyrings/nodesource.gpg] https://deb.nodesource.com/node_16.x ${DEB_ID} main" | sudo tee /etc/apt/sources.list.d/nodesource.list)
+    curl -sL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor | sudo tee /usr/share/keyrings/nodesource.gpg >/dev/null
+    (echo "deb [signed-by=/usr/share/keyrings/nodesource.gpg] https://deb.nodesource.com/node_24.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list)
     sudo apt-get update
     sudo $APT_ENV apt-get install nodejs -yq
 
 elif [[ ! -z $RPM ]]; then
     sudo yum install gcc-c++ make -y
-    curl -sL https://rpm.nodesource.com/setup_16.x | sudo -E bash - > /dev/null 2>&1
+    curl -sL https://rpm.nodesource.com/setup_24.x | sudo -E bash - > /dev/null 2>&1
+    sudo yum install nodejs -y
 fi
 
 success "Installed node.js & npm!"
@@ -175,10 +176,10 @@ success "Installed PostgreSQL!"
 heading "Installing program dependencies..."
 
 if [[ ! -z $DEB ]]; then
-    sudo $APT_ENV apt-get install build-essential pkg-config libtool autoconf automake libpq-dev jq libjemalloc-dev -yq
+    sudo $APT_ENV apt-get install build-essential pkg-config libtool autoconf automake libpq-dev jq libjemalloc-dev python3 -yq
 elif [[ ! -z $RPM ]]; then
     sudo yum groupinstall "Development Tools" -y -q
-    sudo yum install postgresql-devel jq jemalloc-devel -y -q
+    sudo yum install postgresql-devel jq jemalloc-devel python3 -y -q
 fi
 
 success "Installed program dependencies!"
@@ -186,13 +187,10 @@ success "Installed program dependencies!"
 
 heading "Installing NTP..."
 
-sudo timedatectl set-ntp off > /dev/null 2>&1 || true # disable the default systemd timesyncd service
-
 if [[ ! -z $DEB ]]; then
-    sudo $APT_ENV apt-get install ntp -yq
-    if [ -z "$(sudo service ntp status |grep running)" ] ; then
-       sudo ntpd -gq
-    fi
+    # chrony replaces systemd-timesyncd; `timedatectl set-ntp off` would stop and disable chrony as well
+    sudo $APT_ENV apt-get install chrony -yq
+    sudo systemctl enable --now chrony > /dev/null 2>&1 || sudo service chrony start
 
 elif [[ ! -z $RPM ]]; then
     sudo yum install chrony -y -q
@@ -286,7 +284,7 @@ if [[ "$choice" =~ ^(yes|y|Y) ]]; then
         if [[ "$choice" =~ ^(yes|y|Y) ]]; then
             sudo -i -u postgres psql -c "DROP DATABASE ${databaseName};"
             sudo -i -u postgres psql -c "CREATE DATABASE ${databaseName} WITH OWNER ${databaseUsername};"
-        elif [[ "$choice" =~ ^(no|n|N) ]]; then
+        else
             sudo -i -u postgres psql -c "ALTER DATABASE ${databaseName} OWNER TO ${databaseUsername};"
         fi
     else
