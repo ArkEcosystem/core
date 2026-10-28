@@ -157,7 +157,7 @@ if [[ ! -z $DEB ]]; then
     curl -sL https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor | sudo tee /usr/share/keyrings/pgdg.gpg >/dev/null
     (echo "deb [signed-by=/usr/share/keyrings/pgdg.gpg] http://apt.postgresql.org/pub/repos/apt ${DEB_ID}-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list )
     sudo apt-get update
-    sudo $APT_ENV apt-get install postgresql -yq
+    sudo $APT_ENV apt-get install postgresql-18 -yq
 elif [[ ! -z $RPM ]]; then
     sudo yum install postgresql-server postgresql-contrib -y
 
