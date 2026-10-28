@@ -6,6 +6,7 @@ export * from "./register-base-service-providers";
 
 // Foundation
 export * from "./register-error-handler";
+export * from "./register-http-agents";
 export * from "./register-base-configuration";
 export * from "./register-base-bindings";
 export * from "./register-base-namespace";
