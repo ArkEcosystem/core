@@ -143,7 +143,7 @@ success "Installed Yarn!"
 
 heading "Installing PM2..."
 
-sudo yarn global add pm2
+sudo yarn global add pm2@7
 pm2 install pm2-logrotate
 pm2 set pm2-logrotate:max_size 500M
 pm2 set pm2-logrotate:compress true
