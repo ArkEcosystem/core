@@ -81,6 +81,7 @@
     "madge": "6.1.0",
     "moment-timezone": "0.5.44",
     "nock": "13.5.1",
+    "node-gyp": "11.5.0",
     "npm-check-updates": "16.14.14",
     "prettier": "2.4.0",
     "rimraf": "5.0.5",
