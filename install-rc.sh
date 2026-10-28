@@ -70,10 +70,10 @@ if [[ $(locale -a | grep ^en_US.UTF-8) ]] || [[ $(locale -a | grep ^en_US.utf8) 
         export LANGUAGE="en_US.UTF-8"
     fi
 else
-        # Install en_US.UTF-8 Locale
-        sudo $APT_ENV apt-get install locales -yq
-        sudo locale-gen en_US.UTF-8
-        sudo update-locale LANG=en_US.UTF-8
+    # Install en_US.UTF-8 Locale
+    sudo $APT_ENV apt-get install locales -yq
+    sudo locale-gen en_US.UTF-8
+    sudo update-locale LANG=en_US.UTF-8
     if ! $(grep -Eq "(en_US.UTF-8)" "$HOME/.bashrc"); then
         # Setting the current shell locale
         export LC_ALL="en_US.UTF-8"
@@ -88,71 +88,73 @@ else
 fi
 
 heading "Installing system dependencies..."
-    sudo apt-get update
-    sudo $APT_ENV apt-get install git curl apt-transport-https bc wget gnupg -yq
+
+sudo apt-get update
+sudo $APT_ENV apt-get install git curl apt-transport-https bc wget gnupg -yq
 
 success "Installed system dependencies!"
 
 heading "Make sure NTP exists systemwide and it's enabled by default..."
-    sudo $APT_ENV apt-get install systemd-timesyncd -yq
-    sudo timedatectl set-ntp on > /dev/null 2>&1 || true
+
+sudo $APT_ENV apt-get install systemd-timesyncd -yq
+sudo timedatectl set-ntp on > /dev/null 2>&1 || true
 
 success "Done setting up NTP!"
 
 heading "Installing node.js & npm..."
 
-    sudo rm -rf /usr/local/{lib/node{,/.npm,_modules},bin,share/man}/{npm*,node*,man1/node*}
-    sudo rm -rf ~/{.npm,.forever,.node*,.cache,.nvm}
-    (echo -e "Package: nodejs\nPin: origin deb.nodesource.com\nPin-Priority: 999" | sudo tee /etc/apt/preferences.d/nodesource)
-	curl -sL  https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor | sudo tee /usr/share/keyrings/nodesource.gpg >/dev/null
-    (echo "deb [signed-by=/usr/share/keyrings/nodesource.gpg] https://deb.nodesource.com/node_24.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list)
-    sudo apt-get update
-    sudo $APT_ENV apt-get install nodejs -yq
+sudo rm -rf /usr/local/{lib/node{,/.npm,_modules},bin,share/man}/{npm*,node*,man1/node*}
+sudo rm -rf ~/{.npm,.forever,.node*,.cache,.nvm}
+(echo -e "Package: nodejs\nPin: origin deb.nodesource.com\nPin-Priority: 999" | sudo tee /etc/apt/preferences.d/nodesource)
+curl -sL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor | sudo tee /usr/share/keyrings/nodesource.gpg >/dev/null
+(echo "deb [signed-by=/usr/share/keyrings/nodesource.gpg] https://deb.nodesource.com/node_24.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list)
+sudo apt-get update
+sudo $APT_ENV apt-get install nodejs -yq
 
 success "Installed node.js & npm!"
 
 heading "Installing yarn..."
 
-    curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor | sudo tee /usr/share/keyrings/yarnkey.gpg >/dev/null
-    (echo "deb [signed-by=/usr/share/keyrings/yarnkey.gpg] https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list)
-    sudo apt-get update
-    sudo $APT_ENV apt-get install yarn -yq
+curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor | sudo tee /usr/share/keyrings/yarnkey.gpg >/dev/null
+(echo "deb [signed-by=/usr/share/keyrings/yarnkey.gpg] https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list)
+sudo apt-get update
+sudo $APT_ENV apt-get install yarn -yq
 
 success "Installed yarn!"
 
 heading "Installing pm2..."
 
-    sudo yarn global add pm2@7
-    pm2 install pm2-logrotate
-    pm2 set pm2-logrotate:max_size 500M
-    pm2 set pm2-logrotate:compress true
-    pm2 set pm2-logrotate:retain 7
+sudo yarn global add pm2@7
+pm2 install pm2-logrotate
+pm2 set pm2-logrotate:max_size 500M
+pm2 set pm2-logrotate:compress true
+pm2 set pm2-logrotate:retain 7
 
 success "Installed pm2!"
 
 heading "Installing PostgreSQL..."
 
-    (echo -e "Package: postgresql\nPin: origin apt.postgresql.org\nPin-Priority: 999" | sudo tee /etc/apt/preferences.d/postgresql)
-    curl -sL https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor | sudo tee /usr/share/keyrings/pgdg.gpg >/dev/null
-    (echo "deb [signed-by=/usr/share/keyrings/pgdg.gpg] https://apt.postgresql.org/pub/repos/apt ${DEB_ID}-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list)
-    sudo apt-get update
-    sudo $APT_ENV apt-get install postgresql-18 -yq
+(echo -e "Package: postgresql\nPin: origin apt.postgresql.org\nPin-Priority: 999" | sudo tee /etc/apt/preferences.d/postgresql)
+curl -sL https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor | sudo tee /usr/share/keyrings/pgdg.gpg >/dev/null
+(echo "deb [signed-by=/usr/share/keyrings/pgdg.gpg] https://apt.postgresql.org/pub/repos/apt ${DEB_ID}-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list)
+sudo apt-get update
+sudo $APT_ENV apt-get install postgresql-18 -yq
 
 success "Installed PostgreSQL!"
 
 heading "Installing program dependencies..."
 
-    sudo $APT_ENV apt-get install build-essential python-is-python3 pkg-config libtool autoconf automake libpq-dev jq libjemalloc-dev python3-setuptools -yq
+sudo $APT_ENV apt-get install build-essential python-is-python3 pkg-config libtool autoconf automake libpq-dev jq libjemalloc-dev python3-setuptools -yq
 
 success "Installed program dependencies!"
 
 heading "Installing system updates..."
 
-    sudo apt-get update
-    sudo $APT_ENV apt-get upgrade -yq
-    sudo $APT_ENV apt-get dist-upgrade -yq
-    sudo apt-get autoremove -yq
-    sudo apt-get autoclean -yq
+sudo apt-get update
+sudo $APT_ENV apt-get upgrade -yq
+sudo $APT_ENV apt-get dist-upgrade -yq
+sudo apt-get autoremove -yq
+sudo apt-get autoclean -yq
 
 success "Installed system updates!"
 
