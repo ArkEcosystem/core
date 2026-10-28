@@ -57,42 +57,33 @@ else
     exit 1;
 fi
 
-if [[ $(locale -a | grep ^en_US.UTF-8) ]] || [[ $(locale -a | grep ^en_US.utf8) ]]; then
-    if ! $(grep -Eq "(en_US.UTF-8)" "$HOME/.bashrc"); then
-        # Setting the bashrc locale
-        echo "export LC_ALL=en_US.UTF-8" >> "$HOME/.bashrc"
-        echo "export LANG=en_US.UTF-8" >> "$HOME/.bashrc"
-        echo "export LANGUAGE=en_US.UTF-8" >> "$HOME/.bashrc"
-
-        # Setting the current shell locale
-        export LC_ALL="en_US.UTF-8"
-        export LANG="en_US.UTF-8"
-        export LANGUAGE="en_US.UTF-8"
-    fi
-else
-    # Install en_US.UTF-8 Locale
-    sudo $APT_ENV apt-get install locales -yq
-    sudo locale-gen en_US.UTF-8
-    sudo update-locale LANG=en_US.UTF-8
-    if ! $(grep -Eq "(en_US.UTF-8)" "$HOME/.bashrc"); then
-        # Setting the current shell locale
-        export LC_ALL="en_US.UTF-8"
-        export LANG="en_US.UTF-8"
-        export LANGUAGE="en_US.UTF-8"
-
-        # Setting the bashrc locale
-        echo "export LC_ALL=en_US.UTF-8" >> "$HOME/.bashrc"
-        echo "export LANG=en_US.UTF-8" >> "$HOME/.bashrc"
-        echo "export LANGUAGE=en_US.UTF-8" >> "$HOME/.bashrc"
-    fi
-fi
-
 heading "Installing system dependencies..."
 
 sudo apt-get update
-sudo $APT_ENV apt-get install git curl apt-transport-https bc wget gnupg -yq
+sudo $APT_ENV apt-get install git curl apt-transport-https bc wget gnupg locales -yq
 
 success "Installed system dependencies!"
+
+heading "Configuring the en_US.UTF-8 locale..."
+
+if ! locale -a | grep -qiE '^en_US\.utf-?8$'; then
+    # Debian only generates the locales that are enabled in /etc/locale.gen
+    sudo sed -i 's/^# *\(en_US.UTF-8 UTF-8\)/\1/' /etc/locale.gen 2>/dev/null || true
+    sudo locale-gen en_US.UTF-8
+    sudo update-locale LANG=en_US.UTF-8
+fi
+
+export LC_ALL="en_US.UTF-8"
+export LANG="en_US.UTF-8"
+export LANGUAGE="en_US.UTF-8"
+
+if ! grep -q "en_US.UTF-8" "$HOME/.bashrc"; then
+    echo "export LC_ALL=en_US.UTF-8" >> "$HOME/.bashrc"
+    echo "export LANG=en_US.UTF-8" >> "$HOME/.bashrc"
+    echo "export LANGUAGE=en_US.UTF-8" >> "$HOME/.bashrc"
+fi
+
+success "Configured the en_US.UTF-8 locale!"
 
 heading "Make sure NTP exists systemwide and it's enabled by default..."
 
@@ -134,7 +125,6 @@ success "Installed pm2!"
 
 heading "Installing PostgreSQL..."
 
-(echo -e "Package: postgresql\nPin: origin apt.postgresql.org\nPin-Priority: 999" | sudo tee /etc/apt/preferences.d/postgresql)
 curl -sL https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor | sudo tee /usr/share/keyrings/pgdg.gpg >/dev/null
 (echo "deb [signed-by=/usr/share/keyrings/pgdg.gpg] https://apt.postgresql.org/pub/repos/apt ${DEB_ID}-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list)
 sudo apt-get update
