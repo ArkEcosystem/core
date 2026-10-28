@@ -29,11 +29,11 @@ Run Relay only node using [Docker Compose](https://docs.docker.com/compose/)
 version: '2'
 services:
   postgres:
-    image: "postgres:alpine"
+    image: "postgres:18-alpine"
     container_name: postgres-devnet
     restart: always
     volumes:
-      - 'postgres:/var/lib/postgresql/data'
+      - 'postgres:/var/lib/postgresql'
     networks:
       - core
     environment:
@@ -103,11 +103,11 @@ CORE_WEBHOOKS_PORT=4004
 version: '2'
 services:
   postgres:
-    image: "postgres:alpine"
+    image: "postgres:18-alpine"
     container_name: postgres-mainnet
     restart: always
     volumes:
-      - 'postgres:/var/lib/postgresql/data'
+      - 'postgres:/var/lib/postgresql'
     networks:
       - core
     environment:
@@ -178,3 +178,14 @@ docker compose up -d
 ```
 
 ### _ARK Core docker image allows you to run a `forger`. However it requires some additional steps that can be found by visiting our [Documentation page](https://guides.ark.dev/devops-guides/how-to-setup-a-node-with-docker#production-setup)._
+
+## Upgrading an existing PostgreSQL volume
+
+Earlier versions of these files used the floating `postgres:alpine` tag, which now resolves to PostgreSQL 18. PostgreSQL 18 images keep their data in `/var/lib/postgresql/18/docker` and expect the volume to be mounted at `/var/lib/postgresql`; they refuse to start when a volume is mounted at `/var/lib/postgresql/data`.
+
+If you already run a node with an existing volume, either:
+
+-   keep the PostgreSQL major version the volume was created with by setting the image to `postgres:<major>-alpine` (see the `PG_VERSION` file in the volume) and keeping the `/var/lib/postgresql/data` mount, or
+-   move to PostgreSQL 18 with `pg_upgrade`, or start from an empty volume and let Core sync from the network or restore a Core snapshot.
+
+Do not migrate the database with `pg_dump` and `pg_restore`. The integrity checks on the `blocks` and `transactions` tables use functions that reference tables without a schema, so `pg_restore` skips the data of both tables and only reports "errors ignored on restore".

@@ -1,11 +1,11 @@
 version: '2'
 services:
   postgres:
-    image: "postgres:alpine"
+    image: "postgres:18-alpine"
     container_name: postgres-devnet
     restart: always
     volumes:
-      - 'postgres:/var/lib/postgresql/data'
+      - 'postgres:/var/lib/postgresql'
     networks:
       - core
     environment:
