@@ -48,7 +48,7 @@ RPM=$(which yum || :)
 SYS=$([[ -L "/sbin/init" ]] && echo 'SystemD' || echo 'SystemV')
 
 # Detect Debian/Ubuntu derivative
-DEB_ID=$( (grep DISTRIB_CODENAME /etc/upstream-release/lsb-release || grep DISTRIB_CODENAME /etc/lsb-release) 2>/dev/null | cut -d'=' -f2 )
+DEB_ID=$( (grep DISTRIB_CODENAME /etc/upstream-release/lsb-release || grep DISTRIB_CODENAME /etc/lsb-release || grep VERSION_CODENAME /etc/os-release) 2>/dev/null | cut -d'=' -f2 )
 
 #APT Vars
 APT_ENV="DEBIAN_FRONTEND=noninteractive NEEDRESTART_MODE=a"
@@ -113,8 +113,9 @@ sudo rm -rf /usr/local/{lib/node{,/.npm,_modules},bin,share/man}/{npm*,node*,man
 sudo rm -rf ~/{.npm,.forever,.node*,.cache,.nvm}
 
 if [[ ! -z $DEB ]]; then
-    sudo wget --quiet -O - https://deb.nodesource.com/gpgkey/nodesource.gpg.key | sudo apt-key add -
-    (echo "deb https://deb.nodesource.com/node_16.x ${DEB_ID} main" | sudo tee /etc/apt/sources.list.d/nodesource.list)
+    (echo -e "Package: nodejs\nPin: origin deb.nodesource.com\nPin-Priority: 999" | sudo tee /etc/apt/preferences.d/nodesource)
+    curl -sL  https://deb.nodesource.com/gpgkey/nodesource.gpg.key | gpg --dearmor | sudo tee /usr/share/keyrings/nodesource.gpg >/dev/null
+    (echo "deb [signed-by=/usr/share/keyrings/nodesource.gpg] https://deb.nodesource.com/node_16.x ${DEB_ID} main" | sudo tee /etc/apt/sources.list.d/nodesource.list)
     sudo apt-get update
     sudo $APT_ENV apt-get install nodejs -yq
 
@@ -128,9 +129,8 @@ success "Installed node.js & npm!"
 heading "Installing Yarn..."
 
 if [[ ! -z $DEB ]]; then
-    curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
-    (echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list)
-
+    curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor | sudo tee /usr/share/keyrings/yarnkey.gpg >/dev/null
+    (echo "deb [signed-by=/usr/share/keyrings/yarnkey.gpg] https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list)
     sudo apt-get update
     sudo $APT_ENV apt-get install yarn -yq
 elif [[ ! -z $RPM ]]; then
@@ -150,22 +150,13 @@ pm2 set pm2-logrotate:retain 7
 
 success "Installed PM2!"
 
-heading "Installing program dependencies..."
-
-if [[ ! -z $DEB ]]; then
-    sudo $APT_ENV apt-get install build-essential pkg-config libtool autoconf automake libpq-dev jq libjemalloc-dev -yq
-elif [[ ! -z $RPM ]]; then
-    sudo yum groupinstall "Development Tools" -y -q
-    sudo yum install postgresql-devel jq jemalloc-devel -y -q
-fi
-
-success "Installed program dependencies!"
-
 heading "Installing PostgreSQL..."
 
 if [[ ! -z $DEB ]]; then
+    curl -sL https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor | sudo tee /usr/share/keyrings/pgdg.gpg >/dev/null
+    (echo "deb [signed-by=/usr/share/keyrings/pgdg.gpg] http://apt.postgresql.org/pub/repos/apt ${DEB_ID}-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list )
     sudo apt-get update
-    sudo $APT_ENV apt-get install postgresql postgresql-contrib -yq
+    sudo $APT_ENV apt-get install postgresql -yq
 elif [[ ! -z $RPM ]]; then
     sudo yum install postgresql-server postgresql-contrib -y
 
@@ -180,6 +171,18 @@ elif [[ ! -z $RPM ]]; then
 fi
 
 success "Installed PostgreSQL!"
+
+heading "Installing program dependencies..."
+
+if [[ ! -z $DEB ]]; then
+    sudo $APT_ENV apt-get install build-essential pkg-config libtool autoconf automake libpq-dev jq libjemalloc-dev -yq
+elif [[ ! -z $RPM ]]; then
+    sudo yum groupinstall "Development Tools" -y -q
+    sudo yum install postgresql-devel jq jemalloc-devel -y -q
+fi
+
+success "Installed program dependencies!"
+
 
 heading "Installing NTP..."
 
