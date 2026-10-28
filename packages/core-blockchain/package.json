@@ -32,7 +32,7 @@
         "xstate": "4.38.3"
     },
     "engines": {
-        "node": ">=10.x"
+        "node": "^24.22.1"
     },
     "publishConfig": {
         "access": "public"

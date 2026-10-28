@@ -26,7 +26,7 @@
         "joi": "17.13.8"
     },
     "engines": {
-        "node": ">=10.x"
+        "node": "^24.22.1"
     },
     "publishConfig": {
         "access": "public"
