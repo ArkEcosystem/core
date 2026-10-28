@@ -40,7 +40,6 @@ jobs:
                   cd core-magistrate-api && npm publish --access public --tag rc && cd ..
                   cd core-magistrate-crypto && npm publish --access public --tag rc && cd ..
                   cd core-magistrate-transactions && npm publish --access public --tag rc && cd ..
-                  cd core-manager && npm publish --access public --tag rc && cd ..
                   cd core-p2p && npm publish --access public --tag rc && cd ..
                   cd core-snapshots && npm publish --access public --tag rc && cd ..
                   cd core-state && npm publish --access public --tag rc && cd ..
