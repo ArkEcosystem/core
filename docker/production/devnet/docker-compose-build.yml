@@ -18,7 +18,7 @@ services:
       context: ../../../
       dockerfile: docker/production/Dockerfile
       args:
-        core_channel: next
+        core_channel: rc
     image: core
     container_name: core-devnet
     restart: always
