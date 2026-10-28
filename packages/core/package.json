@@ -72,7 +72,12 @@
         "wif": "2.0.6"
     },
     "peerDependencies": {
-        "pm2": "^4.5.0"
+        "pm2": "^7.0.0"
+    },
+    "peerDependenciesMeta": {
+        "pm2": {
+            "optional": true
+        }
     },
     "engines": {
         "node": ">=10.x"
