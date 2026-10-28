@@ -35,7 +35,7 @@
         "import-fresh": "3.3.0",
         "inversify": "5.1.1",
         "ipaddr.js": "2.1.0",
-        "joi": "17.12.1",
+        "joi": "17.13.8",
         "log-process-errors": "5.1.2",
         "nanomatch": "1.2.13",
         "nsfw": "2.2.4",
