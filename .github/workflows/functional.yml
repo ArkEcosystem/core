@@ -28,7 +28,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [16.x]
+                node-version: [24]
 
         env:
             CORE_DB_DATABASE: ark_unitnet
@@ -43,12 +43,13 @@ jobs:
               uses: actions/cache@v4
               with:
                   path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
+                  key: ${{ runner.os }}-node24-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node24-
             - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v1
+              uses: actions/setup-node@v4
               with:
                   node-version: ${{ matrix.node-version }}
+                  check-latest: true
 
             - name: Update system
               run: sudo apt-get update -y
@@ -87,7 +88,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [16.x]
+                node-version: [24]
 
         steps:
             - uses: actions/checkout@v4
@@ -95,12 +96,13 @@ jobs:
               uses: actions/cache@v4
               with:
                   path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
+                  key: ${{ runner.os }}-node24-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node24-
             - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v1
+              uses: actions/setup-node@v4
               with:
                   node-version: ${{ matrix.node-version }}
+                  check-latest: true
 
             - name: Update system
               run: sudo apt-get update -y
@@ -142,7 +144,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [16.x]
+                node-version: [24]
 
         steps:
             - uses: actions/checkout@v4
@@ -150,12 +152,13 @@ jobs:
               uses: actions/cache@v4
               with:
                   path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
+                  key: ${{ runner.os }}-node24-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node24-
             - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v1
+              uses: actions/setup-node@v4
               with:
                   node-version: ${{ matrix.node-version }}
+                  check-latest: true
 
             - name: Update system
               run: sudo apt-get update -y
@@ -197,7 +200,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [16.x]
+                node-version: [24]
 
         steps:
             - uses: actions/checkout@v4
@@ -205,12 +208,13 @@ jobs:
               uses: actions/cache@v4
               with:
                   path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
+                  key: ${{ runner.os }}-node24-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node24-
             - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v1
+              uses: actions/setup-node@v4
               with:
                   node-version: ${{ matrix.node-version }}
+                  check-latest: true
 
             - name: Update system
               run: sudo apt-get update -y
@@ -252,7 +256,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [16.x]
+                node-version: [24]
 
         steps:
             - uses: actions/checkout@v4
@@ -260,12 +264,13 @@ jobs:
               uses: actions/cache@v4
               with:
                   path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
+                  key: ${{ runner.os }}-node24-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node24-
             - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v1
+              uses: actions/setup-node@v4
               with:
                   node-version: ${{ matrix.node-version }}
+                  check-latest: true
 
             - name: Update system
               run: sudo apt-get update -y
@@ -307,7 +312,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [16.x]
+                node-version: [24]
 
         steps:
             - uses: actions/checkout@v4
@@ -315,12 +320,13 @@ jobs:
               uses: actions/cache@v4
               with:
                   path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
+                  key: ${{ runner.os }}-node24-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node24-
             - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v1
+              uses: actions/setup-node@v4
               with:
                   node-version: ${{ matrix.node-version }}
+                  check-latest: true
 
             - name: Update system
               run: sudo apt-get update -y
@@ -362,7 +368,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [16.x]
+                node-version: [24]
 
         steps:
             - uses: actions/checkout@v4
@@ -370,12 +376,13 @@ jobs:
               uses: actions/cache@v4
               with:
                   path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
+                  key: ${{ runner.os }}-node24-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node24-
             - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v1
+              uses: actions/setup-node@v4
               with:
                   node-version: ${{ matrix.node-version }}
+                  check-latest: true
 
             - name: Update system
               run: sudo apt-get update -y
@@ -417,7 +424,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [16.x]
+                node-version: [24]
 
         steps:
             - uses: actions/checkout@v4
@@ -425,12 +432,13 @@ jobs:
               uses: actions/cache@v4
               with:
                   path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
+                  key: ${{ runner.os }}-node24-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node24-
             - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v1
+              uses: actions/setup-node@v4
               with:
                   node-version: ${{ matrix.node-version }}
+                  check-latest: true
 
             - name: Update system
               run: sudo apt-get update -y
@@ -472,7 +480,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [16.x]
+                node-version: [24]
 
         steps:
             - uses: actions/checkout@v4
@@ -480,12 +488,13 @@ jobs:
               uses: actions/cache@v4
               with:
                   path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
+                  key: ${{ runner.os }}-node24-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node24-
             - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v1
+              uses: actions/setup-node@v4
               with:
                   node-version: ${{ matrix.node-version }}
+                  check-latest: true
 
             - name: Update system
               run: sudo apt-get update -y
@@ -527,7 +536,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [16.x]
+                node-version: [24]
 
         steps:
             - uses: actions/checkout@v4
@@ -535,12 +544,13 @@ jobs:
               uses: actions/cache@v4
               with:
                   path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
+                  key: ${{ runner.os }}-node24-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node24-
             - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v1
+              uses: actions/setup-node@v4
               with:
                   node-version: ${{ matrix.node-version }}
+                  check-latest: true
 
             - name: Update system
               run: sudo apt-get update -y
@@ -582,7 +592,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [16.x]
+                node-version: [24]
 
         steps:
             - uses: actions/checkout@v4
@@ -590,12 +600,13 @@ jobs:
               uses: actions/cache@v4
               with:
                   path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
+                  key: ${{ runner.os }}-node24-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node24-
             - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v1
+              uses: actions/setup-node@v4
               with:
                   node-version: ${{ matrix.node-version }}
+                  check-latest: true
 
             - name: Update system
               run: sudo apt-get update -y
@@ -637,7 +648,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [16.x]
+                node-version: [24]
 
         steps:
             - uses: actions/checkout@v4
@@ -645,12 +656,13 @@ jobs:
               uses: actions/cache@v4
               with:
                   path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
+                  key: ${{ runner.os }}-node24-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node24-
             - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v1
+              uses: actions/setup-node@v4
               with:
                   node-version: ${{ matrix.node-version }}
+                  check-latest: true
 
             - name: Update system
               run: sudo apt-get update -y
@@ -692,7 +704,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [16.x]
+                node-version: [24]
 
         steps:
             - uses: actions/checkout@v4
@@ -700,12 +712,13 @@ jobs:
               uses: actions/cache@v4
               with:
                   path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
+                  key: ${{ runner.os }}-node24-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node24-
             - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v1
+              uses: actions/setup-node@v4
               with:
                   node-version: ${{ matrix.node-version }}
+                  check-latest: true
 
             - name: Update system
               run: sudo apt-get update -y
@@ -747,7 +760,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [16.x]
+                node-version: [24]
 
         steps:
             - uses: actions/checkout@v4
@@ -755,12 +768,13 @@ jobs:
               uses: actions/cache@v4
               with:
                   path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
+                  key: ${{ runner.os }}-node24-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node24-
             - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v1
+              uses: actions/setup-node@v4
               with:
                   node-version: ${{ matrix.node-version }}
+                  check-latest: true
 
             - name: Update system
               run: sudo apt-get update -y
@@ -802,7 +816,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [16.x]
+                node-version: [24]
 
         steps:
             - uses: actions/checkout@v4
@@ -810,12 +824,13 @@ jobs:
               uses: actions/cache@v4
               with:
                   path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
+                  key: ${{ runner.os }}-node24-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node24-
             - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v1
+              uses: actions/setup-node@v4
               with:
                   node-version: ${{ matrix.node-version }}
+                  check-latest: true
 
             - name: Update system
               run: sudo apt-get update -y
@@ -857,7 +872,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [16.x]
+                node-version: [24]
 
         steps:
             - uses: actions/checkout@v4
@@ -865,12 +880,13 @@ jobs:
               uses: actions/cache@v4
               with:
                   path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
+                  key: ${{ runner.os }}-node24-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node24-
             - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v1
+              uses: actions/setup-node@v4
               with:
                   node-version: ${{ matrix.node-version }}
+                  check-latest: true
 
             - name: Update system
               run: sudo apt-get update -y
@@ -906,7 +922,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [16.x]
+                node-version: [24]
 
         steps:
             - uses: actions/checkout@v4
@@ -914,12 +930,13 @@ jobs:
               uses: actions/cache@v4
               with:
                   path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
+                  key: ${{ runner.os }}-node24-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node24-
             - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v1
+              uses: actions/setup-node@v4
               with:
                   node-version: ${{ matrix.node-version }}
+                  check-latest: true
 
             - name: Update system
               run: sudo apt-get update -y
@@ -955,7 +972,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [16.x]
+                node-version: [24]
 
         steps:
             - uses: actions/checkout@v4
@@ -963,12 +980,13 @@ jobs:
               uses: actions/cache@v4
               with:
                   path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
+                  key: ${{ runner.os }}-node24-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node24-
             - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v1
+              uses: actions/setup-node@v4
               with:
                   node-version: ${{ matrix.node-version }}
+                  check-latest: true
 
             - name: Update system
               run: sudo apt-get update -y
@@ -1004,7 +1022,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [16.x]
+                node-version: [24]
 
         steps:
             - uses: actions/checkout@v4
@@ -1012,12 +1030,13 @@ jobs:
               uses: actions/cache@v4
               with:
                   path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
+                  key: ${{ runner.os }}-node24-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node24-
             - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v1
+              uses: actions/setup-node@v4
               with:
                   node-version: ${{ matrix.node-version }}
+                  check-latest: true
 
             - name: Update system
               run: sudo apt-get update -y
@@ -1053,7 +1072,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [16.x]
+                node-version: [24]
 
         steps:
             - uses: actions/checkout@v4
@@ -1061,12 +1080,13 @@ jobs:
               uses: actions/cache@v4
               with:
                   path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
+                  key: ${{ runner.os }}-node24-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node24-
             - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v1
+              uses: actions/setup-node@v4
               with:
                   node-version: ${{ matrix.node-version }}
+                  check-latest: true
 
             - name: Update system
               run: sudo apt-get update -y
@@ -1102,7 +1122,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [16.x]
+                node-version: [24]
 
         steps:
             - uses: actions/checkout@v4
@@ -1110,12 +1130,13 @@ jobs:
               uses: actions/cache@v4
               with:
                   path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
+                  key: ${{ runner.os }}-node24-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node24-
             - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v1
+              uses: actions/setup-node@v4
               with:
                   node-version: ${{ matrix.node-version }}
+                  check-latest: true
 
             - name: Update system
               run: sudo apt-get update -y
@@ -1151,7 +1172,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [16.x]
+                node-version: [24]
 
         steps:
             - uses: actions/checkout@v4
@@ -1159,12 +1180,13 @@ jobs:
               uses: actions/cache@v4
               with:
                   path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
+                  key: ${{ runner.os }}-node24-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node24-
             - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v1
+              uses: actions/setup-node@v4
               with:
                   node-version: ${{ matrix.node-version }}
+                  check-latest: true
 
             - name: Update system
               run: sudo apt-get update -y
