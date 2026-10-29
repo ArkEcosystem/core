@@ -42,10 +42,6 @@ error ()
 
 # Detect pkg type
 DEB=$(which apt-get || :)
-RPM=$(which yum || :)
-
-# Detect SystemV / SystemD
-SYS=$([[ -L "/sbin/init" ]] && echo 'SystemD' || echo 'SystemV')
 
 # Detect Debian/Ubuntu derivative
 DEB_ID=$( (grep DISTRIB_CODENAME /etc/upstream-release/lsb-release || grep DISTRIB_CODENAME /etc/lsb-release || grep VERSION_CODENAME /etc/os-release) 2>/dev/null | cut -d'=' -f2 )
@@ -56,166 +52,99 @@ APT_ENV="DEBIAN_FRONTEND=noninteractive NEEDRESTART_MODE=a"
 
 if [[ ! -z $DEB ]]; then
     success "Running install for Debian derivative"
-elif [[ ! -z $RPM ]]; then
-    success "Running install for RedHat derivative"
 else
     heading "Unsupported system"
     exit 1;
 fi
 
-if [[ $(locale -a | grep ^en_US.UTF-8) ]] || [[ $(locale -a | grep ^en_US.utf8) ]]; then
-    if ! $(grep -E "(en_US.UTF-8)" "$HOME/.bashrc"); then
-        # Setting the bashrc locale
-        echo "export LC_ALL=en_US.UTF-8" >> "$HOME/.bashrc"
-        echo "export LANG=en_US.UTF-8" >> "$HOME/.bashrc"
-        echo "export LANGUAGE=en_US.UTF-8" >> "$HOME/.bashrc"
+heading "Installing system dependencies..."
 
-        # Setting the current shell locale
-        export LC_ALL="en_US.UTF-8"
-        export LANG="en_US.UTF-8"
-        export LANGUAGE="en_US.UTF-8"
-    fi
-else
-    # Install en_US.UTF-8 Locale
-    if [[ ! -z $DEB ]]; then
-        sudo locale-gen en_US.UTF-8
-        sudo update-locale LANG=en_US.UTF-8
-    elif [[ ! -z $RPM ]]; then
-        sudo localedef -c -i en_US -f UTF-8 en_US.UTF-8
-    fi
+sudo apt-get update
+sudo $APT_ENV apt-get install git curl apt-transport-https bc wget gnupg locales -yq
 
-    # Setting the current shell locale
-    export LC_ALL="en_US.UTF-8"
-    export LANG="en_US.UTF-8"
-    export LANGUAGE="en_US.UTF-8"
+success "Installed system dependencies!"
 
-    # Setting the bashrc locale
+heading "Configuring the en_US.UTF-8 locale..."
+
+if ! locale -a | grep -qiE '^en_US\.utf-?8$'; then
+    # Debian only generates the locales that are enabled in /etc/locale.gen
+    sudo sed -i 's/^# *\(en_US.UTF-8 UTF-8\)/\1/' /etc/locale.gen 2>/dev/null || true
+    sudo locale-gen en_US.UTF-8
+    sudo update-locale LANG=en_US.UTF-8
+fi
+
+export LC_ALL="en_US.UTF-8"
+export LANG="en_US.UTF-8"
+export LANGUAGE="en_US.UTF-8"
+
+if ! grep -q "en_US.UTF-8" "$HOME/.bashrc"; then
     echo "export LC_ALL=en_US.UTF-8" >> "$HOME/.bashrc"
     echo "export LANG=en_US.UTF-8" >> "$HOME/.bashrc"
     echo "export LANGUAGE=en_US.UTF-8" >> "$HOME/.bashrc"
 fi
 
-heading "Installing system dependencies..."
+success "Configured the en_US.UTF-8 locale!"
 
-if [[ ! -z $DEB ]]; then
-    sudo apt-get update
-    sudo $APT_ENV apt-get install git curl apt-transport-https bc wget gnupg -yq
-elif [[ ! -z $RPM ]]; then
-    sudo yum update -y
-    sudo yum install git curl epel-release --skip-broken -y
-fi
+heading "Make sure NTP exists systemwide and it's enabled by default..."
 
-success "Installed system dependencies!"
+sudo $APT_ENV apt-get install systemd-timesyncd -yq
+sudo timedatectl set-ntp on > /dev/null 2>&1 || true
+
+success "Done setting up NTP!"
 
 heading "Installing node.js & npm..."
 
 sudo rm -rf /usr/local/{lib/node{,/.npm,_modules},bin,share/man}/{npm*,node*,man1/node*}
 sudo rm -rf ~/{.npm,.forever,.node*,.cache,.nvm}
-
-if [[ ! -z $DEB ]]; then
-    (echo -e "Package: nodejs\nPin: origin deb.nodesource.com\nPin-Priority: 999" | sudo tee /etc/apt/preferences.d/nodesource)
-    curl -sL  https://deb.nodesource.com/gpgkey/nodesource.gpg.key | gpg --dearmor | sudo tee /usr/share/keyrings/nodesource.gpg >/dev/null
-    (echo "deb [signed-by=/usr/share/keyrings/nodesource.gpg] https://deb.nodesource.com/node_16.x ${DEB_ID} main" | sudo tee /etc/apt/sources.list.d/nodesource.list)
-    sudo apt-get update
-    sudo $APT_ENV apt-get install nodejs -yq
-
-elif [[ ! -z $RPM ]]; then
-    sudo yum install gcc-c++ make -y
-    curl -sL https://rpm.nodesource.com/setup_16.x | sudo -E bash - > /dev/null 2>&1
-fi
+(echo -e "Package: nodejs\nPin: origin deb.nodesource.com\nPin-Priority: 999" | sudo tee /etc/apt/preferences.d/nodesource)
+curl -sL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor | sudo tee /usr/share/keyrings/nodesource.gpg >/dev/null
+(echo "deb [signed-by=/usr/share/keyrings/nodesource.gpg] https://deb.nodesource.com/node_24.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list)
+sudo apt-get update
+sudo $APT_ENV apt-get install nodejs -yq
 
 success "Installed node.js & npm!"
 
-heading "Installing Yarn..."
+heading "Installing yarn..."
 
-if [[ ! -z $DEB ]]; then
-    curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor | sudo tee /usr/share/keyrings/yarnkey.gpg >/dev/null
-    (echo "deb [signed-by=/usr/share/keyrings/yarnkey.gpg] https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list)
-    sudo apt-get update
-    sudo $APT_ENV apt-get install yarn -yq
-elif [[ ! -z $RPM ]]; then
-    curl -sL https://dl.yarnpkg.com/rpm/yarn.repo | sudo tee /etc/yum.repos.d/yarn.repo
-    sudo yum install yarn -y
-fi
+curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor | sudo tee /usr/share/keyrings/yarnkey.gpg >/dev/null
+(echo "deb [signed-by=/usr/share/keyrings/yarnkey.gpg] https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list)
+sudo apt-get update
+sudo $APT_ENV apt-get install yarn -yq
 
-success "Installed Yarn!"
+success "Installed yarn!"
 
-heading "Installing PM2..."
+heading "Installing pm2..."
 
-sudo yarn global add pm2
+sudo yarn global add pm2@7
 pm2 install pm2-logrotate
 pm2 set pm2-logrotate:max_size 500M
 pm2 set pm2-logrotate:compress true
 pm2 set pm2-logrotate:retain 7
 
-success "Installed PM2!"
+success "Installed pm2!"
 
 heading "Installing PostgreSQL..."
 
-if [[ ! -z $DEB ]]; then
-    curl -sL https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor | sudo tee /usr/share/keyrings/pgdg.gpg >/dev/null
-    (echo "deb [signed-by=/usr/share/keyrings/pgdg.gpg] http://apt.postgresql.org/pub/repos/apt ${DEB_ID}-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list )
-    sudo apt-get update
-    sudo $APT_ENV apt-get install postgresql -yq
-elif [[ ! -z $RPM ]]; then
-    sudo yum install postgresql-server postgresql-contrib -y
-
-    if [[ "$SYS" == "SystemV" ]]; then
-        sudo service postgresql initdb
-        sudo service postgresql start
-    else
-        sudo postgresql-setup initdb || true
-        sudo sed -i  '/^host    all             all             127.0.0.1\/32            ident/ s/ident/md5/' /var/lib/pgsql/data/pg_hba.conf > /dev/null 2>&1 || true
-        sudo systemctl start postgresql
-    fi
-fi
+curl -sL https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor | sudo tee /usr/share/keyrings/pgdg.gpg >/dev/null
+(echo "deb [signed-by=/usr/share/keyrings/pgdg.gpg] https://apt.postgresql.org/pub/repos/apt ${DEB_ID}-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list)
+sudo apt-get update
+sudo $APT_ENV apt-get install postgresql-18 -yq
 
 success "Installed PostgreSQL!"
 
 heading "Installing program dependencies..."
 
-if [[ ! -z $DEB ]]; then
-    sudo $APT_ENV apt-get install build-essential pkg-config libtool autoconf automake libpq-dev jq libjemalloc-dev -yq
-elif [[ ! -z $RPM ]]; then
-    sudo yum groupinstall "Development Tools" -y -q
-    sudo yum install postgresql-devel jq jemalloc-devel -y -q
-fi
+sudo $APT_ENV apt-get install build-essential python-is-python3 pkg-config libtool autoconf automake libpq-dev jq libjemalloc-dev python3-setuptools -yq
 
 success "Installed program dependencies!"
 
-
-heading "Installing NTP..."
-
-sudo timedatectl set-ntp off > /dev/null 2>&1 || true # disable the default systemd timesyncd service
-
-if [[ ! -z $DEB ]]; then
-    sudo $APT_ENV apt-get install ntp -yq
-    if [ -z "$(sudo service ntp status |grep running)" ] ; then
-       sudo ntpd -gq
-    fi
-
-elif [[ ! -z $RPM ]]; then
-    sudo yum install chrony -y -q
-
-    if [ -z "$(sudo service chronyd status |grep running)" ] ; then
-       sudo chronyd -q
-    fi
-fi
-
-success "Installed NTP!"
-
 heading "Installing system updates..."
 
-if [[ ! -z $DEB ]]; then
-    sudo apt-get update
-    sudo $APT_ENV apt-get upgrade -yq
-    sudo $APT_ENV apt-get dist-upgrade -yq
-    sudo apt-get autoremove -yq
-    sudo apt-get autoclean -yq
-elif [[ ! -z $RPM ]]; then
-    sudo yum update
-    sudo yum clean all
-fi
+sudo apt-get update
+sudo $APT_ENV apt-get upgrade -yq
+sudo $APT_ENV apt-get dist-upgrade -yq
+sudo apt-get autoremove -yq
+sudo apt-get autoclean -yq
 
 success "Installed system updates!"
 
@@ -286,7 +215,7 @@ if [[ "$choice" =~ ^(yes|y|Y) ]]; then
         if [[ "$choice" =~ ^(yes|y|Y) ]]; then
             sudo -i -u postgres psql -c "DROP DATABASE ${databaseName};"
             sudo -i -u postgres psql -c "CREATE DATABASE ${databaseName} WITH OWNER ${databaseUsername};"
-        elif [[ "$choice" =~ ^(no|n|N) ]]; then
+        else
             sudo -i -u postgres psql -c "ALTER DATABASE ${databaseName} OWNER TO ${databaseUsername};"
         fi
     else
