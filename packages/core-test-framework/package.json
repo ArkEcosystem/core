@@ -49,7 +49,7 @@
         "@types/got": "9.6.12"
     },
     "engines": {
-        "node": ">=10.x"
+        "node": "^24.22.1"
     },
     "publishConfig": {
         "access": "public"

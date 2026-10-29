@@ -29,10 +29,10 @@
         "@hapi/boom": "9.1.4",
         "@hapi/hapi": "20.1.5",
         "@hapi/hoek": "9.2.0",
-        "joi": "17.12.1",
+        "joi": "17.13.8",
         "nanomatch": "1.2.13",
         "node-cache": "5.1.2",
-        "qs": "6.11.2",
+        "qs": "6.16.1",
         "rate-limiter-flexible": "4.0.1",
         "semaphore": "1.1.0",
         "semver": "7.5.4"
@@ -43,7 +43,7 @@
         "@types/semver": "7.5.6"
     },
     "engines": {
-        "node": ">=10.x"
+        "node": "^24.22.1"
     },
     "publishConfig": {
         "access": "public"

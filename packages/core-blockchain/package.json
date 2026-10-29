@@ -28,11 +28,11 @@
         "@arkecosystem/core-state": "3.13.0-rc.1",
         "@arkecosystem/core-transactions": "3.13.0-rc.1",
         "@arkecosystem/crypto": "3.13.0-rc.1",
-        "joi": "17.12.1",
+        "joi": "17.13.8",
         "xstate": "4.38.3"
     },
     "engines": {
-        "node": ">=10.x"
+        "node": "^24.22.1"
     },
     "publishConfig": {
         "access": "public"

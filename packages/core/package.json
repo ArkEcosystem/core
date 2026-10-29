@@ -64,18 +64,22 @@
         "env-paths": "2.2.1",
         "envfile": "5.2.0",
         "fs-extra": "8.1.0",
-        "joi": "17.12.1",
+        "joi": "17.13.8",
         "kleur": "4.1.5",
-        "ngrok": "4.3.3",
         "prompts": "2.4.0",
         "type-fest": "0.21.3",
         "wif": "2.0.6"
     },
     "peerDependencies": {
-        "pm2": "^4.5.0"
+        "pm2": "^7.0.0"
+    },
+    "peerDependenciesMeta": {
+        "pm2": {
+            "optional": true
+        }
     },
     "engines": {
-        "node": ">=10.x"
+        "node": "^24.22.1"
     },
     "publishConfig": {
         "access": "public"

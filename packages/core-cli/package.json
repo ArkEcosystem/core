@@ -35,7 +35,7 @@
         "glob": "7.1.7",
         "got": "11.8.5",
         "inversify": "5.1.1",
-        "joi": "17.12.1",
+        "joi": "17.13.8",
         "kleur": "4.1.5",
         "latest-version": "5.1.0",
         "listr": "0.14.3",
@@ -43,9 +43,9 @@
         "ora": "4.1.1",
         "prompts": "2.4.0",
         "read-last-lines": "1.8.0",
-        "reflect-metadata": "0.2.1",
+        "reflect-metadata": "0.2.2",
         "semver": "7.5.4",
-        "tar": "6.2.0",
+        "tar": "6.2.1",
         "type-fest": "0.21.3",
         "yargs-parser": "21.1.1"
     },
@@ -58,7 +58,7 @@
         "@types/yargs-parser": "20.2.1"
     },
     "engines": {
-        "node": ">=10.x"
+        "node": "^24.22.1"
     },
     "publishConfig": {
         "access": "public"

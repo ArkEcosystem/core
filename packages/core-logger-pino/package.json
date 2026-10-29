@@ -22,7 +22,7 @@
     "dependencies": {
         "@arkecosystem/core-kernel": "3.13.0-rc.1",
         "chalk": "4.1.2",
-        "joi": "17.12.1",
+        "joi": "17.13.8",
         "pino": "8.7.0",
         "pino-pretty": "9.1.1",
         "pump": "3.0.0",
@@ -31,7 +31,7 @@
         "split2": "4.2.0"
     },
     "engines": {
-        "node": ">=10.x"
+        "node": "^24.22.1"
     },
     "publishConfig": {
         "access": "public"

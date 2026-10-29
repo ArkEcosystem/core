@@ -11,7 +11,7 @@ services:
             - 4900:4900
 
     postgres0: &postgresServiceDefinition
-        image: "postgres:alpine"
+        image: "postgres:18-alpine"
         environment:
             POSTGRES_PASSWORD: password
             POSTGRES_DB: ark_testnet

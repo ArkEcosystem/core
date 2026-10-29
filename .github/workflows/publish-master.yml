@@ -16,9 +16,10 @@ jobs:
 
         steps:
             - uses: actions/checkout@v4
-            - uses: actions/setup-node@v1
+            - uses: actions/setup-node@v4
               with:
-                  node-version: 16
+                  node-version: 24
+                  check-latest: true
                   registry-url: https://registry.npmjs.org/
 
             - name: Install & Build
@@ -38,7 +39,6 @@ jobs:
                   cd core-magistrate-api && npm publish --access public && cd ..
                   cd core-magistrate-crypto && npm publish --access public && cd ..
                   cd core-magistrate-transactions && npm publish --access public && cd ..
-                  cd core-manager && npm publish --access public && cd ..
                   cd core-p2p && npm publish --access public && cd ..
                   cd core-snapshots && npm publish --access public && cd ..
                   cd core-state && npm publish --access public && cd ..

@@ -22,12 +22,12 @@
     "dependencies": {
         "@arkecosystem/core-kernel": "3.13.0-rc.1",
         "@arkecosystem/crypto": "3.13.0-rc.1",
-        "@hapi/boom": "9.0.0",
+        "@hapi/boom": "9.1.4",
         "@hapi/hapi": "20.1.5",
         "fs-extra": "8.1.0",
-        "joi": "17.12.1",
+        "joi": "17.13.8",
         "lowdb": "1.0.0",
-        "uuid": "9.0.1"
+        "uuid": "11.1.1"
     },
     "devDependencies": {
         "@types/fs-extra": "8.1.2",
@@ -35,7 +35,7 @@
         "@types/uuid": "8.3.1"
     },
     "engines": {
-        "node": ">=10.x"
+        "node": "^24.22.1"
     },
     "publishConfig": {
         "access": "public"
