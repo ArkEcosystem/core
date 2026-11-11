@@ -58,7 +58,7 @@
         "@types/yargs-parser": "20.2.1"
     },
     "engines": {
-        "node": "^24.22.1"
+        "node": "^24.22.3"
     },
     "publishConfig": {
         "access": "public"
