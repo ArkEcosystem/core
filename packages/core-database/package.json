@@ -32,7 +32,7 @@
         "typeorm": "0.2.25"
     },
     "engines": {
-        "node": "^24.22.2"
+        "node": "^24.22.3"
     },
     "publishConfig": {
         "access": "public"
