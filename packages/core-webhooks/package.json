@@ -35,7 +35,7 @@
         "@types/uuid": "8.3.1"
     },
     "engines": {
-        "node": "^24.22.1"
+        "node": "^24.22.2"
     },
     "publishConfig": {
         "access": "public"
