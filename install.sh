@@ -1,226 +1,245 @@
 #!/usr/bin/env bash
+# ARK Core installer for Debian and Ubuntu.
+# Review before running. Run as a user with sudo access.
+set -Eeuo pipefail
+IFS=$'\n\t'
 
-set -e
+readonly NODE_MAJOR=24
+readonly PG_MAJOR=18
+readonly NODE_KEYRING='/usr/share/keyrings/nodesource.gpg'
+readonly PG_KEYRING='/usr/share/keyrings/postgresql.gpg'
+readonly YARN_KEYRING='/usr/share/keyrings/yarnkey.gpg'
 
-# Typography
-red=$(tput setaf 1)
-green=$(tput setaf 2)
-yellow=$(tput setaf 3)
-lila=$(tput setaf 4)
-pink=$(tput setaf 5)
-blue=$(tput setaf 6)
-white=$(tput setaf 7)
-black=$(tput setaf 8)
-
-bold=$(tput bold)
-reset=$(tput sgr0)
-
-heading ()
-{
-    echo "    ${lila}==>${reset}${bold} $1${reset}"
-}
-
-success ()
-{
-    echo "    ${green}==>${reset}${bold} $1${reset}"
-}
-
-info ()
-{
-    echo "    ${blue}==>${reset}${bold} $1${reset}"
-}
-
-warning ()
-{
-    echo "    ${yellow}==>${reset}${bold} $1${reset}"
-}
-
-error ()
-{
-    echo "    ${red}==>${reset}${bold} $1${reset}"
-}
-
-# Detect pkg type
-DEB=$(which apt-get || :)
-
-# Detect Debian/Ubuntu derivative
-DEB_ID=$( (grep DISTRIB_CODENAME /etc/upstream-release/lsb-release || grep DISTRIB_CODENAME /etc/lsb-release || grep VERSION_CODENAME /etc/os-release) 2>/dev/null | cut -d'=' -f2 )
-
-#APT Vars
-APT_ENV="DEBIAN_FRONTEND=noninteractive NEEDRESTART_MODE=a"
-
-
-if [[ ! -z $DEB ]]; then
-    success "Running install for Debian derivative"
-else
-    heading "Unsupported system"
-    exit 1;
+if [[ ! -t 0 || ! -t 1 ]]; then
+  printf 'Run this installer in an interactive terminal.\n' >&2
+  exit 2
 fi
-
-heading "Installing system dependencies..."
-
-sudo apt-get update
-sudo $APT_ENV apt-get install git curl apt-transport-https bc wget gnupg locales -yq
-
-success "Installed system dependencies!"
-
-heading "Configuring the en_US.UTF-8 locale..."
-
-if ! locale -a | grep -qiE '^en_US\.utf-?8$'; then
-    # Debian only generates the locales that are enabled in /etc/locale.gen
-    sudo sed -i 's/^# *\(en_US.UTF-8 UTF-8\)/\1/' /etc/locale.gen 2>/dev/null || true
-    sudo locale-gen en_US.UTF-8
-    sudo update-locale LANG=en_US.UTF-8
-fi
-
-export LC_ALL="en_US.UTF-8"
-export LANG="en_US.UTF-8"
-export LANGUAGE="en_US.UTF-8"
-
-if ! grep -q "en_US.UTF-8" "$HOME/.bashrc"; then
-    echo "export LC_ALL=en_US.UTF-8" >> "$HOME/.bashrc"
-    echo "export LANG=en_US.UTF-8" >> "$HOME/.bashrc"
-    echo "export LANGUAGE=en_US.UTF-8" >> "$HOME/.bashrc"
-fi
-
-success "Configured the en_US.UTF-8 locale!"
-
-heading "Make sure NTP exists systemwide and it's enabled by default..."
-
-sudo $APT_ENV apt-get install systemd-timesyncd -yq
-sudo timedatectl set-ntp on > /dev/null 2>&1 || true
-
-success "Done setting up NTP!"
-
-heading "Installing node.js & npm..."
-
-sudo rm -rf /usr/local/{lib/node{,/.npm,_modules},bin,share/man}/{npm*,node*,man1/node*}
-sudo rm -rf ~/{.npm,.forever,.node*,.cache,.nvm}
-(echo -e "Package: nodejs\nPin: origin deb.nodesource.com\nPin-Priority: 999" | sudo tee /etc/apt/preferences.d/nodesource)
-curl -sL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor | sudo tee /usr/share/keyrings/nodesource.gpg >/dev/null
-(echo "deb [signed-by=/usr/share/keyrings/nodesource.gpg] https://deb.nodesource.com/node_24.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list)
-sudo apt-get update
-sudo $APT_ENV apt-get install nodejs -yq
-
-success "Installed node.js & npm!"
-
-heading "Installing yarn..."
-
-curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor | sudo tee /usr/share/keyrings/yarnkey.gpg >/dev/null
-(echo "deb [signed-by=/usr/share/keyrings/yarnkey.gpg] https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list)
-sudo apt-get update
-sudo $APT_ENV apt-get install yarn -yq
-
-success "Installed yarn!"
-
-heading "Installing pm2..."
-
-sudo yarn global add pm2@7
-pm2 install pm2-logrotate
-pm2 set pm2-logrotate:max_size 500M
-pm2 set pm2-logrotate:compress true
-pm2 set pm2-logrotate:retain 7
-
-success "Installed pm2!"
-
-heading "Installing PostgreSQL..."
-
-curl -sL https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor | sudo tee /usr/share/keyrings/pgdg.gpg >/dev/null
-(echo "deb [signed-by=/usr/share/keyrings/pgdg.gpg] https://apt.postgresql.org/pub/repos/apt ${DEB_ID}-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list)
-sudo apt-get update
-sudo $APT_ENV apt-get install postgresql-18 -yq
-
-success "Installed PostgreSQL!"
-
-heading "Installing program dependencies..."
-
-sudo $APT_ENV apt-get install build-essential python-is-python3 pkg-config libtool autoconf automake libpq-dev jq libjemalloc-dev python3-setuptools -yq
-
-success "Installed program dependencies!"
-
-heading "Installing system updates..."
-
-sudo apt-get update
-sudo $APT_ENV apt-get upgrade -yq
-sudo $APT_ENV apt-get dist-upgrade -yq
-sudo apt-get autoremove -yq
-sudo apt-get autoclean -yq
-
-success "Installed system updates!"
-
-heading "Installing ARK Core..."
-
-while ! yarn global add @arkecosystem/core ; do
-    read -p "Installing ARK Core failed, do you want to retry? [y/N]: " choice
-    if [[ ! "$choice" =~ ^(yes|y|Y) ]] ; then
-        exit 1
-    fi
+. /etc/os-release
+case "${ID:-}" in
+  ubuntu|debian) ;;
+  *) printf "Unsupported distribution '%s'. Supported: Debian and Ubuntu.\n" "${ID:-unknown}" >&2; exit 2 ;;
+esac
+for cmd in apt-get dpkg awk grep; do
+  command -v "$cmd" >/dev/null || { printf 'Required command not found: %s\n' "$cmd" >&2; exit 2; }
 done
 
-echo 'export PATH=$(yarn global bin):$PATH' >> ~/.bashrc
-export PATH=$(yarn global bin):$PATH
-ark config:publish
+if ! command -v sudo >/dev/null 2>&1; then
+  if (( EUID == 0 )); then
+    printf 'sudo is missing. As root, run: apt-get update && apt-get install -y sudo\nThen rerun this installer.\n' >&2
+  else
+    printf 'sudo is missing. Ask root to run: apt-get update && apt-get install -y sudo\nusermod -aG sudo %s\nLog out and log back in to pick up the new group membership, then rerun this installer.\n' "$(id -un)" >&2
+  fi
+  exit 2
+fi
+if (( EUID != 0 )); then
+  if ! sudo -v; then
+    printf 'User "%s" cannot run sudo. Please log in as root, run: usermod -aG sudo %s\nLog out and log back in to pick up the new group membership, then rerun this installer.\n' "$(id -un)" "$(id -un)" >&2
+    exit 2
+  fi
+fi
+RED='' GREEN='' YELLOW='' BLUE='' BOLD='' RESET=''
+if [[ -t 1 ]] && command -v tput >/dev/null && [[ $(tput colors 2>/dev/null || printf 0) -ge 8 ]]; then
+  RED=$(tput setaf 1); GREEN=$(tput setaf 2); YELLOW=$(tput setaf 3)
+  BLUE=$(tput setaf 4); BOLD=$(tput bold); RESET=$(tput sgr0)
+fi
+heading() { printf '  %s==>%s %s\n' "$BLUE" "$RESET" "$*"; }
+success() { printf '  %s==>%s %s\n' "$GREEN" "$RESET" "$*"; }
+warn() { printf '  %s==>%s %s\n' "$YELLOW" "$RESET" "$*"; }
+die() { printf '  %sERROR:%s %s\n' "$RED" "$RESET" "$*" >&2; exit 1; }
 
-success "Installed ARK Core!"
-
-readNonempty() {
-    prompt=${1}
-    answer=""
-    while [ -z "${answer}" ] ; do
-        read -p "${prompt}" answer
-    done
-    echo "${answer}"
+read_yes_no() {
+  local prompt=$1 answer
+  read -r -p "$prompt [y/N]: " answer
+  [[ $answer =~ ^([yY]|[yY][eE][sS])$ ]]
 }
 
-# setup postgres username, password and database
-read -p "Would you like to configure the database? [y/N]: " choice
+ark_configure_manual_upgrade_message() {
+  printf 'This installer is designed for a clean host. An existing ARK Core installation was detected. Please use a fresh host or upgrade the current host manually; no installation changes have been made.\n' >&2
+}
 
-if [[ "$choice" =~ ^(yes|y|Y) ]]; then
-    choice=""
-    while [[ ! "$choice" =~ ^(yes|y|Y) ]] ; do
-        databaseUsername=$(readNonempty "Enter the database username: ")
-        databasePassword=$(readNonempty "Enter the database password: ")
-        databaseName=$(readNonempty "Enter the database name: ")
-
-        echo "database username: ${databaseUsername}"
-        echo "database password: ${databasePassword}"
-        echo "database name: ${databaseName}"
-        read -p "Proceed? [y/N]: " choice
-    done
-
-    ark env:set --key=CORE_DB_USERNAME --value="${databaseUsername}"
-    ark env:set --key=CORE_DB_PASSWORD --value="${databasePassword}"
-    ark env:set --key=CORE_DB_DATABASE --value="${databaseName}"
-
-    userExists=$(sudo -i -u postgres psql -tAc "SELECT 1 FROM pg_user WHERE usename = '${databaseUsername}'")
-    databaseExists=$(sudo -i -u postgres psql -tAc "SELECT 1 FROM pg_database WHERE datname = '${databaseName}'")
-
-    if [[ $userExists == 1 ]]; then
-        read -p "The database user ${databaseUsername} already exists, do you want to recreate it? [y/N]: " choice
-
-        if [[ "$choice" =~ ^(yes|y|Y) ]]; then
-            if [[ $databaseExists == 1 ]]; then
-                sudo -i -u postgres psql -c "ALTER DATABASE ${databaseName} OWNER TO postgres;"
-            fi
-            sudo -i -u postgres psql -c "DROP USER ${databaseUsername}"
-            sudo -i -u postgres psql -c "CREATE USER ${databaseUsername} WITH PASSWORD '${databasePassword}' CREATEDB;"
-        fi
-    else
-        sudo -i -u postgres psql -c "CREATE USER ${databaseUsername} WITH PASSWORD '${databasePassword}' CREATEDB;"
-    fi
-
-    if [[ $databaseExists == 1 ]]; then
-        read -p "The database ${databaseName} already exists, do you want to overwrite it? [y/N]: " choice
-
-        if [[ "$choice" =~ ^(yes|y|Y) ]]; then
-            sudo -i -u postgres psql -c "DROP DATABASE ${databaseName};"
-            sudo -i -u postgres psql -c "CREATE DATABASE ${databaseName} WITH OWNER ${databaseUsername};"
-        else
-            sudo -i -u postgres psql -c "ALTER DATABASE ${databaseName} OWNER TO ${databaseUsername};"
-        fi
-    else
-        sudo -i -u postgres psql -c "CREATE DATABASE ${databaseName} WITH OWNER ${databaseUsername};"
-    fi
+if command -v ark >/dev/null 2>&1; then
+  existing_ark_version=$(ark --version 2>/dev/null | head -n 1 || true)
+  printf 'Existing ARK Core command found: %s\n' "${existing_ark_version:-version unavailable}" >&2
+  ark_configure_manual_upgrade_message
+  exit 1
 fi
 
-exec "$BASH"
+if command -v yarn >/dev/null 2>&1; then
+  yarn_global_dir=$(yarn global dir 2>/dev/null || true)
+  existing_core_package="$yarn_global_dir/node_modules/@arkecosystem/core/package.json"
+  if [[ -n $yarn_global_dir && -f $existing_core_package ]]; then
+    existing_ark_version=$(node -e 'process.stdout.write(require(process.argv[1]).version)' "$existing_core_package" 2>/dev/null || printf 'version unavailable')
+    printf 'Existing global ARK Core package found: %s\n' "$existing_ark_version" >&2
+    ark_configure_manual_upgrade_message
+    exit 1
+  fi
+fi
+
+printf 'Select the network:\n  1) MainNET\n  2) DevNET\n'
+while true; do
+  read -r -p 'Choose MainNET or DevNET: ' install_target
+  case "${install_target,,}" in
+    1|mainnet)
+      install_target='MainNET'
+      core_package='@arkecosystem/core'
+      config_args=()
+      break
+      ;;
+    2|devnet)
+      install_target='DevNET'
+      core_package='@arkecosystem/core@rc'
+      config_args=(--network=devnet)
+      break
+      ;;
+    *)
+      printf 'Please enter MainNET or DevNET.\n' >&2
+      ;;
+  esac
+done
+heading "Selected ${install_target}."
+
+# APT repository setup is repeated safely and keys are installed as dearmored keyrings.
+install_apt_key() {
+  local url=$1 destination=$2 temporary
+  temporary=$(mktemp)
+  if ! curl --fail --silent --show-error --location --retry 3 --retry-delay 2 "$url" -o "$temporary"; then
+    rm -f "$temporary"
+    die "Could not download repository key from $url"
+  fi
+  gpg --batch --yes --dearmor --output "$temporary.gpg" "$temporary" || { rm -f "$temporary" "$temporary.gpg"; die "Invalid repository key from $url"; }
+  sudo install -o root -g root -m 0644 "$temporary.gpg" "$destination"
+  rm -f "$temporary" "$temporary.gpg"
+}
+
+heading 'Installing prerequisites'
+sudo apt-get update
+sudo env DEBIAN_FRONTEND=noninteractive NEEDRESTART_MODE=a apt-get install -y \
+  ca-certificates curl gnupg locales apt-transport-https
+
+heading 'Removing previous Node.js installation and cache'
+# Clear the invoking user's npm cache before purging the system-managed packages.
+if command -v npm >/dev/null 2>&1; then
+  npm cache clean --force || warn 'Could not clear the existing npm cache; continuing.'
+fi
+# Remove the invoking user's nvm installation because it can shadow the system Node.js.
+if [[ -d "$HOME/.nvm" ]]; then
+  rm -rf -- "$HOME/.nvm"
+fi
+sudo env DEBIAN_FRONTEND=noninteractive apt-get purge -y nodejs npm
+# Clear legacy manually installed Node.js files from standard /usr/local locations.
+sudo rm -f -- /usr/local/bin/node /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack
+sudo rm -rf -- /usr/local/lib/node_modules /usr/local/include/node
+sudo find /usr/local/share/man -type f \( -name 'node.1*' -o -name 'npm-*' -o -name 'npx-*' -o -name 'corepack-*' \) -delete 2>/dev/null || true
+sudo apt-get clean
+
+heading 'Configuring Node.js repository'
+sudo install -d -m 0755 /usr/share/keyrings
+install_apt_key 'https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key' "$NODE_KEYRING"
+printf 'deb [signed-by=%s] https://deb.nodesource.com/node_%s.x nodistro main\n' "$NODE_KEYRING" "$NODE_MAJOR" \
+  | sudo tee /etc/apt/sources.list.d/nodesource.list >/dev/null
+
+heading 'Configuring Yarn repository'
+install_apt_key 'https://dl.yarnpkg.com/debian/pubkey.gpg' "$YARN_KEYRING"
+printf 'deb [signed-by=%s] https://dl.yarnpkg.com/debian/ stable main\n' "$YARN_KEYRING" \
+  | sudo tee /etc/apt/sources.list.d/yarn.list >/dev/null
+
+heading 'Configuring PostgreSQL repository'
+install_apt_key 'https://www.postgresql.org/media/keys/ACCC4CF8.asc' "$PG_KEYRING"
+pg_codename=${UBUNTU_CODENAME:-${VERSION_CODENAME:-}}
+[[ -n $pg_codename ]] || die 'Could not determine the OS codename for the PostgreSQL repository.'
+printf 'deb [signed-by=%s] https://apt.postgresql.org/pub/repos/apt %s-pgdg main\n' "$PG_KEYRING" "$pg_codename" \
+  | sudo tee /etc/apt/sources.list.d/pgdg.list >/dev/null
+heading 'Installing Node.js, Yarn, PostgreSQL, and build dependencies'
+sudo apt-get update
+sudo env DEBIAN_FRONTEND=noninteractive NEEDRESTART_MODE=a apt-get install -y \
+  "nodejs" yarn "postgresql-${PG_MAJOR}" git bc wget build-essential python-is-python3 \
+  pkg-config libtool autoconf automake libpq-dev jq libjemalloc-dev python3-setuptools
+
+node_major=$(node --version | sed -E 's/^v([0-9]+).*/\1/')
+[[ $node_major == "$NODE_MAJOR" ]] || die "The installed Node.js major version does not match the configured repository. Check APT pinning or existing packages."
+
+heading 'Configuring UTF-8 locale'
+if ! locale -a | grep -qiE '^en_US\.utf-?8$'; then
+  if [[ -f /etc/locale.gen ]]; then
+    sudo sed -i -E 's/^#?[[:space:]]*(en_US\.UTF-8 UTF-8)/\1/' /etc/locale.gen
+  fi
+  sudo locale-gen en_US.UTF-8
+  sudo update-locale LANG=en_US.UTF-8
+fi
+export LANG=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
+export LANGUAGE=en_US:en
+
+heading 'Enabling time synchronization when available'
+if command -v timedatectl >/dev/null; then
+  sudo timedatectl set-ntp true || warn 'Could not enable NTP with timedatectl; continuing.'
+fi
+
+heading 'Installing PM2'
+sudo npm install --global pm2@7
+sudo pm2 install pm2-logrotate
+sudo pm2 set pm2-logrotate:max_size 500M
+sudo pm2 set pm2-logrotate:compress true
+sudo pm2 set pm2-logrotate:retain 7
+
+heading 'Installing ARK Core'
+yarn global add "$core_package"
+
+# Persist PATH only if Yarn global binaries are not already present.
+yarn_bin=$(yarn global bin)
+if ! grep -Fq "$yarn_bin" "$HOME/.bashrc" 2>/dev/null; then
+  printf '\n# Added by ARK Core installer\nexport PATH="%s:$PATH"\n' "$yarn_bin" >> "$HOME/.bashrc"
+fi
+export PATH="$yarn_bin:$PATH"
+command -v ark >/dev/null || die 'ARK CLI was installed but is not on PATH.'
+ark config:publish "${config_args[@]}"
+
+success 'ARK Core and system dependencies are installed.'
+
+if read_yes_no 'Would you like to configure a PostgreSQL user and database now?'; then
+  read -r -p 'Database username: ' db_user
+  read -r -s -p 'Database password: ' db_password; printf '\n'
+  read -r -p 'Database name: ' db_name
+  [[ -n $db_user && -n $db_password && -n $db_name ]] || die 'Username, password, and database name must be non-empty.'
+
+  printf 'User: %s\nDatabase: %s\n' "$db_user" "$db_name"
+  read_yes_no 'Create/update these database settings?' || die 'Database setup cancelled.'
+
+  user_exists=$(sudo -u postgres psql -XAtq -v db_user="$db_user" -f - <<'SQL'
+SELECT 1 FROM pg_roles WHERE rolname = :'db_user';
+SQL
+)
+  db_exists=$(sudo -u postgres psql -XAtq -v db_name="$db_name" -f - <<'SQL'
+SELECT 1 FROM pg_database WHERE datname = :'db_name';
+SQL
+)
+
+  if [[ $user_exists == 1 ]]; then
+    warn "Database role '$db_user' already exists; updating its password and CREATEDB privilege."
+    sudo -u postgres psql -Xv ON_ERROR_STOP=1 -v db_user="$db_user" -v db_password="$db_password" -f - <<'SQL'
+ALTER ROLE :"db_user" WITH LOGIN CREATEDB PASSWORD :'db_password';
+SQL
+  else
+    sudo -u postgres psql -Xv ON_ERROR_STOP=1 -v db_user="$db_user" -v db_password="$db_password" -f - <<'SQL'
+CREATE ROLE :"db_user" WITH LOGIN CREATEDB PASSWORD :'db_password';
+SQL
+  fi
+
+  if [[ $db_exists == 1 ]]; then
+    warn "Database '$db_name' exists. It will be kept and its owner will be changed."
+    sudo -u postgres psql -Xv ON_ERROR_STOP=1 -v db_name="$db_name" -v db_user="$db_user" -f - <<'SQL'
+ALTER DATABASE :"db_name" OWNER TO :"db_user";
+SQL
+  else
+    sudo -u postgres psql -Xv ON_ERROR_STOP=1 -v db_name="$db_name" -v db_user="$db_user" -f - <<'SQL'
+CREATE DATABASE :"db_name" OWNER :"db_user";
+SQL
+  fi
+
+  ark env:set --key=CORE_DB_USERNAME --value="$db_user"
+  ark env:set --key=CORE_DB_PASSWORD --value="$db_password"
+  ark env:set --key=CORE_DB_DATABASE --value="$db_name"
+  unset db_password
+fi
+success 'ARK Core setup complete.'
+printf 'Open a new shell (or run: source ~/.bashrc) to load PATH and locale changes.\n'
