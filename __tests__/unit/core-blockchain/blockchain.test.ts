@@ -766,6 +766,70 @@ describe("Blockchain", () => {
             expect(logService.warning).toHaveBeenCalledTimes(1);
             expect(spyOnProcessExit).toHaveBeenCalledTimes(1);
         });
+
+        describe("when blocks are received or processed at the same time", () => {
+            const blockData = { height: 4, numberOfTransactions: 0 } as Interfaces.IBlockData;
+
+            beforeEach(() => {
+                stateStore.getLastBlock = jest
+                    .fn()
+                    .mockReturnValueOnce(blockHeight3)
+                    .mockReturnValueOnce(blockHeight3)
+                    .mockReturnValueOnce(blockHeight3)
+                    .mockReturnValueOnce(blockHeight3)
+                    .mockReturnValueOnce(blockHeight2)
+                    .mockReturnValueOnce(blockHeight2)
+                    .mockReturnValue(blockHeight1);
+                stateStore.getLastDownloadedBlock = jest.fn().mockReturnValue(blockHeight3.data);
+                databaseService.getBlocks = jest.fn().mockReturnValueOnce(
+                    [blockHeight1, blockHeight2, blockHeight3].map((b) => ({
+                        ...b.data,
+                        transactions: b.transactions,
+                    })),
+                );
+                databaseService.getLastBlock = jest.fn().mockReturnValue(blockHeight1);
+            });
+
+            it("should not enqueue blocks until the blocks are removed", async () => {
+                const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
+                await blockchain.initialize();
+
+                // @ts-ignore
+                const spyQueuePush = jest.spyOn(blockchain.queue, "push");
+                jest.spyOn(ProcessBlocksJob.prototype, "handle").mockResolvedValue(undefined);
+
+                const removal = blockchain.removeBlocks(2);
+                blockchain.enqueueBlocks([blockData]);
+
+                expect(spyQueuePush).not.toHaveBeenCalled();
+
+                await removal;
+                blockchain.enqueueBlocks([blockData]);
+
+                expect(spyQueuePush).toHaveBeenCalledTimes(1);
+            });
+
+            it("should wait for the running job before removing blocks", async () => {
+                const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
+                await blockchain.initialize();
+
+                let finishJob!: () => void;
+                jest.spyOn(ProcessBlocksJob.prototype, "handle").mockImplementationOnce(
+                    () => new Promise<void>((resolve) => (finishJob = resolve)),
+                );
+
+                blockchain.enqueueBlocks([blockData]);
+                const removal = blockchain.removeBlocks(2);
+                await delay(10);
+
+                expect(databaseInteractions.revertBlock).not.toHaveBeenCalled();
+
+                finishJob();
+                await removal;
+
+                expect(databaseInteractions.revertBlock).toHaveBeenCalledTimes(2);
+            });
+        });
     });
 
     describe("removeTopBlocks", () => {

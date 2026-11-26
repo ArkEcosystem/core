@@ -54,6 +54,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
     private booted: boolean = false;
     private missedBlocks: number = 0;
     private lastCheckNetworkHealthTs: number = 0;
+    private removingBlocks: boolean = false;
 
     @Container.postConstruct()
     public async initialize(): Promise<void> {
@@ -237,7 +238,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
      * Enqueue blocks in process queue and set last downloaded block to last item in list.
      */
     public enqueueBlocks(blocks: Interfaces.IBlockData[]): void {
-        if (blocks.length === 0) {
+        if (blocks.length === 0 || this.removingBlocks) {
             return;
         }
 
@@ -290,8 +291,11 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
      * @return {void}
      */
     public async removeBlocks(nblocks: number): Promise<void> {
+        this.removingBlocks = true;
+
         try {
             this.clearAndStopQueue();
+            await this.queue.pause();
 
             const lastBlock: Interfaces.IBlock = this.stateStore.getLastBlock();
 
@@ -382,6 +386,8 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             this.logger.error(err.stack);
             this.logger.warning("Shutting down app, because state might be corrupted");
             process.exit(1);
+        } finally {
+            this.removingBlocks = false;
         }
     }
 
