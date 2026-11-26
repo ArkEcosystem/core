@@ -3,6 +3,7 @@ import Joi from "joi";
 import { Container } from "@arkecosystem/core-kernel";
 
 import { AcceptPeerPlugin } from "@arkecosystem/core-p2p/src/socket-server/plugins/accept-peer";
+import { Client, plugin as hapiNesPlugin } from "@packages/core-p2p/src/hapi-nes";
 
 afterEach(() => {
     jest.clearAllMocks();
@@ -67,6 +68,28 @@ describe("AcceptPeerPlugin", () => {
         expect(responseValid.statusCode).toBe(200);
         expect(peerProcessor.validateAndAcceptPeer).toBeCalledTimes(1);
         expect(peerProcessor.validateAndAcceptPeer).toBeCalledWith({ ip: remoteAddress }, {});
+    });
+
+    it("should use the connection address when the peer sends a x-forwarded-for header", async () => {
+        const server = new Server();
+        await server.register({ plugin: hapiNesPlugin });
+        server.route({ ...mockRoute, config: { ...mockRoute.config, handler: () => Buffer.from("ok") } });
+
+        acceptPeerPlugin.register(server);
+
+        await server.start();
+
+        const client = new Client("http://localhost:" + server.info.port, {
+            ws: { headers: { "x-forwarded-for": "1.2.3.4" } },
+        });
+        await client.connect();
+        await client.request("/p2p/peer/mockroute");
+
+        expect(peerProcessor.validateAndAcceptPeer).toBeCalledTimes(1);
+        expect(peerProcessor.validateAndAcceptPeer).toBeCalledWith({ ip: "127.0.0.1" }, {});
+
+        await client.disconnect();
+        await server.stop();
     });
 
     it("should not be called on another route", async () => {

@@ -44,7 +44,6 @@ export class Socket {
         this.info = {
             remoteAddress: req.socket.remoteAddress,
             remotePort: req.socket.remotePort,
-            "x-forwarded-for": req.headers["x-forwarded-for"],
         };
 
         this._ws.on("message", (message) => this._onMessage(message));

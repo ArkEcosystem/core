@@ -66,7 +66,7 @@ describe("PeerController", () => {
             expect(peersBroadcast).toEqual([peers[2], peers[1], peers[3], peers[4]].map((p) => p.toBroadcast()));
         });
 
-        it("should return the peers except forwarded peer sorted by latency", () => {
+        it("should ignore the x-forwarded-for header and only exclude the connected peer", () => {
             const peers = [
                 new Peer("180.177.54.4", 4000),
                 new Peer("181.177.54.4", 4000),
@@ -83,12 +83,12 @@ describe("PeerController", () => {
 
             const request = {
                 socket: {
-                    info: { remoteAddress: "1.2.3.4", "x-forwarded-for": "180.177.54.4" },
+                    info: { remoteAddress: "181.177.54.4", "x-forwarded-for": "180.177.54.4" },
                 },
             };
             const peersBroadcast = peerController.getPeers(request, {});
 
-            expect(peersBroadcast).toEqual([peers[2], peers[1], peers[3], peers[4]].map((p) => p.toBroadcast()));
+            expect(peersBroadcast).toEqual([peers[2], peers[0], peers[3], peers[4]].map((p) => p.toBroadcast()));
         });
     });
 
